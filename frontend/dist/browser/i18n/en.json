@@ -1133,10 +1133,54 @@
                 }
             },
             "storage": {
+                "eyebrow": "Storage architecture",
+                "title": "Choose where the encrypted HumanID lives",
+                "subtitle": "Choose whether Verifik stores the encrypted proof or returns it directly through the API.",
+                "currentChoice": "Current choice",
+                "chooseTitle": "Choose a provider",
+                "chooseHelp": "This selection determines whether and where Verifik persists the encrypted HumanID object.",
+                "selectProvider": "Select {{provider}} as the storage provider",
+                "default": "Default",
                 "ipfsTitle": "IPFS",
                 "ipfsBody": "Decentralized index with a public gateway URL.",
+                "ipfsBenefitIndex": "Decentralized index",
+                "ipfsBenefitGateway": "Public gateway locator",
                 "cloudTitle": "Cloud Storage",
-                "cloudBody": "Verifik-hosted encrypted object for the same proof payload."
+                "cloudBody": "Verifik-hosted encrypted object for the same proof payload.",
+                "cloudBenefitManaged": "Managed by Verifik",
+                "cloudBenefitHosted": "Hosted encrypted object",
+                "noneTitle": "No Verifik storage",
+                "noneBody": "Return the encrypted HumanID through the API without Verifik persisting it.",
+                "noneBenefitApi": "Returned directly in the API response",
+                "noneBenefitNoPersistence": "No Verifik storage persistence",
+                "sameEncryptedPayload": "Same encrypted HumanID payload",
+                "howTitle": "How this works",
+                "howHelp": "The choice changes what Verifik does with the output, not the encrypted proof.",
+                "flowHumanId": "HumanID created",
+                "flowEncrypted": "Proof encrypted",
+                "flowApiResponse": "API response",
+                "selectedPath": "Selected storage path",
+                "detail": {
+                    "ipfsTitle": "Indexed through IPFS",
+                    "ipfsBody": "The encrypted HumanID is associated with a decentralized index and a public gateway locator.",
+                    "ipfsResult": "The resulting locator points to the encrypted payload.",
+                    "cloudTitle": "Hosted by Verifik",
+                    "cloudBody": "Verifik hosts the encrypted HumanID object so your project does not manage its storage location.",
+                    "cloudResult": "The encrypted object remains managed within Verifik hosting.",
+                    "noneTitle": "Returned without Verifik storage",
+                    "noneBody": "The encrypted HumanID is returned to your application. Verifik does not pin it to IPFS or save it to cloud storage.",
+                    "noneResult": "Your application receives the encrypted output in the API response."
+                },
+                "trustTitle": "What the storage contains",
+                "trustHelp": "Storage receives the proof output, not a reusable biometric identity database.",
+                "noneTrustTitle": "What Verifik does not store",
+                "noneTrustHelp": "Verifik returns the proof output without persisting it. The upstream encryption service still receives the face and metadata.",
+                "encryptedProofTitle": "Encrypted proof",
+                "encryptedProofBody": "The encrypted HumanID record is the stored object.",
+                "publicFieldsTitle": "Selected public fields",
+                "publicFieldsBody": "Only the public values selected in the HumanAuthn step remain readable.",
+                "faceTemplateTitle": "No reusable face template",
+                "faceTemplateBody": "Verifik does not store a reusable facial template as the identity record."
             },
             "integrations": {
                 "redirectUrl": "Redirect URL",
@@ -4867,7 +4911,38 @@
             "extra_enrollment": "Extra Enrollment",
             "enrollment": "enrollment",
             "by_using_prefix": "By using Verifik you agree to our",
-            "terms_and_conditions": "terms and conditions"
+            "terms_and_conditions": "terms and conditions",
+            "usage": {
+                "title": "This period's usage",
+                "resets_in": "Resets in {{days}} days",
+                "resets_in_one": "Resets in 1 day",
+                "resets_today": "Resets today",
+                "resets_on": "Counts go back to 0 on {{date}}",
+                "names": "Name validations",
+                "background": "Background checks",
+                "emails": "Emails",
+                "scans": "Document scans",
+                "biometrics": "Biometrics",
+                "basic": "Basic enrolls",
+                "left": "{{count}} left",
+                "over": "{{count}} over included",
+                "used_of": "{{used}} of {{limit}}",
+                "overage_title": "After the included pack",
+                "overage_free": "Included this period is free.",
+                "overage_credits": "Extra name lookups use wallet credits at {{discount}}% off (for example Colombia identity 0.30 → {{namePrice}}). Extra background checks are {{bgPrice}} each, whether or not FBI, DEA, or ONU ran.",
+                "overage_pack": "If the wallet is empty, we add $10 to your Stripe bill and +10 credits, then deduct. Same as email, WhatsApp, and SMS.",
+                "wallet": "Wallet",
+                "add_credits": "Add credits",
+                "included": "Included",
+                "one_unit_bg": "One completed check = one unit",
+                "credits_count": "{{credits}} credits",
+                "preview_cta": "View plan",
+                "unlock_title": "Unlock {{count}} free enrollments a month",
+                "unlock_body": "Track enrolls and document scans in one place. Start with Free Forever, then upgrade when you need liveness.",
+                "learn_more": "Learn more about Smart Enroll",
+                "example": "Example",
+                "resets_monthly": "Resets every month"
+            }
         },
         "errors": {
             "create_or_update_subscription": "Something went wrong while trying to update or create your subscription",
@@ -5798,7 +5873,39 @@
             "title": "Demos",
             "heroEyebrow": "HumanAuthn · HumanID · v4",
             "heroTitle": "HumanAuthn · Enterprise grade biometrics",
-            "heroBody": "Decentralized HumanAuthn demos show how a HumanID binds identity data to a live face without a central face database."
+            "heroBody": "Decentralized HumanAuthn demos show how a HumanID binds identity data to a live face without a central face database.",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanAuthn overview",
+                    "description": "How HumanAuthn binds identity data to a live face without a central face database.",
+                    "badge": "Guide"
+                },
+                "1": {
+                    "title": "Create a HumanID",
+                    "description": "Encrypt public fields and a face capture into a HumanID string you can store or share.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Create QR HumanID",
+                    "description": "Generate a QR that embeds a HumanID so people can scan it from a screen or wallet.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Decrypt a HumanID",
+                    "description": "Unlock the identity payload inside a proof by matching it to a live face.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Preview HumanID",
+                    "description": "Inspect public metadata from a proof before you decrypt, without sending a face image.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "Liveness detection",
+                    "description": "Run a dedicated check that a face image looks live rather than spoofed.",
+                    "badge": "POST"
+                }
+            }
         }
     },
     "smartEnrollDemos": {
@@ -6923,7 +7030,39 @@
             "navVault": "Vault",
             "navIdentity": "Identity",
             "navSecurity": "Security",
-            "navLogs": "Logs"
+            "navLogs": "Logs",
+            "relatedDocs": {
+                "0": {
+                    "title": "Liveness detection",
+                    "description": "Detect whether a face image is live or spoofed. Separate from HumanID encrypt and decrypt.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanAuthn overview",
+                    "description": "How HumanAuthn binds identity data to a live face without a central face database.",
+                    "badge": "Guide"
+                },
+                "2": {
+                    "title": "Create a HumanID",
+                    "description": "Encrypt public fields and a face capture into a HumanID string you can store or share.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Create QR HumanID",
+                    "description": "Generate a QR that embeds a HumanID so people can scan it from a screen or wallet.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Decrypt a HumanID",
+                    "description": "Unlock the identity payload inside a proof by matching it to a live face.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "Preview HumanID",
+                    "description": "Inspect public metadata from a proof before you decrypt, without sending a face image.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreate": {
             "headerTitle": "Create HumanID",
@@ -6999,13 +7138,40 @@
             "paramRequireLiveness": "Require liveness on decrypt (require_live_face)",
             "paramLivenessDetectionPriorCreation": "Require liveness on encrypt (check_live_face_before_creation)",
             "paramTolerance": "Liveness strictness when live face is required: REGULAR / SOFT / HARDENED (also REGULAR_HARD, REGULAR_SOFT upstream)",
-            "paramPassword": "Optional encryption password"
+            "paramPassword": "Optional encryption password",
+            "relatedDocs": {
+                "0": {
+                    "title": "Create a HumanID",
+                    "description": "Encrypt public fields and a face capture into a HumanID string you can store or share.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Create QR HumanID",
+                    "description": "Generate a QR that embeds a HumanID so people can scan it from a screen or wallet.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Decrypt a HumanID",
+                    "description": "Unlock the identity payload inside a proof by matching it to a live face.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Preview HumanID",
+                    "description": "Inspect public metadata from a proof before you decrypt, without sending a face image.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Liveness detection",
+                    "description": "Run a dedicated check that a face image looks live rather than spoofed.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreateQr": {
             "headerTitle": "Create HumanID QR",
             "apiRefSummary": "API reference: Create HumanID QR",
             "apiIntroBefore": "Same payload as",
-            "apiIntroAfter": "Returns a PNG QR-code data URL (data.zelfQR) plus the usual HumanID and IPFS metadata.",
+            "apiIntroAfter": "Returns a PNG QR-code data URL (data.humanIDQR) plus the usual HumanID and IPFS metadata.",
             "heroTitleForm": "Create HumanID QR",
             "heroTitleResult": "HumanID QR Ready",
             "heroSubtitle": "Generate a portable QR-coded HumanID from a face and identity data.",
@@ -7064,7 +7230,34 @@
             "paramRequireLiveness": "Require liveness on decrypt (require_live_face)",
             "paramLivenessDetectionPriorCreation": "Require liveness on encrypt (check_live_face_before_creation)",
             "paramTolerance": "Liveness strictness when live face is required: REGULAR / SOFT / HARDENED (also REGULAR_HARD, REGULAR_SOFT upstream)",
-            "paramPassword": "Optional encryption password"
+            "paramPassword": "Optional encryption password",
+            "relatedDocs": {
+                "0": {
+                    "title": "Create QR HumanID",
+                    "description": "Generate a QR that embeds a HumanID so people can scan it from a screen or wallet.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Create a HumanID",
+                    "description": "Encrypt public fields and a face capture into a HumanID string you can store or share.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Decrypt a HumanID",
+                    "description": "Unlock the identity payload inside a proof by matching it to a live face.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Preview HumanID",
+                    "description": "Inspect public metadata from a proof before you decrypt, without sending a face image.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Liveness detection",
+                    "description": "Run a dedicated check that a face image looks live rather than spoofed.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidDecrypt": {
             "headerTitle": "Decrypt HumanID",
@@ -7076,7 +7269,7 @@
             "uploadQrImage": "Upload QR image",
             "proofLabel": "HumanID",
             "proofPlaceholder": "Paste your HumanID here…",
-            "qrUploadHelp": "Upload a PNG or JPEG of the HumanID QR (binary payload). We call preview-zelf-id-qr to extract your HumanID.",
+            "qrUploadHelp": "Upload a PNG or JPEG of the HumanID QR (binary payload). We call preview-human-id-qr to extract your HumanID.",
             "chooseQrImage": "Choose QR image",
             "readingQr": "Reading QR…",
             "secondaryPngJpeg": "PNG or JPEG",
@@ -7104,7 +7297,7 @@
             "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-zelfproof",
             "apiBaseUrlNote": "Base URL https://api.verifik.co. Send JSON with Content-Type: application/json and Authorization: Bearer <access token> (same JWT as this demo after sign in).",
             "apiDecryptEndpointDesc": "Compares your face image to the proof, then returns decrypted public fields and related payload (for example face crop and difficulty) inside the usual signed data envelope when the match succeeds.",
-            "apiPreviewQrEndpointDesc": "Use this when the user provides a PNG or JPEG of the HumanID QR. The API reads the QR payload, runs the same kind of preview as a string preview, and returns a zelfProof you can pass into decrypt. Optional verifierKey applies when the proof was created with one. Same JSON headers as decrypt.",
+            "apiPreviewQrEndpointDesc": "Use this when the user provides a PNG or JPEG of the HumanID QR. The API reads the QR payload, runs the same kind of preview as a string preview, and returns a humanID you can pass into decrypt. Optional verifierKey applies when the proof was created with one. Same JSON headers as decrypt.",
             "apiBullet1": "Decrypt uses decryptHumanId from @humanauthn/api-client. QR upload uses previewZelfIdQr first, then you decrypt with the returned proof string.",
             "apiBullet2": "Success responses follow the Verifik pattern: a data object (and often a signature when signing is enabled for your project).",
             "apiBullet3": "To inspect a proof without a face image, open the Preview HumanID demo (previewHumanId) or the Preview HumanID guide linked above.",
@@ -7172,7 +7365,7 @@
             "apiOfficialAfter": "(parameters, responses, and examples). This demo calls POST /v2/human-id/preview via previewHumanId, which matches that workflow on the current API. Related:",
             "apiBaseUrlNote": "Base URL https://api.verifik.co. Send JSON with Content-Type: application/json and Authorization: Bearer <access token> (same JWT as this demo after sign in).",
             "apiPreviewEndpointDesc": "Returns non-sensitive preview fields for a proof (for example whether a password is required) inside the usual signed data envelope.",
-            "apiPreviewQrEndpointDesc": "Use when the user provides a PNG or JPEG of the HumanID QR. The API decodes the payload and returns a zelfProof you can send to the preview call above. Same JSON headers as preview. Optional verifierKey when the proof uses one.",
+            "apiPreviewQrEndpointDesc": "Use when the user provides a PNG or JPEG of the HumanID QR. The API decodes the payload and returns a humanID you can send to the preview call above. Same JSON headers as preview. Optional verifierKey when the proof uses one.",
             "apiBullet1": "This demo uses previewHumanId and, for QR images, previewZelfIdQr from @humanauthn/api-client with your session token.",
             "apiBullet2": "Success responses follow the Verifik pattern: a data object (and often a signature when signing is enabled for your project).",
             "paramHumanIDDesc": "HumanID string from paste, or from QR extraction in this form",
@@ -7219,7 +7412,7 @@
             "ipfsNotePrefix": "IPFS gateway URL and pin details are in",
             "ipfsNoteSuffix": "below.",
             "decentralizedLabel": "Decentralized storage",
-            "zelfProofHeading": "HumanID",
+            "humanIDHeading": "HumanID",
             "copyFull": "Copy full",
             "copied": "Copied",
             "showFull": "Show full",

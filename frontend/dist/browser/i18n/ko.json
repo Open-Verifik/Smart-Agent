@@ -1129,10 +1129,54 @@
                 }
             },
             "storage": {
+                "eyebrow": "스토리지 아키텍처",
+                "title": "암호화된 HumanID 저장 위치 선택",
+                "subtitle": "Verifik가 암호화 증명을 저장할지, API를 통해 바로 반환할지 선택하세요.",
+                "currentChoice": "현재 선택",
+                "chooseTitle": "제공자 선택",
+                "chooseHelp": "Verifik가 암호화된 HumanID 객체를 저장할지와 저장 위치를 결정합니다.",
+                "selectProvider": "{{provider}}를 스토리지 제공자로 선택",
+                "default": "기본값",
                 "ipfsTitle": "IPFS",
                 "ipfsBody": "공개 게이트웨이 URL이 있는 분산 인덱스입니다.",
+                "ipfsBenefitIndex": "분산 인덱스",
+                "ipfsBenefitGateway": "공개 게이트웨이 위치 정보",
                 "cloudTitle": "클라우드 스토리지",
-                "cloudBody": "동일한 증명 페이로드의 Verifik 호스팅 암호화 객체입니다."
+                "cloudBody": "동일한 증명 페이로드의 Verifik 호스팅 암호화 객체입니다.",
+                "cloudBenefitManaged": "Verifik 관리",
+                "cloudBenefitHosted": "호스팅된 암호화 객체",
+                "noneTitle": "Verifik 저장 안 함",
+                "noneBody": "Verifik에 저장하지 않고 암호화된 HumanID를 API로 반환합니다.",
+                "noneBenefitApi": "API 응답으로 직접 반환",
+                "noneBenefitNoPersistence": "Verifik 영구 저장 없음",
+                "sameEncryptedPayload": "동일한 암호화 HumanID 페이로드",
+                "howTitle": "작동 방식",
+                "howHelp": "선택에 따라 Verifik의 결과 처리 방식이 바뀌지만 암호화 증명은 동일합니다.",
+                "flowHumanId": "HumanID 생성",
+                "flowEncrypted": "증명 암호화",
+                "flowApiResponse": "API 응답",
+                "selectedPath": "선택한 저장 경로",
+                "detail": {
+                    "ipfsTitle": "IPFS로 인덱싱",
+                    "ipfsBody": "암호화된 HumanID는 분산 인덱스 및 공개 게이트웨이 위치 정보와 연결됩니다.",
+                    "ipfsResult": "생성된 위치 정보는 암호화 페이로드를 가리킵니다.",
+                    "cloudTitle": "Verifik 호스팅",
+                    "cloudBody": "Verifik가 암호화된 HumanID 객체를 호스팅하므로 프로젝트에서 저장 위치를 관리하지 않아도 됩니다.",
+                    "cloudResult": "암호화 객체는 Verifik 호스팅 내에서 관리됩니다.",
+                    "noneTitle": "Verifik 저장 없이 반환",
+                    "noneBody": "암호화된 HumanID가 애플리케이션으로 반환됩니다. Verifik는 IPFS에 고정하거나 클라우드에 저장하지 않습니다.",
+                    "noneResult": "애플리케이션이 API 응답으로 암호화 결과를 받습니다."
+                },
+                "trustTitle": "스토리지에 포함되는 내용",
+                "trustHelp": "스토리지는 증명 결과를 받으며 재사용 가능한 생체 신원 데이터베이스를 받지 않습니다.",
+                "noneTrustTitle": "Verifik가 저장하지 않는 항목",
+                "noneTrustHelp": "Verifik는 증명을 저장하지 않고 반환합니다. 업스트림 암호화 서비스에는 얼굴과 메타데이터가 계속 전달됩니다.",
+                "encryptedProofTitle": "암호화 증명",
+                "encryptedProofBody": "암호화된 HumanID 기록이 저장 객체입니다.",
+                "publicFieldsTitle": "선택한 공개 필드",
+                "publicFieldsBody": "HumanAuthn 단계에서 선택한 공개 값만 읽을 수 있습니다.",
+                "faceTemplateTitle": "재사용 가능한 얼굴 템플릿 없음",
+                "faceTemplateBody": "Verifik는 재사용 가능한 얼굴 템플릿을 신원 기록으로 저장하지 않습니다."
             },
             "integrations": {
                 "redirectUrl": "리디렉션 URL",
@@ -4845,7 +4889,38 @@
             "extra_enrollment": "Extra Enrollment",
             "enrollment": "enrollment",
             "by_using_prefix": "By using Verifik you agree to our",
-            "terms_and_conditions": "terms and conditions"
+            "terms_and_conditions": "terms and conditions",
+            "usage": {
+                "title": "이번 기간 사용량",
+                "resets_in": "{{days}}일 후 초기화",
+                "resets_in_one": "1일 후 초기화",
+                "resets_today": "오늘 초기화",
+                "resets_on": "{{date}}에 횟수가 0으로 돌아갑니다",
+                "names": "이름 검증",
+                "background": "신원 조회",
+                "emails": "이메일",
+                "scans": "문서 스캔",
+                "biometrics": "생체 인증",
+                "basic": "기본 등록",
+                "left": "{{count}}회 남음",
+                "over": "포함분 초과 {{count}}회",
+                "used_of": "{{used}} / {{limit}}",
+                "overage_title": "포함 한도 이후",
+                "overage_free": "이번 기간에 포함된 사용량은 무료입니다.",
+                "overage_credits": "추가 이름 조회는 지갑 크레딧에서 {{discount}}% 할인됩니다(예: 콜롬비아 신원 0.30 → {{namePrice}}). 추가 신원 조회는 FBI, DEA, ONU 실행 여부와 관계없이 건당 {{bgPrice}}입니다.",
+                "overage_pack": "지갑이 비어 있으면 Stripe 청구서에 $10을 추가하고 +10 크레딧을 넣은 뒤 차감합니다. 이메일, WhatsApp, SMS와 같습니다.",
+                "wallet": "지갑",
+                "add_credits": "크레딧 추가",
+                "included": "포함",
+                "one_unit_bg": "완료된 조회 1건 = 1단위",
+                "credits_count": "{{credits}} 크레딧",
+                "preview_cta": "요금제 보기",
+                "unlock_title": "매달 무료 등록 {{count}}건 잠금 해제",
+                "unlock_body": "등록과 문서 스캔을 한곳에서 확인하세요. Free Forever로 시작한 뒤 라이브니스가 필요하면 업그레이드하세요.",
+                "learn_more": "Smart Enroll 자세히 보기",
+                "example": "예시",
+                "resets_monthly": "매월 초기화"
+            }
         },
         "errors": {
             "create_or_update_subscription": "Something went wrong while trying to update or create your subscription",
@@ -5773,7 +5848,39 @@
             "title": "데모",
             "heroEyebrow": "HumanAuthn · HumanID · v4",
             "heroTitle": "HumanAuthn · 엔터프라이즈급 생체 인식",
-            "heroBody": "탈중앙화 HumanAuthn 데모는 중앙 얼굴 DB 없이 HumanID가 신원 데이터를 실시간 얼굴에 연결하는 방법을 보여 줍니다."
+            "heroBody": "탈중앙화 HumanAuthn 데모는 중앙 얼굴 DB 없이 HumanID가 신원 데이터를 실시간 얼굴에 연결하는 방법을 보여 줍니다.",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanAuthn 개요",
+                    "description": "중앙 얼굴 DB 없이 HumanAuthn이 신원 데이터를 실시간 얼굴에 연결하는 방법.",
+                    "badge": "Guide"
+                },
+                "1": {
+                    "title": "HumanID 만들기",
+                    "description": "공개 필드와 얼굴 캡처를 암호화하여 저장하거나 공유할 수 있는 HumanID 문자열을 만듭니다.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "HumanID QR 만들기",
+                    "description": "화면이나 지갑에서 스캔할 수 있도록 HumanID가 포함된 QR을 생성합니다.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID 복호화",
+                    "description": "실시간 얼굴과 일치시켜 증명 안의 신원 페이로드를 잠금 해제합니다.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "HumanID 미리보기",
+                    "description": "얼굴 이미지를 보내지 않고 복호화 전에 공개 메타데이터를 확인합니다.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "활동성 감지",
+                    "description": "얼굴 이미지가 위조가 아닌 실제 얼굴인지 전용으로 확인합니다.",
+                    "badge": "POST"
+                }
+            }
         }
     },
     "smartEnrollDemos": {
@@ -6898,7 +7005,39 @@
             "navVault": "둥근 천장",
             "navIdentity": "신원",
             "navSecurity": "보안",
-            "navLogs": "로그"
+            "navLogs": "로그",
+            "relatedDocs": {
+                "0": {
+                    "title": "활동성 감지",
+                    "description": "얼굴 이미지가 실제인지 위조인지 감지합니다. HumanID 암호화/복호화와는 별개입니다.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanAuthn 개요",
+                    "description": "중앙 얼굴 DB 없이 HumanAuthn이 신원 데이터를 실시간 얼굴에 연결하는 방법.",
+                    "badge": "Guide"
+                },
+                "2": {
+                    "title": "HumanID 만들기",
+                    "description": "공개 필드와 얼굴 캡처를 암호화하여 저장하거나 공유할 수 있는 HumanID 문자열을 만듭니다.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID QR 만들기",
+                    "description": "화면이나 지갑에서 스캔할 수 있도록 HumanID가 포함된 QR을 생성합니다.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "HumanID 복호화",
+                    "description": "실시간 얼굴과 일치시켜 증명 안의 신원 페이로드를 잠금 해제합니다.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "HumanID 미리보기",
+                    "description": "얼굴 이미지를 보내지 않고 복호화 전에 공개 메타데이터를 확인합니다.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreate": {
             "headerTitle": "휴먼ID 생성",
@@ -6974,13 +7113,40 @@
             "recommendedBadge": "권장",
             "errorLivenessFailedTitle": "실시간 얼굴 검사 실패",
             "errorLivenessFailedBody": "이 이미지는 HumanID 활동성 검증을 통과하지 못했습니다. 안내 카메라 또는 다른 실시간 캡처를 사용한 후 다시 시도하세요.",
-            "paramLivenessDetectionPriorCreation": "암호화 시 활동성 요구 (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "암호화 시 활동성 요구 (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanID 만들기",
+                    "description": "공개 필드와 얼굴 캡처를 암호화하여 저장하거나 공유할 수 있는 HumanID 문자열을 만듭니다.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanID QR 만들기",
+                    "description": "화면이나 지갑에서 스캔할 수 있도록 HumanID가 포함된 QR을 생성합니다.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "HumanID 복호화",
+                    "description": "실시간 얼굴과 일치시켜 증명 안의 신원 페이로드를 잠금 해제합니다.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID 미리보기",
+                    "description": "얼굴 이미지를 보내지 않고 복호화 전에 공개 메타데이터를 확인합니다.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "활동성 감지",
+                    "description": "얼굴 이미지가 위조가 아닌 실제 얼굴인지 전용으로 확인합니다.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreateQr": {
             "headerTitle": "HumanID QR 생성",
             "apiRefSummary": "API 참조: HumanID QR 생성",
             "apiIntroBefore": "동일한 페이로드",
-            "apiIntroAfter": "PNG QR 코드 데이터 URL(data.zelfQR)과 일반적인 HumanID 및 IPFS 메타데이터를 반환합니다.",
+            "apiIntroAfter": "PNG QR 코드 데이터 URL(data.humanIDQR)과 일반적인 HumanID 및 IPFS 메타데이터를 반환합니다.",
             "heroTitleForm": "HumanID QR 생성",
             "heroTitleResult": "HumanID QR 준비",
             "heroSubtitle": "얼굴 및 신원 데이터에서 휴대용 QR 코드 HumanID를 생성합니다.",
@@ -7039,7 +7205,34 @@
             "recommendedBadge": "권장",
             "errorLivenessFailedTitle": "실시간 얼굴 검사 실패",
             "errorLivenessFailedBody": "이 이미지는 HumanID 활동성 검증을 통과하지 못했습니다. 안내 카메라 또는 다른 실시간 캡처를 사용한 후 다시 시도하세요.",
-            "paramLivenessDetectionPriorCreation": "암호화 시 활동성 요구 (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "암호화 시 활동성 요구 (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanID QR 만들기",
+                    "description": "화면이나 지갑에서 스캔할 수 있도록 HumanID가 포함된 QR을 생성합니다.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanID 만들기",
+                    "description": "공개 필드와 얼굴 캡처를 암호화하여 저장하거나 공유할 수 있는 HumanID 문자열을 만듭니다.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "HumanID 복호화",
+                    "description": "실시간 얼굴과 일치시켜 증명 안의 신원 페이로드를 잠금 해제합니다.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID 미리보기",
+                    "description": "얼굴 이미지를 보내지 않고 복호화 전에 공개 메타데이터를 확인합니다.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "활동성 감지",
+                    "description": "얼굴 이미지가 위조가 아닌 실제 얼굴인지 전용으로 확인합니다.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidDecrypt": {
             "headerTitle": "HumanID 암호 해독",
@@ -7079,7 +7272,7 @@
             "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-zelfproof",
             "apiBaseUrlNote": "Base URL https://api.verifik.co. Send JSON with Content-Type: application/json and Authorization: Bearer <access token> (same JWT as this demo after sign in).",
             "apiDecryptEndpointDesc": "얼굴 이미지를 증거와 비교한 다음 일치가 성공하면 일반적으로 서명된 데이터 봉투 내에 해독된 공개 필드 및 관련 페이로드(예: 얼굴 자르기 및 난이도)를 반환합니다.",
-            "apiPreviewQrEndpointDesc": "사용자가 HumanID QR의 PNG 또는 JPEG를 제공할 때 사용합니다. API는 QR 페이로드를 읽고, 문자열 미리보기와 동일한 종류의 미리보기를 실행하고, 해독에 전달할 수 있는 zelfProof를 반환합니다. 선택적 verifierKey는 증명이 생성될 때 적용됩니다. 암호 해독과 동일한 JSON 헤더입니다.",
+            "apiPreviewQrEndpointDesc": "사용자가 HumanID QR의 PNG 또는 JPEG를 제공할 때 사용합니다. API는 QR 페이로드를 읽고, 문자열 미리보기와 동일한 종류의 미리보기를 실행하고, 해독에 전달할 수 있는 humanID를 반환합니다. 선택적 verifierKey는 증명이 생성될 때 적용됩니다. 암호 해독과 동일한 JSON 헤더입니다.",
             "apiBullet1": "Decrypt는 @humanauthn/api-client의 decryptHumanId를 사용합니다. QR 업로드에서는 PreviewZelfIdQr을 먼저 사용한 다음 반환된 증명 문자열로 암호를 해독합니다.",
             "apiBullet2": "성공 응답은 Verifik 패턴, 즉 데이터 개체(그리고 종종 프로젝트에 서명이 활성화될 때 서명)를 따릅니다.",
             "apiBullet3": "얼굴 이미지 없이 교정본을 검사하려면 Preview HumanID 데모(previewHumanId) 또는 위에 링크된 Preview HumanID 가이드를 엽니다.",
@@ -7147,7 +7340,7 @@
             "apiOfficialAfter": "(매개변수, 응답 및 예시) 이 데모에서는 현재 API의 해당 워크플로와 일치하는 PreviewHumanId를 통해 POST /v2/human-id/preview을 호출합니다. 관련된:",
             "apiBaseUrlNote": "Base URL https://api.verifik.co. Send JSON with Content-Type: application/json and Authorization: Bearer <access token> (same JWT as this demo after sign in).",
             "apiPreviewEndpointDesc": "일반적으로 서명된 데이터 봉투 내의 증거(예: 비밀번호가 필요한지 여부)에 대해 민감하지 않은 미리 보기 필드를 반환합니다.",
-            "apiPreviewQrEndpointDesc": "사용자가 HumanID QR의 PNG 또는 JPEG를 제공할 때 사용합니다. API는 페이로드를 디코딩하고 위의 미리보기 호출에 보낼 수 있는 zelfProof를 반환합니다. 미리보기와 동일한 JSON 헤더입니다. 증명에서 verifierKey를 사용하는 경우 선택적인 verifierKey입니다.",
+            "apiPreviewQrEndpointDesc": "사용자가 HumanID QR의 PNG 또는 JPEG를 제공할 때 사용합니다. API는 페이로드를 디코딩하고 위의 미리보기 호출에 보낼 수 있는 humanID를 반환합니다. 미리보기와 동일한 JSON 헤더입니다. 증명에서 verifierKey를 사용하는 경우 선택적인 verifierKey입니다.",
             "apiBullet1": "이 데모에서는 PreviewHumanId를 사용하고, QR 이미지의 경우 세션 토큰과 함께 @humanauthn/api-client의 PreviewZelfIdQr을 사용합니다.",
             "apiBullet2": "성공 응답은 Verifik 패턴, 즉 데이터 개체(그리고 종종 프로젝트에 서명이 활성화될 때 서명)를 따릅니다.",
             "paramHumanIDDesc": "붙여넣기 또는 이 형식의 QR 추출에서 얻은 HumanID 문자열",
@@ -7194,7 +7387,7 @@
             "ipfsNotePrefix": "IPFS 게이트웨이 URL 및 핀 세부정보는 다음과 같습니다.",
             "ipfsNoteSuffix": "아래에.",
             "decentralizedLabel": "분산형 스토리지",
-            "zelfProofHeading": "HumanID",
+            "humanIDHeading": "HumanID",
             "copyFull": "전체 복사",
             "copied": "복사됨",
             "showFull": "전체 보기",

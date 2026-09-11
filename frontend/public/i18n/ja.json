@@ -1129,10 +1129,54 @@
                 }
             },
             "storage": {
+                "eyebrow": "ストレージ構成",
+                "title": "暗号化HumanIDの保存先を選択",
+                "subtitle": "暗号化証明をVerifikに保存するか、APIで直接返すかを選択します。",
+                "currentChoice": "現在の選択",
+                "chooseTitle": "プロバイダーを選択",
+                "chooseHelp": "Verifikが暗号化HumanIDオブジェクトを保存するか、また保存先を設定します。",
+                "selectProvider": "{{provider}}をストレージプロバイダーに選択",
+                "default": "初期設定",
                 "ipfsTitle": "IPFS",
                 "ipfsBody": "公開ゲートウェイURL付きの分散インデックスです。",
+                "ipfsBenefitIndex": "分散インデックス",
+                "ipfsBenefitGateway": "公開ゲートウェイロケーター",
                 "cloudTitle": "クラウドストレージ",
-                "cloudBody": "同じ証明ペイロードのVerifikホスト暗号化オブジェクトです。"
+                "cloudBody": "同じ証明ペイロードのVerifikホスト暗号化オブジェクトです。",
+                "cloudBenefitManaged": "Verifikが管理",
+                "cloudBenefitHosted": "ホストされた暗号化オブジェクト",
+                "noneTitle": "Verifikに保存しない",
+                "noneBody": "Verifikに保存せず、暗号化HumanIDをAPIで返します。",
+                "noneBenefitApi": "APIレスポンスで直接返却",
+                "noneBenefitNoPersistence": "Verifikによる永続保存なし",
+                "sameEncryptedPayload": "同じ暗号化HumanIDペイロード",
+                "howTitle": "仕組み",
+                "howHelp": "選択によってVerifikの出力処理が変わりますが、暗号化証明は変わりません。",
+                "flowHumanId": "HumanID作成",
+                "flowEncrypted": "証明を暗号化",
+                "flowApiResponse": "APIレスポンス",
+                "selectedPath": "選択した保存経路",
+                "detail": {
+                    "ipfsTitle": "IPFSでインデックス",
+                    "ipfsBody": "暗号化HumanIDは分散インデックスと公開ゲートウェイロケーターに関連付けられます。",
+                    "ipfsResult": "生成されたロケーターは暗号化ペイロードを指します。",
+                    "cloudTitle": "Verifikがホスト",
+                    "cloudBody": "Verifikが暗号化HumanIDオブジェクトをホストするため、プロジェクト側で保存場所を管理する必要はありません。",
+                    "cloudResult": "暗号化オブジェクトはVerifikホスティング内で管理されます。",
+                    "noneTitle": "Verifikに保存せず返却",
+                    "noneBody": "暗号化HumanIDはアプリケーションに返されます。VerifikはIPFSへのピン留めやクラウド保存を行いません。",
+                    "noneResult": "アプリケーションはAPIレスポンスで暗号化出力を受け取ります。"
+                },
+                "trustTitle": "ストレージに含まれるもの",
+                "trustHelp": "保存されるのは証明の出力であり、再利用可能な生体認証IDデータベースではありません。",
+                "noneTrustTitle": "Verifikが保存しないもの",
+                "noneTrustHelp": "Verifikは証明を保存せず返します。上流の暗号化サービスには顔画像とメタデータが引き続き送信されます。",
+                "encryptedProofTitle": "暗号化証明",
+                "encryptedProofBody": "暗号化HumanIDレコードが保存対象です。",
+                "publicFieldsTitle": "選択した公開項目",
+                "publicFieldsBody": "HumanAuthnステップで選択した公開値だけが読み取り可能です。",
+                "faceTemplateTitle": "再利用可能な顔テンプレートなし",
+                "faceTemplateBody": "VerifikはIDレコードとして再利用可能な顔テンプレートを保存しません。"
             },
             "integrations": {
                 "redirectUrl": "リダイレクトURL",
@@ -4845,7 +4889,38 @@
             "extra_enrollment": "Extra Enrollment",
             "enrollment": "enrollment",
             "by_using_prefix": "By using Verifik you agree to our",
-            "terms_and_conditions": "terms and conditions"
+            "terms_and_conditions": "terms and conditions",
+            "usage": {
+                "title": "今期の利用状況",
+                "resets_in": "{{days}}日後にリセット",
+                "resets_in_one": "1日後にリセット",
+                "resets_today": "本日リセット",
+                "resets_on": "{{date}}にカウントが0に戻ります",
+                "names": "氏名検証",
+                "background": "身元調査",
+                "emails": "メール",
+                "scans": "書類スキャン",
+                "biometrics": "生体認証",
+                "basic": "基本登録",
+                "left": "残り{{count}}",
+                "over": "含む枠を{{count}}超過",
+                "used_of": "{{used}} / {{limit}}",
+                "overage_title": "含む枠を超えたあと",
+                "overage_free": "今期の含む分は無料です。",
+                "overage_credits": "追加の氏名照会はウォレットのクレジットから{{discount}}%引きです（例：コロンビア身分 0.30 → {{namePrice}}）。追加の身元調査はFBI・DEA・国連の有無にかかわらず1件あたり{{bgPrice}}です。",
+                "overage_pack": "ウォレットが空の場合、Stripe請求に$10を加算して+10クレジットを付与し、その後差し引きます。メール、WhatsApp、SMSと同じ流れです。",
+                "wallet": "ウォレット",
+                "add_credits": "クレジットを追加",
+                "included": "含む",
+                "one_unit_bg": "完了した調査1件 = 1単位",
+                "credits_count": "{{credits}}クレジット",
+                "preview_cta": "プランを見る",
+                "unlock_title": "毎月{{count}}件の無料登録を解除",
+                "unlock_body": "登録と書類スキャンを一画面で確認できます。Free Foreverから始め、ライブネスが必要になったらアップグレードしてください。",
+                "learn_more": "Smart Enrollの詳細",
+                "example": "例",
+                "resets_monthly": "毎月リセット"
+            }
         },
         "errors": {
             "create_or_update_subscription": "Something went wrong while trying to update or create your subscription",
@@ -5773,7 +5848,39 @@
             "title": "デモ",
             "heroEyebrow": "HumanAuthn · HumanID · v4",
             "heroTitle": "HumanAuthn · エンタープライズ級生体認識",
-            "heroBody": "分散型HumanAuthnデモは、中央の顔DBなしでHumanIDが本人データをライブ顔にどう結び付けるかを示します。"
+            "heroBody": "分散型HumanAuthnデモは、中央の顔DBなしでHumanIDが本人データをライブ顔にどう結び付けるかを示します。",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanAuthn の概要",
+                    "description": "中央の顔DBなしで HumanAuthn が本人データをライブ顔に結び付ける仕組み。",
+                    "badge": "Guide"
+                },
+                "1": {
+                    "title": "HumanID を作成",
+                    "description": "公開フィールドと顔キャプチャを暗号化し、保存・共有できる HumanID 文字列にします。",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "HumanID QR を作成",
+                    "description": "画面やウォレットから読み取れる HumanID 埋め込み QR を生成します。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID を復号",
+                    "description": "ライブ顔と照合して証明内の本人データを解除します。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "HumanID をプレビュー",
+                    "description": "顔画像を送らずに、復号前の公開メタデータを確認します。",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "ライブネス検出",
+                    "description": "顔画像がライブかなりすましでないかを専用チェックします。",
+                    "badge": "POST"
+                }
+            }
         }
     },
     "smartEnrollDemos": {
@@ -6898,7 +7005,39 @@
             "navVault": "保管庫",
             "navIdentity": "身元",
             "navSecurity": "安全",
-            "navLogs": "ログ"
+            "navLogs": "ログ",
+            "relatedDocs": {
+                "0": {
+                    "title": "ライブネス検出",
+                    "description": "顔画像がライブかなりすましでないかを検出します。HumanID の暗号化・復号とは別です。",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanAuthn の概要",
+                    "description": "中央の顔DBなしで HumanAuthn が本人データをライブ顔に結び付ける仕組み。",
+                    "badge": "Guide"
+                },
+                "2": {
+                    "title": "HumanID を作成",
+                    "description": "公開フィールドと顔キャプチャを暗号化し、保存・共有できる HumanID 文字列にします。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID QR を作成",
+                    "description": "画面やウォレットから読み取れる HumanID 埋め込み QR を生成します。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "HumanID を復号",
+                    "description": "ライブ顔と照合して証明内の本人データを解除します。",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "HumanID をプレビュー",
+                    "description": "顔画像を送らずに、復号前の公開メタデータを確認します。",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreate": {
             "headerTitle": "HumanIDの作成",
@@ -6974,13 +7113,40 @@
             "recommendedBadge": "推奨",
             "errorLivenessFailedTitle": "ライブ顔チェックに失敗",
             "errorLivenessFailedBody": "この画像は HumanID のライブネス検証に合格しませんでした。ガイド付きカメラまたは別のリアルタイムキャプチャを使用して、もう一度お試しください。",
-            "paramLivenessDetectionPriorCreation": "暗号化時にライブネスを要求 (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "暗号化時にライブネスを要求 (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanID を作成",
+                    "description": "公開フィールドと顔キャプチャを暗号化し、保存・共有できる HumanID 文字列にします。",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanID QR を作成",
+                    "description": "画面やウォレットから読み取れる HumanID 埋め込み QR を生成します。",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "HumanID を復号",
+                    "description": "ライブ顔と照合して証明内の本人データを解除します。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID をプレビュー",
+                    "description": "顔画像を送らずに、復号前の公開メタデータを確認します。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "ライブネス検出",
+                    "description": "顔画像がライブかなりすましでないかを専用チェックします。",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreateQr": {
             "headerTitle": "HumanID QRの作成",
             "apiRefSummary": "API リファレンス: HumanID QR の作成",
             "apiIntroBefore": "と同じペイロード",
-            "apiIntroAfter": "PNG QR コード データ URL (data.zelfQR) と通常の HumanID および IPFS メタデータを返します。",
+            "apiIntroAfter": "PNG QR コード データ URL (data.humanIDQR) と通常の HumanID および IPFS メタデータを返します。",
             "heroTitleForm": "HumanID QRの作成",
             "heroTitleResult": "HumanID QR対応",
             "heroSubtitle": "顔と ID データからポータブル QR コード化された HumanID を生成します。",
@@ -7039,7 +7205,34 @@
             "recommendedBadge": "推奨",
             "errorLivenessFailedTitle": "ライブ顔チェックに失敗",
             "errorLivenessFailedBody": "この画像は HumanID のライブネス検証に合格しませんでした。ガイド付きカメラまたは別のリアルタイムキャプチャを使用して、もう一度お試しください。",
-            "paramLivenessDetectionPriorCreation": "暗号化時にライブネスを要求 (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "暗号化時にライブネスを要求 (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanID QR を作成",
+                    "description": "画面やウォレットから読み取れる HumanID 埋め込み QR を生成します。",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanID を作成",
+                    "description": "公開フィールドと顔キャプチャを暗号化し、保存・共有できる HumanID 文字列にします。",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "HumanID を復号",
+                    "description": "ライブ顔と照合して証明内の本人データを解除します。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "HumanID をプレビュー",
+                    "description": "顔画像を送らずに、復号前の公開メタデータを確認します。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "ライブネス検出",
+                    "description": "顔画像がライブかなりすましでないかを専用チェックします。",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidDecrypt": {
             "headerTitle": "HumanID を復号化する",
@@ -7051,7 +7244,7 @@
             "uploadQrImage": "QR画像をアップロードする",
             "proofLabel": "HumanID",
             "proofPlaceholder": "ここに HumanID を貼り付けてください…",
-            "qrUploadHelp": "HumanID QR (バイナリ ペイロード) の PNG または JPEG をアップロードします。 HumanID を抽出するために、preview-zelf-id-qr を呼び出します。",
+            "qrUploadHelp": "HumanID QR (バイナリ ペイロード) の PNG または JPEG をアップロードします。 HumanID を抽出するために、preview-human-id-qr を呼び出します。",
             "chooseQrImage": "QR画像を選択してください",
             "readingQr": "QRを読み込んでいます…",
             "secondaryPngJpeg": "PNG または JPEG",
@@ -7079,7 +7272,7 @@
             "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-zelfproof",
             "apiBaseUrlNote": "Base URL https://api.verifik.co. Send JSON with Content-Type: application/json and Authorization: Bearer <access token> (same JWT as this demo after sign in).",
             "apiDecryptEndpointDesc": "顔画像と証拠を比較し、一致が成功すると、復号化されたパブリック フィールドと関連ペイロード (顔のトリミングや難易度など) を通常の署名付きデータ エンベロープ内に返します。",
-            "apiPreviewQrEndpointDesc": "ユーザーが HumanID QR の PNG または JPEG を提供する場合にこれを使用します。 API は QR ペイロードを読み取り、文字列プレビューと同じ種類のプレビューを実行し、復号化に渡すことができる zelfProof を返します。オプションの verifierKey は、プルーフがそれを使用して作成された場合に適用されます。復号化と同じ JSON ヘッダー。",
+            "apiPreviewQrEndpointDesc": "ユーザーが HumanID QR の PNG または JPEG を提供する場合にこれを使用します。 API は QR ペイロードを読み取り、文字列プレビューと同じ種類のプレビューを実行し、復号化に渡すことができる humanID を返します。オプションの verifierKey は、プルーフがそれを使用して作成された場合に適用されます。復号化と同じ JSON ヘッダー。",
             "apiBullet1": "復号化では、@humanauthn/api-client からの decryptHumanId が使用されます。 QR アップロードでは、まずプレビューZelfIdQr を使用し、次に返された証明文字列を使用して復号化します。",
             "apiBullet2": "成功の応答は Verifik パターンに従います: データ オブジェクト (プロジェクトで署名が有効になっている場合は、多くの場合署名)。",
             "apiBullet3": "顔画像のないプルーフを検査するには、Preview HumanID デモ (previewHumanId) または上にリンクされている Preview HumanID ガイドを開きます。",
@@ -7147,7 +7340,7 @@
             "apiOfficialAfter": "(パラメータ、応答、例)。このデモでは、previewHumanId 経由で POST /v2/human-id/preview を呼び出します。これは、現在の API のワークフローと一致します。関連している：",
             "apiBaseUrlNote": "Base URL https://api.verifik.co. Send JSON with Content-Type: application/json and Authorization: Bearer <access token> (same JWT as this demo after sign in).",
             "apiPreviewEndpointDesc": "通常の署名付きデータ エンベロープ内のプルーフ用の非機密プレビュー フィールド (パスワードが必要かどうかなど) を返します。",
-            "apiPreviewQrEndpointDesc": "ユーザーが HumanID QR の PNG または JPEG を提供する場合に使用します。 API はペイロードをデコードし、上記のプレビュー呼び出しに送信できる zelfProof を返します。プレビューと同じ JSON ヘッダー。証明で verifierKey を使用する場合のオプションの verifierKey。",
+            "apiPreviewQrEndpointDesc": "ユーザーが HumanID QR の PNG または JPEG を提供する場合に使用します。 API はペイロードをデコードし、上記のプレビュー呼び出しに送信できる humanID を返します。プレビューと同じ JSON ヘッダー。証明で verifierKey を使用する場合のオプションの verifierKey。",
             "apiBullet1": "このデモでは、previewHumanId を使用し、QR 画像の場合は、セッション トークンを使用して @humanauthn/api-client からのreviewZelfIdQr を使用します。",
             "apiBullet2": "成功の応答は Verifik パターンに従います: データ オブジェクト (プロジェクトで署名が有効になっている場合は、多くの場合署名)。",
             "paramHumanIDDesc": "このフォームの貼り付けまたは QR 抽出からの HumanID 文字列",
@@ -7194,7 +7387,7 @@
             "ipfsNotePrefix": "IPFS ゲートウェイの URL とピンの詳細は次のとおりです。",
             "ipfsNoteSuffix": "下に。",
             "decentralizedLabel": "分散型ストレージ",
-            "zelfProofHeading": "HumanID",
+            "humanIDHeading": "HumanID",
             "copyFull": "フルコピー",
             "copied": "コピーされました",
             "showFull": "全文表示",

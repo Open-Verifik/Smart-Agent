@@ -11,7 +11,7 @@ import {
 
 const SANDBOX_DEFAULT_OWNERS_PLATE = 'CRL299';
 
-describe('colombia_api_vehicle_owners sandbox', () => {
+describe('colombia_api_runt_owners sandbox', () => {
     it('registers the endpoint in the sandbox registry', () => {
         expect(isPostmanSandboxEndpoint(COLOMBIA_RUNT_VEHICLE_OWNERS_ENDPOINT_CODE)).toBe(true);
         expect(COLOMBIA_POSTMAN_SANDBOX_BY_CODE[COLOMBIA_RUNT_VEHICLE_OWNERS_ENDPOINT_CODE]).toBeDefined();

@@ -1129,10 +1129,54 @@
                 }
             },
             "storage": {
+                "eyebrow": "存储架构",
+                "title": "选择加密 HumanID 的存储位置",
+                "subtitle": "选择由 Verifik 存储加密证明，或直接通过 API 返回。",
+                "currentChoice": "当前选择",
+                "chooseTitle": "选择提供方",
+                "chooseHelp": "此选择决定 Verifik 是否持久化加密 HumanID 对象及其存储位置。",
+                "selectProvider": "选择 {{provider}} 作为存储提供方",
+                "default": "默认",
                 "ipfsTitle": "IPFS",
                 "ipfsBody": "带公开网关 URL 的去中心化索引。",
+                "ipfsBenefitIndex": "去中心化索引",
+                "ipfsBenefitGateway": "公开网关定位信息",
                 "cloudTitle": "云存储",
-                "cloudBody": "由 Verifik 托管的加密对象，载荷相同。"
+                "cloudBody": "由 Verifik 托管的加密对象，载荷相同。",
+                "cloudBenefitManaged": "由 Verifik 管理",
+                "cloudBenefitHosted": "托管的加密对象",
+                "noneTitle": "不由 Verifik 存储",
+                "noneBody": "通过 API 返回加密 HumanID，Verifik 不进行持久化。",
+                "noneBenefitApi": "直接在 API 响应中返回",
+                "noneBenefitNoPersistence": "不在 Verifik 中持久化",
+                "sameEncryptedPayload": "相同的加密 HumanID 载荷",
+                "howTitle": "工作方式",
+                "howHelp": "此选择改变 Verifik 对结果的处理方式，但不改变加密证明。",
+                "flowHumanId": "创建 HumanID",
+                "flowEncrypted": "加密证明",
+                "flowApiResponse": "API 响应",
+                "selectedPath": "已选存储路径",
+                "detail": {
+                    "ipfsTitle": "通过 IPFS 索引",
+                    "ipfsBody": "加密 HumanID 将关联去中心化索引和公开网关定位信息。",
+                    "ipfsResult": "生成的定位信息指向加密载荷。",
+                    "cloudTitle": "由 Verifik 托管",
+                    "cloudBody": "Verifik 托管加密 HumanID 对象，项目无需管理其存储位置。",
+                    "cloudResult": "加密对象由 Verifik 托管环境管理。",
+                    "noneTitle": "无需 Verifik 存储即可返回",
+                    "noneBody": "加密 HumanID 将返回给您的应用。Verifik 不会将其固定到 IPFS 或保存到云存储。",
+                    "noneResult": "您的应用会在 API 响应中收到加密结果。"
+                },
+                "trustTitle": "存储包含的内容",
+                "trustHelp": "存储接收证明输出，而不是可复用的生物识别身份数据库。",
+                "noneTrustTitle": "Verifik 不存储的内容",
+                "noneTrustHelp": "Verifik 返回证明而不持久化。上游加密服务仍会接收人脸和元数据。",
+                "encryptedProofTitle": "加密证明",
+                "encryptedProofBody": "加密 HumanID 记录是被存储的对象。",
+                "publicFieldsTitle": "所选公开字段",
+                "publicFieldsBody": "只有在 HumanAuthn 步骤中选择的公开值保持可读。",
+                "faceTemplateTitle": "无可复用人脸模板",
+                "faceTemplateBody": "Verifik 不会将可复用的人脸模板存储为身份记录。"
             },
             "integrations": {
                 "redirectUrl": "跳转 URL",
@@ -4845,7 +4889,38 @@
             "extra_enrollment": "Extra Enrollment",
             "enrollment": "enrollment",
             "by_using_prefix": "By using Verifik you agree to our",
-            "terms_and_conditions": "terms and conditions"
+            "terms_and_conditions": "terms and conditions",
+            "usage": {
+                "title": "本周期用量",
+                "resets_in": "{{days}} 天后重置",
+                "resets_in_one": "1 天后重置",
+                "resets_today": "今天重置",
+                "resets_on": "计数将于 {{date}} 归零",
+                "names": "姓名核验",
+                "background": "背景调查",
+                "emails": "电子邮件",
+                "scans": "证件扫描",
+                "biometrics": "生物识别",
+                "basic": "基础注册",
+                "left": "剩余 {{count}}",
+                "over": "超出包含额度 {{count}}",
+                "used_of": "{{used}} / {{limit}}",
+                "overage_title": "超出包含额度之后",
+                "overage_free": "本周期包含的用量免费。",
+                "overage_credits": "额外姓名查询使用钱包积分，享受 {{discount}}% 折扣（例如哥伦比亚身份 0.30 → {{namePrice}}）。额外背景调查无论是否运行 FBI、DEA 或联合国，每项均为 {{bgPrice}}。",
+                "overage_pack": "若钱包为空，我们会在 Stripe 账单上增加 10 美元并充入 +10 积分，然后再扣费。与电子邮件、WhatsApp 和短信相同。",
+                "wallet": "钱包",
+                "add_credits": "充值积分",
+                "included": "已包含",
+                "one_unit_bg": "完成一次调查 = 1 个单位",
+                "credits_count": "{{credits}} 积分",
+                "preview_cta": "查看套餐",
+                "unlock_title": "解锁每月 {{count}} 次免费注册",
+                "unlock_body": "在一处查看注册与证件扫描。先使用 Free Forever，需要活体检测时再升级。",
+                "learn_more": "了解 Smart Enroll",
+                "example": "示例",
+                "resets_monthly": "每月重置"
+            }
         },
         "errors": {
             "create_or_update_subscription": "Something went wrong while trying to update or create your subscription",
@@ -5773,7 +5848,39 @@
             "title": "演示",
             "heroEyebrow": "HumanAuthn · HumanID · v4",
             "heroTitle": "HumanAuthn · 企业级生物识别",
-            "heroBody": "去中心化 HumanAuthn 演示展示 HumanID 如何将身份数据与实时人脸绑定，而无需中心化人脸库。"
+            "heroBody": "去中心化 HumanAuthn 演示展示 HumanID 如何将身份数据与实时人脸绑定，而无需中心化人脸库。",
+            "relatedDocs": {
+                "0": {
+                    "title": "HumanAuthn 概览",
+                    "description": "HumanAuthn 如何在没有中心化人脸库的情况下将身份数据与实时人脸绑定。",
+                    "badge": "Guide"
+                },
+                "1": {
+                    "title": "创建 HumanID",
+                    "description": "将公开字段和人脸采集加密为可存储或分享的 HumanID 字符串。",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "创建 HumanID 二维码",
+                    "description": "生成嵌入 HumanID 的二维码，便于从屏幕或钱包扫描。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "解密 HumanID",
+                    "description": "通过匹配实时人脸解锁证明中的身份数据。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "预览 HumanID",
+                    "description": "在解密前查看公开元数据，无需发送人脸图像。",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "活体检测",
+                    "description": "专门检查人脸图像是否为真人而非伪造。",
+                    "badge": "POST"
+                }
+            }
         }
     },
     "smartEnrollDemos": {
@@ -6898,7 +7005,39 @@
             "navVault": "保管库",
             "navIdentity": "身份",
             "navSecurity": "安全",
-            "navLogs": "日志"
+            "navLogs": "日志",
+            "relatedDocs": {
+                "0": {
+                    "title": "活体检测",
+                    "description": "检测人脸图像是真人还是伪造。与 HumanID 加密和解密分开。",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "HumanAuthn 概览",
+                    "description": "HumanAuthn 如何在没有中心化人脸库的情况下将身份数据与实时人脸绑定。",
+                    "badge": "Guide"
+                },
+                "2": {
+                    "title": "创建 HumanID",
+                    "description": "将公开字段和人脸采集加密为可存储或分享的 HumanID 字符串。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "创建 HumanID 二维码",
+                    "description": "生成嵌入 HumanID 的二维码，便于从屏幕或钱包扫描。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "解密 HumanID",
+                    "description": "通过匹配实时人脸解锁证明中的身份数据。",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "预览 HumanID",
+                    "description": "在解密前查看公开元数据，无需发送人脸图像。",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreate": {
             "headerTitle": "创建 HumanID",
@@ -6974,13 +7113,40 @@
             "recommendedBadge": "推荐",
             "errorLivenessFailedTitle": "实时人脸检测失败",
             "errorLivenessFailedBody": "此图像未通过 HumanID 活体验证。请使用引导摄像头或其他实时采集后重试。",
-            "paramLivenessDetectionPriorCreation": "加密时要求活体 (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "加密时要求活体 (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "创建 HumanID",
+                    "description": "将公开字段和人脸采集加密为可存储或分享的 HumanID 字符串。",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "创建 HumanID 二维码",
+                    "description": "生成嵌入 HumanID 的二维码，便于从屏幕或钱包扫描。",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "解密 HumanID",
+                    "description": "通过匹配实时人脸解锁证明中的身份数据。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "预览 HumanID",
+                    "description": "在解密前查看公开元数据，无需发送人脸图像。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "活体检测",
+                    "description": "专门检查人脸图像是否为真人而非伪造。",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreateQr": {
             "headerTitle": "创建 HumanID 二维码",
             "apiRefSummary": "API 参考：创建 HumanID 二维码",
             "apiIntroBefore": "与",
-            "apiIntroAfter": "相同的载荷。返回 PNG 二维码 data URL（data.zelfQR）以及常见的 HumanID 与 IPFS 元数据。",
+            "apiIntroAfter": "相同的载荷。返回 PNG 二维码 data URL（data.humanIDQR）以及常见的 HumanID 与 IPFS 元数据。",
             "heroTitleForm": "创建 HumanID 二维码",
             "heroTitleResult": "HumanID 二维码就绪",
             "heroSubtitle": "根据人脸与身份数据生成可携带的二维码 HumanID。",
@@ -7039,7 +7205,34 @@
             "recommendedBadge": "推荐",
             "errorLivenessFailedTitle": "实时人脸检测失败",
             "errorLivenessFailedBody": "此图像未通过 HumanID 活体验证。请使用引导摄像头或其他实时采集后重试。",
-            "paramLivenessDetectionPriorCreation": "加密时要求活体 (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "加密时要求活体 (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "创建 HumanID 二维码",
+                    "description": "生成嵌入 HumanID 的二维码，便于从屏幕或钱包扫描。",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "创建 HumanID",
+                    "description": "将公开字段和人脸采集加密为可存储或分享的 HumanID 字符串。",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "解密 HumanID",
+                    "description": "通过匹配实时人脸解锁证明中的身份数据。",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "预览 HumanID",
+                    "description": "在解密前查看公开元数据，无需发送人脸图像。",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "活体检测",
+                    "description": "专门检查人脸图像是否为真人而非伪造。",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidDecrypt": {
             "headerTitle": "解密 HumanID",
@@ -7051,7 +7244,7 @@
             "uploadQrImage": "上传二维码图像",
             "proofLabel": "HumanID",
             "proofPlaceholder": "在此粘贴您的 HumanID…",
-            "qrUploadHelp": "上传 HumanID 二维码的 PNG 或 JPEG（二进制载荷）。我们调用 preview-zelf-id-qr 提取您的 HumanID。",
+            "qrUploadHelp": "上传 HumanID 二维码的 PNG 或 JPEG（二进制载荷）。我们调用 preview-human-id-qr 提取您的 HumanID。",
             "chooseQrImage": "选择二维码图像",
             "readingQr": "正在读取二维码…",
             "secondaryPngJpeg": "PNG 或 JPEG",
@@ -7079,7 +7272,7 @@
             "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-zelfproof",
             "apiBaseUrlNote": "基础 URL 为 https://api.verifik.co。使用 Content-Type: application/json 与 Authorization: Bearer <access token> 发送 JSON（与本演示登录后的 JWT 相同）。",
             "apiDecryptEndpointDesc": "将人脸图与证明比对，匹配成功时在常见的签名 data 信封内返回解密的公开字段及相关载荷（例如人脸裁剪与难度）。",
-            "apiPreviewQrEndpointDesc": "当用户提供 HumanID 二维码的 PNG 或 JPEG 时使用。API 读取二维码载荷，运行与字符串预览同类的预览，并返回可传入 decrypt 的 zelfProof。创建时若使用 verifierKey 则可选传入。解密使用相同的 JSON 头。",
+            "apiPreviewQrEndpointDesc": "当用户提供 HumanID 二维码的 PNG 或 JPEG 时使用。API 读取二维码载荷，运行与字符串预览同类的预览，并返回可传入 decrypt 的 humanID。创建时若使用 verifierKey 则可选传入。解密使用相同的 JSON 头。",
             "apiBullet1": "解密使用 @humanauthn/api-client 的 decryptHumanId。二维码上传先调用 previewZelfIdQr，再用返回的证明字符串解密。",
             "apiBullet2": "成功响应遵循 Verifik 模式：data 对象（若项目启用签名则常有 signature）。",
             "apiBullet3": "若要在无人脸图的情况下检查证明，请打开「预览 HumanID」演示（previewHumanId）或上方链接的 Preview HumanID 指南。",
@@ -7147,7 +7340,7 @@
             "apiOfficialAfter": "（参数、响应与示例）。本演示通过 previewHumanId 调用 POST /v2/human-id/preview，与当前 API 上的该流程一致。相关：",
             "apiBaseUrlNote": "基础 URL 为 https://api.verifik.co。使用 Content-Type: application/json 与 Authorization: Bearer <access token> 发送 JSON（与本演示登录后的 JWT 相同）。",
             "apiPreviewEndpointDesc": "在常见的签名 data 信封内返回证明的非敏感预览字段（例如是否需要密码）。",
-            "apiPreviewQrEndpointDesc": "当用户提供 HumanID 二维码的 PNG 或 JPEG 时使用。API 解码载荷并返回可发送到上述预览调用的 zelfProof。与预览使用相同的 JSON 头。证明使用验证密钥时可选 verifierKey。",
+            "apiPreviewQrEndpointDesc": "当用户提供 HumanID 二维码的 PNG 或 JPEG 时使用。API 解码载荷并返回可发送到上述预览调用的 humanID。与预览使用相同的 JSON 头。证明使用验证密钥时可选 verifierKey。",
             "apiBullet1": "本演示使用 previewHumanId，二维码图像使用 @humanauthn/api-client 的 previewZelfIdQr 及您的会话令牌。",
             "apiBullet2": "成功响应遵循 Verifik 模式：data 对象（若项目启用签名则常有 signature）。",
             "paramHumanIDDesc": "来自粘贴的 HumanID 字符串，或本表单中从二维码提取",
@@ -7194,7 +7387,7 @@
             "ipfsNotePrefix": "IPFS 网关 URL 与固定详情见",
             "ipfsNoteSuffix": "下方。",
             "decentralizedLabel": "去中心化存储",
-            "zelfProofHeading": "HumanID",
+            "humanIDHeading": "HumanID",
             "copyFull": "复制全文",
             "copied": "已复制",
             "showFull": "显示全文",

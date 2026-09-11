@@ -125,4 +125,6 @@
     } @else {
         <app-human-id-structured-result [result]="result" [successTitle]="'smartEnrollDemos.humanidCreate.resultSuccessTitle' | transloco" (createAnother)="reset()" (backToDemos)="backToDemos()" />
     }
+
+    <app-demo-related-docs-section [items]="relatedDocs" />
 </app-demo-page-shell>

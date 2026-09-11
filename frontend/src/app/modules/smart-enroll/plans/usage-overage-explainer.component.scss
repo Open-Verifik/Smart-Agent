@@ -1,0 +1,117 @@
+$brand-navy: #0f0f2d;
+$brand-blue: #2b3af0;
+$brand-gray-text: #6b7280;
+
+:host {
+    display: block;
+}
+
+.usage-overage {
+    margin-top: 8px;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.usage-overage--alert {
+    background: #fff7ed;
+    border-color: #fdba74;
+}
+
+.usage-overage__title {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: $brand-navy;
+}
+
+.usage-overage__steps {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: $brand-gray-text;
+}
+
+.usage-overage__wallet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.usage-overage__wallet-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.usage-overage__wallet-label {
+    font-size: 12px;
+    color: $brand-gray-text;
+}
+
+.usage-overage__wallet-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: $brand-navy;
+    font-variant-numeric: tabular-nums;
+}
+
+.usage-overage__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: $brand-blue;
+    text-decoration: none;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+:host-context(.dark) {
+    .usage-overage {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .usage-overage--alert {
+        background: rgba(245, 158, 11, 0.12);
+        border-color: rgba(251, 191, 36, 0.35);
+    }
+
+    .usage-overage__title,
+    .usage-overage__wallet-value {
+        color: #f8fafc;
+    }
+
+    .usage-overage__steps,
+    .usage-overage__wallet-label {
+        color: rgb(148 163 184);
+    }
+
+    .usage-overage__wallet {
+        border-top-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .usage-overage__link {
+        color: rgb(147 197 253);
+    }
+}

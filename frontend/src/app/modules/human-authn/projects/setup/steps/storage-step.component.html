@@ -1,0 +1,162 @@
+<ng-container *transloco="let t">
+    <div class="storage-screen">
+        <header class="storage-hero">
+            <div>
+                <span class="storage-hero__eyebrow">{{ t('humanAuthnProjects.setup.storage.eyebrow') }}</span>
+                <h2>{{ t('humanAuthnProjects.setup.storage.title') }}</h2>
+                <p>{{ t('humanAuthnProjects.setup.storage.subtitle') }}</p>
+            </div>
+            <div class="storage-hero__choice">
+                <span>{{ t('humanAuthnProjects.setup.storage.currentChoice') }}</span>
+                <strong>{{ t(selectedProvider.titleKey) }}</strong>
+            </div>
+        </header>
+
+        <div class="storage-decision">
+            <section class="provider-section">
+                <div class="section-heading">
+                    <span>01</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.storage.chooseTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.storage.chooseHelp') }}</p>
+                    </div>
+                </div>
+
+                <div class="provider-options" role="radiogroup" [attr.aria-label]="t('humanAuthnProjects.setup.storage.chooseTitle')">
+                    @for (option of providers; track option.value) {
+                        <button
+                            type="button"
+                            role="radio"
+                            class="provider-option"
+                            [class.provider-option--selected]="provider === option.value"
+                            [attr.aria-checked]="provider === option.value"
+                            [attr.aria-label]="
+                                t('humanAuthnProjects.setup.storage.selectProvider', {
+                                    provider: t(option.titleKey),
+                                })
+                            "
+                            (click)="setProvider(option.value)"
+                        >
+                            <span class="provider-option__icon">
+                                <mat-icon>{{ option.icon }}</mat-icon>
+                            </span>
+                            <span class="provider-option__content">
+                                <span class="provider-option__title">
+                                    <strong>{{ t(option.titleKey) }}</strong>
+                                    @if (option.value === 'ipfs') {
+                                        <small>{{ t('humanAuthnProjects.setup.storage.default') }}</small>
+                                    }
+                                </span>
+                                <span class="provider-option__body">{{ t(option.bodyKey) }}</span>
+                                <span class="provider-option__benefits">
+                                    @for (benefitKey of option.benefitKeys; track benefitKey) {
+                                        <span>
+                                            <mat-icon>check</mat-icon>
+                                            {{ t(benefitKey) }}
+                                        </span>
+                                    }
+                                </span>
+                            </span>
+                            <mat-icon class="provider-option__check">
+                                {{ provider === option.value ? 'check_circle' : 'radio_button_unchecked' }}
+                            </mat-icon>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <aside class="storage-explainer" aria-live="polite">
+                <div class="section-heading section-heading--light">
+                    <span>02</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.storage.howTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.storage.howHelp') }}</p>
+                    </div>
+                </div>
+
+                <div class="storage-flow">
+                    <div class="storage-flow__node">
+                        <mat-icon>fingerprint</mat-icon>
+                        <span>{{ t('humanAuthnProjects.setup.storage.flowHumanId') }}</span>
+                    </div>
+                    <span class="storage-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                    <div class="storage-flow__node storage-flow__node--secure">
+                        <mat-icon>encrypted</mat-icon>
+                        <span>{{ t('humanAuthnProjects.setup.storage.flowEncrypted') }}</span>
+                    </div>
+                    <span class="storage-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                    <div class="storage-flow__node storage-flow__node--provider">
+                        <mat-icon>{{ selectedProvider.icon }}</mat-icon>
+                        <span>
+                            {{
+                                provider === 'none'
+                                    ? t('humanAuthnProjects.setup.storage.flowApiResponse')
+                                    : t(selectedProvider.titleKey)
+                            }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="selected-provider">
+                    <span class="selected-provider__label">{{ t('humanAuthnProjects.setup.storage.selectedPath') }}</span>
+                    <h4>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Title') }}</h4>
+                    <p>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Body') }}</p>
+                    <div class="selected-provider__result">
+                        <mat-icon>{{ selectedProvider.resultIcon }}</mat-icon>
+                        <span>{{ t('humanAuthnProjects.setup.storage.detail.' + provider + 'Result') }}</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <section class="storage-trust">
+            <div class="section-heading">
+                <span>03</span>
+                <div>
+                    <h3>
+                        {{
+                            t(
+                                provider === 'none'
+                                    ? 'humanAuthnProjects.setup.storage.noneTrustTitle'
+                                    : 'humanAuthnProjects.setup.storage.trustTitle'
+                            )
+                        }}
+                    </h3>
+                    <p>
+                        {{
+                            t(
+                                provider === 'none'
+                                    ? 'humanAuthnProjects.setup.storage.noneTrustHelp'
+                                    : 'humanAuthnProjects.setup.storage.trustHelp'
+                            )
+                        }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="trust-items">
+                <article>
+                    <span class="trust-items__icon trust-items__icon--stored"><mat-icon>encrypted</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.storage.encryptedProofTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.storage.encryptedProofBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="trust-items__icon trust-items__icon--stored"><mat-icon>visibility</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.storage.publicFieldsTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.storage.publicFieldsBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="trust-items__icon trust-items__icon--private"><mat-icon>face_retouching_off</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.storage.faceTemplateTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.storage.faceTemplateBody') }}</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</ng-container>

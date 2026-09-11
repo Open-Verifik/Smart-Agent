@@ -38,19 +38,19 @@
             </section>
         }
 
-        @if (parsed?.zelfProof) {
+        @if (parsed?.humanID) {
             <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
                 <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
                     <h3 class="text-sm font-bold text-primary">
-                        {{ 'smartEnrollDemos.humanIdStructuredResult.zelfProofHeading' | transloco }}
+                        {{ 'smartEnrollDemos.humanIdStructuredResult.humanIDHeading' | transloco }}
                     </h3>
                     <button
                         type="button"
-                        (click)="copyText(parsed!.zelfProof, 'zelfProof')"
+                        (click)="copyText(parsed!.humanID, 'humanID')"
                         class="text-xs font-semibold text-primary underline underline-offset-2"
                     >
                         {{
-                            copiedField === 'zelfProof'
+                            copiedField === 'humanID'
                                 ? ('smartEnrollDemos.humanIdStructuredResult.copied' | transloco)
                                 : ('smartEnrollDemos.humanIdStructuredResult.copyFull' | transloco)
                         }}
@@ -58,14 +58,14 @@
                 </div>
                 @if (!showFullZelfProof) {
                     <p class="text-[0.7rem] font-mono text-on-surface break-all bg-surface-container-high/80 rounded-lg px-3 py-2 border border-outline-variant/15">
-                        {{ truncateMiddle(parsed!.zelfProof) }}
+                        {{ truncateMiddle(parsed!.humanID) }}
                     </p>
                 } @else {
                     <pre class="max-h-48 overflow-auto text-[0.65rem] font-mono bg-surface-container-high rounded-lg p-3 border border-outline-variant/15 text-on-surface whitespace-pre-wrap">{{
-                        parsed!.zelfProof
+                        parsed!.humanID
                     }}</pre>
                 }
-                @if (parsed!.zelfProof.length > 52) {
+                @if (parsed!.humanID.length > 52) {
                     <button type="button" (click)="showFullZelfProof = !showFullZelfProof" class="mt-2 text-xs font-semibold text-on-surface-variant hover:text-primary">
                         {{
                             showFullZelfProof

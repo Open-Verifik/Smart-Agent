@@ -32,7 +32,10 @@
             </div>
         </header>
 
-        <main class="grid w-full min-w-0 flex-auto gap-8 px-5 py-8 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,28rem)] md:px-8">
+        <main
+            class="grid w-full min-w-0 flex-auto gap-8 px-5 py-8 md:px-8"
+            [ngClass]="stepIndex === 4 ? 'xl:grid-cols-1' : 'xl:grid-cols-[minmax(0,1fr)_minmax(20rem,28rem)]'"
+        >
             @if (loading()) {
                 <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
             } @else if (form) {
@@ -76,9 +79,11 @@
                         </button>
                     </div>
                 </section>
-                <aside class="min-w-0 w-full xl:sticky xl:top-8 xl:self-start">
-                    <human-authn-preview-placeholder></human-authn-preview-placeholder>
-                </aside>
+                @if (stepIndex !== 4) {
+                    <aside class="min-w-0 w-full xl:sticky xl:top-8 xl:self-start">
+                        <human-authn-preview-placeholder></human-authn-preview-placeholder>
+                    </aside>
+                }
             }
         </main>
     </div>

@@ -68,6 +68,14 @@ const ENCRYPT_DEPENDENCIES: HumanAuthnOperationDependency[] = [
         description: 'Require a live face when creating the HumanID',
     },
     {
+        field: 'storageProvider',
+        type: 'String',
+        required: false,
+        enum: ['ipfs', 'none'],
+        default: 'ipfs',
+        description: 'Store the encrypted output in IPFS, or return it without Verifik persistence',
+    },
+    {
         field: 'tolerance',
         type: 'String',
         required: false,
@@ -111,7 +119,7 @@ const DECRYPT_DEPENDENCIES: HumanAuthnOperationDependency[] = [
         description: 'Client operating system',
     },
     {
-        field: 'zelfProof',
+        field: 'humanID',
         type: 'String',
         required: true,
         description: 'HumanID token returned by encrypt',
@@ -132,7 +140,7 @@ const DECRYPT_DEPENDENCIES: HumanAuthnOperationDependency[] = [
 
 const PREVIEW_DEPENDENCIES: HumanAuthnOperationDependency[] = [
     {
-        field: 'zelfProof',
+        field: 'humanID',
         type: 'String',
         required: true,
         description: 'HumanID token returned by encrypt',

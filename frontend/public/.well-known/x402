@@ -6,7 +6,7 @@
     "GET /api/co/runt/conductor",
     "POST /api/co/registraduria/votacion",
     "GET /api/co/runt/vehiculo",
-    "GET /api/co/runt/vehiculo/owners",
+    "GET /api/co/runt/propietarios",
     "POST /api/co/simit/suspensiones",
     "GET /api/cl/vehicle",
     "GET /api/v3/cl/vehicle",

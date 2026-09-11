@@ -24,10 +24,10 @@ import { HumanIdPreviewResultComponent } from '../../shared/human-id-preview-res
 const DOCS_BASE = 'https://docs.verifik.co';
 
 const RELATED_DOC_HREFS = [
-    `${DOCS_BASE}/api/tags/preview-zelfproof`,
-    `${DOCS_BASE}/functions/create-zelfproof`,
-    `${DOCS_BASE}/functions/decrypt-zelfproof`,
-    `${DOCS_BASE}/functions/create-qr-zelfproof`,
+    `${DOCS_BASE}/biometrics/humanID-preview`,
+    `${DOCS_BASE}/biometrics/humanID-encrypt`,
+    `${DOCS_BASE}/biometrics/humanID-decrypt`,
+    `${DOCS_BASE}/biometrics/humanID-encrypt-qr-code`,
     `${DOCS_BASE}/biometrics/liveness`,
 ] as const;
 
@@ -59,7 +59,7 @@ export class HumanidPreviewDemoComponent implements OnInit {
     authChecked = false;
     step: Step = 'form';
     proofMode: ProofMode = 'paste';
-    zelfProof = '';
+    humanID = '';
     verifierKey = '';
     result: Record<string, unknown> | null = null;
     error: string | null = null;
@@ -87,7 +87,7 @@ export class HumanidPreviewDemoComponent implements OnInit {
     }
 
     get canPreview(): boolean {
-        return Boolean(this.zelfProof.trim() && !this.qrExtracting);
+        return Boolean(this.humanID.trim() && !this.qrExtracting);
     }
 
     setProofMode(mode: ProofMode): void {
@@ -96,9 +96,9 @@ export class HumanidPreviewDemoComponent implements OnInit {
         this.qrExtractMessage = null;
         if (mode === 'paste') {
             this.qrPreview = null;
-            this.zelfProof = '';
+            this.humanID = '';
         } else {
-            this.zelfProof = '';
+            this.humanID = '';
         }
         this._cdr.markForCheck();
     }
@@ -127,27 +127,27 @@ export class HumanidPreviewDemoComponent implements OnInit {
         try {
             const rawB64 = await fileToBase64(file);
             const mime = file.type?.startsWith('image/') ? file.type : 'image/png';
-            const zelfProofQRCode = `data:${mime};base64,${rawB64}`;
+            const humanIDQR = `data:${mime};base64,${rawB64}`;
             this._api
-                .previewZelfIdQr({ zelfProofQRCode, verifierKey: this.verifierKey.trim() || undefined })
+                .previewHumanIdQr({ humanIDQR, verifierKey: this.verifierKey.trim() || undefined })
                 .subscribe({
                     next: (data) => {
                         const envelope = data as Record<string, unknown>;
                         const inner = envelope?.['data'] as Record<string, unknown> | undefined;
-                        const extracted = inner?.['zelfProof'];
+                        const extracted = inner?.['humanID'];
                         if (typeof extracted !== 'string' || !extracted) {
-                            this.zelfProof = '';
+                            this.humanID = '';
                             this.error = this._transloco.translate('smartEnrollDemos.humanidPreview.errorReadProof');
                             this.qrExtractMessage = null;
                         } else {
-                            this.zelfProof = extracted;
+                            this.humanID = extracted;
                             this.qrExtractMessage = this._transloco.translate('smartEnrollDemos.humanidPreview.qrExtractSuccess');
                         }
                         this.qrExtracting = false;
                         this._cdr.markForCheck();
                     },
                     error: (err: ApiErrorResponse) => {
-                        this.zelfProof = '';
+                        this.humanID = '';
                         this.error = err.error ?? err.message ?? 'Request failed';
                         this.qrExtractMessage = null;
                         this.qrExtracting = false;
@@ -162,14 +162,14 @@ export class HumanidPreviewDemoComponent implements OnInit {
 
     submit(event: Event): void {
         event.preventDefault();
-        if (!this._api.ensureAuthenticated() || !this.zelfProof.trim()) return;
+        if (!this._api.ensureAuthenticated() || !this.humanID.trim()) return;
 
         this.step = 'processing';
         this.error = null;
         this._cdr.markForCheck();
 
         this._api
-            .previewHumanId({ zelfProof: this.zelfProof.trim(), verifierKey: this.verifierKey || undefined })
+            .previewHumanId({ humanID: this.humanID.trim(), verifierKey: this.verifierKey || undefined })
             .subscribe({
                 next: (data) => {
                     this.result = data as Record<string, unknown>;
@@ -186,7 +186,7 @@ export class HumanidPreviewDemoComponent implements OnInit {
 
     reset(): void {
         this.step = 'form';
-        this.zelfProof = '';
+        this.humanID = '';
         this.verifierKey = '';
         this.result = null;
         this.error = null;

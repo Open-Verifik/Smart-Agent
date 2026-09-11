@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DEFAULT_LIVENESS_STANDALONE_MIN_SCORE } from '../../services/biometrics-demo.types';
@@ -17,6 +17,8 @@ import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-opt
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
+import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
 import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
@@ -46,6 +48,19 @@ const LIVENESS_SAMPLE_IMAGES = [
     { src: '/demos/assets/ppic6.jpg', fail: true },
 ] as const;
 
+const DOCS_BASE = 'https://docs.verifik.co';
+
+const RELATED_DOC_HREFS = [
+    `${DOCS_BASE}/biometrics/liveness`,
+    `${DOCS_BASE}/biometrics/humanauthn`,
+    `${DOCS_BASE}/biometrics/humanID-encrypt`,
+    `${DOCS_BASE}/biometrics/humanID-encrypt-qr-code`,
+    `${DOCS_BASE}/biometrics/humanID-decrypt`,
+    `${DOCS_BASE}/biometrics/humanID-preview`,
+] as const;
+
+const RELATED_DOC_BADGE_MUTED = [false, false, false, false, false, false] as const;
+
 @Component({
     selector: 'app-liveness-demo',
     standalone: true,
@@ -54,6 +69,7 @@ const LIVENESS_SAMPLE_IMAGES = [
         RouterLink,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoRelatedDocsSectionComponent,
         DemoChooseOneCalloutComponent,
         DemoCaptureOptionHeadingComponent,
         DemoScannerShellComponent,
@@ -67,7 +83,7 @@ const LIVENESS_SAMPLE_IMAGES = [
     styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LivenessDemoComponent {
+export class LivenessDemoComponent implements OnInit {
     readonly sampleImages = LIVENESS_SAMPLE_IMAGES;
     readonly defaultMinScore = DEFAULT_LIVENESS_STANDALONE_MIN_SCORE;
 
@@ -77,6 +93,7 @@ export class LivenessDemoComponent {
     previewUrl: string | null = null;
     uploadReading = false;
     uploadFileName: string | null = null;
+    relatedDocs: DemoRelatedDocItem[] = [];
 
     private _api = inject(BiometricsDemoApiService);
     private _cdr = inject(ChangeDetectorRef);
@@ -85,6 +102,10 @@ export class LivenessDemoComponent {
 
     constructor() {
         this._api.ensureAuthenticated();
+    }
+
+    ngOnInit(): void {
+        this.relatedDocs = this.buildRelatedDocs();
     }
 
     get numericStep(): 1 | 2 {
@@ -195,5 +216,15 @@ export class LivenessDemoComponent {
         this.uploadReading = false;
         this.uploadFileName = null;
         this._cdr.markForCheck();
+    }
+
+    private buildRelatedDocs(): DemoRelatedDocItem[] {
+        return RELATED_DOC_HREFS.map((href, i) => ({
+            href,
+            title: this._transloco.translate(`smartEnrollDemos.liveness.relatedDocs.${i}.title`),
+            description: this._transloco.translate(`smartEnrollDemos.liveness.relatedDocs.${i}.description`),
+            badge: this._transloco.translate(`smartEnrollDemos.liveness.relatedDocs.${i}.badge`),
+            badgeMuted: RELATED_DOC_BADGE_MUTED[i],
+        }));
     }
 }

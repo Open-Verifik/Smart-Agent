@@ -438,10 +438,10 @@ describe('postman-endpoint-copy.util', () => {
 
     describe('postmanEndpointMatchesSearch', () => {
         const ownersEndpoint = {
-            code: 'colombia_api_vehicle_owners',
+            code: 'colombia_api_runt_owners',
             country: 'Colombia',
-            label: 'Colombia - Vehicle Owner History',
-            url: 'https://api.verifik.co/v2/co/runt/vehiculo/owners',
+            label: 'Colombia - Vehicle Owners Verification (RUNT)',
+            url: 'https://api.verifik.co/v2/co/runt/propietarios',
             docs: {
                 es: {
                     title: 'RUNT - Propietarios de vehículo por placa',

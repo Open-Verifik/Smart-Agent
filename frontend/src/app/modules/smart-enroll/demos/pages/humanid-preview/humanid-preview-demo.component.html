@@ -37,7 +37,7 @@
             @if (proofMode === 'paste') {
                 <div>
                     <label class="block text-sm font-semibold text-on-surface mb-1.5" for="prev-proof">{{ 'smartEnrollDemos.humanidPreview.proofLabel' | transloco }} <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span></label>
-                    <textarea id="prev-proof" required rows="4" [(ngModel)]="zelfProof" name="zelfProof" [placeholder]="'smartEnrollDemos.humanidPreview.proofPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-xs font-mono focus:outline-none focus:border-primary/60 resize-none"></textarea>
+                    <textarea id="prev-proof" required rows="4" [(ngModel)]="humanID" name="humanID" [placeholder]="'smartEnrollDemos.humanidPreview.proofPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-xs font-mono focus:outline-none focus:border-primary/60 resize-none"></textarea>
                 </div>
             } @else {
                 <div class="space-y-3">

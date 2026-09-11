@@ -28,10 +28,10 @@ import { HumanIdDecryptResultComponent } from '../../shared/human-id-decrypt-res
 const DOCS_BASE = 'https://docs.verifik.co';
 
 const RELATED_DOC_HREFS = [
-    `${DOCS_BASE}/functions/decrypt-zelfproof`,
-    `${DOCS_BASE}/functions/create-zelfproof`,
-    `${DOCS_BASE}/api/tags/preview-zelfproof`,
-    `${DOCS_BASE}/functions/create-qr-zelfproof`,
+    `${DOCS_BASE}/biometrics/humanID-decrypt`,
+    `${DOCS_BASE}/biometrics/humanID-encrypt`,
+    `${DOCS_BASE}/biometrics/humanID-preview`,
+    `${DOCS_BASE}/biometrics/humanID-encrypt-qr-code`,
     `${DOCS_BASE}/biometrics/liveness`,
 ] as const;
 
@@ -68,7 +68,7 @@ export class HumanidDecryptDemoComponent implements OnInit {
     authChecked = false;
     step: Step = 'form';
     proofMode: ProofMode = 'paste';
-    zelfProof = '';
+    humanID = '';
     password = '';
     facePreview: string | null = null;
     faceB64: string | null = null;
@@ -98,7 +98,7 @@ export class HumanidDecryptDemoComponent implements OnInit {
     }
 
     get canDecrypt(): boolean {
-        return Boolean(this.faceB64 && this.zelfProof.trim() && !this.qrExtracting);
+        return Boolean(this.faceB64 && this.humanID.trim() && !this.qrExtracting);
     }
 
     setProofMode(mode: ProofMode): void {
@@ -107,9 +107,9 @@ export class HumanidDecryptDemoComponent implements OnInit {
         this.qrExtractMessage = null;
         if (mode === 'paste') {
             this.qrPreview = null;
-            this.zelfProof = '';
+            this.humanID = '';
         } else {
-            this.zelfProof = '';
+            this.humanID = '';
         }
         this._cdr.markForCheck();
     }
@@ -164,25 +164,25 @@ export class HumanidDecryptDemoComponent implements OnInit {
         try {
             const rawB64 = await fileToBase64(file);
             const mime = file.type?.startsWith('image/') ? file.type : 'image/png';
-            const zelfProofQRCode = `data:${mime};base64,${rawB64}`;
-            this._api.previewZelfIdQr({ zelfProofQRCode }).subscribe({
+            const humanIDQR = `data:${mime};base64,${rawB64}`;
+            this._api.previewHumanIdQr({ humanIDQR }).subscribe({
                 next: (data) => {
                     const envelope = data as Record<string, unknown>;
                     const inner = envelope?.['data'] as Record<string, unknown> | undefined;
-                    const extracted = inner?.['zelfProof'];
+                    const extracted = inner?.['humanID'];
                     if (typeof extracted !== 'string' || !extracted) {
-                        this.zelfProof = '';
+                        this.humanID = '';
                         this.error = this._transloco.translate('smartEnrollDemos.humanidDecrypt.errorReadProof');
                         this.qrExtractMessage = null;
                     } else {
-                        this.zelfProof = extracted;
+                        this.humanID = extracted;
                         this.qrExtractMessage = this._transloco.translate('smartEnrollDemos.humanidDecrypt.qrExtractSuccess');
                     }
                     this.qrExtracting = false;
                     this._cdr.markForCheck();
                 },
                 error: (err: ApiErrorResponse) => {
-                    this.zelfProof = '';
+                    this.humanID = '';
                     this.error = err.error ?? err.message ?? 'Request failed';
                     this.qrExtractMessage = null;
                     this.qrExtracting = false;
@@ -197,7 +197,7 @@ export class HumanidDecryptDemoComponent implements OnInit {
 
     submit(event: Event): void {
         event.preventDefault();
-        if (!this._api.ensureAuthenticated() || !this.faceB64 || !this.zelfProof.trim()) return;
+        if (!this._api.ensureAuthenticated() || !this.faceB64 || !this.humanID.trim()) return;
 
         this.step = 'processing';
         this.error = null;
@@ -207,7 +207,7 @@ export class HumanidDecryptDemoComponent implements OnInit {
             .decryptHumanId({
                 faceBase64: this.faceB64,
                 os: getDemoOs(),
-                zelfProof: this.zelfProof.trim(),
+                humanID: this.humanID.trim(),
                 password: this.password || undefined,
             })
             .subscribe({
@@ -230,7 +230,7 @@ export class HumanidDecryptDemoComponent implements OnInit {
         this.facePreview = null;
         this.result = null;
         this.error = null;
-        this.zelfProof = '';
+        this.humanID = '';
         this.password = '';
         this.qrExtractMessage = null;
         this.qrPreview = null;

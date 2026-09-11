@@ -1129,10 +1129,54 @@
                 }
             },
             "storage": {
+                "eyebrow": "Arquitectura de almacenamiento",
+                "title": "Elige dónde vivirá el HumanID cifrado",
+                "subtitle": "Elige si Verifik guarda la prueba cifrada o la devuelve directamente mediante la API.",
+                "currentChoice": "Selección actual",
+                "chooseTitle": "Elige un proveedor",
+                "chooseHelp": "Esta selección define si Verifik conserva el objeto HumanID cifrado y dónde lo hace.",
+                "selectProvider": "Seleccionar {{provider}} como proveedor de almacenamiento",
+                "default": "Predeterminado",
                 "ipfsTitle": "IPFS",
                 "ipfsBody": "Índice descentralizado con URL pública.",
+                "ipfsBenefitIndex": "Índice descentralizado",
+                "ipfsBenefitGateway": "Localizador de gateway público",
                 "cloudTitle": "Almacenamiento en la nube",
-                "cloudBody": "Objeto cifrado hospedado por Verifik con el mismo payload."
+                "cloudBody": "Objeto cifrado hospedado por Verifik con el mismo payload.",
+                "cloudBenefitManaged": "Administrado por Verifik",
+                "cloudBenefitHosted": "Objeto cifrado hospedado",
+                "noneTitle": "Sin almacenamiento de Verifik",
+                "noneBody": "Devuelve el HumanID cifrado mediante la API sin que Verifik lo conserve.",
+                "noneBenefitApi": "Devuelto directamente en la respuesta de la API",
+                "noneBenefitNoPersistence": "Sin persistencia en Verifik",
+                "sameEncryptedPayload": "El mismo payload HumanID cifrado",
+                "howTitle": "Cómo funciona",
+                "howHelp": "La elección cambia lo que Verifik hace con el resultado, no la prueba cifrada.",
+                "flowHumanId": "HumanID creado",
+                "flowEncrypted": "Prueba cifrada",
+                "flowApiResponse": "Respuesta de la API",
+                "selectedPath": "Ruta de almacenamiento elegida",
+                "detail": {
+                    "ipfsTitle": "Indexado mediante IPFS",
+                    "ipfsBody": "El HumanID cifrado se asocia a un índice descentralizado y a un localizador de gateway público.",
+                    "ipfsResult": "El localizador resultante apunta al payload cifrado.",
+                    "cloudTitle": "Hospedado por Verifik",
+                    "cloudBody": "Verifik hospeda el objeto HumanID cifrado para que tu proyecto no administre su ubicación.",
+                    "cloudResult": "El objeto cifrado permanece administrado en el hosting de Verifik.",
+                    "noneTitle": "Devuelto sin almacenamiento de Verifik",
+                    "noneBody": "El HumanID cifrado vuelve a tu aplicación. Verifik no lo fija en IPFS ni lo guarda en la nube.",
+                    "noneResult": "Tu aplicación recibe el resultado cifrado en la respuesta de la API."
+                },
+                "trustTitle": "Qué contiene el almacenamiento",
+                "trustHelp": "El almacenamiento recibe la prueba resultante, no una base de datos de identidad biométrica reutilizable.",
+                "noneTrustTitle": "Qué no almacena Verifik",
+                "noneTrustHelp": "Verifik devuelve la prueba sin conservarla. El servicio de cifrado externo aún recibe el rostro y los metadatos.",
+                "encryptedProofTitle": "Prueba cifrada",
+                "encryptedProofBody": "El registro HumanID cifrado es el objeto almacenado.",
+                "publicFieldsTitle": "Campos públicos seleccionados",
+                "publicFieldsBody": "Solo permanecen legibles los valores públicos elegidos en el paso HumanAuthn.",
+                "faceTemplateTitle": "Sin plantilla facial reutilizable",
+                "faceTemplateBody": "Verifik no guarda una plantilla facial reutilizable como registro de identidad."
             },
             "integrations": {
                 "redirectUrl": "URL de redirección",
@@ -4863,7 +4907,38 @@
             "extra_enrollment": "Inscripción Extra",
             "enrollment": "inscripción",
             "by_using_prefix": "Al usar Verifik aceptas nuestros",
-            "terms_and_conditions": "términos y condiciones"
+            "terms_and_conditions": "términos y condiciones",
+            "usage": {
+                "title": "Uso de este período",
+                "resets_in": "Se reinicia en {{days}} días",
+                "resets_in_one": "Se reinicia en 1 día",
+                "resets_today": "Se reinicia hoy",
+                "resets_on": "Los conteos vuelven a 0 el {{date}}",
+                "names": "Validaciones de nombre",
+                "background": "Verificaciones de antecedentes",
+                "emails": "Correos",
+                "scans": "Escaneos de documentos",
+                "biometrics": "Biometría",
+                "basic": "Enrolamientos básicos",
+                "left": "{{count}} restantes",
+                "over": "{{count}} por encima de lo incluido",
+                "used_of": "{{used}} de {{limit}}",
+                "overage_title": "Después del cupo incluido",
+                "overage_free": "Lo incluido en este período es gratis.",
+                "overage_credits": "Las consultas de nombre extra usan créditos de la billetera con {{discount}}% de descuento (por ejemplo, identidad Colombia 0.30 → {{namePrice}}). Cada verificación de antecedentes extra cuesta {{bgPrice}}, haya o no FBI, DEA u ONU.",
+                "overage_pack": "Si la billetera está vacía, sumamos $10 a tu factura de Stripe y +10 créditos, y luego descontamos. Igual que email, WhatsApp y SMS.",
+                "wallet": "Billetera",
+                "add_credits": "Agregar créditos",
+                "included": "Incluido",
+                "one_unit_bg": "Una verificación completada = una unidad",
+                "credits_count": "{{credits}} créditos",
+                "preview_cta": "Ver plan",
+                "unlock_title": "Desbloquea {{count}} enrolamientos gratis al mes",
+                "unlock_body": "Sigue enrolamientos y escaneos de documentos en un solo lugar. Empieza con Free Forever y mejora cuando necesites liveness.",
+                "learn_more": "Conoce más sobre Smart Enroll",
+                "example": "Ejemplo",
+                "resets_monthly": "Se reinicia cada mes"
+            }
         },
         "errors": {
             "create_or_update_subscription": "Algo salió mal al intentar actualizar o crear tu suscripción",
@@ -5794,7 +5869,39 @@
             "title": "Demos",
             "heroEyebrow": "HumanAuthn · HumanID · v4",
             "heroTitle": "HumanAuthn · Biometría de nivel empresarial",
-            "heroBody": "Las demos descentralizadas de HumanAuthn muestran cómo un HumanID vincula datos de identidad a un rostro en vivo sin una base central de rostros."
+            "heroBody": "Las demos descentralizadas de HumanAuthn muestran cómo un HumanID vincula datos de identidad a un rostro en vivo sin una base central de rostros.",
+            "relatedDocs": {
+                "0": {
+                    "title": "Descripción de HumanAuthn",
+                    "description": "Cómo HumanAuthn vincula datos de identidad a un rostro en vivo sin una base central de rostros.",
+                    "badge": "Guide"
+                },
+                "1": {
+                    "title": "Crear un HumanID",
+                    "description": "Cifra campos públicos y una captura facial en un HumanID que puedes guardar o compartir.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Crear QR de HumanID",
+                    "description": "Genera un QR que incrusta un HumanID para escanearlo desde una pantalla o billetera.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Descifrar un HumanID",
+                    "description": "Desbloquea la identidad de una prueba emparejándola con un rostro en vivo.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Vista previa de HumanID",
+                    "description": "Inspecciona metadatos públicos de una prueba antes de descifrar, sin enviar una imagen facial.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "Detección de prueba de vida",
+                    "description": "Comprueba si una imagen facial parece en vivo y no una falsificación.",
+                    "badge": "POST"
+                }
+            }
         }
     },
     "smartEnrollDemos": {
@@ -6919,7 +7026,39 @@
             "navVault": "Bóveda",
             "navIdentity": "Identidad",
             "navSecurity": "Seguridad",
-            "navLogs": "Registros"
+            "navLogs": "Registros",
+            "relatedDocs": {
+                "0": {
+                    "title": "Detección de prueba de vida",
+                    "description": "Detecta si una imagen facial es en vivo o una falsificación. Independiente del cifrado y descifrado de HumanID.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Descripción de HumanAuthn",
+                    "description": "Cómo HumanAuthn vincula datos de identidad a un rostro en vivo sin una base central de rostros.",
+                    "badge": "Guide"
+                },
+                "2": {
+                    "title": "Crear un HumanID",
+                    "description": "Cifra campos públicos y una captura facial en un HumanID que puedes guardar o compartir.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Crear QR de HumanID",
+                    "description": "Genera un QR que incrusta un HumanID para escanearlo desde una pantalla o billetera.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Descifrar un HumanID",
+                    "description": "Desbloquea la identidad de una prueba emparejándola con un rostro en vivo.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "Vista previa de HumanID",
+                    "description": "Inspecciona metadatos públicos de una prueba antes de descifrar, sin enviar una imagen facial.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreate": {
             "headerTitle": "Crear HumanID",
@@ -6995,13 +7134,40 @@
             "recommendedBadge": "Recomendado",
             "errorLivenessFailedTitle": "Falló la comprobación de rostro en vivo",
             "errorLivenessFailedBody": "Esta imagen no superó la verificación de prueba de vida para HumanID. Usa la cámara guiada u otra captura en tiempo real e inténtalo de nuevo.",
-            "paramLivenessDetectionPriorCreation": "Exigir prueba de vida al cifrar (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "Exigir prueba de vida al cifrar (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "Crear un HumanID",
+                    "description": "Cifra campos públicos y una captura facial en un HumanID que puedes guardar o compartir.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Crear QR de HumanID",
+                    "description": "Genera un QR que incrusta un HumanID para escanearlo desde una pantalla o billetera.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Descifrar un HumanID",
+                    "description": "Desbloquea la identidad de una prueba emparejándola con un rostro en vivo.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Vista previa de HumanID",
+                    "description": "Inspecciona metadatos públicos de una prueba antes de descifrar, sin enviar una imagen facial.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Detección de prueba de vida",
+                    "description": "Comprueba si una imagen facial parece en vivo y no una falsificación.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreateQr": {
             "headerTitle": "Crear QR de HumanID",
             "apiRefSummary": "Referencia API: Crear QR de HumanID",
             "apiIntroBefore": "Misma carga que",
-            "apiIntroAfter": "Devuelve una URL de datos PNG del QR (data.zelfQR) más el HumanID habitual y metadatos IPFS.",
+            "apiIntroAfter": "Devuelve una URL de datos PNG del QR (data.humanIDQR) más el HumanID habitual y metadatos IPFS.",
             "heroTitleForm": "Crear QR de HumanID",
             "heroTitleResult": "QR de HumanID listo",
             "heroSubtitle": "Genera un HumanID portátil en QR a partir del rostro y datos de identidad.",
@@ -7060,7 +7226,34 @@
             "recommendedBadge": "Recomendado",
             "errorLivenessFailedTitle": "Falló la comprobación de rostro en vivo",
             "errorLivenessFailedBody": "Esta imagen no superó la verificación de prueba de vida para HumanID. Usa la cámara guiada u otra captura en tiempo real e inténtalo de nuevo.",
-            "paramLivenessDetectionPriorCreation": "Exigir prueba de vida al cifrar (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "Exigir prueba de vida al cifrar (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "Crear QR de HumanID",
+                    "description": "Genera un QR que incrusta un HumanID para escanearlo desde una pantalla o billetera.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Crear un HumanID",
+                    "description": "Cifra campos públicos y una captura facial en un HumanID que puedes guardar o compartir.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Descifrar un HumanID",
+                    "description": "Desbloquea la identidad de una prueba emparejándola con un rostro en vivo.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Vista previa de HumanID",
+                    "description": "Inspecciona metadatos públicos de una prueba antes de descifrar, sin enviar una imagen facial.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Detección de prueba de vida",
+                    "description": "Comprueba si una imagen facial parece en vivo y no una falsificación.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidDecrypt": {
             "headerTitle": "Descifrar HumanID",
@@ -7072,7 +7265,7 @@
             "uploadQrImage": "Subir imagen QR",
             "proofLabel": "HumanID",
             "proofPlaceholder": "Pega tu HumanID aquí…",
-            "qrUploadHelp": "Sube un PNG o JPEG del QR de HumanID (carga binaria). Llamamos a preview-zelf-id-qr para extraer tu HumanID.",
+            "qrUploadHelp": "Sube un PNG o JPEG del QR de HumanID (carga binaria). Llamamos a preview-human-id-qr para extraer tu HumanID.",
             "chooseQrImage": "Elegir imagen QR",
             "readingQr": "Leyendo QR…",
             "secondaryPngJpeg": "PNG o JPEG",
@@ -7100,7 +7293,7 @@
             "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-zelfproof",
             "apiBaseUrlNote": "URL base https://api.verifik.co. Envía JSON con Content-Type: application/json y Authorization: Bearer <token de acceso> (el mismo JWT que esta demo tras iniciar sesión).",
             "apiDecryptEndpointDesc": "Compara tu imagen facial con la prueba y devuelve los campos públicos descifrados y la carga relacionada (por ejemplo recorte facial y dificultad) dentro del sobre data habitual firmado cuando la coincidencia tiene éxito.",
-            "apiPreviewQrEndpointDesc": "Úsalo cuando el usuario proporciona un PNG o JPEG del QR de HumanID. La API lee la carga del QR, ejecuta el mismo tipo de vista previa que la cadena y devuelve un zelfProof que puedes pasar al descifrado. La clave verificadora opcional aplica si la prueba se creó con una. Mismos encabezados JSON que el descifrado.",
+            "apiPreviewQrEndpointDesc": "Úsalo cuando el usuario proporciona un PNG o JPEG del QR de HumanID. La API lee la carga del QR, ejecuta el mismo tipo de vista previa que la cadena y devuelve un humanID que puedes pasar al descifrado. La clave verificadora opcional aplica si la prueba se creó con una. Mismos encabezados JSON que el descifrado.",
             "apiBullet1": "El descifrado usa decryptHumanId de @humanauthn/api-client. La subida por QR usa previewZelfIdQr primero y luego descifras con la cadena devuelta.",
             "apiBullet2": "Las respuestas exitosas siguen el patrón Verifik: un objeto data (y a menudo signature cuando la firma está habilitada en tu proyecto).",
             "apiBullet3": "Para inspeccionar una prueba sin imagen facial, abre la demo Vista previa HumanID (previewHumanId) o la guía Preview HumanID enlazada arriba.",
@@ -7168,7 +7361,7 @@
             "apiOfficialAfter": "(parámetros, respuestas y ejemplos). Esta demo llama a POST /v2/human-id/preview vía previewHumanId, alineado con ese flujo en la API actual. Relacionado:",
             "apiBaseUrlNote": "URL base https://api.verifik.co. Envía JSON con Content-Type: application/json y Authorization: Bearer <token de acceso> (el mismo JWT que esta demo tras iniciar sesión).",
             "apiPreviewEndpointDesc": "Devuelve campos de vista previa no sensibles para una prueba (por ejemplo si se requiere contraseña) dentro del sobre data firmado habitual.",
-            "apiPreviewQrEndpointDesc": "Úsalo cuando el usuario proporciona un PNG o JPEG del QR de HumanID. La API decodifica la carga y devuelve un zelfProof que puedes enviar a la llamada de vista previa anterior. Mismos encabezados JSON que la vista previa. Clave verificadora opcional si la prueba la usa.",
+            "apiPreviewQrEndpointDesc": "Úsalo cuando el usuario proporciona un PNG o JPEG del QR de HumanID. La API decodifica la carga y devuelve un humanID que puedes enviar a la llamada de vista previa anterior. Mismos encabezados JSON que la vista previa. Clave verificadora opcional si la prueba la usa.",
             "apiBullet1": "Esta demo usa previewHumanId y, para imágenes QR, previewZelfIdQr de @humanauthn/api-client con tu token de sesión.",
             "apiBullet2": "Las respuestas exitosas siguen el patrón Verifik: un objeto data (y a menudo signature cuando la firma está habilitada en tu proyecto).",
             "paramHumanIDDesc": "Cadena HumanID pegada o extraída del QR en este formulario",
@@ -7215,7 +7408,7 @@
             "ipfsNotePrefix": "La URL de puerta de enlace IPFS y los detalles del pin están en",
             "ipfsNoteSuffix": "abajo.",
             "decentralizedLabel": "Almacenamiento descentralizado",
-            "zelfProofHeading": "HumanID",
+            "humanIDHeading": "HumanID",
             "copyFull": "Copiar completo",
             "copied": "Copiado",
             "showFull": "Ver completo",
