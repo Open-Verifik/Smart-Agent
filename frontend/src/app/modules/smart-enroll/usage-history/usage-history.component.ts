@@ -38,6 +38,7 @@ import {
     TopSalesRow,
     UsageHistoryListParams,
 } from './usage-history.service';
+import { createdAtRangeParams } from '../../settings/usage-history/usage-history-date-params.util';
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
@@ -371,8 +372,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
 
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
-            params.whereGTE_createdAt = range.start.toFormat('yyyy-MM-dd');
-            params.whereLTE_createdAt = range.end.toFormat('yyyy-MM-dd');
+            Object.assign(params, createdAtRangeParams(range.start, range.end));
         }
 
         return params;
