@@ -7,6 +7,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { PostmanService } from '../postman/postman.service';
+import { catalogCountryScopeForCountries } from '../postman/postman-catalog.util';
 import { ApiEndpoint } from '../postman/postman.types';
 import { getAppFeatureCatalogCopy, resolvePostmanEndpointCopy } from '../postman/postman-endpoint-copy.util';
 import { postmanCountryFlagUi } from '../postman/postman-country.util';
@@ -384,6 +385,9 @@ export class CheckListWorkspaceComponent implements OnInit, OnDestroy {
                 this.selectedCodes.set(record.featureCodes || []);
                 this.activeDomain.set(record.domains?.[0] || 'people');
                 this.checklistId.set(record._id);
+                this._postman.loadFeaturesForCountries(
+                    catalogCountryScopeForCountries(record.countries)
+                );
                 this._hydrated = true;
             },
             error: () => this._router.navigate(['/check-list']),
@@ -449,6 +453,11 @@ export class CheckListWorkspaceComponent implements OnInit, OnDestroy {
     openEndpoint(endpoint: ApiEndpoint): void {
         this.selectedEndpoint.set(endpoint);
         this._request.prepare(endpoint);
+        this._postman.hydrateEndpointDetails(endpoint).subscribe((hydrated) => {
+            if (this.selectedEndpoint()?.code !== hydrated.code) return;
+            this.selectedEndpoint.set(hydrated);
+            this._request.prepare(hydrated);
+        });
     }
 
     addFeature(endpoint: ApiEndpoint): void {

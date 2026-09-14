@@ -40,6 +40,7 @@
         "emptyServicesBody": "Ajoutez des contrôles personnes, véhicules ou entreprises avec les pays déjà choisis.",
         "noResult": "Lancez ce contrôle pour voir un résultat.",
         "waitingResult": "Contrôle en cours… cela peut prendre quelques secondes.",
+        "loadingDetails": "Chargement des détails de l’endpoint…",
         "tabs": {
             "about": "À propos",
             "request": "Requête",
@@ -4028,6 +4029,7 @@
             "credits": "CRÉDITS",
             "sending": "Envoi...",
             "selectEndpoint": "Sélectionnez un endpoint pour commencer",
+            "loadingDetails": "Chargement des détails de l’endpoint…",
             "tabs": {
                 "about": "À propos",
                 "params": "Paramètres",

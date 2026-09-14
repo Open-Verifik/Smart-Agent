@@ -40,6 +40,7 @@
         "emptyServicesBody": "選んだ国の人・車両・法人チェックを追加できます。",
         "noResult": "このチェックを実行すると結果が表示されます。",
         "waitingResult": "チェックを実行しています… 数秒かかる場合があります。",
+        "loadingDetails": "エンドポイントの詳細を読み込み中…",
         "tabs": {
             "about": "概要",
             "request": "リクエスト",
@@ -4024,6 +4025,7 @@
             "credits": "クレジット",
             "sending": "送信中...",
             "selectEndpoint": "開始するエンドポイントを選択",
+            "loadingDetails": "エンドポイントの詳細を読み込み中…",
             "tabs": {
                 "about": "について",
                 "params": "パラメータ",

@@ -44,6 +44,7 @@
         "emptyServicesBody": "Add people, vehicle, or business checks using the countries you already chose.",
         "noResult": "Run this check to see a result.",
         "waitingResult": "Running this check… this can take a few seconds.",
+        "loadingDetails": "Loading endpoint details…",
         "tabs": {
             "about": "About",
             "request": "Request",
@@ -4040,6 +4041,7 @@
             "credits": "CREDITS",
             "sending": "Sending...",
             "selectEndpoint": "Select an endpoint to start",
+            "loadingDetails": "Loading endpoint details…",
             "tabs": {
                 "about": "About",
                 "params": "Params",

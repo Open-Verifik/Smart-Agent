@@ -40,6 +40,7 @@
         "emptyServicesBody": "用已选国家添加人员、车辆或企业核验。",
         "noResult": "运行此核验后即可查看结果。",
         "waitingResult": "正在运行此核验… 可能需要几秒钟。",
+        "loadingDetails": "正在加载端点详情…",
         "tabs": {
             "about": "说明",
             "request": "请求",
@@ -4024,6 +4025,7 @@
             "credits": "积分",
             "sending": "发送中...",
             "selectEndpoint": "选择一个端点开始",
+            "loadingDetails": "正在加载端点详情…",
             "tabs": {
                 "about": "关于",
                 "params": "参数",

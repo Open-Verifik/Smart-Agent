@@ -40,6 +40,7 @@
         "emptyServicesBody": "이미 선택한 국가로 사람, 차량, 사업자 조회를 추가하세요.",
         "noResult": "이 조회를 실행하면 결과가 표시됩니다.",
         "waitingResult": "조회를 실행 중입니다… 몇 초가 걸릴 수 있습니다.",
+        "loadingDetails": "엔드포인트 세부정보를 불러오는 중…",
         "tabs": {
             "about": "소개",
             "request": "요청",
@@ -4024,6 +4025,7 @@
             "credits": "크레딧",
             "sending": "전송 중...",
             "selectEndpoint": "시작할 엔드포인트를 선택하세요",
+            "loadingDetails": "엔드포인트 세부정보를 불러오는 중…",
             "tabs": {
                 "about": "정보",
                 "params": "매개변수",

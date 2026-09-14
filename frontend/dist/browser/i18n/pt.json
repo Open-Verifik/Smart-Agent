@@ -40,6 +40,7 @@
         "emptyServicesBody": "Adicione consultas de pessoas, veículos ou empresas com os países já escolhidos.",
         "noResult": "Execute esta consulta para ver um resultado.",
         "waitingResult": "Executando esta consulta… isso pode levar alguns segundos.",
+        "loadingDetails": "Carregando detalhes do endpoint…",
         "tabs": {
             "about": "Sobre",
             "request": "Requisição",
@@ -4024,6 +4025,7 @@
             "credits": "CRÉDITOS",
             "sending": "Enviando...",
             "selectEndpoint": "Selecione um endpoint para começar",
+            "loadingDetails": "Carregando detalhes do endpoint…",
             "tabs": {
                 "about": "Sobre",
                 "params": "Parâmetros",

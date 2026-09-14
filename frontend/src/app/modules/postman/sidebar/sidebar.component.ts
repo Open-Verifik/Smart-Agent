@@ -22,6 +22,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { filter } from 'rxjs';
 import { PostmanService } from '../postman.service';
+import { endpointMatchesCountryFilter } from '../postman-catalog.util';
 import {
   ApiEndpoint,
   PostmanFolderDto,
@@ -487,7 +488,7 @@ export class SidebarComponent {
     const folderById = new Map(this.postman.layoutFolders().map((f) => [f._id, f]));
 
     return endpoints.filter((endpoint) => {
-      if (country && endpoint.country !== country) {
+      if (!endpointMatchesCountryFilter(endpoint.country, country)) {
         return false;
       }
       if (!query) {
@@ -556,7 +557,7 @@ export class SidebarComponent {
 
     const groups = endpoints.reduce(
       (acc, endpoint) => {
-        if (country && endpoint.country !== country) {
+        if (!endpointMatchesCountryFilter(endpoint.country, country)) {
           return acc;
         }
 

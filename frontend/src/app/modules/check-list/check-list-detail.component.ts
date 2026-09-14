@@ -6,6 +6,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiEndpoint } from '../postman/postman.types';
 import { getAppFeatureCatalogCopy, resolvePostmanEndpointCopy } from '../postman/postman-endpoint-copy.util';
 import { getPostmanRequestValidationIssues } from '../postman/postman-request-validation';
+import { PostmanService } from '../postman/postman.service';
 import { AboutEndpointComponent } from '../postman/request-editor/about-endpoint.component';
 import { JsonTableComponent } from '../postman/response-viewer/json-table.component';
 import { formatCatalogPrice, sanitizeDisplayPayload } from '../postman/postman-docs-params.util';
@@ -69,10 +70,16 @@ type ResultView = 'table' | 'json';
 
             <div class="min-h-0 flex-1 overflow-auto">
                 @if (activeTab() === 'about') {
-                    <postman-about-endpoint
-                        [docs]="endpoint()?.docs"
-                        [endpoint]="endpoint()"
-                    ></postman-about-endpoint>
+                    @if (detailLoading() && !endpoint()?.docs) {
+                        <p class="p-5 text-sm text-[var(--cl-muted)]">
+                            {{ 'checkList.loadingDetails' | transloco }}
+                        </p>
+                    } @else {
+                        <postman-about-endpoint
+                            [docs]="endpoint()?.docs"
+                            [endpoint]="endpoint()"
+                        ></postman-about-endpoint>
+                    }
                 }
 
                 @if (activeTab() === 'request') {
@@ -180,7 +187,9 @@ type ResultView = 'table' | 'json';
 })
 export class CheckListDetailComponent {
     private _transloco = inject(TranslocoService);
+    private _postman = inject(PostmanService);
     request = inject(CheckListRequestService);
+    detailLoading = this._postman.detailLoading;
 
     endpoint = input<ApiEndpoint | null>(null);
     saved = input(false);

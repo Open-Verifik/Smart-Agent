@@ -13,6 +13,7 @@ import {
     PostmanCountryFlagUi,
     resolveCountryNameFromIso,
 } from './postman-country.util';
+import { DEFAULT_POSTMAN_COUNTRY, catalogCountryScope } from './postman-catalog.util';
 import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
     PostmanHistoryPrefillPayload,
@@ -425,49 +426,37 @@ export class PostmanComponent {
 
     // Flag to prevent cyclic updates
     private _isNavigating = false;
+    private _openedCodeFromUrl: string | null = null;
 
     selectedCountry = this._postmanService.selectedCountry;
 
-    countries = computed(() => {
-        const endpoints = this._postmanService.visibleEndpoints();
-        const counts: Record<string, number> = {};
-
-        endpoints.forEach((ep) => {
-            if (ep.country) {
-                counts[ep.country] = (counts[ep.country] || 0) + 1;
-            }
-        });
-
-        return Object.entries(counts)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
-    });
+    countries = computed(() =>
+        this._postmanService
+            .catalogCountries()
+            .map(({ country, count }) => ({ name: country, count }))
+            .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
+    );
 
     // Payment Method State
     paymentMethod = this._postmanService.paymentMethod;
 
     toggleCountry(country: string) {
-        const next = this.selectedCountry() === country ? null : country;
-        this.selectedCountry.set(next);
+        if (this.selectedCountry() === country) {
+            return;
+        }
+        this.selectedCountry.set(country);
+        this._postmanService.loadFeaturesForCountries(catalogCountryScope(country));
 
         if (this.isMobile()) {
             this.mobileSidebarOpen.set(false);
         }
-        const iso = next ? countryNameToIso(next) : null;
-
+        const iso = countryNameToIso(country);
         const queryParams: Record<string, string | null> = { country: iso };
 
-        /**
-         * Switching to a country whose filter excludes the active endpoint
-         * would leave a stale `code=...` in the URL. Drop both the URL param
-         * and the in-memory selection so the request editor resets cleanly.
-         */
-        if (next) {
-            const currentEp = this._postmanService.selectedEndpoint();
-            if (currentEp?.country && currentEp.country !== next) {
-                queryParams['code'] = null;
-                this._postmanService.selectedEndpoint.set(null);
-            }
+        const currentEp = this._postmanService.selectedEndpoint();
+        if (currentEp?.country && currentEp.country !== country && currentEp.country !== 'world') {
+            queryParams['code'] = null;
+            this._postmanService.selectedEndpoint.set(null);
         }
 
         this._router.navigate([], {
@@ -508,40 +497,47 @@ export class PostmanComponent {
         effect(() => {
             const params = this._queryParamMap();
             const codeParam = params?.get('code');
+            if (!codeParam) {
+                this._openedCodeFromUrl = null;
+                return;
+            }
             const endpoints = this._postmanService.visibleEndpoints();
-            if (endpoints.length > 0 && codeParam) {
-                const found = endpoints.find((ep) => ep.code === codeParam);
-                // Skip re-selecting if the endpoint is already active. Re-selecting
-                // calls `selectEndpoint` which clears the current `response`, and we
-                // would otherwise wipe the user's last result whenever the endpoint
-                // catalog is reloaded (e.g. after a credits refresh).
-                if (found && this._postmanService.selectedEndpoint()?.code !== found.code) {
+            const found = endpoints.find((ep) => ep.code === codeParam);
+            if (found) {
+                if (this._postmanService.selectedEndpoint()?.code !== found.code) {
                     this._postmanService.selectEndpoint(found);
                 }
+                return;
+            }
+            if (this._openedCodeFromUrl !== codeParam) {
+                this._openedCodeFromUrl = codeParam;
+                this._postmanService.openEndpointByCode(codeParam);
             }
         });
 
-        // Effect: Sync URL country param -> selectedCountry, gated on loaded catalog
+        // Effect: Sync URL country param -> selectedCountry, then load that slim catalog.
         effect(() => {
             const params = this._queryParamMap();
             const isoParam = params?.get('country');
-            const endpoints = this._postmanService.visibleEndpoints();
-            if (endpoints.length === 0) return;
+            const countryRows = this._postmanService.catalogCountries();
+            const catalogEndpoints = countryRows.map((row) => ({ country: row.country }) as ApiEndpoint);
 
             if (!isoParam) {
-                if (this._postmanService.selectedCountry() !== null) {
-                    this._postmanService.selectedCountry.set(null);
+                if (params?.get('code')) {
+                    return;
+                }
+                if (this._postmanService.selectedCountry() !== DEFAULT_POSTMAN_COUNTRY) {
+                    this._postmanService.selectedCountry.set(DEFAULT_POSTMAN_COUNTRY);
                 }
                 return;
             }
 
-            const resolved = resolveCountryNameFromIso(isoParam, endpoints);
-            if (resolved) {
-                if (this._postmanService.selectedCountry() !== resolved) {
-                    this._postmanService.selectedCountry.set(resolved);
-                }
-            } else if (this._postmanService.selectedCountry() !== null) {
-                this._postmanService.selectedCountry.set(null);
+            const resolved =
+                resolveCountryNameFromIso(isoParam, catalogEndpoints) ||
+                resolveCountryNameFromIso(isoParam, this._postmanService.visibleEndpoints());
+            if (resolved && this._postmanService.selectedCountry() !== resolved) {
+                this._postmanService.selectedCountry.set(resolved);
+                this._postmanService.loadFeaturesForCountries(catalogCountryScope(resolved));
             }
         });
 

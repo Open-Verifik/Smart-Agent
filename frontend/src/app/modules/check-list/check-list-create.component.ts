@@ -101,7 +101,7 @@ export class CheckListCreateComponent {
     saving = this._lists.saving;
     error = this._lists.error;
 
-    countries = computed(() => listCheckListCountries(this._postman.visibleEndpoints()));
+    countries = computed(() => listCheckListCountries(this._postman.catalogCountries()));
 
     canSave = computed(
         () => this.selectedCountries().length > 0 && Boolean(this.name().trim()) && !this.saving()
