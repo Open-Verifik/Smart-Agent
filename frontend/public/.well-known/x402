@@ -55,7 +55,6 @@
     "POST /api/ar/dnrec/antecedentes",
     "POST /api/cl/registro-civil/certificado",
     "POST /api/usa/florida/driver-license",
-    "POST /api/communication/whatsapp",
     "GET /api/br/vehicle",
     "GET /api/ar/cedula",
     "GET /api/ec/company",

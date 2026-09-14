@@ -13,7 +13,11 @@ import {
     PostmanCountryFlagUi,
     resolveCountryNameFromIso,
 } from './postman-country.util';
-import { DEFAULT_POSTMAN_COUNTRY, catalogCountryScope } from './postman-catalog.util';
+import {
+    DEFAULT_POSTMAN_COUNTRY,
+    catalogCountryScope,
+    endpointMatchesCountryFilter,
+} from './postman-catalog.util';
 import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
     PostmanHistoryPrefillPayload,
@@ -454,7 +458,7 @@ export class PostmanComponent {
         const queryParams: Record<string, string | null> = { country: iso };
 
         const currentEp = this._postmanService.selectedEndpoint();
-        if (currentEp?.country && currentEp.country !== country && currentEp.country !== 'world') {
+        if (currentEp && !endpointMatchesCountryFilter(currentEp.country, country)) {
             queryParams['code'] = null;
             this._postmanService.selectedEndpoint.set(null);
         }
@@ -501,9 +505,18 @@ export class PostmanComponent {
                 this._openedCodeFromUrl = null;
                 return;
             }
+            const isoParam = params?.get('country');
+            const selectedCountry = this._postmanService.selectedCountry();
+            const selectedIso = countryNameToIso(selectedCountry);
+            if (isoParam && selectedIso && isoParam !== selectedIso) {
+                return;
+            }
             const endpoints = this._postmanService.visibleEndpoints();
             const found = endpoints.find((ep) => ep.code === codeParam);
             if (found) {
+                if (selectedCountry && !endpointMatchesCountryFilter(found.country, selectedCountry)) {
+                    return;
+                }
                 if (this._postmanService.selectedEndpoint()?.code !== found.code) {
                     this._postmanService.selectEndpoint(found);
                 }
@@ -547,6 +560,11 @@ export class PostmanComponent {
         effect(() => {
             const selected = this._postmanService.selectedEndpoint();
             if (!selected?.code) return;
+
+            const selectedCountry = this._postmanService.selectedCountry();
+            if (selectedCountry && !endpointMatchesCountryFilter(selected.country, selectedCountry)) {
+                return;
+            }
 
             const currentParams = this._queryParamMap();
             const desiredCountryIso = countryNameToIso(selected.country);
