@@ -7,6 +7,36 @@ import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
 import { AgentWalletService } from 'app/modules/chat/services/agent-wallet.service';
 import {
+    defaultValueForDependency,
+    paramValueForDependency,
+    resolveHumanAuthnDependencies,
+    shouldListHumanAuthnParams,
+} from './human-authn-postman.catalog';
+import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
+import {
+    CatalogCountryRow,
+    DEFAULT_POSTMAN_COUNTRY,
+    catalogCountryScope,
+    catalogNeedsDetailHydration,
+    countryCacheKey,
+    endpointMatchesCountryFilter,
+    extractCountryRows,
+    extractFeatureRows,
+    isCatalogTransportFailure,
+} from './postman-catalog.util';
+import {
+    POSTMAN_INCLUDE_COST_KEY,
+    ensurePostmanIncludeCostParam,
+    removePostmanIncludeCostParam,
+    resolvePostmanIncludeCostForSend,
+} from './postman-include-cost.util';
+import {
+    getPostmanRequestValidationIssues,
+    getPostmanXorGroupMetadata,
+} from './postman-request-validation';
+import { normalizePostmanSexoValue } from './postman-sexo.util';
+import { buildPostmanEffectiveUrl, getPostmanPathParamKeysForEndpoint } from './postman-url.util';
+import {
     API_ENDPOINTS,
     ApiEndpoint,
     PostmanDependencyMeta,
@@ -15,46 +45,25 @@ import {
     PostmanLayoutData,
     PostmanLayoutResponse,
 } from './postman.types';
-import {
-    getPostmanRequestValidationIssues,
-    getPostmanXorGroupMetadata,
-} from './postman-request-validation';
 import { applyPostmanSandboxParamDefaults } from './sandbox';
-import {
-    buildPostmanEffectiveUrl,
-    getPostmanPathParamKeysForEndpoint,
-} from './postman-url.util';
-import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
-import {
-    CatalogCountryRow,
-    DEFAULT_POSTMAN_COUNTRY,
-    catalogCountryScope,
-    catalogNeedsDetailHydration,
-    endpointMatchesCountryFilter,
-    countryCacheKey,
-    extractCountryRows,
-    extractFeatureRows,
-    isCatalogTransportFailure,
-} from './postman-catalog.util';
-import {
-    ensurePostmanIncludeCostParam,
-    POSTMAN_INCLUDE_COST_KEY,
-    removePostmanIncludeCostParam,
-    resolvePostmanIncludeCostForSend,
-} from './postman-include-cost.util';
-import { normalizePostmanSexoValue } from './postman-sexo.util';
-import {
-    defaultValueForDependency,
-    paramValueForDependency,
-    resolveHumanAuthnDependencies,
-    shouldListHumanAuthnParams,
-} from './human-authn-postman.catalog';
 
-import { mergeParamsFromDocs } from './postman-docs-params.util';
 import { TranslocoService } from '@jsverse/transloco';
-import { environment } from 'environments/environment';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
-import { Observable, catchError, distinctUntilChanged, finalize, forkJoin, map, of, skip, tap, throwError } from 'rxjs';
+import { environment } from 'environments/environment';
+import {
+    Observable,
+    catchError,
+    distinctUntilChanged,
+    finalize,
+    forkJoin,
+    map,
+    of,
+    skip,
+    tap,
+    throwError,
+} from 'rxjs';
+import { mergeParamsFromDocs } from './postman-docs-params.util';
+import { postmanEndpointDetailCache } from './postman-endpoint-detail.cache';
 
 @Injectable({
     providedIn: 'root',
@@ -127,8 +136,9 @@ export class PostmanService {
                     workspacePostman: this._canUseWorkspacePostmanApis(),
                 })),
                 distinctUntilChanged(
-                    (a, b) => a.identityKey === b.identityKey && a.workspacePostman === b.workspacePostman
-                ),
+                    (a, b) =>
+                        a.identityKey === b.identityKey && a.workspacePostman === b.workspacePostman
+                )
             )
             .subscribe(() => {
                 this.loadExplorerData();
@@ -286,7 +296,10 @@ export class PostmanService {
             ? this._httpClient.get<any>(workspaceUrl, { params }).pipe(
                   catchError((err) => {
                       if (isCatalogTransportFailure(err)) {
-                          console.error('Catalog list transport failed; retrying public slim list', err);
+                          console.error(
+                              'Catalog list transport failed; retrying public slim list',
+                              err
+                          );
                       } else {
                           console.error('Failed to fetch features', err);
                       }
@@ -372,25 +385,44 @@ export class PostmanService {
                 params: this._mergeEndpointParams(current.params, match.params),
                 body: current.body ?? match.body,
                 docs: current.docs ?? match.docs,
-                dependencies: current.dependencies?.length ? current.dependencies : match.dependencies,
+                dependencies: current.dependencies?.length
+                    ? current.dependencies
+                    : match.dependencies,
             };
         });
     }
 
+    private _rememberFeatureDetail(feature: unknown): void {
+        const row =
+            feature && typeof feature === 'object'
+                ? (feature as { code?: string; _id?: string })
+                : null;
+        const key = row?.code || row?._id;
+
+        if (!key) return;
+
+        postmanEndpointDetailCache.set(String(key), feature);
+    }
+
     private _fetchFeatureDetail(codeOrId: string) {
+        const cached = postmanEndpointDetailCache.get(codeOrId);
+
+        if (cached) return of(cached);
+
         const apiUrl = this._apiUrl();
         const public$ = this._httpClient.get<any>(
             `${apiUrl}/v2/public/app-features/${encodeURIComponent(codeOrId)}`
         );
         const workspace$ =
             this._canUseWorkspacePostmanApis() && /^[a-fA-F0-9]{24}$/.test(codeOrId)
-                ? this._httpClient.get<any>(`${apiUrl}/v2/app-features/${codeOrId}`).pipe(
-                      catchError(() => public$)
-                  )
+                ? this._httpClient
+                      .get<any>(`${apiUrl}/v2/app-features/${codeOrId}`)
+                      .pipe(catchError(() => public$))
                 : public$;
 
         return workspace$.pipe(
             map((payload) => payload?.data ?? null),
+            tap((feature) => this._rememberFeatureDetail(feature)),
             catchError((err) => {
                 console.error('Failed to fetch feature detail', err);
                 return of(null);
@@ -410,25 +442,31 @@ export class PostmanService {
             return of(endpoint);
         }
 
+        const cached = postmanEndpointDetailCache.get(codeOrId);
+        if (cached) {
+            return of(this._mergeHydratedFeature(endpoint, cached));
+        }
+
         this.detailLoading.set(true);
         return this._fetchFeatureDetail(codeOrId).pipe(
-            map((feature) => {
-                if (!feature) return endpoint;
-                const hydrated = this._createEndpointFromFeature(feature, this._apiUrl());
-                return {
-                    ...endpoint,
-                    ...hydrated,
-                    headers: endpoint.headers?.length ? endpoint.headers : hydrated.headers,
-                    params: this._mergeEndpointParams(endpoint.params, hydrated.params),
-                    body: endpoint.body ?? hydrated.body,
-                    docs: hydrated.docs ?? endpoint.docs,
-                    dependencies: hydrated.dependencies?.length
-                        ? hydrated.dependencies
-                        : endpoint.dependencies,
-                };
-            }),
+            map((feature) => (feature ? this._mergeHydratedFeature(endpoint, feature) : endpoint)),
             finalize(() => this.detailLoading.set(false))
         );
+    }
+
+    private _mergeHydratedFeature(endpoint: ApiEndpoint, feature: unknown): ApiEndpoint {
+        const hydrated = this._createEndpointFromFeature(feature, this._apiUrl());
+        return {
+            ...endpoint,
+            ...hydrated,
+            headers: endpoint.headers?.length ? endpoint.headers : hydrated.headers,
+            params: this._mergeEndpointParams(endpoint.params, hydrated.params),
+            body: endpoint.body ?? hydrated.body,
+            docs: hydrated.docs ?? endpoint.docs,
+            dependencies: hydrated.dependencies?.length
+                ? hydrated.dependencies
+                : endpoint.dependencies,
+        };
     }
 
     private _normalizeFolderDto(f: PostmanFolderDto): PostmanFolderDto {
@@ -563,7 +601,10 @@ export class PostmanService {
         }));
     }
 
-    private _paramsFromDependencies(rawDeps: any[], xorMeta: ReturnType<typeof getPostmanXorGroupMetadata>) {
+    private _paramsFromDependencies(
+        rawDeps: any[],
+        xorMeta: ReturnType<typeof getPostmanXorGroupMetadata>
+    ) {
         return rawDeps.map((dependency) => {
             const groupId =
                 dependency.dependencyGroup != null ? String(dependency.dependencyGroup).trim() : '';
@@ -690,7 +731,9 @@ export class PostmanService {
                 params: this._mergeEndpointParams(existing.params, match.params),
                 body: existing.body ?? match.body,
                 documentationUrl: existing.documentationUrl || match.documentationUrl,
-                dependencies: match.dependencies?.length ? match.dependencies : existing.dependencies,
+                dependencies: match.dependencies?.length
+                    ? match.dependencies
+                    : existing.dependencies,
             };
         });
 
@@ -926,10 +969,7 @@ export class PostmanService {
 
         let body = null;
         if (endpoint.method !== 'GET' && endpoint.method !== 'DELETE') {
-            body =
-                endpoint.body && typeof endpoint.body === 'object'
-                    ? { ...endpoint.body }
-                    : {};
+            body = endpoint.body && typeof endpoint.body === 'object' ? { ...endpoint.body } : {};
             if (body && typeof body.sexo === 'string') {
                 body.sexo = normalizePostmanSexoValue(body.sexo);
             }
