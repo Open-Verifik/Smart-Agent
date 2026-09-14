@@ -6,27 +6,27 @@ export type CatalogCountryRow = {
     count: number;
 };
 
-/**
- * Countries to request for a Postman sidebar load: selected + world, or world alone.
- */
-export const catalogCountryScope = (selected: string | null | undefined): string[] => {
-    const country = selected?.trim();
-    if (!country) {
-        return [DEFAULT_POSTMAN_COUNTRY, WORLD_CATALOG_COUNTRY];
-    }
-    if (country.toLowerCase() === WORLD_CATALOG_COUNTRY || country === 'Global') {
-        return [WORLD_CATALOG_COUNTRY];
-    }
-    return [...new Set([country, WORLD_CATALOG_COUNTRY])];
-};
-
-export const countryCacheKey = (countries: string[]): string =>
-    [...new Set(countries.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'en')).join('|');
-
 const isWorldCountry = (value: string | null | undefined): boolean => {
     const country = value?.trim().toLowerCase();
     return country === WORLD_CATALOG_COUNTRY || country === 'global';
 };
+
+/**
+ * Countries to request for a Postman sidebar load: the selected country only.
+ */
+export const catalogCountryScope = (selected: string | null | undefined): string[] => {
+    const country = selected?.trim();
+    if (!country) {
+        return [DEFAULT_POSTMAN_COUNTRY];
+    }
+    if (isWorldCountry(country)) {
+        return [WORLD_CATALOG_COUNTRY];
+    }
+    return [country];
+};
+
+export const countryCacheKey = (countries: string[]): string =>
+    [...new Set(countries.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'en')).join('|');
 
 /**
  * Scope for Check List and multi-country loads: selected countries plus world.
@@ -34,7 +34,7 @@ const isWorldCountry = (value: string | null | undefined): boolean => {
 export const catalogCountryScopeForCountries = (countries: string[] | null | undefined): string[] => {
     const named = [...new Set((countries ?? []).map((value) => value.trim()).filter(Boolean))];
     if (!named.length) {
-        return catalogCountryScope(null);
+        return [DEFAULT_POSTMAN_COUNTRY, WORLD_CATALOG_COUNTRY];
     }
     if (named.every((value) => isWorldCountry(value))) {
         return [WORLD_CATALOG_COUNTRY];
@@ -50,9 +50,8 @@ export const endpointMatchesCountryFilter = (
     selected: string | null | undefined
 ): boolean => {
     if (!selected) return true;
-    if (endpointCountry === selected) return true;
     if (isWorldCountry(selected)) return isWorldCountry(endpointCountry);
-    return isWorldCountry(endpointCountry);
+    return endpointCountry === selected;
 };
 
 export const catalogNeedsDetailHydration = (

@@ -30,6 +30,7 @@ import {
     DEFAULT_POSTMAN_COUNTRY,
     catalogCountryScope,
     catalogNeedsDetailHydration,
+    endpointMatchesCountryFilter,
     countryCacheKey,
     extractCountryRows,
     extractFeatureRows,
@@ -347,8 +348,9 @@ export class PostmanService {
             folders: this.layoutFolders(),
             endpoints: this.layoutEndpointsRaw(),
         });
-        const allowed = new Set(countries);
-        const scoped = withLayout.filter((endpoint) => !endpoint.country || allowed.has(endpoint.country));
+        const scoped = withLayout.filter((endpoint) =>
+            countries.some((country) => endpointMatchesCountryFilter(endpoint.country, country))
+        );
         const cacheKey = countryCacheKey(countries);
         this._featureCache.set(cacheKey, scoped);
         if (cacheKey !== this._requestedScopeKey) {

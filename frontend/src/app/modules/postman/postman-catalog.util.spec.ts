@@ -16,12 +16,12 @@ describe('postman-catalog.util', () => {
         expect(DEFAULT_POSTMAN_COUNTRY).toBe('Colombia');
     });
 
-    it('scopes a named country with world', () => {
-        expect(catalogCountryScope('Chile')).toEqual(['Chile', 'world']);
+    it('scopes a named country to that country only', () => {
+        expect(catalogCountryScope('Chile')).toEqual(['Chile']);
     });
 
-    it('scopes a missing selection to Colombia plus world', () => {
-        expect(catalogCountryScope(null)).toEqual(['Colombia', 'world']);
+    it('scopes a missing selection to Colombia only', () => {
+        expect(catalogCountryScope(null)).toEqual(['Colombia']);
     });
 
     it('scopes world alone when world is selected', () => {
@@ -61,8 +61,9 @@ describe('postman-catalog.util', () => {
         expect(catalogCountryScopeForCountries([])).toEqual(['Colombia', 'world']);
     });
 
-    it('keeps world endpoints when a named country is selected', () => {
-        expect(endpointMatchesCountryFilter('world', 'Colombia')).toBe(true);
+    it('shows only the selected country in the sidebar', () => {
+        expect(endpointMatchesCountryFilter('Bolivia', 'Bolivia')).toBe(true);
+        expect(endpointMatchesCountryFilter('world', 'Bolivia')).toBe(false);
         expect(endpointMatchesCountryFilter('Chile', 'Colombia')).toBe(false);
         expect(endpointMatchesCountryFilter('world', 'world')).toBe(true);
     });
