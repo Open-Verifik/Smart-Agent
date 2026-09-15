@@ -239,6 +239,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     );
 
     isWideStep = computed(() => this.step() === 'layout' || this.step() === 'template');
+    isLayoutStep = computed(() => this.step() === 'layout');
 
     selectedLayoutSection = computed(() => {
         const id = this.selectedLayoutSectionId();
