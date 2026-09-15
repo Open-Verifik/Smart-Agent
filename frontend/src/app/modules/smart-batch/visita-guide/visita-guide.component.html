@@ -660,8 +660,16 @@
                             >
                                 {{ t('visitaGuide.openDesigner') }}
                             </button>
+                            <button
+                                type="button"
+                                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                                (click)="openLayoutPageEditor($event)"
+                            >
+                                {{ t('visitaGuide.layoutEditorPage') }}
+                            </button>
                         </div>
-                        <div class="mt-4 grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)_minmax(16rem,22vw)]">
+                        <p class="mt-2 text-[11px] text-stone-400">{{ t('visitaGuide.layoutEditorHint') }}</p>
+                        <div class="mt-4 grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)]">
                             <div
                                 cdkDropList
                                 id="visita-layout-data"
@@ -774,7 +782,7 @@
                                         [selectedOverlay]="selectedLayoutOverlay()"
                                         [sectionClick]="onLayoutSectionClick"
                                         (overlaySelect)="onLayoutOverlaySelect($event)"
-                                        (backgroundClick)="clearLayoutSelection()"
+                                        (backgroundClick)="openLayoutPageEditor()"
                                         (logoPositionChange)="onLayoutLogoPositionChange($event)"
                                         (logoSizeChange)="onLayoutLogoSizeChange($event)"
                                         (logoRotationChange)="onLayoutLogoRotationChange($event)"
@@ -784,8 +792,35 @@
                                     ></report-preview>
                                 }
                             </div>
+                        </div>
 
-                            <div class="flex max-h-[82vh] min-w-0 flex-col gap-3 overflow-y-auto pr-1">
+                        @if (layoutEditorKind()) {
+                            <div
+                                cdkDrag
+                                class="visita-layout-editor fixed right-4 top-24 z-50 flex max-h-[78vh] w-80 flex-col rounded-xl border border-indigo-200 bg-white shadow-2xl dark:border-indigo-800 dark:bg-gray-900"
+                                (click)="$event.stopPropagation()"
+                            >
+                                <div
+                                    cdkDragHandle
+                                    class="flex cursor-grab select-none items-center justify-between rounded-t-xl border-b border-stone-100 bg-stone-50 px-3 py-2 active:cursor-grabbing dark:border-gray-800 dark:bg-gray-950/50"
+                                >
+                                    <div class="flex min-w-0 items-center gap-2">
+                                        <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-400">drag_indicator</mat-icon>
+                                        <h3 class="truncate text-sm font-semibold text-stone-950 dark:text-white">
+                                            {{ t(layoutEditorTitleKey()) }}
+                                        </h3>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-gray-800"
+                                        (click)="closeLayoutEditor(); $event.stopPropagation()"
+                                        [attr.aria-label]="t('visitaGuide.layoutEditorClose')"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                                    </button>
+                                </div>
+                                <div class="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
+                                @if (layoutEditorKind() === 'page') {
                                 <section class="rounded-2xl border border-sky-300 bg-sky-50 p-3 dark:border-sky-800 dark:bg-sky-950/40">
                                     <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-800 dark:text-sky-300">
                                         {{ t('visitaGuide.layoutPanelReport') }}
@@ -828,7 +863,9 @@
                                         />
                                     </div>
                                 </section>
+                                }
 
+                                @if (layoutEditorKind() === 'page' || layoutEditorKind() === 'overlay') {
                                 <section class="rounded-2xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
                                 <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-800 dark:text-violet-300">
                                     {{ t('visitaGuide.layoutBrand') }}
@@ -968,8 +1005,9 @@
                                     {{ t('visitaGuide.layoutPageNumbers') }}
                                 </label>
                                 </section>
+                                }
 
-                                @if (selectedLayoutSection(); as selected) {
+                                @if (layoutEditorKind() === 'block' && selectedLayoutSection(); as selected) {
                                     <div class="rounded-2xl border-2 border-indigo-400 bg-indigo-50 p-3 dark:border-indigo-500 dark:bg-indigo-950/50">
                                         <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">
                                             {{ t('visitaGuide.layoutPanelBlock') }}
@@ -990,118 +1028,94 @@
                                                 (ngModelChange)="setSelectedLayoutBody($event)"
                                             ></textarea>
                                         }
-                                        @if (selectedLayoutShowsTypography()) {
-                                            <div class="mt-3 rounded-xl border border-cyan-300 bg-cyan-50 p-3 dark:border-cyan-800 dark:bg-cyan-950/40">
-                                            <p class="text-[11px] font-semibold uppercase tracking-wider text-cyan-800 dark:text-cyan-300">
-                                                {{ t('smartReport.style') }}
-                                            </p>
-                                            <label class="mt-2 block text-xs text-stone-500">{{
-                                                t('smartReport.fontFamily')
-                                            }}</label>
-                                            <select
-                                                class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                                [ngModel]="selectedLayoutFontFamily()"
-                                                (ngModelChange)="setSelectedLayoutFontFamily($event)"
-                                            >
-                                                @for (font of reportFonts; track font.value) {
-                                                    <option [ngValue]="font.value">{{ t(font.labelKey) }}</option>
-                                                }
-                                            </select>
-                                            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
-                                                <span>{{ t('smartReport.fontSize') }}</span>
-                                                <span>{{ selectedLayoutFontSize() }} px</span>
-                                            </label>
-                                            <input
-                                                type="range"
-                                                min="8"
-                                                max="48"
-                                                step="1"
-                                                class="mt-1 w-full"
-                                                [ngModel]="selectedLayoutFontSize()"
-                                                (ngModelChange)="setSelectedLayoutFontSize($event)"
-                                            />
-                                            <label class="mt-2 block text-xs text-stone-500">{{
-                                                t('smartReport.textAlign')
-                                            }}</label>
-                                            <div class="mt-1 flex gap-1">
-                                                @for (align of layoutTextAligns; track align) {
+                                        @for (role of selectedLayoutTextRoles(); track role) {
+                                            <div [class]="layoutRolePanelClass(role)">
+                                                <p [class]="layoutRoleHeadingClass(role)">
+                                                    {{ t(layoutRoleTitleKey(role)) }}
+                                                </p>
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('smartReport.fontFamily')
+                                                }}</label>
+                                                <select
+                                                    class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [ngModel]="layoutRoleFontFamily(role)"
+                                                    (ngModelChange)="setLayoutRoleFontFamily(role, $event)"
+                                                >
+                                                    @for (font of reportFonts; track font.value) {
+                                                        <option [ngValue]="font.value">{{ t(font.labelKey) }}</option>
+                                                    }
+                                                </select>
+                                                <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('smartReport.fontSize') }}</span>
+                                                    <span>{{ layoutRoleFontSize(role) }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="8"
+                                                    max="48"
+                                                    step="1"
+                                                    class="mt-1 w-full"
+                                                    [ngModel]="layoutRoleFontSize(role)"
+                                                    (ngModelChange)="setLayoutRoleFontSize(role, $event)"
+                                                />
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('smartReport.textAlign')
+                                                }}</label>
+                                                <div class="mt-1 flex gap-1">
+                                                    @for (align of layoutTextAligns; track align) {
+                                                        <button
+                                                            type="button"
+                                                            class="flex flex-1 items-center justify-center rounded-lg border py-2 text-stone-700 dark:text-stone-200"
+                                                            [class.border-stone-950]="layoutRoleAlign(role) === align"
+                                                            [class.bg-white]="layoutRoleAlign(role) === align"
+                                                            [class.border-stone-200]="layoutRoleAlign(role) !== align"
+                                                            [attr.aria-label]="align"
+                                                            (click)="setLayoutRoleAlign(role, align)"
+                                                        >
+                                                            <mat-icon class="!h-4 !w-4 !text-base">{{
+                                                                'format_align_' + align
+                                                            }}</mat-icon>
+                                                        </button>
+                                                    }
+                                                </div>
+                                                <div class="mt-2 flex gap-1">
                                                     <button
                                                         type="button"
-                                                        class="flex flex-1 items-center justify-center rounded-lg border py-2 text-stone-700 dark:text-stone-200"
-                                                        [class.border-stone-950]="selectedLayoutAlign() === align"
-                                                        [class.bg-stone-50]="selectedLayoutAlign() === align"
-                                                        [class.border-stone-200]="selectedLayoutAlign() !== align"
-                                                        [attr.aria-label]="align"
-                                                        (click)="setSelectedLayoutAlign(align)"
+                                                        class="flex-1 rounded-lg border py-2 text-xs font-bold text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="layoutRoleIsBold(role)"
+                                                        [class.bg-white]="layoutRoleIsBold(role)"
+                                                        [class.border-stone-200]="!layoutRoleIsBold(role)"
+                                                        (click)="setLayoutRoleBold(role, !layoutRoleIsBold(role))"
                                                     >
-                                                        <mat-icon class="!h-4 !w-4 !text-base">{{
-                                                            'format_align_' + align
-                                                        }}</mat-icon>
+                                                        {{ t('smartReport.bold') }}
                                                     </button>
-                                                }
-                                            </div>
-                                            <div class="mt-2 flex gap-1">
-                                                <button
-                                                    type="button"
-                                                    class="flex-1 rounded-lg border py-2 text-xs font-bold text-stone-700 dark:text-stone-200"
-                                                    [class.border-stone-950]="selectedLayoutIsBold()"
-                                                    [class.bg-stone-50]="selectedLayoutIsBold()"
-                                                    [class.border-stone-200]="!selectedLayoutIsBold()"
-                                                    (click)="setSelectedLayoutBold(!selectedLayoutIsBold())"
-                                                >
-                                                    {{ t('smartReport.bold') }}
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    class="flex-1 rounded-lg border py-2 text-xs italic text-stone-700 dark:text-stone-200"
-                                                    [class.border-stone-950]="selectedLayoutIsItalic()"
-                                                    [class.bg-stone-50]="selectedLayoutIsItalic()"
-                                                    [class.border-stone-200]="!selectedLayoutIsItalic()"
-                                                    (click)="setSelectedLayoutItalic(!selectedLayoutIsItalic())"
-                                                >
-                                                    {{ t('smartReport.italic') }}
-                                                </button>
-                                            </div>
+                                                    <button
+                                                        type="button"
+                                                        class="flex-1 rounded-lg border py-2 text-xs italic text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="layoutRoleIsItalic(role)"
+                                                        [class.bg-white]="layoutRoleIsItalic(role)"
+                                                        [class.border-stone-200]="!layoutRoleIsItalic(role)"
+                                                        (click)="setLayoutRoleItalic(role, !layoutRoleIsItalic(role))"
+                                                    >
+                                                        {{ t('smartReport.italic') }}
+                                                    </button>
+                                                </div>
+                                                <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                    t('visitaGuide.layoutBlockColor')
+                                                }}</span>
+                                                <color-hex-field
+                                                    class="mt-1 block"
+                                                    [ngModel]="layoutRoleColor(role)"
+                                                    (ngModelChange)="setLayoutRoleColor(role, $event)"
+                                                    [ariaLabel]="t(layoutRoleTitleKey(role))"
+                                                />
                                             </div>
                                         }
                                         <div class="mt-3 rounded-xl border border-rose-300 bg-rose-50 p-3 dark:border-rose-800 dark:bg-rose-950/40">
                                         <p class="text-[11px] font-semibold uppercase tracking-wider text-rose-800 dark:text-rose-300">
                                             {{ t('visitaGuide.layoutBlockLook') }}
                                         </p>
-                                        <div class="mt-2">
-                                            <span class="text-xs text-stone-600 dark:text-stone-300">{{
-                                                t('visitaGuide.layoutBlockColor')
-                                            }}</span>
-                                            <color-hex-field
-                                                class="mt-1 block"
-                                                [ngModel]="selected.style?.color || primaryColor()"
-                                                (ngModelChange)="setSelectedLayoutColor($event)"
-                                                [ariaLabel]="t('visitaGuide.layoutBlockColor')"
-                                            />
-                                        </div>
                                         @if (selectedLayoutShowsParams()) {
-                                            <div class="mt-2">
-                                                <span class="text-xs text-stone-600 dark:text-stone-300">{{
-                                                    t('visitaGuide.layoutParamLabelColor')
-                                                }}</span>
-                                                <color-hex-field
-                                                    class="mt-1 block"
-                                                    [ngModel]="selected.style?.labelColor || selected.style?.color || '#6B7280'"
-                                                    (ngModelChange)="setSelectedLayoutLabelColor($event)"
-                                                    [ariaLabel]="t('visitaGuide.layoutParamLabelColor')"
-                                                />
-                                            </div>
-                                            <div class="mt-2">
-                                                <span class="text-xs text-stone-600 dark:text-stone-300">{{
-                                                    t('visitaGuide.layoutParamValueColor')
-                                                }}</span>
-                                                <color-hex-field
-                                                    class="mt-1 block"
-                                                    [ngModel]="selected.style?.valueColor || selected.style?.color || '#111827'"
-                                                    (ngModelChange)="setSelectedLayoutValueColor($event)"
-                                                    [ariaLabel]="t('visitaGuide.layoutParamValueColor')"
-                                                />
-                                            </div>
                                             <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
                                                 <input
                                                     type="checkbox"
@@ -1225,12 +1239,9 @@
                                             {{ t('visitaGuide.layoutRemove') }}
                                         </button>
                                     </div>
-                                } @else {
-                                    <p class="rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/70 px-3 py-4 text-xs text-indigo-800 dark:border-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-200">
-                                        {{ t('visitaGuide.layoutBlockPickHint') }}
-                                    </p>
                                 }
 
+                                @if (layoutEditorKind() === 'page') {
                                 <section class="rounded-2xl border border-teal-300 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/40">
                                 <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300">
                                     {{ t('visitaGuide.layoutLayers') }}
@@ -1259,8 +1270,10 @@
                                     }
                                 </div>
                                 </section>
+                                }
+                                </div>
                             </div>
-                        </div>
+                        }
                         <div class="mt-4 flex flex-col gap-3 sm:flex-row">
                             <button
                                 type="button"

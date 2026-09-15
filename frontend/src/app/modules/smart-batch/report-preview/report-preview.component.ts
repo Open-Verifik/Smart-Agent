@@ -16,8 +16,9 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportSection, SmartReportTemplate } from '../smart-report.service';
+import { ReportSection, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
 import { collectScalarParams } from '../report-param-entries.util';
+import { resolveTextRole } from '../report-text-role.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature';
 
@@ -819,37 +820,28 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return section.showRowLines !== false;
     }
 
-    sectionFontFamily(section: ReportSection): string {
-        return section.style?.fontFamily || 'Inter, system-ui, sans-serif';
+    roleFontFamily(section: ReportSection, role: ReportTextRole): string {
+        return resolveTextRole(section, role, this.primaryColor()).fontFamily;
     }
 
-    sectionFontSize(section: ReportSection, fallback = 12): number {
-        const size = Number(section.style?.fontSize);
-        return Number.isFinite(size) && size > 0 ? size : fallback;
+    roleFontSize(section: ReportSection, role: ReportTextRole): number {
+        return resolveTextRole(section, role, this.primaryColor()).fontSize;
     }
 
-    sectionLabelFontSize(section: ReportSection): number {
-        return Math.max(8, Math.round(this.sectionFontSize(section) * 0.85));
+    roleFontWeight(section: ReportSection, role: ReportTextRole): 'normal' | 'bold' {
+        return resolveTextRole(section, role, this.primaryColor()).fontWeight;
     }
 
-    sectionFontWeight(section: ReportSection, fallback: 'normal' | 'bold' = 'normal'): 'normal' | 'bold' {
-        return section.style?.fontWeight || fallback;
+    roleFontStyle(section: ReportSection, role: ReportTextRole): 'normal' | 'italic' {
+        return resolveTextRole(section, role, this.primaryColor()).fontStyle;
     }
 
-    sectionFontStyle(section: ReportSection): 'normal' | 'italic' {
-        return section.style?.fontStyle === 'italic' ? 'italic' : 'normal';
+    roleTextAlign(section: ReportSection, role: ReportTextRole): string {
+        return resolveTextRole(section, role, this.primaryColor()).textAlign;
     }
 
-    sectionTitleColor(section: ReportSection): string {
-        return section.style?.color || this.primaryColor();
-    }
-
-    sectionLabelColor(section: ReportSection): string {
-        return section.style?.labelColor || section.style?.color || '#6B7280';
-    }
-
-    sectionValueColor(section: ReportSection): string {
-        return section.style?.valueColor || section.style?.color || '#111827';
+    roleColor(section: ReportSection, role: ReportTextRole): string {
+        return resolveTextRole(section, role, this.primaryColor()).color;
     }
 
     sectionFrameBorder(section: ReportSection): string {

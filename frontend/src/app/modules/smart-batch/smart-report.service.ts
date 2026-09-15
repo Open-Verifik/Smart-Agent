@@ -34,6 +34,17 @@ export type ReportConditionOperator =
 
 export type ReportStyleVariant = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'primary';
 
+export type ReportTextRole = 'title' | 'label' | 'value';
+
+export interface ReportTextRoleStyle {
+    fontSize?: number;
+    fontWeight?: 'normal' | 'bold';
+    fontStyle?: 'normal' | 'italic';
+    fontFamily?: string;
+    textAlign?: 'left' | 'center' | 'right' | 'justify';
+    color?: string;
+}
+
 export interface ReportSectionCondition {
     field: string;
     operator: ReportConditionOperator;
@@ -80,6 +91,12 @@ export interface ReportSection {
         color?: string;
         labelColor?: string;
         valueColor?: string;
+        /** Independent typography for the block title. */
+        titleStyle?: ReportTextRoleStyle;
+        /** Independent typography for parameter labels. */
+        labelStyle?: ReportTextRoleStyle;
+        /** Independent typography for parameter values. */
+        valueStyle?: ReportTextRoleStyle;
         backgroundColor?: string;
         padding?: string;
         borderWidth?: number;

@@ -30,9 +30,10 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { ReportSection, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import { collectScalarParams } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
+import { resolveTextRole } from '../report-text-role.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { buildRowDataForResolution } from '../template-match.util';
 import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
@@ -153,6 +154,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     featuresError = signal<string | null>(null);
     selectedLayoutSectionId = signal<string | null>(null);
     selectedLayoutOverlay = signal<'logo' | 'watermark' | 'signature' | null>(null);
+    layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
     isSavingLayout = signal(false);
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
@@ -520,22 +522,42 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     onLayoutSectionClick = (section: ReportSection): void => {
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
+        this.layoutEditorKind.set('block');
     };
 
     onLayoutOverlaySelect(id: 'logo' | 'watermark' | 'signature'): void {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutOverlay.set(id);
-    }
+        this.layoutEditorKind.set('overlay');
+    };
 
     clearLayoutSelection(): void {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutOverlay.set(null);
     }
 
+    openLayoutPageEditor(event?: Event): void {
+        event?.stopPropagation();
+        this.clearLayoutSelection();
+        this.layoutEditorKind.set('page');
+    }
+
+    closeLayoutEditor(): void {
+        this.layoutEditorKind.set(null);
+    }
+
+    layoutEditorTitleKey(): string {
+        const kind = this.layoutEditorKind();
+        if (kind === 'block') return 'visitaGuide.layoutPanelBlock';
+        if (kind === 'overlay') return 'visitaGuide.layoutBrand';
+        return 'visitaGuide.layoutEditorPage';
+    }
+
     onLayoutBlankClick(event: MouseEvent): void {
         const target = event.target as HTMLElement | null;
         if (target?.closest('report-preview')) return;
-        this.clearLayoutSelection();
+        if (target?.closest('.visita-layout-editor')) return;
+        this.openLayoutPageEditor();
     }
 
     onLayoutCanvasDrop(event: CdkDragDrop<unknown>): void {
@@ -567,6 +589,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const section = this._sectionFromCard(card);
         this.layoutSections.update((list) => [...list, { ...section, order: list.length }]);
         this.selectedLayoutSectionId.set(section.id);
+        this.layoutEditorKind.set('block');
     }
 
     addAllCardsToLayout(): void {
@@ -589,6 +612,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.set(sections.map((section, index) => ({ ...section, order: index })));
         this._state.templateChoice.set('visita');
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
     }
 
     isCardOnLayout(sequence: number): boolean {
@@ -702,6 +726,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             ...list.map((item, index) => ({ ...item, order: index + 1 })),
         ]);
         this.selectedLayoutSectionId.set(section.id);
+        this.layoutEditorKind.set('block');
     }
 
     addTextBlock(): void {
@@ -715,6 +740,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
+        this.layoutEditorKind.set('block');
     }
 
     addDividerBlock(): void {
@@ -726,6 +752,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
+        this.layoutEditorKind.set('block');
     }
 
     setSelectedLayoutLabel(value: string): void {
@@ -762,56 +789,112 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return Boolean(type) && type !== 'spacer' && type !== 'image' && type !== 'divider';
     }
 
-    selectedLayoutAlign(): ReportTextAlign {
-        const section = this.selectedLayoutSection();
-        const align = section?.style?.textAlign;
-        if (align === 'left' || align === 'center' || align === 'right' || align === 'justify') {
-            return align;
+    selectedLayoutTextRoles(): ReportTextRole[] {
+        if (!this.selectedLayoutShowsTypography()) return [];
+        if (this.selectedLayoutShowsParams()) return ['title', 'label', 'value'];
+        return ['title'];
+    }
+
+    layoutRoleTitleKey(role: ReportTextRole): string {
+        if (role === 'label') return 'visitaGuide.layoutTextLabels';
+        if (role === 'value') return 'visitaGuide.layoutTextValues';
+        const type = this.selectedLayoutSection()?.type;
+        return type === 'text' ? 'visitaGuide.layoutTextBody' : 'visitaGuide.layoutTextTitle';
+    }
+
+    layoutRolePanelClass(role: ReportTextRole): string {
+        if (role === 'label') {
+            return 'mt-3 rounded-xl border border-lime-300 bg-lime-50 p-3 dark:border-lime-800 dark:bg-lime-950/40';
         }
-        return section?.type === 'header' ? 'center' : 'left';
+        if (role === 'value') {
+            return 'mt-3 rounded-xl border border-orange-300 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-950/40';
+        }
+        return 'mt-3 rounded-xl border border-cyan-300 bg-cyan-50 p-3 dark:border-cyan-800 dark:bg-cyan-950/40';
     }
 
-    selectedLayoutFontSize(): number {
+    layoutRoleHeadingClass(role: ReportTextRole): string {
+        if (role === 'label') return 'text-[11px] font-semibold uppercase tracking-wider text-lime-800 dark:text-lime-300';
+        if (role === 'value') return 'text-[11px] font-semibold uppercase tracking-wider text-orange-800 dark:text-orange-300';
+        return 'text-[11px] font-semibold uppercase tracking-wider text-cyan-800 dark:text-cyan-300';
+    }
+
+    private _layoutRole(role: ReportTextRole) {
         const section = this.selectedLayoutSection();
-        const size = Number(section?.style?.fontSize);
-        if (Number.isFinite(size) && size > 0) return size;
-        return section?.type === 'header' ? 22 : 12;
+        if (!section) {
+            return resolveTextRole(
+                { id: '', type: 'text', order: 0 },
+                role,
+                this.primaryColor()
+            );
+        }
+        return resolveTextRole(section, role, this.primaryColor());
     }
 
-    selectedLayoutIsBold(): boolean {
-        const section = this.selectedLayoutSection();
-        if (section?.style?.fontWeight) return section.style.fontWeight === 'bold';
-        return section?.type === 'header';
+    layoutRoleFontFamily(role: ReportTextRole): string {
+        return this._layoutRole(role).fontFamily;
     }
 
-    selectedLayoutIsItalic(): boolean {
-        return this.selectedLayoutSection()?.style?.fontStyle === 'italic';
+    layoutRoleFontSize(role: ReportTextRole): number {
+        return this._layoutRole(role).fontSize;
     }
 
-    selectedLayoutFontFamily(): string {
-        return this.selectedLayoutSection()?.style?.fontFamily || REPORT_FONT_STACKS[0].value;
+    layoutRoleAlign(role: ReportTextRole): ReportTextAlign {
+        return this._layoutRole(role).textAlign;
     }
 
-    setSelectedLayoutAlign(align: ReportTextAlign): void {
-        this._patchSelectedLayoutStyle({ textAlign: align });
+    layoutRoleIsBold(role: ReportTextRole): boolean {
+        return this._layoutRole(role).fontWeight === 'bold';
     }
 
-    setSelectedLayoutFontSize(value: string | number): void {
+    layoutRoleIsItalic(role: ReportTextRole): boolean {
+        return this._layoutRole(role).fontStyle === 'italic';
+    }
+
+    layoutRoleColor(role: ReportTextRole): string {
+        return this._layoutRole(role).color;
+    }
+
+    setLayoutRoleFontFamily(role: ReportTextRole, value: string): void {
+        this._patchSelectedLayoutRole(role, { fontFamily: value });
+    }
+
+    setLayoutRoleFontSize(role: ReportTextRole, value: string | number): void {
         const size = Number(value);
         if (!Number.isFinite(size)) return;
-        this._patchSelectedLayoutStyle({ fontSize: Math.max(8, Math.min(72, Math.round(size))) });
+        this._patchSelectedLayoutRole(role, { fontSize: Math.max(8, Math.min(72, Math.round(size))) });
     }
 
-    setSelectedLayoutBold(enabled: boolean): void {
-        this._patchSelectedLayoutStyle({ fontWeight: enabled ? 'bold' : 'normal' });
+    setLayoutRoleAlign(role: ReportTextRole, align: ReportTextAlign): void {
+        this._patchSelectedLayoutRole(role, { textAlign: align });
     }
 
-    setSelectedLayoutItalic(enabled: boolean): void {
-        this._patchSelectedLayoutStyle({ fontStyle: enabled ? 'italic' : 'normal' });
+    setLayoutRoleBold(role: ReportTextRole, enabled: boolean): void {
+        this._patchSelectedLayoutRole(role, { fontWeight: enabled ? 'bold' : 'normal' });
     }
 
-    setSelectedLayoutFontFamily(value: string): void {
-        this._patchSelectedLayoutStyle({ fontFamily: value });
+    setLayoutRoleItalic(role: ReportTextRole, enabled: boolean): void {
+        this._patchSelectedLayoutRole(role, { fontStyle: enabled ? 'italic' : 'normal' });
+    }
+
+    setLayoutRoleColor(role: ReportTextRole, value: string): void {
+        this._patchSelectedLayoutRole(role, { color: value });
+    }
+
+    private _patchSelectedLayoutRole(role: ReportTextRole, patch: ReportTextRoleStyle): void {
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        const key = role === 'title' ? 'titleStyle' : role === 'label' ? 'labelStyle' : 'valueStyle';
+        const current = section.style?.[key] ?? {};
+        const next = { ...current, ...patch };
+        const mirrored =
+            role === 'title'
+                ? { ...patch }
+                : patch.color
+                  ? role === 'label'
+                      ? { labelColor: patch.color }
+                      : { valueColor: patch.color }
+                  : {};
+        this._patchSelectedLayoutStyle({ [key]: next, ...mirrored });
     }
 
     setSelectedLayoutBackground(value: string): void {
@@ -853,7 +936,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     selectedLayoutShowsParams(): boolean {
         const type = this.selectedLayoutSection()?.type;
-        return type === 'keyValueGrid' || type === 'table' || type === 'card';
+        return type === 'keyValueGrid' || type === 'table' || type === 'card' || type === 'field' || type === 'dataTable';
     }
 
     selectedLayoutShowsRowLines(): boolean {
@@ -953,6 +1036,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             color: style.color,
             labelColor: style.labelColor,
             valueColor: style.valueColor,
+            titleStyle: style.titleStyle ? { ...style.titleStyle } : undefined,
+            labelStyle: style.labelStyle ? { ...style.labelStyle } : undefined,
+            valueStyle: style.valueStyle ? { ...style.valueStyle } : undefined,
             backgroundColor: style.backgroundColor,
             padding: style.padding,
             borderWidth: style.borderWidth,
@@ -969,6 +1055,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             list.filter((section) => section.id !== id).map((section, index) => ({ ...section, order: index }))
         );
         this.selectedLayoutSectionId.set(null);
+        this.layoutEditorKind.set(null);
     }
 
     moveSelectedLayout(offset: number): void {
@@ -1087,6 +1174,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.set([]);
         this.addAllCardsToLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
         this.enterLayout();
         this.step.set('layout');
     }
@@ -1500,6 +1588,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
         this.addAllCardsToLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
         this.enterLayout();
     }
 
