@@ -1,14 +1,19 @@
 <ng-container *transloco="let t">
     <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
         <header
-            class="border-b border-stone-200/90 bg-white/90 px-5 py-5 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
+            class="border-b border-stone-200/90 bg-white/90 px-5 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
+            [class.py-5]="!isLayoutStep()"
+            [class.py-3]="isLayoutStep()"
         >
             <div
-                class="mx-auto flex w-full flex-col gap-4"
+                class="mx-auto flex w-full flex-col"
+                [class.gap-4]="!isLayoutStep()"
+                [class.gap-2]="isLayoutStep()"
                 [class.max-w-3xl]="!isWideStep()"
                 [class.max-w-7xl]="isWideStep() && !isLayoutStep()"
                 [class.max-w-none]="isLayoutStep()"
             >
+                @if (!isLayoutStep()) {
                 <div
                     class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
                 >
@@ -22,13 +27,14 @@
                         t('visitaGuide.brand')
                     }}</span>
                 </div>
+                }
 
-                <div class="flex items-start gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                     @if (canGoBack()) {
                         <button
                             type="button"
                             (click)="goBack()"
-                            class="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
                             [attr.aria-label]="t('visitaGuide.back')"
                         >
                             <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
@@ -38,38 +44,99 @@
                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
                             {{ t('visitaGuide.progress', { current: stepIndex() + 1, total: stepCount() }) }}
                         </p>
-                        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
+                        <h1
+                            class="font-semibold tracking-tight text-stone-950 dark:text-white"
+                            [class.mt-1]="!isLayoutStep()"
+                            [class.text-2xl]="!isLayoutStep()"
+                            [class.md:text-3xl]="!isLayoutStep()"
+                            [class.text-xl]="isLayoutStep()"
+                        >
                             {{ t(currentTitleKey()) }}
                         </h1>
-                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                            {{ t('visitaGuide.nowHint') }}
-                        </p>
+                        @if (!isLayoutStep()) {
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('visitaGuide.nowHint') }}
+                            </p>
+                        }
                     </div>
+                    @if (isLayoutStep()) {
+                        <div class="flex flex-wrap items-center gap-1">
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.layoutAddAll')"
+                                [attr.aria-label]="t('visitaGuide.layoutAddAll')"
+                                (click)="addAllCardsToLayout()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">playlist_add</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.layoutUseVisita')"
+                                [attr.aria-label]="t('visitaGuide.layoutUseVisita')"
+                                (click)="useVisitaLayout()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">dashboard_customize</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.openDesigner')"
+                                [attr.aria-label]="t('visitaGuide.openDesigner')"
+                                (click)="openMoldEditor()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">design_services</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.layoutEditorPage')"
+                                [attr.aria-label]="t('visitaGuide.layoutEditorPage')"
+                                (click)="openLayoutPageEditor($event)"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">web_asset</mat-icon>
+                            </button>
+                        </div>
+                    }
                 </div>
 
                 @if (entities().length || countryIso()) {
-                    <div class="flex flex-wrap gap-2 text-xs">
+                    <div
+                        class="flex flex-wrap text-xs"
+                        [class.gap-2]="!isLayoutStep()"
+                        [class.gap-1]="isLayoutStep()"
+                        [class.mt-2]="isLayoutStep()"
+                    >
                         @for (key of entityTitleKeys(); track key) {
                             <span
-                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
                                 >{{ t(key) }}</span
                             >
                         }
                         @if (countryIso()) {
                             <span
-                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
                                 >{{ countryFlag() }} Colombia</span
                             >
                         }
                         @if (mode() === 'batch') {
                             <span
-                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
                                 >{{ t('visitaGuide.modeBatch') }}</span
                             >
                         }
                         @if (mode() === 'single') {
                             <span
-                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
                                 >{{ t('visitaGuide.modeSingle') }}</span
                             >
                         }
@@ -78,7 +145,12 @@
             </div>
         </header>
 
-        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+        <main
+            class="flex flex-auto flex-col px-5 md:px-8"
+            [class.py-8]="!isLayoutStep()"
+            [class.md:py-10]="!isLayoutStep()"
+            [class.py-3]="isLayoutStep()"
+        >
             <div
                 class="mx-auto flex w-full flex-col gap-4"
                 [class.max-w-3xl]="!isWideStep()"
@@ -190,25 +262,50 @@
                     }
                     @case ('endpoints') {
                         <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.endpointsHint') }}</p>
-                        @if (availableParamHighlights().length) {
-                            <p class="mt-3 text-xs text-stone-500 dark:text-stone-400">
-                                {{ t('visitaGuide.highlightHint') }}
-                            </p>
-                            <div class="mt-2 flex flex-wrap gap-2">
-                                @for (highlight of availableParamHighlights(); track highlight) {
-                                    <button
-                                        type="button"
-                                        class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition"
-                                        [ngClass]="highlightChipClass(highlight)"
-                                        (click)="setParamHighlight(highlight)"
-                                    >
-                                        <span
-                                            class="h-2.5 w-2.5 shrink-0 rounded-full"
-                                            [ngClass]="highlightSwatchClass(highlight)"
-                                        ></span>
-                                        {{ t(highlightLabelKey(highlight)) }}
-                                    </button>
-                                }
+                        @if (availableRequiredParamFilters().length) {
+                            <div class="mt-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                            {{ t('visitaGuide.paramFilterTitle') }}
+                                        </p>
+                                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                            {{ t('visitaGuide.paramFilterHint') }}
+                                        </p>
+                                    </div>
+                                    @if (requiredParamFilters().length) {
+                                        <button
+                                            type="button"
+                                            class="shrink-0 text-xs font-medium text-stone-600 underline-offset-4 hover:underline dark:text-stone-300"
+                                            (click)="clearRequiredParamFilters()"
+                                        >
+                                            {{ t('visitaGuide.paramFilterClear') }}
+                                        </button>
+                                    }
+                                </div>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @for (field of availableRequiredParamFilters(); track field) {
+                                        <button
+                                            type="button"
+                                            class="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                                            [class.border-stone-950]="isRequiredParamFilterActive(field)"
+                                            [class.bg-stone-950]="isRequiredParamFilterActive(field)"
+                                            [class.text-white]="isRequiredParamFilterActive(field)"
+                                            [class.dark:border-white]="isRequiredParamFilterActive(field)"
+                                            [class.dark:bg-white]="isRequiredParamFilterActive(field)"
+                                            [class.dark:text-gray-950]="isRequiredParamFilterActive(field)"
+                                            [class.border-stone-200]="!isRequiredParamFilterActive(field)"
+                                            [class.bg-stone-50]="!isRequiredParamFilterActive(field)"
+                                            [class.text-stone-700]="!isRequiredParamFilterActive(field)"
+                                            [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
+                                            [class.dark:bg-gray-950]="!isRequiredParamFilterActive(field)"
+                                            [class.dark:text-stone-200]="!isRequiredParamFilterActive(field)"
+                                            (click)="toggleRequiredParamFilter(field)"
+                                        >
+                                            {{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}
+                                        </button>
+                                    }
+                                </div>
                             </div>
                         }
                         <div class="mt-4">
@@ -256,10 +353,8 @@
                                     <button
                                         type="button"
                                         class="flex w-full items-start gap-3 rounded-2xl border bg-white p-4 text-left transition dark:bg-gray-900/70"
-                                        [class.border-stone-950]="isFeatureSelected(feature) && !isParamHighlighted(feature)"
-                                        [class.border-stone-200]="!isFeatureSelected(feature) && !isParamHighlighted(feature)"
-                                        [class.opacity-40]="isEndpointDimmed(feature)"
-                                        [ngClass]="highlightCardClass(feature)"
+                                        [class.border-stone-950]="isFeatureSelected(feature)"
+                                        [class.border-stone-200]="!isFeatureSelected(feature)"
                                         (click)="toggleFeature(feature)"
                                     >
                                         <div class="min-w-0 flex-1">
@@ -272,17 +367,15 @@
                                                 }}</span>
                                             }
                                             <div class="mt-2 flex flex-wrap gap-1">
-                                                @if (isParamHighlighted(feature)) {
+                                                @for (field of featureParamFields(feature); track field) {
                                                     <span
-                                                        class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                                                        [ngClass]="highlightBadgeClass()"
-                                                        >{{ t('visitaGuide.highlightMatch') }}</span
-                                                    >
-                                                }
-                                                @for (key of featureParamKeys(feature); track key) {
-                                                    <span
-                                                        class="rounded-full border border-stone-200 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:border-gray-700"
-                                                        >{{ t(key) }}</span
+                                                        class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                        [class.border-stone-950]="isRequiredParamFilterActive(field)"
+                                                        [class.text-stone-950]="isRequiredParamFilterActive(field)"
+                                                        [class.border-stone-200]="!isRequiredParamFilterActive(field)"
+                                                        [class.text-stone-500]="!isRequiredParamFilterActive(field)"
+                                                        [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
+                                                        >{{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}</span
                                                     >
                                                 }
                                             </div>
@@ -319,17 +412,33 @@
                             }
                             @for (field of inputFields(); track field.key) {
                                 <label class="mt-4 block text-sm font-medium text-stone-800 first:mt-0 dark:text-stone-100" [attr.for]="'guide-' + field.key">{{
-                                    t(field.labelKey)
+                                    field.labelText
+                                        ? t(field.labelKey, { field: field.labelText })
+                                        : t(field.labelKey)
                                 }}</label>
-                                <input
-                                    [id]="'guide-' + field.key"
-                                    type="text"
-                                    class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-base text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                    [placeholder]="t(field.placeholderKey)"
-                                    [ngModel]="fieldValue(field.key)"
-                                    (ngModelChange)="setFieldValue(field.key, $event)"
-                                    (keyup.enter)="goNext()"
-                                />
+                                @if (field.options?.length) {
+                                    <select
+                                        [id]="'guide-' + field.key"
+                                        class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-base text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [ngModel]="fieldValue(field.key)"
+                                        (ngModelChange)="setFieldValue(field.key, $event)"
+                                    >
+                                        <option value="">{{ t(field.placeholderKey) }}</option>
+                                        @for (option of field.options; track option) {
+                                            <option [value]="option">{{ option }}</option>
+                                        }
+                                    </select>
+                                } @else {
+                                    <input
+                                        [id]="'guide-' + field.key"
+                                        type="text"
+                                        class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-base text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [placeholder]="t(field.placeholderKey)"
+                                        [ngModel]="fieldValue(field.key)"
+                                        (ngModelChange)="setFieldValue(field.key, $event)"
+                                        (keyup.enter)="goNext()"
+                                    />
+                                }
                             }
                             <button
                                 type="button"
@@ -484,14 +593,29 @@
                         </button>
                     }
                     @case ('template') {
-                        <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.templateHint') }}</p>
-                        <p class="mt-2 text-xs text-stone-400">{{ t('visitaGuide.templateMineOverwrite') }}</p>
+                        <p class="text-sm text-stone-500 dark:text-stone-400">{{
+                            t(mode() === 'batch' ? 'visitaGuide.templateBatchHint' : 'visitaGuide.templateHint')
+                        }}</p>
+                        <p class="mt-2 text-xs text-stone-400">{{
+                            t(
+                                mode() === 'batch'
+                                    ? 'visitaGuide.templateBatchCreateHint'
+                                    : 'visitaGuide.templateConsultLink'
+                            )
+                        }}</p>
+                        <input
+                            type="search"
+                            class="mt-4 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="t('visitaGuide.templateSearch')"
+                            [ngModel]="templateSearchQuery()"
+                            (ngModelChange)="templateSearchQuery.set($event)"
+                        />
 
                         <p class="mt-6 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
                             {{ t('visitaGuide.templateSystem') }}
                         </p>
                         <div class="mt-2 grid gap-3 sm:grid-cols-2">
-                            @for (template of systemTemplates(); track template._id) {
+                            @for (template of visibleSystemTemplates(); track template._id) {
                                 <button
                                     type="button"
                                     class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left dark:border-gray-800"
@@ -507,6 +631,11 @@
                                         }}</span>
                                     </div>
                                 </button>
+                            }
+                            @if (systemTemplates().length && !visibleSystemTemplates().length) {
+                                <p class="sm:col-span-2 text-sm text-stone-500">{{
+                                    t('visitaGuide.templateSearchEmpty')
+                                }}</p>
                             }
                             @if (!systemTemplates().length) {
                                 <button
@@ -534,9 +663,11 @@
                         </p>
                         @if (!myTemplates().length) {
                             <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.templateMineEmpty') }}</p>
+                        } @else if (!visibleMyTemplates().length) {
+                            <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.templateSearchEmpty') }}</p>
                         }
                         <div class="mt-2 grid gap-3 sm:grid-cols-2">
-                            @for (template of myTemplates(); track template._id) {
+                            @for (template of visibleMyTemplates(); track template._id) {
                                 <button
                                     type="button"
                                     class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left dark:border-gray-800"
@@ -548,13 +679,16 @@
                                     <div class="min-w-0">
                                         <span class="block truncate text-sm font-semibold">{{ template.name }}</span>
                                         <span class="mt-1 block text-xs text-stone-500">{{
-                                            t('visitaGuide.templateMine')
+                                            templateMatchesConsult(template)
+                                                ? t('visitaGuide.templateMatchesConsult')
+                                                : t('visitaGuide.templateMine')
                                         }}</span>
                                     </div>
                                 </button>
                             }
                         </div>
 
+                        @if (mode() !== 'batch') {
                         <button
                             type="button"
                             class="mt-6 flex w-full items-start gap-4 rounded-2xl border border-dashed border-stone-300 p-4 text-left dark:border-gray-700"
@@ -569,6 +703,7 @@
                                 }}</span>
                             </div>
                         </button>
+                        }
                     }
                     @case ('customize') {
                         <div
@@ -637,39 +772,7 @@
                         </button>
                     }
                     @case ('layout') {
-                        <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.layoutHint') }}</p>
-                        <div class="mt-2 flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
-                                (click)="addAllCardsToLayout()"
-                            >
-                                {{ t('visitaGuide.layoutAddAll') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
-                                (click)="useVisitaLayout()"
-                            >
-                                {{ t('visitaGuide.layoutUseVisita') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
-                                (click)="openMoldEditor()"
-                            >
-                                {{ t('visitaGuide.openDesigner') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
-                                (click)="openLayoutPageEditor($event)"
-                            >
-                                {{ t('visitaGuide.layoutEditorPage') }}
-                            </button>
-                        </div>
-                        <p class="mt-2 text-[11px] text-stone-400">{{ t('visitaGuide.layoutEditorHint') }}</p>
-                        <div class="mt-4 grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)]">
+                        <div class="grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)]">
                             <div
                                 cdkDropList
                                 id="visita-layout-data"
@@ -680,6 +783,7 @@
                                 <p class="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
                                     {{ t('visitaGuide.layoutDataTitle') }}
                                 </p>
+                                <p class="text-[11px] text-stone-400">{{ t('visitaGuide.layoutEditorHint') }}</p>
                                 <div class="mb-1 flex flex-wrap gap-1">
                                     <button
                                         type="button"
@@ -703,7 +807,7 @@
                                         {{ t('visitaGuide.layoutAddDivider') }}
                                     </button>
                                 </div>
-                                @for (card of resultCards(); track card.sequence) {
+                                @for (card of layoutSourceCards(); track card.sequence) {
                                     <article
                                         cdkDrag
                                         [cdkDragData]="card"
@@ -779,12 +883,14 @@
                                         [logoAutoFitContent]="true"
                                         [clickable]="true"
                                         [customContextMenu]="true"
+                                        [reorderable]="true"
                                         [selectedSectionId]="selectedLayoutSectionId()"
                                         [selectedOverlay]="selectedLayoutOverlay()"
                                         [sectionClick]="onLayoutSectionClick"
                                         (overlaySelect)="onLayoutOverlaySelect($event)"
                                         (sectionContextMenu)="onLayoutSectionContextMenu($event)"
                                         (overlayContextMenu)="onLayoutOverlayContextMenu($event)"
+                                        (sectionReorder)="onLayoutSectionReorder($event)"
                                         (backgroundClick)="openLayoutPageEditor()"
                                         (logoPositionChange)="onLayoutLogoPositionChange($event)"
                                         (logoSizeChange)="onLayoutLogoSizeChange($event)"
@@ -1292,7 +1398,13 @@
                                 class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
                                 (click)="saveLayoutAndGenerate()"
                             >
-                                {{ t('visitaGuide.saveAndGenerate') }}
+                                {{
+                                    t(
+                                        mode() === 'batch'
+                                            ? 'visitaGuide.saveAndUploadCsv'
+                                            : 'visitaGuide.saveAndGenerate'
+                                    )
+                                }}
                             </button>
                         </div>
                     }

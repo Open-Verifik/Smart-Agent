@@ -1,6 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch } from '../smart-batch.service';
-import { ParamHighlight } from '../endpoint-param-highlight.util';
 import { ReportSection, SmartReportTemplate } from '../smart-report.service';
 import {
     availableCountries,
@@ -31,7 +30,7 @@ export class VisitaGuideStateService {
     inputValues = signal<Record<string, string>>({});
     selectedFeatures = signal<AppFeature[]>([]);
     endpointSearchQuery = signal('');
-    paramHighlight = signal<ParamHighlight | null>(null);
+    requiredParamFilters = signal<string[]>([]);
     wantsReport = signal(false);
 
     configId = signal<string | null>(null);
@@ -70,24 +69,29 @@ export class VisitaGuideStateService {
     pdfDataUrl = signal<string | null>(null);
     step = signal<GuideStepId>('intent');
 
-    inputFields = computed(() => inputFieldsFor(this.entities(), this.countryIso() ?? 'co'));
+    inputFields = computed(() =>
+        inputFieldsFor(this.entities(), this.countryIso() ?? 'co', this.selectedFeatures())
+    );
 
     isMixed = computed(() => this.entities().length > 1);
 
     visibleSteps = computed((): GuideStepId[] => {
         const intent = this.intent();
         const steps: GuideStepId[] = ['intent'];
-        if (intent === 'report') steps.push('entity');
+        if (intent === 'report' || intent === 'template') steps.push('entity');
         if (this.entities().length && availableCountries().length > 1) steps.push('country');
         if (this.entities().length) steps.push('endpoints', 'mode');
         if (this.mode() === 'single' && this.entities().length) {
             steps.push('input', 'consult', 'results');
-            if (intent === 'report' || this.wantsReport()) {
+            if (intent === 'report' || intent === 'template' || this.wantsReport()) {
                 steps.push('template', 'layout', 'generate');
             }
         }
         if (this.mode() === 'batch' && this.entities().length) {
             steps.push('consult');
+            if (intent === 'report' || intent === 'template' || this.wantsReport()) {
+                steps.push('template');
+            }
         }
         return steps;
     });
@@ -109,10 +113,12 @@ export class VisitaGuideStateService {
         if (current.includes(entity)) {
             this.entities.set(current.filter((item) => item !== entity));
             this.selectedFeatures.set([]);
+            this.requiredParamFilters.set([]);
             return;
         }
         this.entities.set([...current, entity]);
         this.selectedFeatures.set([]);
+        this.requiredParamFilters.set([]);
     }
 
     setInputValue(key: string, value: string): void {
@@ -120,7 +126,12 @@ export class VisitaGuideStateService {
     }
 
     buildRow(): Record<string, string> {
-        return buildInputRow(this.entities(), this.countryIso() ?? 'co', this.inputValues());
+        return buildInputRow(
+            this.entities(),
+            this.countryIso() ?? 'co',
+            this.inputValues(),
+            this.selectedFeatures()
+        );
     }
 
     resetAll(): void {
@@ -131,7 +142,7 @@ export class VisitaGuideStateService {
         this.inputValues.set({});
         this.selectedFeatures.set([]);
         this.endpointSearchQuery.set('');
-        this.paramHighlight.set(null);
+        this.requiredParamFilters.set([]);
         this.wantsReport.set(false);
         this.configId.set(null);
         this.batchId.set(null);

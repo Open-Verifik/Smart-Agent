@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     classifyParamField,
     matchesParamHighlight,
+    matchesRequiredParamFilters,
     requiredVisibleFields,
 } from './endpoint-param-highlight.util';
 
@@ -101,5 +102,48 @@ describe('matchesParamHighlight', () => {
                 ],
             })
         ).toEqual(['documentNumber']);
+    });
+});
+
+describe('matchesRequiredParamFilters', () => {
+    it('keeps endpoints whose required params are exactly the selected filters', () => {
+        const feature = {
+            dependencies: [
+                { field: 'documentType', required: true },
+                { field: 'documentNumber', required: true },
+            ],
+        };
+        expect(matchesRequiredParamFilters(feature, ['documentNumber'])).toBe(false);
+        expect(matchesRequiredParamFilters(feature, ['documentType', 'documentNumber'])).toBe(true);
+        expect(matchesRequiredParamFilters(feature, ['plate'])).toBe(false);
+    });
+
+    it('hides endpoints that also require a date when date is not selected', () => {
+        const feature = {
+            dependencies: [
+                { field: 'documentType', required: true },
+                { field: 'documentNumber', required: true },
+                { field: 'dateOfBirth', required: true },
+            ],
+        };
+        expect(matchesRequiredParamFilters(feature, ['documentType', 'documentNumber'])).toBe(false);
+    });
+
+    it('does not treat documentType and documentNumber as the same filter', () => {
+        const feature = {
+            dependencies: [{ field: 'documentNumber', required: true }],
+        };
+        expect(matchesRequiredParamFilters(feature, ['documentType'])).toBe(false);
+        expect(matchesRequiredParamFilters(feature, ['documentNumber'])).toBe(true);
+    });
+
+    it('matches aliases so documentId counts as document number', () => {
+        const feature = {
+            dependencies: [
+                { field: 'citizenDocumentType', required: true },
+                { field: 'documentId', required: true },
+            ],
+        };
+        expect(matchesRequiredParamFilters(feature, ['documentType', 'documentNumber'])).toBe(true);
     });
 });

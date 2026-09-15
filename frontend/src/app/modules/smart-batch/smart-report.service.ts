@@ -224,6 +224,57 @@ export interface SmartReportTemplate {
     updatedAt?: string;
 }
 
+const SYSTEM_TEMPLATE_FIELDS = [
+    'type',
+    'systemKey',
+    'country',
+    'category',
+    'tier',
+    'nameKey',
+    'descriptionKey',
+    'presetSteps',
+] as const;
+
+/** Drop fields the template API rejects on write. */
+export const sanitizeTemplateForApi = (
+    template: Partial<SmartReportTemplate>,
+    mode: 'create' | 'update' = 'create'
+): Partial<SmartReportTemplate> => {
+    const payload = JSON.parse(JSON.stringify(template)) as Partial<SmartReportTemplate> & {
+        __v?: unknown;
+    };
+
+    delete payload._id;
+    delete payload.client;
+    delete payload.thumbnail;
+    delete payload.createdAt;
+    delete payload.updatedAt;
+    delete payload.clonedFromSystemKey;
+    delete payload.__v;
+
+    const batchRef = payload.batchConfiguration;
+    if (batchRef && typeof batchRef === 'object') {
+        const id = (batchRef as BatchConfigurationRef)._id ?? (batchRef as BatchConfigurationRef).id;
+        if (typeof id === 'string' && id) {
+            payload.batchConfiguration = id;
+        } else {
+            delete payload.batchConfiguration;
+        }
+    }
+
+    if (typeof payload.logo !== 'string' || !payload.logo) {
+        delete payload.logo;
+    }
+
+    if (mode === 'update') {
+        for (const key of SYSTEM_TEMPLATE_FIELDS) {
+            delete payload[key];
+        }
+    }
+
+    return payload;
+};
+
 export interface SmartReport {
     _id?: string;
     template: string | SmartReportTemplate;
@@ -353,7 +404,7 @@ export class SmartReportService {
         return this._httpClient
             .post<{
                 data: SmartReportTemplate;
-            }>(`${environment.apiUrl}/v2/smart-report-templates`, template)
+            }>(`${environment.apiUrl}/v2/smart-report-templates`, sanitizeTemplateForApi(template, 'create'))
             .pipe(
                 map((res) => res.data),
                 tap((newTemplate) => {
@@ -369,7 +420,7 @@ export class SmartReportService {
         return this._httpClient
             .put<{
                 data: SmartReportTemplate;
-            }>(`${environment.apiUrl}/v2/smart-report-templates/${id}`, template)
+            }>(`${environment.apiUrl}/v2/smart-report-templates/${id}`, sanitizeTemplateForApi(template, 'update'))
             .pipe(
                 map((res) => res.data),
                 tap((updated) => {
@@ -416,7 +467,7 @@ export class SmartReportService {
             .post<{
                 data: { html: string };
             }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, {
-                ...template,
+                ...sanitizeTemplateForApi(template, 'create'),
                 sampleData,
             })
             .pipe(map((res) => res.data.html));

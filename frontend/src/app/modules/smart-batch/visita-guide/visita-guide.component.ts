@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
@@ -18,15 +19,11 @@ import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
 import {
-    matchesParamHighlight,
-    ParamHighlight,
-    paramHighlightBadgeClass,
-    paramHighlightCardClass,
-    paramHighlightChipClass,
-    paramHighlightSwatchClass,
-    paramKindLabelKey,
-    requiredParamKinds,
-    requiredVisibleFields,
+    collectRequiredParamFields,
+    featureParamFilterIds,
+    humanizeParamField,
+    matchesRequiredParamFilters,
+    paramFieldLabelKey,
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
@@ -75,6 +72,7 @@ type GuideResultCard = {
         MatIconModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        MatTooltipModule,
         TranslocoModule,
         ReportPreviewComponent,
         ColorHexFieldComponent,
@@ -147,7 +145,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isMixed = this._state.isMixed;
     selectedFeatures = this._state.selectedFeatures;
     endpointSearchQuery = this._state.endpointSearchQuery;
-    paramHighlight = this._state.paramHighlight;
+    requiredParamFilters = this._state.requiredParamFilters;
 
     availableFeatures = signal<AppFeature[]>([]);
     isLoadingFeatures = signal(false);
@@ -162,12 +160,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         overlay?: ReportOverlayId;
     } | null>(null);
     isSavingLayout = signal(false);
+    templateSearchQuery = signal('');
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
 
-    readonly paramHighlights: ParamHighlight[] = ['document-only', 'plate-only', 'nit-only'];
-
-    allowsMultiEntity = computed(() => this.intent() === 'report');
+    allowsMultiEntity = computed(() => this.intent() === 'report' || this.intent() === 'template');
 
     stepIndex = computed(() => Math.max(0, this.visibleSteps().indexOf(this.step())));
     stepCount = computed(() => Math.max(this.visibleSteps().length, 1));
@@ -184,21 +181,27 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     visibleEndpointFeatures = computed(() => {
         const selected = new Set(this.entities());
         const query = this.endpointSearchQuery().trim().toLowerCase();
-        const highlight = this.paramHighlight();
-        const features = this.countryFilteredFeatures().filter((feature) => {
+        const paramFilters = this.requiredParamFilters();
+        return this.countryFilteredFeatures().filter((feature) => {
             const group = featureGroup(feature);
             if (group !== 'other' && !selected.has(group)) return false;
             if (group === 'other' && selected.size) return false;
+            if (!matchesRequiredParamFilters(feature, paramFilters)) return false;
             if (!query) return true;
             const blob = `${feature.name ?? ''} ${feature.code ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
             return blob.includes(query);
         });
-        if (!highlight) return features;
-        return [...features].sort((left, right) => {
-            const leftMatch = matchesParamHighlight(left, highlight) ? 0 : 1;
-            const rightMatch = matchesParamHighlight(right, highlight) ? 0 : 1;
-            return leftMatch - rightMatch;
+    });
+
+    availableRequiredParamFilters = computed(() => {
+        const selected = new Set(this.entities());
+        const catalog = this.countryFilteredFeatures().filter((feature) => {
+            const group = featureGroup(feature);
+            if (group !== 'other' && !selected.has(group)) return false;
+            if (group === 'other' && selected.size) return false;
+            return true;
         });
+        return collectRequiredParamFields(catalog);
     });
 
     groupedEndpointFeatures = computed(() => {
@@ -215,36 +218,36 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return buckets.filter((bucket) => bucket.items.length > 0);
     });
 
-    availableParamHighlights = computed(() => {
-        const selected = new Set(this.entities());
-        return this.paramHighlights.filter((highlight) => {
-            if (highlight === 'document-only') return selected.has('citizen');
-            if (highlight === 'plate-only') return selected.has('vehicle');
-            return selected.has('company');
-        });
-    });
-
     visitaTemplates = computed(() => this.systemTemplates());
 
     systemTemplates = computed(() => {
         const selected = new Set(this.entities());
-        return this.templates()
-            .filter((template) => template.type === 'System')
-            .slice()
-            .sort((a, b) => {
-                const aMatch = a.category && selected.has(a.category) ? 0 : 1;
-                const bMatch = b.category && selected.has(b.category) ? 0 : 1;
-                if (aMatch !== bMatch) return aMatch - bMatch;
-                return (a.name || '').localeCompare(b.name || '');
-            });
+        return this._sortedTemplates(
+            this.templates().filter((template) => template.type === 'System'),
+            selected
+        );
     });
 
-    myTemplates = computed(() =>
-        this.templates()
-            .filter((template) => template.type !== 'System')
-            .slice()
-            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    myTemplates = computed(() => {
+        const selected = new Set(this.entities());
+        return this._sortedTemplates(
+            this.templates().filter((template) => template.type !== 'System'),
+            selected
+        );
+    });
+
+    visibleSystemTemplates = computed(() =>
+        this.systemTemplates().filter((template) => this._templateMatchesSearch(template))
     );
+
+    visibleMyTemplates = computed(() =>
+        this.myTemplates().filter((template) => this._templateMatchesSearch(template))
+    );
+
+    templateMatchesConsult(template: SmartReportTemplate): boolean {
+        const category = template.category;
+        return Boolean(category && this.entities().includes(category));
+    }
 
     isWideStep = computed(() => this.step() === 'layout' || this.step() === 'template');
     isLayoutStep = computed(() => this.step() === 'layout');
@@ -316,7 +319,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     });
 
-    resultCards = computed(() => {
+    resultCards = computed((): GuideResultCard[] => {
         const config = this.configuration();
         const row = this.batch()?.rows?.[0];
         if (!config || !row) return [];
@@ -363,6 +366,50 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
     });
 
+    layoutSourceCards = computed((): GuideResultCard[] => {
+        const fromResults = this.resultCards();
+        if (fromResults.length) return fromResults;
+
+        const steps = [...(this.configuration()?.steps ?? [])]
+            .filter((step) => step.enabled !== false)
+            .sort((a, b) => a.sequence - b.sequence);
+        if (steps.length) {
+            return steps.map((step) => {
+                const feature = step.appFeature as AppFeature | string;
+                const selected =
+                    typeof feature === 'string'
+                        ? this.selectedFeatures().find((item) => item._id === feature)
+                        : null;
+                const name =
+                    typeof feature === 'object'
+                        ? feature.name
+                        : selected?.name ?? `Paso ${step.sequence}`;
+                const code = typeof feature === 'object' ? feature.code : selected?.code;
+                return {
+                    sequence: step.sequence,
+                    label: name,
+                    code,
+                    hasData: false,
+                    error: null,
+                    skipMessage: null,
+                    status: 'empty' as const,
+                    fields: [],
+                };
+            });
+        }
+
+        return this.selectedFeatures().map((feature, index) => ({
+            sequence: index + 1,
+            label: feature.name,
+            code: feature.code,
+            hasData: false,
+            error: null,
+            skipMessage: null,
+            status: 'empty' as const,
+            fields: [],
+        }));
+    });
+
     resultSummary = computed(() => {
         const cards = this.resultCards();
         return {
@@ -394,10 +441,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     selectIntent(intent: GuideIntent): void {
         if (intent === 'template') {
-            this._state.resetAll();
-            void this._router.navigate(['/smart-batch', 'report-builder'], {
-                queryParams: { from: 'guide' },
-            });
+            this._state.intent.set('template');
+            this._state.wantsReport.set(true);
+            this._state.applyDeductions();
+            this.goNext();
             return;
         }
         if (intent === 'other') {
@@ -415,6 +462,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!this.allowsMultiEntity()) {
             this._state.entities.set([entity]);
             this._state.selectedFeatures.set([]);
+            this._state.requiredParamFilters.set([]);
             this._state.applyDeductions();
             this.goNext();
             return;
@@ -491,6 +539,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (this.step() === 'template' && this.mode() === 'batch') {
+            void this._finishBatchTemplatePick();
+            return;
+        }
+
         if (next === 'template') this._refreshTemplates();
         if (next === 'layout') this.enterLayout();
         if (next === 'include') this.ensureIncludeItems();
@@ -502,7 +555,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const steps = this.visibleSteps();
         const current = steps.indexOf(this.step());
         const previous = steps[Math.max(0, current - 1)];
-        this.step.set(previous === 'consult' ? 'input' : previous);
+        this.step.set(previous === 'consult' ? (this.mode() === 'batch' ? 'mode' : 'input') : previous);
     }
 
     startOver(): void {
@@ -530,6 +583,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
     };
+
+    onLayoutSectionReorder(event: { fromId: string; toIndex: number }): void {
+        const list = [...this.layoutSections()];
+        const from = list.findIndex((section) => section.id === event.fromId);
+        if (from < 0 || from === event.toIndex) return;
+        if (event.toIndex < 0 || event.toIndex >= list.length) return;
+        moveItemInArray(list, from, event.toIndex);
+        this.layoutSections.set(list.map((section, order) => ({ ...section, order })));
+        this.selectedLayoutSectionId.set(event.fromId);
+        this.layoutEditorKind.set('block');
+    }
 
     onLayoutOverlaySelect(id: 'logo' | 'watermark' | 'signature'): void {
         this.selectedLayoutSectionId.set(null);
@@ -664,7 +728,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     addAllCardsToLayout(): void {
-        for (const card of this.resultCards()) {
+        for (const card of this.layoutSourceCards()) {
             const path = `results.${card.sequence}`;
             if (this.layoutSections().some((section) => section.dataPath === path)) continue;
             this.layoutSections.update((list) => [
@@ -1140,7 +1204,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.set(list.map((section, order) => ({ ...section, order })));
     }
 
-    async saveLayoutTemplate(): Promise<void> {
+    async saveLayoutTemplate(): Promise<boolean> {
         this.isSavingLayout.set(true);
         try {
             if (!this.layoutSections().length) this.addAllCardsToLayout();
@@ -1150,10 +1214,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 duration: 2500,
             });
             this._refreshTemplates();
+            return true;
         } catch {
             this._snack.open(this._transloco.translate('visitaGuide.layoutSaveFailed'), undefined, {
                 duration: 3500,
             });
+            return false;
         } finally {
             this.isSavingLayout.set(false);
         }
@@ -1161,8 +1227,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     async saveLayoutAndGenerate(): Promise<void> {
         if (!this.layoutSections().length) this.addAllCardsToLayout();
-        await this.saveLayoutTemplate();
+        const saved = await this.saveLayoutTemplate();
+        if (!saved) return;
+        if (this.mode() === 'batch') {
+            this._continueBatchUpload();
+            return;
+        }
         this.step.set('generate');
+    }
+
+    private _continueBatchUpload(): void {
+        const configId = this._state.configId();
+        if (!configId) {
+            this._snack.open(this._transloco.translate('visitaGuide.consultFailed'), undefined, {
+                duration: 3500,
+            });
+            return;
+        }
+        void this._router.navigate(['/smart-batch', configId, 'batch', 'new'], {
+            queryParams: { from: 'guide' },
+        });
     }
 
     private _patchSelectedLayout(patch: Partial<ReportSection>): void {
@@ -1225,20 +1309,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         this._applyPickedTemplate(template, 'visita');
-        this.goNext();
+        this._afterTemplatePicked();
     }
 
     pickSystemTemplate(template: SmartReportTemplate): void {
         this._applyPickedTemplate(template, 'visita');
-        this.goNext();
+        this._afterTemplatePicked();
     }
 
     pickMyTemplate(template: SmartReportTemplate): void {
         this._applyPickedTemplate(template, 'mine');
-        this.goNext();
+        this._afterTemplatePicked();
     }
 
     pickScratch(): void {
+        if (this.mode() === 'batch') {
+            this._snack.open(this._transloco.translate('visitaGuide.templateBatchCreateHint'), undefined, {
+                duration: 4500,
+            });
+            return;
+        }
         this._state.templateChoice.set('scratch');
         this._state.selectedTemplate.set(null);
         this._resetLayoutBranding();
@@ -1442,38 +1532,27 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this.selectedFeatures().some((item) => item._id === feature._id);
     }
 
-    isParamHighlighted(feature: AppFeature): boolean {
-        return matchesParamHighlight(feature, this.paramHighlight());
+    toggleRequiredParamFilter(field: string): void {
+        const current = this.requiredParamFilters();
+        this._state.requiredParamFilters.set(
+            current.includes(field) ? current.filter((item) => item !== field) : [...current, field]
+        );
     }
 
-    setParamHighlight(highlight: ParamHighlight): void {
-        this._state.paramHighlight.update((current) => (current === highlight ? null : highlight));
+    isRequiredParamFilterActive(field: string): boolean {
+        return this.requiredParamFilters().includes(field);
     }
 
-    highlightLabelKey(highlight: ParamHighlight): string {
-        if (highlight === 'document-only') return 'visitaGuide.highlightDocumentOnly';
-        if (highlight === 'plate-only') return 'visitaGuide.highlightPlateOnly';
-        return 'visitaGuide.highlightNitOnly';
+    clearRequiredParamFilters(): void {
+        this._state.requiredParamFilters.set([]);
     }
 
-    highlightChipClass(highlight: ParamHighlight): string {
-        return paramHighlightChipClass(highlight, this.paramHighlight() === highlight);
+    paramFilterLabelKey(field: string): string {
+        return paramFieldLabelKey(field);
     }
 
-    highlightCardClass(feature: AppFeature): string {
-        return paramHighlightCardClass(this.paramHighlight(), this.isParamHighlighted(feature));
-    }
-
-    isEndpointDimmed(feature: AppFeature): boolean {
-        return Boolean(this.paramHighlight()) && !this.isParamHighlighted(feature);
-    }
-
-    highlightBadgeClass(): string {
-        return paramHighlightBadgeClass(this.paramHighlight());
-    }
-
-    highlightSwatchClass(highlight: ParamHighlight): string {
-        return paramHighlightSwatchClass(highlight);
+    paramFilterLabelParams(field: string): { field: string } {
+        return { field: humanizeParamField(field) };
     }
 
     featureGroupLabelKey(group: FeatureGroupId): string {
@@ -1486,10 +1565,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return keys[group];
     }
 
-    featureParamKeys(feature: AppFeature): string[] {
-        const kinds = [...requiredParamKinds(feature)];
-        if (!kinds.length && requiredVisibleFields(feature).length === 0) return [];
-        return kinds.map((kind) => paramKindLabelKey(kind));
+    featureParamFields(feature: AppFeature): string[] {
+        return featureParamFilterIds(feature);
     }
 
     selectVisibleEndpoints(): void {
@@ -1526,7 +1603,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _sectionsForPreview(template: SmartReportTemplate): ReportSection[] {
-        const cards = this.resultCards();
+        const cards = this.layoutSourceCards();
         const includedItems = this.includeItems().length
             ? this.includeItems().filter((item) => item.included)
             : cards.map((card) => ({
@@ -1612,9 +1689,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             },
             sections: draft.sections,
             batchConfiguration: configId ?? draft.batchConfiguration,
+            category: this.entities().length === 1 ? this.entities()[0] : draft.category,
         };
 
-        if (draft._id && draft.type !== 'System') {
+        const isSystemTemplate = draft.type === 'System';
+        if (draft._id && !isSystemTemplate) {
             const updated = await firstValueFrom(this._reports.updateTemplate(draft._id, payload));
             this._state.selectedTemplate.set(updated);
             if (configId && updated._id) {
@@ -1654,6 +1733,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.templateChoice.set(choice);
         this._state.selectedTemplate.set(template);
         this.hydrateCustomize(template, true);
+        if (this.mode() === 'batch') return;
         this.layoutSections.set(
             (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
         );
@@ -1661,6 +1741,55 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
         this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
         this.enterLayout();
+    }
+
+    private _afterTemplatePicked(): void {
+        if (this.mode() === 'batch') {
+            void this._finishBatchTemplatePick();
+            return;
+        }
+        this.goNext();
+    }
+
+    private async _finishBatchTemplatePick(): Promise<void> {
+        const template = this.selectedTemplate();
+        const configId = this._state.configId();
+        if (!template?._id || !configId) {
+            this._snack.open(this._transloco.translate('visitaGuide.pickTemplate'), undefined, {
+                duration: 2500,
+            });
+            return;
+        }
+        try {
+            await firstValueFrom(
+                this._batch.updateConfiguration(configId, { preferredReportTemplate: template._id })
+            );
+        } catch {
+            this._snack.open(this._transloco.translate('visitaGuide.layoutSaveFailed'), undefined, {
+                duration: 3500,
+            });
+            return;
+        }
+        this._continueBatchUpload();
+    }
+
+    private _sortedTemplates(
+        templates: SmartReportTemplate[],
+        selected: Set<GuideEntity>
+    ): SmartReportTemplate[] {
+        return templates.slice().sort((a, b) => {
+            const aMatch = a.category && selected.has(a.category) ? 0 : 1;
+            const bMatch = b.category && selected.has(b.category) ? 0 : 1;
+            if (aMatch !== bMatch) return aMatch - bMatch;
+            return (a.name || '').localeCompare(b.name || '');
+        });
+    }
+
+    private _templateMatchesSearch(template: SmartReportTemplate): boolean {
+        const query = this.templateSearchQuery().trim().toLowerCase();
+        if (!query) return true;
+        const blob = `${template.name ?? ''} ${template.description ?? ''} ${template.category ?? ''}`.toLowerCase();
+        return blob.includes(query);
     }
 
     private _resetLayoutBranding(): void {
@@ -1737,7 +1866,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private ensureIncludeItems(): void {
-        const cards = this.resultCards();
+        const cards = this.layoutSourceCards();
         const current = this.includeItems();
         const same =
             current.length === cards.length &&
@@ -1781,6 +1910,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
             if (this.mode() === 'batch') {
                 this.isWorking.set(false);
+                if (
+                    this.intent() === 'report' ||
+                    this.intent() === 'template' ||
+                    this.wantsReport()
+                ) {
+                    this._refreshTemplates();
+                    this.step.set('template');
+                    return;
+                }
                 void this._router.navigate(['/smart-batch', resolved.configId, 'batch', 'new'], {
                     queryParams: { from: 'guide' },
                 });
@@ -1853,6 +1991,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _resumeFromDesigner(): void {
+        const start = this._route.snapshot.queryParamMap.get('start');
+        if (start === 'report' && !this._state.intent()) {
+            this.selectIntent('report');
+            return;
+        }
+
         const resumeRaw = this._route.snapshot.queryParamMap.get('resume');
         const mapped: GuideStepId | null =
             resumeRaw === 'preview' ||

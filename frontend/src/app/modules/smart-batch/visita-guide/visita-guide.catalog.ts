@@ -1,3 +1,13 @@
+import { mergeEnumValues } from '../batch-required-fields.util';
+import {
+    canonicalParamFilterId,
+    collectRequiredParamFields,
+    FeatureParamShape,
+    humanizeParamField,
+    paramFieldLabelKey,
+} from '../endpoint-param-highlight.util';
+import { featureGroup } from '../feature-group.util';
+
 export type GuideIntent = 'report' | 'person' | 'vehicle' | 'company' | 'template' | 'other';
 export type GuideEntity = 'citizen' | 'vehicle' | 'company';
 export type GuideMode = 'single' | 'batch';
@@ -26,9 +36,10 @@ export interface GuideCountryOption {
 export interface GuideInputField {
     key: string;
     labelKey: string;
+    labelText?: string;
     placeholderKey: string;
     required: boolean;
-    defaults?: Record<string, string>;
+    options?: string[];
 }
 
 export const GUIDE_COUNTRIES: GuideCountryOption[] = [
@@ -117,44 +128,148 @@ export const intentEntity = (intent: GuideIntent | null): GuideEntity | null => 
 export const defaultSystemKey = (entity: GuideEntity, iso: string): string =>
     `${iso.toLowerCase()}.${entity}.comprehensive`;
 
-export const inputFieldsFor = (entities: GuideEntity[], iso: string): GuideInputField[] => {
-    if (iso.toLowerCase() !== 'co') return [];
+const DEFAULT_DOCUMENT_TYPES = ['CC', 'CE', 'NIT', 'PA', 'PEP', 'PPT', 'RC', 'TI'];
+
+const FIELD_ORDER = [
+    'documentType',
+    'citizenDocumentType',
+    'companyDocumentType',
+    'documentNumber',
+    'citizenDocumentNumber',
+    'companyDocumentNumber',
+    'plate',
+    'dateOfBirth',
+    'fechaExpedicion',
+    'expirationDate',
+    'fullName',
+];
+
+const rowKeyForParam = (
+    canonical: string,
+    feature: FeatureParamShape,
+    mixedCitizenCompany: boolean,
+    entities: GuideEntity[]
+): string => {
+    if (!mixedCitizenCompany || (canonical !== 'documentType' && canonical !== 'documentNumber')) {
+        return canonical;
+    }
+    const group = featureGroup(feature);
+    const useCompany =
+        group === 'company' || (group === 'vehicle' && !entities.includes('citizen') && entities.includes('company'));
+    if (useCompany) {
+        return canonical === 'documentType' ? 'companyDocumentType' : 'companyDocumentNumber';
+    }
+    return canonical === 'documentType' ? 'citizenDocumentType' : 'citizenDocumentNumber';
+};
+
+const enumsForCanonical = (feature: FeatureParamShape, canonical: string): string[] | undefined => {
+    const values = (feature.dependencies ?? [])
+        .filter((dep) => dep.field && canonicalParamFilterId(dep.field) === canonical)
+        .flatMap((dep) => dep.enum ?? []);
+    return mergeEnumValues(undefined, values);
+};
+
+const labelForInputKey = (key: string, canonical: string): { labelKey: string; labelText?: string } => {
+    if (key === 'citizenDocumentNumber') return { labelKey: 'visitaGuide.idCedula' };
+    if (key === 'companyDocumentNumber') return { labelKey: 'visitaGuide.idNit' };
+    const labelKey = paramFieldLabelKey(canonical);
+    if (labelKey === 'visitaGuide.paramFieldOther') {
+        return { labelKey, labelText: humanizeParamField(canonical) };
+    }
+    return { labelKey };
+};
+
+const toGuideInputField = (
+    key: string,
+    canonical: string,
+    required: boolean,
+    options?: string[]
+): GuideInputField => {
+    const { labelKey, labelText } = labelForInputKey(key, canonical);
+    const select = canonical === 'documentType' || Boolean(options?.length);
+    let placeholderKey = 'visitaGuide.inputValuePlaceholder';
+    if (select) placeholderKey = 'visitaGuide.paramFieldSelectPlaceholder';
+    else if (canonical === 'documentNumber') placeholderKey = 'visitaGuide.idCedulaPlaceholder';
+    else if (canonical === 'plate') placeholderKey = 'visitaGuide.idPlatePlaceholder';
+    return {
+        key,
+        labelKey,
+        labelText,
+        placeholderKey,
+        required,
+        options: select ? (options?.length ? options : DEFAULT_DOCUMENT_TYPES) : undefined,
+    };
+};
+
+const inputFieldsFromFeatures = (
+    entities: GuideEntity[],
+    features: FeatureParamShape[]
+): GuideInputField[] => {
+    const mixedCitizenCompany = entities.includes('citizen') && entities.includes('company');
+    const byKey = new Map<
+        string,
+        { canonical: string; required: boolean; options?: string[] }
+    >();
+
+    for (const feature of features) {
+        for (const canonical of collectRequiredParamFields([feature])) {
+            const key = rowKeyForParam(canonical, feature, mixedCitizenCompany, entities);
+            const previous = byKey.get(key);
+            byKey.set(key, {
+                canonical,
+                required: true,
+                options: mergeEnumValues(previous?.options, enumsForCanonical(feature, canonical)),
+            });
+        }
+    }
+
+    const fields = [...byKey.entries()]
+        .map(([key, meta]) => toGuideInputField(key, meta.canonical, meta.required, meta.options))
+        .sort((left, right) => {
+            const leftRank = FIELD_ORDER.indexOf(left.key);
+            const rightRank = FIELD_ORDER.indexOf(right.key);
+            if (leftRank === -1 && rightRank === -1) return left.key.localeCompare(right.key);
+            if (leftRank === -1) return 1;
+            if (rightRank === -1) return -1;
+            return leftRank - rightRank;
+        });
+
+    return fields.length ? fields : inputFieldsFromEntities(entities);
+};
+
+const inputFieldsFromEntities = (entities: GuideEntity[]): GuideInputField[] => {
     const selected = new Set(entities);
     const mixedCitizenCompany = selected.has('citizen') && selected.has('company');
     const fields: GuideInputField[] = [];
 
     if (selected.has('citizen')) {
+        const typeKey = mixedCitizenCompany ? 'citizenDocumentType' : 'documentType';
+        const numberKey = mixedCitizenCompany ? 'citizenDocumentNumber' : 'documentNumber';
+        fields.push(toGuideInputField(typeKey, 'documentType', true, DEFAULT_DOCUMENT_TYPES));
         fields.push({
-            key: mixedCitizenCompany ? 'citizenDocumentNumber' : 'documentNumber',
+            ...toGuideInputField(numberKey, 'documentNumber', true),
             labelKey: 'visitaGuide.idCedula',
             placeholderKey: 'visitaGuide.idCedulaPlaceholder',
-            required: true,
-            defaults: mixedCitizenCompany ? { citizenDocumentType: 'CC' } : { documentType: 'CC' },
         });
     }
     if (selected.has('company')) {
+        const typeKey = mixedCitizenCompany ? 'companyDocumentType' : 'documentType';
+        const numberKey = mixedCitizenCompany ? 'companyDocumentNumber' : 'documentNumber';
+        fields.push(toGuideInputField(typeKey, 'documentType', true, DEFAULT_DOCUMENT_TYPES));
         fields.push({
-            key: mixedCitizenCompany ? 'companyDocumentNumber' : 'documentNumber',
+            ...toGuideInputField(numberKey, 'documentNumber', true),
             labelKey: 'visitaGuide.idNit',
             placeholderKey: 'visitaGuide.idNitPlaceholder',
-            required: true,
-            defaults: mixedCitizenCompany ? { companyDocumentType: 'NIT' } : { documentType: 'NIT' },
         });
     }
     if (selected.has('vehicle')) {
-        fields.push({
-            key: 'plate',
-            labelKey: 'visitaGuide.idPlate',
-            placeholderKey: 'visitaGuide.idPlatePlaceholder',
-            required: true,
-        });
+        fields.push(toGuideInputField('plate', 'plate', true));
         if (!selected.has('citizen') && !selected.has('company')) {
+            fields.push(toGuideInputField('documentType', 'documentType', false, DEFAULT_DOCUMENT_TYPES));
             fields.push({
-                key: 'documentNumber',
+                ...toGuideInputField('documentNumber', 'documentNumber', false),
                 labelKey: 'visitaGuide.idOwnerOptional',
                 placeholderKey: 'visitaGuide.idOwnerPlaceholder',
-                required: false,
-                defaults: { documentType: 'CC' },
             });
         }
     }
@@ -162,16 +277,26 @@ export const inputFieldsFor = (entities: GuideEntity[], iso: string): GuideInput
     return fields;
 };
 
+export const inputFieldsFor = (
+    entities: GuideEntity[],
+    iso: string,
+    features: FeatureParamShape[] = []
+): GuideInputField[] => {
+    if (iso.toLowerCase() !== 'co') return [];
+    if (features.length) return inputFieldsFromFeatures(entities, features);
+    return inputFieldsFromEntities(entities);
+};
+
 export const buildInputRow = (
     entities: GuideEntity[],
     iso: string,
-    values: Record<string, string>
+    values: Record<string, string>,
+    features: FeatureParamShape[] = []
 ): Record<string, string> => {
     const row: Record<string, string> = {};
-    for (const field of inputFieldsFor(entities, iso)) {
+    for (const field of inputFieldsFor(entities, iso, features)) {
         const value = (values[field.key] ?? '').trim();
         if (!value) continue;
-        Object.assign(row, field.defaults ?? {});
         row[field.key] = value;
     }
     return row;

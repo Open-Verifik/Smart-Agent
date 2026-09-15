@@ -10,6 +10,7 @@ import {
     ViewChild,
     ViewChildren,
     effect,
+    inject,
     input,
     signal,
     untracked,
@@ -66,6 +67,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     sectionClick = input<((section: ReportSection) => void) | null>(null);
     /** When true, right-click emits a custom menu instead of the browser menu. */
     customContextMenu = input<boolean>(false);
+    /** When true, holding a block lets the user reorder it on the page. */
+    reorderable = input<boolean>(false);
 
     /** Logo URL or base64 */
     logoUrl = input<string | null>(null);
@@ -126,6 +129,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() backgroundClick = new EventEmitter<void>();
     @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
     @Output() overlayContextMenu = new EventEmitter<{ overlay: ReportOverlayId; x: number; y: number }>();
+    @Output() sectionReorder = new EventEmitter<{ fromId: string; toIndex: number }>();
 
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
@@ -156,6 +160,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     private _measureScheduled = false;
     private _measureFrameId: number | null = null;
+    private readonly _host = inject(ElementRef<HTMLElement>);
+    private _sectionDrag: {
+        id: string;
+        pointerId: number;
+        startX: number;
+        startY: number;
+        fromIndex: number;
+        active: boolean;
+        el: HTMLElement;
+    } | null = null;
+    private _sectionDragMoved = false;
+    readonly draggingSectionId = signal<string | null>(null);
+    readonly sectionDropTargetId = signal<string | null>(null);
+    readonly sectionDropEdge = signal<'before' | 'after' | null>(null);
 
     constructor() {
         // Single effect that tracks every input that influences pagination.
@@ -449,8 +467,134 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     onSectionActivate(section: ReportSection, event: Event): void {
         event.stopPropagation();
+        if (this._sectionDragMoved) {
+            this._sectionDragMoved = false;
+            return;
+        }
         if (!this.clickable() || !this.sectionClick()) return;
         this.sectionClick()!(section);
+    }
+
+    onSectionPointerDown(section: ReportSection, event: PointerEvent): void {
+        if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
+        const origin = event.target as HTMLElement | null;
+        if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
+        const sections = this.template().sections ?? [];
+        const fromIndex = sections.findIndex((item) => item.id === section.id);
+        if (fromIndex < 0) return;
+        this._sectionDragMoved = false;
+        this._sectionDrag = {
+            id: section.id,
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            fromIndex,
+            active: false,
+            el: event.currentTarget as HTMLElement,
+        };
+        this.sectionClick()?.(section);
+        window.addEventListener('pointermove', this._onWindowSectionMove);
+        window.addEventListener('pointerup', this._onWindowSectionUp, true);
+        window.addEventListener('pointercancel', this._onWindowSectionUp, true);
+    }
+
+    private _onWindowSectionMove = (event: PointerEvent): void => {
+        this.onSectionPointerMove(event);
+    };
+
+    private _onWindowSectionUp = (event: PointerEvent): void => {
+        this.onSectionPointerUp(event);
+    };
+
+    onSectionPointerMove(event: PointerEvent): void {
+        const drag = this._sectionDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const dx = event.clientX - drag.startX;
+        const dy = event.clientY - drag.startY;
+        if (!drag.active) {
+            if (Math.hypot(dx, dy) < 8) return;
+            drag.active = true;
+            this._sectionDragMoved = true;
+            this.draggingSectionId.set(drag.id);
+            drag.el.setPointerCapture(event.pointerId);
+            drag.el.style.touchAction = 'none';
+        }
+        event.preventDefault();
+        const move = this._computeSectionMove(event.clientY, drag.fromIndex);
+        this.sectionDropTargetId.set(move.targetId);
+        this.sectionDropEdge.set(move.edge);
+        drag.el.dataset['dropIndex'] = String(move.to);
+    }
+
+    onSectionPointerUp(event: PointerEvent): void {
+        const drag = this._sectionDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const toIndex = Number(drag.el.dataset['dropIndex'] ?? drag.fromIndex);
+        this._clearSectionDrag();
+        if (!drag.active || !Number.isFinite(toIndex) || toIndex === drag.fromIndex) return;
+        this.sectionReorder.emit({ fromId: drag.id, toIndex });
+    }
+
+    isSectionDropBefore(section: ReportSection): boolean {
+        return this.sectionDropTargetId() === section.id && this.sectionDropEdge() === 'before';
+    }
+
+    isSectionDropAfter(section: ReportSection): boolean {
+        return this.sectionDropTargetId() === section.id && this.sectionDropEdge() === 'after';
+    }
+
+    private _computeSectionMove(
+        clientY: number,
+        fromIndex: number
+    ): { to: number; targetId: string; edge: 'before' | 'after' } {
+        const nodes = Array.from(
+            this._host.nativeElement.querySelectorAll('[data-report-section]')
+        ) as HTMLElement[];
+        if (nodes.length === 0) {
+            return { to: fromIndex, targetId: '', edge: 'before' };
+        }
+        let insertIndex = nodes.length;
+        let targetId = nodes[nodes.length - 1].getAttribute('data-section-id') || '';
+        let edge: 'before' | 'after' = 'after';
+        for (let i = 0; i < nodes.length; i++) {
+            const rect = nodes[i].getBoundingClientRect();
+            const id = nodes[i].getAttribute('data-section-id') || '';
+            if (clientY < rect.top + rect.height / 2) {
+                insertIndex = i;
+                targetId = id;
+                edge = 'before';
+                break;
+            }
+            insertIndex = i + 1;
+            targetId = id;
+            edge = 'after';
+        }
+        const to = fromIndex < insertIndex ? insertIndex - 1 : insertIndex;
+        return {
+            to: Math.max(0, Math.min(to, nodes.length - 1)),
+            targetId,
+            edge,
+        };
+    }
+
+    private _clearSectionDrag(): void {
+        window.removeEventListener('pointermove', this._onWindowSectionMove);
+        window.removeEventListener('pointerup', this._onWindowSectionUp, true);
+        window.removeEventListener('pointercancel', this._onWindowSectionUp, true);
+        const drag = this._sectionDrag;
+        if (drag?.el) {
+            drag.el.style.touchAction = '';
+            delete drag.el.dataset['dropIndex'];
+            try {
+                drag.el.releasePointerCapture(drag.pointerId);
+            } catch {
+                /* already released */
+            }
+        }
+        this._sectionDrag = null;
+        this.draggingSectionId.set(null);
+        this.sectionDropTargetId.set(null);
+        this.sectionDropEdge.set(null);
     }
 
     onSectionContextMenu(section: ReportSection, event: MouseEvent): void {
@@ -718,6 +862,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.stopResize();
         this.stopRotate();
         this.stopMove();
+        this._clearSectionDrag();
     };
 
     resolveDataPath(path: string | undefined): string {

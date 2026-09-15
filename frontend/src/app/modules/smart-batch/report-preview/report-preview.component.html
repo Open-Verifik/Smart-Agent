@@ -248,8 +248,12 @@
                 @for (section of pageSections; track section.id) {
                     <div
                         data-report-section
-                        class="mb-3 transition-all duration-200"
-                        [class.cursor-pointer]="clickable()"
+                        [attr.data-section-id]="section.id"
+                        class="relative mb-3 transition-all duration-200"
+                        [class.cursor-pointer]="clickable() && !reorderable()"
+                        [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
+                        [class.cursor-grabbing]="draggingSectionId() === section.id"
+                        [class.opacity-60]="draggingSectionId() === section.id"
                         [class.ring-2]="clickable() && selectedSectionId() === section.id"
                         [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id"
                         [class.rounded-md]="clickable() && selectedSectionId() === section.id"
@@ -259,7 +263,17 @@
                         [style.padding]="sectionFramePadding(section)"
                         (click)="onSectionActivate(section, $event)"
                         (contextmenu)="onSectionContextMenu(section, $event)"
+                        (pointerdown)="onSectionPointerDown(section, $event)"
+                        (pointermove)="onSectionPointerMove($event)"
+                        (pointerup)="onSectionPointerUp($event)"
+                        (pointercancel)="onSectionPointerUp($event)"
                     >
+                        @if (isSectionDropBefore(section)) {
+                            <div class="pointer-events-none absolute left-1 right-1 top-0 z-20 h-1 rounded-full bg-indigo-500"></div>
+                        }
+                        @if (isSectionDropAfter(section)) {
+                            <div class="pointer-events-none absolute bottom-0 left-1 right-1 z-20 h-1 rounded-full bg-indigo-500"></div>
+                        }
                         <ng-container
                             [ngTemplateOutlet]="sectionBody"
                             [ngTemplateOutletContext]="{ section: section }"
