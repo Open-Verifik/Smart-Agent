@@ -36,6 +36,7 @@
                             [style.border]="watermarkOverlayBorder"
                             (pointerdown)="startMove($event, 'watermark')"
                             (click)="selectOverlay('watermark', $event)"
+                            (contextmenu)="onOverlayContextMenu('watermark', $event)"
                         >
                             @if (watermarkType() === 'text') {
                                 <span
@@ -137,6 +138,7 @@
                         [style.border]="signatureOverlayBorder"
                         (pointerdown)="startMove($event, 'signature')"
                         (click)="selectOverlay('signature', $event)"
+                        (contextmenu)="onOverlayContextMenu('signature', $event)"
                     >
                         <img
                             [src]="signatureImage()"
@@ -176,6 +178,7 @@
                         [style.border]="logoOverlayBorder"
                         (pointerdown)="startMove($event, 'logo')"
                         (click)="selectOverlay('logo', $event)"
+                        (contextmenu)="onOverlayContextMenu('logo', $event)"
                     >
                         <img
                             [src]="logoUrl()"
@@ -255,6 +258,7 @@
                         [style.border-radius.px]="sectionFrameRadius(section)"
                         [style.padding]="sectionFramePadding(section)"
                         (click)="onSectionActivate(section, $event)"
+                        (contextmenu)="onSectionContextMenu(section, $event)"
                     >
                         <ng-container
                             [ngTemplateOutlet]="sectionBody"

@@ -778,10 +778,13 @@
                                         [logoRotation]="logoRotation()"
                                         [logoAutoFitContent]="true"
                                         [clickable]="true"
+                                        [customContextMenu]="true"
                                         [selectedSectionId]="selectedLayoutSectionId()"
                                         [selectedOverlay]="selectedLayoutOverlay()"
                                         [sectionClick]="onLayoutSectionClick"
                                         (overlaySelect)="onLayoutOverlaySelect($event)"
+                                        (sectionContextMenu)="onLayoutSectionContextMenu($event)"
+                                        (overlayContextMenu)="onLayoutOverlayContextMenu($event)"
                                         (backgroundClick)="openLayoutPageEditor()"
                                         (logoPositionChange)="onLayoutLogoPositionChange($event)"
                                         (logoSizeChange)="onLayoutLogoSizeChange($event)"
@@ -1264,6 +1267,7 @@
                                             [class.dark:border-indigo-400]="selectedLayoutSectionId() === section.id"
                                             [class.dark:border-teal-800]="selectedLayoutSectionId() !== section.id"
                                             (click)="onLayoutSectionClick(section)"
+                                            (contextmenu)="onLayoutLayerContextMenu(section, $event)"
                                         >
                                             {{ section.label || section.type }}
                                         </button>
@@ -1331,4 +1335,21 @@
             </div>
         </main>
     </div>
+    @if (layoutContextMenu(); as menu) {
+        <div
+            class="visita-layout-context-menu fixed z-[80] min-w-[11rem] overflow-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            [style.left.px]="menu.x"
+            [style.top.px]="menu.y"
+            (contextmenu)="$event.preventDefault(); $event.stopPropagation()"
+        >
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-amber-300 dark:hover:bg-amber-400/15 dark:hover:text-amber-200"
+                (click)="deleteLayoutContextTarget(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-red-600 dark:text-amber-300">delete</mat-icon>
+                {{ t('visitaGuide.layoutContextDelete') }}
+            </button>
+        </div>
+    }
 </ng-container>

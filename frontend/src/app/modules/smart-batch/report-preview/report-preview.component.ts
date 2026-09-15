@@ -64,6 +64,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     selectedOverlay = input<ReportOverlayId | null>(null);
     /** Section click handler (optional) */
     sectionClick = input<((section: ReportSection) => void) | null>(null);
+    /** When true, right-click emits a custom menu instead of the browser menu. */
+    customContextMenu = input<boolean>(false);
 
     /** Logo URL or base64 */
     logoUrl = input<string | null>(null);
@@ -122,6 +124,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() watermarkRotationChange = new EventEmitter<number>();
     @Output() overlaySelect = new EventEmitter<ReportOverlayId>();
     @Output() backgroundClick = new EventEmitter<void>();
+    @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
+    @Output() overlayContextMenu = new EventEmitter<{ overlay: ReportOverlayId; x: number; y: number }>();
 
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
@@ -447,6 +451,22 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         event.stopPropagation();
         if (!this.clickable() || !this.sectionClick()) return;
         this.sectionClick()!(section);
+    }
+
+    onSectionContextMenu(section: ReportSection, event: MouseEvent): void {
+        if (!this.clickable() || !this.customContextMenu()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.sectionClick()?.(section);
+        this.sectionContextMenu.emit({ section, x: event.clientX, y: event.clientY });
+    }
+
+    onOverlayContextMenu(id: ReportOverlayId, event: MouseEvent): void {
+        if (!this.clickable() || !this.customContextMenu()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.overlaySelect.emit(id);
+        this.overlayContextMenu.emit({ overlay: id, x: event.clientX, y: event.clientY });
     }
 
     /**

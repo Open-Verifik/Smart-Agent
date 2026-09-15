@@ -272,6 +272,7 @@
         "layoutPanelBlock": "Bloque seleccionado",
         "layoutEditorPage": "Hoja y marca",
         "layoutEditorClose": "Cerrar menú",
+        "layoutContextDelete": "Eliminar",
         "layoutEditorHint": "Haz clic en un bloque, en el logo o en la hoja para abrir el menú. Arrástralo por la pantalla.",
         "layoutTextTitle": "Título",
         "layoutTextLabels": "Etiquetas",

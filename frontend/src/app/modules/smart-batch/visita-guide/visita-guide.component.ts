@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, HostListener, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,7 @@ import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.se
 import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
-import { ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
@@ -155,6 +155,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutSectionId = signal<string | null>(null);
     selectedLayoutOverlay = signal<'logo' | 'watermark' | 'signature' | null>(null);
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
+    layoutContextMenu = signal<{
+        x: number;
+        y: number;
+        sectionId?: string;
+        overlay?: ReportOverlayId;
+    } | null>(null);
     isSavingLayout = signal(false);
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
@@ -544,6 +550,71 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     closeLayoutEditor(): void {
         this.layoutEditorKind.set(null);
+    }
+
+    onLayoutSectionContextMenu(event: { section: ReportSection; x: number; y: number }): void {
+        this._openLayoutContextMenu(event.x, event.y, { sectionId: event.section.id });
+    }
+
+    onLayoutOverlayContextMenu(event: { overlay: ReportOverlayId; x: number; y: number }): void {
+        this._openLayoutContextMenu(event.x, event.y, { overlay: event.overlay });
+    }
+
+    onLayoutLayerContextMenu(section: ReportSection, event: MouseEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        this.onLayoutSectionClick(section);
+        this._openLayoutContextMenu(event.clientX, event.clientY, { sectionId: section.id });
+    }
+
+    closeLayoutContextMenu(): void {
+        this.layoutContextMenu.set(null);
+    }
+
+    deleteLayoutContextTarget(): void {
+        const menu = this.layoutContextMenu();
+        if (!menu) return;
+        if (menu.sectionId) {
+            this.selectedLayoutSectionId.set(menu.sectionId);
+            this.removeSelectedLayoutSection();
+        } else if (menu.overlay === 'logo') {
+            this.clearLogo();
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
+        } else if (menu.overlay === 'watermark') {
+            this.setWatermarkEnabled(false);
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
+        }
+        this.closeLayoutContextMenu();
+    }
+
+    @HostListener('document:pointerdown', ['$event'])
+    onDocumentPointerDown(event: PointerEvent): void {
+        if (!this.layoutContextMenu()) return;
+        if (event.button === 2) return;
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('.visita-layout-context-menu')) return;
+        this.closeLayoutContextMenu();
+    }
+
+    @HostListener('document:keydown.escape')
+    onDocumentEscape(): void {
+        this.closeLayoutContextMenu();
+    }
+
+    private _openLayoutContextMenu(
+        x: number,
+        y: number,
+        target: { sectionId?: string; overlay?: ReportOverlayId }
+    ): void {
+        const width = 176;
+        const height = 48;
+        this.layoutContextMenu.set({
+            x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
+            y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
+            ...target,
+        });
     }
 
     layoutEditorTitleKey(): string {

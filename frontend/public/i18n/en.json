@@ -272,6 +272,7 @@
         "layoutPanelBlock": "Selected block",
         "layoutEditorPage": "Page and branding",
         "layoutEditorClose": "Close menu",
+        "layoutContextDelete": "Delete",
         "layoutEditorHint": "Click a block, the logo, or the page to open the menu. Drag it anywhere on the screen.",
         "layoutTextTitle": "Title",
         "layoutTextLabels": "Labels",
