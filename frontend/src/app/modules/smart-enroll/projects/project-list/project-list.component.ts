@@ -13,7 +13,13 @@ import { requiresSmartEnrollSubscription } from 'app/core/client-settings/overri
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
 import { DateTime } from 'luxon';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { SmartEnrollPlansService } from '../../plans/smart-enroll-plans.service';
+import {
+    UsageQuotaPreviewComponent,
+    type EnrollUsagePlanPreview,
+} from '../../plans/usage-quota-preview.component';
 import {
     PROJECT_SECURITY_DIALOG_PANEL_CLASS,
     ProjectSecurityModalComponent,
@@ -39,12 +45,14 @@ import type {
         MatProgressSpinnerModule,
         MatSlideToggleModule,
         TranslocoModule,
+        UsageQuotaPreviewComponent,
     ],
     templateUrl: './project-list.component.html',
     styleUrls: ['./project-list.component.scss'],
 })
 export class ProjectListComponent implements OnInit {
     private _clipboard = inject(Clipboard);
+    private _enrollPlansService = inject(SmartEnrollPlansService);
     private _projectsService = inject(SmartEnrollProjectsService);
     private _router = inject(Router);
     private _authGate = inject(AuthRequiredGateService);
@@ -53,6 +61,8 @@ export class ProjectListComponent implements OnInit {
     loading = signal(true);
     error = signal<string | null>(null);
     noActivePlan = signal(false);
+    activePlan = signal<EnrollUsagePlanPreview | null>(null);
+    teaserPlan = signal<EnrollUsagePlanPreview | null>(null);
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
@@ -70,11 +80,14 @@ export class ProjectListComponent implements OnInit {
         forkJoin({
             plans: this._projectsService.getActiveSmartEnrollPlans(),
             settings: this._projectsService.getClientSettings(),
+            catalog: this._enrollPlansService.getCatalogPlans().pipe(catchError(() => of({ data: [] }))),
         }).subscribe({
-            next: ({ plans, settings }) => {
+            next: ({ plans, settings, catalog }) => {
                 const rows = plans?.data ?? [];
+                this.activePlan.set((rows[0] as EnrollUsagePlanPreview) ?? null);
 
                 if (!rows.length && requiresSmartEnrollSubscription(settings?.data)) {
+                    this.teaserPlan.set(this._buildTeaserPlan(catalog?.data ?? []));
                     this.noActivePlan.set(true);
                     this.loading.set(false);
                     return;
@@ -220,6 +233,34 @@ export class ProjectListComponent implements OnInit {
     formatUpdated(date?: string): string {
         if (!date) return '—';
         return DateTime.fromISO(date).toFormat('MMM dd, yyyy');
+    }
+
+    private _buildTeaserPlan(catalog: unknown[]): EnrollUsagePlanPreview {
+        const rows = catalog as Array<{
+            backgroundCheckLimit?: number;
+            basicLimit?: number;
+            code?: string;
+            emailsLimit?: number;
+            scanDocsLimit?: number;
+            validateNamesLimit?: number;
+        }>;
+        const free = rows.find((row) => row?.code === 'smart_enroll_pyg');
+        const enrolls = Number(free?.basicLimit) || 100;
+        const scans = Number(free?.scanDocsLimit) || enrolls;
+
+        return {
+            backgroundCheckCount: 0,
+            backgroundCheckLimit: Number(free?.backgroundCheckLimit) || 10,
+            basicCount: 0,
+            basicLimit: enrolls,
+            biometricsLimit: 0,
+            emailCount: 0,
+            emailsLimit: Number(free?.emailsLimit) || 25,
+            scanDocsCount: 0,
+            scanDocsLimit: scans,
+            validateNamesCount: 0,
+            validateNamesLimit: Number(free?.validateNamesLimit) || 10,
+        };
     }
 
     private _loadProjects(): void {

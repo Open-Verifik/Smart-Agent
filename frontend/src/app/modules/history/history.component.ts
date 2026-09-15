@@ -48,6 +48,7 @@ import {
     HistoryService,
     HistoryTopSalesRow,
 } from './history.service';
+import { createdAtRangeParams } from '../settings/usage-history/usage-history-date-params.util';
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
@@ -427,8 +428,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (this.statusFilter === 'failed') params.where_status = 'failed';
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
-            params.whereGTE_createdAt = range.start.toFormat('yyyy-MM-dd');
-            params.whereLTE_createdAt = range.end.toFormat('yyyy-MM-dd');
+            Object.assign(params, createdAtRangeParams(range.start, range.end));
         }
         return params;
     };

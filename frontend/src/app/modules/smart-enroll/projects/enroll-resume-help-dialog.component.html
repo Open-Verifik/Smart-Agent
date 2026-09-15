@@ -1,0 +1,36 @@
+<div class="resume-help-dialog__header">
+    <h2 mat-dialog-title class="resume-help-dialog__title">
+        {{ 'smartEnrollProjects.recordDetail.resumeHelp.title' | transloco }}
+    </h2>
+    <button
+        mat-icon-button
+        type="button"
+        class="resume-help-dialog__close"
+        (click)="close()"
+        [attr.aria-label]="'smartEnrollProjects.recordDetail.resumeHelp.close' | transloco"
+    >
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-dialog-content class="resume-help-dialog__content">
+    <p class="resume-help-dialog__intro">
+        {{ 'smartEnrollProjects.recordDetail.resumeHelp.intro' | transloco }}
+    </p>
+    <ul class="resume-help-dialog__list">
+        <li>{{ 'smartEnrollProjects.recordDetail.resumeHelp.storeId' | transloco }}</li>
+        <li>{{ 'smartEnrollProjects.recordDetail.resumeHelp.createToken' | transloco }}</li>
+        <li>{{ 'smartEnrollProjects.recordDetail.resumeHelp.resendLink' | transloco }}</li>
+        <li>{{ 'smartEnrollProjects.recordDetail.resumeHelp.notResume' | transloco }}</li>
+    </ul>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="resume-help-dialog__actions">
+    <button type="button" mat-button (click)="close()">
+        {{ 'smartEnrollProjects.recordDetail.resumeHelp.close' | transloco }}
+    </button>
+    <a mat-flat-button color="primary" [href]="docsUrl" target="_blank" rel="noopener noreferrer">
+        <mat-icon class="resume-help-dialog__docs-icon">open_in_new</mat-icon>
+        {{ 'smartEnrollProjects.recordDetail.resumeHelp.openDocs' | transloco }}
+    </a>
+</mat-dialog-actions>

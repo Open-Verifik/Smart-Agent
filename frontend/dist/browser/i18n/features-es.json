@@ -592,6 +592,10 @@
             "title": "Colombia - Verificación de Propietarios de Vehículos (RUNT)",
             "description": "Verifica propiedad vehicular y propietarios registrados mediante RUNT."
         },
+        "colombia_api_vehicle_owners": {
+            "title": "Colombia - Historial de Propietarios del Vehículo",
+            "description": "Consulta los propietarios de un vehículo colombiano por placa. Devuelve los datos del vehículo y el historial completo de propietarios."
+        },
         "chile_api_driver_license": {
             "title": "Licencia de Conducir",
             "description": "Consulta licencia de conducir chilena por número: clase, restricciones, fechas de control, RUT y domicilio desde registros oficiales para flotas y cumplimiento."

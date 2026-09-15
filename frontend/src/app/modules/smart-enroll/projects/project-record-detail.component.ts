@@ -27,6 +27,7 @@ import {
     EnrollResendLinkDialogComponent,
     type EnrollResendLinkDialogResult,
 } from './enroll-resend-link-dialog.component';
+import { EnrollResumeHelpDialogComponent } from './enroll-resume-help-dialog.component';
 import {
     DocumentFaceDialogComponent,
     type DocumentFaceDialogData,
@@ -422,6 +423,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             emptyList: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintEmptyList'),
             noId: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintNoId'),
             webhookNote: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintWebhookNote'),
+            resumeNote: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintResumeNote'),
         };
 
         const body = buildDevApiHintBody(sectionKey, value, {
@@ -531,6 +533,14 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         if (!r?._id) return false;
         if (!r.status) return true;
         return !this._resendForbiddenStatuses.has(r.status);
+    }
+
+    openResumeHelpDialog(): void {
+        this._dialog.open(EnrollResumeHelpDialogComponent, {
+            width: '560px',
+            maxWidth: '92vw',
+            panelClass: 'enroll-resume-help-dialog-panel',
+        });
     }
 
     openResendLinkDialog(): void {

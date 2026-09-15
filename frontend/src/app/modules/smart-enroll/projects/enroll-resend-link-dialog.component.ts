@@ -2,11 +2,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { EnrollResumeHelpDialogComponent } from './enroll-resume-help-dialog.component';
 import { SmartEnrollProjectsService } from './smart-enroll-projects.service';
 import type { AppRegistrationDetail } from './smart-enroll-projects.types';
 
@@ -28,6 +30,7 @@ export interface EnrollResendLinkDialogResult {
         MatDialogModule,
         MatIconModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
         TranslocoModule,
     ],
     templateUrl: './enroll-resend-link-dialog.component.html',
@@ -39,6 +42,7 @@ export class EnrollResendLinkDialogComponent {
     private _snackBar = inject(MatSnackBar);
     private _clipboard = inject(Clipboard);
     private _transloco = inject(TranslocoService);
+    private _dialog = inject(MatDialog);
 
     loading = signal(false);
     generatedLink = signal<string>('');
@@ -111,6 +115,14 @@ export class EnrollResendLinkDialogComponent {
                     this._transloco.translate('smartEnrollProjects.recordDetail.resendErrorGeneric');
                 this._snackBar.open(message, 'OK', { duration: 3000 });
             },
+        });
+    }
+
+    openResumeHelpDialog(): void {
+        this._dialog.open(EnrollResumeHelpDialogComponent, {
+            width: '560px',
+            maxWidth: '92vw',
+            panelClass: 'enroll-resume-help-dialog-panel',
         });
     }
 

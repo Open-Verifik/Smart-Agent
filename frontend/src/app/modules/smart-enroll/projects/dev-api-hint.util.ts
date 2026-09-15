@@ -19,6 +19,7 @@ export type DevApiHintI18n = {
     emptyList: string;
     noId: string;
     webhookNote: string;
+    resumeNote: string;
 };
 
 export type DevApiHintBuildOpts = {
@@ -71,12 +72,17 @@ export const buildDevApiHintBody = (sectionKey: string, value: unknown, opts: De
     switch (sectionKey) {
         case 'record': {
             const url = apiPath(apiBase, `/app-registrations/${recordId}`);
+            const resendUrl = apiPath(apiBase, `/app-registrations/${recordId}/resend-link`);
             const q = populatesBlock(populates);
             return [
                 `GET ${url}`,
                 '',
                 i18n.populatesExplainer,
                 q,
+                '',
+                i18n.resumeNote,
+                `POST ${resendUrl}`,
+                '  { "sendEmail": false }',
                 '',
                 h.trimEnd(),
             ].join('\n');

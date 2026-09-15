@@ -10,7 +10,8 @@ import {
     inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -18,12 +19,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
-import { CountryService } from 'app/core/services/country.service';
+import { CountryOption, CountryService } from 'app/core/services/country.service';
 import { SetupFormFactory } from '../../../setup-form.factory';
 import { DocumentTypeLite, PromptTemplateLite, SetupService } from '../../../setup.service';
 import {
@@ -55,6 +55,7 @@ const CATEGORY_LIST_COLLAPSE_THRESHOLD = 6;
     imports: [
         CommonModule,
         ReactiveFormsModule,
+        MatAutocompleteModule,
         MatButtonModule,
         MatCheckboxModule,
         MatDialogModule,
@@ -62,7 +63,6 @@ const CATEGORY_LIST_COLLAPSE_THRESHOLD = 6;
         MatIconModule,
         MatInputModule,
         MatProgressSpinnerModule,
-        MatSelectModule,
         MatSlideToggleModule,
         MatTooltipModule,
         TranslocoModule,
@@ -85,6 +85,11 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     private _transloco = inject(TranslocoService);
 
     countries = this._countries.worldCountries;
+
+    /** Per-row autocomplete text so typing does not overwrite ISO `country`. */
+    private _countrySearch = new Map<number, FormControl<string>>();
+    /** Row being committed from the panel — skip blur restore so the option click lands. */
+    private _pickingCountry = -1;
 
     /** PromptTemplate buckets keyed by `country` then `documentCategory`. */
     private _templatesByCountry: Record<string, CategoryBucket> = {};
@@ -127,6 +132,55 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         if (!countryCode) return '';
         const match = this.countries.find((c) => c.country === countryCode);
         return match?.name || countryCode;
+    }
+
+    countrySearchCtrl(index: number): FormControl<string> {
+        let ctrl = this._countrySearch.get(index);
+        if (ctrl) return ctrl;
+        const code = (this.asGroup(this.documentTypes.at(index)).get('country')?.value as string) || '';
+        ctrl = new FormControl(this._displayCountry(code), { nonNullable: true });
+        ctrl.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
+        this._countrySearch.set(index, ctrl);
+        return ctrl;
+    }
+
+    filteredCountries(index: number): CountryOption[] {
+        const term = (this._countrySearch.get(index)?.value || '').trim().toLowerCase();
+        const taken = this._takenCountries(index);
+        return this.countries.filter((c) => {
+            if (taken.has(c.country)) return false;
+            if (!term) return true;
+            const label = this._transloco.translate(c.name).toLowerCase();
+            return label.includes(term) || c.country.toLowerCase().includes(term);
+        });
+    }
+
+    onCountrySearchFocus(index: number, input: HTMLInputElement): void {
+        input.select();
+    }
+
+    onCountrySearchBlur(index: number): void {
+        setTimeout(() => {
+            if (this._pickingCountry === index) return;
+            const code = (this.asGroup(this.documentTypes.at(index)).get('country')?.value as string) || '';
+            this.countrySearchCtrl(index).setValue(this._displayCountry(code), { emitEvent: false });
+            this._cdr.markForCheck();
+        }, 0);
+    }
+
+    onCountryPicked(index: number, event: MatAutocompleteSelectedEvent): void {
+        this._pickingCountry = index;
+        const code = `${event.option.value || ''}`;
+        const group = this.asGroup(this.documentTypes.at(index));
+        group.get('country')?.setValue(code);
+        group.get('country')?.markAsDirty();
+        this.countrySearchCtrl(index).setValue(this._displayCountry(code), { emitEvent: false });
+        this._cdr.markForCheck();
+        setTimeout(() => {
+            if (this._pickingCountry === index) this._pickingCountry = -1;
+        }, 0);
     }
 
     totalSelected(group: FormGroup): number {
@@ -222,6 +276,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     removeType(index: number): void {
         this.documentTypes.removeAt(index);
         this._reindexCollapseState(index);
+        this._reindexCountrySearch(index);
         this._cdr.markForCheck();
     }
 
@@ -456,6 +511,30 @@ export class DocumentVerificationTypeListComponent implements OnInit {
             nextCategory.add(`${newIdx}:${category}`);
         }
         this._expandedCategoryLists = nextCategory;
+    }
+
+    private _reindexCountrySearch(removedIndex: number): void {
+        const next = new Map<number, FormControl<string>>();
+        for (const [i, ctrl] of this._countrySearch) {
+            if (i === removedIndex) continue;
+            next.set(i > removedIndex ? i - 1 : i, ctrl);
+        }
+        this._countrySearch = next;
+    }
+
+    private _takenCountries(exceptIndex: number): Set<string> {
+        const taken = new Set<string>();
+        this.documentTypes?.controls.forEach((ctrl, i) => {
+            if (i === exceptIndex) return;
+            const code = ctrl.get('country')?.value as string;
+            if (code) taken.add(code);
+        });
+        return taken;
+    }
+
+    private _displayCountry(code: string): string {
+        if (!code) return '';
+        return this._transloco.translate(this.countryNameKey(code));
     }
 
     private _watchCountry(group: FormGroup): void {

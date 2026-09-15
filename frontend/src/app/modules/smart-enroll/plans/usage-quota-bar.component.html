@@ -1,0 +1,25 @@
+<div class="usage-bar" [attr.data-tone]="tone">
+    <div class="usage-bar__meta">
+        <span class="usage-bar__label dark:!text-slate-50">{{ label }}</span>
+        <span class="usage-bar__counts dark:!text-slate-400">
+            {{ "smartenroll.plans.usage.used_of" | transloco: { used: used, limit: limit } }}
+        </span>
+    </div>
+    <div
+        class="usage-bar__track dark:!bg-white/10"
+        role="progressbar"
+        [attr.aria-valuenow]="percent"
+        aria-valuemin="0"
+        aria-valuemax="100"
+    >
+        <div class="usage-bar__fill" [style.width.%]="percent"></div>
+    </div>
+    <p class="usage-bar__caption">
+        <ng-container *ngIf="over > 0; else leftTpl">
+            {{ "smartenroll.plans.usage.over" | transloco: { count: over } }}
+        </ng-container>
+        <ng-template #leftTpl>
+            {{ "smartenroll.plans.usage.left" | transloco: { count: left } }}
+        </ng-template>
+    </p>
+</div>

@@ -110,6 +110,7 @@
             </header>
         }
 
+        <div class="account-menu__body">
         <!-- Capacity: credits, plan, team seats -->
         @if (hasWeb2Auth) {
             <section class="account-menu__capacity">
@@ -133,7 +134,7 @@
                     </button>
                 </div>
 
-                <div class="account-menu__meter">
+                <div class="account-menu__meter account-menu__meter--plan">
                     <mat-icon
                         class="account-menu__meter-icon icon-size-4"
                         svgIcon="heroicons_outline:sparkles"
@@ -211,12 +212,23 @@
                     <button
                         type="button"
                         class="account-menu__shortcut"
-                        (click)="navigateTo(shortcut.link)"
+                        (click)="onShortcutClick(shortcut)"
                     >
                         <mat-icon class="icon-size-5" [svgIcon]="shortcut.icon"></mat-icon>
                         <span>{{ shortcut.labelKey | transloco }}</span>
                     </button>
                 }
+            </section>
+        } @else {
+            <section class="account-menu__shortcuts">
+                <button
+                    type="button"
+                    class="account-menu__shortcut"
+                    (click)="openSupport()"
+                >
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:lifebuoy"></mat-icon>
+                    <span>{{ 'userMenu.support' | transloco }}</span>
+                </button>
             </section>
         }
 
@@ -329,6 +341,7 @@
                 </p>
             </section>
         }
+        </div>
 
         <!-- Footer: role + sign out -->
         <footer class="account-menu__footer">

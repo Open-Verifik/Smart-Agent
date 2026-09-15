@@ -13,13 +13,21 @@ export interface HumanAuthnProjectFlow {
     storage?: { provider?: string };
 }
 
+export interface HumanAuthnProjectMember {
+    _id: string;
+    staff?: { name?: string };
+}
+
 export interface HumanAuthnProject {
     _id: string;
     name: string;
     status?: string;
+    demoMode?: boolean;
+    branding?: { logo?: string };
     updatedAt?: string;
     createdAt?: string;
     projectFlows?: HumanAuthnProjectFlow[];
+    projectMembers?: HumanAuthnProjectMember[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -100,5 +108,22 @@ export class HumanAuthnProjectsService {
                     return throwError(() => err);
                 })
             );
+    }
+
+    updateProjectFlow(flowId: string, payload: Record<string, unknown>): Observable<{ data: HumanAuthnProjectFlow }> {
+        return this._http.put<{ data: HumanAuthnProjectFlow }>(
+            `${this.apiUrl}/v2/project-flows/${flowId}`,
+            payload,
+            { headers: this.authHeaders }
+        );
+    }
+
+    getProjectMembers(projectId: string): Observable<HumanAuthnProjectMember[]> {
+        return this._http
+            .get<{ data?: HumanAuthnProjectMember[] }>(`${this.apiUrl}/v2/project-members`, {
+                params: { where_project: projectId, populates: 'staff' },
+                headers: this.authHeaders,
+            })
+            .pipe(map((res) => res?.data ?? []));
     }
 }

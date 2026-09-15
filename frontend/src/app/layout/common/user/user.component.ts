@@ -29,6 +29,7 @@ import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
 import { environment } from 'environments/environment';
 import { Subject, takeUntil } from 'rxjs';
+import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 import { AgentWalletService } from '../../../modules/chat/services/agent-wallet.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 import { AccountMenuService } from './account-menu.service';
@@ -38,7 +39,8 @@ interface AccountMenuShortcut {
     id: string;
     icon: string;
     labelKey: string;
-    link: string;
+    link?: string;
+    action?: 'support';
 }
 
 @Component({
@@ -97,6 +99,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
     readonly accountMenu = inject(AccountMenuService);
     readonly env = inject(AccountEnvironmentService);
+    private readonly _quickChatService = inject(QuickChatService);
 
     readonly shortcuts: AccountMenuShortcut[] = [
         {
@@ -122,6 +125,12 @@ export class UserComponent implements OnInit, OnDestroy {
             icon: 'heroicons_outline:chart-bar',
             labelKey: 'userMenu.shortcuts.usageHistory',
             link: '/settings/usage-history',
+        },
+        {
+            id: 'support',
+            icon: 'heroicons_outline:lifebuoy',
+            labelKey: 'userMenu.support',
+            action: 'support',
         },
     ];
 
@@ -446,6 +455,27 @@ export class UserComponent implements OnInit, OnDestroy {
      */
     navigateToSettings(): void {
         this.navigateTo('/settings');
+    }
+
+    /**
+     * Close the account menu and open the messages hub on the support tab.
+     */
+    openSupport(): void {
+        this.menuTrigger?.closeMenu();
+        this._quickChatService.requestOpenPanel({ tab: 'tickets' });
+    }
+
+    /**
+     * Handle a shortcut tile: open support or navigate to the linked page.
+     */
+    onShortcutClick(shortcut: AccountMenuShortcut): void {
+        if (shortcut.action === 'support') {
+            this.openSupport();
+            return;
+        }
+        if (shortcut.link) {
+            this.navigateTo(shortcut.link);
+        }
     }
 
     /**

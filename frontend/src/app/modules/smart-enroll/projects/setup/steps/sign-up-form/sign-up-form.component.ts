@@ -3,11 +3,14 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    DestroyRef,
     ElementRef,
     Input,
+    OnInit,
     ViewChild,
     inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -26,6 +29,16 @@ import {
     PhoneCountryCodeOption,
 } from 'app/core/constants/phone-country-codes.constant';
 
+type PhoneGateway = 'whatsapp' | 'sms' | 'both' | 'none';
+
+/** Map checkbox channels to the `phoneGateway` enum the API accepts. */
+const phoneGatewayFromChannels = (whatsapp: boolean, sms: boolean): PhoneGateway => {
+    if (whatsapp && sms) return 'both';
+    if (whatsapp) return 'whatsapp';
+    if (sms) return 'sms';
+    return 'none';
+};
+
 /** Optional personal sign-up fields (v3 `signUpForm.additionalFields`). */
 const ADDITIONAL_FIELD_OPTIONS = [
     { value: 'gender', labelKey: 'smartEnrollProjects.setup.signupForm.additionalFields.gender' },
@@ -38,7 +51,7 @@ const ADDITIONAL_FIELD_OPTIONS = [
 
 /**
  * Step 1 — Sign-up form fields.
- * Logic mirrors verifik-client-panel `SmartEnrollSignUpFormComponent` 1:1.
+ * Phone channels are checkboxes mapped to API `phoneGateway`: whatsapp | sms | both | none.
  */
 @Component({
     selector: 'setup-sign-up-form',
@@ -60,7 +73,7 @@ const ADDITIONAL_FIELD_OPTIONS = [
     templateUrl: './sign-up-form.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetupSignUpFormComponent {
+export class SetupSignUpFormComponent implements OnInit {
     @ViewChild('countryCodeSearchInput') countryCodeSearchInput?: ElementRef<HTMLInputElement>;
 
     @Input() form!: FormGroup;
@@ -72,6 +85,16 @@ export class SetupSignUpFormComponent {
     @Input() stepFormControlName: 'legalRepresentative' | '' = '';
 
     private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
+
+    ngOnInit(): void {
+        for (const key of ['phoneGateway', 'emailGateway']) {
+            this.formGroup
+                ?.get(key)
+                ?.valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+                .subscribe(() => this._cdr.markForCheck());
+        }
+    }
 
     readonly defaultPhoneCountryCode = DEFAULT_PHONE_COUNTRY_CODE;
     readonly allPhoneCountryCodes: PhoneCountryCodeOption[] = PHONE_COUNTRY_CODES;
@@ -133,6 +156,69 @@ export class SetupSignUpFormComponent {
     onCountryCodeSelectClosed(): void {
         this.countryCodeSearchTerm = '';
         this.filteredPhoneCountryCodes = this.allPhoneCountryCodes;
+        this._cdr.markForCheck();
+    }
+
+    get phoneWhatsappChecked(): boolean {
+        const gateway = this.formGroup?.get('phoneGateway')?.value;
+        return gateway === 'whatsapp' || gateway === 'both';
+    }
+
+    get phoneSmsChecked(): boolean {
+        const gateway = this.formGroup?.get('phoneGateway')?.value;
+        return gateway === 'sms' || gateway === 'both';
+    }
+
+    get phoneDoNotValidateChecked(): boolean {
+        return this.formGroup?.get('phoneGateway')?.value === 'none';
+    }
+
+    /**
+     * WhatsApp / SMS / Do not validate → `whatsapp` | `sms` | `both` | `none`.
+     * Selecting Do not validate clears the other two.
+     */
+    onPhoneChannelChange(channel: 'whatsapp' | 'sms' | 'none', checked: boolean): void {
+        const ctrl = this.formGroup?.get('phoneGateway');
+        if (!ctrl) return;
+        if (channel === 'none') {
+            if (checked) ctrl.setValue('none');
+            this.formGroup.markAsDirty();
+            this._cdr.markForCheck();
+            return;
+        }
+        ctrl.setValue(
+            phoneGatewayFromChannels(
+                channel === 'whatsapp' ? checked : this.phoneWhatsappChecked,
+                channel === 'sms' ? checked : this.phoneSmsChecked
+            )
+        );
+        this.formGroup.markAsDirty();
+        this._cdr.markForCheck();
+    }
+
+    get emailOtpChecked(): boolean {
+        return this.formGroup?.get('emailGateway')?.value === 'mailgun';
+    }
+
+    get emailDoNotValidateChecked(): boolean {
+        return this.formGroup?.get('emailGateway')?.value === 'none';
+    }
+
+    /**
+     * Validate with OTP / Do not validate → `mailgun` | `none`.
+     * Selecting Do not validate clears OTP, and vice versa.
+     */
+    onEmailChannelChange(channel: 'mailgun' | 'none', checked: boolean): void {
+        const ctrl = this.formGroup?.get('emailGateway');
+        if (!ctrl) return;
+        if (channel === 'none') {
+            if (checked) ctrl.setValue('none');
+            this.formGroup.markAsDirty();
+            this._cdr.markForCheck();
+            return;
+        }
+        ctrl.setValue(checked ? 'mailgun' : 'none');
+        this.formGroup.markAsDirty();
         this._cdr.markForCheck();
     }
 

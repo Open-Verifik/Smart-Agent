@@ -1,0 +1,32 @@
+<div
+    class="usage-overage dark:!border-white/10 dark:!bg-white/5"
+    [class.usage-overage--alert]="emphasized"
+>
+    <h3 class="usage-overage__title dark:!text-slate-50">
+        {{ "smartenroll.plans.usage.overage_title" | transloco }}
+    </h3>
+    <ol class="usage-overage__steps dark:!text-slate-400">
+        <li>{{ "smartenroll.plans.usage.overage_free" | transloco }}</li>
+        <li>
+            {{
+                "smartenroll.plans.usage.overage_credits"
+                    | transloco: { discount: nameDiscount, namePrice: namePrice, bgPrice: backgroundPrice }
+            }}
+        </li>
+        <li>{{ "smartenroll.plans.usage.overage_pack" | transloco }}</li>
+    </ol>
+    <div class="usage-overage__wallet dark:!border-white/10">
+        <div class="usage-overage__wallet-copy">
+            <span class="usage-overage__wallet-label dark:!text-slate-400">{{
+                "smartenroll.plans.usage.wallet" | transloco
+            }}</span>
+            <span class="usage-overage__wallet-value dark:!text-slate-50">
+                {{ "smartenroll.plans.usage.credits_count" | transloco: { credits: (walletCredits$ | async) || 0 } }}
+            </span>
+        </div>
+        <a routerLink="/add-credits" class="usage-overage__link">
+            {{ "smartenroll.plans.usage.add_credits" | transloco }}
+            <mat-icon>chevron_right</mat-icon>
+        </a>
+    </div>
+</div>

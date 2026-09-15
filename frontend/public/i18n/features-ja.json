@@ -592,6 +592,10 @@
             "title": "コロンビア - 車両所有者(RUNT)",
             "description": "Verify vehicle ownership and registered owners through the RUNT system."
         },
+        "colombia_api_vehicle_owners": {
+            "title": "コロンビア - 車両所有者履歴",
+            "description": "ナンバープレートでコロンビア車両の所有者を照会します。車両データと完全な所有履歴を返します。"
+        },
         "chile_api_driver_license": {
             "title": "チリ — 運転免許",
             "description": "ライセンス番号でチリの運転免許を照会します。免許クラス、制限、管理日、RUT、住所などを公式自動車登録から取得し、フリート管理や労働力のコンプライアンス確認に活用できます。"

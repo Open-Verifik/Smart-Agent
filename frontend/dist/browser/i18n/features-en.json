@@ -592,6 +592,10 @@
             "title": "Colombia - Vehicle Owners Verification (RUNT)",
             "description": "Verify vehicle ownership and registered owners through the RUNT system."
         },
+        "colombia_api_vehicle_owners": {
+            "title": "Colombia - Vehicle Owner History",
+            "description": "Query Colombian vehicle owners by license plate. Returns vehicle data and the complete ownership history."
+        },
         "chile_api_driver_license": {
             "title": "Driver License",
             "description": "Look up a Chilean driver license by license number: class, restrictions, control dates, RUT, and address from official motor-vehicle records for fleet and workforce compliance."

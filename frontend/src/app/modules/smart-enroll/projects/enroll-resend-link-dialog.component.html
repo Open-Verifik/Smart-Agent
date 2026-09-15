@@ -20,6 +20,21 @@
     <p class="mt-1 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
         {{ 'smartEnrollProjects.recordDetail.resendDialogDescription' | transloco }}
     </p>
+    <div class="mt-3 flex items-start gap-2 rounded-xl border border-blue-200/80 bg-blue-50/80 px-3 py-2.5 dark:border-blue-900/50 dark:bg-blue-950/30">
+        <p class="min-w-0 flex-1 text-xs leading-relaxed text-stone-700 dark:text-stone-200">
+            {{ 'smartEnrollProjects.recordDetail.resendDialogIntegratorNote' | transloco }}
+        </p>
+        <button
+            mat-icon-button
+            type="button"
+            class="!-mr-1 !-mt-1 !h-8 !w-8 !text-stone-500 dark:!text-stone-300"
+            (click)="openResumeHelpDialog()"
+            [matTooltip]="'smartEnrollProjects.recordDetail.resumeHelp.iconLabel' | transloco"
+            [attr.aria-label]="'smartEnrollProjects.recordDetail.resumeHelp.iconLabel' | transloco"
+        >
+            <mat-icon>help_outline</mat-icon>
+        </button>
+    </div>
 
     <div class="mt-5 rounded-xl border border-stone-200/90 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
         <div class="flex items-center gap-2">

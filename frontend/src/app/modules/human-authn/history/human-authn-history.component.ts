@@ -5,7 +5,6 @@ import {
     Component,
     OnDestroy,
     OnInit,
-    ViewChild,
     inject,
     signal,
 } from '@angular/core';
@@ -21,7 +20,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,7 +27,6 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { firstValueFrom, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
-import * as XLSX from 'xlsx';
 import { HUMAN_AUTHN_FEATURE_CODES } from './human-authn-history.constants';
 import {
     HumanAuthnHistoryDetail,
@@ -38,6 +35,7 @@ import {
     HumanAuthnHistoryService,
     HumanAuthnTopSalesRow,
 } from './human-authn-history.service';
+import { createdAtRangeParams } from '../../settings/usage-history/usage-history-date-params.util';
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
@@ -64,7 +62,6 @@ const EXPORT_PAGE_SIZE = 200;
         MatPaginatorModule,
         MatProgressSpinnerModule,
         MatSelectModule,
-        MatSidenavModule,
         MatSnackBarModule,
         MatTableModule,
         MatTooltipModule,
@@ -78,8 +75,6 @@ const EXPORT_PAGE_SIZE = 200;
     },
 })
 export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
-    @ViewChild('drawer') drawer?: MatSidenav;
-
     private _service = inject(HumanAuthnHistoryService);
     private _router = inject(Router);
     private _cdr = inject(ChangeDetectorRef);
@@ -108,6 +103,7 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
     topEndpoints = signal<HumanAuthnTopSalesRow[]>([]);
     detail = signal<HumanAuthnHistoryDetail | null>(null);
     detailLoading = signal(false);
+    drawerOpen = signal(false);
 
     ngOnInit(): void {
         this._searchChange$.pipe(debounceTime(350), takeUntil(this._destroy$)).subscribe(() => {
@@ -254,7 +250,7 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
     openDetail = (row: HumanAuthnHistoryRow): void => {
         this.detail.set(null);
         this.detailLoading.set(true);
-        this.drawer?.open();
+        this.drawerOpen.set(true);
         this._service.getRequestDetail(row._id).subscribe({
             next: (res) => {
                 this.detail.set(res.data);
@@ -269,7 +265,7 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
     };
 
     closeDrawer = (): void => {
-        this.drawer?.close();
+        this.drawerOpen.set(false);
         this.detail.set(null);
     };
 
@@ -336,7 +332,7 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
                 this._snack.open(this._t('humanAuthnHistory.exportEmpty'), undefined, { duration: 3000 });
                 return;
             }
-            this._writeExportFile(format, rows);
+            await this._writeExportFile(format, rows);
             if (total > rows.length) {
                 this._snack.open(
                     this._t('humanAuthnHistory.exportTruncated', { exported: rows.length, total }),
@@ -360,8 +356,7 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
         if (this.statusFilter === 'failed') params.where_status = 'failed';
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
-            params.whereGTE_createdAt = range.start.toFormat('yyyy-MM-dd');
-            params.whereLTE_createdAt = range.end.toFormat('yyyy-MM-dd');
+            Object.assign(params, createdAtRangeParams(range.start, range.end));
         }
         return params;
     };
@@ -404,7 +399,7 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
         return { rows: rows.slice(0, EXPORT_MAX), total: total || rows.length };
     };
 
-    private _writeExportFile = (format: HistoryExportFormat, rows: HumanAuthnHistoryRow[]): void => {
+    private _writeExportFile = async (format: HistoryExportFormat, rows: HumanAuthnHistoryRow[]): Promise<void> => {
         const fileName = this._exportFileName(format);
         if (format === 'json') {
             this._downloadBlob(
@@ -415,17 +410,27 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
             );
             return;
         }
-        const sheet = XLSX.utils.json_to_sheet(rows.map((row) => this._mapExportSheetRow(row)));
         if (format === 'csv') {
-            this._downloadBlob(
-                new Blob([`\uFEFF${XLSX.utils.sheet_to_csv(sheet)}`], { type: 'text/csv;charset=utf-8;' }),
-                fileName
-            );
+            this._downloadBlob(new Blob([this._toCsv(rows)], { type: 'text/csv;charset=utf-8;' }), fileName);
             return;
         }
+
+        const XLSX = await import('xlsx');
+        const sheet = XLSX.utils.json_to_sheet(rows.map((row) => this._mapExportSheetRow(row)));
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, sheet, 'History');
         XLSX.writeFile(workbook, fileName);
+    };
+
+    private _toCsv = (rows: HumanAuthnHistoryRow[]): string => {
+        const mapped = rows.map((row) => this._mapExportSheetRow(row));
+        const headers = mapped[0] ? Object.keys(mapped[0]) : [];
+        const escape = (value: string | number) => {
+            const text = String(value ?? '');
+            return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+        };
+
+        return `\uFEFF${[headers.join(','), ...mapped.map((row) => headers.map((key) => escape(row[key])).join(','))].join('\n')}`;
     };
 
     private _mapExportJson = (row: HumanAuthnHistoryRow): Record<string, unknown> => ({

@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
 import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
 import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
+import { projectHasOnboardingFlow } from './onboarding-flow.util';
 import type {
     AppRegistrationDetail,
     AppRegistrationFunnel,
@@ -590,7 +591,7 @@ export class SmartEnrollProjectsService {
                 headers: this.authHeaders,
             })
             .pipe(
-                map((res) => res?.data ?? []),
+                map((res) => (res?.data ?? []).filter(projectHasOnboardingFlow)),
                 catchError((err) => {
                     console.error('Error loading projects (staff):', err);
                     return throwError(() => err);
@@ -605,7 +606,7 @@ export class SmartEnrollProjectsService {
                 headers: this.authHeaders,
             })
             .pipe(
-                map((res) => res?.data ?? []),
+                map((res) => (res?.data ?? []).filter(projectHasOnboardingFlow)),
                 catchError((err) => {
                     console.error('Error loading projects:', err);
                     return throwError(() => err);

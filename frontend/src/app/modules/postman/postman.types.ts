@@ -101,6 +101,8 @@ export interface PostmanDependencyMeta {
 export interface ApiEndpoint {
     id: string;
     label: string;
+    /** Spanish catalog name from AppFeature.nameES. Used when locale is es and docs.es.title is missing. */
+    nameES?: string;
     code?: string;
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     url: string;
@@ -125,6 +127,8 @@ export interface ApiEndpoint {
     body?: any;
     category?: string;
     country?: string;
+    /** Check List domains resolved from AppFeature (`people`, `vehicles`, `businesses`). */
+    checkListDomains?: Array<'people' | 'vehicles' | 'businesses'>;
     documentationUrl?: string;
     estimatedCost?: number;
     /** Upper bound when Dynamic Query may escalate pricing (e.g. Colombia cédula). */

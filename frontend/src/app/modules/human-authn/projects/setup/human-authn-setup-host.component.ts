@@ -47,6 +47,9 @@ import { HumanAuthnStorageStepComponent } from './steps/storage-step.component';
         HumanAuthnPreviewPlaceholderComponent,
     ],
     templateUrl: './human-authn-setup-host.component.html',
+    host: {
+        class: 'flex min-w-0 w-full flex-auto',
+    },
 })
 export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
@@ -137,6 +140,14 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                 humanAuthn: this._fb.group({
                     mode: [flow.humanAuthn?.mode || 'standard', Validators.required],
                     livenessAtCreation: [!!flow.humanAuthn?.livenessAtCreation],
+                    outputFormat: [flow.humanAuthn?.outputFormat || 'string', Validators.required],
+                    tolerance: [
+                        flow.humanAuthn?.tolerance || (flow.humanAuthn?.mode === 'active_user' ? 'HARDENED' : 'REGULAR'),
+                        Validators.required,
+                    ],
+                    compareMinScore: [flow.humanAuthn?.compareMinScore ?? 0.85, [Validators.min(0.7), Validators.max(0.95)]],
+                    verifierKey: [flow.humanAuthn?.verifierKey || '', [Validators.maxLength(128)]],
+                    publicDataKeys: [this._defaultPublicDataKeys(flow)],
                 }),
                 storage: this._fb.group({
                     provider: [flow.storage?.provider || 'ipfs', Validators.required],
@@ -173,6 +184,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                 }),
             }),
         });
+        this._bindPublicDataKeyAvailability(flow);
         this.loading.set(false);
         this._cdr.markForCheck();
     }
@@ -243,7 +255,21 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
 
     private _preparePayload(value: any): Record<string, unknown> {
         const { projectFlow, branding, dataProtection, ...project } = value;
-        if (this.stepIndex === 0) return { ...project, dataProtection, target: 'personal' };
+        if (this.stepIndex === 0) {
+            return {
+                ...project,
+                dataProtection,
+                target: 'personal',
+                projectFlow: {
+                    type: 'humanAuthn',
+                    target: 'personal',
+                    status: projectFlow?.status || 'draft',
+                    version: 3,
+                    humanAuthn: this._humanAuthnPayload(projectFlow),
+                    steps: projectFlow?.steps || { document: 'skip', humanAuthn: 'mandatory' },
+                },
+            };
+        }
         if (this.stepIndex === 1) return { ...project, projectFlow: { type: 'humanAuthn', target: 'personal', signUpForm: projectFlow.signUpForm } };
         if (this.stepIndex === 2) {
             return {
@@ -257,7 +283,15 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             };
         }
         if (this.stepIndex === 3) {
-            return { ...project, projectFlow: { type: 'humanAuthn', target: 'personal', humanAuthn: projectFlow.humanAuthn, steps: projectFlow.steps } };
+            return {
+                ...project,
+                projectFlow: {
+                    type: 'humanAuthn',
+                    target: 'personal',
+                    humanAuthn: this._humanAuthnPayload(projectFlow),
+                    steps: projectFlow.steps,
+                },
+            };
         }
         if (this.stepIndex === 4) {
             return { ...project, projectFlow: { type: 'humanAuthn', target: 'personal', storage: projectFlow.storage } };
@@ -266,5 +300,51 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             return { ...project, projectFlow: { type: 'humanAuthn', target: 'personal', integrations: projectFlow.integrations } };
         }
         return { ...project, branding };
+    }
+
+    private _defaultPublicDataKeys(flow: any): string[] {
+        const available = this._availablePublicDataKeys(flow);
+        if (!Array.isArray(flow?.humanAuthn?.publicDataKeys)) return available;
+        return flow.humanAuthn.publicDataKeys.filter((key: string) => available.includes(key));
+    }
+
+    private _bindPublicDataKeyAvailability(flow: any): void {
+        const seen = new Set(this._availablePublicDataKeys(flow));
+        const sync = (): void => {
+            const available = this._availablePublicDataKeys(this.form.get('projectFlow')?.value);
+            const control = this.form.get('projectFlow.humanAuthn.publicDataKeys');
+            const current = control?.value || [];
+            const added = available.filter((key) => !seen.has(key));
+            available.forEach((key) => seen.add(key));
+            const next = [...new Set([...current.filter((key: string) => available.includes(key)), ...added])];
+            if (JSON.stringify(next) !== JSON.stringify(current)) control?.setValue(next);
+        };
+        this.form.get('projectFlow.signUpForm')?.valueChanges.pipe(takeUntil(this._unsub$)).subscribe(sync);
+        this.form.get('projectFlow.steps.document')?.valueChanges.pipe(takeUntil(this._unsub$)).subscribe(sync);
+    }
+
+    private _availablePublicDataKeys(flow: any): string[] {
+        const keys: string[] = [];
+        if (flow?.signUpForm?.fullName !== false) keys.push('fullName');
+        if (flow?.signUpForm?.email) keys.push('email');
+        if (flow?.signUpForm?.phone) keys.push('phone');
+        if (flow?.steps?.document && flow.steps.document !== 'skip') keys.push('documentNumber');
+        return keys;
+    }
+
+    private _humanAuthnPayload(projectFlow: any): Record<string, unknown> {
+        const humanAuthn = projectFlow?.humanAuthn || {};
+        const mode = humanAuthn.mode === 'active_user' ? 'active_user' : 'standard';
+        return {
+            mode,
+            livenessAtCreation: !!humanAuthn.livenessAtCreation,
+            outputFormat: humanAuthn.outputFormat === 'qrCode' ? 'qrCode' : 'string',
+            tolerance: humanAuthn.tolerance || (mode === 'active_user' ? 'HARDENED' : 'REGULAR'),
+            compareMinScore: humanAuthn.compareMinScore ?? 0.85,
+            verifierKey: `${humanAuthn.verifierKey || ''}`.trim(),
+            publicDataKeys: this._availablePublicDataKeys(projectFlow).filter((key) =>
+                (humanAuthn.publicDataKeys || ['fullName']).includes(key)
+            ),
+        };
     }
 }

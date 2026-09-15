@@ -7,6 +7,36 @@ import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
 import { AgentWalletService } from 'app/modules/chat/services/agent-wallet.service';
 import {
+    defaultValueForDependency,
+    paramValueForDependency,
+    resolveHumanAuthnDependencies,
+    shouldListHumanAuthnParams,
+} from './human-authn-postman.catalog';
+import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
+import {
+    CatalogCountryRow,
+    DEFAULT_POSTMAN_COUNTRY,
+    catalogCountryScope,
+    catalogNeedsDetailHydration,
+    countryCacheKey,
+    endpointMatchesCountryFilter,
+    extractCountryRows,
+    extractFeatureRows,
+    isCatalogTransportFailure,
+} from './postman-catalog.util';
+import {
+    POSTMAN_INCLUDE_COST_KEY,
+    ensurePostmanIncludeCostParam,
+    removePostmanIncludeCostParam,
+    resolvePostmanIncludeCostForSend,
+} from './postman-include-cost.util';
+import {
+    getPostmanRequestValidationIssues,
+    getPostmanXorGroupMetadata,
+} from './postman-request-validation';
+import { normalizePostmanSexoValue } from './postman-sexo.util';
+import { buildPostmanEffectiveUrl, getPostmanPathParamKeysForEndpoint } from './postman-url.util';
+import {
     API_ENDPOINTS,
     ApiEndpoint,
     PostmanDependencyMeta,
@@ -15,33 +45,25 @@ import {
     PostmanLayoutData,
     PostmanLayoutResponse,
 } from './postman.types';
-import {
-    getPostmanRequestValidationIssues,
-    getPostmanXorGroupMetadata,
-} from './postman-request-validation';
 import { applyPostmanSandboxParamDefaults } from './sandbox';
-import {
-    buildPostmanEffectiveUrl,
-    getPostmanPathParamKeysForEndpoint,
-} from './postman-url.util';
-import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
-import {
-    ensurePostmanIncludeCostParam,
-    POSTMAN_INCLUDE_COST_KEY,
-    removePostmanIncludeCostParam,
-    resolvePostmanIncludeCostForSend,
-} from './postman-include-cost.util';
-import { normalizePostmanSexoValue } from './postman-sexo.util';
-import {
-    defaultValueForDependency,
-    paramValueForDependency,
-    resolveHumanAuthnDependencies,
-    shouldListHumanAuthnParams,
-} from './human-authn-postman.catalog';
 
-import { environment } from 'environments/environment';
+import { TranslocoService } from '@jsverse/transloco';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
-import { Observable, catchError, distinctUntilChanged, finalize, forkJoin, map, of, skip, tap, throwError } from 'rxjs';
+import { environment } from 'environments/environment';
+import {
+    Observable,
+    catchError,
+    distinctUntilChanged,
+    finalize,
+    forkJoin,
+    map,
+    of,
+    skip,
+    tap,
+    throwError,
+} from 'rxjs';
+import { mergeParamsFromDocs } from './postman-docs-params.util';
+import { postmanEndpointDetailCache } from './postman-endpoint-detail.cache';
 
 @Injectable({
     providedIn: 'root',
@@ -52,6 +74,7 @@ export class PostmanService {
     private _authService = inject(AuthService);
     private _agentWalletService = inject(AgentWalletService);
     private _accountEnv = inject(AccountEnvironmentService);
+    private _transloco = inject(TranslocoService);
 
     endpoints = signal<ApiEndpoint[]>(API_ENDPOINTS);
 
@@ -89,12 +112,17 @@ export class PostmanService {
     });
 
     selectedEndpoint = signal<ApiEndpoint | null>(null);
-    selectedCountry = signal<string | null>(null);
+    selectedCountry = signal<string | null>(DEFAULT_POSTMAN_COUNTRY);
+    catalogCountries = signal<CatalogCountryRow[]>([]);
+    detailLoading = signal(false);
     response = signal<any>(null);
     responseTime = signal<number | null>(null);
     isLoading = signal<boolean>(false);
     error = signal<any>(null);
     paymentMethod = signal<'credits' | 'x402'>('credits');
+    private _featureCache = new Map<string, ApiEndpoint[]>();
+    private _loadedScopeKey = '';
+    private _requestedScopeKey = '';
 
     constructor(private _httpClient: HttpClient) {
         this.loadExplorerData();
@@ -108,8 +136,9 @@ export class PostmanService {
                     workspacePostman: this._canUseWorkspacePostmanApis(),
                 })),
                 distinctUntilChanged(
-                    (a, b) => a.identityKey === b.identityKey && a.workspacePostman === b.workspacePostman
-                ),
+                    (a, b) =>
+                        a.identityKey === b.identityKey && a.workspacePostman === b.workspacePostman
+                )
             )
             .subscribe(() => {
                 this.loadExplorerData();
@@ -154,89 +183,25 @@ export class PostmanService {
     }
 
     /**
-     * Loads app-features from `my-list` + Postman layout when the JWT has workspace claims; otherwise
-     * uses the public catalog (`/v2/public/app-features`) with no layout merge.
+     * Loads the country index, a slim country-scoped catalog, and Postman layout.
      */
-    loadExplorerData(): void {
+    loadExplorerData(countries?: string[]): void {
         this.layoutLoading.set(true);
         this.layoutError.set(null);
+        this._featureCache.clear();
+        const scope = countries?.length ? countries : catalogCountryScope(this.selectedCountry());
+        this._requestedScopeKey = countryCacheKey(scope);
 
-        const apiUrl = this._apiUrl();
-        const useWorkspaceApis = this._canUseWorkspacePostmanApis();
-        const headers = this._authHeaders();
-
-        const featuresUrl = useWorkspaceApis
-            ? `${apiUrl}/v2/app-features/my-list`
-            : `${apiUrl}/v2/public/app-features`;
-
-        const features$ = this._httpClient.get<any>(featuresUrl).pipe(
-            catchError((err) => {
-                console.error('Failed to fetch features', err);
-                return of({ data: [] });
-            })
-        );
-
-        const layout$ = useWorkspaceApis
-            ? this._httpClient
-                  .get<PostmanLayoutResponse>(`${apiUrl}/v2/postman/layout`, { headers })
-                  .pipe(
-                      catchError((err) => {
-                          console.error('Failed to fetch postman layout', err);
-                          this.layoutError.set('postman.sidebar.layoutLoadError');
-                          return of(null);
-                      })
-                  )
-            : of(null);
-
-        forkJoin({ features: features$, layout: layout$ })
+        forkJoin({
+            countries: this._fetchCatalogCountries(),
+            features: this._fetchSlimFeatures(scope),
+            layout: this._fetchLayout(),
+        })
             .pipe(
-                tap(({ features, layout }) => {
-                    const allFeatures = (features?.data || []).filter(
-                        (feature: { isAvailable?: boolean; deleted?: boolean }) =>
-                            feature?.isAvailable !== false && feature?.deleted !== true
-                    );
-                    const catalogFeatures = allFeatures.filter(
-                        (feature: { catalogHidden?: boolean }) => feature?.catalogHidden !== true
-                    );
-                    const dynamicEndpoints: ApiEndpoint[] = catalogFeatures.map((feature: any) =>
-                        this._createEndpointFromFeature(feature, apiUrl)
-                    );
-                    const mergedCatalog = attachColombiaCedulaPremiumPricing(
-                        this._mergeEndpoints(API_ENDPOINTS, dynamicEndpoints),
-                        allFeatures
-                    );
-                    const layoutData = layout?.data ?? null;
-                    const rawFolders = layoutData?.folders ?? [];
-                    const rawEndpoints = layoutData?.endpoints ?? [];
-
-                    this.layoutFolders.set(rawFolders.map((f) => this._normalizeFolderDto(f)));
-                    this.layoutEndpointsRaw.set(
-                        rawEndpoints.map((e) => this._normalizeEndpointDto(e))
-                    );
-
-                    const withLayout = this._applyPostmanLayout(mergedCatalog, layoutData);
-                    this.endpoints.set(withLayout);
-
-                    this.selectedEndpoint.update((current) => {
-                        if (!current) {
-                            return current;
-                        }
-                        const match = withLayout.find((endpoint) =>
-                            this._isSameEndpoint(endpoint, current)
-                        );
-                        if (!match) {
-                            return current;
-                        }
-                        return {
-                            ...match,
-                            headers: current.headers?.length ? current.headers : match.headers,
-                            params: this._mergeEndpointParams(current.params, match.params),
-                            body: current.body ?? match.body,
-                            dependencies: match.dependencies?.length
-                                ? match.dependencies
-                                : current.dependencies,
-                        };
-                    });
+                tap(({ countries: countryRows, features, layout }) => {
+                    this.catalogCountries.set(countryRows);
+                    this._applyLayoutPayload(layout);
+                    this._commitFeaturePayload(scope, features);
                 }),
                 finalize(() => {
                     this.layoutLoading.set(false);
@@ -244,6 +209,264 @@ export class PostmanService {
                 })
             )
             .subscribe();
+    }
+
+    /**
+     * Fetches slim features for the given countries (plus cache). Used when switching pills.
+     */
+    loadFeaturesForCountries(countries: string[]): void {
+        const scope = countries.length ? countries : catalogCountryScope(this.selectedCountry());
+        const cacheKey = countryCacheKey(scope);
+        this._requestedScopeKey = cacheKey;
+        const cached = this._featureCache.get(cacheKey);
+        if (cached && cacheKey === this._loadedScopeKey) {
+            return;
+        }
+        if (cached) {
+            this._loadedScopeKey = cacheKey;
+            this._setEndpointsFromCatalog(cached);
+            return;
+        }
+
+        this.layoutLoading.set(true);
+        this._fetchSlimFeatures(scope)
+            .pipe(
+                tap((features) => this._commitFeaturePayload(scope, features)),
+                finalize(() => this.layoutLoading.set(false))
+            )
+            .subscribe();
+    }
+
+    /**
+     * Opens an endpoint by feature code, loading its country scope when needed.
+     */
+    openEndpointByCode(code: string): void {
+        const existing = this.endpoints().find((endpoint) => endpoint.code === code);
+        if (existing) {
+            this.selectEndpoint(existing);
+            return;
+        }
+
+        this._fetchFeatureDetail(code).subscribe((feature) => {
+            if (!feature) return;
+            const country = feature.country || null;
+            if (country && this.selectedCountry() !== country) {
+                this.selectedCountry.set(country);
+            }
+            this.loadFeaturesForCountries(catalogCountryScope(country));
+            this.selectEndpoint(this._createEndpointFromFeature(feature, this._apiUrl()));
+        });
+    }
+
+    private _fetchCatalogCountries() {
+        const apiUrl = this._apiUrl();
+        const workspaceUrl = `${apiUrl}/v2/app-features/countries`;
+        const publicUrl = `${apiUrl}/v2/public/app-features/countries`;
+        const source$ = this._canUseWorkspacePostmanApis()
+            ? this._httpClient.get<any>(workspaceUrl).pipe(
+                  catchError((err) => {
+                      console.error('Failed to fetch catalog countries', err);
+                      return this._httpClient.get<any>(publicUrl);
+                  })
+              )
+            : this._httpClient.get<any>(publicUrl);
+
+        return source$.pipe(
+            map((payload) => extractCountryRows(payload)),
+            catchError((err) => {
+                console.error('Failed to fetch catalog countries', err);
+                return of([] as CatalogCountryRow[]);
+            })
+        );
+    }
+
+    private _catalogListParams(countries: string[]): HttpParams {
+        return countries
+            .filter(Boolean)
+            .reduce((params, country) => params.append('in_country', country), new HttpParams());
+    }
+
+    private _fetchSlimFeatures(countries: string[]) {
+        const apiUrl = this._apiUrl();
+        const params = this._catalogListParams(countries);
+        const workspaceUrl = `${apiUrl}/v2/app-features/my-list`;
+        const publicUrl = `${apiUrl}/v2/public/app-features`;
+        const public$ = this._httpClient.get<any>(publicUrl, { params });
+        const source$ = this._canUseWorkspacePostmanApis()
+            ? this._httpClient.get<any>(workspaceUrl, { params }).pipe(
+                  catchError((err) => {
+                      if (isCatalogTransportFailure(err)) {
+                          console.error(
+                              'Catalog list transport failed; retrying public slim list',
+                              err
+                          );
+                      } else {
+                          console.error('Failed to fetch features', err);
+                      }
+                      return public$;
+                  })
+              )
+            : public$;
+
+        return source$.pipe(
+            catchError((err) => {
+                console.error('Failed to fetch features', err);
+                return of({ data: [] });
+            })
+        );
+    }
+
+    private _fetchLayout() {
+        if (!this._canUseWorkspacePostmanApis()) {
+            return of(null);
+        }
+        return this._httpClient
+            .get<PostmanLayoutResponse>(`${this._apiUrl()}/v2/postman/layout`, {
+                headers: this._authHeaders(),
+            })
+            .pipe(
+                catchError((err) => {
+                    console.error('Failed to fetch postman layout', err);
+                    this.layoutError.set('postman.sidebar.layoutLoadError');
+                    return of(null);
+                })
+            );
+    }
+
+    private _applyLayoutPayload(layout: PostmanLayoutResponse | null): void {
+        const layoutData = layout?.data ?? null;
+        this.layoutFolders.set((layoutData?.folders ?? []).map((f) => this._normalizeFolderDto(f)));
+        this.layoutEndpointsRaw.set(
+            (layoutData?.endpoints ?? []).map((e) => this._normalizeEndpointDto(e))
+        );
+    }
+
+    private _commitFeaturePayload(countries: string[], features: unknown): void {
+        const apiUrl = this._apiUrl();
+        const allFeatures = extractFeatureRows(features).filter(
+            (feature: { isAvailable?: boolean; deleted?: boolean }) =>
+                feature?.isAvailable !== false && feature?.deleted !== true
+        );
+        const catalogFeatures = allFeatures.filter(
+            (feature: { catalogHidden?: boolean }) => feature?.catalogHidden !== true
+        );
+        const dynamicEndpoints = catalogFeatures.map((feature: any) =>
+            this._createEndpointFromFeature(feature, apiUrl)
+        );
+        const mergedCatalog = attachColombiaCedulaPremiumPricing(
+            this._mergeEndpoints(API_ENDPOINTS, dynamicEndpoints),
+            allFeatures
+        );
+        const withLayout = this._applyPostmanLayout(mergedCatalog, {
+            folders: this.layoutFolders(),
+            endpoints: this.layoutEndpointsRaw(),
+        });
+        const scoped = withLayout.filter((endpoint) =>
+            countries.some((country) => endpointMatchesCountryFilter(endpoint.country, country))
+        );
+        const cacheKey = countryCacheKey(countries);
+        this._featureCache.set(cacheKey, scoped);
+        if (cacheKey !== this._requestedScopeKey) {
+            return;
+        }
+        this._loadedScopeKey = cacheKey;
+        this._setEndpointsFromCatalog(scoped);
+    }
+
+    private _setEndpointsFromCatalog(withLayout: ApiEndpoint[]): void {
+        this.endpoints.set(withLayout);
+        this.selectedEndpoint.update((current) => {
+            if (!current) return current;
+            const match = withLayout.find((endpoint) => this._isSameEndpoint(endpoint, current));
+            if (!match) return current;
+            return {
+                ...match,
+                headers: current.headers?.length ? current.headers : match.headers,
+                params: this._mergeEndpointParams(current.params, match.params),
+                body: current.body ?? match.body,
+                docs: current.docs ?? match.docs,
+                dependencies: current.dependencies?.length
+                    ? current.dependencies
+                    : match.dependencies,
+            };
+        });
+    }
+
+    private _rememberFeatureDetail(feature: unknown): void {
+        const row =
+            feature && typeof feature === 'object'
+                ? (feature as { code?: string; _id?: string })
+                : null;
+        const key = row?.code || row?._id;
+
+        if (!key) return;
+
+        postmanEndpointDetailCache.set(String(key), feature);
+    }
+
+    private _fetchFeatureDetail(codeOrId: string) {
+        const cached = postmanEndpointDetailCache.get(codeOrId);
+
+        if (cached) return of(cached);
+
+        const apiUrl = this._apiUrl();
+        const public$ = this._httpClient.get<any>(
+            `${apiUrl}/v2/public/app-features/${encodeURIComponent(codeOrId)}`
+        );
+        const workspace$ =
+            this._canUseWorkspacePostmanApis() && /^[a-fA-F0-9]{24}$/.test(codeOrId)
+                ? this._httpClient
+                      .get<any>(`${apiUrl}/v2/app-features/${codeOrId}`)
+                      .pipe(catchError(() => public$))
+                : public$;
+
+        return workspace$.pipe(
+            map((payload) => payload?.data ?? null),
+            tap((feature) => this._rememberFeatureDetail(feature)),
+            catchError((err) => {
+                console.error('Failed to fetch feature detail', err);
+                return of(null);
+            })
+        );
+    }
+
+    /**
+     * Loads docs and extra params for one slim catalog row.
+     */
+    hydrateEndpointDetails(endpoint: ApiEndpoint): Observable<ApiEndpoint> {
+        if (!catalogNeedsDetailHydration(endpoint)) {
+            return of(endpoint);
+        }
+        const codeOrId = endpoint.code || endpoint.id;
+        if (!codeOrId) {
+            return of(endpoint);
+        }
+
+        const cached = postmanEndpointDetailCache.get(codeOrId);
+        if (cached) {
+            return of(this._mergeHydratedFeature(endpoint, cached));
+        }
+
+        this.detailLoading.set(true);
+        return this._fetchFeatureDetail(codeOrId).pipe(
+            map((feature) => (feature ? this._mergeHydratedFeature(endpoint, feature) : endpoint)),
+            finalize(() => this.detailLoading.set(false))
+        );
+    }
+
+    private _mergeHydratedFeature(endpoint: ApiEndpoint, feature: unknown): ApiEndpoint {
+        const hydrated = this._createEndpointFromFeature(feature, this._apiUrl());
+        return {
+            ...endpoint,
+            ...hydrated,
+            headers: endpoint.headers?.length ? endpoint.headers : hydrated.headers,
+            params: this._mergeEndpointParams(endpoint.params, hydrated.params),
+            body: endpoint.body ?? hydrated.body,
+            docs: hydrated.docs ?? endpoint.docs,
+            dependencies: hydrated.dependencies?.length
+                ? hydrated.dependencies
+                : endpoint.dependencies,
+        };
     }
 
     private _normalizeFolderDto(f: PostmanFolderDto): PostmanFolderDto {
@@ -264,7 +487,7 @@ export class PostmanService {
 
     private _applyPostmanLayout(
         catalog: ApiEndpoint[],
-        layoutData: PostmanLayoutData | null | undefined
+        layoutData: Pick<PostmanLayoutData, 'folders' | 'endpoints'> | null | undefined
     ): ApiEndpoint[] {
         if (!layoutData || (!layoutData.endpoints?.length && !layoutData.folders?.length)) {
             return catalog.map((ep) => ({ ...ep }));
@@ -330,12 +553,18 @@ export class PostmanService {
         const xorMeta = dependencies.length ? getPostmanXorGroupMetadata(dependencies) : null;
         const listParams = method === 'GET' || shouldListHumanAuthnParams(feature.code);
 
-        return {
+        const created: ApiEndpoint = {
             id: feature._id || feature.code,
             label: feature.name,
+            ...(typeof feature.nameES === 'string' && feature.nameES.trim()
+                ? { nameES: feature.nameES.trim() }
+                : {}),
             code: feature.code,
             category: this._mapCategory(feature.baseCategory || feature.group),
             country: feature.country,
+            ...(Array.isArray(feature.checkListDomains) && feature.checkListDomains.length
+                ? { checkListDomains: feature.checkListDomains }
+                : {}),
             method,
             url: feature.url
                 ? feature.url.startsWith('http')
@@ -356,6 +585,7 @@ export class PostmanService {
             body: method !== 'GET' && rawDeps.length ? this._bodyFromDependencies(rawDeps) : null,
             ...(feature.docs && typeof feature.docs === 'object' ? { docs: feature.docs } : {}),
         };
+        return mergeParamsFromDocs(created);
     }
 
     private _toPostmanDependencyMeta(rawDeps: any[]): PostmanDependencyMeta[] {
@@ -371,7 +601,10 @@ export class PostmanService {
         }));
     }
 
-    private _paramsFromDependencies(rawDeps: any[], xorMeta: ReturnType<typeof getPostmanXorGroupMetadata>) {
+    private _paramsFromDependencies(
+        rawDeps: any[],
+        xorMeta: ReturnType<typeof getPostmanXorGroupMetadata>
+    ) {
         return rawDeps.map((dependency) => {
             const groupId =
                 dependency.dependencyGroup != null ? String(dependency.dependencyGroup).trim() : '';
@@ -385,7 +618,9 @@ export class PostmanService {
                 : paramValueForDependency(dependency);
             let desc = dependency.description;
             if (!desc && dependency.enum && dependency.enum.length) {
-                desc = `Pick a value from [${dependency.enum.join(', ')}]`;
+                desc = this._transloco.translate('postman.params.pickValue', {
+                    values: dependency.enum.join(', '),
+                });
             }
             const enumList =
                 Array.isArray(dependency.enum) && dependency.enum.length
@@ -496,7 +731,9 @@ export class PostmanService {
                 params: this._mergeEndpointParams(existing.params, match.params),
                 body: existing.body ?? match.body,
                 documentationUrl: existing.documentationUrl || match.documentationUrl,
-                dependencies: match.dependencies?.length ? match.dependencies : existing.dependencies,
+                dependencies: match.dependencies?.length
+                    ? match.dependencies
+                    : existing.dependencies,
             };
         });
 
@@ -649,6 +886,18 @@ export class PostmanService {
         this.selectedEndpoint.set(withCost);
         this.response.set(null);
         this.error.set(null);
+        this.hydrateEndpointDetails(withCost).subscribe((hydrated) => {
+            this.selectedEndpoint.update((current) => {
+                if (!current || !this._isSameEndpoint(current, hydrated)) return current;
+                return {
+                    ...current,
+                    ...hydrated,
+                    headers: current.headers?.length ? current.headers : hydrated.headers,
+                    params: this._mergeEndpointParams(current.params, hydrated.params),
+                    body: current.body ?? hydrated.body,
+                };
+            });
+        });
     }
 
     sendRequest(endpoint: ApiEndpoint) {
@@ -720,10 +969,7 @@ export class PostmanService {
 
         let body = null;
         if (endpoint.method !== 'GET' && endpoint.method !== 'DELETE') {
-            body =
-                endpoint.body && typeof endpoint.body === 'object'
-                    ? { ...endpoint.body }
-                    : {};
+            body = endpoint.body && typeof endpoint.body === 'object' ? { ...endpoint.body } : {};
             if (body && typeof body.sexo === 'string') {
                 body.sexo = normalizePostmanSexoValue(body.sexo);
             }

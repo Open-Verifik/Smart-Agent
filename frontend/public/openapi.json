@@ -436,6 +436,57 @@
         ]
       }
     },
+    "/api/co/runt/propietarios": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_runt_owners",
+        "summary": "Colombia - Vehicle Owners Verification (RUNT)",
+        "description": "Verify vehicle ownership and registered owners through the RUNT system using a Colombian license plate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "6"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Vehicle license plate to query, without spaces or punctuation."
+          }
+        ]
+      }
+    },
     "/api/co/simit/suspensiones": {
       "post": {
         "tags": [
@@ -3615,75 +3666,6 @@
                 },
                 "required": [
                   "documentNumber"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/communication/whatsapp": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "Global"
-        ],
-        "operationId": "communication_global_messaging_whatsapp",
-        "summary": "Global - WhatsApp Messaging",
-        "description": "Send WhatsApp messages globally through Verifik's gateway. Provide the recipient phone number, template, and variables; useful for OTP delivery, transactional alerts, and KYC notifications.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.02"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "countryCode": {
-                    "type": "string",
-                    "description": "Parameter: countryCode"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "description": "Parameter: phone"
-                  },
-                  "message": {
-                    "type": "string",
-                    "description": "Parameter: message"
-                  }
-                },
-                "required": [
-                  "countryCode",
-                  "phone",
-                  "message"
                 ]
               }
             }
@@ -9775,6 +9757,15 @@
                     "description": "Require a live face when creating the HumanID",
                     "default": false
                   },
+                  "storageProvider": {
+                    "type": "string",
+                    "description": "Store in IPFS or return without Verifik persistence",
+                    "enum": [
+                      "ipfs",
+                      "none"
+                    ],
+                    "default": "ipfs"
+                  },
                   "tolerance": {
                     "type": "string",
                     "description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
@@ -9903,6 +9894,15 @@
                     "description": "Require a live face when creating the HumanID",
                     "default": false
                   },
+                  "storageProvider": {
+                    "type": "string",
+                    "description": "Store in IPFS or return without Verifik persistence",
+                    "enum": [
+                      "ipfs",
+                      "none"
+                    ],
+                    "default": "ipfs"
+                  },
                   "tolerance": {
                     "type": "string",
                     "description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
@@ -10001,7 +10001,7 @@
                     ],
                     "default": "DESKTOP"
                   },
-                  "zelfProof": {
+                  "humanID": {
                     "type": "string",
                     "description": "HumanID token returned by encrypt"
                   },
@@ -10017,7 +10017,7 @@
                 "required": [
                   "faceBase64",
                   "os",
-                  "zelfProof"
+                  "humanID"
                 ]
               }
             }
@@ -10070,7 +10070,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "zelfProof": {
+                  "humanID": {
                     "type": "string",
                     "description": "HumanID token returned by encrypt"
                   },
@@ -10080,7 +10080,7 @@
                   }
                 },
                 "required": [
-                  "zelfProof"
+                  "humanID"
                 ]
               }
             }
@@ -11427,7 +11427,7 @@
             "mode": "dynamic",
             "currency": "USD",
             "min": "0.00001",
-            "max": "1"
+            "max": "6"
           },
           "protocols": [
             {
@@ -11488,7 +11488,7 @@
             "mode": "dynamic",
             "currency": "USD",
             "min": "0.00001",
-            "max": "1"
+            "max": "6"
           },
           "protocols": [
             {

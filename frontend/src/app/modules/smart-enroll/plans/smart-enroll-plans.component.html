@@ -117,8 +117,85 @@
                                 </ng-container>
                             </div>
 
-                            <!-- Features Grid -->
-                            <div class="features-grid">
+                            <!-- Current period usage (active subscription only) -->
+                            <div *ngIf="i === 0" class="usage-dashboard">
+                                <div class="usage-period dark:!border-indigo-400/30 dark:!bg-indigo-600/20">
+                                    <div class="usage-period__copy">
+                                        <p class="usage-period__title dark:!text-slate-50">{{ t("smartenroll.plans.usage.title") }}</p>
+                                        <p class="usage-period__reset dark:!text-blue-300">
+                                            <ng-container *ngIf="usageDaysUntilReset(subscription) === 0; else daysLeft">
+                                                {{ t("smartenroll.plans.usage.resets_today") }}
+                                            </ng-container>
+                                            <ng-template #daysLeft>
+                                                <ng-container *ngIf="usageDaysUntilReset(subscription) === 1; else manyDays">
+                                                    {{ t("smartenroll.plans.usage.resets_in_one") }}
+                                                </ng-container>
+                                                <ng-template #manyDays>
+                                                    {{ t("smartenroll.plans.usage.resets_in", { days: usageDaysUntilReset(subscription) }) }}
+                                                </ng-template>
+                                            </ng-template>
+                                        </p>
+                                    </div>
+                                    <p class="usage-period__date dark:!text-slate-400">
+                                        {{ t("smartenroll.plans.usage.resets_on", { date: usageResetDate(subscription) }) }}
+                                    </p>
+                                </div>
+
+                                <div class="usage-gauges">
+                                    <ng-container *ngIf="subscription.biometricsLimit > 0; else basicEnrollGauge">
+                                        <usage-quota-gauge
+                                            [used]="subscription.biometricsCount || 0"
+                                            [limit]="subscription.biometricsLimit || 0"
+                                            [label]="t('smartenroll.plans.usage.biometrics')"
+                                        ></usage-quota-gauge>
+                                    </ng-container>
+                                    <ng-template #basicEnrollGauge>
+                                        <usage-quota-gauge
+                                            [used]="subscription.basicCount || 0"
+                                            [limit]="subscription.basicLimit || 0"
+                                            [label]="t('smartenroll.plans.usage.basic')"
+                                        ></usage-quota-gauge>
+                                    </ng-template>
+                                    <usage-quota-gauge
+                                        [used]="subscription.scanDocsCount || 0"
+                                        [limit]="subscription.scanDocsLimit || 0"
+                                        [label]="t('smartenroll.plans.usage.scans')"
+                                    ></usage-quota-gauge>
+                                </div>
+
+                                <div class="usage-bars dark:!border-white/10 dark:!bg-white/5">
+                                    <usage-quota-bar
+                                        [used]="subscription.validateNamesCount || 0"
+                                        [limit]="subscription.validateNamesLimit || 0"
+                                        [label]="t('smartenroll.plans.usage.names')"
+                                    ></usage-quota-bar>
+                                    <usage-quota-bar
+                                        [used]="subscription.backgroundCheckCount || 0"
+                                        [limit]="subscription.backgroundCheckLimit || 0"
+                                        [label]="t('smartenroll.plans.usage.background')"
+                                    ></usage-quota-bar>
+                                    <usage-quota-bar
+                                        [used]="subscription.emailCount || 0"
+                                        [limit]="subscription.emailsLimit || 0"
+                                        [label]="t('smartenroll.plans.usage.emails')"
+                                    ></usage-quota-bar>
+                                    <usage-quota-bar
+                                        *ngIf="subscription.biometricsLimit > 0 && subscription.basicLimit > 0"
+                                        [used]="subscription.basicCount || 0"
+                                        [limit]="subscription.basicLimit || 0"
+                                        [label]="t('smartenroll.plans.usage.basic')"
+                                    ></usage-quota-bar>
+                                </div>
+
+                                <usage-overage-explainer
+                                    [nameDiscountPercent]="subscription.nameValidationDiscountPercent"
+                                    [backgroundDiscountPercent]="subscription.backgroundCheckDiscountPercent"
+                                    [emphasized]="lookupQuotaAtLimit(subscription)"
+                                ></usage-overage-explainer>
+                            </div>
+
+                            <!-- Upcoming plan: included limits only -->
+                            <div *ngIf="i > 0" class="features-grid">
                                 <div class="feature-card">
                                     <div class="feature-icon email">
                                         <mat-icon>email</mat-icon>

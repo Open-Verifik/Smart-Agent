@@ -44,9 +44,9 @@ export class HumanIdStructuredResultComponent {
     get parsed() {
         if (!this.result) return null;
         const innerData = isPlainObject(this.result['data']) ? (this.result['data'] as Record<string, unknown>) : null;
-        const zelfProof = typeof innerData?.['zelfProof'] === 'string' ? innerData['zelfProof'] : '';
+        const humanID = typeof innerData?.['humanID'] === 'string' ? innerData['humanID'] : '';
         const ipfs = isPlainObject(innerData?.['ipfs']) ? (innerData['ipfs'] as Record<string, unknown>) : null;
-        return { zelfProof, ipfs };
+        return { humanID, ipfs };
     }
 
     get ipfsGatewayUrl(): string {

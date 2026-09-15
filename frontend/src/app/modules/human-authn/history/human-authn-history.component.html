@@ -1,11 +1,8 @@
-<mat-drawer-container class="usage-history-container h-full min-h-0 w-full bg-stone-50 dark:bg-gray-950" *transloco="let t">
-    <mat-drawer
-        #drawer
-        mode="over"
-        position="end"
-        class="usage-history-drawer w-full max-w-lg border-l border-stone-200/90 dark:border-gray-800"
-    >
-        <div class="flex h-full flex-col overflow-hidden bg-white dark:bg-gray-900/70">
+<div class="usage-history-container relative h-full min-h-0 w-full bg-stone-50 dark:bg-gray-950" *transloco="let t">
+    @if (drawerOpen()) {
+        <button type="button" class="fixed inset-0 z-40 bg-black/40" (click)="closeDrawer()" [attr.aria-label]="t('humanAuthnHistory.close')"></button>
+        <aside class="usage-history-drawer fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-stone-200/90 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900">
+            <div class="flex h-full flex-col overflow-hidden">
             @if (detailLoading()) {
                 <div class="flex flex-1 flex-col items-center justify-center px-6 py-16">
                     <mat-spinner diameter="36"></mat-spinner>
@@ -66,10 +63,10 @@
                     </section>
                 </div>
             }
-        </div>
-    </mat-drawer>
+            </div>
+        </aside>
+    }
 
-    <mat-drawer-content>
         <div class="flex h-full min-h-0 min-w-0 flex-auto flex-col overflow-auto">
             <header class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8">
                 <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
@@ -400,5 +397,4 @@
                 </div>
             </main>
         </div>
-    </mat-drawer-content>
-</mat-drawer-container>
+</div>

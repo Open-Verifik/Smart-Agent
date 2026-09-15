@@ -22,7 +22,7 @@ export type PostmanCopyLocale = EndpointDocLocale | string;
 export interface ResolvePostmanEndpointCopyInput {
     endpoint: Pick<
         ApiEndpoint,
-        'code' | 'country' | 'layoutDisplayName' | 'label' | 'description' | 'docs'
+        'code' | 'country' | 'layoutDisplayName' | 'label' | 'nameES' | 'description' | 'docs'
     >;
     /** Resolved i18n catalog title (appFeatures.{code}.title). */
     catalogTitle: string;
@@ -163,6 +163,22 @@ export const sanitizePostmanCopyText = (value: string | null | undefined): strin
     return text;
 };
 
+/**
+ * Catalog fallback when `appFeatures.{code}.title` is missing.
+ * Spanish uses `nameES` so English `feature.name` never leaks into the explorer.
+ */
+export const localizedCatalogFallbackTitle = (
+    endpoint: Pick<ApiEndpoint, 'label' | 'nameES'>,
+    locale?: PostmanCopyLocale | null
+): string => {
+    const active = toDocLocale(locale ?? null);
+    if (active === 'es') {
+        const nameES = sanitizePostmanCopyText(endpoint.nameES);
+        if (nameES) return nameES;
+    }
+    return sanitizePostmanCopyText(endpoint.label) || endpoint.label || '';
+};
+
 const isGenericDescription = (value: string | null | undefined): boolean => {
     if (!value?.trim()) return true;
     const normalized = value.trim();
@@ -215,6 +231,8 @@ export const resolvePostmanEndpointCopy = (
     const activeDocTitle = sanitizePostmanCopyText(activeDoc?.title);
     const enDocTitle = sanitizePostmanCopyText(enDoc?.title);
     const catalog = sanitizePostmanCopyText(catalogTitle);
+    const localizedName =
+        activeLocale === 'es' ? sanitizePostmanCopyText(endpoint.nameES) : '';
     const label = sanitizePostmanCopyText(endpoint.label);
     const preferCatalogTitle = prefersCatalogCopy(activeLocale) && !activeDocTitle;
     const preferCatalogOverEnglish = prefersCatalogCopy(activeLocale) && !activeDoc;
@@ -226,10 +244,14 @@ export const resolvePostmanEndpointCopy = (
         rawTitle = activeDocTitle;
     } else if (preferCatalogTitle && catalog) {
         rawTitle = catalog;
+    } else if (preferCatalogTitle && localizedName) {
+        rawTitle = localizedName;
     } else if (enDocTitle) {
         rawTitle = enDocTitle;
     } else if (catalog) {
         rawTitle = catalog;
+    } else if (localizedName) {
+        rawTitle = localizedName;
     } else if (label) {
         rawTitle = label;
     } else {
@@ -273,6 +295,65 @@ export const resolvePostmanEndpointCopy = (
         description,
         fullTitle: rawTitle,
     };
+};
+
+/**
+ * Haystack for Postman sidebar search: visible label, catalog copy, and every locale docs title.
+ */
+export const collectPostmanEndpointSearchText = (
+    endpoint: Pick<
+        ApiEndpoint,
+        'code' | 'country' | 'label' | 'nameES' | 'url' | 'description' | 'layoutDisplayName' | 'docs'
+    >,
+    catalog: { title?: string; description?: string } = {},
+    locale?: PostmanCopyLocale | null
+): string => {
+    const resolved = resolvePostmanEndpointCopy({
+        endpoint,
+        catalogTitle: catalog.title ?? localizedCatalogFallbackTitle(endpoint, locale),
+        catalogDescription: catalog.description ?? endpoint.description ?? '',
+        locale,
+    });
+    const docsText = Object.values(endpoint.docs ?? {})
+        .flatMap((block) => [block?.title, block?.description])
+        .filter((value): value is string => Boolean(value?.trim()));
+
+    return [
+        endpoint.label,
+        endpoint.nameES,
+        endpoint.url,
+        endpoint.code,
+        endpoint.layoutDisplayName,
+        endpoint.description,
+        catalog.title,
+        catalog.description,
+        resolved.title,
+        resolved.fullTitle,
+        resolved.description,
+        ...docsText,
+    ]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join(' ')
+        .toLowerCase();
+};
+
+/**
+ * True when the sidebar search query matches the same copy the explorer shows.
+ */
+export const postmanEndpointMatchesSearch = (
+    endpoint: Pick<
+        ApiEndpoint,
+        'code' | 'country' | 'label' | 'nameES' | 'url' | 'description' | 'layoutDisplayName' | 'docs'
+    >,
+    query: string,
+    catalog: { title?: string; description?: string } = {},
+    locale?: PostmanCopyLocale | null
+): boolean => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    if (!normalizedQuery) return true;
+
+    return collectPostmanEndpointSearchText(endpoint, catalog, locale).includes(normalizedQuery);
 };
 
 /**

@@ -1,6 +1,6 @@
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
@@ -10,11 +10,25 @@ import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-opt
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
+import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
 import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { HumanIdJsonKeyValueFieldComponent } from '../../shared/human-id-json-key-value-field.component';
 import { HumanIdLivenessToggleComponent } from '../../shared/human-id-liveness-toggle.component';
 import { HumanIdStructuredResultComponent } from '../../shared/human-id-structured-result.component';
+
+const DOCS_BASE = 'https://docs.verifik.co';
+
+const RELATED_DOC_HREFS = [
+    `${DOCS_BASE}/biometrics/humanID-encrypt`,
+    `${DOCS_BASE}/biometrics/humanID-encrypt-qr-code`,
+    `${DOCS_BASE}/biometrics/humanID-decrypt`,
+    `${DOCS_BASE}/biometrics/humanID-preview`,
+    `${DOCS_BASE}/biometrics/liveness`,
+] as const;
+
+const RELATED_DOC_BADGE_MUTED = [false, false, false, false, false] as const;
 
 type Step = 'form' | 'processing' | 'result';
 type Tolerance = 'REGULAR' | 'SOFT' | 'HARDENED';
@@ -27,6 +41,7 @@ type Tolerance = 'REGULAR' | 'SOFT' | 'HARDENED';
         NgClass,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoRelatedDocsSectionComponent,
         DemoChooseOneCalloutComponent,
         DemoCaptureOptionHeadingComponent,
         FaceGuidedCameraComponent,
@@ -40,7 +55,7 @@ type Tolerance = 'REGULAR' | 'SOFT' | 'HARDENED';
     styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HumanidCreateDemoComponent {
+export class HumanidCreateDemoComponent implements OnInit {
     @ViewChild('publicDataField') publicDataField?: HumanIdJsonKeyValueFieldComponent;
     @ViewChild('metadataField') metadataField?: HumanIdJsonKeyValueFieldComponent;
 
@@ -57,6 +72,7 @@ export class HumanidCreateDemoComponent {
     result: Record<string, unknown> | null = null;
     error: string | null = null;
     errorCode: string | null = null;
+    relatedDocs: DemoRelatedDocItem[] = [];
 
     readonly toleranceOptions: Tolerance[] = ['SOFT', 'REGULAR', 'HARDENED'];
 
@@ -67,6 +83,10 @@ export class HumanidCreateDemoComponent {
 
     constructor() {
         this._api.ensureAuthenticated();
+    }
+
+    ngOnInit(): void {
+        this.relatedDocs = this.buildRelatedDocs();
     }
 
     onFile(event: Event): void {
@@ -164,5 +184,15 @@ export class HumanidCreateDemoComponent {
 
     backToDemos(): void {
         void this._router.navigate(['/smart-enroll/demos']);
+    }
+
+    private buildRelatedDocs(): DemoRelatedDocItem[] {
+        return RELATED_DOC_HREFS.map((href, i) => ({
+            href,
+            title: this._transloco.translate(`smartEnrollDemos.humanidCreate.relatedDocs.${i}.title`),
+            description: this._transloco.translate(`smartEnrollDemos.humanidCreate.relatedDocs.${i}.description`),
+            badge: this._transloco.translate(`smartEnrollDemos.humanidCreate.relatedDocs.${i}.badge`),
+            badgeMuted: RELATED_DOC_BADGE_MUTED[i],
+        }));
     }
 }

@@ -1,0 +1,32 @@
+<div class="usage-gauge dark:!border-white/10 dark:!bg-white/5" [attr.data-tone]="tone">
+    <p class="usage-gauge__label dark:!text-slate-50">{{ label }}</p>
+    <div class="usage-gauge__dial">
+        <svg class="usage-gauge__svg" viewBox="0 0 200 118" role="img" [attr.aria-label]="label">
+            <path
+                class="usage-gauge__track dark:!stroke-white/20"
+                pathLength="100"
+                d="M 24 100 A 76 76 0 0 1 176 100"
+            />
+            <path
+                class="usage-gauge__fill"
+                pathLength="100"
+                [attr.stroke-dasharray]="dashArray"
+                d="M 24 100 A 76 76 0 0 1 176 100"
+            />
+        </svg>
+        <div class="usage-gauge__center">
+            <span class="usage-gauge__used dark:!text-slate-50">{{ used | number }}</span>
+            <span class="usage-gauge__sep dark:!text-slate-400">/</span>
+            <span class="usage-gauge__limit dark:!text-slate-400">{{ limit | number }}</span>
+        </div>
+    </div>
+    <p class="usage-gauge__caption">
+        <ng-container *ngIf="over > 0; else leftTpl">
+            {{ "smartenroll.plans.usage.over" | transloco: { count: over } }}
+        </ng-container>
+        <ng-template #leftTpl>
+            {{ "smartenroll.plans.usage.left" | transloco: { count: left } }}
+        </ng-template>
+    </p>
+    <p *ngIf="hint" class="usage-gauge__hint dark:!text-slate-400">{{ hint }}</p>
+</div>

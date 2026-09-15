@@ -52,6 +52,7 @@ import { AboutEndpointComponent } from './about-endpoint.component';
 import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
 import {
     getAppFeatureCatalogCopy,
+    localizedCatalogFallbackTitle,
     resolvePostmanEndpointCopy,
 } from '../postman-endpoint-copy.util';
 import {
@@ -255,7 +256,16 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         *ngIf="showAboutTab()"
                     >
                         <div class="flex flex-col min-h-0 overflow-hidden">
-                            @if (endpoint()?.docs) {
+                            @if (detailLoading() && !endpoint()?.docs) {
+                                <div
+                                    class="postman-pane-scroll flex flex-1 items-center justify-center gap-3 overflow-y-auto p-6 text-sm text-slate-500 dark:text-slate-400"
+                                >
+                                    <mat-spinner diameter="24"></mat-spinner>
+                                    <span>{{
+                                        'postman.requestEditor.loadingDetails' | transloco
+                                    }}</span>
+                                </div>
+                            } @else if (endpoint()?.docs) {
                                 <postman-about-endpoint
                                     [docs]="endpoint()?.docs"
                                     [endpoint]="endpoint()"
@@ -1175,13 +1185,15 @@ export class RequestEditorComponent {
             : {};
         return resolvePostmanEndpointCopy({
             endpoint: ep,
-            catalogTitle: catalogCopy.title ?? ep.label,
+            catalogTitle:
+                catalogCopy.title ?? localizedCatalogFallbackTitle(ep, this._activeLang()),
             catalogDescription: catalogCopy.description ?? ep.description ?? '',
             locale: this._activeLang(),
         });
     }
 
     endpoint = this._postmanService.selectedEndpoint;
+    detailLoading = this._postmanService.detailLoading;
     readonly demoCtaLink = computed(() => getHumanAuthnDemoRoute(this.endpoint()?.code));
     isLoading = this._postmanService.isLoading;
     documentationContent = signal<string>('');
@@ -1527,8 +1539,9 @@ export class RequestEditorComponent {
 
     readonly dynamicQuerySlaUrl = COLOMBIA_CEDULA_SLA_URL;
 
-    /** About tab is visible when the endpoint has structured docs or legacy markdown content. */
+    /** About tab is visible when docs are loading, present, or legacy markdown exists. */
     showAboutTab = computed(() => {
+        if (this.detailLoading()) return true;
         const ep = this.endpoint();
         if (ep?.docs && Object.keys(ep.docs).length) return true;
         return !!this.documentationContent();

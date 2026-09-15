@@ -105,20 +105,26 @@
 
                 @if (formGroup?.get('phone')?.value) {
                     <div class="flex flex-col gap-4">
-                        <mat-radio-group formControlName="phoneGateway" class="flex flex-wrap gap-4">
-                            <mat-radio-button value="both">{{
-                                t('smartEnrollProjects.setup.signupForm.phone.both')
-                            }}</mat-radio-button>
-                            <mat-radio-button value="whatsapp">{{
-                                t('smartEnrollProjects.setup.signupForm.phone.whatsapp')
-                            }}</mat-radio-button>
-                            <mat-radio-button value="sms">{{
-                                t('smartEnrollProjects.setup.signupForm.phone.sms')
-                            }}</mat-radio-button>
-                            <mat-radio-button value="none">{{
-                                t('smartEnrollProjects.setup.signupForm.phone.none')
-                            }}</mat-radio-button>
-                        </mat-radio-group>
+                        <div class="flex flex-col gap-2">
+                            <mat-checkbox
+                                [checked]="phoneWhatsappChecked"
+                                (change)="onPhoneChannelChange('whatsapp', $event.checked)"
+                            >
+                                {{ t('smartEnrollProjects.setup.signupForm.phone.whatsapp') }}
+                            </mat-checkbox>
+                            <mat-checkbox
+                                [checked]="phoneSmsChecked"
+                                (change)="onPhoneChannelChange('sms', $event.checked)"
+                            >
+                                {{ t('smartEnrollProjects.setup.signupForm.phone.sms') }}
+                            </mat-checkbox>
+                            <mat-checkbox
+                                [checked]="phoneDoNotValidateChecked"
+                                (change)="onPhoneChannelChange('none', $event.checked)"
+                            >
+                                {{ t('smartEnrollProjects.setup.signupForm.phone.doNotValidate') }}
+                            </mat-checkbox>
+                        </div>
 
                         <div class="flex flex-col gap-2">
                             <label class="text-xs font-medium text-stone-600 dark:text-stone-300">
@@ -209,14 +215,20 @@
                 </header>
 
                 @if (formGroup?.get('email')?.value) {
-                    <mat-radio-group formControlName="emailGateway" class="flex flex-wrap gap-4">
-                        <mat-radio-button value="mailgun">
+                    <div class="flex flex-col gap-2">
+                        <mat-checkbox
+                            [checked]="emailOtpChecked"
+                            (change)="onEmailChannelChange('mailgun', $event.checked)"
+                        >
                             {{ t('smartEnrollProjects.setup.signupForm.email.mailgun') }}
-                        </mat-radio-button>
-                        <mat-radio-button value="none">
-                            {{ t('smartEnrollProjects.setup.signupForm.email.none') }}
-                        </mat-radio-button>
-                    </mat-radio-group>
+                        </mat-checkbox>
+                        <mat-checkbox
+                            [checked]="emailDoNotValidateChecked"
+                            (change)="onEmailChannelChange('none', $event.checked)"
+                        >
+                            {{ t('smartEnrollProjects.setup.signupForm.email.doNotValidate') }}
+                        </mat-checkbox>
+                    </div>
                 }
             </section>
 

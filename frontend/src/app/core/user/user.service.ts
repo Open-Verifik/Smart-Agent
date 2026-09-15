@@ -92,28 +92,20 @@ export class UserService {
     }
 
     /**
-     * Update the client
+     * Patch the signed-in client. Applies only the requested fields so a raw
+     * Client PUT body cannot overwrite session `credits` (credits + extraCredits).
      *
-     * @param user
+     * @param data - Fields to persist (e.g. language)
      */
     updateClient(data: Partial<User>): Observable<any> {
         return this._httpWrapper
             .sendRequest('put', environment.apiUrl + '/v2/clients/me', data)
             .pipe(
-                tap((response) => {
-                    // Determine the new user object
-                    // If response returns the updated object, use it. Otherwise merge data.
-                    // Assuming response is the updated client object based on backend patterns.
-                    // If response has a .data property, handle that case.
-                    const updatedUser = response.data || response;
-
-                    // Merge with current user to ensure we don't lose other props if response is partial
+                tap(() => {
                     this._user.pipe(take(1)).subscribe((currentUser) => {
-                        this._user.next({
-                            ...currentUser,
-                            ...updatedUser,
-                            ...data, // Ensure the data sent is applied
-                        });
+                        const nextUser = { ...currentUser, ...data, credits: currentUser?.credits };
+                        localStorage.setItem('verifik_account', JSON.stringify(nextUser));
+                        this._user.next(nextUser);
                     });
                 })
             );

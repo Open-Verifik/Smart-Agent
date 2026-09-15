@@ -1,0 +1,240 @@
+.check-list-root {
+    --cl-ink: rgb(15, 23, 42);
+    --cl-muted: rgb(100, 116, 139);
+    --cl-paper: rgb(248, 250, 252);
+    --cl-card: rgb(255, 255, 255);
+    --cl-line: rgba(148, 163, 184, 0.22);
+    --cl-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+    --cl-accent: rgb(37, 99, 235);
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    color: var(--cl-ink);
+    background:
+        radial-gradient(1200px 480px at 8% -10%, rgba(37, 99, 235, 0.09), transparent 55%),
+        radial-gradient(900px 420px at 96% 8%, rgba(14, 165, 233, 0.07), transparent 50%),
+        linear-gradient(180deg, rgb(248, 250, 252) 0%, rgb(241, 245, 249) 100%);
+}
+
+.check-list-root * {
+    box-sizing: border-box;
+}
+
+.check-list-wrap {
+    width: min(1200px, calc(100% - 3rem));
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
+}
+
+.check-list-display {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--cl-ink);
+}
+
+.check-list-card {
+    background: var(--cl-card);
+    border: 1px solid var(--cl-line);
+    border-radius: 16px;
+    box-shadow: var(--cl-shadow);
+}
+
+.check-list-card.is-selected,
+.check-list-card.is-active {
+    border-color: rgba(37, 99, 235, 0.45);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+}
+
+.check-list-price {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--cl-line);
+    background: var(--cl-paper);
+    color: var(--cl-muted);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.check-list-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--cl-line);
+    background: var(--cl-card);
+    color: var(--cl-ink);
+    font-size: 13px;
+    font-weight: 600;
+    transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.check-list-pill:hover {
+    border-color: rgba(37, 99, 235, 0.45);
+}
+
+.check-list-pill.is-on,
+.check-list-cta {
+    background: rgb(15, 23, 42);
+    color: rgb(255, 255, 255);
+    border-color: transparent;
+}
+
+.check-list-cta {
+    min-height: 40px;
+    padding: 0 18px;
+}
+
+.check-list-field {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--cl-line);
+    background: var(--cl-card);
+    padding: 0.75rem 0.9rem;
+    font-size: 0.875rem;
+    color: var(--cl-ink);
+}
+
+.check-list-pill:disabled,
+.check-list-cta:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.check-list-pill.is-readonly {
+    pointer-events: none;
+}
+
+.check-list-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cl-muted);
+}
+
+.check-list-icon-btn:hover {
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--cl-ink);
+}
+
+.check-list-pill.is-danger:hover {
+    border-color: rgba(244, 63, 94, 0.55);
+    color: rgb(225, 29, 72);
+}
+
+.check-list-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.check-list-tab {
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--cl-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.check-list-tab.is-on {
+    border-color: var(--cl-line);
+    background: var(--cl-card);
+    color: var(--cl-ink);
+}
+
+.check-list-tab:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.check-list-drawer {
+    width: min(52rem, 100%);
+}
+
+.check-list-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: check-list-spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+.check-list-spinner-lg {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+    border-color: var(--cl-accent);
+    border-right-color: transparent;
+}
+
+.check-list-json {
+    margin: 0;
+    overflow: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--cl-ink);
+}
+
+@keyframes check-list-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dark .check-list-root {
+    --cl-ink: rgb(248, 250, 252);
+    --cl-muted: rgb(148, 163, 184);
+    --cl-paper: rgb(15, 23, 42);
+    --cl-card: rgb(30, 41, 59);
+    --cl-line: rgba(148, 163, 184, 0.18);
+    --cl-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    background:
+        radial-gradient(1200px 480px at 8% -10%, rgba(59, 130, 246, 0.14), transparent 55%),
+        radial-gradient(900px 420px at 96% 8%, rgba(56, 189, 248, 0.08), transparent 50%),
+        linear-gradient(180deg, rgb(15, 23, 42) 0%, rgb(2, 6, 23) 100%);
+}
+
+.dark .check-list-card.is-selected,
+.dark .check-list-card.is-active {
+    border-color: rgba(96, 165, 250, 0.45);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dark .check-list-pill:hover {
+    border-color: rgba(96, 165, 250, 0.45);
+}
+
+.dark .check-list-pill.is-danger:hover {
+    border-color: rgba(251, 113, 133, 0.55);
+    color: rgb(251, 113, 133);
+}
+
+.dark .check-list-pill.is-on,
+.dark .check-list-cta {
+    background: rgb(226, 232, 240);
+    color: rgb(15, 23, 42);
+}

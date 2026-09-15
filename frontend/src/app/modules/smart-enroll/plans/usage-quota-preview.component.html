@@ -1,0 +1,83 @@
+<div
+    class="usage-preview dark:!border-white/10 dark:!bg-gradient-to-b dark:!from-[#11122a] dark:!to-[#161828] dark:shadow-black/20"
+    [class.usage-preview--demo]="demo"
+    *transloco="let t"
+>
+    <header class="usage-preview__head">
+        <ng-container *ngIf="demo; else liveHead">
+            <span class="usage-preview__chip dark:!bg-blue-600/20 dark:!text-blue-300">{{
+                t("smartenroll.plans.usage.example")
+            }}</span>
+            <h2 class="usage-preview__title dark:!text-slate-50">
+                {{ t("smartenroll.plans.usage.unlock_title", { count: unlockCount }) }}
+            </h2>
+            <p class="usage-preview__body dark:!text-slate-400">{{ t("smartenroll.plans.usage.unlock_body") }}</p>
+            <p class="usage-preview__reset dark:!text-blue-300">{{ t("smartenroll.plans.usage.resets_monthly") }}</p>
+        </ng-container>
+        <ng-template #liveHead>
+            <p class="usage-preview__eyebrow dark:!text-slate-400">{{ t("smartenroll.plans.usage.title") }}</p>
+            <p class="usage-preview__reset dark:!text-blue-300">
+                <ng-container *ngIf="daysLeft === 0">
+                    {{ t("smartenroll.plans.usage.resets_today") }}
+                </ng-container>
+                <ng-container *ngIf="daysLeft === 1">
+                    {{ t("smartenroll.plans.usage.resets_in_one") }}
+                </ng-container>
+                <ng-container *ngIf="daysLeft > 1">
+                    {{ t("smartenroll.plans.usage.resets_in", { days: daysLeft }) }}
+                </ng-container>
+            </p>
+        </ng-template>
+    </header>
+
+    <div class="usage-preview__gauges">
+        <usage-quota-gauge
+            [used]="enrollUsed"
+            [limit]="enrollLimit"
+            [label]="t(enrollLabelKey)"
+        ></usage-quota-gauge>
+        <usage-quota-gauge
+            [used]="plan.scanDocsCount || 0"
+            [limit]="plan.scanDocsLimit || 0"
+            [label]="t('smartenroll.plans.usage.scans')"
+        ></usage-quota-gauge>
+    </div>
+
+    <div class="usage-preview__bars">
+        <usage-quota-bar
+            [used]="plan.validateNamesCount || 0"
+            [limit]="plan.validateNamesLimit || 0"
+            [label]="t('smartenroll.plans.usage.names')"
+        ></usage-quota-bar>
+        <usage-quota-bar
+            [used]="plan.backgroundCheckCount || 0"
+            [limit]="plan.backgroundCheckLimit || 0"
+            [label]="t('smartenroll.plans.usage.background')"
+        ></usage-quota-bar>
+        <usage-quota-bar
+            [used]="plan.emailCount || 0"
+            [limit]="plan.emailsLimit || 0"
+            [label]="t('smartenroll.plans.usage.emails')"
+        ></usage-quota-bar>
+        <usage-quota-bar
+            *ngIf="showBasicBar"
+            [used]="plan.basicCount || 0"
+            [limit]="plan.basicLimit || 0"
+            [label]="t('smartenroll.plans.usage.basic')"
+        ></usage-quota-bar>
+    </div>
+
+    <a mat-flat-button color="primary" routerLink="/smart-enroll/plans" class="usage-preview__button">
+        {{ demo ? t("smartEnrollProjects.goToPlans") : t("smartenroll.plans.usage.preview_cta") }}
+    </a>
+    <a
+        *ngIf="demo"
+        class="usage-preview__learn dark:!text-slate-300 hover:dark:!text-blue-300"
+        [href]="docsUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        {{ t("smartenroll.plans.usage.learn_more") }}
+        <mat-icon>open_in_new</mat-icon>
+    </a>
+</div>

@@ -39,7 +39,7 @@ const CATALOG_PLAN_CODES: Record<'plus' | 'business' | 'free', string> = {
         MatProgressSpinnerModule,
     ],
     templateUrl: './human-authn-plans.component.html',
-    styleUrls: ['./human-authn-plans.component.scss'],
+    styleUrls: ['../../smart-enroll/plans/smart-enroll-plans.component.scss'],
 })
 export class HumanAuthnPlansComponent implements OnInit {
     private _activatedRoute = inject(ActivatedRoute);
@@ -58,9 +58,15 @@ export class HumanAuthnPlansComponent implements OnInit {
     plans: Record<string, any> = {};
     selectedPlan: 'plus' | 'business' | 'free' | null = null;
     subscribingToPlan = false;
-    plusVolume = 300;
-    businessVolume = 1000;
+    showExtraInfo = false;
     private _sessionConfirmHandled = false;
+
+    planSettings = {
+        plus: { max: 1000, min: 300, notches: [] as number[], step: 100, value: 0 },
+        business: { max: 2500, min: 1000, notches: [] as number[], step: 100, value: 0 },
+    };
+
+    sliderOptions: { max?: number; min?: number; notches?: number[]; step?: number; value?: number } = {};
 
     constructor() {
         const raw = localStorage.getItem('verifik_account') || localStorage.getItem('user');
@@ -100,9 +106,7 @@ export class HumanAuthnPlansComponent implements OnInit {
                     );
                     this._bootstrap();
                 },
-                error: () => {
-                    this._bootstrap();
-                },
+                error: () => this._bootstrap(),
             });
             return;
         }
@@ -152,22 +156,119 @@ export class HumanAuthnPlansComponent implements OnInit {
         return this.plans?.[key];
     }
 
-    volumeFor(plan: 'plus' | 'business'): number {
-        return plan === 'plus' ? this.plusVolume : this.businessVolume;
+    getAddedEnrollments(): number {
+        return 100 * (this.sliderOptions?.value || 0);
+    }
+
+    getSliderAmount(plan: string): number {
+        return (this.getPlan(plan)?.encryptLimit || 0) + this.getAddedEnrollments();
+    }
+
+    getTrackFillPercentage(): number {
+        if (!this.sliderOptions?.notches?.length) return 0;
+        const maxIndex = this.sliderOptions.notches.length - 1;
+        return ((this.sliderOptions.value || 0) / maxIndex) * 100;
+    }
+
+    calculatePrice(planKey: string): number {
+        const plan = this.getPlan(planKey);
+        if (!plan || planKey === 'free') return 0;
+
+        return Number(plan.price || 0) + Number(plan.unitPrice || 0) * this.getAddedEnrollments();
     }
 
     monthlyTotal(planKey: 'plus' | 'business' | 'free'): number {
-        const plan = this.getPlan(planKey);
-        if (!plan || planKey === 'free') return 0;
-        const base = Number(plan.encryptLimit || 0);
-        const extra = Math.max(0, this.volumeFor(planKey) - base);
-        return Number(plan.price || 0) + extra * Number(plan.unitPrice || 0);
+        return this.calculatePrice(planKey);
+    }
+
+    calculateSubscriptionPrice(subscription: any): number {
+        const catalog = subscription?.plan;
+
+        if (subscription?.code === CATALOG_PLAN_CODES.free) return 0;
+
+        if (!catalog) return Number(subscription?.amount || 0);
+
+        const baseIncluded = Number(catalog.encryptLimit || 0);
+        const total = Number(subscription.encryptLimit || 0);
+        const volumeAboveBase = Math.max(0, total - baseIncluded);
+
+        return Number(catalog.price || 0) + Number(catalog.unitPrice || 0) * volumeAboveBase;
+    }
+
+    capitalizeFirstLetter(value: string): string {
+        return value ? value.charAt(0).toUpperCase() + value.slice(1) : '';
+    }
+
+    creditCardLogo(brand: string): string {
+        const logos: Record<string, string> = {
+            amex: 'https://cdn.verifik.co/assets/billing-svg/AmericanExpressLogo.svg',
+            link: 'https://cdn.verifik.co/assets/billing-svg/StripeLinkLogo.svg',
+            mastercard: 'https://cdn.verifik.co/assets/billing-svg/MasterCardLogo.svg',
+            visa: 'https://cdn.verifik.co/assets/billing-svg/VisaLogo.svg',
+        };
+
+        return logos[brand?.toLowerCase()] || '';
+    }
+
+    getPlanColorClass(code: string): string {
+        const normalized = (code || '').toLowerCase();
+
+        if (normalized.includes('plus')) return 'plus';
+        if (normalized.includes('business')) return 'business';
+
+        return 'free';
+    }
+
+    activeUserCreditCost(planKey: string): number {
+        return Number(this.getPlan(planKey)?.activeUserCreditCost ?? 0.4);
+    }
+
+    getPrimaryActiveSubscription(): any | null {
+        if (!this.currentSubscription?.length) return null;
+
+        return this.currentSubscription.find((sub) => !sub.cancelAt) ?? this.currentSubscription[0];
+    }
+
+    isActiveCatalogPlan(planKey: 'plus' | 'business' | 'free'): boolean {
+        const sub = this.getPrimaryActiveSubscription();
+        if (!sub || sub.cancelAt) return false;
+
+        return sub.code === CATALOG_PLAN_CODES[planKey];
     }
 
     changeView(view: 'current' | 'change' | 'select', plan?: 'plus' | 'business' | 'free'): void {
         this.currentView = view;
         this.selectedPlan = plan ?? null;
+        this._setSliderValues();
         this._changeDetectorRef.markForCheck();
+    }
+
+    goBack(direction: 'current' | 'change'): void {
+        if (this.sliderOptions) this.sliderOptions.value = 0;
+        this.currentView = direction;
+        this.selectedPlan = null;
+        this._changeDetectorRef.markForCheck();
+    }
+
+    private _setSliderValues(): void {
+        if (!this.selectedPlan || this.selectedPlan === 'free') {
+            this.sliderOptions = {};
+            return;
+        }
+
+        this.sliderOptions = this.planSettings[this.selectedPlan];
+        if (this.sliderOptions?.notches?.length) return;
+
+        const notches: number[] = [];
+        let val = this.sliderOptions.min ?? 0;
+        const max = this.sliderOptions.max ?? 0;
+
+        while (val <= max) {
+            notches.push(val);
+            val += 100;
+        }
+
+        this.sliderOptions.notches = notches;
     }
 
     manageBilling(): void {
@@ -182,6 +283,16 @@ export class HumanAuthnPlansComponent implements OnInit {
                 });
             },
         });
+    }
+
+    purchaseEnterprise(): void {
+        const lang = this._translocoService.getActiveLang() === 'es' ? 'es' : 'en';
+        const urls: Record<string, string> = {
+            es: 'https://api.whatsapp.com/send?phone=573208184565&text=%C2%A1Hola!%20estoy%20interesado%20en%20un%20plan%20enterprise%20de%20HumanAuthn.',
+            en: 'https://api.whatsapp.com/send?phone=573208184565&text=Hello!%20I%20am%20interested%20in%20a%20HumanAuthn%20enterprise%20plan.',
+        };
+
+        window.open(urls[lang], '_blank');
     }
 
     checkout(): void {
@@ -209,7 +320,7 @@ export class HumanAuthnPlansComponent implements OnInit {
     }
 
     private _startCheckout(catalog: any): void {
-        const quantity = this.selectedPlan === 'free' ? 1 : this.volumeFor(this.selectedPlan as 'plus' | 'business');
+        const quantity = this.selectedPlan === 'free' ? 1 : this.getSliderAmount(this.selectedPlan as string);
         const hasActive = this.currentSubscription.some((row) => !row.cancelAt);
         const body = {
             plan: catalog.stripeProduct,

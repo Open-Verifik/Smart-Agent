@@ -5,6 +5,94 @@
         "termsAndConditions": "Conditions générales",
         "serviceLevelAgreement": "Accord de niveau de service"
     },
+    "checkList": {
+        "kicker": "Studio de vérification",
+        "hello": "Bonjour, {{name}}",
+        "dashboardSubtitle": "Composez une checklist vivante pour les personnes, véhicules et entreprises.",
+        "newChecklist": "Nouvelle checklist",
+        "stats": { "lists": "Checklists", "countries": "Pays", "services": "Services enregistrés" },
+        "yourLists": "Vos listes",
+        "loading": "Chargement de vos checklists…",
+        "emptyTitle": "Commencez par un pays.",
+        "emptyBody": "Choisissez vos pays, puis validez des personnes, des véhicules ou des entreprises.",
+        "startFirst": "Créer votre première liste",
+        "servicesSaved": "services enregistrés",
+        "noCountries": "Aucun pays",
+        "back": "Toutes les checklists",
+        "workspaceKicker": "Votre cas d'usage",
+        "namePlaceholder": "Nommer cette checklist",
+        "select": "Sélectionner",
+        "open": "Ouvrir",
+        "nameStep": "Nommer cette checklist",
+        "nameHint": "Donnez-lui un nom pour la retrouver plus tard.",
+        "createTitle": "Créer une checklist",
+        "createSubtitle": "Choisissez un ou plusieurs pays, puis nommez la liste.",
+        "createAction": "Créer la checklist",
+        "addServices": "Ajouter des services",
+        "addServicesHint": "Les services du pays d'abord. Les contrôles internationaux restent en bas.",
+        "worldBackground": "Contrôles internationaux",
+        "searchPlaceholder": "Rechercher des services…",
+        "searchEmpty": "Aucun service ne correspond à cette recherche.",
+        "allAdded": "Tout dans cette catégorie est déjà sur la liste.",
+        "hideCatalog": "Masquer le catalogue",
+        "savedServices": "Services de cette liste",
+        "emptyServicesTitle": "Aucun service pour le moment",
+        "emptyServicesBody": "Ajoutez des contrôles personnes, véhicules ou entreprises avec les pays déjà choisis.",
+        "noResult": "Lancez ce contrôle pour voir un résultat.",
+        "waitingResult": "Contrôle en cours… cela peut prendre quelques secondes.",
+        "loadingDetails": "Chargement des détails de l’endpoint…",
+        "tabs": {
+            "about": "À propos",
+            "request": "Requête",
+            "result": "Résultat"
+        },
+        "saving": "Enregistrement",
+        "countryQuestion": "Quels pays vous intéressent ?",
+        "domainQuestion": "Que voulez-vous valider ?",
+        "pickServices": "Choisissez les contrôles à explorer",
+        "selected": "sélectionnés",
+        "services": "services",
+        "domains": {
+            "peopleTitle": "Personnes",
+            "peopleBody": "KYC, LCB-FT, identité, noms et antécédents.",
+            "vehiclesTitle": "Véhicules",
+            "vehiclesBody": "Plaques, propriétaires, conducteurs et transit.",
+            "businessesTitle": "Entreprises",
+            "businessesBody": "Registres, identifiants fiscaux et KYB."
+        },
+        "cost": "{{value}} crédits",
+        "addToList": "Ajouter à la liste",
+        "removeFromList": "Retirer",
+        "createSmartBatch": "Créer un SmartBatch",
+        "tryIt": "Essayer ce contrôle",
+        "optional": "(facultatif)",
+        "chooseValue": "Choisir une valeur",
+        "runCheck": "Lancer",
+        "running": "En cours…",
+        "fillRequired": "Renseignez les champs requis pour lancer le contrôle.",
+        "result": "Résultat",
+        "chooseBatchCountry": "SmartBatch utilise un seul pays. Lequel choisir ?",
+        "authRequiredTitle": "Connectez-vous pour utiliser Check List",
+        "authRequiredBody": "Check List enregistre vos pays et services sur votre compte Verifik.",
+        "moreActions": "Plus d'actions",
+        "status": {
+            "label": "Statut de la checklist",
+            "draft": "Brouillon",
+            "active": "Active"
+        },
+        "markDraft": "Marquer comme brouillon",
+        "markActive": "Marquer comme active",
+        "delete": "Supprimer",
+        "deleteTitle": "Supprimer cette checklist ?",
+        "deleteBody": "« {{name}} » sera supprimée. Cette action est irréversible.",
+        "deleteConfirm": "Supprimer",
+        "deleteCancel": "Annuler",
+        "errors": {
+            "loadFailed": "Impossible de charger vos checklists.",
+            "saveFailed": "Impossible d'enregistrer cette checklist.",
+            "deleteFailed": "Impossible de supprimer cette checklist."
+        }
+    },
     "nav": {
         "console": "Console",
         "workspace": "Espace de travail",
@@ -16,6 +104,8 @@
         "settings": "Paramètres",
         "smart_check": "SmartCheck",
         "postman": "Postman",
+        "check_list": "Check List",
+        "check_list_subtitle": "Explorez les services pour votre cas d'usage",
         "ai_validation": "Validation d'identité par IA",
         "api_testing": "Test et développement d'API",
         "smart_batch": "SmartBatch",
@@ -957,6 +1047,7 @@
             "supportTicketsSubtitle": "Ouvrez un ticket et discutez avec notre équipe",
             "smartAccess": "Smart Access",
             "postman": "Postman",
+            "checkList": "Check List",
             "smartBatch": "Smart Batch",
             "history": "Historique",
             "smartScan": "Smart Scan",
@@ -1058,7 +1149,28 @@
         "emptyBody": "Créez un projet pour configurer l’inscription, le stockage et les intégrations.",
         "emptyStaffTitle": "Aucun projet assigné",
         "emptyStaffBody": "Demandez à un administrateur de vous assigner un projet HumanAuthn.",
+        "emptyHeroTitle": "Créez votre premier projet",
+        "emptyHeroSubtitle": "Configurez l’inscription, le stockage et les intégrations, puis publiez votre flux HumanAuthn.",
         "createProject": "Créer un projet",
+        "updated": "Mis à jour",
+        "list": {
+            "newProjectTitle": "Nouveau projet HumanAuthn",
+            "newProjectSubtitle": "Configurez un autre flux d’inscription avec son propre formulaire, HumanAuthn, stockage et branding.",
+            "draft": "Brouillon",
+            "active": "Actif",
+            "demoMode": "Démo",
+            "signupForm": "Formulaire d’inscription",
+            "documents": "Documents",
+            "humanAuthn": "HumanAuthn",
+            "integrations": "Intégrations",
+            "members": "Membres",
+            "edit": "Modifier",
+            "seeLogs": "Voir les journaux",
+            "openSetup": "Ouvrir la configuration",
+            "menuEdit": "Ouvrir la configuration",
+            "menuHistory": "Historique",
+            "moreActions": "Plus d’actions"
+        },
         "loadError": "Impossible de charger les projets.",
         "plansLoadError": "Impossible de charger votre forfait HumanAuthn.",
         "noPlanCardTitle": "Un forfait HumanAuthn est requis",
@@ -1085,18 +1197,117 @@
             },
             "humanAuthn": {
                 "privacy": "Verifik ne conserve pas de modèle facial. La preuve chiffrée est l’enregistrement. Le stockage n’indexe que le blob chiffré et les champs publics.",
+                "journeyTitle": "Créez votre HumanID",
+                "stageLabel": "Étape {{number}}",
+                "verifyStageTitle": "Vérifiez la personne",
+                "verifyStageHelp": "Définissez comment l’identité et la liveness sont vérifiées avant la création du HumanID.",
+                "verificationActive": "Contrôles en direct activés",
+                "verificationStandard": "Contrôles standard",
+                "compareUnavailable": "Activez la collecte de documents à l’étape précédente pour comparer le visage en direct à la photo du document.",
+                "publicDataCount": "{{selected}} sur {{total}} publics",
+                "source": {
+                    "signup": "Collecté lors de l’inscription",
+                    "documents": "Collecté depuis le document"
+                },
+                "enableSource": {
+                    "signup": "Activez ce champ dans Inscription",
+                    "documents": "Activez Documents pour utiliser ce champ"
+                },
+                "protectStageTitle": "Protégez les accès futurs",
+                "protectStageHelp": "Définissez ce que la personne devra fournir lors d’une utilisation ultérieure de ce HumanID.",
+                "accessActive": "Visage en direct requis",
+                "accessStandard": "Accès standard",
+                "outputStringHelp": "Renvoie une chaîne chiffrée portable pour les API et le stockage.",
+                "outputQrHelp": "Renvoie le HumanID chiffré prêt à être scanné sous forme de QR code.",
+                "readySummary": "La vérification, les champs publics, la politique d’accès et le format seront enregistrés ensemble.",
                 "standardTitle": "Enregistrement standard",
                 "standardBody": "Chiffrement unique. Le déchiffrement ultérieur n’exige pas un visage en direct à chaque fois.",
                 "activeTitle": "Utilisateur actif",
                 "activeBody": "La liveness est exigée à chaque déchiffrement. Facturé comme utilisateur actif mensuel.",
+                "requireLivenessTitle": "Liveness au déchiffrement",
+                "requireLiveness": "Exiger un visage en direct lors du déchiffrement",
+                "requireLivenessHelp": "Correspond à requireLiveness sur Encrypt HumanID. Activé crée un enregistrement utilisateur actif facturé chaque mois.",
                 "livenessAtCreation": "Exiger la liveness à la création",
-                "livenessAtCreationHelp": "Cela ne concerne que la création, pas le modèle mensuel d’utilisateur actif."
+                "livenessAtCreationHelp": "Cela ne concerne que la création, pas le modèle mensuel d’utilisateur actif.",
+                "outputFormatTitle": "Format HumanID",
+                "outputFormatHelp": "Texte utilise Encrypt HumanID. QR code utilise Encrypt HumanID QR Code.",
+                "outputString": "Texte",
+                "outputQr": "QR code",
+                "toleranceTitle": "Tolérance de liveness",
+                "toleranceHelp": "Exigence anti-spoof lorsqu’un visage en direct est requis. HARDENED par défaut si la liveness au déchiffrement est activée.",
+                "tolerance": {
+                    "SOFT": "Souple",
+                    "REGULAR": "Régulier",
+                    "HARDENED": "Renforcé",
+                    "REGULAR_HARD": "Régulier renforcé",
+                    "REGULAR_SOFT": "Régulier souple"
+                },
+                "compareTitle": "Comparer avec le document",
+                "compareHelp": "Correspondance minimale entre le visage en direct et la photo du document avant chiffrement.",
+                "compareScoreLabel": "score",
+                "verifierKeyTitle": "Clé du vérificateur",
+                "verifierKeyHelp": "Mot de passe optionnel du projet envoyé comme verifierKey lors du chiffrement, du déchiffrement et de l’aperçu.",
+                "verifierKeyLabel": "Clé du vérificateur",
+                "verifierKeyToggle": "Afficher ou masquer la clé",
+                "publicDataTitle": "Champs publics",
+                "publicDataHelp": "Ces valeurs d’inscription et de document sont stockées comme publicData sur le HumanID. Le reste reste en métadonnées privées.",
+                "publicDataEmpty": "Activez le nom, l’e-mail, le téléphone ou le scan de document dans les étapes précédentes pour choisir des champs publics.",
+                "publicData": {
+                    "fullName": "Nom complet",
+                    "email": "E-mail",
+                    "phone": "Téléphone",
+                    "documentNumber": "Numéro de document"
+                }
             },
             "storage": {
+                "eyebrow": "Architecture de stockage",
+                "title": "Choisissez où réside le HumanID chiffré",
+                "subtitle": "Choisissez si Verifik stocke la preuve chiffrée ou la renvoie directement via l’API.",
+                "currentChoice": "Choix actuel",
+                "chooseTitle": "Choisissez un fournisseur",
+                "chooseHelp": "Ce choix détermine si et où Verifik conserve l’objet HumanID chiffré.",
+                "selectProvider": "Sélectionner {{provider}} comme fournisseur de stockage",
+                "default": "Par défaut",
                 "ipfsTitle": "IPFS",
                 "ipfsBody": "Index décentralisé avec URL publique.",
+                "ipfsBenefitIndex": "Index décentralisé",
+                "ipfsBenefitGateway": "Localisateur de passerelle publique",
                 "cloudTitle": "Stockage cloud",
-                "cloudBody": "Objet chiffré hébergé par Verifik avec le même payload."
+                "cloudBody": "Objet chiffré hébergé par Verifik avec le même payload.",
+                "cloudBenefitManaged": "Géré par Verifik",
+                "cloudBenefitHosted": "Objet chiffré hébergé",
+                "noneTitle": "Aucun stockage Verifik",
+                "noneBody": "Renvoyer le HumanID chiffré via l’API sans conservation par Verifik.",
+                "noneBenefitApi": "Renvoyé directement dans la réponse API",
+                "noneBenefitNoPersistence": "Aucune conservation par Verifik",
+                "sameEncryptedPayload": "Le même payload HumanID chiffré",
+                "howTitle": "Fonctionnement",
+                "howHelp": "Le choix modifie le traitement du résultat par Verifik, pas la preuve chiffrée.",
+                "flowHumanId": "HumanID créé",
+                "flowEncrypted": "Preuve chiffrée",
+                "flowApiResponse": "Réponse API",
+                "selectedPath": "Parcours de stockage sélectionné",
+                "detail": {
+                    "ipfsTitle": "Indexé via IPFS",
+                    "ipfsBody": "Le HumanID chiffré est associé à un index décentralisé et à un localisateur de passerelle publique.",
+                    "ipfsResult": "Le localisateur obtenu pointe vers le payload chiffré.",
+                    "cloudTitle": "Hébergé par Verifik",
+                    "cloudBody": "Verifik héberge l’objet HumanID chiffré afin que votre projet n’ait pas à gérer son emplacement.",
+                    "cloudResult": "L’objet chiffré reste géré dans l’hébergement Verifik.",
+                    "noneTitle": "Renvoyé sans stockage Verifik",
+                    "noneBody": "Le HumanID chiffré est renvoyé à votre application. Verifik ne l’épingle pas sur IPFS et ne l’enregistre pas dans le cloud.",
+                    "noneResult": "Votre application reçoit le résultat chiffré dans la réponse API."
+                },
+                "trustTitle": "Contenu du stockage",
+                "trustHelp": "Le stockage reçoit la preuve produite, pas une base d’identité biométrique réutilisable.",
+                "noneTrustTitle": "Ce que Verifik ne stocke pas",
+                "noneTrustHelp": "Verifik renvoie la preuve sans la conserver. Le service de chiffrement en amont reçoit toujours le visage et les métadonnées.",
+                "encryptedProofTitle": "Preuve chiffrée",
+                "encryptedProofBody": "L’enregistrement HumanID chiffré est l’objet stocké.",
+                "publicFieldsTitle": "Champs publics sélectionnés",
+                "publicFieldsBody": "Seules les valeurs publiques choisies à l’étape HumanAuthn restent lisibles.",
+                "faceTemplateTitle": "Aucun modèle facial réutilisable",
+                "faceTemplateBody": "Verifik ne stocke pas de modèle facial réutilisable comme enregistrement d’identité."
             },
             "integrations": {
                 "redirectUrl": "URL de redirection",
@@ -1108,7 +1319,7 @@
     },
     "humanAuthnPlans": {
         "title": "Forfaits HumanAuthn",
-        "subtitle": "Choisissez un forfait pour les chiffrements, utilisateurs actifs et déchiffrements.",
+        "subtitle": "Enrôlez sans stocker de biométrie ni héberger une base d’identité. Preuves à divulgation nulle uniquement.",
         "active": "Actif",
         "changePlan": "Changer de forfait",
         "selectPlan": "Choisir ce forfait",
@@ -1131,9 +1342,64 @@
         "billingRequiredCancel": "Annuler",
         "billingRequiredGoSettings": "Aller à la facturation",
         "volumeConfirmTitle": "Confirmer le volume",
-        "volumeConfirmMessage": "Souscrire avec {{quantity}} chiffrements mensuels pour {{total}} USD ?",
+        "volumeConfirmMessage": "Souscrire avec {{quantity}} enrollments mensuels pour {{total}} USD ?",
         "volumeConfirmCancel": "Annuler",
-        "volumeConfirmContinue": "Continuer"
+        "volumeConfirmContinue": "Continuer",
+        "cancelled": "Annulé",
+        "yourPlan": "Votre forfait",
+        "planValue": "Valeur du forfait",
+        "chooseBestPlan": "Le même tarif d’enrollment que SmartEnroll, avec les avantages confidentialité de HumanAuthn.",
+        "free": "Gratuit",
+        "plus": "Plus",
+        "business": "Business",
+        "enterprise": "Enterprise",
+        "enrollments": "enrollments",
+        "enrollCost": "Coût d’enrollment",
+        "activeUserCost": "Utilisateur actif",
+        "creditsUnit": "crédits",
+        "planCredits": "Crédits du forfait",
+        "perEnrollment": "par enrollment",
+        "included": "Inclus",
+        "benefitNoBiometrics": "Aucune biométrie stockée",
+        "benefitNoFaceDb": "Pas de base faciale centrale",
+        "benefitNoHostedDb": "Aucune base d’identité à héberger",
+        "benefitZkProof": "Preuve à divulgation nulle seulement",
+        "adjustVolume": "Ajuster le volume",
+        "viewPlan": "Voir le forfait",
+        "currentPlanBadge": "Forfait actuel",
+        "mostPopular": "Le plus populaire",
+        "contactSales": "Contacter les ventes",
+        "everythingInBusiness": "Tout Business",
+        "dedicatedSupport": "Support dédié",
+        "howManyEnrollments": "Combien d’enrollments ?",
+        "selectVolume": "Choisissez votre volume mensuel d’enrollments.",
+        "yourNextPlan": "Votre prochain forfait",
+        "nextPayment": "Prochain paiement",
+        "startsIn": "Commence le",
+        "canceledPlan": "Annulé le",
+        "paidWithStripeLink": "Payé avec Stripe Link",
+        "ended": "se terminant par",
+        "expires": "Expire",
+        "noPayment": "Aucun moyen de paiement",
+        "enabled": "Activé",
+        "available": "Disponible",
+        "zkLiveness": "Liveness ZK",
+        "manageSubscription": "Gérer l’abonnement",
+        "upgradeAvailable": "Mise à niveau disponible",
+        "betterPlan": "Obtenez un meilleur forfait",
+        "betterPlanText": "Nous proposons une large gamme de forfaits adaptés à vos besoins. Choisissez celui qui vous convient le mieux.",
+        "higherLimits": "Limites plus élevées",
+        "higherLimitsDesc": "Plus d’enrollments et de validations par mois",
+        "prioritySupport": "Support prioritaire",
+        "prioritySupportDesc": "Obtenez de l’aide plus rapidement avec un support dédié",
+        "advancedFeatures": "Fonctionnalités avancées",
+        "advancedFeaturesDesc": "Accès aux outils et intégrations premium",
+        "explorePlans": "Explorer les forfaits",
+        "noCommitment": "Sans engagement. Changez de forfait quand vous voulez.",
+        "includedPrivacy": "Confidentialité incluse",
+        "includedPrivacyDesc": "Ces protections sont incluses dans chaque forfait HumanAuthn.",
+        "paymentFailed": "Paiement échoué",
+        "paymentFailedDescription": "Nous n’avons pas pu traiter votre dernier paiement. Mettez à jour votre moyen de paiement pour conserver le forfait."
     },
     "accountEnv": {
         "verifyStrip": {
@@ -2063,6 +2329,8 @@
                 "apiHintNoId": "Impossible de résoudre un _id pour ce bloc.",
                 "apiHintWebhookNote": "Liste des événements webhook pour cet app registration (défauts comme Smart Monitor) :",
                 "apiHintArrayMore": "+ {{count}} de plus (même modèle GET)",
+                "apiHintResumeNote": "Pour renvoyer l’enrollee vers SmartEnroll hébergé, générez une URL de reprise (30 minutes). Ne refaites pas POST /app-registrations avec le même e-mail ou téléphone :",
+                "resumeCallout": "La personne est partie en cours de route. Utilisez Renvoyer le lien (ou demandez un nouveau lien à Verifik depuis votre app). Ne commencez pas un second enregistrement avec le même e-mail.",
                 "section": {
                     "record": "AppRegistration",
                     "consentSession": "consentSession",
@@ -2310,6 +2578,18 @@
             "printTitle": "Enregistrement d'inscription",
             "resendDialogTitle": "Renvoyer le lien d'inscription",
             "resendDialogDescription": "Envoyez le lien d'inscription à l'utilisateur par e-mail, ou copiez-le pour le partager manuellement.",
+            "resendDialogIntegratorNote": "Ceci génère une nouvelle URL hébergée. N’utilisez pas un jeton de création expiré et ne refaites pas POST /app-registrations avec le même e-mail.",
+            "resumeHelp": {
+                "title": "Reprendre un enrollment incomplet",
+                "intro": "La vérification a commencé, puis la personne est partie. Renvoyez-la vers le même enrollment — ne recommencez pas avec le même e-mail.",
+                "storeId": "Conservez l’id d’enrollment au démarrage. Ne créez pas un second enregistrement avec le même e-mail.",
+                "createToken": "Le premier lien dure deux heures. Ensuite, le rouvrir affiche le formulaire d’inscription, et le même e-mail échoue comme already registered.",
+                "resendLink": "Utilisez Renvoyer le lien dans Verifik, ou l’API de renvoi depuis votre app, puis ouvrez la nouvelle URL.",
+                "notResume": "Consulter l’enrollment ou synchroniser son statut ne vous donne pas un nouveau lien.",
+                "openDocs": "Ouvrir la documentation",
+                "close": "Fermer",
+                "iconLabel": "Comment reprendre cet enrollment"
+            },
             "resendDialogClose": "Fermer",
             "resendCopyLink": "Copier le lien",
             "resendSendEmail": "Envoyer par e-mail",
@@ -2499,6 +2779,34 @@
                 "confirm_skip_back": "Retour",
                 "title": "Vérification de documents",
                 "subtitle": "Choisissez si et comment les clients doivent présenter un document officiel.",
+                "journey": {
+                    "title": "Concevez le parcours documentaire",
+                    "subtitle": "Suivez l’ordre vécu par le client : exigence, documents acceptés, collecte et vérifications.",
+                    "stage": "Étape {{number}}",
+                    "requirementTitle": "Exigez un document",
+                    "requirementSubtitle": "Décidez si cette étape bloque l’inscription ou peut être ignorée par le client.",
+                    "requirement": {
+                        "skip": "Non requis",
+                        "optional": "Facultatif",
+                        "mandatory": "Requis"
+                    },
+                    "requirementHelp": {
+                        "skip": "Inscrire sans présenter de document.",
+                        "optional": "Laisser le client choisir de continuer.",
+                        "mandatory": "Exiger un document valide pour continuer."
+                    },
+                    "businessToggleHelp": "Une fois activé, les entreprises doivent fournir un document accepté avant de continuer.",
+                    "documentSummary": "{{countries}} pays · {{documents}} documents",
+                    "enableToConfigure": "Activez la vérification de documents à l’étape 1 pour configurer cette étape.",
+                    "collectionTitle": "Définissez la collecte",
+                    "collectionHelp": "Choisissez comment les documents sont fournis et le nombre de tentatives autorisées.",
+                    "collectionSummary": "{{methods}} méthodes · {{attempts}} tentatives",
+                    "attemptSummary": "{{attempts}} tentatives",
+                    "screeningTitle": "Ajoutez des vérifications",
+                    "screeningHelp": "Consultez les bases officielles après l’acceptation du document.",
+                    "screeningSummary": "{{count}} vérifications actives",
+                    "screeningOff": "Aucune vérification supplémentaire"
+                },
                 "business": {
                     "title": "Vérification de l’entreprise",
                     "subtitle": "Vérifiez les documents de l’entreprise pendant l’onboarding.",
@@ -2538,6 +2846,7 @@
                     "subtitle": "Configurez les documents acceptés par pays.",
                     "empty": "Aucune configuration — ajoutez un pays pour commencer.",
                     "country": "Pays",
+                    "searchCountry": "Rechercher des pays...",
                     "remove": "Retirer",
                     "add": "Ajouter un pays",
                     "configurations": "Configurations",
@@ -2658,17 +2967,19 @@
                     "title": "Adresse e-mail",
                     "businessTitle": "E-mail professionnel",
                     "subtitle": "Recueillir et vérifier l'adresse e-mail du client.",
-                    "mailgun": "Vérifier par OTP",
-                    "none": "Recueillir uniquement (sans vérification)"
+                    "mailgun": "Valider par OTP",
+                    "none": "Recueillir uniquement (sans vérification)",
+                    "doNotValidate": "Ne pas valider"
                 },
                 "phone": {
                     "title": "Numéro de téléphone",
                     "businessTitle": "Téléphone professionnel",
                     "subtitle": "Recueillir et vérifier le numéro de téléphone du client.",
                     "both": "Vérifier par OTP (WhatsApp & SMS)",
-                    "whatsapp": "Vérifier par OTP (WhatsApp)",
-                    "sms": "Vérifier par OTP (SMS)",
+                    "whatsapp": "WhatsApp",
+                    "sms": "SMS",
                     "none": "Recueillir uniquement (sans vérification)",
+                    "doNotValidate": "Ne pas valider",
                     "countryCode": "Code pays par défaut",
                     "searchCountry": "Rechercher des pays..."
                 },
@@ -3428,7 +3739,38 @@
         },
         "api_key": {
             "title": "Gestion des clés API",
-            "subtitle": "Gérer vos jetons API pour un accès sécurisé aux services Verifik",
+            "subtitle": "Créez, consultez et renouvelez les identifiants utilisés par vos intégrations pour accéder à Verifik.",
+            "security_eyebrow": "Sécurité développeur",
+            "how_tokens_work": "Fonctionnement des jetons",
+            "status_active": "Actif",
+            "status_expiring": "Expire bientôt",
+            "status_expired": "Expiré",
+            "status_unknown": "État indisponible",
+            "expires_label": "Expire le",
+            "expiry_unavailable": "Expiration indisponible",
+            "time_remaining_label": "Temps restant",
+            "expired": "N’est plus valide",
+            "days_remaining": "{{count}} jours restants",
+            "copy_new_token": "Copier le nouveau jeton",
+            "update_integrations_hint": "Étape suivante : mettez à jour chaque serveur, gestionnaire de secrets et environnement qui doit utiliser ce nouvel identifiant.",
+            "current_token_stays_valid": "Votre jeton actuel n’est ni modifié ni révoqué",
+            "duration_helper": "Choisissez combien de temps le nouvel identifiant doit rester valide.",
+            "duration_1_month": "1 mois",
+            "duration_2_months": "2 mois",
+            "duration_3_months": "3 mois",
+            "duration_6_months": "6 mois",
+            "duration_1_year": "1 an",
+            "duration_2_years": "2 ans",
+            "duration_3_years": "3 ans",
+            "duration_short_term": "Court terme",
+            "duration_balanced": "Sécurité équilibrée",
+            "duration_long_running": "Usage prolongé",
+            "duration_long_lived": "Longue durée",
+            "recommended": "Recommandé",
+            "new_expiration_preview": "Le nouveau jeton expire le",
+            "validity_starts_today": "{{duration}} de validité à partir d’aujourd’hui.",
+            "long_lived_warning": "Les identifiants de longue durée augmentent l’exposition en cas de fuite. Stockez ce jeton dans un gestionnaire de secrets et renouvelez-le régulièrement.",
+            "create_with_expiry": "Créer le jeton · expire le {{date}}",
             "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour gérer votre clé API.",
             "current_token": "Jeton d'accès actuel",
             "bearer_token_info": "Utilisez ce jeton dans votre en-tête Authorization",
@@ -3438,14 +3780,14 @@
             "copy_token": "Copier le jeton",
             "token_copied": "Jeton copié dans le presse-papiers",
             "usage_hint": "Incluez ce jeton dans vos requêtes API : Authorization: Bearer <votre_jeton>",
-            "renew_token": "Prolonger la validité du jeton",
-            "renew_description": "Prolongez la date d'expiration de votre jeton actuel sans invalider les intégrations existantes.",
-            "extend_validity": "Prolonger la validité",
+            "renew_token": "Créer un jeton avec une nouvelle expiration",
+            "renew_description": "Émettez un JWT distinct avec la durée choisie, sans révoquer l’identifiant que vous utilisez déjà.",
+            "extend_validity": "Choisir l’expiration du nouveau jeton",
             "select_expiration": "Sélectionner la période d'expiration",
             "months": "mois",
             "cancel": "Annuler",
             "renew_now": "Prolonger maintenant",
-            "renewing": "Prolongation...",
+            "renewing": "Création du jeton...",
             "token_renewed_success": "Jeton prolongé avec succès !",
             "token_renewal_failed": "Échec de la prolongation du jeton. Veuillez réessayer.",
             "revoke_generate": "Révoquer et générer un nouveau",
@@ -3453,15 +3795,65 @@
             "revoke_all": "Révoquer tous les jetons",
             "warning_title": "Cette action est irréversible",
             "warning_text": "Tous les jetons précédents seront définitivement révoqués. Les applications utilisant d'anciens jetons perdront l'accès.",
+            "revoke_impact_title": "Renouveler tous les jetons API ?",
+            "revoke_impact_subtitle": "Vérifiez précisément ce qui va se passer avant de continuer.",
+            "revoke_step_tokens_title": "Révoquer tous les jetons précédents",
+            "revoke_step_tokens_desc": "Tous les JWT précédemment émis pour ce compte cesseront immédiatement de fonctionner.",
+            "revoke_step_new_title": "Générer un jeton de remplacement",
+            "revoke_step_new_desc": "Choisissez la durée de validité du nouvel identifiant.",
+            "revoke_length_label": "Validité du jeton de remplacement",
+            "revoke_expiry_summary": "Le nouveau jeton expirera le {{date}}.",
+            "revoke_service_warning": "Toute intégration utilisant un ancien jeton recevra des erreurs d’authentification 401 jusqu’à sa mise à jour.",
+            "confirm_revoke_with_expiry": "Tout révoquer et créer un jeton de {{duration}}",
             "confirm_revoke": "Révoquer et générer un nouveau",
             "revoking": "Révocation...",
             "tokens_revoked_success": "Tous les jetons révoqués. Votre nouveau jeton est prêt !",
             "token_revocation_failed": "Échec de la révocation des jetons. Veuillez réessayer.",
             "new_token_generated": "Nouveau jeton généré !",
-            "copy_token_warning": "Copiez votre nouveau jeton maintenant. Vous ne le verrez plus après avoir quitté cette page.",
+            "copy_token_warning": "Votre nouveau jeton est prêt. Copiez-le, stockez-le en sécurité, puis mettez à jour les intégrations qui doivent l’utiliser.",
             "need_help": "Besoin d'aide pour l'intégration API ?",
             "docs_description": "Apprenez à utiliser votre jeton API et explorez notre documentation.",
-            "view_docs": "Voir la documentation"
+            "view_docs": "Voir la documentation",
+            "help_label": "En savoir plus",
+            "help_close": "Compris",
+            "extend_new_token_notice": "Cette action génère un nouveau JWT. Après confirmation, copiez le nouveau jeton et mettez à jour chaque intégration ; votre jeton actuel n’est pas modifié.",
+            "help": {
+                "overview": {
+                    "title": "Fonctionnement des jetons API",
+                    "intro": "Votre jeton API est un identifiant JWT qui authentifie vos requêtes serveur vers Verifik.",
+                    "point1": "Le jeton affiché est un JWT signé et ne peut pas être modifié directement.",
+                    "point2": "Chaque JWT possède une date d’expiration ; une fois expiré, les requêtes API échouent.",
+                    "point3": "Créer une nouvelle expiration émet un JWT distinct que vous devez déployer dans vos intégrations.",
+                    "point4": "Révoquer et générer invalide immédiatement tous les jetons précédents.",
+                    "point5": "Après création ou révocation, vérifiez que chaque environnement utilise le bon jeton."
+                },
+                "token": {
+                    "title": "Utiliser votre jeton d’accès",
+                    "intro": "Votre jeton doit être envoyé comme identifiant Bearer dans chaque requête API.",
+                    "point1": "Stockez le jeton dans votre backend ou un gestionnaire de secrets, jamais dans une application cliente ou un dépôt public.",
+                    "point2": "Ajoutez-le à l’en-tête Authorization de chaque requête vers l’API Verifik.",
+                    "point3": "Après la création d’un nouveau jeton, mettez à jour chaque service qui doit l’utiliser.",
+                    "code": "curl -X GET \"https://api.verifik.co/v2/co/cedula\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
+                },
+                "extend": {
+                    "title": "Créer un jeton avec une nouvelle expiration",
+                    "intro": "Cette action ne modifie pas votre JWT actuel ; elle en crée un nouveau avec la durée choisie.",
+                    "point1": "La période commence au moment où vous créez le nouveau jeton.",
+                    "point2": "Copiez le nouveau jeton et mettez à jour chaque service, script ou variable d’environnement concerné.",
+                    "point3": "Les jetons précédents restent valides jusqu’à leur propre expiration.",
+                    "point4": "Créez le nouveau jeton avant l’expiration pour éviter une interruption.",
+                    "note": "La date d’expiration d’un JWT existant ne peut pas être repoussée."
+                },
+                "revoke": {
+                    "title": "Révoquer et générer un nouveau jeton",
+                    "intro": "Cette action émet un nouveau JWT et invalide immédiatement tous les jetons précédents.",
+                    "point1": "Tous les JWT précédents cessent de fonctionner immédiatement.",
+                    "point2": "Copiez le nouveau jeton et mettez à jour chaque intégration.",
+                    "point3": "Les applications qui utilisent un ancien jeton recevront des erreurs 401.",
+                    "point4": "Utilisez cette option lorsqu’un jeton peut avoir été compromis.",
+                    "note": "Pour créer un identifiant de durée différente sans interrompre les jetons actifs, utilisez l’option de nouvelle expiration."
+                }
+            }
         },
         "general": {
             "title": "Paramètres généraux",
@@ -3656,6 +4048,7 @@
         "view": "Voir",
         "plan": "Forfait",
         "billing": "Informations de facturation",
+        "support": "Support",
         "teamSeats": "Sièges d'équipe",
         "seatsAvailable": "{{count}} sièges disponibles",
         "seatsFull": "Tous les sièges sont utilisés",
@@ -3766,6 +4159,7 @@
             "credits": "CRÉDITS",
             "sending": "Envoi...",
             "selectEndpoint": "Sélectionnez un endpoint pour commencer",
+            "loadingDetails": "Chargement des détails de l’endpoint…",
             "tabs": {
                 "about": "À propos",
                 "params": "Paramètres",
@@ -3783,7 +4177,8 @@
                 "documentTypePlaceholder": "Sélectionner le type de document",
                 "otherParameters": "Autres paramètres",
                 "requiredFieldLegend": "* Champ obligatoire",
-                "includeCostDescription": "Lorsque la valeur est true, la réponse inclut un bloc de crédits (credits, creditsCharged, charged, featureCode). Définissez false ou supprimez cette ligne pour l'omettre."
+                "includeCostDescription": "Lorsque la valeur est true, la réponse inclut un bloc de crédits (credits, creditsCharged, charged, featureCode). Définissez false ou supprimez cette ligne pour l'omettre.",
+                "pickValue": "Choisissez une valeur parmi [{{values}}]"
             },
             "headers": {
                 "key": "Clé",
@@ -4671,7 +5066,38 @@
             "extra_enrollment": "Inscription Supplémentaire",
             "enrollment": "inscription",
             "by_using_prefix": "En utilisant Verifik, vous acceptez nos",
-            "terms_and_conditions": "conditions générales"
+            "terms_and_conditions": "conditions générales",
+            "usage": {
+                "title": "Usage de cette période",
+                "resets_in": "Réinitialisation dans {{days}} jours",
+                "resets_in_one": "Réinitialisation dans 1 jour",
+                "resets_today": "Réinitialisation aujourd'hui",
+                "resets_on": "Les compteurs reviennent à 0 le {{date}}",
+                "names": "Validations de nom",
+                "background": "Vérifications d'antécédents",
+                "emails": "E-mails",
+                "scans": "Numérisations de documents",
+                "biometrics": "Biométrie",
+                "basic": "Inscriptions de base",
+                "left": "{{count}} restantes",
+                "over": "{{count}} au-delà du forfait",
+                "used_of": "{{used}} sur {{limit}}",
+                "overage_title": "Après le forfait inclus",
+                "overage_free": "Le forfait de cette période est gratuit.",
+                "overage_credits": "Les recherches de nom supplémentaires utilisent les crédits du portefeuille avec {{discount}} % de réduction (par exemple identité Colombie 0,30 → {{namePrice}}). Chaque vérification d'antécédents supplémentaire coûte {{bgPrice}}, qu'il y ait eu FBI, DEA ou ONU ou non.",
+                "overage_pack": "Si le portefeuille est vide, nous ajoutons 10 $ à votre facture Stripe et +10 crédits, puis nous débitions. Comme pour l'e-mail, WhatsApp et le SMS.",
+                "wallet": "Portefeuille",
+                "add_credits": "Ajouter des crédits",
+                "included": "Inclus",
+                "one_unit_bg": "Une vérification terminée = une unité",
+                "credits_count": "{{credits}} crédits",
+                "preview_cta": "Voir le plan",
+                "unlock_title": "Débloquez {{count}} inscriptions gratuites par mois",
+                "unlock_body": "Suivez les inscriptions et les numérisations de documents au même endroit. Commencez avec Free Forever, puis passez à un forfait avec liveness.",
+                "learn_more": "En savoir plus sur Smart Enroll",
+                "example": "Exemple",
+                "resets_monthly": "Réinitialisation chaque mois"
+            }
         },
         "errors": {
             "create_or_update_subscription": "Quelque chose s'est mal passé lors de la tentative de mise à jour ou de création de votre abonnement",
@@ -5599,7 +6025,39 @@
             "title": "Démos",
             "heroEyebrow": "HumanAuthn · HumanID · v4",
             "heroTitle": "HumanAuthn · Biométrie de niveau entreprise",
-            "heroBody": "Les démos HumanAuthn décentralisées montrent comment un HumanID lie les données d'identité à un visage en direct sans base centrale de visages."
+            "heroBody": "Les démos HumanAuthn décentralisées montrent comment un HumanID lie les données d'identité à un visage en direct sans base centrale de visages.",
+            "relatedDocs": {
+                "0": {
+                    "title": "Présentation de HumanAuthn",
+                    "description": "Comment HumanAuthn lie les données d'identité à un visage en direct sans base centrale de visages.",
+                    "badge": "Guide"
+                },
+                "1": {
+                    "title": "Créer un HumanID",
+                    "description": "Chiffrez des champs publics et une capture faciale en un HumanID que vous pouvez stocker ou partager.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Créer un HumanID QR",
+                    "description": "Générez un QR qui intègre un HumanID pour le scanner depuis un écran ou un portefeuille.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Déchiffrer un HumanID",
+                    "description": "Déverrouillez l'identité d'une preuve en la faisant correspondre à un visage en direct.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Aperçu HumanID",
+                    "description": "Inspectez les métadonnées publiques d'une preuve avant de déchiffrer, sans envoyer d'image faciale.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "Détection de vivacité",
+                    "description": "Vérifiez qu'une image faciale paraît vivante et non usurpée.",
+                    "badge": "POST"
+                }
+            }
         }
     },
     "smartEnrollDemos": {
@@ -6724,7 +7182,39 @@
             "navVault": "Coffre",
             "navIdentity": "Identité",
             "navSecurity": "Sécurité",
-            "navLogs": "Journaux"
+            "navLogs": "Journaux",
+            "relatedDocs": {
+                "0": {
+                    "title": "Détection de vivacité",
+                    "description": "Détecte si une image faciale est vivante ou usurpée. Indépendant du chiffrement et du déchiffrement HumanID.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Présentation de HumanAuthn",
+                    "description": "Comment HumanAuthn lie les données d'identité à un visage en direct sans base centrale de visages.",
+                    "badge": "Guide"
+                },
+                "2": {
+                    "title": "Créer un HumanID",
+                    "description": "Chiffrez des champs publics et une capture faciale en un HumanID que vous pouvez stocker ou partager.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Créer un HumanID QR",
+                    "description": "Générez un QR qui intègre un HumanID pour le scanner depuis un écran ou un portefeuille.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Déchiffrer un HumanID",
+                    "description": "Déverrouillez l'identité d'une preuve en la faisant correspondre à un visage en direct.",
+                    "badge": "POST"
+                },
+                "5": {
+                    "title": "Aperçu HumanID",
+                    "description": "Inspectez les métadonnées publiques d'une preuve avant de déchiffrer, sans envoyer d'image faciale.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreate": {
             "headerTitle": "Créer un HumanID",
@@ -6800,13 +7290,40 @@
             "recommendedBadge": "Recommandé",
             "errorLivenessFailedTitle": "Échec du contrôle de visage en direct",
             "errorLivenessFailedBody": "Cette image n'a pas passé la vérification de vivacité pour HumanID. Utilisez la caméra guidée ou une autre capture en temps réel, puis réessayez.",
-            "paramLivenessDetectionPriorCreation": "Exiger la vivacité au chiffrement (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "Exiger la vivacité au chiffrement (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "Créer un HumanID",
+                    "description": "Chiffrez des champs publics et une capture faciale en un HumanID que vous pouvez stocker ou partager.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Créer un HumanID QR",
+                    "description": "Générez un QR qui intègre un HumanID pour le scanner depuis un écran ou un portefeuille.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Déchiffrer un HumanID",
+                    "description": "Déverrouillez l'identité d'une preuve en la faisant correspondre à un visage en direct.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Aperçu HumanID",
+                    "description": "Inspectez les métadonnées publiques d'une preuve avant de déchiffrer, sans envoyer d'image faciale.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Détection de vivacité",
+                    "description": "Vérifiez qu'une image faciale paraît vivante et non usurpée.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidCreateQr": {
             "headerTitle": "Créer un HumanID QR",
             "apiRefSummary": "Référence API : Create HumanID QR",
             "apiIntroBefore": "Même charge utile que",
-            "apiIntroAfter": "Renvoie une data URL PNG de code QR (data.zelfQR) ainsi que le HumanID habituel et les métadonnées IPFS.",
+            "apiIntroAfter": "Renvoie une data URL PNG de code QR (data.humanIDQR) ainsi que le HumanID habituel et les métadonnées IPFS.",
             "heroTitleForm": "Créer un HumanID QR",
             "heroTitleResult": "HumanID QR prêt",
             "heroSubtitle": "Générez un HumanID portable en QR à partir d'un visage et de données d'identité.",
@@ -6865,7 +7382,34 @@
             "recommendedBadge": "Recommandé",
             "errorLivenessFailedTitle": "Échec du contrôle de visage en direct",
             "errorLivenessFailedBody": "Cette image n'a pas passé la vérification de vivacité pour HumanID. Utilisez la caméra guidée ou une autre capture en temps réel, puis réessayez.",
-            "paramLivenessDetectionPriorCreation": "Exiger la vivacité au chiffrement (check_live_face_before_creation)"
+            "paramLivenessDetectionPriorCreation": "Exiger la vivacité au chiffrement (check_live_face_before_creation)",
+            "relatedDocs": {
+                "0": {
+                    "title": "Créer un HumanID QR",
+                    "description": "Générez un QR qui intègre un HumanID pour le scanner depuis un écran ou un portefeuille.",
+                    "badge": "POST"
+                },
+                "1": {
+                    "title": "Créer un HumanID",
+                    "description": "Chiffrez des champs publics et une capture faciale en un HumanID que vous pouvez stocker ou partager.",
+                    "badge": "POST"
+                },
+                "2": {
+                    "title": "Déchiffrer un HumanID",
+                    "description": "Déverrouillez l'identité d'une preuve en la faisant correspondre à un visage en direct.",
+                    "badge": "POST"
+                },
+                "3": {
+                    "title": "Aperçu HumanID",
+                    "description": "Inspectez les métadonnées publiques d'une preuve avant de déchiffrer, sans envoyer d'image faciale.",
+                    "badge": "POST"
+                },
+                "4": {
+                    "title": "Détection de vivacité",
+                    "description": "Vérifiez qu'une image faciale paraît vivante et non usurpée.",
+                    "badge": "POST"
+                }
+            }
         },
         "humanidDecrypt": {
             "headerTitle": "Déchiffrer un HumanID",
@@ -6877,7 +7421,7 @@
             "uploadQrImage": "Téléverser l'image QR",
             "proofLabel": "HumanID",
             "proofPlaceholder": "Collez votre HumanID ici…",
-            "qrUploadHelp": "Téléversez un PNG ou JPEG du QR HumanID (charge binaire). Nous appelons preview-zelf-id-qr pour extraire votre HumanID.",
+            "qrUploadHelp": "Téléversez un PNG ou JPEG du QR HumanID (charge binaire). Nous appelons preview-human-id-qr pour extraire votre HumanID.",
             "chooseQrImage": "Choisir l'image QR",
             "readingQr": "Lecture du QR…",
             "secondaryPngJpeg": "PNG ou JPEG",
@@ -6905,7 +7449,7 @@
             "apiDecryptLinkText": "docs.verifik.co/functions/decrypt-zelfproof",
             "apiBaseUrlNote": "URL de base https://api.verifik.co. Envoyez du JSON avec Content-Type: application/json et Authorization: Bearer <access token> (même JWT que cette démo après connexion).",
             "apiDecryptEndpointDesc": "Compare votre image faciale à la preuve et renvoie les champs publics déchiffrés et la charge associée (par ex. recadrage facial et difficulté) dans l'enveloppe de données signée habituelle lorsque la correspondance réussit.",
-            "apiPreviewQrEndpointDesc": "Utilisez lorsque l'utilisateur fournit un PNG ou JPEG du QR HumanID. L'API lit la charge du QR, exécute le même type d'aperçu que pour une chaîne et renvoie un zelfProof à passer au decrypt. verifierKey facultatif lorsque la preuve a été créée avec une. Mêmes en-têtes JSON que decrypt.",
+            "apiPreviewQrEndpointDesc": "Utilisez lorsque l'utilisateur fournit un PNG ou JPEG du QR HumanID. L'API lit la charge du QR, exécute le même type d'aperçu que pour une chaîne et renvoie un humanID à passer au decrypt. verifierKey facultatif lorsque la preuve a été créée avec une. Mêmes en-têtes JSON que decrypt.",
             "apiBullet1": "Decrypt utilise decryptHumanId de @humanauthn/api-client. Le téléversement QR utilise previewZelfIdQr d'abord ; puis vous déchiffrez avec la chaîne de preuve renvoyée.",
             "apiBullet2": "Les réponses de succès suivent le modèle Verifik : objet data (et souvent signature lorsque la signature est activée sur le projet).",
             "apiBullet3": "Pour inspecter une preuve sans image faciale, ouvrez la démo Preview HumanID (previewHumanId) ou le guide Preview HumanID lié ci-dessus.",
@@ -6973,7 +7517,7 @@
             "apiOfficialAfter": "(paramètres, réponses et exemples). Cette démo appelle POST /v2/human-id/preview via previewHumanId, aligné sur ce flux sur l'API actuelle. Associé :",
             "apiBaseUrlNote": "URL de base https://api.verifik.co. Envoyez du JSON avec Content-Type: application/json et Authorization: Bearer <access token> (même JWT que cette démo après connexion).",
             "apiPreviewEndpointDesc": "Renvoie des champs d'aperçu non sensibles pour une preuve (par ex. si un mot de passe est requis) dans l'enveloppe de données signée habituelle.",
-            "apiPreviewQrEndpointDesc": "Utilisez lorsque l'utilisateur fournit un PNG ou JPEG du QR HumanID. L'API décode la charge et renvoie un zelfProof à envoyer à l'appel d'aperçu ci-dessus. Mêmes en-têtes JSON. verifierKey facultatif lorsque la preuve en utilise une.",
+            "apiPreviewQrEndpointDesc": "Utilisez lorsque l'utilisateur fournit un PNG ou JPEG du QR HumanID. L'API décode la charge et renvoie un humanID à envoyer à l'appel d'aperçu ci-dessus. Mêmes en-têtes JSON. verifierKey facultatif lorsque la preuve en utilise une.",
             "apiBullet1": "Cette démo utilise previewHumanId et, pour les images QR, previewZelfIdQr de @humanauthn/api-client avec le jeton de votre session.",
             "apiBullet2": "Les réponses de succès suivent le modèle Verifik : objet data (et souvent signature lorsque la signature est activée sur le projet).",
             "paramHumanIDDesc": "Chaîne HumanID collée ou extraite du QR dans ce formulaire",
@@ -7020,7 +7564,7 @@
             "ipfsNotePrefix": "L'URL de passerelle IPFS et les détails d'épinglage sont dans",
             "ipfsNoteSuffix": "ci-dessous.",
             "decentralizedLabel": "Stockage décentralisé",
-            "zelfProofHeading": "HumanID",
+            "humanIDHeading": "HumanID",
             "copyFull": "Copier tout",
             "copied": "Copié",
             "showFull": "Tout afficher",

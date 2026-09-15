@@ -19,10 +19,16 @@
     --account-menu-danger: rgb(220 38 38);
     --account-menu-danger-soft: rgb(254 242 242);
 
+    --account-menu-max-height: min(calc(100dvh - 72px), 720px);
+
     width: 360px;
     max-width: min(360px, calc(100vw - 24px)) !important;
+    max-height: var(--account-menu-max-height) !important;
+    display: flex;
+    flex-direction: column;
     border-radius: 20px !important;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
     background: var(--account-menu-surface);
     border: 1px solid var(--account-menu-border);
     box-shadow:
@@ -30,7 +36,13 @@
         0 8px 16px -8px rgb(15 23 42 / 10%);
 
     .mat-mdc-menu-content {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+        max-height: var(--account-menu-max-height);
         padding: 0 !important;
+        overflow: hidden;
     }
 }
 
@@ -56,7 +68,11 @@
 
 .account-menu {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
+    min-height: 0;
+    max-height: var(--account-menu-max-height);
+    overflow: hidden;
     color: var(--account-menu-text);
     font-size: 13px;
 
@@ -67,12 +83,23 @@
     }
 }
 
+.account-menu__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    padding-bottom: 4px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  @ Identity header
 /* -------------------------------------------------------------------------- */
 
 .account-menu__identity {
     display: flex;
+    flex-shrink: 0;
     flex-direction: column;
     gap: 12px;
     padding: 18px 18px 16px;
@@ -193,7 +220,10 @@
     }
 }
 
-.account-menu__manage {
+.account-menu button.account-menu__manage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     padding: 9px 14px;
     border: 1px solid var(--account-menu-accent);
@@ -264,6 +294,27 @@
 .account-menu__meter-value--muted {
     color: var(--account-menu-faint);
     font-weight: 500;
+}
+
+.account-menu__meter--plan {
+    align-items: flex-start;
+
+    .account-menu__meter-icon,
+    .account-menu__meter-label,
+    .account-menu__meter-cta {
+        flex-shrink: 0;
+    }
+
+    .account-menu__meter-value {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: none;
+        overflow: visible;
+        text-align: right;
+        text-overflow: unset;
+        white-space: normal;
+        line-height: 1.25;
+    }
 }
 
 .account-menu__meter-cta {
@@ -526,6 +577,7 @@
 
 .account-menu__footer {
     display: flex;
+    flex-shrink: 0;
     flex-direction: column;
     gap: 4px;
     margin-top: 12px;

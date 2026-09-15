@@ -9,9 +9,39 @@
 }
 
 .inner {
-    max-width: 72rem;
+    max-width: 88rem;
     margin: 0 auto;
     padding: 2rem 1.25rem 3rem;
+}
+
+.workspace {
+    display: block;
+}
+
+.workspace--split {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(17rem, 2fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.workspace__aside {
+    position: sticky;
+    top: 1.25rem;
+}
+
+.workspace--split .grid {
+    grid-template-columns: 1fr;
+}
+
+@media (max-width: 960px) {
+    .workspace--split {
+        grid-template-columns: 1fr;
+    }
+
+    .workspace__aside {
+        position: static;
+    }
 }
 
 .hero {
@@ -74,6 +104,14 @@
 
 .crumb-here {
     color: rgb(75 85 99);
+}
+
+.workspace--split .empty-hero-card {
+    max-width: none;
+}
+
+.usage-teaser {
+    max-width: 28rem;
 }
 
 .state-loading {

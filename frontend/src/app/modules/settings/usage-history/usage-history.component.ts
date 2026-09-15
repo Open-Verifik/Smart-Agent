@@ -37,6 +37,7 @@ import {
     UsageHistoryService,
     UsageListParams,
 } from './usage-history.service';
+import { createdAtRangeParams } from './usage-history-date-params.util';
 import {
     UsageProductFilterComponent,
     UsageProductOption,
@@ -420,8 +421,7 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
         const params: UsageListParams = {
             where_category: 'usage',
             where_status: 'approved',
-            whereGTE_createdAt: start.toFormat('yyyy-LL-dd'),
-            whereLTE_createdAt: end.toFormat('yyyy-LL-dd'),
+            ...createdAtRangeParams(start, end),
             columns: '_id amount code status memo reason',
             sort: '-createdAt',
             groupThem: 1,
@@ -471,8 +471,7 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
         const params: UsageListParams = {
             where_category: 'usage',
             where_status: 'approved',
-            whereGTE_createdAt: start.toFormat('yyyy-LL-dd'),
-            whereLTE_createdAt: end.toFormat('yyyy-LL-dd'),
+            ...createdAtRangeParams(start, end),
             columns: '_id amount code group createdAt',
             sort: this._serverSortString(),
             perPage: this.pageSize,
@@ -527,8 +526,7 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
         const params: UsageListParams = {
             where_category: 'usage',
             where_status: 'approved',
-            whereGTE_createdAt: start.toFormat('yyyy-LL-dd'),
-            whereLTE_createdAt: end.toFormat('yyyy-LL-dd'),
+            ...createdAtRangeParams(start, end),
             columns: '_id amount code group createdAt',
             sort: '-createdAt',
             lean: true,

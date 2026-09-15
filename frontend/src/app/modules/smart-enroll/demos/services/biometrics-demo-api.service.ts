@@ -18,7 +18,7 @@ import type {
     FaceComparisonPayload,
     LivenessPayload,
     PreviewHumanIdPayload,
-    PreviewZelfIdQrPayload,
+    PreviewHumanIdQrPayload,
     SearchActiveUserPayload,
     SearchCropsPayload,
     SearchLivePersonPayload,
@@ -279,9 +279,9 @@ export class BiometricsDemoApiService {
             .pipe(catchError((e) => this.handleError(e)));
     }
 
-    previewZelfIdQr(payload: PreviewZelfIdQrPayload): Observable<unknown> {
+    previewHumanIdQr(payload: PreviewHumanIdQrPayload): Observable<unknown> {
         return this._http
-            .post(`${this.baseUrl}/human-id/preview-zelf-id-qr`, payload, {
+            .post(`${this.baseUrl}/human-id/preview-human-id-qr`, payload, {
                 headers: this.authHeaders(),
             })
             .pipe(catchError((e) => this.handleError(e)));

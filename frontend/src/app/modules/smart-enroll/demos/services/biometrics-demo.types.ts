@@ -162,6 +162,7 @@ export interface CreateHumanIdPayload {
     identifier: string;
     requireLiveness: boolean;
     livenessDetectionPriorCreation?: boolean;
+    storageProvider?: 'ipfs' | 'none';
     password?: string;
     referenceFaceBase64?: string;
     tolerance?: 'REGULAR' | 'REGULAR_HARD' | 'SOFT' | 'REGULAR_SOFT' | 'HARDENED';
@@ -172,18 +173,18 @@ export interface CreateHumanIdPayload {
 export interface DecryptHumanIdPayload {
     faceBase64: string;
     os: 'DESKTOP' | 'IOS' | 'ANDROID';
-    zelfProof: string;
+    humanID: string;
     password?: string;
     verifierKey?: string;
 }
 
 export interface PreviewHumanIdPayload {
-    zelfProof: string;
+    humanID: string;
     verifierKey?: string;
 }
 
-export interface PreviewZelfIdQrPayload {
-    zelfProofQRCode: string;
+export interface PreviewHumanIdQrPayload {
+    humanIDQR: string;
     verifierKey?: string;
 }
 

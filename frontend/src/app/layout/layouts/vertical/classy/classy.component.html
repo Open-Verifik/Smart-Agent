@@ -103,15 +103,7 @@
             <!-- OCULTADO: shortcuts messages notifications - Para futuras búsquedas busca: shortcuts messages notifications header -->
             <!-- <shortcuts></shortcuts> -->
             <!-- <messages></messages> -->
-            <button
-                class="lg:hidden"
-                mat-icon-button
-                (click)="quickChat.toggle()"
-            >
-                <mat-icon
-                    [svgIcon]="'heroicons_outline:lifebuoy'"
-                ></mat-icon>
-            </button>
+            <support-nav-button></support-nav-button>
         </div>
     </div>
 
@@ -137,4 +129,4 @@
 
 <!-- Quick chat -->
 <app-blocking-notification-modal-host></app-blocking-notification-modal-host>
-<quick-chat #quickChat="quickChat"></quick-chat>
+<quick-chat></quick-chat>

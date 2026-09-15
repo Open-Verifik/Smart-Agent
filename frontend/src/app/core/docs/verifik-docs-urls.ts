@@ -9,7 +9,18 @@ export interface VerifikDocsUrls {
 
 const SUPPORTED_LANGS = new Set(['en', 'es', 'fr', 'pt', 'ko', 'ja', 'zh']);
 
-const DOCS_BASE = environment.documentationBaseUrl.replace(/\/$/, '');
+const docsBase = (): string => environment.documentationBaseUrl.replace(/\/$/, '');
+
+const DOCS_BASE = docsBase();
+
+/**
+ * Absolute docs URL for the current environment (localhost in development).
+ */
+export const docsPageUrl = (path: string): string => {
+    const normalized = path.startsWith('/') ? path : `/${path}`;
+
+    return `${docsBase()}${normalized}`;
+};
 
 /** Spanish legal pages use custom slugs under verifik-es. */
 const ES_LEGAL_PATHS = {

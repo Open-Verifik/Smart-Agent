@@ -85,15 +85,27 @@
                         </button>
                     </mat-menu>
                     @if (canResendLink()) {
-                        <button
-                            mat-stroked-button
-                            type="button"
-                            class="shrink-0 rounded-xl"
-                            (click)="openResendLinkDialog()"
-                        >
-                            <mat-icon>link</mat-icon>
-                            {{ 'smartEnrollProjects.recordDetail.resendLink' | transloco }}
-                        </button>
+                        <div class="flex items-center">
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                class="shrink-0 rounded-xl"
+                                (click)="openResendLinkDialog()"
+                            >
+                                <mat-icon>link</mat-icon>
+                                {{ 'smartEnrollProjects.recordDetail.resendLink' | transloco }}
+                            </button>
+                            <button
+                                mat-icon-button
+                                type="button"
+                                class="!text-stone-500 dark:!text-stone-400"
+                                (click)="openResumeHelpDialog()"
+                                [matTooltip]="'smartEnrollProjects.recordDetail.resumeHelp.iconLabel' | transloco"
+                                [attr.aria-label]="'smartEnrollProjects.recordDetail.resumeHelp.iconLabel' | transloco"
+                            >
+                                <mat-icon>help_outline</mat-icon>
+                            </button>
+                        </div>
                     }
                     <button
                         mat-stroked-button
@@ -147,6 +159,22 @@
                                 </span>
                             }
                         </header>
+
+                        <aside class="dev-view__resume-callout">
+                            <p class="dev-view__resume-callout-text">
+                                {{ 'smartEnrollProjects.recordDetail.devView.resumeCallout' | transloco }}
+                            </p>
+                            <button
+                                mat-icon-button
+                                type="button"
+                                class="dev-view__resume-help"
+                                (click)="openResumeHelpDialog()"
+                                [matTooltip]="'smartEnrollProjects.recordDetail.resumeHelp.iconLabel' | transloco"
+                                [attr.aria-label]="'smartEnrollProjects.recordDetail.resumeHelp.iconLabel' | transloco"
+                            >
+                                <mat-icon>help_outline</mat-icon>
+                            </button>
+                        </aside>
 
                         @for (section of devSections(); track section.key) {
                             <article class="dev-view__card">

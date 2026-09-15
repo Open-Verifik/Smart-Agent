@@ -30,6 +30,7 @@ import {
 import { featureGroup as classifyFeatureGroup, FeatureGroupId } from '../feature-group.util';
 import { filterFeaturesForCountry, resolveDropdownCountry } from '../smart-batch-country.util';
 import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
+import { CheckListBatchPrefill, readCheckListBatchPrefill } from '../../check-list/check-list-batch.util';
 
 const EMAIL_TOKEN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SMART_BATCH_TEST_TYPE = 'smart_batch_batch_completed';
@@ -82,6 +83,7 @@ export class CreateBatchConfigComponent {
     private _route = inject(ActivatedRoute);
     private _transloco = inject(TranslocoService);
     private _loadedConfig: BatchConfiguration | null = null;
+    private _checkListPrefill: CheckListBatchPrefill | null = null;
 
     // Edit mode
     isEditMode = signal(false);
@@ -205,6 +207,7 @@ export class CreateBatchConfigComponent {
 
     constructor() {
         const id = this._route.snapshot.paramMap.get('id');
+        this._checkListPrefill = readCheckListBatchPrefill(this._route.snapshot.queryParamMap);
         if (id) {
             this.isEditMode.set(true);
             this.editConfigId.set(id);
@@ -214,13 +217,25 @@ export class CreateBatchConfigComponent {
         this.step1Form.get('country')?.valueChanges.subscribe((country) => {
             if (!country || this.isLoadingConfig()) return;
             if (country === this.selectedCountryForEndpoints()) return;
-            this.fetchFeatures(country, { resetSelection: true });
+            this.fetchFeatures(country, { resetSelection: !this._checkListPrefill });
         });
         this.step1Form.get('webhookUrl')?.valueChanges.subscribe(() => this.testResult.set(null));
 
         if (!id) {
-            this.selectedCountryForEndpoints.set('Colombia');
-            this.fetchFeatures('Colombia');
+            if (this._checkListPrefill?.country) {
+                this.step1Form.patchValue(
+                    {
+                        country: this._checkListPrefill.country,
+                        name: this._checkListPrefill.name || this.step1Form.value.name,
+                        description: this._checkListPrefill.name
+                            ? `Created from Check List: ${this._checkListPrefill.name}`
+                            : this.step1Form.value.description,
+                    },
+                    { emitEvent: false }
+                );
+            }
+            const country = this.step1Form.get('country')?.value || 'Colombia';
+            this.fetchFeatures(country, { resetSelection: !this._checkListPrefill });
         }
     }
 
@@ -300,6 +315,7 @@ export class CreateBatchConfigComponent {
         this._smartBatchService.getAvailableFeatures().subscribe({
             next: (res) => {
                 this.availableFeatures.set(res.data || []);
+                this.applyCheckListPrefill(res.data || []);
                 this.isLoadingFeatures.set(false);
             },
             error: () => {
@@ -420,6 +436,13 @@ export class CreateBatchConfigComponent {
     }
 
     // Feature Selection Logic
+    private applyCheckListPrefill(features: AppFeature[]): void {
+        const prefill = this._checkListPrefill;
+        if (!prefill?.codes.length) return;
+        const selected = features.filter((feature) => prefill.codes.includes(feature.code));
+        if (selected.length) this.selectedFeatures.set(selected);
+    }
+
     toggleFeature(feature: any) {
         const current = this.selectedFeatures();
         const index = current.findIndex((f) => f._id === feature._id);

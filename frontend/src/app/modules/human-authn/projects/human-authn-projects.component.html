@@ -1,70 +1,206 @@
-<div class="page" *transloco="let t">
-    <div class="inner">
-        <header class="hero">
-            <div class="hero-icon">
-                <mat-icon svgIcon="heroicons_outline:rectangle-stack"></mat-icon>
-            </div>
-            <div>
-                <h1 class="title">{{ t('humanAuthnProjects.title') }}</h1>
-                <p class="subtitle">{{ t('humanAuthnProjects.subtitle') }}</p>
-            </div>
-        </header>
-
-        <div class="crumb">
-            <a routerLink="/home" class="crumb-link">Verifik</a>
-            <span class="crumb-sep">/</span>
-            <span class="crumb-here">{{ t('nav.human_authn') }}</span>
-            <span class="crumb-sep">/</span>
-            <span class="crumb-here">{{ t('humanAuthnProjects.title') }}</span>
-        </div>
-
-        @if (loading()) {
-            <div class="state-loading">
-                <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
-            </div>
-        } @else if (error()) {
-            <div class="banner-error">{{ error()! | transloco }}</div>
-        } @else if (noActivePlan()) {
-            <div class="plan-gate">
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <div class="hero-icon">
+                    <mat-icon svgIcon="heroicons_outline:rectangle-stack"></mat-icon>
+                </div>
                 <div>
-                    <h2>{{ t('humanAuthnProjects.noPlanCardTitle') }}</h2>
-                    <p>{{ t('humanAuthnProjects.noPlanCardBody') }}</p>
+                    <h1 class="title">{{ t('humanAuthnProjects.title') }}</h1>
+                    <p class="subtitle">{{ t('humanAuthnProjects.subtitle') }}</p>
                 </div>
-                <button mat-flat-button color="primary" type="button" (click)="goToPlans()">
-                    {{ t('humanAuthnProjects.goToPlans') }}
-                </button>
+            </header>
+
+            <div class="crumb">
+                <a routerLink="/home" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.human_authn') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('humanAuthnProjects.title') }}</span>
             </div>
-        } @else if (projects().length === 0) {
-            <div class="empty-card">
-                <div class="empty-icon">
-                    <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+
+            @if (loading()) {
+                <div class="state-loading">
+                    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
                 </div>
-                @if (isWorkspaceStaff()) {
-                    <h2 class="empty-title">{{ t('humanAuthnProjects.emptyStaffTitle') }}</h2>
-                    <p class="empty-body">{{ t('humanAuthnProjects.emptyStaffBody') }}</p>
-                } @else {
-                    <h2 class="empty-title">{{ t('humanAuthnProjects.emptyTitle') }}</h2>
-                    <p class="empty-body">{{ t('humanAuthnProjects.emptyBody') }}</p>
-                    <button mat-flat-button color="primary" type="button" (click)="createProject()">
-                        {{ t('humanAuthnProjects.createProject') }}
+            } @else if (error()) {
+                <div class="banner-error">{{ error()! | transloco }}</div>
+            } @else if (noActivePlan()) {
+                <div class="plan-gate">
+                    <div class="plan-gate-body">
+                        <h2 class="plan-gate-title">{{ t('humanAuthnProjects.noPlanCardTitle') }}</h2>
+                        <p class="plan-gate-muted">{{ t('humanAuthnProjects.noPlanCardBody') }}</p>
+                    </div>
+                    <button mat-flat-button color="primary" type="button" class="plan-gate-cta" (click)="goToPlans()">
+                        {{ t('humanAuthnProjects.goToPlans') }}
                     </button>
-                }
-            </div>
-        } @else {
-            <div class="grid">
-                @if (!isWorkspaceStaff()) {
-                    <button type="button" class="card card-create" (click)="createProject()">
+                </div>
+            } @else if (projects().length === 0) {
+                <div class="empty-hero-card">
+                    <div class="empty-hero-icon" [class.empty-hero-icon--muted]="isWorkspaceStaff()">
                         <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
-                        <span>{{ t('humanAuthnProjects.createProject') }}</span>
-                    </button>
-                }
-                @for (project of projects(); track project._id) {
-                    <button type="button" class="card" (click)="openProject(project)">
-                        <h2>{{ project.name }}</h2>
-                        <p>{{ project.status || 'draft' }}</p>
-                    </button>
-                }
-            </div>
-        }
+                    </div>
+                    @if (isWorkspaceStaff()) {
+                        <h2 class="empty-hero-title">{{ t('humanAuthnProjects.emptyStaffTitle') }}</h2>
+                        <p class="empty-hero-text">{{ t('humanAuthnProjects.emptyStaffBody') }}</p>
+                    } @else {
+                        <h2 class="empty-hero-title">{{ t('humanAuthnProjects.emptyHeroTitle') }}</h2>
+                        <p class="empty-hero-text">{{ t('humanAuthnProjects.emptyHeroSubtitle') }}</p>
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="empty-hero-cta"
+                            (click)="createProject()"
+                        >
+                            <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                            {{ t('humanAuthnProjects.createProject') }}
+                        </button>
+                    }
+                </div>
+            } @else {
+                <div class="grid">
+                    @if (!isWorkspaceStaff()) {
+                        <button
+                            type="button"
+                            class="card card-create"
+                            (click)="createProject()"
+                            [attr.aria-label]="t('humanAuthnProjects.createProject')"
+                        >
+                            <div class="card-create-icon">
+                                <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                            </div>
+                            <div class="card-create-copy">
+                                <h2 class="card-create-title">{{ t('humanAuthnProjects.list.newProjectTitle') }}</h2>
+                                <p class="card-create-text">{{ t('humanAuthnProjects.list.newProjectSubtitle') }}</p>
+                            </div>
+                            <span class="card-create-cta">
+                                {{ t('humanAuthnProjects.createProject') }}
+                                <span aria-hidden="true">›</span>
+                            </span>
+                        </button>
+                    }
+
+                    @for (project of projects(); track project._id) {
+                        <article class="card" (click)="openProject(project, $event)">
+                            <div class="card-top">
+                                <div class="card-brand">
+                                    @if (project.branding?.logo) {
+                                        <img class="logo" [src]="project.branding!.logo" alt="" />
+                                    } @else {
+                                        <div class="logo-fallback">
+                                            <mat-icon svgIcon="heroicons_outline:folder"></mat-icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="card-heading">
+                                    <h2 class="card-title">{{ project.name || project._id }}</h2>
+                                    @if (currentFlow(project); as flow) {
+                                        <div class="status-row">
+                                            <span
+                                                class="pill"
+                                                [class.pill-on]="!isDraftFlow(flow)"
+                                                [class.pill-off]="isDraftFlow(flow)"
+                                            >
+                                                <span class="pill-dot"></span>
+                                                {{
+                                                    isDraftFlow(flow)
+                                                        ? t('humanAuthnProjects.list.draft')
+                                                        : t('humanAuthnProjects.list.active')
+                                                }}
+                                            </span>
+                                            @if (project.demoMode) {
+                                                <span class="demo-badge">({{ t('humanAuthnProjects.list.demoMode') }})</span>
+                                            }
+                                            <mat-slide-toggle
+                                                color="primary"
+                                                [checked]="flowToggleChecked(flow)"
+                                                (click)="$event.stopPropagation()"
+                                                (change)="onFlowStatusToggle($event, project)"
+                                            ></mat-slide-toggle>
+                                        </div>
+                                    }
+                                </div>
+                                <button
+                                    type="button"
+                                    mat-icon-button
+                                    class="menu-btn"
+                                    [matMenuTriggerFor]="projectMenu"
+                                    (click)="$event.stopPropagation()"
+                                    [attr.aria-label]="t('humanAuthnProjects.list.moreActions')"
+                                >
+                                    <mat-icon svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+                                </button>
+                                <mat-menu #projectMenu="matMenu">
+                                    <button mat-menu-item type="button" (click)="openProject(project, $event)">
+                                        {{ t('humanAuthnProjects.list.menuEdit') }}
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openHistory($event)">
+                                        {{ t('humanAuthnProjects.list.menuHistory') }}
+                                    </button>
+                                </mat-menu>
+                            </div>
+
+                            <div class="rows" (click)="$event.stopPropagation()">
+                                <button type="button" class="row" (click)="openSection(project, 1, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:phone"></mat-icon>
+                                    <span class="row-label">{{ t('humanAuthnProjects.list.signupForm') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row" (click)="openSection(project, 2, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:envelope"></mat-icon>
+                                    <span class="row-label">{{ t('humanAuthnProjects.list.documents') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row" (click)="openSection(project, 3, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:face-smile"></mat-icon>
+                                    <span class="row-label">{{ t('humanAuthnProjects.list.humanAuthn') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row row-last" (click)="openSection(project, 5, $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:code-bracket"></mat-icon>
+                                    <span class="row-label">{{ t('humanAuthnProjects.list.integrations') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                            </div>
+
+                            @if (membersForCard(project).length) {
+                                <div class="members" (click)="$event.stopPropagation()">
+                                    <div class="members-label">{{ t('humanAuthnProjects.list.members') }}</div>
+                                    <div class="members-strip">
+                                        @for (member of membersForCard(project).slice(0, 5); track member._id) {
+                                            <div
+                                                class="member-avatar"
+                                                [attr.title]="member.staff?.name || ''"
+                                                [attr.aria-label]="member.staff?.name || ''"
+                                            >
+                                                {{ formatAcronym(member.staff?.name) }}
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="meta">{{ t('humanAuthnProjects.updated') }}: {{ formatUpdated(project.updatedAt) }}</div>
+
+                            <div class="card-actions" (click)="$event.stopPropagation()">
+                                <button type="button" class="btn-live" (click)="openProject(project, $event)">
+                                    <mat-icon class="btn-live-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                    {{ t('humanAuthnProjects.list.openSetup') }}
+                                </button>
+                                <div class="card-actions-row">
+                                    <button type="button" class="btn-primary" (click)="openProject(project, $event)">
+                                        {{ t('humanAuthnProjects.list.edit') }}
+                                    </button>
+                                    <button type="button" class="btn-secondary" (click)="openHistory($event)">
+                                        {{ t('humanAuthnProjects.list.seeLogs') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </div>
     </div>
-</div>
+</ng-container>

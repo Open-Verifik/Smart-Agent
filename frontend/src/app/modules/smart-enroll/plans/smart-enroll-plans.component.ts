@@ -20,6 +20,10 @@ import { SubscriptionService } from 'app/modules/subscription-plans/subscription
 import { SmartEnrollPlansService } from './smart-enroll-plans.service';
 import { SmartEnrollBillingRequiredDialogComponent } from './smart-enroll-billing-required-dialog.component';
 import { SmartEnrollVolumeConfirmDialogComponent } from './smart-enroll-volume-confirm-dialog.component';
+import { UsageOverageExplainerComponent } from './usage-overage-explainer.component';
+import { UsageQuotaBarComponent } from './usage-quota-bar.component';
+import { UsageQuotaGaugeComponent } from './usage-quota-gauge.component';
+import { daysUntilReset, remaining } from './smart-enroll-usage.util';
 
 /** Passed to API so Stripe success/cancel URLs use Smart Agent host and /smart-enroll/plans. */
 const SMART_AGENT_CHECKOUT_SOURCE = 'smart_agent';
@@ -76,6 +80,9 @@ interface ClientSettingsBillingPayload {
         MatButtonModule,
         MatIconModule,
         MatProgressSpinnerModule,
+        UsageQuotaGaugeComponent,
+        UsageQuotaBarComponent,
+        UsageOverageExplainerComponent,
     ],
     styleUrls: ['./smart-enroll-plans.component.scss'],
     templateUrl: './smart-enroll-plans.component.html',
@@ -482,6 +489,37 @@ export class SmartEnrollPlansComponent implements OnInit {
         if (!thePlan) return 0;
 
         return thePlan.price + (thePlan.unitPrice || 0) * this.getAddedSmartEnrolls();
+    }
+
+    usageDaysUntilReset(subscription: any): number {
+        return daysUntilReset(subscription?.endDate);
+    }
+
+    usageResetDate(subscription: any): string {
+        if (!subscription?.endDate) return '';
+
+        const date = new Date(subscription.endDate);
+
+        if (Number.isNaN(date.getTime())) return '';
+
+        const locale = this._translocoService.getActiveLang() || 'en';
+
+        return new Intl.DateTimeFormat(locale, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        }).format(date);
+    }
+
+    lookupQuotaAtLimit(subscription: any): boolean {
+        const namesLimit = Number(subscription?.validateNamesLimit) || 0;
+        const backgroundLimit = Number(subscription?.backgroundCheckLimit) || 0;
+        const namesAtLimit =
+            namesLimit > 0 && remaining(subscription?.validateNamesCount, namesLimit) === 0;
+        const backgroundAtLimit =
+            backgroundLimit > 0 && remaining(subscription?.backgroundCheckCount, backgroundLimit) === 0;
+
+        return namesAtLimit || backgroundAtLimit;
     }
 
     calculateSubscriptionPrice(subscription: any): number {

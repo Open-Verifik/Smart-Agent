@@ -1,0 +1,139 @@
+$brand-navy: #0f0f2d;
+$brand-gray-text: #6b7280;
+
+:host {
+    display: block;
+}
+
+.usage-gauge {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 12px 14px;
+    text-align: center;
+}
+
+.usage-gauge__label {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $brand-navy;
+}
+
+.usage-gauge__dial {
+    position: relative;
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+}
+
+.usage-gauge__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.usage-gauge__track,
+.usage-gauge__fill {
+    fill: none;
+    stroke-width: 14;
+    stroke-linecap: round;
+}
+
+.usage-gauge__track {
+    stroke: #e5e7eb;
+}
+
+.usage-gauge__fill {
+    stroke: #059669;
+    transition: stroke-dasharray 0.35s ease;
+}
+
+.usage-gauge[data-tone='warn'] .usage-gauge__fill {
+    stroke: #d97706;
+}
+
+.usage-gauge[data-tone='alert'] .usage-gauge__fill {
+    stroke: #dc2626;
+}
+
+.usage-gauge__center {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.usage-gauge__used {
+    font-size: 22px;
+    font-weight: 700;
+    color: $brand-navy;
+    letter-spacing: -0.03em;
+}
+
+.usage-gauge__sep,
+.usage-gauge__limit {
+    font-size: 15px;
+    font-weight: 600;
+    color: $brand-gray-text;
+}
+
+.usage-gauge__caption {
+    margin: 4px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #059669;
+}
+
+.usage-gauge[data-tone='warn'] .usage-gauge__caption {
+    color: #d97706;
+}
+
+.usage-gauge[data-tone='alert'] .usage-gauge__caption {
+    color: #dc2626;
+}
+
+.usage-gauge__hint {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: $brand-gray-text;
+}
+
+:host-context(.dark) {
+    .usage-gauge {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .usage-gauge__label,
+    .usage-gauge__used {
+        color: #f8fafc;
+    }
+
+    .usage-gauge__sep,
+    .usage-gauge__limit,
+    .usage-gauge__hint {
+        color: rgb(148 163 184);
+    }
+
+    .usage-gauge__track {
+        stroke: rgba(255, 255, 255, 0.12);
+    }
+
+    .usage-gauge__caption {
+        color: #34d399;
+    }
+
+    .usage-gauge[data-tone='warn'] .usage-gauge__caption {
+        color: #fbbf24;
+    }
+
+    .usage-gauge[data-tone='alert'] .usage-gauge__caption {
+        color: #f87171;
+    }
+}
