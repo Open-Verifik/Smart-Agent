@@ -25,10 +25,16 @@ const nestedForRole = (
 export const resolveTextRole = (
     section: ReportSection,
     role: ReportTextRole,
-    primaryColor: string
+    primaryColor: string,
+    key?: string
 ): ResolvedTextRoleStyle => {
     const style = section.style;
-    const nested = nestedForRole(style, role);
+    const keyed =
+        key && role !== 'title' ? section.keyOverrides?.[key] : undefined;
+    const nested = {
+        ...nestedForRole(style, role),
+        ...(role === 'label' ? keyed?.labelStyle : role === 'value' ? keyed?.valueStyle : undefined),
+    };
     const isHeader = section.type === 'header';
 
     const defaultSize = role === 'title' ? (isHeader ? 22 : 13) : role === 'label' ? 10 : 12;

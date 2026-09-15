@@ -27,13 +27,15 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportSection, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportKeyOverride, ReportSection, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import { collectScalarParams } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
 import { resolveTextRole } from '../report-text-role.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { buildRowDataForResolution } from '../template-match.util';
 import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
+import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
+import { visitaEndpointTooltipDetails } from './visita-guide-endpoint-tooltip.util';
 import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-state.service';
 import {
     availableCountries,
@@ -152,6 +154,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     featuresError = signal<string | null>(null);
     selectedLayoutSectionId = signal<string | null>(null);
     selectedLayoutOverlay = signal<'logo' | 'watermark' | 'signature' | null>(null);
+    selectedLayoutCellKey = signal<string | null>(null);
+    selectedLayoutCellPart = signal<ReportCellPart>('cell');
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
     layoutContextMenu = signal<{
         x: number;
@@ -161,6 +165,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     } | null>(null);
     isSavingLayout = signal(false);
     templateSearchQuery = signal('');
+    hoveredEndpoint = signal<AppFeature | null>(null);
+    endpointHoverVisible = signal(false);
+    endpointHoverLeft = signal(0);
+    endpointHoverTop = signal(0);
+    private _endpointHoverHide: ReturnType<typeof setTimeout> | null = null;
+    private _endpointHoverShow: ReturnType<typeof setTimeout> | null = null;
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
 
@@ -435,6 +445,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this._alive = false;
+        if (this._endpointHoverHide) clearTimeout(this._endpointHoverHide);
+        if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
         this._stopPoll();
         this._browserRunner.stop();
     }
@@ -584,6 +596,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutEditorKind.set('block');
     };
 
+    onLayoutCellSelect = (event: {
+        section: ReportSection;
+        key: string | null;
+        part: ReportCellPart;
+    }): void => {
+        this.selectedLayoutOverlay.set(null);
+        this.selectedLayoutSectionId.set(event.section.id);
+        this.selectedLayoutCellKey.set(event.key);
+        this.selectedLayoutCellPart.set(event.part);
+        this.layoutEditorKind.set('block');
+    };
+
     onLayoutSectionReorder(event: { fromId: string; toIndex: number }): void {
         const list = [...this.layoutSections()];
         const from = list.findIndex((section) => section.id === event.fromId);
@@ -597,6 +621,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutOverlaySelect(id: 'logo' | 'watermark' | 'signature'): void {
         this.selectedLayoutSectionId.set(null);
+        this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
         this.layoutEditorKind.set('overlay');
     };
@@ -604,6 +629,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     clearLayoutSelection(): void {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutOverlay.set(null);
+        this.selectedLayoutCellKey.set(null);
     }
 
     openLayoutPageEditor(event?: Event): void {
@@ -926,6 +952,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     selectedLayoutTextRoles(): ReportTextRole[] {
         if (!this.selectedLayoutShowsTypography()) return [];
+        const cellKey = this.selectedLayoutCellKey();
+        if (cellKey) {
+            const part = this.selectedLayoutCellPart();
+            if (part === 'label') return ['label'];
+            if (part === 'value') return ['value'];
+            return ['label', 'value'];
+        }
         if (this.selectedLayoutShowsParams()) return ['title', 'label', 'value'];
         return ['title'];
     }
@@ -955,14 +988,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _layoutRole(role: ReportTextRole) {
         const section = this.selectedLayoutSection();
+        const key = role === 'title' ? undefined : this.selectedLayoutCellKey() ?? undefined;
         if (!section) {
             return resolveTextRole(
                 { id: '', type: 'text', order: 0 },
                 role,
-                this.primaryColor()
+                this.primaryColor(),
+                key
             );
         }
-        return resolveTextRole(section, role, this.primaryColor());
+        return resolveTextRole(section, role, this.primaryColor(), key);
     }
 
     layoutRoleFontFamily(role: ReportTextRole): string {
@@ -1018,6 +1053,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _patchSelectedLayoutRole(role: ReportTextRole, patch: ReportTextRoleStyle): void {
         const section = this.selectedLayoutSection();
         if (!section) return;
+        const cellKey = this.selectedLayoutCellKey();
+        if (cellKey && role !== 'title') {
+            const styleKey = role === 'label' ? 'labelStyle' : 'valueStyle';
+            const current = section.keyOverrides?.[cellKey]?.[styleKey] ?? {};
+            this._patchSelectedKeyOverride({ [styleKey]: { ...current, ...patch } });
+            return;
+        }
         const key = role === 'title' ? 'titleStyle' : role === 'label' ? 'labelStyle' : 'valueStyle';
         const current = section.style?.[key] ?? {};
         const next = { ...current, ...patch };
@@ -1030,6 +1072,73 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                       : { valueColor: patch.color }
                   : {};
         this._patchSelectedLayoutStyle({ [key]: next, ...mirrored });
+    }
+
+    private _patchSelectedKeyOverride(patch: Partial<ReportKeyOverride>): void {
+        const section = this.selectedLayoutSection();
+        const key = this.selectedLayoutCellKey();
+        if (!section || !key) return;
+        const current = section.keyOverrides?.[key] ?? {};
+        this._patchSelectedLayout({
+            keyOverrides: {
+                ...(section.keyOverrides ?? {}),
+                [key]: { ...current, ...patch },
+            },
+        });
+    }
+
+    selectedLayoutCellOverride(): ReportKeyOverride | null {
+        const key = this.selectedLayoutCellKey();
+        if (!key) return null;
+        return this.selectedLayoutSection()?.keyOverrides?.[key] ?? {};
+    }
+
+    selectedLayoutCellTitle(): string {
+        const key = this.selectedLayoutCellKey();
+        if (!key) return '';
+        const override = this.selectedLayoutSection()?.keyOverrides?.[key]?.label;
+        const option = this.layoutParamOptions().find((item) => item.key === key);
+        return override || option?.label || key;
+    }
+
+    setSelectedLayoutCellLabel(value: string): void {
+        this._patchSelectedKeyOverride({ label: value });
+    }
+
+    setSelectedLayoutCellBackground(value: string): void {
+        this._patchSelectedKeyOverride({ backgroundColor: value });
+    }
+
+    selectedLayoutCellHasBorder(): boolean {
+        return Number(this.selectedLayoutCellOverride()?.borderWidth ?? 0) > 0;
+    }
+
+    setSelectedLayoutCellBorderEnabled(enabled: boolean): void {
+        if (!enabled) {
+            this._patchSelectedKeyOverride({ borderWidth: 0 });
+            return;
+        }
+        const current = this.selectedLayoutCellOverride();
+        this._patchSelectedKeyOverride({
+            borderWidth: current?.borderWidth && current.borderWidth > 0 ? current.borderWidth : 1,
+            borderColor: current?.borderColor || '#d6d3d1',
+            borderRadius: current?.borderRadius && current.borderRadius > 0 ? current.borderRadius : 8,
+        });
+    }
+
+    setSelectedLayoutCellBorderColor(value: string): void {
+        this._patchSelectedKeyOverride({ borderColor: value });
+    }
+
+    setSelectedLayoutCellBorderWidth(value: string | number): void {
+        const width = Number(value);
+        if (!Number.isFinite(width)) return;
+        this._patchSelectedKeyOverride({ borderWidth: Math.max(1, Math.min(12, Math.round(width))) });
+    }
+
+    clearSelectedLayoutCell(): void {
+        this.selectedLayoutCellKey.set(null);
+        this.selectedLayoutCellPart.set('cell');
     }
 
     setSelectedLayoutBackground(value: string): void {
@@ -1567,6 +1676,59 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     featureParamFields(feature: AppFeature): string[] {
         return featureParamFilterIds(feature);
+    }
+
+    endpointHoverDetails(feature: AppFeature) {
+        return visitaEndpointTooltipDetails(
+            feature,
+            (key, params) => this._transloco.translate(key, params),
+            getAppFeatureCatalogCopy(this._transloco, feature.code)
+        );
+    }
+
+    hoveredEndpointDetails() {
+        const feature = this.hoveredEndpoint();
+        return feature ? this.endpointHoverDetails(feature) : null;
+    }
+
+    onEndpointCardEnter(feature: AppFeature, event: MouseEvent): void {
+        if (this._endpointHoverHide) {
+            clearTimeout(this._endpointHoverHide);
+            this._endpointHoverHide = null;
+        }
+        this.hoveredEndpoint.set(feature);
+        this._placeEndpointHover(event.currentTarget as HTMLElement);
+        if (this.endpointHoverVisible()) return;
+        if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
+        this._endpointHoverShow = setTimeout(() => {
+            this.endpointHoverVisible.set(true);
+            this._endpointHoverShow = null;
+        }, 280);
+    }
+
+    onEndpointCardMove(feature: AppFeature, event: MouseEvent): void {
+        if (this.hoveredEndpoint()?._id !== feature._id) this.hoveredEndpoint.set(feature);
+        this._placeEndpointHover(event.currentTarget as HTMLElement);
+    }
+
+    onEndpointCardLeave(): void {
+        if (this._endpointHoverShow) {
+            clearTimeout(this._endpointHoverShow);
+            this._endpointHoverShow = null;
+        }
+        this.endpointHoverVisible.set(false);
+        if (this._endpointHoverHide) clearTimeout(this._endpointHoverHide);
+        this._endpointHoverHide = setTimeout(() => {
+            this.hoveredEndpoint.set(null);
+            this._endpointHoverHide = null;
+        }, 320);
+    }
+
+    private _placeEndpointHover(host: HTMLElement | null): void {
+        if (!host) return;
+        const rect = host.getBoundingClientRect();
+        this.endpointHoverLeft.set(rect.left - 10);
+        this.endpointHoverTop.set(rect.top + rect.height / 2);
     }
 
     selectVisibleEndpoints(): void {

@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportSection, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportSection, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
 import { collectScalarParams } from '../report-param-entries.util';
 import { resolveTextRole } from '../report-text-role.util';
 
@@ -61,6 +61,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     clickable = input<boolean>(false);
     /** Currently selected section ID (for builder highlight) */
     selectedSectionId = input<string | null>(null);
+    /** Parameter key selected inside a block */
+    selectedCellKey = input<string | null>(null);
+    /** Label, value, or whole cell */
+    selectedCellPart = input<ReportCellPart | null>(null);
     /** Currently selected overlay (logo, watermark, signature) */
     selectedOverlay = input<ReportOverlayId | null>(null);
     /** Section click handler (optional) */
@@ -130,6 +134,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
     @Output() overlayContextMenu = new EventEmitter<{ overlay: ReportOverlayId; x: number; y: number }>();
     @Output() sectionReorder = new EventEmitter<{ fromId: string; toIndex: number }>();
+    @Output() cellSelect = new EventEmitter<{
+        section: ReportSection;
+        key: string | null;
+        part: ReportCellPart;
+    }>();
 
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
@@ -472,6 +481,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         if (!this.clickable() || !this.sectionClick()) return;
+        const cell = (event.target as HTMLElement | null)?.closest('[data-report-cell]');
+        if (!cell) {
+            this.cellSelect.emit({ section, key: null, part: 'cell' });
+        }
         this.sectionClick()!(section);
     }
 
@@ -974,6 +987,46 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             );
     }
 
+    onCellActivate(
+        section: ReportSection,
+        key: string,
+        part: ReportCellPart,
+        event: Event
+    ): void {
+        event.stopPropagation();
+        if (!this.clickable()) return;
+        this.sectionClick()?.(section);
+        this.cellSelect.emit({ section, key, part });
+    }
+
+    isCellSelected(section: ReportSection, key: string, part?: ReportCellPart): boolean {
+        if (!this.clickable() || this.selectedSectionId() !== section.id) return false;
+        if (this.selectedCellKey() !== key) return false;
+        if (!part) return true;
+        return this.selectedCellPart() === part;
+    }
+
+    entryLabel(section: ReportSection, entry: { key: string; label: string }): string {
+        return section.keyOverrides?.[entry.key]?.label || entry.label;
+    }
+
+    cellBackground(section: ReportSection, key: string): string {
+        return section.keyOverrides?.[key]?.backgroundColor || '';
+    }
+
+    cellBorder(section: ReportSection, key: string): string {
+        const override = section.keyOverrides?.[key];
+        const width = Number(override?.borderWidth ?? 0);
+        if (!width || width <= 0) return '1px solid #e7e5e4';
+        return `${Math.max(1, Math.round(width))}px solid ${override?.borderColor || '#d6d3d1'}`;
+    }
+
+    cellRadius(section: ReportSection, key: string): number {
+        const explicit = Number(section.keyOverrides?.[key]?.borderRadius);
+        if (Number.isFinite(explicit) && explicit >= 0) return explicit;
+        return 8;
+    }
+
     /** Entries behind a `keyValueGrid`, table, or card, honoring hidden keys. */
     structuralEntries(section: ReportSection): { key: string; label: string; value: string }[] {
         return collectScalarParams(this._valueAt(section.dataPath), {
@@ -985,28 +1038,28 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return section.showRowLines !== false;
     }
 
-    roleFontFamily(section: ReportSection, role: ReportTextRole): string {
-        return resolveTextRole(section, role, this.primaryColor()).fontFamily;
+    roleFontFamily(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontFamily;
     }
 
-    roleFontSize(section: ReportSection, role: ReportTextRole): number {
-        return resolveTextRole(section, role, this.primaryColor()).fontSize;
+    roleFontSize(section: ReportSection, role: ReportTextRole, key?: string): number {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontSize;
     }
 
-    roleFontWeight(section: ReportSection, role: ReportTextRole): 'normal' | 'bold' {
-        return resolveTextRole(section, role, this.primaryColor()).fontWeight;
+    roleFontWeight(section: ReportSection, role: ReportTextRole, key?: string): 'normal' | 'bold' {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontWeight;
     }
 
-    roleFontStyle(section: ReportSection, role: ReportTextRole): 'normal' | 'italic' {
-        return resolveTextRole(section, role, this.primaryColor()).fontStyle;
+    roleFontStyle(section: ReportSection, role: ReportTextRole, key?: string): 'normal' | 'italic' {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontStyle;
     }
 
-    roleTextAlign(section: ReportSection, role: ReportTextRole): string {
-        return resolveTextRole(section, role, this.primaryColor()).textAlign;
+    roleTextAlign(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).textAlign;
     }
 
-    roleColor(section: ReportSection, role: ReportTextRole): string {
-        return resolveTextRole(section, role, this.primaryColor()).color;
+    roleColor(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).color;
     }
 
     sectionFrameBorder(section: ReportSection): string {

@@ -35,6 +35,7 @@ export type ReportConditionOperator =
 export type ReportStyleVariant = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'primary';
 
 export type ReportTextRole = 'title' | 'label' | 'value';
+export type ReportCellPart = 'cell' | 'label' | 'value';
 
 export interface ReportTextRoleStyle {
     fontSize?: number;
@@ -43,6 +44,17 @@ export interface ReportTextRoleStyle {
     fontFamily?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
     color?: string;
+}
+
+/** Per-parameter cell inside a keyValueGrid / card / table. */
+export interface ReportKeyOverride {
+    label?: string;
+    backgroundColor?: string;
+    borderWidth?: number;
+    borderColor?: string;
+    borderRadius?: number;
+    labelStyle?: ReportTextRoleStyle;
+    valueStyle?: ReportTextRoleStyle;
 }
 
 export interface ReportSectionCondition {
@@ -70,6 +82,8 @@ export interface ReportSection {
     hiddenKeys?: string[];
     /** Row separators between parameters. Default true. */
     showRowLines?: boolean;
+    /** Independent label, value, and cell chrome per parameter key. */
+    keyOverrides?: Record<string, ReportKeyOverride>;
 
     /** repeater: `{field}` placeholders resolved against each array item. */
     itemTitle?: string;

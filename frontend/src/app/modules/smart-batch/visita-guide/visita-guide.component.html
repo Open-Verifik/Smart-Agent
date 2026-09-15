@@ -189,13 +189,21 @@
                         @for (item of entityOptions; track item.id) {
                             <button
                                 type="button"
-                                class="group flex w-full items-start gap-4 rounded-2xl border bg-white p-4 text-left transition hover:border-stone-950 dark:bg-gray-900/70"
-                                [class.border-stone-950]="isEntitySelected(item.id)"
-                                [class.border-stone-200]="!isEntitySelected(item.id)"
+                                class="group flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition"
+                                [ngClass]="
+                                    isEntitySelected(item.id)
+                                        ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400 dark:border-emerald-400 dark:bg-emerald-950 dark:ring-emerald-500'
+                                        : 'border-stone-200 bg-white hover:border-stone-400 dark:border-gray-800 dark:bg-gray-900/70'
+                                "
                                 (click)="toggleEntity(item.id)"
                             >
                                 <div
-                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+                                    [ngClass]="
+                                        isEntitySelected(item.id)
+                                            ? 'border-emerald-400 bg-emerald-100 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-900 dark:text-emerald-300'
+                                            : 'border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200'
+                                    "
                                 >
                                     <mat-icon>{{ item.icon }}</mat-icon>
                                 </div>
@@ -208,7 +216,9 @@
                                     }}</span>
                                 </div>
                                 @if (isEntitySelected(item.id)) {
-                                    <mat-icon class="text-stone-900 dark:text-white">check_circle</mat-icon>
+                                    <mat-icon class="shrink-0 text-emerald-600 dark:text-emerald-400">check_circle</mat-icon>
+                                } @else {
+                                    <mat-icon class="shrink-0 text-stone-300 dark:text-gray-600">add_circle_outline</mat-icon>
                                 }
                             </button>
                         }
@@ -350,11 +360,20 @@
                                     {{ t(featureGroupLabelKey(group.id)) }}
                                 </p>
                                 @for (feature of group.items; track feature._id) {
+                                    <div
+                                        class="relative"
+                                        (mouseenter)="onEndpointCardEnter(feature, $event)"
+                                        (mousemove)="onEndpointCardMove(feature, $event)"
+                                        (mouseleave)="onEndpointCardLeave()"
+                                    >
                                     <button
                                         type="button"
-                                        class="flex w-full items-start gap-3 rounded-2xl border bg-white p-4 text-left transition dark:bg-gray-900/70"
-                                        [class.border-stone-950]="isFeatureSelected(feature)"
-                                        [class.border-stone-200]="!isFeatureSelected(feature)"
+                                        class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition"
+                                        [ngClass]="
+                                            isFeatureSelected(feature)
+                                                ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400 dark:border-emerald-400 dark:bg-emerald-950 dark:ring-emerald-500'
+                                                : 'border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70'
+                                        "
                                         (click)="toggleFeature(feature)"
                                     >
                                         <div class="min-w-0 flex-1">
@@ -381,14 +400,48 @@
                                             </div>
                                         </div>
                                         @if (isFeatureSelected(feature)) {
-                                            <mat-icon class="text-stone-900 dark:text-white">check_circle</mat-icon>
+                                            <mat-icon class="shrink-0 text-emerald-600 dark:text-emerald-400">check_circle</mat-icon>
                                         } @else {
-                                            <mat-icon class="text-stone-300">add_circle_outline</mat-icon>
+                                            <mat-icon class="shrink-0 text-stone-300 dark:text-gray-600">add_circle_outline</mat-icon>
                                         }
                                     </button>
+                                    </div>
                                 }
                             }
                         </div>
+                        @if (hoveredEndpointDetails(); as tip) {
+                            <div
+                                class="pointer-events-none fixed z-[80] w-80 origin-right -translate-x-full -translate-y-1/2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-left text-stone-950 shadow-xl transition-[opacity,transform] duration-300 ease-out"
+                                [class.scale-95]="!endpointHoverVisible()"
+                                [class.opacity-0]="!endpointHoverVisible()"
+                                [class.scale-100]="endpointHoverVisible()"
+                                [class.opacity-100]="endpointHoverVisible()"
+                                [style.left.px]="endpointHoverLeft()"
+                                [style.top.px]="endpointHoverTop()"
+                            >
+                                <p class="text-xs font-semibold leading-snug">{{ tip.title }}</p>
+                                @if (tip.description) {
+                                    <p class="mt-1 text-[11px] leading-snug text-stone-700">{{ tip.description }}</p>
+                                }
+                                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+                                    @if (tip.request) {
+                                        <span class="font-mono font-medium text-stone-800">{{ tip.request }}</span>
+                                    }
+                                    @if (tip.code) {
+                                        <span class="text-stone-600">{{ t('visitaGuide.endpointTooltipCode') }}:
+                                            {{ tip.code }}</span>
+                                    }
+                                </div>
+                                @if (tip.params.length) {
+                                    <p class="mt-2 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+                                        {{ t('visitaGuide.endpointTooltipParams') }}
+                                    </p>
+                                    <p class="mt-0.5 text-[11px] leading-snug text-stone-700">{{
+                                        tip.params.join(' · ')
+                                    }}</p>
+                                }
+                            </div>
+                        }
                         @if (!isLoadingFeatures() && visibleEndpointFeatures().length === 0) {
                             <p class="mt-6 text-sm text-stone-400">{{ t('visitaGuide.noEndpoints') }}</p>
                         }
@@ -885,8 +938,11 @@
                                         [customContextMenu]="true"
                                         [reorderable]="true"
                                         [selectedSectionId]="selectedLayoutSectionId()"
+                                        [selectedCellKey]="selectedLayoutCellKey()"
+                                        [selectedCellPart]="selectedLayoutCellPart()"
                                         [selectedOverlay]="selectedLayoutOverlay()"
                                         [sectionClick]="onLayoutSectionClick"
+                                        (cellSelect)="onLayoutCellSelect($event)"
                                         (overlaySelect)="onLayoutOverlaySelect($event)"
                                         (sectionContextMenu)="onLayoutSectionContextMenu($event)"
                                         (overlayContextMenu)="onLayoutOverlayContextMenu($event)"
@@ -1121,6 +1177,77 @@
                                         <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">
                                             {{ t('visitaGuide.layoutPanelBlock') }}
                                         </p>
+                                        @if (selectedLayoutShowsParams()) {
+                                            <p class="mt-1 text-[11px] text-stone-500">{{ t('visitaGuide.layoutCellHint') }}</p>
+                                        }
+                                        @if (selectedLayoutCellKey(); as cellKey) {
+                                            <div class="mt-3 rounded-xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-800 dark:text-violet-300">
+                                                        {{ t('visitaGuide.layoutCell') }}
+                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        class="text-[11px] font-medium text-violet-800 underline-offset-4 hover:underline dark:text-violet-300"
+                                                        (click)="clearSelectedLayoutCell()"
+                                                    >
+                                                        {{ t('visitaGuide.layoutCellBack') }}
+                                                    </button>
+                                                </div>
+                                                <p class="mt-1 truncate text-xs text-stone-600 dark:text-stone-300">{{
+                                                    selectedLayoutCellTitle()
+                                                }}</p>
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('visitaGuide.layoutCellLabelText')
+                                                }}</label>
+                                                <input
+                                                    type="text"
+                                                    class="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [ngModel]="selectedLayoutCellOverride()?.label || selectedLayoutCellTitle()"
+                                                    (ngModelChange)="setSelectedLayoutCellLabel($event)"
+                                                />
+                                                <div class="mt-2">
+                                                    <span class="text-xs text-stone-600 dark:text-stone-300">{{
+                                                        t('visitaGuide.layoutCellBg')
+                                                    }}</span>
+                                                    <color-hex-field
+                                                        class="mt-1 block"
+                                                        [ngModel]="selectedLayoutCellOverride()?.backgroundColor || '#fafaf9'"
+                                                        (ngModelChange)="setSelectedLayoutCellBackground($event)"
+                                                        [ariaLabel]="t('visitaGuide.layoutCellBg')"
+                                                    />
+                                                </div>
+                                                <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                                    <input
+                                                        type="checkbox"
+                                                        [ngModel]="selectedLayoutCellHasBorder()"
+                                                        (ngModelChange)="setSelectedLayoutCellBorderEnabled($event)"
+                                                    />
+                                                    {{ t('visitaGuide.layoutCellBorder') }}
+                                                </label>
+                                                @if (selectedLayoutCellHasBorder()) {
+                                                    <color-hex-field
+                                                        class="mt-2 block"
+                                                        [ngModel]="selectedLayoutCellOverride()?.borderColor || '#d6d3d1'"
+                                                        (ngModelChange)="setSelectedLayoutCellBorderColor($event)"
+                                                        [ariaLabel]="t('visitaGuide.layoutCellBorder')"
+                                                    />
+                                                    <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                        <span>{{ t('visitaGuide.layoutBlockBorderWidth') }}</span>
+                                                        <span>{{ selectedLayoutCellOverride()?.borderWidth || 1 }} px</span>
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        min="1"
+                                                        max="8"
+                                                        step="1"
+                                                        class="mt-1 w-full"
+                                                        [ngModel]="selectedLayoutCellOverride()?.borderWidth || 1"
+                                                        (ngModelChange)="setSelectedLayoutCellBorderWidth($event)"
+                                                    />
+                                                }
+                                            </div>
+                                        }
                                         <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutBlockTitle') }}</label>
                                         <input
                                             type="text"
