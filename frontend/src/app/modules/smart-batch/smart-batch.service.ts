@@ -119,6 +119,7 @@ export interface AppFeature {
     endpoint?: string;
     method?: string;
     url?: string;
+    country?: string;
     requiredParams?: string[];
     dependencies?: { field: string; required?: boolean; enum?: string[] }[];
     smartBatchSuccessWhen?: SmartBatchSuccessWhenRule[];

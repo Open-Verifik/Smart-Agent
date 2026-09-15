@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { featureGroup } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import { defaultSystemKey, GuideEntity, GUIDE_COUNTRIES } from './visita-guide.catalog';
@@ -37,7 +38,12 @@ export class VisitaGuidePipelineService {
     private _batch = inject(SmartBatchService);
     private _reports = inject(SmartReportService);
 
-    async resolve(entities: GuideEntity[], iso: string, name: string): Promise<GuidePipelineResult> {
+    async resolve(
+        entities: GuideEntity[],
+        iso: string,
+        name: string,
+        selectedFeatures: AppFeature[] = []
+    ): Promise<GuidePipelineResult> {
         const unique = [...new Set(entities)];
         if (unique.length === 0) throw new Error('no entities');
 
@@ -48,11 +54,15 @@ export class VisitaGuidePipelineService {
             const configId = cloned.data.batchConfiguration._id ?? cloned.data.batchConfiguration.id;
             if (!configId) throw new Error('missing config');
             const populated = await firstValueFrom(this._batch.getConfiguration(configId));
-            return {
-                configId,
-                configuration: populated.data,
-                template: cloned.data.template,
-            };
+            return this._applySelection(
+                {
+                    configId,
+                    configuration: populated.data,
+                    template: cloned.data.template,
+                },
+                selectedFeatures,
+                unique
+            );
         }
 
         const clones = [];
@@ -150,7 +160,75 @@ export class VisitaGuidePipelineService {
             );
         }
 
-        return { configId, configuration: populated.data, template };
+        const mixedResult = {
+            configId,
+            configuration: populated.data,
+            template,
+        };
+        return this._applySelection(mixedResult, selectedFeatures, unique);
+    }
+
+    private async _applySelection(
+        result: GuidePipelineResult,
+        selectedFeatures: AppFeature[],
+        entities: GuideEntity[]
+    ): Promise<GuidePipelineResult> {
+        if (!selectedFeatures.length) return result;
+
+        const mixed = entities.includes('citizen') && entities.includes('company');
+        const hasCitizen = entities.includes('citizen');
+        const hasCompany = entities.includes('company');
+        const previousById = new Map<string, BatchStep>();
+        for (const step of result.configuration.steps ?? []) {
+            const id = featureId(step.appFeature);
+            if (id) previousById.set(id, step);
+        }
+
+        const seqMap = new Map<number, number>();
+        const steps: BatchStep[] = selectedFeatures.map((feature, index) => {
+            const previous = previousById.get(feature._id);
+            const sequence = index + 1;
+            if (previous) seqMap.set(previous.sequence, sequence);
+            const entity = this._entityForFeature(feature, entities);
+            const mapping = this._mappingFor(entity, mixed, hasCitizen, hasCompany);
+            return {
+                appFeature: feature._id,
+                sequence,
+                enabled: true,
+                parameterDefaults: {
+                    ...(previous?.parameterDefaults ?? {}),
+                    ...mapping.parameterDefaults,
+                },
+                inputFieldMapping: {
+                    ...(previous?.inputFieldMapping ?? {}),
+                    ...mapping.inputFieldMapping,
+                },
+                outputFieldsToKeep: previous?.outputFieldsToKeep ?? [],
+                maxRetries: previous?.maxRetries ?? 3,
+                retryDelayBaseSeconds: Math.max(1, previous?.retryDelayBaseSeconds ?? 4),
+                timeoutSeconds: Math.max(5, previous?.timeoutSeconds ?? 30),
+            };
+        });
+
+        await firstValueFrom(this._batch.updateConfiguration(result.configId, { steps }));
+        const populated = await firstValueFrom(this._batch.getConfiguration(result.configId));
+        const remapped = result.template
+            ? { ...result.template, sections: remapSections(result.template.sections, seqMap) }
+            : null;
+
+        return {
+            configId: result.configId,
+            configuration: populated.data,
+            template: remapped,
+        };
+    }
+
+    private _entityForFeature(feature: AppFeature, entities: GuideEntity[]): GuideEntity {
+        const group = featureGroup(feature);
+        if (group === 'vehicle' || group === 'citizen' || group === 'company') {
+            if (entities.includes(group)) return group;
+        }
+        return entities[0];
     }
 
     private _mappingFor(

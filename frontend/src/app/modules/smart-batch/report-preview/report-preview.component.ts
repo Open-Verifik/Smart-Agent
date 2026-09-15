@@ -1,10 +1,10 @@
-import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
     ElementRef,
     EventEmitter,
+    OnDestroy,
     Output,
     QueryList,
     ViewChild,
@@ -17,6 +17,9 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ReportSection, SmartReportTemplate } from '../smart-report.service';
+import { collectScalarParams } from '../report-param-entries.util';
+
+export type ReportOverlayId = 'logo' | 'watermark' | 'signature';
 
 const MM_TO_PX = 3.7795275591;
 
@@ -28,10 +31,10 @@ const MM_TO_PX = 3.7795275591;
 @Component({
     selector: 'report-preview',
     standalone: true,
-    imports: [CommonModule, MatIconModule, TranslocoModule, DragDropModule],
+    imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './report-preview.component.html',
 })
-export class ReportPreviewComponent implements AfterViewInit {
+export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** All paper cards in the rendered preview. The first card is used as the
      *  reference for canonical-to-screen scaling and overlay anchoring. */
     @ViewChildren('reportPage') private _reportPages!: QueryList<ElementRef<HTMLDivElement>>;
@@ -48,12 +51,16 @@ export class ReportPreviewComponent implements AfterViewInit {
     previewData = input.required<Record<string, any>>();
     /** Primary color for styling */
     primaryColor = input<string>('#4F46E5');
+    /** Paper background color */
+    pageBackgroundColor = input<string>('#ffffff');
     /** Orientation for container sizing */
     orientation = input<'portrait' | 'landscape'>('portrait');
     /** Whether sections are clickable (for builder edit mode) */
     clickable = input<boolean>(false);
     /** Currently selected section ID (for builder highlight) */
     selectedSectionId = input<string | null>(null);
+    /** Currently selected overlay (logo, watermark, signature) */
+    selectedOverlay = input<ReportOverlayId | null>(null);
     /** Section click handler (optional) */
     sectionClick = input<((section: ReportSection) => void) | null>(null);
 
@@ -76,6 +83,11 @@ export class ReportPreviewComponent implements AfterViewInit {
     watermarkOpacity = input<number>(0.08);
     /** Watermark pattern (single or repeated) */
     watermarkPattern = input<string>('single');
+    watermarkX = input<number>(250);
+    watermarkY = input<number>(420);
+    watermarkWidth = input<number>(280);
+    watermarkHeight = input<number>(160);
+    watermarkRotation = input<number>(-15);
 
     // Signature
     signatureEnabled = input<boolean>(false);
@@ -91,6 +103,7 @@ export class ReportPreviewComponent implements AfterViewInit {
     logoY = input<number>(32);
     logoWidth = input<number>(160);
     logoHeight = input<number>(60);
+    logoRotation = input<number>(0);
     /** When true, content is auto-pushed below the logo overlay. */
     logoAutoFitContent = input<boolean>(false);
 
@@ -102,19 +115,39 @@ export class ReportPreviewComponent implements AfterViewInit {
     @Output() signatureSizeChange = new EventEmitter<{ width: number; height: number }>();
     @Output() logoPositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() logoSizeChange = new EventEmitter<{ width: number; height: number }>();
+    @Output() logoRotationChange = new EventEmitter<number>();
+    @Output() watermarkPositionChange = new EventEmitter<{ x: number; y: number }>();
+    @Output() watermarkSizeChange = new EventEmitter<{ width: number; height: number }>();
+    @Output() watermarkRotationChange = new EventEmitter<number>();
+    @Output() overlaySelect = new EventEmitter<ReportOverlayId>();
+    @Output() backgroundClick = new EventEmitter<void>();
 
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
     pages = signal<ReportSection[][]>([[]]);
 
     private isResizing = false;
-    private resizeTarget: 'signature' | 'logo' | null = null;
+    private isRotating = false;
+    private isMoving = false;
+    private resizeTarget: 'signature' | 'logo' | 'watermark' | null = null;
+    private rotateTarget: 'logo' | 'watermark' | null = null;
+    private moveTarget: 'signature' | 'logo' | 'watermark' | null = null;
     private startX = 0;
     private startY = 0;
     private startWidth = 0;
     private startHeight = 0;
+    private startMoveX = 0;
+    private startMoveY = 0;
+    private rotateCenterX = 0;
+    private rotateCenterY = 0;
+    private startAngle = 0;
+    private startRotation = 0;
     private pendingResize: { width: number; height: number } | null = null;
+    private pendingMove: { x: number; y: number } | null = null;
     private resizeFrameId: number | null = null;
+    private moveFrameId: number | null = null;
+    private gestureEl: HTMLElement | null = null;
+    private gesturePointerId: number | null = null;
 
     private _measureScheduled = false;
     private _measureFrameId: number | null = null;
@@ -350,6 +383,71 @@ export class ReportPreviewComponent implements AfterViewInit {
         return this.logoHeight() / this._scaleFactors.y;
     }
 
+    get viewWatermarkX(): number {
+        return this.watermarkX() / this._scaleFactors.x;
+    }
+
+    get viewWatermarkY(): number {
+        return this.watermarkY() / this._scaleFactors.y;
+    }
+
+    get viewWatermarkWidth(): number {
+        return this.watermarkWidth() / this._scaleFactors.x;
+    }
+
+    get viewWatermarkHeight(): number {
+        return this.watermarkHeight() / this._scaleFactors.y;
+    }
+
+    get viewWatermarkFontSize(): number {
+        return Math.max(14, this.viewWatermarkHeight * 0.32);
+    }
+
+    get logoRotateStyle(): string {
+        return `rotate(${this.logoRotation()}deg)`;
+    }
+
+    get watermarkRotateStyle(): string {
+        return `rotate(${this.watermarkRotation()}deg)`;
+    }
+
+    get logoOverlayBorder(): string {
+        return this.isOverlaySelected('logo') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    get watermarkOverlayBorder(): string {
+        return this.isOverlaySelected('watermark') ? '2px dashed rgba(217, 119, 6, 0.9)' : 'none';
+    }
+
+    get signatureOverlayBorder(): string {
+        return this.isOverlaySelected('signature') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    isOverlaySelected(id: ReportOverlayId): boolean {
+        return this.clickable() && this.selectedOverlay() === id;
+    }
+
+    selectOverlay(id: ReportOverlayId, event?: Event): void {
+        event?.stopPropagation();
+        if (!this.clickable()) return;
+        this.overlaySelect.emit(id);
+    }
+
+    onPaperClick(event: MouseEvent): void {
+        if (!this.clickable()) return;
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('[data-overlay-box]') || target?.closest('[data-report-section]')) {
+            return;
+        }
+        this.backgroundClick.emit();
+    }
+
+    onSectionActivate(section: ReportSection, event: Event): void {
+        event.stopPropagation();
+        if (!this.clickable() || !this.sectionClick()) return;
+        this.sectionClick()!(section);
+    }
+
     /**
      * Effective top padding applied to the section content area, in canonical 96 DPI px.
      *
@@ -377,64 +475,125 @@ export class ReportPreviewComponent implements AfterViewInit {
         return this.effectiveContentPaddingTop / this._scaleFactors.y;
     }
 
-    onSignatureDragEnd(event: CdkDragEnd) {
-        if (this.isResizing) return;
+    startMove(event: PointerEvent, target: 'signature' | 'logo' | 'watermark') {
+        if (!this.clickable() || this.isResizing || this.isRotating || event.button !== 0) return;
+        const origin = event.target as HTMLElement | null;
+        if (origin?.closest('[data-overlay-handle]')) return;
 
-        const { x, y } = event.source.getFreeDragPosition();
-        const scales = this._scaleFactors;
+        this.overlaySelect.emit(target);
+        this.isMoving = true;
+        this.moveTarget = target;
+        this.startX = event.clientX;
+        this.startY = event.clientY;
 
-        // View -> Canonical, rounded to remove sub-pixel jitter
-        this.signaturePositionChange.emit({
-            x: Math.round(x * scales.x),
-            y: Math.round(y * scales.y),
-        });
+        if (target === 'logo') {
+            this.startMoveX = this.logoX();
+            this.startMoveY = this.logoY();
+        } else if (target === 'watermark') {
+            this.startMoveX = this.watermarkX();
+            this.startMoveY = this.watermarkY();
+        } else {
+            this.startMoveX = this.signatureX();
+            this.startMoveY = this.signatureY();
+        }
+
+        this._capturePointer(event, this.onMove, this.stopMove);
     }
 
-    onLogoDragEnd(event: CdkDragEnd) {
-        if (this.isResizing) return;
-
-        const { x, y } = event.source.getFreeDragPosition();
+    private onMove = (event: PointerEvent) => {
+        if (!this.isMoving) return;
         const scales = this._scaleFactors;
+        this.pendingMove = {
+            x: Math.max(0, Math.round(this.startMoveX + (event.clientX - this.startX) * scales.x)),
+            y: Math.max(0, Math.round(this.startMoveY + (event.clientY - this.startY) * scales.y)),
+        };
+        if (this.moveFrameId !== null) return;
+        this.moveFrameId = requestAnimationFrame(this._flushMove);
+    };
 
-        this.logoPositionChange.emit({
-            x: Math.round(x * scales.x),
-            y: Math.round(y * scales.y),
-        });
+    private _flushMove = () => {
+        this.moveFrameId = null;
+        const payload = this.pendingMove;
+        if (!payload || !this.moveTarget) return;
+        this.pendingMove = null;
+        this._emitMove(payload);
+    };
+
+    private _emitMove(payload: { x: number; y: number }) {
+        if (this.moveTarget === 'logo') {
+            this.logoPositionChange.emit(payload);
+        } else if (this.moveTarget === 'watermark') {
+            this.watermarkPositionChange.emit(payload);
+        } else {
+            this.signaturePositionChange.emit(payload);
+        }
     }
 
-    startResize(event: MouseEvent, target: 'signature' | 'logo' = 'signature') {
-        event.stopPropagation();
-        event.preventDefault();
+    private stopMove = () => {
+        this.isMoving = false;
+        if (this.moveFrameId !== null) {
+            cancelAnimationFrame(this.moveFrameId);
+            this.moveFrameId = null;
+        }
+        if (this.pendingMove) {
+            const payload = this.pendingMove;
+            this.pendingMove = null;
+            this._emitMove(payload);
+        }
+        this.moveTarget = null;
+        this._releasePointer(this.onMove, this.stopMove);
+    };
+
+    startResize(event: PointerEvent, target: 'signature' | 'logo' | 'watermark' = 'signature') {
+        if (event.button !== 0) return;
         this.isResizing = true;
         this.resizeTarget = target;
         this.startX = event.clientX;
         this.startY = event.clientY;
 
-        // Start dimensions in DOM/Screen pixels
         if (target === 'logo') {
             this.startWidth = this.viewLogoWidth;
             this.startHeight = this.viewLogoHeight;
+        } else if (target === 'watermark') {
+            this.startWidth = this.viewWatermarkWidth;
+            this.startHeight = this.viewWatermarkHeight;
         } else {
             this.startWidth = this.viewSignatureWidth;
             this.startHeight = this.viewSignatureHeight;
         }
 
-        window.addEventListener('mousemove', this.onResize);
-        window.addEventListener('mouseup', this.stopResize);
+        this._capturePointer(event, this.onResize, this.stopResize);
     }
 
-    private onResize = (event: MouseEvent) => {
+    startRotate(event: PointerEvent, target: 'logo' | 'watermark') {
+        if (event.button !== 0) return;
+        const box = (event.currentTarget as HTMLElement).closest('[data-overlay-box]') as HTMLElement | null;
+        if (!box) return;
+
+        const rect = box.getBoundingClientRect();
+        this.isRotating = true;
+        this.rotateTarget = target;
+        this.rotateCenterX = rect.left + rect.width / 2;
+        this.rotateCenterY = rect.top + rect.height / 2;
+        this.startAngle = Math.atan2(
+            event.clientY - this.rotateCenterY,
+            event.clientX - this.rotateCenterX
+        );
+        this.startRotation = target === 'logo' ? this.logoRotation() : this.watermarkRotation();
+
+        this._capturePointer(event, this.onRotate, this.stopRotate);
+    }
+
+    private onResize = (event: PointerEvent) => {
         if (!this.isResizing) return;
         const dx = event.clientX - this.startX;
         const dy = event.clientY - this.startY;
 
         const scales = this._scaleFactors;
 
-        // New DOM dimensions (sane minimums to avoid disappearing handles)
         const newDomWidth = Math.max(24, this.startWidth + dx);
         const newDomHeight = Math.max(16, this.startHeight + dy);
 
-        // Convert back to Canonical for emit, rounded to remove sub-pixel jitter
         this.pendingResize = {
             width: Math.round(newDomWidth * scales.x),
             height: Math.round(newDomHeight * scales.y),
@@ -451,6 +610,8 @@ export class ReportPreviewComponent implements AfterViewInit {
         this.pendingResize = null;
         if (this.resizeTarget === 'logo') {
             this.logoSizeChange.emit(payload);
+        } else if (this.resizeTarget === 'watermark') {
+            this.watermarkSizeChange.emit(payload);
         } else {
             this.signatureSizeChange.emit(payload);
         }
@@ -462,19 +623,80 @@ export class ReportPreviewComponent implements AfterViewInit {
             cancelAnimationFrame(this.resizeFrameId);
             this.resizeFrameId = null;
         }
-        // Flush the final pending payload so the last delta is never dropped
         if (this.pendingResize) {
             const payload = this.pendingResize;
             this.pendingResize = null;
             if (this.resizeTarget === 'logo') {
                 this.logoSizeChange.emit(payload);
-            } else if (this.resizeTarget === 'signature') {
+            } else if (this.resizeTarget === 'watermark') {
+                this.watermarkSizeChange.emit(payload);
+            } else {
                 this.signatureSizeChange.emit(payload);
             }
         }
         this.resizeTarget = null;
-        window.removeEventListener('mousemove', this.onResize);
-        window.removeEventListener('mouseup', this.stopResize);
+        this._releasePointer(this.onResize, this.stopResize);
+    };
+
+    private onRotate = (event: PointerEvent) => {
+        if (!this.isRotating) return;
+        const angle = Math.atan2(
+            event.clientY - this.rotateCenterY,
+            event.clientX - this.rotateCenterX
+        );
+        const next = Math.round(this.startRotation + ((angle - this.startAngle) * 180) / Math.PI);
+        if (this.rotateTarget === 'logo') {
+            this.logoRotationChange.emit(next);
+        } else {
+            this.watermarkRotationChange.emit(next);
+        }
+    };
+
+    private stopRotate = () => {
+        this.isRotating = false;
+        this.rotateTarget = null;
+        this._releasePointer(this.onRotate, this.stopRotate);
+    };
+
+    private _capturePointer(
+        event: PointerEvent,
+        move: (event: PointerEvent) => void,
+        stop: () => void
+    ): void {
+        event.preventDefault();
+        event.stopPropagation();
+        const el = event.currentTarget as HTMLElement | null;
+        this.gestureEl = el;
+        this.gesturePointerId = event.pointerId;
+        try {
+            el?.setPointerCapture(event.pointerId);
+        } catch {
+            /* element may not support capture */
+        }
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', stop, true);
+        window.addEventListener('pointercancel', stop, true);
+    }
+
+    private _releasePointer(move: (event: PointerEvent) => void, stop: () => void): void {
+        if (this.gestureEl && this.gesturePointerId != null) {
+            try {
+                this.gestureEl.releasePointerCapture(this.gesturePointerId);
+            } catch {
+                /* already released */
+            }
+        }
+        this.gestureEl = null;
+        this.gesturePointerId = null;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', stop, true);
+        window.removeEventListener('pointercancel', stop, true);
+    }
+
+    ngOnDestroy(): void {
+        this.stopResize();
+        this.stopRotate();
+        this.stopMove();
     };
 
     resolveDataPath(path: string | undefined): string {
@@ -491,20 +713,10 @@ export class ReportPreviewComponent implements AfterViewInit {
         return String(current);
     }
 
-    resolveTableData(path: string | undefined): { key: string; value: string }[] {
-        if (!path) return [];
-        const source = this.previewData();
-        const parts = path.split('.');
-        let current: any = source;
-        for (const part of parts) {
-            if (current == null || typeof current !== 'object') return [];
-            current = current[part];
-        }
-        if (current == null || typeof current !== 'object') return [];
-
-        return Object.entries(current).map(([key, val]) => ({
-            key: this._humanize(key),
-            value: val != null ? String(val) : '',
+    resolveTableData(section: ReportSection): { key: string; value: string }[] {
+        return this.structuralEntries(section).map((entry) => ({
+            key: entry.label,
+            value: entry.value,
         }));
     }
 
@@ -553,11 +765,15 @@ export class ReportPreviewComponent implements AfterViewInit {
 
     /** Declared columns, or the ones the backend would derive from the records. */
     structuralColumns(section: ReportSection): { key: string; label: string }[] {
+        const hidden = new Set(section.hiddenKeys ?? []);
+
         if (section.columns?.length) {
-            return section.columns.map((column) => ({
-                key: column.key,
-                label: column.label || this._humanize(column.key),
-            }));
+            return section.columns
+                .filter((column) => !hidden.has(column.key))
+                .map((column) => ({
+                    key: column.key,
+                    label: column.label || this._humanize(column.key),
+                }));
         }
 
         const records = this.structuralRecords(section);
@@ -570,6 +786,7 @@ export class ReportPreviewComponent implements AfterViewInit {
         }
 
         return keys
+            .filter((key) => !hidden.has(key))
             .slice(0, section.maxColumns || 6)
             .map((key) => ({ key, label: this._humanize(key) }));
     }
@@ -591,16 +808,72 @@ export class ReportPreviewComponent implements AfterViewInit {
             );
     }
 
-    /** Entries behind a `keyValueGrid`, capped so the outline stays compact. */
-    structuralEntries(section: ReportSection): { key: string; value: string }[] {
-        const value = this._valueAt(section.dataPath);
+    /** Entries behind a `keyValueGrid`, table, or card, honoring hidden keys. */
+    structuralEntries(section: ReportSection): { key: string; label: string; value: string }[] {
+        return collectScalarParams(this._valueAt(section.dataPath), {
+            hiddenKeys: section.hiddenKeys,
+        });
+    }
 
-        if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+    sectionShowsRowLines(section: ReportSection): boolean {
+        return section.showRowLines !== false;
+    }
 
-        return Object.entries(value)
-            .filter(([, entry]) => entry != null && typeof entry !== 'object')
-            .slice(0, 6)
-            .map(([key, entry]) => ({ key: this._humanize(key), value: String(entry) }));
+    sectionFontFamily(section: ReportSection): string {
+        return section.style?.fontFamily || 'Inter, system-ui, sans-serif';
+    }
+
+    sectionFontSize(section: ReportSection, fallback = 12): number {
+        const size = Number(section.style?.fontSize);
+        return Number.isFinite(size) && size > 0 ? size : fallback;
+    }
+
+    sectionLabelFontSize(section: ReportSection): number {
+        return Math.max(8, Math.round(this.sectionFontSize(section) * 0.85));
+    }
+
+    sectionFontWeight(section: ReportSection, fallback: 'normal' | 'bold' = 'normal'): 'normal' | 'bold' {
+        return section.style?.fontWeight || fallback;
+    }
+
+    sectionFontStyle(section: ReportSection): 'normal' | 'italic' {
+        return section.style?.fontStyle === 'italic' ? 'italic' : 'normal';
+    }
+
+    sectionTitleColor(section: ReportSection): string {
+        return section.style?.color || this.primaryColor();
+    }
+
+    sectionLabelColor(section: ReportSection): string {
+        return section.style?.labelColor || section.style?.color || '#6B7280';
+    }
+
+    sectionValueColor(section: ReportSection): string {
+        return section.style?.valueColor || section.style?.color || '#111827';
+    }
+
+    sectionFrameBorder(section: ReportSection): string {
+        const width = Number(section.style?.borderWidth ?? 0);
+        if (!width || width <= 0) return 'none';
+        const color = section.style?.borderColor || '#d6d3d1';
+        return `${Math.max(1, Math.round(width))}px solid ${color}`;
+    }
+
+    sectionFrameRadius(section: ReportSection): number {
+        const explicit = Number(section.style?.borderRadius);
+        if (Number.isFinite(explicit) && explicit >= 0) return explicit;
+        return 0;
+    }
+
+    sectionFramePadding(section: ReportSection): string {
+        if (Number(section.style?.borderWidth ?? 0) > 0) return '10px';
+        const bg = section.style?.backgroundColor;
+        if (bg && bg !== '#ffffff' && bg !== '#fff') return '10px';
+        return '';
+    }
+
+    sectionFrameBackground(section: ReportSection): string | null {
+        return section.style?.backgroundColor || null;
     }
 
     /**

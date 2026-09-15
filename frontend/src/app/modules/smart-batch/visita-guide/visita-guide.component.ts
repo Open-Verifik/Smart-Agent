@@ -14,13 +14,29 @@ import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { ReportPreviewComponent } from '../report-preview/report-preview.component';
-import { getCountryFlag } from '../smart-batch-country.util';
+import { ColorHexFieldComponent } from '../color-hex-field.component';
+import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
+import { filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
+import {
+    matchesParamHighlight,
+    ParamHighlight,
+    paramHighlightBadgeClass,
+    paramHighlightCardClass,
+    paramHighlightChipClass,
+    paramHighlightSwatchClass,
+    paramKindLabelKey,
+    requiredParamKinds,
+    requiredVisibleFields,
+} from '../endpoint-param-highlight.util';
+import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { collectScalarParams } from '../report-param-entries.util';
+import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { buildRowDataForResolution } from '../template-match.util';
 import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
-import { VisitaGuideStateService } from './visita-guide-state.service';
+import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-state.service';
 import {
     availableCountries,
     GUIDE_ENTITIES,
@@ -34,6 +50,17 @@ import {
 } from './visita-guide.catalog';
 
 const POLL_MS = 2500;
+
+type GuideResultCard = {
+    sequence: number;
+    label: string;
+    code?: string;
+    hasData: boolean;
+    error: string | null;
+    skipMessage: string | null;
+    status: 'ok' | 'failed' | 'skipped' | 'empty';
+    fields: { label: string; value: unknown }[];
+};
 
 @Component({
     selector: 'visita-guide',
@@ -49,6 +76,7 @@ const POLL_MS = 2500;
         MatSnackBarModule,
         TranslocoModule,
         ReportPreviewComponent,
+        ColorHexFieldComponent,
     ],
     templateUrl: './visita-guide.component.html',
 })
@@ -88,15 +116,48 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     batch = this._state.batch;
     configuration = this._state.configuration;
     includeItems = this._state.includeItems;
+    layoutSections = this._state.layoutSections;
     templateChoice = this._state.templateChoice;
     selectedTemplate = this._state.selectedTemplate;
     clonedTemplate = this._state.clonedTemplate;
     reportTitle = this._state.reportTitle;
     primaryColor = this._state.primaryColor;
+    pageBackgroundColor = this._state.pageBackgroundColor;
     logoDataUrl = this._state.logoDataUrl;
+    logoX = this._state.logoX;
+    logoY = this._state.logoY;
+    logoWidth = this._state.logoWidth;
+    logoHeight = this._state.logoHeight;
+    logoRotation = this._state.logoRotation;
+    legend = this._state.legend;
+    watermarkEnabled = this._state.watermarkEnabled;
+    watermarkType = this._state.watermarkType;
+    watermarkText = this._state.watermarkText;
+    watermarkOpacity = this._state.watermarkOpacity;
+    watermarkPattern = this._state.watermarkPattern;
+    watermarkX = this._state.watermarkX;
+    watermarkY = this._state.watermarkY;
+    watermarkWidth = this._state.watermarkWidth;
+    watermarkHeight = this._state.watermarkHeight;
+    watermarkRotation = this._state.watermarkRotation;
+    showPageNumbers = this._state.showPageNumbers;
     consultError = this._state.consultError;
     visibleSteps = this._state.visibleSteps;
     isMixed = this._state.isMixed;
+    selectedFeatures = this._state.selectedFeatures;
+    endpointSearchQuery = this._state.endpointSearchQuery;
+    paramHighlight = this._state.paramHighlight;
+
+    availableFeatures = signal<AppFeature[]>([]);
+    isLoadingFeatures = signal(false);
+    featuresError = signal<string | null>(null);
+    selectedLayoutSectionId = signal<string | null>(null);
+    selectedLayoutOverlay = signal<'logo' | 'watermark' | 'signature' | null>(null);
+    isSavingLayout = signal(false);
+    readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
+    readonly reportFonts = REPORT_FONT_STACKS;
+
+    readonly paramHighlights: ParamHighlight[] = ['document-only', 'plate-only', 'nit-only'];
 
     allowsMultiEntity = computed(() => this.intent() === 'report');
 
@@ -106,26 +167,134 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     canGoBack = computed(() => this.step() !== 'intent' && this.step() !== 'consult');
     countryFlag = computed(() => getCountryFlag(this.countryIso() ?? 'Colombia'));
 
-    visitaTemplates = computed(() => {
-        const selected = this.entities();
-        return this.templates().filter((template) => {
-            if (template.type !== 'System') return false;
-            if (selected.length !== 1) return false;
-            return !template.category || template.category === selected[0];
+    countryFilteredFeatures = computed(() => {
+        const iso = this.countryIso() ?? 'co';
+        const countryName = iso.toLowerCase() === 'co' ? 'Colombia' : iso;
+        return filterFeaturesForCountry(this.availableFeatures(), countryName);
+    });
+
+    visibleEndpointFeatures = computed(() => {
+        const selected = new Set(this.entities());
+        const query = this.endpointSearchQuery().trim().toLowerCase();
+        const highlight = this.paramHighlight();
+        const features = this.countryFilteredFeatures().filter((feature) => {
+            const group = featureGroup(feature);
+            if (group !== 'other' && !selected.has(group)) return false;
+            if (group === 'other' && selected.size) return false;
+            if (!query) return true;
+            const blob = `${feature.name ?? ''} ${feature.code ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
+            return blob.includes(query);
+        });
+        if (!highlight) return features;
+        return [...features].sort((left, right) => {
+            const leftMatch = matchesParamHighlight(left, highlight) ? 0 : 1;
+            const rightMatch = matchesParamHighlight(right, highlight) ? 0 : 1;
+            return leftMatch - rightMatch;
         });
     });
 
-    myTemplates = computed(() => this.templates().filter((template) => template.type !== 'System'));
+    groupedEndpointFeatures = computed(() => {
+        const buckets: { id: FeatureGroupId; items: AppFeature[] }[] = [
+            { id: 'citizen', items: [] },
+            { id: 'vehicle', items: [] },
+            { id: 'company', items: [] },
+            { id: 'other', items: [] },
+        ];
+        for (const feature of this.visibleEndpointFeatures()) {
+            const group = buckets.find((item) => item.id === featureGroup(feature));
+            group?.items.push(feature);
+        }
+        return buckets.filter((bucket) => bucket.items.length > 0);
+    });
+
+    availableParamHighlights = computed(() => {
+        const selected = new Set(this.entities());
+        return this.paramHighlights.filter((highlight) => {
+            if (highlight === 'document-only') return selected.has('citizen');
+            if (highlight === 'plate-only') return selected.has('vehicle');
+            return selected.has('company');
+        });
+    });
+
+    visitaTemplates = computed(() => this.systemTemplates());
+
+    systemTemplates = computed(() => {
+        const selected = new Set(this.entities());
+        return this.templates()
+            .filter((template) => template.type === 'System')
+            .slice()
+            .sort((a, b) => {
+                const aMatch = a.category && selected.has(a.category) ? 0 : 1;
+                const bMatch = b.category && selected.has(b.category) ? 0 : 1;
+                if (aMatch !== bMatch) return aMatch - bMatch;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+    });
+
+    myTemplates = computed(() =>
+        this.templates()
+            .filter((template) => template.type !== 'System')
+            .slice()
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    );
+
+    isWideStep = computed(() => this.step() === 'layout' || this.step() === 'template');
+
+    selectedLayoutSection = computed(() => {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return null;
+        return this.layoutSections().find((section) => section.id === id) ?? null;
+    });
 
     previewTemplate = computed((): SmartReportTemplate | null => {
-        const template = this.selectedTemplate() ?? this.clonedTemplate();
-        if (!template) return null;
+        const template =
+            this.templateChoice() === 'scratch' && !this.selectedTemplate()
+                ? null
+                : this.selectedTemplate();
+        const layout = this.layoutSections();
+        const useLayout = this.step() === 'layout' || this.step() === 'generate' || layout.length > 0;
+        if (!template && !useLayout) return null;
+        const base = template ?? {
+            name: this.reportTitle() || pipelineName(this.entities()),
+            type: 'client' as const,
+            country: this.countryIso() === 'co' ? 'Colombia' : 'Colombia',
+            sections: [],
+            primaryColor: this.primaryColor(),
+            logo: this.logoDataUrl(),
+            pageSize: 'A4' as const,
+            orientation: 'portrait' as const,
+        };
         return {
-            ...template,
-            name: this.reportTitle() || template.name,
-            primaryColor: this.primaryColor() || template.primaryColor,
-            logo: this.logoDataUrl() || template.logo,
-            sections: this._sectionsForPreview(template),
+            ...base,
+            name: this.reportTitle() || base.name,
+            primaryColor: this.primaryColor() || base.primaryColor,
+            pageBackgroundColor: this.pageBackgroundColor() || '#ffffff',
+            logo: this.logoDataUrl() || base.logo,
+            legend: this.legend(),
+            showPageNumbers: this.showPageNumbers(),
+            pageNumberPosition: 'bottom-center',
+            watermark: {
+                enabled: this.watermarkEnabled(),
+                type: this.watermarkType(),
+                text: this.watermarkText() || this.reportTitle() || 'CONFIDENTIAL',
+                opacity: this.watermarkOpacity(),
+                pattern: this.watermarkPattern(),
+                x: this.watermarkX(),
+                y: this.watermarkY(),
+                width: this.watermarkWidth(),
+                height: this.watermarkHeight(),
+                rotation: this.watermarkRotation(),
+            },
+            logoSettings: {
+                enabled: Boolean(this.logoDataUrl()),
+                x: this.logoX(),
+                y: this.logoY(),
+                width: this.logoWidth(),
+                height: this.logoHeight(),
+                rotation: this.logoRotation(),
+                autoFitContent: true,
+            },
+            sections: useLayout ? layout : this._sectionsForPreview(base),
         };
     });
 
@@ -142,28 +311,58 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const config = this.configuration();
         const row = this.batch()?.rows?.[0];
         if (!config || !row) return [];
+        const results = (row.results ?? {}) as Record<string | number, unknown>;
+        const skipped = getBatchSkippedStepsFromInput(row.inputData as Record<string, unknown>);
         return [...(config.steps ?? [])]
             .filter((step) => step.enabled !== false)
             .sort((a, b) => a.sequence - b.sequence)
             .map((step) => {
                 const feature = step.appFeature as AppFeature | string;
-                const code = typeof feature === 'object' ? feature.code : undefined;
-                const name = typeof feature === 'object' ? feature.name : `Paso ${step.sequence}`;
-                const payload = row.results?.[step.sequence];
-                const error = row.errors?.find((item) => item.step === step.sequence);
-                const fields = payload
+                const selected =
+                    typeof feature === 'string'
+                        ? this.selectedFeatures().find((item) => item._id === feature)
+                        : null;
+                const code =
+                    typeof feature === 'object' ? feature.code : selected?.code;
+                const name =
+                    typeof feature === 'object'
+                        ? feature.name
+                        : selected?.name ?? `Paso ${step.sequence}`;
+                const payload = results[step.sequence] ?? results[String(step.sequence)];
+                const error = row.errors?.find((item) => Number(item.step) === Number(step.sequence));
+                const skip = skipped.find((item) => Number(item.sequence) === Number(step.sequence));
+                const hasData = payload != null;
+                const fields = hasData
                     ? getStepDisplayFields({ featureCode: code }, payload).slice(0, 8)
                     : [];
+                let status: 'ok' | 'failed' | 'skipped' | 'empty' = 'empty';
+                if (skip) status = 'skipped';
+                else if (error) status = 'failed';
+                else if (hasData) status = 'ok';
                 return {
                     sequence: step.sequence,
                     label: name,
                     code,
-                    hasData: payload != null,
+                    hasData,
                     error: error?.message ?? null,
+                    skipMessage: skip
+                        ? `${skip.value} (${skip.field})`
+                        : null,
+                    status,
                     fields,
                 };
-            })
-            .filter((card) => card.hasData || card.error);
+            });
+    });
+
+    resultSummary = computed(() => {
+        const cards = this.resultCards();
+        return {
+            total: cards.length,
+            ok: cards.filter((card) => card.status === 'ok').length,
+            failed: cards.filter((card) => card.status === 'failed').length,
+            skipped: cards.filter((card) => card.status === 'skipped').length,
+            empty: cards.filter((card) => card.status === 'empty').length,
+        };
     });
 
     ngOnInit(): void {
@@ -206,6 +405,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     toggleEntity(entity: GuideEntity): void {
         if (!this.allowsMultiEntity()) {
             this._state.entities.set([entity]);
+            this._state.selectedFeatures.set([]);
             this._state.applyDeductions();
             this.goNext();
             return;
@@ -252,6 +452,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (next === 'endpoints') void this.ensureFeaturesLoaded();
+
+        if (this.step() === 'endpoints' && !this.selectedFeatures().length) {
+            this._snack.open(this._transloco.translate('visitaGuide.pickEndpoints'), undefined, {
+                duration: 2500,
+            });
+            return;
+        }
+
         if (next === 'consult') {
             this.step.set('consult');
             void this.runConsult();
@@ -261,13 +470,21 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this.step() === 'results' && !this.wantsReport()) {
             this._state.wantsReport.set(true);
             this._state.applyDeductions();
-            this.ensureIncludeItems();
-            this.step.set('include');
+            this._refreshTemplates();
+            this.step.set('template');
             return;
         }
 
+        if (this.step() === 'template' && !this.templateChoice()) {
+            this._snack.open(this._transloco.translate('visitaGuide.pickTemplate'), undefined, {
+                duration: 2500,
+            });
+            return;
+        }
+
+        if (next === 'template') this._refreshTemplates();
+        if (next === 'layout') this.enterLayout();
         if (next === 'include') this.ensureIncludeItems();
-        if (next === 'template' && !this.selectedTemplate()) this.pickVisitaTemplate();
         this.step.set(next);
     }
 
@@ -288,8 +505,544 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     continueToReport(): void {
         this._state.wantsReport.set(true);
         this._state.applyDeductions();
+        this._refreshTemplates();
+        this.step.set('template');
+    }
+
+    enterLayout(): void {
         this.ensureIncludeItems();
-        this.step.set('include');
+        if (!this.reportTitle()) {
+            this._state.reportTitle.set(pipelineName(this.entities()));
+        }
+    }
+
+    onLayoutSectionClick = (section: ReportSection): void => {
+        this.selectedLayoutOverlay.set(null);
+        this.selectedLayoutSectionId.set(section.id);
+    };
+
+    onLayoutOverlaySelect(id: 'logo' | 'watermark' | 'signature'): void {
+        this.selectedLayoutSectionId.set(null);
+        this.selectedLayoutOverlay.set(id);
+    }
+
+    clearLayoutSelection(): void {
+        this.selectedLayoutSectionId.set(null);
+        this.selectedLayoutOverlay.set(null);
+    }
+
+    onLayoutBlankClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('report-preview')) return;
+        this.clearLayoutSelection();
+    }
+
+    onLayoutCanvasDrop(event: CdkDragDrop<unknown>): void {
+        const payload = event.item.data as GuideResultCard | ReportSection | undefined;
+        if (!payload) return;
+        if ('sequence' in payload && typeof payload.sequence === 'number' && 'status' in payload) {
+            this.addCardToLayout(payload);
+            return;
+        }
+        if ('id' in payload && event.previousContainer === event.container) {
+            this.onLayoutReorder(event);
+        }
+    }
+
+    onLayoutReorder(event: CdkDragDrop<unknown>): void {
+        const list = [...this.layoutSections()];
+        moveItemInArray(list, event.previousIndex, event.currentIndex);
+        this.layoutSections.set(list.map((section, index) => ({ ...section, order: index })));
+    }
+
+    addCardToLayout(card: GuideResultCard): void {
+        const path = `results.${card.sequence}`;
+        if (this.layoutSections().some((section) => section.dataPath === path)) {
+            this._snack.open(this._transloco.translate('visitaGuide.layoutAlreadyAdded'), undefined, {
+                duration: 2000,
+            });
+            return;
+        }
+        const section = this._sectionFromCard(card);
+        this.layoutSections.update((list) => [...list, { ...section, order: list.length }]);
+        this.selectedLayoutSectionId.set(section.id);
+    }
+
+    addAllCardsToLayout(): void {
+        for (const card of this.resultCards()) {
+            const path = `results.${card.sequence}`;
+            if (this.layoutSections().some((section) => section.dataPath === path)) continue;
+            this.layoutSections.update((list) => [
+                ...list,
+                { ...this._sectionFromCard(card), order: list.length },
+            ]);
+        }
+    }
+
+    useVisitaLayout(): void {
+        const sections = this.clonedTemplate()?.sections ?? [];
+        if (!sections.length) {
+            this.addAllCardsToLayout();
+            return;
+        }
+        this.layoutSections.set(sections.map((section, index) => ({ ...section, order: index })));
+        this._state.templateChoice.set('visita');
+        this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+    }
+
+    isCardOnLayout(sequence: number): boolean {
+        return this.layoutSections().some((section) => section.dataPath === `results.${sequence}`);
+    }
+
+    setLayoutTitle(value: string): void {
+        this._state.reportTitle.set(value);
+    }
+
+    setLayoutPrimaryColor(value: string): void {
+        this._state.primaryColor.set(value);
+    }
+
+    setLayoutPageBackground(value: string): void {
+        this._state.pageBackgroundColor.set(value);
+    }
+
+    setLegend(value: string): void {
+        this._state.legend.set(value);
+    }
+
+    setWatermarkEnabled(enabled: boolean): void {
+        this._state.watermarkEnabled.set(enabled);
+        if (enabled && !this.watermarkText()) {
+            this._state.watermarkText.set(this.reportTitle() || 'CONFIDENTIAL');
+        }
+    }
+
+    setWatermarkText(value: string): void {
+        this._state.watermarkText.set(value);
+    }
+
+    setWatermarkType(type: 'text' | 'logo'): void {
+        this._state.watermarkType.set(type);
+        if (type === 'logo') {
+            this._state.watermarkPattern.set('single');
+        }
+    }
+
+    setWatermarkPattern(pattern: 'single' | 'repeated'): void {
+        this._state.watermarkPattern.set(pattern);
+    }
+
+    setWatermarkOpacity(value: string | number): void {
+        const opacity = Number(value);
+        if (!Number.isFinite(opacity)) return;
+        this._state.watermarkOpacity.set(Math.min(0.4, Math.max(0.04, opacity)));
+    }
+
+    setShowPageNumbers(enabled: boolean): void {
+        this._state.showPageNumbers.set(enabled);
+    }
+
+    onLayoutLogoPositionChange(pos: { x: number; y: number }): void {
+        this._state.logoX.set(Math.max(0, Math.round(pos.x)));
+        this._state.logoY.set(Math.max(0, Math.round(pos.y)));
+    }
+
+    onLayoutLogoSizeChange(size: { width: number; height: number }): void {
+        this._state.logoWidth.set(Math.max(24, Math.round(size.width)));
+        this._state.logoHeight.set(Math.max(16, Math.round(size.height)));
+    }
+
+    onLayoutLogoRotationChange(rotation: number): void {
+        this._state.logoRotation.set(Math.round(rotation));
+    }
+
+    setLogoRotation(value: string | number): void {
+        const rotation = Number(value);
+        if (!Number.isFinite(rotation)) return;
+        this._state.logoRotation.set(Math.round(rotation));
+    }
+
+    onLayoutWatermarkPositionChange(pos: { x: number; y: number }): void {
+        this._state.watermarkX.set(Math.max(0, Math.round(pos.x)));
+        this._state.watermarkY.set(Math.max(0, Math.round(pos.y)));
+    }
+
+    onLayoutWatermarkSizeChange(size: { width: number; height: number }): void {
+        this._state.watermarkWidth.set(Math.max(40, Math.round(size.width)));
+        this._state.watermarkHeight.set(Math.max(24, Math.round(size.height)));
+    }
+
+    onLayoutWatermarkRotationChange(rotation: number): void {
+        this._state.watermarkRotation.set(Math.round(rotation));
+    }
+
+    setWatermarkRotation(value: string | number): void {
+        const rotation = Number(value);
+        if (!Number.isFinite(rotation)) return;
+        this._state.watermarkRotation.set(Math.round(rotation));
+    }
+
+    clearLogo(): void {
+        this._state.logoDataUrl.set(null);
+    }
+
+    addTitleBlock(): void {
+        const title = this.reportTitle() || pipelineName(this.entities());
+        const section: ReportSection = {
+            id: `titulo-${Date.now()}`,
+            type: 'header',
+            order: 0,
+            label: title,
+            staticContent: title,
+            style: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', color: this.primaryColor() },
+        };
+        this.layoutSections.update((list) => [
+            section,
+            ...list.map((item, index) => ({ ...item, order: index + 1 })),
+        ]);
+        this.selectedLayoutSectionId.set(section.id);
+    }
+
+    addTextBlock(): void {
+        const section: ReportSection = {
+            id: `texto-${Date.now()}`,
+            type: 'text',
+            order: this.layoutSections().length,
+            label: this._transloco.translate('visitaGuide.layoutTextBlock'),
+            staticContent: this._transloco.translate('visitaGuide.layoutTextPlaceholder'),
+            style: { fontSize: 12, textAlign: 'left' },
+        };
+        this.layoutSections.update((list) => [...list, section]);
+        this.selectedLayoutSectionId.set(section.id);
+    }
+
+    addDividerBlock(): void {
+        const section: ReportSection = {
+            id: `linea-${Date.now()}`,
+            type: 'divider',
+            order: this.layoutSections().length,
+            style: { color: this.primaryColor() },
+        };
+        this.layoutSections.update((list) => [...list, section]);
+        this.selectedLayoutSectionId.set(section.id);
+    }
+
+    setSelectedLayoutLabel(value: string): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.id === id
+                    ? {
+                          ...section,
+                          label: value,
+                          staticContent:
+                              section.type === 'header' || section.type === 'text' ? value : section.staticContent,
+                      }
+                    : section
+            )
+        );
+    }
+
+    setSelectedLayoutBody(value: string): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        this.layoutSections.update((list) =>
+            list.map((section) => (section.id === id ? { ...section, staticContent: value } : section))
+        );
+    }
+
+    setSelectedLayoutColor(value: string): void {
+        this._patchSelectedLayoutStyle({ color: value });
+    }
+
+    selectedLayoutShowsTypography(): boolean {
+        const type = this.selectedLayoutSection()?.type;
+        return Boolean(type) && type !== 'spacer' && type !== 'image' && type !== 'divider';
+    }
+
+    selectedLayoutAlign(): ReportTextAlign {
+        const section = this.selectedLayoutSection();
+        const align = section?.style?.textAlign;
+        if (align === 'left' || align === 'center' || align === 'right' || align === 'justify') {
+            return align;
+        }
+        return section?.type === 'header' ? 'center' : 'left';
+    }
+
+    selectedLayoutFontSize(): number {
+        const section = this.selectedLayoutSection();
+        const size = Number(section?.style?.fontSize);
+        if (Number.isFinite(size) && size > 0) return size;
+        return section?.type === 'header' ? 22 : 12;
+    }
+
+    selectedLayoutIsBold(): boolean {
+        const section = this.selectedLayoutSection();
+        if (section?.style?.fontWeight) return section.style.fontWeight === 'bold';
+        return section?.type === 'header';
+    }
+
+    selectedLayoutIsItalic(): boolean {
+        return this.selectedLayoutSection()?.style?.fontStyle === 'italic';
+    }
+
+    selectedLayoutFontFamily(): string {
+        return this.selectedLayoutSection()?.style?.fontFamily || REPORT_FONT_STACKS[0].value;
+    }
+
+    setSelectedLayoutAlign(align: ReportTextAlign): void {
+        this._patchSelectedLayoutStyle({ textAlign: align });
+    }
+
+    setSelectedLayoutFontSize(value: string | number): void {
+        const size = Number(value);
+        if (!Number.isFinite(size)) return;
+        this._patchSelectedLayoutStyle({ fontSize: Math.max(8, Math.min(72, Math.round(size))) });
+    }
+
+    setSelectedLayoutBold(enabled: boolean): void {
+        this._patchSelectedLayoutStyle({ fontWeight: enabled ? 'bold' : 'normal' });
+    }
+
+    setSelectedLayoutItalic(enabled: boolean): void {
+        this._patchSelectedLayoutStyle({ fontStyle: enabled ? 'italic' : 'normal' });
+    }
+
+    setSelectedLayoutFontFamily(value: string): void {
+        this._patchSelectedLayoutStyle({ fontFamily: value });
+    }
+
+    setSelectedLayoutBackground(value: string): void {
+        this._patchSelectedLayoutStyle({ backgroundColor: value });
+    }
+
+    setSelectedLayoutBorderEnabled(enabled: boolean): void {
+        if (!enabled) {
+            this._patchSelectedLayoutStyle({ borderWidth: 0 });
+            return;
+        }
+        const current = this.selectedLayoutSection()?.style;
+        this._patchSelectedLayoutStyle({
+            borderWidth: current?.borderWidth && current.borderWidth > 0 ? current.borderWidth : 1,
+            borderColor: current?.borderColor || '#d6d3d1',
+            borderRadius: current?.borderRadius && current.borderRadius > 0 ? current.borderRadius : 8,
+        });
+    }
+
+    setSelectedLayoutBorderColor(value: string): void {
+        this._patchSelectedLayoutStyle({ borderColor: value });
+    }
+
+    setSelectedLayoutBorderWidth(value: string | number): void {
+        const width = Number(value);
+        if (!Number.isFinite(width)) return;
+        this._patchSelectedLayoutStyle({ borderWidth: Math.max(1, Math.min(12, Math.round(width))) });
+    }
+
+    setSelectedLayoutBorderRadius(value: string | number): void {
+        const radius = Number(value);
+        if (!Number.isFinite(radius)) return;
+        this._patchSelectedLayoutStyle({ borderRadius: Math.max(0, Math.min(48, Math.round(radius))) });
+    }
+
+    selectedLayoutHasBorder(): boolean {
+        return Number(this.selectedLayoutSection()?.style?.borderWidth ?? 0) > 0;
+    }
+
+    selectedLayoutShowsParams(): boolean {
+        const type = this.selectedLayoutSection()?.type;
+        return type === 'keyValueGrid' || type === 'table' || type === 'card';
+    }
+
+    selectedLayoutShowsRowLines(): boolean {
+        return this.selectedLayoutSection()?.showRowLines !== false;
+    }
+
+    setSelectedLayoutShowRowLines(enabled: boolean): void {
+        this._patchSelectedLayout({ showRowLines: enabled });
+    }
+
+    setSelectedLayoutLabelColor(value: string): void {
+        this._patchSelectedLayoutStyle({ labelColor: value });
+    }
+
+    setSelectedLayoutValueColor(value: string): void {
+        this._patchSelectedLayoutStyle({ valueColor: value });
+    }
+
+    layoutParamOptions(): { key: string; label: string }[] {
+        const section = this.selectedLayoutSection();
+        if (!section?.dataPath) return [];
+
+        let current: any = this.previewData();
+        for (const part of section.dataPath.split('.')) {
+            if (current == null || typeof current !== 'object') return [];
+            current = current[part];
+        }
+        if (Array.isArray(current)) current = current[0];
+
+        return collectScalarParams(current).map((entry) => ({
+            key: entry.key,
+            label: entry.label,
+        }));
+    }
+
+    isLayoutParamVisible(key: string): boolean {
+        return !(this.selectedLayoutSection()?.hiddenKeys ?? []).includes(key);
+    }
+
+    setLayoutParamVisible(key: string, visible: boolean): void {
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        const hidden = new Set(section.hiddenKeys ?? []);
+        if (visible) hidden.delete(key);
+        else hidden.add(key);
+        this._patchSelectedLayout({ hiddenKeys: [...hidden] });
+    }
+
+    canApplyLayoutStyleToAll(): boolean {
+        return this.layoutSections().length > 1 && Boolean(this.selectedLayoutSection());
+    }
+
+    applySelectedLayoutStyleToAll(): void {
+        const source = this.selectedLayoutSection();
+        if (!source || this.layoutSections().length < 2) return;
+
+        const snapshot = this._layoutStyleSnapshot(source);
+        const showRowLines = source.showRowLines !== false;
+        const columnsPerRow = source.columnsPerRow;
+
+        this.layoutSections.update((list) =>
+            list.map((section) => {
+                if (section.id === source.id) return section;
+
+                const style = { ...(section.style ?? {}) };
+                for (const key of Object.keys(snapshot) as (keyof typeof snapshot)[]) {
+                    const value = snapshot[key];
+                    if (value === undefined) delete style[key];
+                    else (style as Record<string, unknown>)[key] = value;
+                }
+
+                return {
+                    ...section,
+                    showRowLines,
+                    columnsPerRow:
+                        source.type === 'keyValueGrid' && section.type === 'keyValueGrid'
+                            ? columnsPerRow
+                            : section.columnsPerRow,
+                    style,
+                };
+            })
+        );
+
+        this._snack.open(this._transloco.translate('visitaGuide.layoutStyleAppliedToAll'), undefined, {
+            duration: 2500,
+        });
+    }
+
+    private _layoutStyleSnapshot(section: ReportSection): NonNullable<ReportSection['style']> {
+        const style = section.style ?? {};
+        return {
+            fontSize: style.fontSize,
+            fontWeight: style.fontWeight,
+            fontStyle: style.fontStyle,
+            fontFamily: style.fontFamily,
+            textAlign: style.textAlign,
+            color: style.color,
+            labelColor: style.labelColor,
+            valueColor: style.valueColor,
+            backgroundColor: style.backgroundColor,
+            padding: style.padding,
+            borderWidth: style.borderWidth,
+            borderColor: style.borderColor,
+            borderRadius: style.borderRadius,
+            variant: style.variant,
+        };
+    }
+
+    removeSelectedLayoutSection(): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        this.layoutSections.update((list) =>
+            list.filter((section) => section.id !== id).map((section, index) => ({ ...section, order: index }))
+        );
+        this.selectedLayoutSectionId.set(null);
+    }
+
+    moveSelectedLayout(offset: number): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        const list = [...this.layoutSections()];
+        const index = list.findIndex((section) => section.id === id);
+        const next = index + offset;
+        if (index < 0 || next < 0 || next >= list.length) return;
+        moveItemInArray(list, index, next);
+        this.layoutSections.set(list.map((section, order) => ({ ...section, order })));
+    }
+
+    async saveLayoutTemplate(): Promise<void> {
+        this.isSavingLayout.set(true);
+        try {
+            if (!this.layoutSections().length) this.addAllCardsToLayout();
+            const template = await this._persistWorkingTemplate();
+            if (!template) throw new Error('template');
+            this._snack.open(this._transloco.translate('visitaGuide.layoutSaved'), undefined, {
+                duration: 2500,
+            });
+            this._refreshTemplates();
+        } catch {
+            this._snack.open(this._transloco.translate('visitaGuide.layoutSaveFailed'), undefined, {
+                duration: 3500,
+            });
+        } finally {
+            this.isSavingLayout.set(false);
+        }
+    }
+
+    async saveLayoutAndGenerate(): Promise<void> {
+        if (!this.layoutSections().length) this.addAllCardsToLayout();
+        await this.saveLayoutTemplate();
+        this.step.set('generate');
+    }
+
+    private _patchSelectedLayout(patch: Partial<ReportSection>): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        this.layoutSections.update((list) =>
+            list.map((section) => (section.id === id ? { ...section, ...patch } : section))
+        );
+    }
+
+    private _patchSelectedLayoutStyle(patch: NonNullable<ReportSection['style']>): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.id === id
+                    ? { ...section, style: { ...(section.style ?? {}), ...patch } }
+                    : section
+            )
+        );
+    }
+
+    private _sectionFromCard(card: GuideResultCard): ReportSection {
+        return {
+            id: `consulta-${card.sequence}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            type: 'keyValueGrid',
+            order: 0,
+            dataPath: `results.${card.sequence}`,
+            label: card.label,
+            columnsPerRow: 2,
+            showWhenEmpty: true,
+            emptyMessage:
+                card.error ||
+                this._transloco.translate(
+                    card.status === 'skipped'
+                        ? 'visitaGuide.resultStatusSkipped'
+                        : 'visitaGuide.resultStatusEmpty'
+                ),
+        };
     }
 
     toggleInclude(sequence: number): void {
@@ -307,21 +1060,38 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     pickVisitaTemplate(): void {
-        const cloned = this.clonedTemplate();
-        this._state.templateChoice.set('visita');
-        this._state.selectedTemplate.set(cloned ?? this.visitaTemplates()[0] ?? null);
-        if (cloned) this.hydrateCustomize(cloned);
+        const template = this.clonedTemplate() ?? this.systemTemplates()[0] ?? null;
+        if (!template) {
+            this.pickScratch();
+            return;
+        }
+        this._applyPickedTemplate(template, 'visita');
+        this.goNext();
+    }
+
+    pickSystemTemplate(template: SmartReportTemplate): void {
+        this._applyPickedTemplate(template, 'visita');
+        this.goNext();
     }
 
     pickMyTemplate(template: SmartReportTemplate): void {
-        this._state.templateChoice.set('mine');
-        this._state.selectedTemplate.set(template);
-        this.hydrateCustomize(template);
+        this._applyPickedTemplate(template, 'mine');
+        this.goNext();
     }
 
     pickScratch(): void {
         this._state.templateChoice.set('scratch');
-        void this.openDesigner(true);
+        this._state.selectedTemplate.set(null);
+        this._resetLayoutBranding();
+        this.layoutSections.set([]);
+        this.addAllCardsToLayout();
+        this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+        this.enterLayout();
+        this.step.set('layout');
+    }
+
+    isTemplateSelected(template: SmartReportTemplate): boolean {
+        return Boolean(template._id && this.selectedTemplate()?._id === template._id);
     }
 
     async openDesigner(blank: boolean): Promise<void> {
@@ -414,6 +1184,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
         this.isGenerating.set(true);
         try {
+            if (!this.layoutSections().length) this.addAllCardsToLayout();
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
             const report = await firstValueFrom(
@@ -465,21 +1236,151 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return getCountryFlag(iso);
     }
 
+    resultStatusKey(status: 'ok' | 'failed' | 'skipped' | 'empty'): string {
+        const keys = {
+            ok: 'visitaGuide.resultStatusOk',
+            failed: 'visitaGuide.resultStatusFailed',
+            skipped: 'visitaGuide.resultStatusSkipped',
+            empty: 'visitaGuide.resultStatusEmpty',
+        };
+        return keys[status];
+    }
+
+    includeCardStatus(sequence: number): 'ok' | 'failed' | 'skipped' | 'empty' | null {
+        return this.resultCards().find((card) => card.sequence === sequence)?.status ?? null;
+    }
+
+    resultsAllHintLabel(): string {
+        const summary = this.resultSummary();
+        return this._transloco.translate('visitaGuide.resultsAllHint', {
+            count: summary.total,
+            ok: summary.ok,
+            failed: summary.failed,
+        });
+    }
+
+    confirmEndpoints(): void {
+        this.goNext();
+    }
+
+    selectedEndpointsLabel(): string {
+        return this._transloco.translate('visitaGuide.endpointsSelected', {
+            count: this.selectedFeatures().length,
+        });
+    }
+
+    toggleFeature(feature: AppFeature): void {
+        const current = this.selectedFeatures();
+        if (current.some((item) => item._id === feature._id)) {
+            this._state.selectedFeatures.set(current.filter((item) => item._id !== feature._id));
+            return;
+        }
+        this._state.selectedFeatures.set([...current, feature]);
+    }
+
+    isFeatureSelected(feature: AppFeature): boolean {
+        return this.selectedFeatures().some((item) => item._id === feature._id);
+    }
+
+    isParamHighlighted(feature: AppFeature): boolean {
+        return matchesParamHighlight(feature, this.paramHighlight());
+    }
+
+    setParamHighlight(highlight: ParamHighlight): void {
+        this._state.paramHighlight.update((current) => (current === highlight ? null : highlight));
+    }
+
+    highlightLabelKey(highlight: ParamHighlight): string {
+        if (highlight === 'document-only') return 'visitaGuide.highlightDocumentOnly';
+        if (highlight === 'plate-only') return 'visitaGuide.highlightPlateOnly';
+        return 'visitaGuide.highlightNitOnly';
+    }
+
+    highlightChipClass(highlight: ParamHighlight): string {
+        return paramHighlightChipClass(highlight, this.paramHighlight() === highlight);
+    }
+
+    highlightCardClass(feature: AppFeature): string {
+        return paramHighlightCardClass(this.paramHighlight(), this.isParamHighlighted(feature));
+    }
+
+    isEndpointDimmed(feature: AppFeature): boolean {
+        return Boolean(this.paramHighlight()) && !this.isParamHighlighted(feature);
+    }
+
+    highlightBadgeClass(): string {
+        return paramHighlightBadgeClass(this.paramHighlight());
+    }
+
+    highlightSwatchClass(highlight: ParamHighlight): string {
+        return paramHighlightSwatchClass(highlight);
+    }
+
+    featureGroupLabelKey(group: FeatureGroupId): string {
+        const keys: Record<FeatureGroupId, string> = {
+            citizen: 'visitaGuide.entityPerson',
+            vehicle: 'visitaGuide.entityVehicle',
+            company: 'visitaGuide.entityCompany',
+            other: 'createBatchConfig.groupOther',
+        };
+        return keys[group];
+    }
+
+    featureParamKeys(feature: AppFeature): string[] {
+        const kinds = [...requiredParamKinds(feature)];
+        if (!kinds.length && requiredVisibleFields(feature).length === 0) return [];
+        return kinds.map((kind) => paramKindLabelKey(kind));
+    }
+
+    selectVisibleEndpoints(): void {
+        const visible = this.visibleEndpointFeatures();
+        const current = this.selectedFeatures();
+        const seen = new Set(current.map((item) => item._id));
+        const merged = [...current];
+        for (const feature of visible) {
+            if (seen.has(feature._id)) continue;
+            seen.add(feature._id);
+            merged.push(feature);
+        }
+        this._state.selectedFeatures.set(merged);
+    }
+
+    clearEndpointSelection(): void {
+        this._state.selectedFeatures.set([]);
+    }
+
+    ensureFeaturesLoaded(): void {
+        if (this.availableFeatures().length || this.isLoadingFeatures()) return;
+        this.isLoadingFeatures.set(true);
+        this.featuresError.set(null);
+        this._batch.getAvailableFeatures().subscribe({
+            next: (res) => {
+                this.availableFeatures.set(res.data || []);
+                this.isLoadingFeatures.set(false);
+            },
+            error: () => {
+                this.isLoadingFeatures.set(false);
+                this.featuresError.set(this._transloco.translate('visitaGuide.endpointsLoadFailed'));
+            },
+        });
+    }
+
     private _sectionsForPreview(template: SmartReportTemplate): ReportSection[] {
-        const included = this.includeItems()
-            .filter((item) => item.included)
-            .map((item) => item.sequence);
-        const includedSet = new Set(included);
-        const ordered = included.length
-            ? [...this.includeItems()].filter((item) => item.included)
-            : [];
+        const cards = this.resultCards();
+        const includedItems = this.includeItems().length
+            ? this.includeItems().filter((item) => item.included)
+            : cards.map((card) => ({
+                  sequence: card.sequence,
+                  label: card.label,
+                  included: true,
+              }));
+        const includedSet = new Set(includedItems.map((item) => item.sequence));
         const sections = (template.sections ?? []).filter((section) => {
             const path = section.dataPath ?? '';
             const match = path.match(/results\.(\d+)/);
             if (!match) return true;
             return includedSet.size === 0 || includedSet.has(Number(match[1]));
         });
-        if (!ordered.length) return sections;
         const bySeq = new Map<number, ReportSection[]>();
         const rest: ReportSection[] = [];
         for (const section of sections) {
@@ -491,7 +1392,29 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const seq = Number(match[1]);
             bySeq.set(seq, [...(bySeq.get(seq) ?? []), section]);
         }
-        return [...rest, ...ordered.flatMap((item) => bySeq.get(item.sequence) ?? [])];
+        const cardBySeq = new Map(cards.map((card) => [card.sequence, card]));
+        for (const item of includedItems) {
+            if (bySeq.has(item.sequence)) continue;
+            const card = cardBySeq.get(item.sequence);
+            const emptyMessage =
+                card?.error ||
+                (card?.status === 'skipped'
+                    ? this._transloco.translate('visitaGuide.resultStatusSkipped')
+                    : this._transloco.translate('visitaGuide.resultStatusEmpty'));
+            bySeq.set(item.sequence, [
+                {
+                    id: `visita-step-${item.sequence}`,
+                    type: 'keyValueGrid',
+                    order: item.sequence,
+                    dataPath: `results.${item.sequence}`,
+                    label: item.label,
+                    showWhenEmpty: true,
+                    emptyMessage,
+                },
+            ]);
+        }
+        if (!includedItems.length) return [...rest, ...sections];
+        return [...rest, ...includedItems.flatMap((item) => bySeq.get(item.sequence) ?? [])];
     }
 
     private async _persistWorkingTemplate(): Promise<SmartReportTemplate | null> {
@@ -501,7 +1424,32 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const payload: Partial<SmartReportTemplate> = {
             name: this.reportTitle() || draft.name,
             primaryColor: this.primaryColor() || draft.primaryColor,
+            pageBackgroundColor: this.pageBackgroundColor() || '#ffffff',
             logo: this.logoDataUrl() || draft.logo,
+            legend: this.legend(),
+            showPageNumbers: this.showPageNumbers(),
+            pageNumberPosition: 'bottom-center',
+            watermark: {
+                enabled: this.watermarkEnabled(),
+                type: this.watermarkType(),
+                text: this.watermarkText() || this.reportTitle() || 'CONFIDENTIAL',
+                opacity: this.watermarkOpacity(),
+                pattern: this.watermarkPattern(),
+                x: this.watermarkX(),
+                y: this.watermarkY(),
+                width: this.watermarkWidth(),
+                height: this.watermarkHeight(),
+                rotation: this.watermarkRotation(),
+            },
+            logoSettings: {
+                enabled: Boolean(this.logoDataUrl()),
+                x: this.logoX(),
+                y: this.logoY(),
+                width: this.logoWidth(),
+                height: this.logoHeight(),
+                rotation: this.logoRotation(),
+                autoFitContent: true,
+            },
             sections: draft.sections,
             batchConfiguration: configId ?? draft.batchConfiguration,
         };
@@ -529,6 +1477,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
         this._state.selectedTemplate.set(created);
         this._state.clonedTemplate.set(created);
+        this._state.templateChoice.set('mine');
         if (configId && created._id) {
             await firstValueFrom(
                 this._batch.updateConfiguration(configId, { preferredReportTemplate: created._id })
@@ -537,23 +1486,110 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return created;
     }
 
-    private hydrateCustomize(template: SmartReportTemplate): void {
-        if (!this.reportTitle()) this._state.reportTitle.set(template.name);
-        if (template.primaryColor) this._state.primaryColor.set(template.primaryColor);
-        if (template.logo) this._state.logoDataUrl.set(template.logo);
+    private _refreshTemplates(): void {
+        this._reports.getTemplates().subscribe();
+    }
+
+    private _applyPickedTemplate(template: SmartReportTemplate, choice: GuideTemplateChoice): void {
+        this._state.templateChoice.set(choice);
+        this._state.selectedTemplate.set(template);
+        this.hydrateCustomize(template, true);
+        this.layoutSections.set(
+            (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
+        );
+        this.addAllCardsToLayout();
+        this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+        this.enterLayout();
+    }
+
+    private _resetLayoutBranding(): void {
+        this._state.reportTitle.set(pipelineName(this.entities()));
+        this._state.primaryColor.set('#0f172a');
+        this._state.pageBackgroundColor.set('#ffffff');
+        this._state.logoDataUrl.set(null);
+        this._state.logoX.set(32);
+        this._state.logoY.set(32);
+        this._state.logoWidth.set(160);
+        this._state.logoHeight.set(60);
+        this._state.logoRotation.set(0);
+        this._state.legend.set('');
+        this._state.watermarkEnabled.set(false);
+        this._state.watermarkType.set('text');
+        this._state.watermarkText.set('');
+        this._state.watermarkOpacity.set(0.08);
+        this._state.watermarkPattern.set('single');
+        this._state.watermarkX.set(250);
+        this._state.watermarkY.set(420);
+        this._state.watermarkWidth.set(280);
+        this._state.watermarkHeight.set(160);
+        this._state.watermarkRotation.set(-15);
+        this._state.showPageNumbers.set(true);
+    }
+
+    private hydrateCustomize(template: SmartReportTemplate, force = false): void {
+        if (force || !this.reportTitle()) this._state.reportTitle.set(template.name);
+        if (force || template.primaryColor) this._state.primaryColor.set(template.primaryColor || '#0f172a');
+        if (force || template.pageBackgroundColor) {
+            this._state.pageBackgroundColor.set(template.pageBackgroundColor || '#ffffff');
+        }
+        if (force || template.logo) this._state.logoDataUrl.set(template.logo || null);
+        if (force || template.legend) this._state.legend.set(template.legend || '');
+        if (force || typeof template.showPageNumbers === 'boolean') {
+            this._state.showPageNumbers.set(template.showPageNumbers ?? true);
+        }
+        if (template.watermark) {
+            this._state.watermarkEnabled.set(Boolean(template.watermark.enabled));
+            this._state.watermarkType.set(template.watermark.type === 'logo' ? 'logo' : 'text');
+            this._state.watermarkText.set(template.watermark.text || '');
+            this._state.watermarkOpacity.set(template.watermark.opacity ?? 0.08);
+            this._state.watermarkPattern.set(
+                template.watermark.pattern === 'repeated' ? 'repeated' : 'single'
+            );
+            if (typeof template.watermark.x === 'number') this._state.watermarkX.set(template.watermark.x);
+            if (typeof template.watermark.y === 'number') this._state.watermarkY.set(template.watermark.y);
+            if (typeof template.watermark.width === 'number') {
+                this._state.watermarkWidth.set(template.watermark.width);
+            }
+            if (typeof template.watermark.height === 'number') {
+                this._state.watermarkHeight.set(template.watermark.height);
+            }
+            if (typeof template.watermark.rotation === 'number') {
+                this._state.watermarkRotation.set(template.watermark.rotation);
+            }
+        }
+        if (force && !template.watermark) {
+            this._state.watermarkEnabled.set(false);
+        }
+        if (template.logoSettings) {
+            if (typeof template.logoSettings.x === 'number') this._state.logoX.set(template.logoSettings.x);
+            if (typeof template.logoSettings.y === 'number') this._state.logoY.set(template.logoSettings.y);
+            if (typeof template.logoSettings.width === 'number') {
+                this._state.logoWidth.set(template.logoSettings.width);
+            }
+            if (typeof template.logoSettings.height === 'number') {
+                this._state.logoHeight.set(template.logoSettings.height);
+            }
+            if (typeof template.logoSettings.rotation === 'number') {
+                this._state.logoRotation.set(template.logoSettings.rotation);
+            }
+        }
     }
 
     private ensureIncludeItems(): void {
-        if (this.includeItems().length) return;
+        const cards = this.resultCards();
+        const current = this.includeItems();
+        const same =
+            current.length === cards.length &&
+            current.every((item, index) => item.sequence === cards[index]?.sequence);
+        if (same) return;
+        const previous = new Map(current.map((item) => [item.sequence, item.included]));
         this._state.includeItems.set(
-            this.resultCards()
-                .filter((card) => card.hasData)
-                .map((card) => ({
-                    sequence: card.sequence,
-                    label: card.label,
-                    featureCode: card.code,
-                    included: true,
-                }))
+            cards.map((card) => ({
+                sequence: card.sequence,
+                label: card.label,
+                featureCode: card.code,
+                included: previous.get(card.sequence) ?? true,
+            }))
         );
     }
 
@@ -571,7 +1607,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const resolved = await this._pipeline.resolve(
                 this.entities(),
                 this.countryIso() ?? 'co',
-                pipelineName(this.entities())
+                pipelineName(this.entities()),
+                this.selectedFeatures()
             );
             if (!this._alive) return;
 
@@ -655,10 +1692,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _resumeFromDesigner(): void {
-        const resume = this._route.snapshot.queryParamMap.get('resume') as GuideStepId | null;
+        const resumeRaw = this._route.snapshot.queryParamMap.get('resume');
+        const mapped: GuideStepId | null =
+            resumeRaw === 'preview' ||
+            resumeRaw === 'customize' ||
+            resumeRaw === 'include' ||
+            resumeRaw === 'template'
+                ? 'layout'
+                : (resumeRaw as GuideStepId | null);
         const templateId = this._route.snapshot.queryParamMap.get('templateId');
-        if (resume && this.visibleSteps().includes(resume)) {
-            this._state.step.set(resume);
+        if (mapped && this.visibleSteps().includes(mapped)) {
+            this._state.step.set(mapped);
         } else if (this._state.intent() && this._state.step() !== 'intent') {
             return;
         }
@@ -669,6 +1713,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this._state.selectedTemplate.set(template);
                 this._state.clonedTemplate.set(template);
                 this.hydrateCustomize(template);
+                if (template.sections?.length) {
+                    this.layoutSections.set(
+                        template.sections.map((section, index) => ({ ...section, order: index }))
+                    );
+                }
                 const configId = this._state.configId();
                 if (configId && template._id) {
                     this._batch

@@ -28,7 +28,9 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
-import { ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { collectScalarParams } from '../report-param-entries.util';
+import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
+import { ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
 import {
     DataNode,
@@ -178,6 +180,9 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     sections = signal<ReportSection[]>([]);
     selectedSection = signal<ReportSection | null>(null);
+    selectedOverlay = signal<ReportOverlayId | null>(null);
+    readonly reportFonts = REPORT_FONT_STACKS;
+    readonly textAlignOptions = REPORT_TEXT_ALIGNS;
 
     /** Keep selected section in sync when sections array changes. */
     currentSelectedSection = computed(() => {
@@ -350,6 +355,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             name: ['', [Validators.required, Validators.maxLength(150)]],
             description: ['', Validators.maxLength(500)],
             primaryColor: ['#4F46E5'],
+            pageBackgroundColor: ['#ffffff'],
             pageSize: ['A4'],
             orientation: ['portrait'],
             pdfEngine: ['puppeteer'],
@@ -361,6 +367,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             watermarkText: ['CONFIDENTIAL'],
             watermarkOpacity: [0.08],
             watermarkPattern: ['single'],
+            watermarkX: [250],
+            watermarkY: [420],
+            watermarkWidth: [280],
+            watermarkHeight: [160],
+            watermarkRotation: [-15],
             securityEnabled: [false],
             securityPassword: [''],
             // Signature
@@ -378,6 +389,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             logoY: [OVERLAY_MIN_Y],
             logoWidth: [160],
             logoHeight: [60],
+            logoRotation: [0],
             logoAutoFitContent: [false],
             // Section content top padding (canonical px)
             bodyTopPadding: [0],
@@ -717,6 +729,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     name: template.name,
                     description: template.description,
                     primaryColor: template.primaryColor || '#4F46E5',
+                    pageBackgroundColor: template.pageBackgroundColor || '#ffffff',
                     pageSize: template.pageSize || 'A4',
                     orientation: template.orientation || 'portrait',
                     pdfEngine: template.pdfEngine || 'puppeteer',
@@ -728,6 +741,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     watermarkText: template.watermark?.text || 'CONFIDENTIAL',
                     watermarkOpacity: template.watermark?.opacity ?? 0.08,
                     watermarkPattern: template.watermark?.pattern || 'single',
+                    watermarkX: template.watermark?.x ?? 250,
+                    watermarkY: template.watermark?.y ?? 420,
+                    watermarkWidth: template.watermark?.width ?? 280,
+                    watermarkHeight: template.watermark?.height ?? 160,
+                    watermarkRotation: template.watermark?.rotation ?? -15,
                     securityEnabled: template.security?.enabled || false,
                     // If enabled, assume password exists and mask it. If not, empty.
                     securityPassword: template.security?.enabled ? '******' : '',
@@ -742,10 +760,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     signatureHeight: template.signature?.height || 50,
                     // Workspace logo overlay (visibility derived from logoUrl).
                     // Same clamp as signature for WYSIWYG with the PDF.
-                    logoX: Math.max(OVERLAY_MIN_X, template.logoSettings?.x ?? OVERLAY_MIN_X),
-                    logoY: Math.max(OVERLAY_MIN_Y, template.logoSettings?.y ?? OVERLAY_MIN_Y),
+                    logoX: template.logoSettings?.x ?? 32,
+                    logoY: template.logoSettings?.y ?? 32,
                     logoWidth: template.logoSettings?.width ?? 160,
                     logoHeight: template.logoSettings?.height ?? 60,
+                    logoRotation: template.logoSettings?.rotation ?? 0,
                     logoAutoFitContent: template.logoSettings?.autoFitContent ?? false,
                     // Section content top padding
                     bodyTopPadding: template.bodyTopPadding ?? 0,
@@ -1009,6 +1028,41 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         } as Partial<ReportSection>);
     }
 
+    showsParamControls(type: ReportSectionType | undefined): boolean {
+        return type === 'keyValueGrid' || type === 'table' || type === 'card';
+    }
+
+    sectionParamOptions(section: ReportSection): { key: string; label: string }[] {
+        if (!section.dataPath) return [];
+
+        let current: any = this.previewData();
+        for (const part of section.dataPath.split('.')) {
+            if (current == null || typeof current !== 'object') return [];
+            current = current[part];
+        }
+        if (Array.isArray(current)) current = current[0];
+
+        return collectScalarParams(current).map((entry) => ({
+            key: entry.key,
+            label: entry.label,
+        }));
+    }
+
+    isSectionParamVisible(section: ReportSection, key: string): boolean {
+        return !(section.hiddenKeys ?? []).includes(key);
+    }
+
+    setSectionParamVisible(section: ReportSection, key: string, visible: boolean): void {
+        const hidden = new Set(section.hiddenKeys ?? []);
+        if (visible) hidden.delete(key);
+        else hidden.add(key);
+        this.updateSection(section.id, { hiddenKeys: [...hidden] });
+    }
+
+    setShowRowLines(section: ReportSection, enabled: boolean): void {
+        this.updateSection(section.id, { showRowLines: enabled });
+    }
+
     sectionTypesForGroup(group: 'content' | 'data' | 'layout'): typeof this.sectionTypes {
         return this.sectionTypes.filter((entry) => entry.group === group && !entry.legacy);
     }
@@ -1128,8 +1182,25 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     selectSection(section: ReportSection): void {
+        this.selectedOverlay.set(null);
         this.selectedSection.set({ ...section });
         this.showAdvancedPath.set(false);
+    }
+
+    onPreviewOverlaySelect(id: ReportOverlayId): void {
+        this.selectedSection.set(null);
+        this.selectedOverlay.set(id);
+    }
+
+    clearPreviewSelection(): void {
+        this.selectedSection.set(null);
+        this.selectedOverlay.set(null);
+    }
+
+    onCanvasBlankClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('report-preview')) return;
+        this.clearPreviewSelection();
     }
 
     /**
@@ -1228,6 +1299,26 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this.updateSectionStyle('fontWeight', weight);
     }
 
+    updateFontStyle(style: 'normal' | 'italic'): void {
+        this.updateSectionStyle('fontStyle', style);
+    }
+
+    updateFontFamily(family: string): void {
+        this.updateSectionStyle('fontFamily', family);
+    }
+
+    fontFamilyIndex(section: ReportSection): number {
+        const family = section.style?.fontFamily;
+        const index = REPORT_FONT_STACKS.findIndex((font) => font.value === family);
+        return index >= 0 ? index : 0;
+    }
+
+    updateFontFamilyByIndex(raw: string): void {
+        const index = Number(raw);
+        const font = REPORT_FONT_STACKS[index];
+        if (font) this.updateFontFamily(font.value);
+    }
+
     updateStyleColor(color: string): void {
         this.updateSectionStyle('color', color);
     }
@@ -1261,6 +1352,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 text: formVal.watermarkText || 'CONFIDENTIAL',
                 opacity: formVal.watermarkOpacity ?? 0.08,
                 pattern: formVal.watermarkPattern || 'single',
+                x: formVal.watermarkX ?? 250,
+                y: formVal.watermarkY ?? 420,
+                width: formVal.watermarkWidth ?? 280,
+                height: formVal.watermarkHeight ?? 160,
+                rotation: formVal.watermarkRotation ?? -15,
             },
             security: {
                 enabled: formVal.securityEnabled ?? false,
@@ -1281,6 +1377,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 y: formVal.logoY ?? 32,
                 width: formVal.logoWidth ?? 160,
                 height: formVal.logoHeight ?? 60,
+                rotation: formVal.logoRotation ?? 0,
                 autoFitContent: formVal.logoAutoFitContent ?? false,
             },
             bodyTopPadding: formVal.bodyTopPadding ?? 0,
@@ -1293,6 +1390,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             'watermarkText',
             'watermarkOpacity',
             'watermarkPattern',
+            'watermarkX',
+            'watermarkY',
+            'watermarkWidth',
+            'watermarkHeight',
+            'watermarkRotation',
             'securityEnabled',
             'securityPassword',
             'signatureEnabled',
@@ -1305,6 +1407,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             'logoY',
             'logoWidth',
             'logoHeight',
+            'logoRotation',
             'logoAutoFitContent',
         ];
 
@@ -1580,7 +1683,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         if (this._route.snapshot.queryParamMap.get('from') === 'guide') {
             this._router.navigate(['/smart-batch'], {
                 queryParams: this.templateId()
-                    ? { resume: 'preview', templateId: this.templateId() }
+                    ? { resume: 'layout', templateId: this.templateId() }
                     : {},
             });
             return;
@@ -1693,11 +1796,9 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     onLogoPositionChange(pos: { x: number; y: number }): void {
-        // Clamp to the safe printable-area inset so the preview never lets
-        // the user place the logo where the PDF would have to nudge it.
         this.templateForm.patchValue({
-            logoX: Math.max(OVERLAY_MIN_X, Math.round(pos.x)),
-            logoY: Math.max(OVERLAY_MIN_Y, Math.round(pos.y)),
+            logoX: Math.max(0, Math.round(pos.x)),
+            logoY: Math.max(0, Math.round(pos.y)),
         });
         this.templateForm.markAsDirty();
     }
@@ -1706,6 +1807,40 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this.templateForm.patchValue({
             logoWidth: Math.round(size.width),
             logoHeight: Math.round(size.height),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onLogoRotationChange(rotation: number): void {
+        this.templateForm.patchValue({ logoRotation: Math.round(rotation) });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkPositionChange(pos: { x: number; y: number }): void {
+        this.templateForm.patchValue({
+            watermarkX: Math.max(0, Math.round(pos.x)),
+            watermarkY: Math.max(0, Math.round(pos.y)),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkSizeChange(size: { width: number; height: number }): void {
+        this.templateForm.patchValue({
+            watermarkWidth: Math.round(size.width),
+            watermarkHeight: Math.round(size.height),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkRotationChange(rotation: number): void {
+        this.templateForm.patchValue({ watermarkRotation: Math.round(rotation) });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkTypeChange(type: 'text' | 'logo'): void {
+        this.templateForm.patchValue({
+            watermarkType: type,
+            ...(type === 'logo' ? { watermarkPattern: 'single' } : {}),
         });
         this.templateForm.markAsDirty();
     }

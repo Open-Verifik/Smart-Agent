@@ -55,6 +55,10 @@ export interface ReportSection {
 
     /** keyValueGrid */
     columnsPerRow?: number;
+    /** Keys to omit from keyValueGrid / table / card parameter lists. */
+    hiddenKeys?: string[];
+    /** Row separators between parameters. Default true. */
+    showRowLines?: boolean;
 
     /** repeater: `{field}` placeholders resolved against each array item. */
     itemTitle?: string;
@@ -70,10 +74,17 @@ export interface ReportSection {
     style?: {
         fontSize?: number;
         fontWeight?: 'normal' | 'bold';
-        textAlign?: 'left' | 'center' | 'right';
+        fontStyle?: 'normal' | 'italic';
+        fontFamily?: string;
+        textAlign?: 'left' | 'center' | 'right' | 'justify';
         color?: string;
+        labelColor?: string;
+        valueColor?: string;
         backgroundColor?: string;
         padding?: string;
+        borderWidth?: number;
+        borderColor?: string;
+        borderRadius?: number;
         variant?: ReportStyleVariant;
         /** Data-driven appearance, first matching rule wins. */
         variantRules?: (ReportSectionCondition & { variant: ReportStyleVariant })[];
@@ -106,6 +117,7 @@ export interface SmartReportTemplate {
     // Branding
     logo?: string;
     primaryColor?: string;
+    pageBackgroundColor?: string;
     header?: ReportSection;
     footer?: ReportSection;
     legend?: string;
@@ -138,6 +150,11 @@ export interface SmartReportTemplate {
         text?: string;
         opacity?: number;
         pattern?: 'single' | 'repeated';
+        x?: number;
+        y?: number;
+        width?: number;
+        height?: number;
+        rotation?: number;
     };
 
     // Security
@@ -163,6 +180,7 @@ export interface SmartReportTemplate {
         y: number;
         width: number;
         height: number;
+        rotation?: number;
         /** When true and overlay is enabled, content auto-pushes below the logo. */
         autoFitContent?: boolean;
     };

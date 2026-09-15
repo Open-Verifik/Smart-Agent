@@ -19,6 +19,15 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
 import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
+import {
+    matchesParamHighlight,
+    ParamHighlight,
+    paramHighlightBadgeClass,
+    paramHighlightCardClass,
+    paramHighlightChipClass,
+    paramHighlightSwatchClass,
+} from '../endpoint-param-highlight.util';
+import { featureGroup as classifyFeatureGroup, FeatureGroupId } from '../feature-group.util';
 import { filterFeaturesForCountry, resolveDropdownCountry } from '../smart-batch-country.util';
 import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 
@@ -129,6 +138,12 @@ export class CreateBatchConfigComponent {
     selectedFeatures = signal<any[]>([]); // Ordered list of selected features
     endpointSearchQuery = signal('');
     endpointGroupFilter = signal<'all' | 'citizen' | 'vehicle' | 'company' | 'other'>('all');
+    endpointParamHighlight = signal<ParamHighlight | null>(null);
+    readonly paramHighlightOptions: { id: ParamHighlight; labelKey: string }[] = [
+        { id: 'document-only', labelKey: 'visitaGuide.highlightDocumentOnly' },
+        { id: 'plate-only', labelKey: 'visitaGuide.highlightPlateOnly' },
+        { id: 'nit-only', labelKey: 'visitaGuide.highlightNitOnly' },
+    ];
     advancedOpen = signal(false);
     fromGuide = this._route.snapshot.queryParamMap.get('from') === 'guide';
     /** Country selected in Basic Info; used to limit endpoints to that country + world. */
@@ -164,9 +179,19 @@ export class CreateBatchConfigComponent {
             { id: 'company', items: [] },
             { id: 'other', items: [] },
         ];
+        const highlight = this.endpointParamHighlight();
         for (const feature of this.filteredAvailableFeatures()) {
             const group = buckets.find((item) => item.id === this.featureGroup(feature));
             group?.items.push(feature);
+        }
+        if (highlight) {
+            for (const bucket of buckets) {
+                bucket.items.sort((left, right) => {
+                    const leftMatch = this.isParamHighlighted(left) ? 0 : 1;
+                    const rightMatch = this.isParamHighlighted(right) ? 0 : 1;
+                    return leftMatch - rightMatch;
+                });
+            }
         }
         return buckets.filter((bucket) => bucket.items.length > 0);
     });
@@ -414,28 +439,37 @@ export class CreateBatchConfigComponent {
         return this.selectedFeatures().some((f) => f._id === feature._id);
     }
 
-    featureGroup(feature: { code?: string; name?: string; url?: string; description?: string }):
-        | 'citizen'
-        | 'vehicle'
-        | 'company'
-        | 'other' {
-        const blob = `${feature.code ?? ''} ${feature.name ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
-        if (
-            /vehicle|vehículo|placa|plate|runt|simit|fasecolda|soat|transit/.test(blob)
-        ) {
-            return 'vehicle';
-        }
-        if (/rues|empresa|company|business|dian|nit|rut|camara|cámara|comercial/.test(blob)) {
-            return 'company';
-        }
-        if (
-            /cedula|cédula|citizen|persona|registrad|pep|antecedent|procurad|policia|policía|contralor|inpec|migrac/.test(
-                blob
-            )
-        ) {
-            return 'citizen';
-        }
-        return 'other';
+    featureGroup(feature: { code?: string; name?: string; url?: string; description?: string }): FeatureGroupId {
+        return classifyFeatureGroup(feature);
+    }
+
+    isParamHighlighted(feature: AppFeature): boolean {
+        return matchesParamHighlight(feature, this.endpointParamHighlight());
+    }
+
+    setEndpointParamHighlight(highlight: ParamHighlight): void {
+        this.endpointParamHighlight.update((current) => (current === highlight ? null : highlight));
+    }
+
+    highlightChipClass(highlight: ParamHighlight): string {
+        return paramHighlightChipClass(highlight, this.endpointParamHighlight() === highlight);
+    }
+
+    highlightCardClass(feature: AppFeature): string {
+        return paramHighlightCardClass(this.endpointParamHighlight(), this.isParamHighlighted(feature));
+    }
+
+    isEndpointDimmed(feature: AppFeature): boolean {
+        if (this.isParamHighlighted(feature)) return false;
+        return Boolean(this.endpointParamHighlight()) || this.isSelected(feature);
+    }
+
+    highlightBadgeClass(): string {
+        return paramHighlightBadgeClass(this.endpointParamHighlight());
+    }
+
+    highlightSwatchClass(highlight: ParamHighlight): string {
+        return paramHighlightSwatchClass(highlight);
     }
 
     featureGroupLabel(group: 'citizen' | 'vehicle' | 'company' | 'other'): string {

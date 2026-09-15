@@ -6,9 +6,11 @@ export type GuideStepId =
     | 'entity'
     | 'country'
     | 'mode'
+    | 'endpoints'
     | 'input'
     | 'consult'
     | 'results'
+    | 'layout'
     | 'include'
     | 'template'
     | 'customize'
@@ -189,9 +191,11 @@ export const STEP_TITLE_KEYS: Record<GuideStepId, string> = {
     entity: 'visitaGuide.stepEntity',
     country: 'visitaGuide.stepCountry',
     mode: 'visitaGuide.stepMode',
+    endpoints: 'visitaGuide.stepEndpoints',
     input: 'visitaGuide.stepInput',
     consult: 'visitaGuide.stepConsult',
     results: 'visitaGuide.stepResults',
+    layout: 'visitaGuide.stepLayout',
     include: 'visitaGuide.stepInclude',
     template: 'visitaGuide.stepTemplate',
     customize: 'visitaGuide.stepCustomize',
@@ -204,9 +208,11 @@ export const STEP_PRIMARY_KEYS: Record<GuideStepId, string> = {
     entity: 'visitaGuide.continue',
     country: 'visitaGuide.continue',
     mode: 'visitaGuide.continue',
+    endpoints: 'visitaGuide.continue',
     input: 'visitaGuide.searchAction',
     consult: 'visitaGuide.searching',
     results: 'visitaGuide.continueToReport',
+    layout: 'visitaGuide.saveAndGenerate',
     include: 'visitaGuide.continue',
     template: 'visitaGuide.continue',
     customize: 'visitaGuide.continue',

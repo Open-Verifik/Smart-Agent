@@ -419,6 +419,25 @@
                                 </button>
                             }
                         </div>
+                        <p class="mb-2 text-xs text-stone-500 dark:text-stone-400">
+                            {{ 'visitaGuide.highlightHint' | transloco }}
+                        </p>
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            @for (highlight of paramHighlightOptions; track highlight.id) {
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                                    [ngClass]="highlightChipClass(highlight.id)"
+                                    (click)="setEndpointParamHighlight(highlight.id)"
+                                >
+                                    <span
+                                        class="h-2.5 w-2.5 shrink-0 rounded-full"
+                                        [ngClass]="highlightSwatchClass(highlight.id)"
+                                    ></span>
+                                    {{ highlight.labelKey | transloco }}
+                                </button>
+                            }
+                        </div>
                         <div class="flex h-[600px] flex-col gap-6 pt-4">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-sm font-medium uppercase text-stone-500 dark:text-stone-400">
@@ -484,7 +503,8 @@
                                             <div
                                                 *ngFor="let feature of group.items"
                                                 (click)="toggleFeature(feature)"
-                                                [class.opacity-50]="isSelected(feature)"
+                                                [class.opacity-40]="isEndpointDimmed(feature)"
+                                                [ngClass]="highlightCardClass(feature)"
                                                 class="flex cursor-pointer select-none items-center justify-between rounded-lg border border-transparent p-3 transition-all hover:border-stone-200 hover:bg-stone-50 dark:hover:border-gray-600 dark:hover:bg-gray-800"
                                             >
                                                 <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -492,6 +512,12 @@
                                                         <span
                                                             class="text-sm font-medium text-stone-900 dark:text-white"
                                                             >{{ feature.name }}</span
+                                                        >
+                                                        <span
+                                                            *ngIf="isParamHighlighted(feature)"
+                                                            class="mt-0.5 inline-flex w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide"
+                                                            [ngClass]="highlightBadgeClass()"
+                                                            >{{ 'visitaGuide.highlightMatch' | transloco }}</span
                                                         >
                                                         <span
                                                             *ngIf="feature.description"

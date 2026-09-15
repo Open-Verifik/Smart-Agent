@@ -673,6 +673,9 @@
                                     [template]="selectedTemplate()!"
                                     [previewData]="previewDataForCurrentPage()"
                                     [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
+                                    [pageBackgroundColor]="
+                                        selectedTemplate()!.pageBackgroundColor || '#ffffff'
+                                    "
                                     [orientation]="'portrait'"
                                     [clickable]="false"
                                     [logoUrl]="selectedTemplate()!.logo || null"
@@ -681,6 +684,9 @@
                                     [logoY]="selectedTemplate()!.logoSettings?.y ?? 32"
                                     [logoWidth]="selectedTemplate()!.logoSettings?.width ?? 160"
                                     [logoHeight]="selectedTemplate()!.logoSettings?.height ?? 60"
+                                    [logoRotation]="
+                                        selectedTemplate()!.logoSettings?.rotation ?? 0
+                                    "
                                     [logoAutoFitContent]="
                                         selectedTemplate()!.logoSettings?.autoFitContent ?? false
                                     "
@@ -703,6 +709,13 @@
                                     "
                                     [watermarkPattern]="
                                         selectedTemplate()!.watermark?.pattern || 'single'
+                                    "
+                                    [watermarkX]="selectedTemplate()!.watermark?.x ?? 250"
+                                    [watermarkY]="selectedTemplate()!.watermark?.y ?? 420"
+                                    [watermarkWidth]="selectedTemplate()!.watermark?.width ?? 280"
+                                    [watermarkHeight]="selectedTemplate()!.watermark?.height ?? 160"
+                                    [watermarkRotation]="
+                                        selectedTemplate()!.watermark?.rotation ?? -15
                                     "
                                 />
                                 @if (previewDataForAllRows().length > 1) {

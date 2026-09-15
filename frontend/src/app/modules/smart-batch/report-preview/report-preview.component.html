@@ -4,7 +4,7 @@
     overlays and the optional content top spacer; every page renders the
     legend at the bottom (mirrors Puppeteer's footerTemplate).
 -->
-<div class="flex flex-col items-center gap-4">
+<div class="flex flex-col items-center gap-4" (click)="onPaperClick($event)">
     @for (
         pageSections of pages();
         track $index;
@@ -12,37 +12,75 @@
     ) {
         <div
             #reportPage
-            class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative w-full"
+            class="rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative w-full"
             [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
             [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
+            [style.background-color]="pageBackgroundColor() || '#ffffff'"
             style="border: 1px solid #e5e7eb"
         >
             <!-- Watermark overlay (every page, matches PDF behaviour) -->
             @if (watermarkEnabled()) {
                 @if (watermarkPattern() === 'single') {
-                    <div
-                        class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden"
-                    >
-                        @if (watermarkType() === 'text') {
-                            <span
-                                class="text-gray-500 font-bold select-none whitespace-nowrap"
-                                [style.opacity]="watermarkOpacity()"
-                                style="
-                                    font-size: 72px;
-                                    transform: rotate(-35deg);
-                                    letter-spacing: 8px;
-                                "
-                                >{{ watermarkText() }}</span
-                            >
-                        } @else if (watermarkType() === 'logo' && logoUrl()) {
-                            <img
-                                [src]="logoUrl()"
-                                alt="Watermark"
-                                class="select-none max-w-[60%] max-h-[40%] object-contain"
-                                [style.opacity]="watermarkOpacity()"
-                                style="transform: rotate(-15deg)"
-                            />
-                        }
+                    <div class="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+                        <div
+                            data-overlay-box
+                            class="absolute flex items-center justify-center"
+                            [class.cursor-move]="isOverlaySelected('watermark')"
+                            [class.cursor-pointer]="clickable() && isFirst && !isOverlaySelected('watermark')"
+                            [class.pointer-events-auto]="clickable() && isFirst"
+                            [class.group]="isOverlaySelected('watermark')"
+                            [style.left.px]="viewWatermarkX"
+                            [style.top.px]="viewWatermarkY"
+                            [style.width.px]="viewWatermarkWidth"
+                            [style.height.px]="viewWatermarkHeight"
+                            [style.border]="watermarkOverlayBorder"
+                            (pointerdown)="startMove($event, 'watermark')"
+                            (click)="selectOverlay('watermark', $event)"
+                        >
+                            @if (watermarkType() === 'text') {
+                                <span
+                                    class="pointer-events-none select-none whitespace-nowrap text-center font-bold text-gray-500"
+                                    [style.opacity]="watermarkOpacity()"
+                                    [style.font-size.px]="viewWatermarkFontSize"
+                                    [style.transform]="watermarkRotateStyle"
+                                    [style.letter-spacing.px]="6"
+                                    >{{ watermarkText() }}</span
+                                >
+                            } @else if (watermarkType() === 'logo' && logoUrl()) {
+                                <img
+                                    [src]="logoUrl()"
+                                    alt="Watermark"
+                                    class="h-full w-full object-contain pointer-events-none select-none"
+                                    [style.opacity]="watermarkOpacity()"
+                                    [style.transform]="watermarkRotateStyle"
+                                    draggable="false"
+                                />
+                            }
+                            @if (isOverlaySelected('watermark')) {
+                                <div
+                                    data-overlay-handle
+                                    class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    (pointerdown)="startRotate($event, 'watermark')"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] text-amber-600"
+                                        style="pointer-events: none"
+                                        >rotate_right</mat-icon
+                                    >
+                                </div>
+                                <div
+                                    data-overlay-handle
+                                    class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    (pointerdown)="startResize($event, 'watermark')"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] rotate-90 text-amber-600"
+                                        style="pointer-events: none"
+                                        >open_in_full</mat-icon
+                                    >
+                                </div>
+                            }
+                        </div>
                     </div>
                 } @else {
                     <div
@@ -58,22 +96,19 @@
                             <div class="flex items-center justify-center">
                                 @if (watermarkType() === 'text') {
                                     <span
-                                        class="text-gray-500 font-bold select-none whitespace-nowrap"
+                                        class="select-none whitespace-nowrap font-bold text-gray-500"
                                         [style.opacity]="watermarkOpacity()"
-                                        style="
-                                            font-size: 18px;
-                                            transform: rotate(-35deg);
-                                            letter-spacing: 3px;
-                                        "
+                                        [style.transform]="watermarkRotateStyle"
+                                        style="font-size: 18px; letter-spacing: 3px"
                                         >{{ watermarkText() }}</span
                                     >
                                 } @else if (watermarkType() === 'logo' && logoUrl()) {
                                     <img
                                         [src]="logoUrl()"
                                         alt=""
-                                        class="select-none w-16 h-16 object-contain"
+                                        class="h-16 w-16 select-none object-contain"
                                         [style.opacity]="watermarkOpacity()"
-                                        style="transform: rotate(-15deg)"
+                                        [style.transform]="watermarkRotateStyle"
                                     />
                                 }
                             </div>
@@ -90,28 +125,37 @@
             @if (isFirst && signatureEnabled() && signatureImage()) {
                 <div class="absolute inset-0 pointer-events-none z-20">
                     <div
-                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        data-overlay-box
+                        class="absolute"
+                        [class.cursor-move]="isOverlaySelected('signature')"
+                        [class.cursor-pointer]="clickable() && !isOverlaySelected('signature')"
+                        [class.pointer-events-auto]="clickable()"
+                        [style.left.px]="viewSignatureX"
+                        [style.top.px]="viewSignatureY"
                         [style.width.px]="viewSignatureWidth"
                         [style.height.px]="viewSignatureHeight"
-                        cdkDrag
-                        [cdkDragFreeDragPosition]="{ x: viewSignatureX, y: viewSignatureY }"
-                        (cdkDragEnded)="onSignatureDragEnd($event)"
+                        [style.border]="signatureOverlayBorder"
+                        (pointerdown)="startMove($event, 'signature')"
+                        (click)="selectOverlay('signature', $event)"
                     >
                         <img
                             [src]="signatureImage()"
                             class="w-full h-full object-contain pointer-events-none select-none"
                             draggable="false"
                         />
-                        <div
-                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                            (mousedown)="startResize($event, 'signature')"
-                        >
-                            <mat-icon
-                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                                style="pointer-events: none"
-                                >open_in_full</mat-icon
+                        @if (isOverlaySelected('signature')) {
+                            <div
+                                data-overlay-handle
+                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startResize($event, 'signature')"
                             >
-                        </div>
+                                <mat-icon
+                                    class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
+                                    style="pointer-events: none"
+                                    >open_in_full</mat-icon
+                                >
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -119,29 +163,51 @@
             @if (isFirst && logoEnabled() && logoUrl()) {
                 <div class="absolute inset-0 pointer-events-none z-20">
                     <div
-                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        data-overlay-box
+                        class="absolute"
+                        [class.cursor-move]="isOverlaySelected('logo')"
+                        [class.cursor-pointer]="clickable() && !isOverlaySelected('logo')"
+                        [class.pointer-events-auto]="clickable()"
+                        [class.group]="isOverlaySelected('logo')"
+                        [style.left.px]="viewLogoX"
+                        [style.top.px]="viewLogoY"
                         [style.width.px]="viewLogoWidth"
                         [style.height.px]="viewLogoHeight"
-                        cdkDrag
-                        [cdkDragFreeDragPosition]="{ x: viewLogoX, y: viewLogoY }"
-                        (cdkDragEnded)="onLogoDragEnd($event)"
+                        [style.border]="logoOverlayBorder"
+                        (pointerdown)="startMove($event, 'logo')"
+                        (click)="selectOverlay('logo', $event)"
                     >
                         <img
                             [src]="logoUrl()"
                             alt="Logo"
-                            class="w-full h-full object-contain pointer-events-none select-none"
+                            class="h-full w-full object-contain pointer-events-none select-none"
+                            [style.transform]="logoRotateStyle"
                             draggable="false"
                         />
-                        <div
-                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                            (mousedown)="startResize($event, 'logo')"
-                        >
-                            <mat-icon
-                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                                style="pointer-events: none"
-                                >open_in_full</mat-icon
+                        @if (isOverlaySelected('logo')) {
+                            <div
+                                data-overlay-handle
+                                class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startRotate($event, 'logo')"
                             >
-                        </div>
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-[16px] text-indigo-500"
+                                    style="pointer-events: none"
+                                    >rotate_right</mat-icon
+                                >
+                            </div>
+                            <div
+                                data-overlay-handle
+                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startResize($event, 'logo')"
+                            >
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                    style="pointer-events: none"
+                                    >open_in_full</mat-icon
+                                >
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -178,12 +244,17 @@
 
                 @for (section of pageSections; track section.id) {
                     <div
-                        class="transition-all duration-200"
+                        data-report-section
+                        class="mb-3 transition-all duration-200"
                         [class.cursor-pointer]="clickable()"
                         [class.ring-2]="clickable() && selectedSectionId() === section.id"
                         [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id"
                         [class.rounded-md]="clickable() && selectedSectionId() === section.id"
-                        (click)="clickable() && sectionClick() ? sectionClick()!(section) : null"
+                        [style.background-color]="sectionFrameBackground(section)"
+                        [style.border]="sectionFrameBorder(section)"
+                        [style.border-radius.px]="sectionFrameRadius(section)"
+                        [style.padding]="sectionFramePadding(section)"
+                        (click)="onSectionActivate(section, $event)"
                     >
                         <ng-container
                             [ngTemplateOutlet]="sectionBody"
@@ -247,7 +318,14 @@
     [style.width]="orientation() === 'landscape' ? '297mm' : '210mm'"
 >
     @for (section of template().sections || []; track section.id) {
-        <div #measureSection [attr.data-section-id]="section.id">
+        <div
+            #measureSection
+            [attr.data-section-id]="section.id"
+            [style.background-color]="sectionFrameBackground(section)"
+            [style.border]="sectionFrameBorder(section)"
+            [style.border-radius.px]="sectionFrameRadius(section)"
+            [style.padding]="sectionFramePadding(section)"
+        >
             <ng-container
                 [ngTemplateOutlet]="sectionBody"
                 [ngTemplateOutletContext]="{ section: section }"
@@ -283,6 +361,8 @@
             <h2
                 [style.font-size.px]="section.style?.fontSize || 22"
                 [style.font-weight]="section.style?.fontWeight || 'bold'"
+                [style.font-style]="section.style?.fontStyle || 'normal'"
+                [style.font-family]="section.style?.fontFamily || 'Inter, system-ui, sans-serif'"
                 [style.color]="section.style?.color || primaryColor()"
                 class="leading-tight"
             >
@@ -296,6 +376,8 @@
             <p
                 [style.font-size.px]="section.style?.fontSize || 12"
                 [style.font-weight]="section.style?.fontWeight || 'normal'"
+                [style.font-style]="section.style?.fontStyle || 'normal'"
+                [style.font-family]="section.style?.fontFamily || 'Inter, system-ui, sans-serif'"
                 [style.text-align]="section.style?.textAlign || 'left'"
                 [style.color]="section.style?.color || '#374151'"
                 class="leading-relaxed whitespace-pre-wrap"
@@ -307,44 +389,72 @@
 
     @if (section.type === 'field') {
         <div
-            class="flex gap-3 py-2.5 border-b border-gray-100"
+            class="flex gap-3 py-2.5"
+            [class.border-b]="sectionShowsRowLines(section)"
+            [class.border-gray-100]="sectionShowsRowLines(section)"
             [style.text-align]="section.style?.textAlign || 'left'"
         >
             <span
                 class="min-w-[140px] shrink-0"
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight || 'normal'"
-                [style.color]="section.style?.color || '#6B7280'"
+                [style.font-size.px]="sectionLabelFontSize(section)"
+                [style.font-weight]="sectionFontWeight(section)"
+                [style.font-style]="sectionFontStyle(section)"
+                [style.font-family]="sectionFontFamily(section)"
+                [style.color]="sectionLabelColor(section)"
                 >{{ section.label || ('smartReport.field' | transloco) }}</span
             >
             <span
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight === 'bold' ? 'bold' : 500"
-                [style.color]="section.style?.color || '#111827'"
+                [style.font-size.px]="sectionFontSize(section)"
+                [style.font-weight]="sectionFontWeight(section) === 'bold' ? 'bold' : 500"
+                [style.font-style]="sectionFontStyle(section)"
+                [style.font-family]="sectionFontFamily(section)"
+                [style.color]="sectionValueColor(section)"
                 >{{ resolveDataPath(section.dataPath) || '—' }}</span
             >
         </div>
     }
 
     @if (section.type === 'table') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="sectionFontFamily(section)" [style.text-align]="section.style?.textAlign || 'left'">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="uppercase tracking-wide mb-2"
+                    [style.font-size.px]="sectionFontSize(section)"
+                    [style.font-weight]="sectionFontWeight(section, 'bold')"
+                    [style.font-style]="sectionFontStyle(section)"
+                    [style.color]="sectionTitleColor(section)"
                 >
                     {{ section.label }}
                 </h4>
             }
-            <table class="w-full text-sm">
+            <table class="w-full">
                 <tbody>
-                    @for (row of resolveTableData(section.dataPath); track row.key) {
-                        <tr class="border-b border-gray-100">
-                            <td class="py-2 pr-4 text-gray-500 w-1/3">{{ row.key }}</td>
-                            <td class="py-2 text-gray-900 font-medium">{{ row.value }}</td>
+                    @for (row of resolveTableData(section); track row.key) {
+                        <tr
+                            [class.border-b]="sectionShowsRowLines(section)"
+                            [class.border-gray-100]="sectionShowsRowLines(section)"
+                        >
+                            <td
+                                class="py-2 pr-4 w-1/3"
+                                [style.font-size.px]="sectionLabelFontSize(section)"
+                                [style.font-weight]="sectionFontWeight(section)"
+                                [style.font-style]="sectionFontStyle(section)"
+                                [style.color]="sectionLabelColor(section)"
+                            >
+                                {{ row.key }}
+                            </td>
+                            <td
+                                class="py-2"
+                                [style.font-size.px]="sectionFontSize(section)"
+                                [style.font-weight]="sectionFontWeight(section) === 'bold' ? 'bold' : 500"
+                                [style.font-style]="sectionFontStyle(section)"
+                                [style.color]="sectionValueColor(section)"
+                            >
+                                {{ row.value }}
+                            </td>
                         </tr>
                     }
-                    @if (resolveTableData(section.dataPath).length === 0) {
+                    @if (resolveTableData(section).length === 0) {
                         <tr>
                             <td colspan="2" class="py-4 text-center text-gray-300 text-xs">
                                 {{
@@ -392,21 +502,30 @@
 
     <!-- dataTable: derived headings plus two sample rows. -->
     @if (section.type === 'dataTable') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="sectionFontFamily(section)" [style.text-align]="section.style?.textAlign || 'left'">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="uppercase tracking-wide mb-2"
+                    [style.font-size.px]="sectionFontSize(section)"
+                    [style.font-weight]="sectionFontWeight(section, 'bold')"
+                    [style.font-style]="sectionFontStyle(section)"
+                    [style.color]="sectionTitleColor(section)"
                 >
                     {{ section.label }}
                 </h4>
             }
             @if (structuralColumns(section).length > 0) {
-                <table class="w-full text-xs">
+                <table class="w-full">
                     <thead>
                         <tr class="border-b-2" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
-                                <th class="py-1.5 pr-3 text-left font-semibold text-gray-600">
+                                <th
+                                    class="py-1.5 pr-3 text-left"
+                                    [style.font-size.px]="sectionLabelFontSize(section)"
+                                    [style.font-weight]="sectionFontWeight(section, 'bold')"
+                                    [style.font-style]="sectionFontStyle(section)"
+                                    [style.color]="sectionLabelColor(section)"
+                                >
                                     {{ column.label }}
                                 </th>
                             }
@@ -416,7 +535,15 @@
                         @for (row of structuralSampleRows(section); track $index) {
                             <tr class="border-b border-gray-100">
                                 @for (cell of row; track $index) {
-                                    <td class="py-1.5 pr-3 text-gray-800">{{ cell }}</td>
+                                    <td
+                                        class="py-1.5 pr-3"
+                                        [style.font-size.px]="sectionFontSize(section)"
+                                        [style.font-weight]="sectionFontWeight(section)"
+                                        [style.font-style]="sectionFontStyle(section)"
+                                        [style.color]="sectionValueColor(section)"
+                                    >
+                                        {{ cell }}
+                                    </td>
                                 }
                             </tr>
                         }
@@ -443,11 +570,14 @@
 
     <!-- keyValueGrid: label/value pairs in the configured column count. -->
     @if (section.type === 'keyValueGrid') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="sectionFontFamily(section)" [style.text-align]="section.style?.textAlign || 'left'">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="uppercase tracking-wide mb-2"
+                    [style.font-size.px]="sectionFontSize(section)"
+                    [style.font-weight]="sectionFontWeight(section, 'bold')"
+                    [style.font-style]="sectionFontStyle(section)"
+                    [style.color]="sectionTitleColor(section)"
                 >
                     {{ section.label }}
                 </h4>
@@ -460,11 +590,27 @@
                     "
                 >
                     @for (entry of structuralEntries(section); track entry.key) {
-                        <div class="min-w-0 border-b border-gray-100 pb-1">
-                            <div class="text-[10px] uppercase tracking-wide text-gray-400">
-                                {{ entry.key }}
+                        <div
+                            class="min-w-0 pb-1"
+                            [class.border-b]="sectionShowsRowLines(section)"
+                            [class.border-gray-100]="sectionShowsRowLines(section)"
+                        >
+                            <div
+                                class="uppercase tracking-wide"
+                                [style.font-size.px]="sectionLabelFontSize(section)"
+                                [style.font-weight]="sectionFontWeight(section)"
+                                [style.font-style]="sectionFontStyle(section)"
+                                [style.color]="sectionLabelColor(section)"
+                            >
+                                {{ entry.label }}
                             </div>
-                            <div class="truncate text-xs font-medium text-gray-800">
+                            <div
+                                class="truncate"
+                                [style.font-size.px]="sectionFontSize(section)"
+                                [style.font-weight]="sectionFontWeight(section) === 'bold' ? 'bold' : 500"
+                                [style.font-style]="sectionFontStyle(section)"
+                                [style.color]="sectionValueColor(section)"
+                            >
                                 {{ entry.value }}
                             </div>
                         </div>
@@ -482,14 +628,25 @@
 
     <!-- badge: a pill in the static variant colour. -->
     @if (section.type === 'badge') {
-        <div class="mb-3 flex items-center gap-2">
+        <div
+            class="mb-3 flex items-center gap-2"
+            [style.font-family]="sectionFontFamily(section)"
+            [style.text-align]="section.style?.textAlign || 'left'"
+        >
             @if (section.label) {
-                <span class="text-[11px] uppercase tracking-wide text-gray-400">{{
-                    section.label
-                }}</span>
+                <span
+                    class="uppercase tracking-wide"
+                    [style.font-size.px]="sectionLabelFontSize(section)"
+                    [style.font-weight]="sectionFontWeight(section)"
+                    [style.font-style]="sectionFontStyle(section)"
+                    [style.color]="sectionLabelColor(section)"
+                    >{{ section.label }}</span
+                >
             }
             <span
-                class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                class="inline-flex items-center rounded-full border px-2.5 py-0.5 font-semibold"
+                [style.font-size.px]="sectionFontSize(section)"
+                [style.font-style]="sectionFontStyle(section)"
                 [ngClass]="variantClasses(section)"
             >
                 {{ resolveDataPath(section.dataPath) || '—' }}
@@ -499,19 +656,55 @@
 
     <!-- card: titled box with its copy and any resolved entries. -->
     @if (section.type === 'card') {
-        <div class="mb-4 rounded-lg border p-3" [ngClass]="variantClasses(section)">
+        <div
+            class="mb-4 rounded-lg border p-3"
+            [ngClass]="variantClasses(section)"
+            [style.font-family]="sectionFontFamily(section)"
+            [style.text-align]="section.style?.textAlign || 'left'"
+        >
             @if (section.label) {
-                <h4 class="mb-1 text-xs font-semibold">{{ section.label }}</h4>
+                <h4
+                    class="mb-1"
+                    [style.font-size.px]="sectionFontSize(section)"
+                    [style.font-weight]="sectionFontWeight(section, 'bold')"
+                    [style.font-style]="sectionFontStyle(section)"
+                    [style.color]="sectionTitleColor(section)"
+                >
+                    {{ section.label }}
+                </h4>
             }
             @if (section.staticContent) {
-                <p class="whitespace-pre-wrap text-xs opacity-90">{{ section.staticContent }}</p>
+                <p
+                    class="whitespace-pre-wrap opacity-90"
+                    [style.font-size.px]="sectionFontSize(section)"
+                    [style.font-weight]="sectionFontWeight(section)"
+                    [style.font-style]="sectionFontStyle(section)"
+                >
+                    {{ section.staticContent }}
+                </p>
             }
             @if (structuralEntries(section).length > 0) {
                 <div class="mt-2 space-y-0.5">
                     @for (entry of structuralEntries(section); track entry.key) {
-                        <div class="flex gap-2 text-[11px]">
-                            <span class="opacity-60">{{ entry.key }}</span>
-                            <span class="font-medium">{{ entry.value }}</span>
+                        <div
+                            class="flex gap-2"
+                            [class.border-b]="sectionShowsRowLines(section)"
+                            [class.border-gray-100]="sectionShowsRowLines(section)"
+                        >
+                            <span
+                                [style.font-size.px]="sectionLabelFontSize(section)"
+                                [style.font-weight]="sectionFontWeight(section)"
+                                [style.font-style]="sectionFontStyle(section)"
+                                [style.color]="sectionLabelColor(section)"
+                                >{{ entry.label }}</span
+                            >
+                            <span
+                                [style.font-size.px]="sectionFontSize(section)"
+                                [style.font-weight]="sectionFontWeight(section) === 'bold' ? 'bold' : 500"
+                                [style.font-style]="sectionFontStyle(section)"
+                                [style.color]="sectionValueColor(section)"
+                                >{{ entry.value }}</span
+                            >
                         </div>
                     }
                 </div>
@@ -521,11 +714,14 @@
 
     <!-- repeater: one outlined item per record, capped for the canvas. -->
     @if (section.type === 'repeater') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="sectionFontFamily(section)" [style.text-align]="section.style?.textAlign || 'left'">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="uppercase tracking-wide mb-2"
+                    [style.font-size.px]="sectionFontSize(section)"
+                    [style.font-weight]="sectionFontWeight(section, 'bold')"
+                    [style.font-style]="sectionFontStyle(section)"
+                    [style.color]="sectionTitleColor(section)"
                 >
                     {{ section.label }}
                 </h4>
