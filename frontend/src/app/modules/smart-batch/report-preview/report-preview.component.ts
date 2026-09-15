@@ -1014,17 +1014,25 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return section.keyOverrides?.[key]?.backgroundColor || '';
     }
 
+    cellHasBox(section: ReportSection, key: string): boolean {
+        return Number(section.keyOverrides?.[key]?.borderWidth ?? 0) > 0;
+    }
+
     cellBorder(section: ReportSection, key: string): string {
+        if (!this.cellHasBox(section, key)) return 'none';
         const override = section.keyOverrides?.[key];
-        const width = Number(override?.borderWidth ?? 0);
-        if (!width || width <= 0) return '1px solid #e7e5e4';
-        return `${Math.max(1, Math.round(width))}px solid ${override?.borderColor || '#d6d3d1'}`;
+        const width = Math.max(1, Math.round(Number(override?.borderWidth ?? 1)));
+        return `${width}px solid ${override?.borderColor || '#d6d3d1'}`;
     }
 
     cellRadius(section: ReportSection, key: string): number {
         const explicit = Number(section.keyOverrides?.[key]?.borderRadius);
         if (Number.isFinite(explicit) && explicit >= 0) return explicit;
-        return 8;
+        return this.cellHasBox(section, key) ? 8 : 0;
+    }
+
+    cellShowsRowLine(section: ReportSection, key: string, isLast: boolean): boolean {
+        return this.sectionShowsRowLines(section) && !this.cellHasBox(section, key) && !isLast;
     }
 
     /** Entries behind a `keyValueGrid`, table, or card, honoring hidden keys. */

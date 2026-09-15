@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,6 +50,33 @@ import {
 } from './visita-guide.catalog';
 
 const POLL_MS = 2500;
+const LAYOUT_HISTORY_LIMIT = 40;
+const LAYOUT_HISTORY_DEBOUNCE_MS = 400;
+
+type LayoutDesignSnapshot = {
+    sections: ReportSection[];
+    reportTitle: string;
+    primaryColor: string;
+    pageBackgroundColor: string;
+    logoDataUrl: string | null;
+    logoX: number;
+    logoY: number;
+    logoWidth: number;
+    logoHeight: number;
+    logoRotation: number;
+    legend: string;
+    watermarkEnabled: boolean;
+    watermarkType: 'text' | 'logo';
+    watermarkText: string;
+    watermarkOpacity: number;
+    watermarkPattern: 'single' | 'repeated';
+    watermarkX: number;
+    watermarkY: number;
+    watermarkWidth: number;
+    watermarkHeight: number;
+    watermarkRotation: number;
+    showPageNumbers: boolean;
+};
 
 type GuideResultCard = {
     sequence: number;
@@ -165,6 +192,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     } | null>(null);
     isSavingLayout = signal(false);
     templateSearchQuery = signal('');
+    canUndoLayout = signal(false);
+    canRedoLayout = signal(false);
+    private _layoutHistory: string[] = [];
+    private _layoutHistoryIndex = -1;
+    private _layoutHistoryApplying = false;
+    private _layoutHistoryTimer: ReturnType<typeof setTimeout> | null = null;
+    private _layoutHistoryPending: string | null = null;
+    private readonly _layoutHistoryEffect = effect(() => {
+        const onLayout = this.step() === 'layout';
+        const snapshot = onLayout ? this._layoutDesignSnapshot() : null;
+        untracked(() => {
+            if (!onLayout || !snapshot) {
+                this._resetLayoutHistory();
+                return;
+            }
+            this._queueLayoutHistory(snapshot);
+        });
+    });
     hoveredEndpoint = signal<AppFeature | null>(null);
     endpointHoverVisible = signal(false);
     endpointHoverLeft = signal(0);
@@ -447,6 +492,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._alive = false;
         if (this._endpointHoverHide) clearTimeout(this._endpointHoverHide);
         if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
+        if (this._layoutHistoryTimer) clearTimeout(this._layoutHistoryTimer);
         this._stopPoll();
         this._browserRunner.stop();
     }
@@ -590,6 +636,40 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
+    undoLayout(): void {
+        this._flushLayoutHistory();
+        if (this._layoutHistoryIndex <= 0) return;
+        this._layoutHistoryIndex -= 1;
+        this._applyLayoutSnapshot(this._layoutHistory[this._layoutHistoryIndex]);
+        this._syncLayoutHistoryFlags();
+    }
+
+    redoLayout(): void {
+        this._flushLayoutHistory();
+        if (this._layoutHistoryIndex >= this._layoutHistory.length - 1) return;
+        this._layoutHistoryIndex += 1;
+        this._applyLayoutSnapshot(this._layoutHistory[this._layoutHistoryIndex]);
+        this._syncLayoutHistoryFlags();
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    onLayoutHistoryKey(event: KeyboardEvent): void {
+        if (this.step() !== 'layout') return;
+        if (!(event.ctrlKey || event.metaKey)) return;
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+        const key = event.key.toLowerCase();
+        if (key === 'z' && !event.shiftKey) {
+            event.preventDefault();
+            this.undoLayout();
+            return;
+        }
+        if (key === 'y' || (key === 'z' && event.shiftKey)) {
+            event.preventDefault();
+            this.redoLayout();
+        }
+    }
+
     onLayoutSectionClick = (section: ReportSection): void => {
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
@@ -691,6 +771,117 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @HostListener('document:keydown.escape')
     onDocumentEscape(): void {
         this.closeLayoutContextMenu();
+    }
+
+    private _layoutDesignSnapshot(): LayoutDesignSnapshot {
+        return {
+            sections: this.layoutSections(),
+            reportTitle: this.reportTitle(),
+            primaryColor: this.primaryColor(),
+            pageBackgroundColor: this.pageBackgroundColor(),
+            logoDataUrl: this.logoDataUrl(),
+            logoX: this.logoX(),
+            logoY: this.logoY(),
+            logoWidth: this.logoWidth(),
+            logoHeight: this.logoHeight(),
+            logoRotation: this.logoRotation(),
+            legend: this.legend(),
+            watermarkEnabled: this.watermarkEnabled(),
+            watermarkType: this.watermarkType(),
+            watermarkText: this.watermarkText(),
+            watermarkOpacity: this.watermarkOpacity(),
+            watermarkPattern: this.watermarkPattern(),
+            watermarkX: this.watermarkX(),
+            watermarkY: this.watermarkY(),
+            watermarkWidth: this.watermarkWidth(),
+            watermarkHeight: this.watermarkHeight(),
+            watermarkRotation: this.watermarkRotation(),
+            showPageNumbers: this.showPageNumbers(),
+        };
+    }
+
+    private _queueLayoutHistory(snapshot: LayoutDesignSnapshot): void {
+        if (this._layoutHistoryApplying) return;
+        const json = JSON.stringify(snapshot);
+        if (this._layoutHistory.length === 0) {
+            this._layoutHistory = [json];
+            this._layoutHistoryIndex = 0;
+            this._syncLayoutHistoryFlags();
+            return;
+        }
+        if (json === this._layoutHistory[this._layoutHistoryIndex]) return;
+        this._layoutHistoryPending = json;
+        if (this._layoutHistoryTimer) clearTimeout(this._layoutHistoryTimer);
+        this._layoutHistoryTimer = setTimeout(() => {
+            this._layoutHistoryTimer = null;
+            this._flushLayoutHistory();
+        }, LAYOUT_HISTORY_DEBOUNCE_MS);
+    }
+
+    private _flushLayoutHistory(): void {
+        if (this._layoutHistoryTimer) {
+            clearTimeout(this._layoutHistoryTimer);
+            this._layoutHistoryTimer = null;
+        }
+        const json = this._layoutHistoryPending;
+        this._layoutHistoryPending = null;
+        if (!json || json === this._layoutHistory[this._layoutHistoryIndex]) return;
+        this._layoutHistory = this._layoutHistory.slice(0, this._layoutHistoryIndex + 1);
+        this._layoutHistory.push(json);
+        if (this._layoutHistory.length > LAYOUT_HISTORY_LIMIT) {
+            this._layoutHistory.shift();
+        }
+        this._layoutHistoryIndex = this._layoutHistory.length - 1;
+        this._syncLayoutHistoryFlags();
+    }
+
+    private _resetLayoutHistory(): void {
+        if (this._layoutHistoryTimer) {
+            clearTimeout(this._layoutHistoryTimer);
+            this._layoutHistoryTimer = null;
+        }
+        this._layoutHistoryPending = null;
+        this._layoutHistory = [];
+        this._layoutHistoryIndex = -1;
+        this.canUndoLayout.set(false);
+        this.canRedoLayout.set(false);
+    }
+
+    private _syncLayoutHistoryFlags(): void {
+        this.canUndoLayout.set(this._layoutHistoryIndex > 0);
+        this.canRedoLayout.set(this._layoutHistoryIndex >= 0 && this._layoutHistoryIndex < this._layoutHistory.length - 1);
+    }
+
+    private _applyLayoutSnapshot(json: string): void {
+        const snapshot = JSON.parse(json) as LayoutDesignSnapshot;
+        this._layoutHistoryApplying = true;
+        this.layoutSections.set(
+            (snapshot.sections ?? []).map((section, index) => ({ ...section, order: index }))
+        );
+        this._state.reportTitle.set(snapshot.reportTitle);
+        this._state.primaryColor.set(snapshot.primaryColor);
+        this._state.pageBackgroundColor.set(snapshot.pageBackgroundColor);
+        this._state.logoDataUrl.set(snapshot.logoDataUrl);
+        this._state.logoX.set(snapshot.logoX);
+        this._state.logoY.set(snapshot.logoY);
+        this._state.logoWidth.set(snapshot.logoWidth);
+        this._state.logoHeight.set(snapshot.logoHeight);
+        this._state.logoRotation.set(snapshot.logoRotation);
+        this._state.legend.set(snapshot.legend);
+        this._state.watermarkEnabled.set(snapshot.watermarkEnabled);
+        this._state.watermarkType.set(snapshot.watermarkType);
+        this._state.watermarkText.set(snapshot.watermarkText);
+        this._state.watermarkOpacity.set(snapshot.watermarkOpacity);
+        this._state.watermarkPattern.set(snapshot.watermarkPattern);
+        this._state.watermarkX.set(snapshot.watermarkX);
+        this._state.watermarkY.set(snapshot.watermarkY);
+        this._state.watermarkWidth.set(snapshot.watermarkWidth);
+        this._state.watermarkHeight.set(snapshot.watermarkHeight);
+        this._state.watermarkRotation.set(snapshot.watermarkRotation);
+        this._state.showPageNumbers.set(snapshot.showPageNumbers);
+        queueMicrotask(() => {
+            this._layoutHistoryApplying = false;
+        });
     }
 
     private _openLayoutContextMenu(
@@ -1141,6 +1332,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutCellPart.set('cell');
     }
 
+    removeSelectedLayoutCell(): void {
+        const key = this.selectedLayoutCellKey();
+        if (!key) return;
+        this.setLayoutParamVisible(key, false);
+        this.clearSelectedLayoutCell();
+    }
+
+    addLayoutParam(key: string): void {
+        this.setLayoutParamVisible(key, true);
+        this.selectedLayoutCellKey.set(key);
+        this.selectedLayoutCellPart.set('cell');
+    }
+
+    layoutHiddenParamOptions(): { key: string; label: string }[] {
+        return this.layoutParamOptions().filter((param) => !this.isLayoutParamVisible(param.key));
+    }
+
     setSelectedLayoutBackground(value: string): void {
         this._patchSelectedLayoutStyle({ backgroundColor: value });
     }
@@ -1227,6 +1435,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (visible) hidden.delete(key);
         else hidden.add(key);
         this._patchSelectedLayout({ hiddenKeys: [...hidden] });
+        if (!visible && this.selectedLayoutCellKey() === key) {
+            this.clearSelectedLayoutCell();
+        }
     }
 
     canApplyLayoutStyleToAll(): boolean {
