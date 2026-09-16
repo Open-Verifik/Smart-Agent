@@ -15,6 +15,7 @@
             class="rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative w-full"
             [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
             [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
+            [style.height]="orientation() === 'landscape' ? '210mm' : '297mm'"
             [style.background-color]="pageBackgroundColor() || '#ffffff'"
             style="border: 1px solid #e5e7eb"
         >
@@ -218,6 +219,7 @@
             <!-- Top page number (every page when configured) -->
             @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
                 <div
+                    data-report-top-chrome
                     class="px-8 sm:px-10 lg:px-12 pt-4 text-[10px] text-gray-400"
                     [style.text-align]="
                         pageNumberPosition() === 'top-left'
@@ -231,7 +233,11 @@
                 </div>
             }
 
-            <div class="p-8 sm:p-10 lg:p-12 flex-1 flex flex-col min-h-0">
+            <div
+                data-report-page-inner
+                class="p-8 sm:p-10 lg:p-12 flex-1 flex flex-col min-h-0 overflow-hidden"
+                [class.relative]="hasFreeLayout()"
+            >
                 <!-- Logo top spacer (page 1 only) -->
                 @if (isFirst && viewContentPaddingTop > 0) {
                     <div [style.height.px]="viewContentPaddingTop"></div>
@@ -249,11 +255,13 @@
                     <div
                         data-report-section
                         [attr.data-section-id]="section.id"
-                        class="relative mb-3 transition-all duration-200"
+                        class="relative mb-3"
+                        [class.transition-all]="draggingSectionId() !== section.id"
+                        [class.duration-200]="draggingSectionId() !== section.id"
                         [class.cursor-pointer]="clickable() && !reorderable()"
                         [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
                         [class.cursor-grabbing]="draggingSectionId() === section.id"
-                        [class.opacity-60]="draggingSectionId() === section.id"
+                        [class.opacity-90]="draggingSectionId() === section.id"
                         [class.ring-2]="clickable() && selectedSectionId() === section.id"
                         [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id"
                         [class.rounded-md]="clickable() && selectedSectionId() === section.id"
@@ -261,13 +269,19 @@
                         [style.border]="sectionFrameBorder(section)"
                         [style.border-radius.px]="sectionFrameRadius(section)"
                         [style.padding]="sectionFramePadding(section)"
+                        [ngStyle]="sectionHostStyle(section)"
                         (click)="onSectionActivate(section, $event)"
                         (contextmenu)="onSectionContextMenu(section, $event)"
                         (pointerdown)="onSectionPointerDown(section, $event)"
-                        (pointermove)="onSectionPointerMove($event)"
-                        (pointerup)="onSectionPointerUp($event)"
-                        (pointercancel)="onSectionPointerUp($event)"
                     >
+                        @if (clickable() && reorderable()) {
+                            <div
+                                class="absolute -left-1 -top-1 z-30 flex h-6 w-6 items-center justify-center rounded-full border border-indigo-200 bg-white text-indigo-500 shadow-sm"
+                                title="Mover"
+                            >
+                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]" style="pointer-events: none">open_with</mat-icon>
+                            </div>
+                        }
                         @if (isSectionDropBefore(section)) {
                             <div class="pointer-events-none absolute left-1 right-1 top-0 z-20 h-1 rounded-full bg-indigo-500"></div>
                         }
@@ -351,14 +365,26 @@
         </div>
     }
 
-    @if (legend()) {
+    @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
         <div #measureLegend class="pb-6">
-            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
-                <p
-                    class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
-                    [textContent]="legend()"
-                ></p>
-            </div>
+            @if (legend()) {
+                <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
+                    <p
+                        class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
+                        [textContent]="legend()"
+                    ></p>
+                </div>
+            }
+            @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
+                <div
+                    class="text-[10px] text-gray-400"
+                    [class.border-t]="!legend()"
+                    [class.border-gray-200]="!legend()"
+                    [class.pt-3]="!legend()"
+                >
+                    Page 1 of 1
+                </div>
+            }
         </div>
     }
 </div>
@@ -608,61 +634,108 @@
                     {{ section.label }}
                 </h4>
             }
-            @if (structuralEntries(section).length > 0) {
-                <div
-                    class="grid gap-x-4 gap-y-1.5"
-                    [style.grid-template-columns]="
-                        'repeat(' + (section.columnsPerRow || 2) + ', minmax(0, 1fr))'
-                    "
-                >
-                    @for (entry of structuralEntries(section); track entry.key; let last = $last) {
+            @if (sectionHasStructuredData(section)) {
+                @for (chunk of sheetChunks(section); track chunk.kind === 'table' ? chunk.table.key : chunk.entries[0]?.key) {
+                    @if (chunk.kind === 'fields') {
                         <div
-                            data-report-cell
-                            class="min-w-0 px-2 py-1.5"
-                            [class.rounded-lg]="cellHasBox(section, entry.key)"
-                            [class.ring-2]="isCellSelected(section, entry.key)"
-                            [class.ring-indigo-400]="isCellSelected(section, entry.key)"
-                            [class.cursor-pointer]="clickable()"
-                            [style.border-bottom]="cellShowsRowLine(section, entry.key, last) ? rowLineCss(section) : null"
-                            [style.background-color]="cellBackground(section, entry.key) || null"
-                            [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
-                            [style.border-radius.px]="cellRadius(section, entry.key)"
-                            (click)="onCellActivate(section, entry.key, 'cell', $event)"
-                            (pointerdown)="$event.stopPropagation()"
+                            class="grid gap-x-4 gap-y-1.5"
+                            [style.grid-template-columns]="
+                                'repeat(' + (section.columnsPerRow || 2) + ', minmax(0, 1fr))'
+                            "
                         >
-                            <div
-                                class="uppercase tracking-wide"
-                                [class.ring-1]="isCellSelected(section, entry.key, 'label')"
-                                [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
-                                [class.rounded-sm]="isCellSelected(section, entry.key, 'label')"
-                                [style.font-family]="roleFontFamily(section, 'label', entry.key)"
-                                [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
-                                [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
-                                [style.font-style]="roleFontStyle(section, 'label', entry.key)"
-                                [style.text-align]="roleTextAlign(section, 'label', entry.key)"
-                                [style.color]="roleColor(section, 'label', entry.key)"
-                                (click)="onCellActivate(section, entry.key, 'label', $event)"
+                            @for (entry of chunk.entries; track entry.key; let last = $last) {
+                                <div
+                                    data-report-cell
+                                    class="min-w-0 px-2 py-1.5"
+                                    [class.rounded-lg]="cellHasBox(section, entry.key)"
+                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-indigo-400]="isCellSelected(section, entry.key)"
+                                    [class.cursor-pointer]="clickable()"
+                                    [style.border-bottom]="cellShowsRowLine(section, entry.key, last) ? rowLineCss(section) : null"
+                                    [style.background-color]="cellBackground(section, entry.key) || null"
+                                    [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
+                                    [style.border-radius.px]="cellRadius(section, entry.key)"
+                                    (click)="onCellActivate(section, entry.key, 'cell', $event)"
+                                >
+                                    <div
+                                        class="uppercase tracking-wide"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'label')"
+                                        [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
+                                        [class.rounded-sm]="isCellSelected(section, entry.key, 'label')"
+                                        [style.font-family]="roleFontFamily(section, 'label', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'label', entry.key)"
+                                        [style.color]="roleColor(section, 'label', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'label', $event)"
+                                    >
+                                        {{ entryLabel(section, entry) }}
+                                    </div>
+                                    <div
+                                        class="truncate"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
+                                        [class.rounded-sm]="isCellSelected(section, entry.key, 'value')"
+                                        [style.font-family]="roleFontFamily(section, 'value', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'value', entry.key)"
+                                        [style.color]="roleColor(section, 'value', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'value', $event)"
+                                    >
+                                        {{ entry.value }}
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <div class="mt-3 overflow-x-auto">
+                            <p
+                                class="mb-1 uppercase tracking-wide"
+                                [style.font-family]="roleFontFamily(section, 'label')"
+                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                [style.font-weight]="roleFontWeight(section, 'label')"
+                                [style.color]="roleColor(section, 'label')"
                             >
-                                {{ entryLabel(section, entry) }}
-                            </div>
-                            <div
-                                class="truncate"
-                                [class.ring-1]="isCellSelected(section, entry.key, 'value')"
-                                [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
-                                [class.rounded-sm]="isCellSelected(section, entry.key, 'value')"
-                                [style.font-family]="roleFontFamily(section, 'value', entry.key)"
-                                [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
-                                [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
-                                [style.font-style]="roleFontStyle(section, 'value', entry.key)"
-                                [style.text-align]="roleTextAlign(section, 'value', entry.key)"
-                                [style.color]="roleColor(section, 'value', entry.key)"
-                                (click)="onCellActivate(section, entry.key, 'value', $event)"
-                            >
-                                {{ entry.value }}
-                            </div>
+                                {{ chunk.table.label }}
+                            </p>
+                            <table class="w-full">
+                                <thead>
+                                    <tr [style.border-bottom]="rowLineCss(section)">
+                                        @for (column of chunk.table.columns; track column.key) {
+                                            <th
+                                                class="py-1 pr-2 text-left"
+                                                [style.font-family]="roleFontFamily(section, 'label')"
+                                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                                [style.color]="roleColor(section, 'label')"
+                                            >
+                                                {{ column.label }}
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (row of chunk.table.rows; track $index; let last = $last) {
+                                        <tr [style.border-bottom]="!last && sectionShowsRowLines(section) ? rowLineCss(section) : null">
+                                            @for (column of chunk.table.columns; track column.key) {
+                                                <td
+                                                    class="py-1 pr-2"
+                                                    [style.font-family]="roleFontFamily(section, 'value')"
+                                                    [style.font-size.px]="roleFontSize(section, 'value')"
+                                                    [style.color]="roleColor(section, 'value')"
+                                                >
+                                                    {{ row[column.key] }}
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     }
-                </div>
+                }
             } @else {
                 <div
                     class="rounded-lg border border-dashed border-gray-200 py-4 text-center text-xs text-gray-300"
@@ -734,50 +807,97 @@
                     {{ section.staticContent }}
                 </p>
             }
-            @if (structuralEntries(section).length > 0) {
-                <div class="mt-2 space-y-0.5">
-                    @for (entry of structuralEntries(section); track entry.key; let last = $last) {
-                        <div
-                            data-report-cell
-                            class="flex gap-2 px-2 py-1"
-                            [class.rounded-lg]="cellHasBox(section, entry.key)"
-                            [class.ring-2]="isCellSelected(section, entry.key)"
-                            [class.ring-indigo-400]="isCellSelected(section, entry.key)"
-                            [class.cursor-pointer]="clickable()"
-                            [style.border-bottom]="cellShowsRowLine(section, entry.key, last) ? rowLineCss(section) : null"
-                            [style.background-color]="cellBackground(section, entry.key) || null"
-                            [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
-                            [style.border-radius.px]="cellRadius(section, entry.key)"
-                            (click)="onCellActivate(section, entry.key, 'cell', $event)"
-                            (pointerdown)="$event.stopPropagation()"
-                        >
-                            <span>
-                                [class.ring-1]="isCellSelected(section, entry.key, 'label')"
-                                [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
-                                [style.font-family]="roleFontFamily(section, 'label', entry.key)"
-                                [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
-                                [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
-                                [style.font-style]="roleFontStyle(section, 'label', entry.key)"
-                                [style.text-align]="roleTextAlign(section, 'label', entry.key)"
-                                [style.color]="roleColor(section, 'label', entry.key)"
-                                (click)="onCellActivate(section, entry.key, 'label', $event)"
-                                >{{ entryLabel(section, entry) }}</span
+            @if (sectionHasStructuredData(section)) {
+                @for (chunk of sheetChunks(section); track chunk.kind === 'table' ? chunk.table.key : chunk.entries[0]?.key) {
+                    @if (chunk.kind === 'fields') {
+                        <div class="mt-2 space-y-0.5">
+                            @for (entry of chunk.entries; track entry.key; let last = $last) {
+                                <div
+                                    data-report-cell
+                                    class="flex gap-2 px-2 py-1"
+                                    [class.rounded-lg]="cellHasBox(section, entry.key)"
+                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-indigo-400]="isCellSelected(section, entry.key)"
+                                    [class.cursor-pointer]="clickable()"
+                                    [style.border-bottom]="cellShowsRowLine(section, entry.key, last) ? rowLineCss(section) : null"
+                                    [style.background-color]="cellBackground(section, entry.key) || null"
+                                    [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
+                                    [style.border-radius.px]="cellRadius(section, entry.key)"
+                                    (click)="onCellActivate(section, entry.key, 'cell', $event)"
+                                >
+                                    <span
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'label')"
+                                        [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
+                                        [style.font-family]="roleFontFamily(section, 'label', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'label', entry.key)"
+                                        [style.color]="roleColor(section, 'label', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'label', $event)"
+                                        >{{ entryLabel(section, entry) }}</span
+                                    >
+                                    <span
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
+                                        [style.font-family]="roleFontFamily(section, 'value', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'value', entry.key)"
+                                        [style.color]="roleColor(section, 'value', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'value', $event)"
+                                        >{{ entry.value }}</span
+                                    >
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <div class="mt-3 overflow-x-auto">
+                            <p
+                                class="mb-1 uppercase tracking-wide"
+                                [style.font-family]="roleFontFamily(section, 'label')"
+                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                [style.font-weight]="roleFontWeight(section, 'label')"
+                                [style.color]="roleColor(section, 'label')"
                             >
-                            <span
-                                [class.ring-1]="isCellSelected(section, entry.key, 'value')"
-                                [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
-                                [style.font-family]="roleFontFamily(section, 'value', entry.key)"
-                                [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
-                                [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
-                                [style.font-style]="roleFontStyle(section, 'value', entry.key)"
-                                [style.text-align]="roleTextAlign(section, 'value', entry.key)"
-                                [style.color]="roleColor(section, 'value', entry.key)"
-                                (click)="onCellActivate(section, entry.key, 'value', $event)"
-                                >{{ entry.value }}</span
-                            >
+                                {{ chunk.table.label }}
+                            </p>
+                            <table class="w-full">
+                                <thead>
+                                    <tr [style.border-bottom]="rowLineCss(section)">
+                                        @for (column of chunk.table.columns; track column.key) {
+                                            <th
+                                                class="py-1 pr-2 text-left"
+                                                [style.font-family]="roleFontFamily(section, 'label')"
+                                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                                [style.color]="roleColor(section, 'label')"
+                                            >
+                                                {{ column.label }}
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (row of chunk.table.rows; track $index; let last = $last) {
+                                        <tr [style.border-bottom]="!last && sectionShowsRowLines(section) ? rowLineCss(section) : null">
+                                            @for (column of chunk.table.columns; track column.key) {
+                                                <td
+                                                    class="py-1 pr-2"
+                                                    [style.font-family]="roleFontFamily(section, 'value')"
+                                                    [style.font-size.px]="roleFontSize(section, 'value')"
+                                                    [style.color]="roleColor(section, 'value')"
+                                                >
+                                                    {{ row[column.key] }}
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     }
-                </div>
+                }
             }
         </div>
     }

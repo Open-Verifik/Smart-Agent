@@ -17,13 +17,15 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportCellPart, ReportSection, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
-import { collectScalarParams } from '../report-param-entries.util';
+import { ReportCellPart, ReportSection, ReportSectionFrame, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk } from '../report-param-entries.util';
 import { resolveTextRole } from '../report-text-role.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature';
 
 const MM_TO_PX = 3.7795275591;
+/** Tailwind `mb-3` between blocks. Margin is not included in getBoundingClientRect. */
+const SECTION_GAP_PX = 12;
 
 /**
  * Shared report preview component - renders a template with data, paginating
@@ -134,6 +136,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
     @Output() overlayContextMenu = new EventEmitter<{ overlay: ReportOverlayId; x: number; y: number }>();
     @Output() sectionReorder = new EventEmitter<{ fromId: string; toIndex: number }>();
+    @Output() sectionFramesChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }[]>();
+    @Output() sectionFrameChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }>();
     @Output() cellSelect = new EventEmitter<{
         section: ReportSection;
         key: string | null;
@@ -173,16 +177,18 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _sectionDrag: {
         id: string;
         pointerId: number;
-        startX: number;
-        startY: number;
-        fromIndex: number;
+        grabX: number;
+        grabY: number;
+        startClientX: number;
+        startClientY: number;
+        width: number;
         active: boolean;
         el: HTMLElement;
+        seeded: boolean;
     } | null = null;
     private _sectionDragMoved = false;
     readonly draggingSectionId = signal<string | null>(null);
-    readonly sectionDropTargetId = signal<string | null>(null);
-    readonly sectionDropEdge = signal<'before' | 'after' | null>(null);
+    readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
 
     constructor() {
         // Single effect that tracks every input that influences pagination.
@@ -192,6 +198,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         effect(() => {
             // Track inputs that should trigger a remeasure
             this.template().sections;
+            this.previewData();
             this.legend();
             this.orientation();
             this.bodyTopPadding();
@@ -216,6 +223,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         // Re-measure whenever the off-screen section list re-renders so we
         // pick up height changes from edits (text length, table rows, ...)
         this._measureSections.changes.subscribe(() => this._scheduleMeasurement());
+        this._reportPages.changes.subscribe(() => this._scheduleMeasurement());
         this._scheduleMeasurement();
     }
 
@@ -286,10 +294,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
-        // If the legend is configured but its measure node hasn't mounted
-        // yet, defer one frame so we don't bin-pack with a 0px footer
-        // reservation and then have to redo the work right after.
-        if (this.legend() && !this._measureLegend?.nativeElement) {
+        // Footer chrome must be measured before packing or the last blocks
+        // spill into the Puppeteer footer margin.
+        if (this._hasBottomChrome() && !this._measureLegend?.nativeElement) {
             this._scheduleMeasurement();
             return;
         }
@@ -302,13 +309,30 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             heights.set(id, el.getBoundingClientRect().height);
         }
 
+        if (this.hasFreeLayout()) {
+            let pageCount = 1;
+            for (const section of sections) {
+                pageCount = Math.max(pageCount, (this.displayFrame(section)?.page ?? 0) + 1);
+            }
+            const newPages: ReportSection[][] = Array.from({ length: pageCount }, () => []);
+            for (const section of sections) {
+                const page = Math.min(Math.max(0, this.displayFrame(section)?.page ?? 0), pageCount - 1);
+                newPages[page].push(section);
+            }
+            this._setPagesIfDifferent(newPages);
+            return;
+        }
+
         const pageHeightDom = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
-        // Mirrors the visible card's `p-8 sm:p-10 lg:p-12` (top + bottom).
-        const innerPaddingTopBottom = 96; // 48px top + 48px bottom at lg breakpoint
+        const innerPaddingTopBottom = this._getInnerPaddingTopBottom();
         const legendHeight = this._getLegendHeight();
+        const topChromeHeight = this._getTopChromeHeight();
         const firstPageExtraTop = this.viewContentPaddingTop;
 
-        const baseAvailable = Math.max(0, pageHeightDom - innerPaddingTopBottom - legendHeight);
+        const baseAvailable = Math.max(
+            0,
+            pageHeightDom - innerPaddingTopBottom - legendHeight - topChromeHeight
+        );
         const firstPageAvailable = Math.max(0, baseAvailable - firstPageExtraTop);
 
         const newPages: ReportSection[][] = [[]];
@@ -316,7 +340,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         let isFirstPage = true;
 
         for (const section of sections) {
-            const h = heights.get(section.id) || 0;
+            const h = (heights.get(section.id) || 0) + SECTION_GAP_PX;
             const available = isFirstPage ? firstPageAvailable : baseAvailable;
             const currentBucket = newPages[newPages.length - 1];
 
@@ -353,11 +377,28 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.pages.set(newPages);
     }
 
+    private _hasBottomChrome(): boolean {
+        return Boolean(this.legend()) || (this.showPageNumbers() && this.pageNumberPosition().startsWith('bottom'));
+    }
+
     private _getLegendHeight(): number {
-        if (!this.legend()) return 0;
+        if (!this._hasBottomChrome()) return 0;
         const el = this._measureLegend?.nativeElement;
         if (!el) return 0;
         return el.getBoundingClientRect().height;
+    }
+
+    private _getTopChromeHeight(): number {
+        if (!(this.showPageNumbers() && this.pageNumberPosition().startsWith('top'))) return 0;
+        const el = this.reportPage?.nativeElement.querySelector('[data-report-top-chrome]') as HTMLElement | null;
+        return el?.getBoundingClientRect().height || 28;
+    }
+
+    private _getInnerPaddingTopBottom(): number {
+        const inner = this.reportPage?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
+        if (!inner) return 96;
+        const style = getComputedStyle(inner);
+        return (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
     }
 
     private get _scaleFactors(): { x: number; y: number } {
@@ -492,18 +533,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
-        const sections = this.template().sections ?? [];
-        const fromIndex = sections.findIndex((item) => item.id === section.id);
-        if (fromIndex < 0) return;
         this._sectionDragMoved = false;
+        const el = event.currentTarget as HTMLElement;
+        const rect = el.getBoundingClientRect();
         this._sectionDrag = {
             id: section.id,
             pointerId: event.pointerId,
-            startX: event.clientX,
-            startY: event.clientY,
-            fromIndex,
+            grabX: event.clientX - rect.left,
+            grabY: event.clientY - rect.top,
+            startClientX: event.clientX,
+            startClientY: event.clientY,
+            width: this.displayFrame(section)?.width || Math.round(rect.width * this._scaleFactors.x),
             active: false,
-            el: event.currentTarget as HTMLElement,
+            el,
+            seeded: false,
         };
         this.sectionClick()?.(section);
         window.addEventListener('pointermove', this._onWindowSectionMove);
@@ -522,10 +565,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     onSectionPointerMove(event: PointerEvent): void {
         const drag = this._sectionDrag;
         if (!drag || event.pointerId !== drag.pointerId) return;
-        const dx = event.clientX - drag.startX;
-        const dy = event.clientY - drag.startY;
         if (!drag.active) {
-            if (Math.hypot(dx, dy) < 8) return;
+            const origin = drag.el.getBoundingClientRect();
+            if (
+                Math.hypot(
+                    event.clientX - (origin.left + drag.grabX),
+                    event.clientY - (origin.top + drag.grabY)
+                ) < 8
+            ) {
+                return;
+            }
             drag.active = true;
             this._sectionDragMoved = true;
             this.draggingSectionId.set(drag.id);
@@ -533,60 +582,124 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             drag.el.style.touchAction = 'none';
         }
         event.preventDefault();
-        const move = this._computeSectionMove(event.clientY, drag.fromIndex);
-        this.sectionDropTargetId.set(move.targetId);
-        this.sectionDropEdge.set(move.edge);
-        drag.el.dataset['dropIndex'] = String(move.to);
+        if (this._usesPinnedFrames()) {
+            const frame = this._frameAtPointer(event.clientX, event.clientY, drag.grabX, drag.grabY, drag.width);
+            this.liveFrames.update((current) => ({ ...current, [drag.id]: frame }));
+            return;
+        }
+        drag.el.style.transform = `translate(${event.clientX - drag.startClientX}px, ${event.clientY - drag.startClientY}px)`;
     }
 
     onSectionPointerUp(event: PointerEvent): void {
         const drag = this._sectionDrag;
         if (!drag || event.pointerId !== drag.pointerId) return;
-        const toIndex = Number(drag.el.dataset['dropIndex'] ?? drag.fromIndex);
+        const live = this.liveFrames()[drag.id];
+        const wasActive = drag.active;
+        const snapshot =
+            wasActive && !live && !this._usesPinnedFrames() ? this._snapshotSectionFrames() : [];
+        if (drag.el) drag.el.style.transform = '';
         this._clearSectionDrag();
-        if (!drag.active || !Number.isFinite(toIndex) || toIndex === drag.fromIndex) return;
-        this.sectionReorder.emit({ fromId: drag.id, toIndex });
-    }
-
-    isSectionDropBefore(section: ReportSection): boolean {
-        return this.sectionDropTargetId() === section.id && this.sectionDropEdge() === 'before';
-    }
-
-    isSectionDropAfter(section: ReportSection): boolean {
-        return this.sectionDropTargetId() === section.id && this.sectionDropEdge() === 'after';
-    }
-
-    private _computeSectionMove(
-        clientY: number,
-        fromIndex: number
-    ): { to: number; targetId: string; edge: 'before' | 'after' } {
-        const nodes = Array.from(
-            this._host.nativeElement.querySelectorAll('[data-report-section]')
-        ) as HTMLElement[];
-        if (nodes.length === 0) {
-            return { to: fromIndex, targetId: '', edge: 'before' };
+        if (!wasActive) return;
+        if (live) {
+            this.sectionFrameChange.emit({ id: drag.id, frame: live });
+            this.liveFrames.set({});
+            return;
         }
-        let insertIndex = nodes.length;
-        let targetId = nodes[nodes.length - 1].getAttribute('data-section-id') || '';
-        let edge: 'before' | 'after' = 'after';
-        for (let i = 0; i < nodes.length; i++) {
-            const rect = nodes[i].getBoundingClientRect();
-            const id = nodes[i].getAttribute('data-section-id') || '';
-            if (clientY < rect.top + rect.height / 2) {
-                insertIndex = i;
-                targetId = id;
-                edge = 'before';
-                break;
-            }
-            insertIndex = i + 1;
-            targetId = id;
-            edge = 'after';
-        }
-        const to = fromIndex < insertIndex ? insertIndex - 1 : insertIndex;
+        if (snapshot.length) this.sectionFramesChange.emit(snapshot);
+        this.liveFrames.set({});
+    }
+
+    isSectionDropBefore(_section: ReportSection): boolean {
+        return false;
+    }
+
+    isSectionDropAfter(_section: ReportSection): boolean {
+        return false;
+    }
+
+    hasFreeLayout(): boolean {
+        return this._usesPinnedFrames() || Object.keys(this.liveFrames()).length > 0;
+    }
+
+    private _usesPinnedFrames(): boolean {
+        return (this.template().sections ?? []).some((section) => Boolean(section.frame));
+    }
+
+    displayFrame(section: ReportSection): ReportSectionFrame | null {
+        return this.liveFrames()[section.id] ?? section.frame ?? null;
+    }
+
+    sectionHostStyle(section: ReportSection): Record<string, string> {
+        const frame = this.displayFrame(section);
+        if (!this.hasFreeLayout() || !frame) return {};
+        const scales = this._scaleFactors;
         return {
-            to: Math.max(0, Math.min(to, nodes.length - 1)),
-            targetId,
-            edge,
+            position: 'absolute',
+            left: `${frame.x / scales.x}px`,
+            top: `${frame.y / scales.y}px`,
+            width: frame.width ? `${Math.max(120, frame.width) / scales.x}px` : '100%',
+            marginBottom: '0px',
+            zIndex: this.draggingSectionId() === section.id ? '40' : '1',
+        };
+    }
+
+    private _snapshotSectionFrames(): { id: string; frame: ReportSectionFrame }[] {
+        const scales = this._scaleFactors;
+        const result: { id: string; frame: ReportSectionFrame }[] = [];
+        const pages = this._reportPages?.toArray() ?? [];
+        pages.forEach((pageRef, pageIndex) => {
+            const inner = pageRef.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
+            if (!inner) return;
+            const innerRect = inner.getBoundingClientRect();
+            inner.querySelectorAll('[data-report-section]').forEach((node) => {
+                const el = node as HTMLElement;
+                const id = el.dataset['sectionId'];
+                if (!id) return;
+                const rect = el.getBoundingClientRect();
+                result.push({
+                    id,
+                    frame: {
+                        page: pageIndex,
+                        x: Math.max(0, Math.round((rect.left - innerRect.left) * scales.x)),
+                        y: Math.max(0, Math.round((rect.top - innerRect.top) * scales.y)),
+                        width: Math.max(120, Math.round(rect.width * scales.x)),
+                    },
+                });
+            });
+        });
+        return result;
+    }
+
+    private _frameAtPointer(
+        clientX: number,
+        clientY: number,
+        grabX: number,
+        grabY: number,
+        width: number
+    ): ReportSectionFrame {
+        const scales = this._scaleFactors;
+        const pages = this._reportPages?.toArray() ?? [];
+        let pageIndex = Math.max(0, pages.length - 1);
+        let inner: HTMLElement | null = null;
+        for (let i = 0; i < pages.length; i++) {
+            const candidate = pages[i].nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
+            if (!candidate) continue;
+            const rect = candidate.getBoundingClientRect();
+            inner = candidate;
+            pageIndex = i;
+            if (clientY >= rect.top && clientY <= rect.bottom) break;
+        }
+        if (!inner) {
+            return { x: 0, y: 0, width, page: 0 };
+        }
+        const rect = inner.getBoundingClientRect();
+        const maxX = Math.max(0, Math.round(rect.width * scales.x) - width);
+        const maxY = Math.max(0, Math.round(rect.height * scales.y) - 48);
+        return {
+            page: pageIndex,
+            x: Math.max(0, Math.min(maxX, Math.round((clientX - grabX - rect.left) * scales.x))),
+            y: Math.max(0, Math.min(maxY, Math.round((clientY - grabY - rect.top) * scales.y))),
+            width,
         };
     }
 
@@ -606,8 +719,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
         this._sectionDrag = null;
         this.draggingSectionId.set(null);
-        this.sectionDropTargetId.set(null);
-        this.sectionDropEdge.set(null);
     }
 
     onSectionContextMenu(section: ReportSection, event: MouseEvent): void {
@@ -994,7 +1105,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         event: Event
     ): void {
         event.stopPropagation();
-        if (!this.clickable()) return;
+        if (!this.clickable() || this._sectionDragMoved) return;
         this.sectionClick()?.(section);
         this.cellSelect.emit({ section, key, part });
     }
@@ -1043,9 +1154,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Entries behind a `keyValueGrid`, table, or card, honoring hidden keys. */
     structuralEntries(section: ReportSection): { key: string; label: string; value: string }[] {
-        return collectScalarParams(this._valueAt(section.dataPath), {
-            hiddenKeys: section.hiddenKeys,
-        });
+        return this.sheetChunks(section).flatMap((chunk) => (chunk.kind === 'fields' ? chunk.entries : []));
+    }
+
+    sheetChunks(section: ReportSection): LayoutSheetChunk[] {
+        return chunkLayoutSheetItems(
+            collectLayoutSheetItems(this._valueAt(section.dataPath), {
+                hiddenKeys: section.hiddenKeys,
+                keyOrder: section.keyOrder,
+            })
+        );
+    }
+
+    sectionHasStructuredData(section: ReportSection): boolean {
+        return this.sheetChunks(section).length > 0;
     }
 
     sectionShowsRowLines(section: ReportSection): boolean {

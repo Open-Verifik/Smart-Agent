@@ -28,7 +28,15 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
-import { collectScalarParams } from '../report-param-entries.util';
+import {
+    applyVisibleKeyReorder,
+    collectLayoutSheetItems,
+    isHiddenParamKey,
+    setHiddenParamKey,
+    sortByKeyOrder,
+    valueAtDataPath,
+    type LayoutSheetItem,
+} from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
 import { ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
@@ -1032,31 +1040,30 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         return type === 'keyValueGrid' || type === 'table' || type === 'card';
     }
 
-    sectionParamOptions(section: ReportSection): { key: string; label: string }[] {
-        if (!section.dataPath) return [];
-
-        let current: any = this.previewData();
-        for (const part of section.dataPath.split('.')) {
-            if (current == null || typeof current !== 'object') return [];
-            current = current[part];
-        }
-        if (Array.isArray(current)) current = current[0];
-
-        return collectScalarParams(current).map((entry) => ({
-            key: entry.key,
-            label: entry.label,
-        }));
+    sectionParamOptions(section: ReportSection): LayoutSheetItem[] {
+        return collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
+            hiddenKeys: section.hiddenKeys,
+            keyOrder: section.keyOrder,
+        });
     }
 
     isSectionParamVisible(section: ReportSection, key: string): boolean {
-        return !(section.hiddenKeys ?? []).includes(key);
+        return !isHiddenParamKey(key, section.hiddenKeys);
     }
 
     setSectionParamVisible(section: ReportSection, key: string, visible: boolean): void {
-        const hidden = new Set(section.hiddenKeys ?? []);
-        if (visible) hidden.delete(key);
-        else hidden.add(key);
-        this.updateSection(section.id, { hiddenKeys: [...hidden] });
+        this.updateSection(section.id, { hiddenKeys: setHiddenParamKey(section.hiddenKeys, key, visible) });
+    }
+
+    onSectionParamDrop(section: ReportSection, event: CdkDragDrop<LayoutSheetItem[]>): void {
+        if (event.previousIndex === event.currentIndex) return;
+        const visible = this.sectionParamOptions(section).map((item) => item.key);
+        moveItemInArray(visible, event.previousIndex, event.currentIndex);
+        const allKeys = collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
+            hiddenKeys: [],
+        }).map((item) => item.key);
+        const seed = sortByKeyOrder(allKeys, section.keyOrder, (key) => key);
+        this.updateSection(section.id, { keyOrder: applyVisibleKeyReorder(seed, visible) });
     }
 
     setShowRowLines(section: ReportSection, enabled: boolean): void {

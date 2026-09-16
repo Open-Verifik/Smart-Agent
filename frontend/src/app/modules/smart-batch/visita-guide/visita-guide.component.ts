@@ -27,8 +27,21 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { collectScalarParams, flattenSampleResultsForPdf } from '../report-param-entries.util';
+import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import {
+    applyVisibleKeyReorder,
+    collectLayoutSheetItems,
+    collectScalarParams,
+    flattenSampleResultsForPdf,
+    isHiddenParamKey,
+    layoutParamGroups,
+    setHiddenParamKey,
+    sortByKeyOrder,
+    valueAtDataPath,
+    humanizeParamKey,
+    type LayoutParamGroup,
+    type LayoutSheetItem,
+} from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
 import { resolveTextRole } from '../report-text-role.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
@@ -700,6 +713,52 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutEditorKind.set('block');
     }
 
+    onLayoutSectionFrames(updates: { id: string; frame: ReportSectionFrame }[]): void {
+        const next = new Map(updates.map((item) => [item.id, item.frame]));
+        this.layoutSections.update((list) =>
+            this._sortLayoutByFrame(list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section)))
+        );
+    }
+
+    onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
+        this.layoutSections.update((list) =>
+            this._sortLayoutByFrame(
+                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
+            )
+        );
+    }
+
+    private _sortLayoutByFrame(list: ReportSection[]): ReportSection[] {
+        if (!list.some((section) => section.frame)) {
+            return list.map((section, order) => ({ ...section, order }));
+        }
+        return [...list]
+            .sort((left, right) => {
+                const page = (left.frame?.page ?? 0) - (right.frame?.page ?? 0);
+                if (page !== 0) return page;
+                const top = (left.frame?.y ?? 0) - (right.frame?.y ?? 0);
+                if (top !== 0) return top;
+                return (left.frame?.x ?? 0) - (right.frame?.x ?? 0);
+            })
+            .map((section, order) => ({ ...section, order }));
+    }
+
+    private _nextLayoutFrame(): ReportSectionFrame | undefined {
+        const framed = this.layoutSections().filter((section) => section.frame);
+        if (!framed.length) return undefined;
+        const last = framed.reduce((current, section) => {
+            const currentRank = (current.frame?.page ?? 0) * 10000 + (current.frame?.y ?? 0);
+            const nextRank = (section.frame?.page ?? 0) * 10000 + (section.frame?.y ?? 0);
+            return nextRank >= currentRank ? section : current;
+        });
+        return {
+            page: last.frame?.page ?? 0,
+            x: 0,
+            y: (last.frame?.y ?? 0) + 180,
+            width: last.frame?.width ?? 700,
+        };
+    }
+
     onLayoutOverlaySelect(id: 'logo' | 'watermark' | 'signature'): void {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
@@ -939,7 +998,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
             return;
         }
-        const section = this._sectionFromCard(card);
+        const section = { ...this._sectionFromCard(card), order: 0, frame: this._nextLayoutFrame() };
         this.layoutSections.update((list) => [...list, { ...section, order: list.length }]);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
@@ -951,7 +1010,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (this.layoutSections().some((section) => section.dataPath === path)) continue;
             this.layoutSections.update((list) => [
                 ...list,
-                { ...this._sectionFromCard(card), order: list.length },
+                { ...this._sectionFromCard(card), order: list.length, frame: this._nextLayoutFrame() },
             ]);
         }
     }
@@ -1073,6 +1132,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             label: title,
             staticContent: title,
             style: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', color: this.primaryColor() },
+            frame: this._nextLayoutFrame(),
         };
         this.layoutSections.update((list) => [
             section,
@@ -1090,6 +1150,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             label: this._transloco.translate('visitaGuide.layoutTextBlock'),
             staticContent: this._transloco.translate('visitaGuide.layoutTextPlaceholder'),
             style: { fontSize: 12, textAlign: 'left' },
+            frame: this._nextLayoutFrame(),
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
@@ -1102,6 +1163,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             type: 'divider',
             order: this.layoutSections().length,
             style: { color: this.primaryColor() },
+            frame: this._nextLayoutFrame(),
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
@@ -1346,8 +1408,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutCellPart.set('cell');
     }
 
-    layoutHiddenParamOptions(): { key: string; label: string }[] {
-        return this.layoutParamOptions().filter((param) => !this.isLayoutParamVisible(param.key));
+    layoutHiddenParamOptions(): LayoutSheetItem[] {
+        const section = this.selectedLayoutSection();
+        return collectLayoutSheetItems(this.layoutSourceValue(), {
+            keyOrder: section?.keyOrder,
+        }).filter((item) => !this.isLayoutParamVisible(item.key));
     }
 
     setSelectedLayoutBackground(value: string): void {
@@ -1435,37 +1500,87 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._patchSelectedLayoutStyle({ valueColor: value });
     }
 
-    layoutParamOptions(): { key: string; label: string }[] {
+    layoutParamLabel(key: string): string {
+        return this.layoutParamOptions().find((item) => item.key === key)?.label || humanizeParamKey(key);
+    }
+
+    layoutSourceValue(): unknown {
         const section = this.selectedLayoutSection();
-        if (!section?.dataPath) return [];
+        if (!section?.dataPath) return null;
+        return valueAtDataPath(this.previewData(), section.dataPath);
+    }
 
-        let current: any = this.previewData();
-        for (const part of section.dataPath.split('.')) {
-            if (current == null || typeof current !== 'object') return [];
-            current = current[part];
-        }
-        if (Array.isArray(current)) current = current[0];
+    layoutParamGroups(): LayoutParamGroup[] {
+        return layoutParamGroups(this.layoutSourceValue());
+    }
 
-        return collectScalarParams(current).map((entry) => ({
+    layoutOrderedItems(): LayoutSheetItem[] {
+        const section = this.selectedLayoutSection();
+        return collectLayoutSheetItems(this.layoutSourceValue(), {
+            hiddenKeys: section?.hiddenKeys,
+            keyOrder: section?.keyOrder,
+        });
+    }
+
+    layoutParamOptions(): { key: string; label: string }[] {
+        const value = this.layoutSourceValue();
+        const groups = layoutParamGroups(value);
+        const scalars = collectScalarParams(value, { skipObjectArrays: true, maxItems: 250 }).map((entry) => ({
             key: entry.key,
             label: entry.label,
         }));
+        const tables = groups
+            .filter((group) => group.kind === 'table')
+            .map((group) => ({ key: group.key, label: group.label }));
+        return [...tables, ...scalars];
     }
 
     isLayoutParamVisible(key: string): boolean {
-        return !(this.selectedLayoutSection()?.hiddenKeys ?? []).includes(key);
+        return !isHiddenParamKey(key, this.selectedLayoutSection()?.hiddenKeys);
     }
 
     setLayoutParamVisible(key: string, visible: boolean): void {
         const section = this.selectedLayoutSection();
         if (!section) return;
-        const hidden = new Set(section.hiddenKeys ?? []);
-        if (visible) hidden.delete(key);
-        else hidden.add(key);
-        this._patchSelectedLayout({ hiddenKeys: [...hidden] });
-        if (!visible && this.selectedLayoutCellKey() === key) {
+        this._patchSelectedLayout({ hiddenKeys: setHiddenParamKey(section.hiddenKeys, key, visible) });
+        if (!visible && this.selectedLayoutCellKey() && !this.isLayoutParamVisible(this.selectedLayoutCellKey()!)) {
             this.clearSelectedLayoutCell();
         }
+    }
+
+    onLayoutParamDrop(event: CdkDragDrop<LayoutSheetItem[]>): void {
+        if (event.previousIndex === event.currentIndex) return;
+        const visible = this.layoutOrderedItems().map((item) => item.key);
+        moveItemInArray(visible, event.previousIndex, event.currentIndex);
+        this._setLayoutKeyOrderFromVisible(visible);
+    }
+
+    moveSelectedLayoutParam(delta: -1 | 1): void {
+        const key = this.selectedLayoutCellKey();
+        if (!key) return;
+        const visible = this.layoutOrderedItems().map((item) => item.key);
+        const from = visible.indexOf(key);
+        const to = from + delta;
+        if (from < 0 || to < 0 || to >= visible.length) return;
+        moveItemInArray(visible, from, to);
+        this._setLayoutKeyOrderFromVisible(visible);
+    }
+
+    canMoveSelectedLayoutParam(delta: -1 | 1): boolean {
+        const key = this.selectedLayoutCellKey();
+        if (!key) return false;
+        const visible = this.layoutOrderedItems().map((item) => item.key);
+        const from = visible.indexOf(key);
+        const to = from + delta;
+        return from >= 0 && to >= 0 && to < visible.length;
+    }
+
+    private _setLayoutKeyOrderFromVisible(visibleOrdered: string[]): void {
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        const allKeys = collectLayoutSheetItems(this.layoutSourceValue(), { hiddenKeys: [] }).map((item) => item.key);
+        const seed = sortByKeyOrder(allKeys, section.keyOrder, (key) => key);
+        this._patchSelectedLayout({ keyOrder: applyVisibleKeyReorder(seed, visibleOrdered) });
     }
 
     canApplyLayoutStyleToAll(): boolean {
@@ -2102,7 +2217,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 rotation: this.logoRotation(),
                 autoFitContent: true,
             },
-            sections: draft.sections,
+            sections: this._sortLayoutByFrame(draft.sections ?? []),
             sampleData: flattenSampleResultsForPdf(this.previewData(), draft.sections ?? []),
             batchConfiguration: configId ?? draft.batchConfiguration,
             category: this.entities().length === 1 ? this.entities()[0] : draft.category,

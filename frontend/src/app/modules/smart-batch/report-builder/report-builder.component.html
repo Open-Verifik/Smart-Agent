@@ -2535,9 +2535,17 @@
         <p class="mt-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
             {{ 'smartReport.visibleParams' | transloco }}
         </p>
-        <div class="max-h-48 space-y-1 overflow-y-auto">
+        <div
+            cdkDropList
+            class="max-h-48 space-y-1 overflow-y-auto"
+            (cdkDropListDropped)="onSectionParamDrop(sel, $event)"
+        >
             @for (param of sectionParamOptions(sel); track param.key) {
-                <label class="flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                <div
+                    cdkDrag
+                    class="flex items-center gap-2 rounded-lg border border-stone-200 px-2 py-1 text-xs text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                >
+                    <mat-icon cdkDragHandle class="!h-4 !w-4 !text-base cursor-grab text-stone-400">drag_indicator</mat-icon>
                     <input
                         type="checkbox"
                         [checked]="isSectionParamVisible(sel, param.key)"
@@ -2545,8 +2553,8 @@
                             setSectionParamVisible(sel, param.key, $any($event.target).checked)
                         "
                     />
-                    <span class="truncate">{{ param.label }}</span>
-                </label>
+                    <span class="min-w-0 flex-1 truncate">{{ param.label }}</span>
+                </div>
             }
         </div>
     } @else {

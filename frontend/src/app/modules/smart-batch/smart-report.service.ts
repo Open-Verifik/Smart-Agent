@@ -38,6 +38,13 @@ export type ReportTextRole = 'title' | 'label' | 'value';
 export type ReportCellPart = 'cell' | 'label' | 'value';
 export type ReportRowLineStyle = 'solid' | 'dotted' | 'dashed';
 
+export interface ReportSectionFrame {
+    x: number;
+    y: number;
+    width?: number;
+    page?: number;
+}
+
 export interface ReportTextRoleStyle {
     fontSize?: number;
     fontWeight?: 'normal' | 'bold';
@@ -81,6 +88,8 @@ export interface ReportSection {
     columnsPerRow?: number;
     /** Keys to omit from keyValueGrid / table / card parameter lists. */
     hiddenKeys?: string[];
+    /** Display order of parameter and nested-table keys inside the block. */
+    keyOrder?: string[];
     /** Row separators between parameters. Default true. */
     showRowLines?: boolean;
     /** Separator look. Default solid. */
@@ -100,6 +109,9 @@ export interface ReportSection {
 
     showWhenEmpty?: boolean;
     emptyMessage?: string;
+
+    /** Free placement on the sheet (canonical 96 DPI px from the page content origin). */
+    frame?: ReportSectionFrame;
 
     style?: {
         fontSize?: number;
