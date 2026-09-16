@@ -1035,6 +1035,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.sectionShowsRowLines(section) && !this.cellHasBox(section, key) && !isLast;
     }
 
+    rowLineCss(section: ReportSection): string {
+        const style = section.rowLineStyle === 'dotted' || section.rowLineStyle === 'dashed' ? section.rowLineStyle : 'solid';
+        const color = section.rowLineColor || '#d6d3d1';
+        return `1px ${style} ${color}`;
+    }
+
     /** Entries behind a `keyValueGrid`, table, or card, honoring hidden keys. */
     structuralEntries(section: ReportSection): { key: string; label: string; value: string }[] {
         return collectScalarParams(this._valueAt(section.dataPath), {

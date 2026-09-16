@@ -36,6 +36,7 @@ export type ReportStyleVariant = 'neutral' | 'success' | 'warning' | 'danger' | 
 
 export type ReportTextRole = 'title' | 'label' | 'value';
 export type ReportCellPart = 'cell' | 'label' | 'value';
+export type ReportRowLineStyle = 'solid' | 'dotted' | 'dashed';
 
 export interface ReportTextRoleStyle {
     fontSize?: number;
@@ -82,6 +83,10 @@ export interface ReportSection {
     hiddenKeys?: string[];
     /** Row separators between parameters. Default true. */
     showRowLines?: boolean;
+    /** Separator look. Default solid. */
+    rowLineStyle?: ReportRowLineStyle;
+    /** Separator color. Independent from cell/block background. */
+    rowLineColor?: string;
     /** Independent label, value, and cell chrome per parameter key. */
     keyOverrides?: Record<string, ReportKeyOverride>;
 

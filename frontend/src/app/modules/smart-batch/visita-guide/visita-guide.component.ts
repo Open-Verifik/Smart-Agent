@@ -27,8 +27,8 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportKeyOverride, ReportSection, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { collectScalarParams } from '../report-param-entries.util';
+import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { collectScalarParams, flattenSampleResultsForPdf } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
 import { resolveTextRole } from '../report-text-role.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
@@ -218,6 +218,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _endpointHoverShow: ReturnType<typeof setTimeout> | null = null;
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
+    readonly layoutRowLineStyles: ReportRowLineStyle[] = ['solid', 'dotted', 'dashed'];
 
     allowsMultiEntity = computed(() => this.intent() === 'report' || this.intent() === 'template');
 
@@ -1396,7 +1397,34 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     setSelectedLayoutShowRowLines(enabled: boolean): void {
-        this._patchSelectedLayout({ showRowLines: enabled });
+        this._patchSelectedLayout({
+            showRowLines: enabled,
+            rowLineStyle: this.selectedLayoutRowLineStyle(),
+            rowLineColor: this.selectedLayoutRowLineColor(),
+        });
+    }
+
+    selectedLayoutRowLineStyle(): ReportRowLineStyle {
+        const style = this.selectedLayoutSection()?.rowLineStyle;
+        return style === 'dotted' || style === 'dashed' ? style : 'solid';
+    }
+
+    setSelectedLayoutRowLineStyle(style: ReportRowLineStyle): void {
+        this._patchSelectedLayout({ showRowLines: true, rowLineStyle: style });
+    }
+
+    selectedLayoutRowLineColor(): string {
+        return this.selectedLayoutSection()?.rowLineColor || '#d6d3d1';
+    }
+
+    setSelectedLayoutRowLineColor(value: string): void {
+        this._patchSelectedLayout({ showRowLines: true, rowLineColor: value });
+    }
+
+    layoutRowLineStyleKey(style: ReportRowLineStyle): string {
+        if (style === 'dotted') return 'visitaGuide.layoutRowLineDotted';
+        if (style === 'dashed') return 'visitaGuide.layoutRowLineDashed';
+        return 'visitaGuide.layoutRowLineSolid';
     }
 
     setSelectedLayoutLabelColor(value: string): void {
@@ -1450,6 +1478,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
         const snapshot = this._layoutStyleSnapshot(source);
         const showRowLines = source.showRowLines !== false;
+        const rowLineStyle = source.rowLineStyle;
+        const rowLineColor = source.rowLineColor;
         const columnsPerRow = source.columnsPerRow;
 
         this.layoutSections.update((list) =>
@@ -1466,6 +1496,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 return {
                     ...section,
                     showRowLines,
+                    rowLineStyle,
+                    rowLineColor,
                     columnsPerRow:
                         source.type === 'keyValueGrid' && section.type === 'keyValueGrid'
                             ? columnsPerRow
@@ -1757,20 +1789,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!this.layoutSections().length) this.addAllCardsToLayout();
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
-            const report = await firstValueFrom(
-                this._reports.createReport({
-                    template: template._id,
-                    smartBatch: batchId,
-                    name: this.reportTitle() || template.name,
-                })
-            );
-            const result = await firstValueFrom(
-                this._reports.generateReport(report._id!, { rowIndex: 0 })
-            );
-            if (result.pdf?.buffer) {
-                const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
-                this._state.pdfDataUrl.set(dataUrl);
-                this.downloadDataUrl(dataUrl, `${this.fileBaseName()}.pdf`);
+            const sample = flattenSampleResultsForPdf(this.previewData(), this.layoutSections());
+            try {
+                const blob = await firstValueFrom(
+                    this._reports.downloadTemplateSample(template._id, { sampleData: sample })
+                );
+                const url = URL.createObjectURL(blob);
+                this._state.pdfDataUrl.set(url);
+                this.downloadDataUrl(url, `${this.fileBaseName()}.pdf`);
+            } catch {
+                const report = await firstValueFrom(
+                    this._reports.createReport({
+                        template: template._id,
+                        smartBatch: batchId,
+                        name: this.reportTitle() || template.name,
+                    })
+                );
+                const result = await firstValueFrom(
+                    this._reports.generateReport(report._id!, { rowIndex: 0 })
+                );
+                if (result.pdf?.buffer) {
+                    const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
+                    this._state.pdfDataUrl.set(dataUrl);
+                    this.downloadDataUrl(dataUrl, `${this.fileBaseName()}.pdf`);
+                }
             }
             this._snack.open(this._transloco.translate('visitaGuide.pdfReady'), undefined, {
                 duration: 3000,
@@ -2061,6 +2103,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 autoFitContent: true,
             },
             sections: draft.sections,
+            sampleData: flattenSampleResultsForPdf(this.previewData(), draft.sections ?? []),
             batchConfiguration: configId ?? draft.batchConfiguration,
             category: this.entities().length === 1 ? this.entities()[0] : draft.category,
         };

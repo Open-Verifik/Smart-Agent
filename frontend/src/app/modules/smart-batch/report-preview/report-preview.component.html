@@ -408,8 +408,7 @@
     @if (section.type === 'field') {
         <div
             class="flex gap-3 py-2.5"
-            [class.border-b]="sectionShowsRowLines(section)"
-            [class.border-gray-100]="sectionShowsRowLines(section)"
+            [style.border-bottom]="sectionShowsRowLines(section) ? rowLineCss(section) : null"
             [style.text-align]="roleTextAlign(section, 'value')"
         >
             <span
@@ -451,8 +450,7 @@
                 <tbody>
                     @for (row of resolveTableData(section); track row.key) {
                         <tr
-                            [class.border-b]="sectionShowsRowLines(section)"
-                            [class.border-gray-100]="sectionShowsRowLines(section)"
+                            [style.border-bottom]="sectionShowsRowLines(section) ? rowLineCss(section) : null"
                         >
                             <td
                                 class="py-2 pr-4 w-1/3"
@@ -625,8 +623,7 @@
                             [class.ring-2]="isCellSelected(section, entry.key)"
                             [class.ring-indigo-400]="isCellSelected(section, entry.key)"
                             [class.cursor-pointer]="clickable()"
-                            [class.border-b]="cellShowsRowLine(section, entry.key, last)"
-                            [class.border-stone-200]="cellShowsRowLine(section, entry.key, last)"
+                            [style.border-bottom]="cellShowsRowLine(section, entry.key, last) ? rowLineCss(section) : null"
                             [style.background-color]="cellBackground(section, entry.key) || null"
                             [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
                             [style.border-radius.px]="cellRadius(section, entry.key)"
@@ -747,15 +744,14 @@
                             [class.ring-2]="isCellSelected(section, entry.key)"
                             [class.ring-indigo-400]="isCellSelected(section, entry.key)"
                             [class.cursor-pointer]="clickable()"
-                            [class.border-b]="cellShowsRowLine(section, entry.key, last)"
-                            [class.border-stone-200]="cellShowsRowLine(section, entry.key, last)"
+                            [style.border-bottom]="cellShowsRowLine(section, entry.key, last) ? rowLineCss(section) : null"
                             [style.background-color]="cellBackground(section, entry.key) || null"
                             [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
                             [style.border-radius.px]="cellRadius(section, entry.key)"
                             (click)="onCellActivate(section, entry.key, 'cell', $event)"
                             (pointerdown)="$event.stopPropagation()"
                         >
-                            <span
+                            <span>
                                 [class.ring-1]="isCellSelected(section, entry.key, 'label')"
                                 [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
                                 [style.font-family]="roleFontFamily(section, 'label', entry.key)"

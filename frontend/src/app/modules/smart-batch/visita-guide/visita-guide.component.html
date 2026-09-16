@@ -1224,6 +1224,31 @@
                                                     {{ t('visitaGuide.layoutRowLineNone') }}
                                                 </button>
                                             </div>
+                                            @if (selectedLayoutShowsRowLines()) {
+                                                <div class="mt-1 flex gap-1">
+                                                    @for (style of layoutRowLineStyles; track style) {
+                                                        <button
+                                                            type="button"
+                                                            class="flex-1 rounded-lg border py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                            [class.border-stone-950]="selectedLayoutRowLineStyle() === style"
+                                                            [class.bg-white]="selectedLayoutRowLineStyle() === style"
+                                                            [class.border-stone-200]="selectedLayoutRowLineStyle() !== style"
+                                                            (click)="setSelectedLayoutRowLineStyle(style)"
+                                                        >
+                                                            {{ t(layoutRowLineStyleKey(style)) }}
+                                                        </button>
+                                                    }
+                                                </div>
+                                                <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                    t('visitaGuide.layoutRowLineColor')
+                                                }}</span>
+                                                <color-hex-field
+                                                    class="mt-1 block"
+                                                    [ngModel]="selectedLayoutRowLineColor()"
+                                                    (ngModelChange)="setSelectedLayoutRowLineColor($event)"
+                                                    [ariaLabel]="t('visitaGuide.layoutRowLineColor')"
+                                                />
+                                            }
                                             @if (layoutHiddenParamOptions().length > 0) {
                                                 <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
                                                     {{ t('visitaGuide.layoutHiddenCells') }}
