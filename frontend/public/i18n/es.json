@@ -2888,7 +2888,7 @@
                     "minScoreHelp": "Valores más altos reducen el spoofing pero rechazan más usuarios reales.",
                     "compareMinScore": "Puntuación mínima de comparación facial",
                     "compareMinScoreSubtitle": "Qué tan parecido debe ser el selfie al retrato del documento.",
-                    "compareMinScoreHelp": "Valores más altos reducen falsos positivos pero pueden rechazar fotos de baja calidad.",
+                    "compareMinScoreHelp": "Valores más altos reducen falsos positivos. Algunos documentos impresos (cédulas colombianas desgastadas y similares en otros países) puntúan más bajo frente a un selfie en vivo; 65% es el mínimo que puedes configurar si aceptas más riesgo de falsos aceptados.",
                     "searchMinScore": "Puntuación mínima de búsqueda",
                     "searchMinScoreSubtitle": "Umbral de confianza al buscar al cliente entre inscripciones existentes.",
                     "searchMinScoreHelp": "Se usa para detección de duplicados 1:N.",

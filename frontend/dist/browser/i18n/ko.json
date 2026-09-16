@@ -2873,7 +2873,7 @@
                     "minScoreHelp": "값이 높을수록 위조 시도가 줄지만, 실제 사용자도 더 많이 거부됩니다.",
                     "compareMinScore": "얼굴 비교 최소 점수",
                     "compareMinScoreSubtitle": "셀카가 문서 사진과 얼마나 일치해야 하는지.",
-                    "compareMinScoreHelp": "값이 높을수록 오인식은 줄지만, 저품질 사진이 거부될 수 있습니다.",
+                    "compareMinScoreHelp": "값이 높을수록 오인식은 줄어듭니다. 일부 인쇄 신분증(낡은 콜롬비아 신분증 및 다른 국가의 유사 문서)은 라이브 셀피와 비교하면 점수가 낮습니다. 오수락 위험을 감수하면 최솟값은 65%입니다.",
                     "searchMinScore": "검색 최소 점수",
                     "searchMinScoreSubtitle": "기존 등록에서 고객을 검색할 때의 신뢰도 임계값.",
                     "searchMinScoreHelp": "1:N 중복 감지에 사용됩니다.",

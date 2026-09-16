@@ -919,6 +919,14 @@
         "mexico_api_ine_validate": {
             "title": "멕시코 — INE 검증",
             "description": "CIC, OCR 또는 clave de elector로 멕시코 유권자 신분증(INE)을 선거인명부에 대해 검증합니다."
+        },
+        "colombia_api_copnia_license": {
+            "title": "콜롬비아 — 등록 번호로 COPNIA 면허 조회",
+            "description": "GET /v2/co/copnia/matricula로 COPNIA 전문 면허를 등록 번호(matrícula)로 조회합니다."
+        },
+        "colombia_api_copnia": {
+            "title": "콜롬비아 — 서류로 COPNIA 전문 면허 조회",
+            "description": "GET /v2/co/copnia로 COPNIA(Consejo Profesional Nacional de Ingeniería) 전문 면허를 신분증으로 조회합니다."
         }
     }
 }

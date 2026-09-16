@@ -437,7 +437,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             liveness: this._formBuilder.group({
                 attemptLimit: [currentData?.liveness?.attemptLimit || 3, [Validators.required, Validators.min(1), Validators.max(5)]],
                 minScore: [currentData?.liveness?.minScore || 0.65, [Validators.min(0.52), Validators.max(0.9)]],
-                compareMinScore: [currentData?.liveness?.compareMinScore || 0.85, [Validators.min(0.7), Validators.max(0.95)]],
+                compareMinScore: [currentData?.liveness?.compareMinScore || 0.85, [Validators.min(0.65), Validators.max(0.95)]],
                 searchMinScore: [currentData?.liveness?.searchMinScore || 0.85, [Validators.min(0.81), Validators.max(0.95)]],
                 searchMode: [currentData?.liveness?.searchMode || 'FAST'],
                 kycType: ['traditional'],
@@ -492,7 +492,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                         [Validators.required, Validators.min(1), Validators.max(5)],
                     ],
                     minScore: [currentData?.liveness?.minScore || 0.65, [Validators.min(0.52), Validators.max(0.9)]],
-                    compareMinScore: [currentData?.representatives?.liveness?.compareMinScore || 0.85, [Validators.min(0.7), Validators.max(0.95)]],
+                    compareMinScore: [currentData?.representatives?.liveness?.compareMinScore || 0.85, [Validators.min(0.65), Validators.max(0.95)]],
                     searchMinScore: [currentData?.representatives?.liveness?.searchMinScore || 0.85, [Validators.min(0.81), Validators.max(0.95)]],
                     searchMode: [currentData?.representatives?.liveness?.searchMode || 'FAST'],
                     kycType: ['traditional'],
@@ -720,7 +720,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             'information.showTermsAndConditions': [],
             'liveness.attemptLimit': [Validators.required],
             'liveness.minScore': [Validators.required, Validators.min(0.52), Validators.max(0.9)],
-            'liveness.compareMinScore': [Validators.required, Validators.min(0.7), Validators.max(0.95)],
+            'liveness.compareMinScore': [Validators.required, Validators.min(0.65), Validators.max(0.95)],
             'liveness.searchMinScore': [Validators.required, Validators.min(0.81), Validators.max(0.95)],
             'liveness.searchMode': [Validators.required],
         };
@@ -766,7 +766,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         const map: Record<string, any[]> = {
             attemptLimit: [Validators.required],
             minScore: [Validators.required, Validators.min(0.52), Validators.max(0.9)],
-            compareMinScore: [Validators.required, Validators.min(0.7), Validators.max(0.95)],
+            compareMinScore: [Validators.required, Validators.min(0.65), Validators.max(0.95)],
             searchMinScore: [Validators.required, Validators.min(0.81), Validators.max(0.95)],
             searchMode: [Validators.required],
         };

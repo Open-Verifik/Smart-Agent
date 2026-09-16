@@ -10,7 +10,7 @@
     },
     "colombia_api_identity_lookup": {
       "title": "Ciudadano Colombiano",
-      "description": "Valida la identidad de personas en Colombia con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
+      "description": "Valida identidad colombiana por número de documento (CC, CE, PPT, NIT o PEP) mediante GET /v2/co/cedula."
     },
     "colombia_special_api_police_identity_lookup": {
       "title": "Verificación de Antecedentes Policiales",
@@ -592,6 +592,10 @@
       "title": "Colombia - Verificación de Propietarios de Vehículos (RUNT)",
       "description": "Verifica propiedad vehicular y propietarios registrados mediante RUNT."
     },
+    "colombia_api_vehicle_owners": {
+      "title": "Colombia - Historial de Propietarios del Vehículo",
+      "description": "Consulta los propietarios de un vehículo colombiano por placa. Devuelve los datos del vehículo y el historial completo de propietarios."
+    },
     "chile_api_driver_license": {
       "title": "Licencia de Conducir",
       "description": "Consulta licencia de conducir chilena por número: clase, restricciones, fechas de control, RUT y domicilio desde registros oficiales para flotas y cumplimiento."
@@ -857,8 +861,20 @@
       "description": "Crear un HumanID (credencial verificable) encriptando metadatos y almacenándolo en IPFS"
     },
     "zelf-proof-liveness-active-user": {
-      "title": "Zelf Proof con Detección de Vida",
-      "description": "Servicio de Zelf Proof con detección de vida para verificación de identidad mejorada. Este servicio proporciona generación de pruebas con detección activa de vida para asegurar que la persona esté físicamente presente durante la verificación."
+      "title": "HumanID con detección de vida (usuario activo)",
+      "description": "Crea un HumanID con liveness al descifrar. El historial factura este código cuando requireLiveness está activo; la ruta HTTP es la misma que Encriptar HumanID."
+    },
+    "zelf-proof-encrypt-qr": {
+      "title": "Encriptar HumanID QR",
+      "description": "Crea un HumanID y lo devuelve como imagen QR"
+    },
+    "zelf-proof-decrypt": {
+      "title": "Desencriptar HumanID",
+      "description": "Desencripta un HumanID con un rostro en vivo para recuperar los metadatos"
+    },
+    "zelf-proof-preview": {
+      "title": "Vista previa HumanID",
+      "description": "Vista previa de los datos públicos de un HumanID sin desencriptar metadatos privados"
     },
     "biometrics_api_create_person": {
       "title": "Biometría - Crear Persona (sin detección de vida)",
@@ -892,6 +908,10 @@
       "title": "Consulta de ciudadano vía Registraduría (SCCRC)",
       "description": "Consulta un registro civil de nacimiento colombiano por número de documento mediante GET /v2/co/cedula/registraduria (solo Registraduría SCCRC)."
     },
+    "colombia_api_identity_lookup_procuraduria": {
+      "title": "Consulta de ciudadano vía Procuraduría",
+      "description": "Consulta de identidad solo de nombres contra Procuraduría (CC, CE, PPT, NIT o PEP) mediante GET /v2/co/procuraduria. No devuelve antecedentes disciplinarios."
+    },
     "mexico_api_ine_ocr": {
       "title": "OCR INE",
       "description": "Extrae campos del INE con OCR Gemini de Verifik y valida el estatus electoral con Nexcar (solo números) en una sola petición."
@@ -899,6 +919,14 @@
     "mexico_api_ine_validate": {
       "title": "Validación INE",
       "description": "Valida una credencial para votar (INE) mexicana contra el padrón electoral usando CIC, OCR o clave de elector."
+    },
+    "colombia_api_copnia_license": {
+      "title": "COPNIA matrícula profesional por número",
+      "description": "Consulta una matrícula profesional del COPNIA por número de registro mediante GET /v2/co/copnia/matricula."
+    },
+    "colombia_api_copnia": {
+      "title": "COPNIA matrículas profesionales por documento",
+      "description": "Consulta matrículas profesionales del COPNIA (Consejo Profesional Nacional de Ingeniería) por cédula mediante GET /v2/co/copnia."
     }
   }
 }

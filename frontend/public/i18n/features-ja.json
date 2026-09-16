@@ -919,6 +919,14 @@
         "mexico_api_ine_validate": {
             "title": "メキシコ — INE 検証",
             "description": "CIC、OCR、または clave de elector を使い、メキシコ有権者証（INE）を選挙人名簿に対して検証します。"
+        },
+        "colombia_api_copnia_license": {
+            "title": "コロンビア — 登録番号で COPNIA 免許を照会",
+            "description": "GET /v2/co/copnia/matricula で COPNIA 専門免許を登録番号（matrícula）から照会します。"
+        },
+        "colombia_api_copnia": {
+            "title": "コロンビア — 書類番号で COPNIA 専門免許を照会",
+            "description": "GET /v2/co/copnia で COPNIA（Consejo Profesional Nacional de Ingeniería）の専門免許を身分証明書から照会します。"
         }
     }
 }

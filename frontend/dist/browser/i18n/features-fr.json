@@ -919,6 +919,14 @@
         "mexico_api_ine_validate": {
             "title": "Mexique — Validation INE",
             "description": "Validez une carte d'électeur mexicaine (INE) auprès du registre électoral à l'aide du CIC, de l'OCR ou de la clave de elector."
+        },
+        "colombia_api_copnia_license": {
+            "title": "Licence COPNIA par matrícula",
+            "description": "Consultez une licence professionnelle COPNIA par numéro d'inscription via GET /v2/co/copnia/matricula."
+        },
+        "colombia_api_copnia": {
+            "title": "Licences COPNIA par document",
+            "description": "Consultez les licences professionnelles COPNIA (Consejo Profesional Nacional de Ingeniería) par pièce d'identité via GET /v2/co/copnia."
         }
     }
 }
