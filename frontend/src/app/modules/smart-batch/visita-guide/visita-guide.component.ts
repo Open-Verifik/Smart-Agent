@@ -43,6 +43,15 @@ import {
 } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
 import { resolveTextRole } from '../report-text-role.util';
+import {
+    clampRowLineMark,
+    clampRowLineWidth,
+    defaultRowLineMark,
+    ROW_LINE_MARK_MAX,
+    ROW_LINE_MARK_MIN,
+    ROW_LINE_WIDTH_MAX,
+    ROW_LINE_WIDTH_MIN,
+} from '../report-row-line.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { buildRowDataForResolution } from '../template-match.util';
 import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
@@ -234,6 +243,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
     readonly layoutRowLineStyles: ReportRowLineStyle[] = ['solid', 'dotted', 'dashed'];
+    readonly layoutRowLineWidthMin = ROW_LINE_WIDTH_MIN;
+    readonly layoutRowLineWidthMax = ROW_LINE_WIDTH_MAX;
+    readonly layoutRowLineMarkMin = ROW_LINE_MARK_MIN;
+    readonly layoutRowLineMarkMax = ROW_LINE_MARK_MAX;
 
     allowsMultiEntity = computed(() => this.intent() === 'report' || this.intent() === 'template');
 
@@ -1359,15 +1372,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._patchSelectedLayoutStyle({ [key]: next, ...mirrored });
     }
 
-    private _patchSelectedKeyOverride(patch: Partial<ReportKeyOverride>): void {
+    private _patchSelectedKeyOverride(patch: Partial<ReportKeyOverride>, unset: (keyof ReportKeyOverride)[] = []): void {
         const section = this.selectedLayoutSection();
         const key = this.selectedLayoutCellKey();
         if (!section || !key) return;
-        const current = section.keyOverrides?.[key] ?? {};
+        const current = { ...(section.keyOverrides?.[key] ?? {}) };
+        const next: ReportKeyOverride = { ...current, ...patch };
+        for (const field of unset) delete next[field];
         this._patchSelectedLayout({
             keyOverrides: {
                 ...(section.keyOverrides ?? {}),
-                [key]: { ...current, ...patch },
+                [key]: next,
             },
         });
     }
@@ -1419,6 +1434,93 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const width = Number(value);
         if (!Number.isFinite(width)) return;
         this._patchSelectedKeyOverride({ borderWidth: Math.max(1, Math.min(12, Math.round(width))) });
+    }
+
+    selectedLayoutCellRowLineMode(): 'inherit' | 'none' | ReportRowLineStyle {
+        const override = this.selectedLayoutCellOverride();
+        if (override?.showRowLine === false) return 'none';
+        if (override?.showRowLine === true) {
+            const style = override.rowLineStyle;
+            return style === 'dotted' || style === 'dashed' ? style : 'solid';
+        }
+        return 'inherit';
+    }
+
+    setSelectedLayoutCellRowLineMode(mode: 'inherit' | 'none' | ReportRowLineStyle): void {
+        if (mode === 'inherit') {
+            this._patchSelectedKeyOverride({}, ['showRowLine', 'rowLineStyle', 'rowLineColor', 'rowLineWidth', 'rowLineMark']);
+            return;
+        }
+        if (mode === 'none') {
+            this._patchSelectedKeyOverride({ showRowLine: false }, ['rowLineStyle', 'rowLineColor', 'rowLineWidth', 'rowLineMark']);
+            return;
+        }
+        this._patchSelectedKeyOverride({
+            showRowLine: true,
+            rowLineStyle: mode,
+            rowLineColor: this.selectedLayoutCellRowLineColor(),
+            rowLineWidth: this.selectedLayoutCellRowLineWidth(),
+            rowLineMark: this.selectedLayoutCellRowLineMark(),
+        });
+    }
+
+    selectedLayoutCellRowLineColor(): string {
+        return (
+            this.selectedLayoutCellOverride()?.rowLineColor ||
+            this.selectedLayoutSection()?.rowLineColor ||
+            '#d6d3d1'
+        );
+    }
+
+    setSelectedLayoutCellRowLineColor(value: string): void {
+        const mode = this.selectedLayoutCellRowLineMode();
+        this._patchSelectedKeyOverride({
+            showRowLine: mode === 'none' ? false : true,
+            rowLineStyle: mode === 'inherit' || mode === 'none' ? this.selectedLayoutRowLineStyle() : mode,
+            rowLineColor: value,
+        });
+    }
+
+    selectedLayoutCellEffectiveRowLineStyle(): ReportRowLineStyle {
+        const mode = this.selectedLayoutCellRowLineMode();
+        if (mode === 'dotted' || mode === 'dashed' || mode === 'solid') return mode;
+        return this.selectedLayoutRowLineStyle();
+    }
+
+    selectedLayoutCellRowLineWidth(): number {
+        return clampRowLineWidth(
+            this.selectedLayoutCellOverride()?.rowLineWidth ?? this.selectedLayoutSection()?.rowLineWidth
+        );
+    }
+
+    setSelectedLayoutCellRowLineWidth(value: string | number): void {
+        const mode = this.selectedLayoutCellRowLineMode();
+        this._patchSelectedKeyOverride({
+            rowLineWidth: clampRowLineWidth(value),
+            ...(mode === 'inherit' || mode === 'none'
+                ? {}
+                : { showRowLine: true, rowLineStyle: mode }),
+        });
+    }
+
+    selectedLayoutCellRowLineMark(): number {
+        const style = this.selectedLayoutCellEffectiveRowLineStyle();
+        return clampRowLineMark(
+            this.selectedLayoutCellOverride()?.rowLineMark ?? this.selectedLayoutSection()?.rowLineMark,
+            style,
+            defaultRowLineMark(style)
+        );
+    }
+
+    setSelectedLayoutCellRowLineMark(value: string | number): void {
+        const mode = this.selectedLayoutCellRowLineMode();
+        const style = this.selectedLayoutCellEffectiveRowLineStyle();
+        this._patchSelectedKeyOverride({
+            rowLineMark: clampRowLineMark(value, style),
+            ...(mode === 'inherit' || mode === 'none'
+                ? {}
+                : { showRowLine: true, rowLineStyle: mode }),
+        });
     }
 
     clearSelectedLayoutCell(): void {
@@ -1515,6 +1617,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     setSelectedLayoutRowLineColor(value: string): void {
         this._patchSelectedLayout({ showRowLines: true, rowLineColor: value });
+    }
+
+    selectedLayoutRowLineWidth(): number {
+        return clampRowLineWidth(this.selectedLayoutSection()?.rowLineWidth);
+    }
+
+    setSelectedLayoutRowLineWidth(value: string | number): void {
+        this._patchSelectedLayout({ showRowLines: true, rowLineWidth: clampRowLineWidth(value) });
+    }
+
+    selectedLayoutRowLineMark(): number {
+        const style = this.selectedLayoutRowLineStyle();
+        return clampRowLineMark(this.selectedLayoutSection()?.rowLineMark, style, defaultRowLineMark(style));
+    }
+
+    setSelectedLayoutRowLineMark(value: string | number): void {
+        this._patchSelectedLayout({
+            showRowLines: true,
+            rowLineMark: clampRowLineMark(value, this.selectedLayoutRowLineStyle()),
+        });
     }
 
     layoutRowLineStyleKey(style: ReportRowLineStyle): string {
@@ -1626,6 +1748,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const showRowLines = source.showRowLines !== false;
         const rowLineStyle = source.rowLineStyle;
         const rowLineColor = source.rowLineColor;
+        const rowLineWidth = source.rowLineWidth;
+        const rowLineMark = source.rowLineMark;
         const columnsPerRow = source.columnsPerRow;
 
         this.layoutSections.update((list) =>
@@ -1644,6 +1768,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     showRowLines,
                     rowLineStyle,
                     rowLineColor,
+                    rowLineWidth,
+                    rowLineMark,
                     columnsPerRow:
                         source.type === 'keyValueGrid' && section.type === 'keyValueGrid'
                             ? columnsPerRow
@@ -1725,12 +1851,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     async saveLayoutAndGenerate(): Promise<void> {
         if (!this.layoutSections().length) this.addAllCardsToLayout();
+        const printHtml = this._editorPrintHtml();
         const saved = await this.saveLayoutTemplate();
         if (!saved) return;
         if (this.mode() === 'batch') {
             this._continueBatchUpload();
             return;
         }
+        await this.generatePdf(printHtml);
         this.step.set('generate');
     }
 
@@ -1980,15 +2108,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this.inputValues()[key] ?? '';
     }
 
-    async generatePdf(): Promise<void> {
-        const batchId = this._state.batchId();
-        if (!batchId) {
-            this._snack.open(this._transloco.translate('visitaGuide.needTemplate'), undefined, {
-                duration: 3000,
-            });
-            return;
-        }
-
+    async generatePdf(printHtmlOverride?: string | null): Promise<void> {
         this.isGenerating.set(true);
         try {
             if (!this.layoutSections().length) this.addAllCardsToLayout();
@@ -1996,41 +2116,51 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!template?._id) throw new Error('template');
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
             const sample = this.previewData();
-            const printHtml = this._editorPrintHtml();
-            try {
-                const blob = await firstValueFrom(
-                    this._reports.downloadTemplateSample(template._id, {
-                        sampleData: sample,
-                        ...(printHtml ? { printHtml } : {}),
-                    })
-                );
-                const url = URL.createObjectURL(blob);
-                this._state.pdfDataUrl.set(url);
-                this.downloadDataUrl(url, `${this.fileBaseName()}.pdf`);
-            } catch {
-                const report = await firstValueFrom(
-                    this._reports.createReport({
-                        template: template._id,
-                        smartBatch: batchId,
-                        name: this.reportTitle() || template.name,
-                    })
-                );
-                const result = await firstValueFrom(
-                    this._reports.generateReport(report._id!, {
-                        rowIndex: 0,
-                        ...(printHtml ? { printHtml } : {}),
-                    })
-                );
-                if (result.pdf?.buffer) {
-                    const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
-                    this._state.pdfDataUrl.set(dataUrl);
-                    this.downloadDataUrl(dataUrl, `${this.fileBaseName()}.pdf`);
-                }
-            }
+            const printHtml = printHtmlOverride ?? this._editorPrintHtml();
+            const blob = await firstValueFrom(
+                this._reports.downloadTemplateSample(template._id, {
+                    sampleData: sample,
+                    ...(printHtml ? { printHtml } : {}),
+                })
+            );
+            const url = URL.createObjectURL(blob);
+            this._state.pdfDataUrl.set(url);
+            this.downloadDataUrl(url, `${this.fileBaseName()}.pdf`);
             this._snack.open(this._transloco.translate('visitaGuide.pdfReady'), undefined, {
                 duration: 3000,
             });
         } catch {
+            const batchId = this._state.batchId();
+            const template = this.selectedTemplate();
+            if (batchId && template?._id) {
+                try {
+                    const printHtml = printHtmlOverride ?? this._editorPrintHtml();
+                    const report = await firstValueFrom(
+                        this._reports.createReport({
+                            template: template._id,
+                            smartBatch: batchId,
+                            name: this.reportTitle() || template.name,
+                        })
+                    );
+                    const result = await firstValueFrom(
+                        this._reports.generateReport(report._id!, {
+                            rowIndex: 0,
+                            ...(printHtml ? { printHtml } : {}),
+                        })
+                    );
+                    if (result.pdf?.buffer) {
+                        const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
+                        this._state.pdfDataUrl.set(dataUrl);
+                        this.downloadDataUrl(dataUrl, `${this.fileBaseName()}.pdf`);
+                        this._snack.open(this._transloco.translate('visitaGuide.pdfReady'), undefined, {
+                            duration: 3000,
+                        });
+                        return;
+                    }
+                } catch {
+                    /* fall through */
+                }
+            }
             this._snack.open(this._transloco.translate('visitaGuide.pdfFailed'), undefined, {
                 duration: 4000,
             });

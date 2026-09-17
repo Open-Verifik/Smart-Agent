@@ -1295,6 +1295,40 @@
                                                     (ngModelChange)="setSelectedLayoutRowLineColor($event)"
                                                     [ariaLabel]="t('visitaGuide.layoutRowLineColor')"
                                                 />
+                                                <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('visitaGuide.layoutRowLineWidth') }}</span>
+                                                    <span>{{ selectedLayoutRowLineWidth() }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    class="mt-1 w-full"
+                                                    [min]="layoutRowLineWidthMin"
+                                                    [max]="layoutRowLineWidthMax"
+                                                    step="1"
+                                                    [ngModel]="selectedLayoutRowLineWidth()"
+                                                    (ngModelChange)="setSelectedLayoutRowLineWidth($event)"
+                                                />
+                                                @if (selectedLayoutRowLineStyle() !== 'solid') {
+                                                    <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                        <span>{{
+                                                            t(
+                                                                selectedLayoutRowLineStyle() === 'dotted'
+                                                                    ? 'visitaGuide.layoutRowLineDottedSize'
+                                                                    : 'visitaGuide.layoutRowLineDashedSize'
+                                                            )
+                                                        }}</span>
+                                                        <span>{{ selectedLayoutRowLineMark() }} px</span>
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        class="mt-1 w-full"
+                                                        [min]="layoutRowLineMarkMin"
+                                                        [max]="layoutRowLineMarkMax"
+                                                        step="1"
+                                                        [ngModel]="selectedLayoutRowLineMark()"
+                                                        (ngModelChange)="setSelectedLayoutRowLineMark($event)"
+                                                    />
+                                                }
                                             }
                                             @if (layoutHiddenParamOptions().length > 0) {
                                                 <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
@@ -1445,6 +1479,88 @@
                                                         [ngModel]="selectedLayoutCellOverride()?.borderWidth || 1"
                                                         (ngModelChange)="setSelectedLayoutCellBorderWidth($event)"
                                                     />
+                                                }
+                                                <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                                    {{ t('visitaGuide.layoutCellRowLine') }}
+                                                </p>
+                                                <div class="mt-1 flex flex-wrap gap-1">
+                                                    <button
+                                                        type="button"
+                                                        class="rounded-lg border px-2 py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="selectedLayoutCellRowLineMode() === 'inherit'"
+                                                        [class.bg-white]="selectedLayoutCellRowLineMode() === 'inherit'"
+                                                        [class.border-stone-200]="selectedLayoutCellRowLineMode() !== 'inherit'"
+                                                        (click)="setSelectedLayoutCellRowLineMode('inherit')"
+                                                    >
+                                                        {{ t('visitaGuide.layoutCellRowLineInherit') }}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="rounded-lg border px-2 py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="selectedLayoutCellRowLineMode() === 'none'"
+                                                        [class.bg-white]="selectedLayoutCellRowLineMode() === 'none'"
+                                                        [class.border-stone-200]="selectedLayoutCellRowLineMode() !== 'none'"
+                                                        (click)="setSelectedLayoutCellRowLineMode('none')"
+                                                    >
+                                                        {{ t('visitaGuide.layoutRowLineNone') }}
+                                                    </button>
+                                                    @for (style of layoutRowLineStyles; track style) {
+                                                        <button
+                                                            type="button"
+                                                            class="rounded-lg border px-2 py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                            [class.border-stone-950]="selectedLayoutCellRowLineMode() === style"
+                                                            [class.bg-white]="selectedLayoutCellRowLineMode() === style"
+                                                            [class.border-stone-200]="selectedLayoutCellRowLineMode() !== style"
+                                                            (click)="setSelectedLayoutCellRowLineMode(style)"
+                                                        >
+                                                            {{ t(layoutRowLineStyleKey(style)) }}
+                                                        </button>
+                                                    }
+                                                </div>
+                                                @if (selectedLayoutCellRowLineMode() !== 'none') {
+                                                    <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                        t('visitaGuide.layoutRowLineColor')
+                                                    }}</span>
+                                                    <color-hex-field
+                                                        class="mt-1 block"
+                                                        [ngModel]="selectedLayoutCellRowLineColor()"
+                                                        (ngModelChange)="setSelectedLayoutCellRowLineColor($event)"
+                                                        [ariaLabel]="t('visitaGuide.layoutRowLineColor')"
+                                                    />
+                                                    <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                        <span>{{ t('visitaGuide.layoutRowLineWidth') }}</span>
+                                                        <span>{{ selectedLayoutCellRowLineWidth() }} px</span>
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        class="mt-1 w-full"
+                                                        [min]="layoutRowLineWidthMin"
+                                                        [max]="layoutRowLineWidthMax"
+                                                        step="1"
+                                                        [ngModel]="selectedLayoutCellRowLineWidth()"
+                                                        (ngModelChange)="setSelectedLayoutCellRowLineWidth($event)"
+                                                    />
+                                                    @if (selectedLayoutCellEffectiveRowLineStyle() !== 'solid') {
+                                                        <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                            <span>{{
+                                                                t(
+                                                                    selectedLayoutCellEffectiveRowLineStyle() === 'dotted'
+                                                                        ? 'visitaGuide.layoutRowLineDottedSize'
+                                                                        : 'visitaGuide.layoutRowLineDashedSize'
+                                                                )
+                                                            }}</span>
+                                                            <span>{{ selectedLayoutCellRowLineMark() }} px</span>
+                                                        </label>
+                                                        <input
+                                                            type="range"
+                                                            class="mt-1 w-full"
+                                                            [min]="layoutRowLineMarkMin"
+                                                            [max]="layoutRowLineMarkMax"
+                                                            step="1"
+                                                            [ngModel]="selectedLayoutCellRowLineMark()"
+                                                            (ngModelChange)="setSelectedLayoutCellRowLineMark($event)"
+                                                        />
+                                                    }
                                                 }
                                             </div>
                                         }

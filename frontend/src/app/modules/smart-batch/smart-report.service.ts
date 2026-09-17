@@ -73,6 +73,14 @@ export interface ReportKeyOverride {
     borderWidth?: number;
     borderColor?: string;
     borderRadius?: number;
+    /** When set, this cell ignores the block-level row-line toggle. */
+    showRowLine?: boolean;
+    rowLineStyle?: ReportRowLineStyle;
+    rowLineColor?: string;
+    /** Line thickness in px. */
+    rowLineWidth?: number;
+    /** Dot or dash length in px. */
+    rowLineMark?: number;
     labelStyle?: ReportTextRoleStyle;
     valueStyle?: ReportTextRoleStyle;
 }
@@ -108,6 +116,10 @@ export interface ReportSection {
     rowLineStyle?: ReportRowLineStyle;
     /** Separator color. Independent from cell/block background. */
     rowLineColor?: string;
+    /** Separator thickness in px. Default 3. */
+    rowLineWidth?: number;
+    /** Dot or dash length in px. */
+    rowLineMark?: number;
     /** Independent label, value, and cell chrome per parameter key. */
     keyOverrides?: Record<string, ReportKeyOverride>;
 

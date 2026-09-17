@@ -17,8 +17,9 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportCellPart, ReportSection, ReportSectionFrame, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
 import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk } from '../report-param-entries.util';
+import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}`;
@@ -1235,13 +1236,65 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     cellShowsRowLine(section: ReportSection, key: string, isLast: boolean): boolean {
+        const override = section.keyOverrides?.[key];
+        if (override?.showRowLine === false) return false;
+        if (override?.showRowLine === true) return true;
         return this.sectionShowsRowLines(section) && !this.cellHasBox(section, key) && !isLast;
     }
 
-    rowLineCss(section: ReportSection): string {
-        const style = section.rowLineStyle === 'dotted' || section.rowLineStyle === 'dashed' ? section.rowLineStyle : 'solid';
-        const color = section.rowLineColor || '#d6d3d1';
-        return `1px ${style} ${color}`;
+    rowLineStyle(section: ReportSection, key?: string): ReportRowLineStyle {
+        const override = key ? section.keyOverrides?.[key]?.rowLineStyle : undefined;
+        if (override === 'dotted' || override === 'dashed' || override === 'solid') return override;
+        return section.rowLineStyle === 'dotted' || section.rowLineStyle === 'dashed' ? section.rowLineStyle : 'solid';
+    }
+
+    rowLineColor(section: ReportSection, key?: string): string {
+        return (key ? section.keyOverrides?.[key]?.rowLineColor : undefined) || section.rowLineColor || '#d6d3d1';
+    }
+
+    rowLineWidth(section: ReportSection, key?: string): number {
+        return clampRowLineWidth((key ? section.keyOverrides?.[key]?.rowLineWidth : undefined) ?? section.rowLineWidth);
+    }
+
+    rowLineMark(section: ReportSection, key?: string): number {
+        const style = this.rowLineStyle(section, key);
+        return clampRowLineMark(
+            (key ? section.keyOverrides?.[key]?.rowLineMark : undefined) ?? section.rowLineMark,
+            style,
+            defaultRowLineMark(style)
+        );
+    }
+
+    rowLineFill(section: ReportSection, key?: string): string {
+        return rowLinePaint(
+            this.rowLineStyle(section, key),
+            this.rowLineColor(section, key),
+            this.rowLineWidth(section, key),
+            this.rowLineMark(section, key)
+        ).image;
+    }
+
+    rowLineBg(section: ReportSection, key?: string, isLast = false): Record<string, string> | null {
+        const show = key ? this.cellShowsRowLine(section, key, isLast) : this.sectionShowsRowLines(section);
+        if (!show) return null;
+        const paint = rowLinePaint(
+            this.rowLineStyle(section, key),
+            this.rowLineColor(section, key),
+            this.rowLineWidth(section, key),
+            this.rowLineMark(section, key)
+        );
+        return {
+            'background-image': paint.image,
+            'background-repeat': 'no-repeat',
+            'background-position': 'left bottom',
+            'background-size': paint.size,
+        };
+    }
+
+    rowLineCss(section: ReportSection, key?: string): string {
+        const style = this.rowLineStyle(section, key);
+        const color = this.rowLineColor(section, key);
+        return `${this.rowLineWidth(section, key)}px ${style} ${color}`;
     }
 
     /** Entries behind a `keyValueGrid`, table, or card, honoring hidden keys. */
@@ -1415,6 +1468,9 @@ html,body{margin:0;padding:0;background:#fff}
             'white-space',
             'background-color',
             'background-image',
+            'background-repeat',
+            'background-position',
+            'background-size',
             'opacity',
             'border',
             'border-top',
