@@ -919,6 +919,14 @@
         "mexico_api_ine_validate": {
             "title": "INE 验证",
             "description": "使用 CIC、OCR 或 clave de elector，对照选举登记册验证墨西哥选民证（INE）。"
+        },
+        "colombia_api_copnia_license": {
+            "title": "按注册号查询 COPNIA 执照",
+            "description": "通过 GET /v2/co/copnia/matricula 按注册号（matrícula）查询单条 COPNIA 专业执照。"
+        },
+        "colombia_api_copnia": {
+            "title": "按证件查询 COPNIA 专业执照",
+            "description": "通过 GET /v2/co/copnia 按哥伦比亚证件查询 COPNIA（Consejo Profesional Nacional de Ingeniería）专业执照。"
         }
     }
 }

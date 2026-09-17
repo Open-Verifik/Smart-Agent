@@ -2707,7 +2707,7 @@
                     "minScoreHelp": "Higher values reduce spoof attempts but reject more real users.",
                     "compareMinScore": "Face compare minimum score",
                     "compareMinScoreSubtitle": "How closely the selfie must match the document portrait.",
-                    "compareMinScoreHelp": "Higher values reduce false matches but may reject low-quality photos.",
+                    "compareMinScoreHelp": "Higher values reduce false matches. Some printed IDs (including worn Colombian cédulas and similar documents in other countries) score lower against a live selfie; 65% is the lowest you can set after you accept more false-accept risk.",
                     "searchMinScore": "Search minimum score",
                     "searchMinScoreSubtitle": "Confidence threshold when searching the customer against existing enrollments.",
                     "searchMinScoreHelp": "Used for 1:N duplicate detection.",

@@ -919,6 +919,14 @@
         "mexico_api_ine_validate": {
             "title": "INE Validation",
             "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector."
+        },
+        "colombia_api_copnia_license": {
+            "title": "COPNIA professional license by matrícula",
+            "description": "Query a single COPNIA professional license by registration number via GET /v2/co/copnia/matricula."
+        },
+        "colombia_api_copnia": {
+            "title": "COPNIA professional licenses by document",
+            "description": "Query COPNIA (Consejo Profesional Nacional de Ingeniería) professional licenses by Colombian ID via GET /v2/co/copnia."
         }
     }
 }

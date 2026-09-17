@@ -14,6 +14,7 @@ const EXCLUDED_PUBLIC_PATHS = new Set([
 	"/api/co/policia/consultar",
 	"/api/co/cedula/premium",
 	"/api/co/sisben",
+	"/api/communication/whatsapp",
 ]);
 
 /** Upstream Verifik paths that map to excluded public paths. */
@@ -21,6 +22,7 @@ const EXCLUDED_VERIFIK_PATHS = new Set([
 	"/v2/co/policia/consultar",
 	"/v2/co/cedula/premium",
 	"/v2/co/sisben",
+	"/v2/communication/whatsapp",
 ]);
 
 /**

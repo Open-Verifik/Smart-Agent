@@ -919,6 +919,14 @@
         "mexico_api_ine_validate": {
             "title": "Validación INE",
             "description": "Valida una credencial para votar (INE) mexicana contra el padrón electoral usando CIC, OCR o clave de elector."
+        },
+        "colombia_api_copnia_license": {
+            "title": "COPNIA matrícula profesional por número",
+            "description": "Consulta una matrícula profesional del COPNIA por número de registro mediante GET /v2/co/copnia/matricula."
+        },
+        "colombia_api_copnia": {
+            "title": "COPNIA matrículas profesionales por documento",
+            "description": "Consulta matrículas profesionales del COPNIA (Consejo Profesional Nacional de Ingeniería) por cédula mediante GET /v2/co/copnia."
         }
     }
 }

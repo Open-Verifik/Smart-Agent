@@ -3003,7 +3003,7 @@
                     "minScoreHelp": "値を高くするとなりすましは減りますが、本物のユーザーも拒否されやすくなります。",
                     "compareMinScore": "顔比較の最小スコア",
                     "compareMinScoreSubtitle": "セルフィーが書類の写真とどの程度一致する必要があるか。",
-                    "compareMinScoreHelp": "値を高くすると誤一致は減りますが、低品質な写真が拒否される場合があります。",
+                    "compareMinScoreHelp": "値を高くすると誤一致は減ります。一部の印刷身分証（傷んだコロンビアの国民IDや他国の同様の書類）はライブのセルフィーに対して低いスコアになります。誤受理リスクを受け入れる場合、設定できる下限は 65% です。",
                     "searchMinScore": "検索の最小スコア",
                     "searchMinScoreSubtitle": "既存の登録から顧客を検索する際の信頼度閾値。",
                     "searchMinScoreHelp": "1:N の重複検出に使用します。",

@@ -2873,7 +2873,7 @@
                     "minScoreHelp": "分数越高欺诈尝试越少，但也会拒绝更多真实用户。",
                     "compareMinScore": "人脸比对最低分数",
                     "compareMinScoreSubtitle": "自拍与证件照的相似度要求。",
-                    "compareMinScoreHelp": "分数越高误匹配越少，但可能拒绝低质量照片。",
+                    "compareMinScoreHelp": "分数越高误匹配越少。部分印刷证件（包括磨损的哥伦比亚身份证及其他国家的类似证件）与活体自拍比对时分数更低；在接受更高误通过风险后，最低可设为 65%。",
                     "searchMinScore": "搜索最低分数",
                     "searchMinScoreSubtitle": "在已有注册中搜索客户时的置信度阈值。",
                     "searchMinScoreHelp": "用于 1:N 重复检测。",

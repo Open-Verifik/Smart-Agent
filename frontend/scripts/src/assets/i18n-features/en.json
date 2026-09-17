@@ -592,6 +592,10 @@
       "title": "Colombia - Vehicle Owners Verification (RUNT)",
       "description": "Verify vehicle ownership and registered owners through the RUNT system."
     },
+    "colombia_api_vehicle_owners": {
+      "title": "Colombia - Vehicle Owner History",
+      "description": "Query Colombian vehicle owners by license plate. Returns vehicle data and the complete ownership history."
+    },
     "chile_api_driver_license": {
       "title": "Driver License",
       "description": "Look up a Chilean driver license by license number: class, restrictions, control dates, RUT, and address from official motor-vehicle records for fleet and workforce compliance."
@@ -857,11 +861,11 @@
       "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
     },
     "zelf-proof-liveness-active-user": {
-      "title": "Encrypt HumanID",
-      "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
+      "title": "HumanID with liveness (active user)",
+      "description": "Create a HumanID with decrypt-side liveness. History bills this code when requireLiveness is enabled; the HTTP path is the same as Encrypt HumanID."
     },
     "zelf-proof-encrypt-qr": {
-      "title": "Encrypt HumanID QR Code",
+      "title": "Encrypt HumanID QR",
       "description": "Create a HumanID and encapsulate it in a QR code"
     },
     "zelf-proof-decrypt": {
@@ -915,6 +919,14 @@
     "mexico_api_ine_validate": {
       "title": "INE Validation",
       "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector."
+    },
+    "colombia_api_copnia_license": {
+      "title": "COPNIA professional license by matrícula",
+      "description": "Query a single COPNIA professional license by registration number via GET /v2/co/copnia/matricula."
+    },
+    "colombia_api_copnia": {
+      "title": "COPNIA professional licenses by document",
+      "description": "Query COPNIA (Consejo Profesional Nacional de Ingeniería) professional licenses by Colombian ID via GET /v2/co/copnia."
     }
   }
 }
