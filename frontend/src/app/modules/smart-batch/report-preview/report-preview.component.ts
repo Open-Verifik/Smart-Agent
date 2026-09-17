@@ -177,16 +177,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _sectionDrag: {
         id: string;
         pointerId: number;
-        grabX: number;
-        grabY: number;
         startClientX: number;
         startClientY: number;
-        width: number;
+        startFrame: ReportSectionFrame;
         active: boolean;
-        el: HTMLElement;
-        seeded: boolean;
     } | null = null;
     private _sectionDragMoved = false;
+    private _sectionDragRaf: number | null = null;
     readonly draggingSectionId = signal<string | null>(null);
     readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
 
@@ -534,21 +531,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
         this._sectionDragMoved = false;
-        const el = event.currentTarget as HTMLElement;
-        const rect = el.getBoundingClientRect();
         this._sectionDrag = {
             id: section.id,
             pointerId: event.pointerId,
-            grabX: event.clientX - rect.left,
-            grabY: event.clientY - rect.top,
             startClientX: event.clientX,
             startClientY: event.clientY,
-            width: this.displayFrame(section)?.width || Math.round(rect.width * this._scaleFactors.x),
+            startFrame: this.displayFrame(section) ?? { page: 0, x: 0, y: 0, width: 0 },
             active: false,
-            el,
-            seeded: false,
         };
-        this.sectionClick()?.(section);
+        event.preventDefault();
         window.addEventListener('pointermove', this._onWindowSectionMove);
         window.addEventListener('pointerup', this._onWindowSectionUp, true);
         window.addEventListener('pointercancel', this._onWindowSectionUp, true);
@@ -566,46 +557,56 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const drag = this._sectionDrag;
         if (!drag || event.pointerId !== drag.pointerId) return;
         if (!drag.active) {
-            const origin = drag.el.getBoundingClientRect();
-            if (
-                Math.hypot(
-                    event.clientX - (origin.left + drag.grabX),
-                    event.clientY - (origin.top + drag.grabY)
-                ) < 8
-            ) {
+            if (Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) < 8) {
                 return;
+            }
+            if (!this._usesPinnedFrames()) {
+                const pinned = this._snapshotSectionFrames();
+                const start = pinned.find((item) => item.id === drag.id)?.frame;
+                if (!start) {
+                    this._clearSectionDrag();
+                    return;
+                }
+                drag.startFrame = start;
+                this.liveFrames.set(Object.fromEntries(pinned.map((item) => [item.id, item.frame])));
+            } else {
+                const start =
+                    this.liveFrames()[drag.id] ??
+                    this.template().sections?.find((section) => section.id === drag.id)?.frame;
+                if (!start) {
+                    this._clearSectionDrag();
+                    return;
+                }
+                drag.startFrame = start;
             }
             drag.active = true;
             this._sectionDragMoved = true;
             this.draggingSectionId.set(drag.id);
-            drag.el.setPointerCapture(event.pointerId);
-            drag.el.style.touchAction = 'none';
+            document.body.style.userSelect = 'none';
+            document.body.style.cursor = 'grabbing';
         }
         event.preventDefault();
-        if (this._usesPinnedFrames()) {
-            const frame = this._frameAtPointer(event.clientX, event.clientY, drag.grabX, drag.grabY, drag.width);
-            this.liveFrames.update((current) => ({ ...current, [drag.id]: frame }));
-            return;
-        }
-        drag.el.style.transform = `translate(${event.clientX - drag.startClientX}px, ${event.clientY - drag.startClientY}px)`;
+        this._applySectionDrag(drag, event.clientX, event.clientY);
     }
 
     onSectionPointerUp(event: PointerEvent): void {
         const drag = this._sectionDrag;
         if (!drag || event.pointerId !== drag.pointerId) return;
-        const live = this.liveFrames()[drag.id];
         const wasActive = drag.active;
-        const snapshot =
-            wasActive && !live && !this._usesPinnedFrames() ? this._snapshotSectionFrames() : [];
-        if (drag.el) drag.el.style.transform = '';
-        this._clearSectionDrag();
-        if (!wasActive) return;
-        if (live) {
-            this.sectionFrameChange.emit({ id: drag.id, frame: live });
+        if (wasActive) {
+            this._applySectionDrag(drag, event.clientX, event.clientY);
+        }
+        const updates = Object.entries(this.liveFrames()).map(([id, frame]) => ({ id, frame }));
+        this._stopSectionDragListeners();
+        this._sectionDrag = null;
+        this.draggingSectionId.set(null);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        if (!wasActive) {
             this.liveFrames.set({});
             return;
         }
-        if (snapshot.length) this.sectionFramesChange.emit(snapshot);
+        this.sectionFramesChange.emit(updates);
         this.liveFrames.set({});
     }
 
@@ -633,13 +634,67 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const frame = this.displayFrame(section);
         if (!this.hasFreeLayout() || !frame) return {};
         const scales = this._scaleFactors;
+        const width = frame.width ? frame.width / scales.x : 0;
         return {
             position: 'absolute',
             left: `${frame.x / scales.x}px`,
             top: `${frame.y / scales.y}px`,
-            width: frame.width ? `${Math.max(120, frame.width) / scales.x}px` : '100%',
+            width: width ? `${width}px` : '100%',
             marginBottom: '0px',
             zIndex: this.draggingSectionId() === section.id ? '40' : '1',
+        };
+    }
+
+    private _applySectionDrag(
+        drag: { id: string; startClientX: number; startClientY: number; startFrame: ReportSectionFrame },
+        clientX: number,
+        clientY: number
+    ): void {
+        const scales = this._scaleFactors;
+        let x = drag.startFrame.x + (clientX - drag.startClientX) * scales.x;
+        let y = drag.startFrame.y + (clientY - drag.startClientY) * scales.y;
+        const inner = this.reportPage?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
+        const width = drag.startFrame.width || 240;
+        const height = drag.startFrame.height || 80;
+        if (inner) {
+            const minX = 0;
+            const minY = 0;
+            const maxX = Math.max(minX, inner.clientWidth * scales.x - width);
+            const maxY = Math.max(minY, inner.clientHeight * scales.y - Math.min(height, 120));
+            x = Math.min(Math.max(minX, x), maxX);
+            y = Math.min(Math.max(minY, y), maxY);
+        }
+        const next: ReportSectionFrame = {
+            ...drag.startFrame,
+            x,
+            y,
+            width,
+            height,
+        };
+        this.liveFrames.update((current) => ({ ...current, [drag.id]: next }));
+    }
+
+    private _sectionCssBox(el: HTMLElement): { x: number; y: number; width: number; height: number; page: number } {
+        const inner = el.closest('[data-report-page-inner]') as HTMLElement | null;
+        const pages = this._reportPages?.toArray() ?? [];
+        const page = Math.max(
+            0,
+            pages.findIndex((ref) => ref.nativeElement.contains(el))
+        );
+        if (!inner) {
+            return { x: 0, y: 0, width: el.offsetWidth, height: el.offsetHeight, page };
+        }
+        const box = el.getBoundingClientRect();
+        const host = inner.getBoundingClientRect();
+        const style = getComputedStyle(inner);
+        const borderLeft = parseFloat(style.borderLeftWidth) || 0;
+        const borderTop = parseFloat(style.borderTopWidth) || 0;
+        return {
+            x: box.left - host.left - borderLeft,
+            y: box.top - host.top - borderTop,
+            width: el.offsetWidth,
+            height: el.offsetHeight,
+            page,
         };
     }
 
@@ -647,22 +702,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const scales = this._scaleFactors;
         const result: { id: string; frame: ReportSectionFrame }[] = [];
         const pages = this._reportPages?.toArray() ?? [];
-        pages.forEach((pageRef, pageIndex) => {
-            const inner = pageRef.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
-            if (!inner) return;
-            const innerRect = inner.getBoundingClientRect();
-            inner.querySelectorAll('[data-report-section]').forEach((node) => {
+        pages.forEach((pageRef) => {
+            pageRef.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
                 const el = node as HTMLElement;
                 const id = el.dataset['sectionId'];
                 if (!id) return;
-                const rect = el.getBoundingClientRect();
+                const placed = this._sectionCssBox(el);
                 result.push({
                     id,
                     frame: {
-                        page: pageIndex,
-                        x: Math.max(0, Math.round((rect.left - innerRect.left) * scales.x)),
-                        y: Math.max(0, Math.round((rect.top - innerRect.top) * scales.y)),
-                        width: Math.max(120, Math.round(rect.width * scales.x)),
+                        page: placed.page,
+                        x: placed.x * scales.x,
+                        y: placed.y * scales.y,
+                        width: placed.width * scales.x,
+                        height: placed.height * scales.y,
                     },
                 });
             });
@@ -670,55 +723,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return result;
     }
 
-    private _frameAtPointer(
-        clientX: number,
-        clientY: number,
-        grabX: number,
-        grabY: number,
-        width: number
-    ): ReportSectionFrame {
-        const scales = this._scaleFactors;
-        const pages = this._reportPages?.toArray() ?? [];
-        let pageIndex = Math.max(0, pages.length - 1);
-        let inner: HTMLElement | null = null;
-        for (let i = 0; i < pages.length; i++) {
-            const candidate = pages[i].nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
-            if (!candidate) continue;
-            const rect = candidate.getBoundingClientRect();
-            inner = candidate;
-            pageIndex = i;
-            if (clientY >= rect.top && clientY <= rect.bottom) break;
-        }
-        if (!inner) {
-            return { x: 0, y: 0, width, page: 0 };
-        }
-        const rect = inner.getBoundingClientRect();
-        const maxX = Math.max(0, Math.round(rect.width * scales.x) - width);
-        const maxY = Math.max(0, Math.round(rect.height * scales.y) - 48);
-        return {
-            page: pageIndex,
-            x: Math.max(0, Math.min(maxX, Math.round((clientX - grabX - rect.left) * scales.x))),
-            y: Math.max(0, Math.min(maxY, Math.round((clientY - grabY - rect.top) * scales.y))),
-            width,
-        };
-    }
-
-    private _clearSectionDrag(): void {
+    private _stopSectionDragListeners(): void {
         window.removeEventListener('pointermove', this._onWindowSectionMove);
         window.removeEventListener('pointerup', this._onWindowSectionUp, true);
         window.removeEventListener('pointercancel', this._onWindowSectionUp, true);
-        const drag = this._sectionDrag;
-        if (drag?.el) {
-            drag.el.style.touchAction = '';
-            delete drag.el.dataset['dropIndex'];
-            try {
-                drag.el.releasePointerCapture(drag.pointerId);
-            } catch {
-                /* already released */
-            }
+        if (this._sectionDragRaf !== null) {
+            cancelAnimationFrame(this._sectionDragRaf);
+            this._sectionDragRaf = null;
         }
+    }
+
+    private _clearSectionDrag(): void {
+        this._stopSectionDragListeners();
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
         this._sectionDrag = null;
         this.draggingSectionId.set(null);
+        this.liveFrames.set({});
     }
 
     onSectionContextMenu(section: ReportSection, event: MouseEvent): void {

@@ -32,7 +32,6 @@ import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
     collectScalarParams,
-    flattenSampleResultsForPdf,
     isHiddenParamKey,
     layoutParamGroups,
     setHiddenParamKey,
@@ -716,15 +715,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     onLayoutSectionFrames(updates: { id: string; frame: ReportSectionFrame }[]): void {
         const next = new Map(updates.map((item) => [item.id, item.frame]));
         this.layoutSections.update((list) =>
-            this._sortLayoutByFrame(list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section)))
+            list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section))
         );
     }
 
     onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
         this.layoutSections.update((list) =>
-            this._sortLayoutByFrame(
-                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
-            )
+            list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
         );
     }
 
@@ -754,8 +751,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return {
             page: last.frame?.page ?? 0,
             x: 0,
-            y: (last.frame?.y ?? 0) + 180,
+            y: (last.frame?.y ?? 0) + (last.frame?.height ?? 180) + 16,
             width: last.frame?.width ?? 700,
+            height: last.frame?.height ?? 180,
         };
     }
 
@@ -1904,7 +1902,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!this.layoutSections().length) this.addAllCardsToLayout();
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
-            const sample = flattenSampleResultsForPdf(this.previewData(), this.layoutSections());
+            const sample = this.previewData();
             try {
                 const blob = await firstValueFrom(
                     this._reports.downloadTemplateSample(template._id, { sampleData: sample })
@@ -2217,8 +2215,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 rotation: this.logoRotation(),
                 autoFitContent: true,
             },
-            sections: this._sortLayoutByFrame(draft.sections ?? []),
-            sampleData: flattenSampleResultsForPdf(this.previewData(), draft.sections ?? []),
+            sections: JSON.parse(JSON.stringify(this._sortLayoutByFrame(this.layoutSections()))),
+            signature: draft.signature,
+            sampleData: this.previewData(),
             batchConfiguration: configId ?? draft.batchConfiguration,
             category: this.entities().length === 1 ? this.entities()[0] : draft.category,
         };
