@@ -240,7 +240,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     stepIndex = computed(() => Math.max(0, this.visibleSteps().indexOf(this.step())));
     stepCount = computed(() => Math.max(this.visibleSteps().length, 1));
     currentTitleKey = computed(() => STEP_TITLE_KEYS[this.step()]);
-    canGoBack = computed(() => this.step() !== 'intent' && this.step() !== 'consult');
+    canGoBack = computed(
+        () =>
+            this._state.editingSavedLayout() ||
+            (this.step() !== 'intent' && this.step() !== 'consult')
+    );
     countryFlag = computed(() => getCountryFlag(this.countryIso() ?? 'Colombia'));
 
     countryFilteredFeatures = computed(() => {
@@ -384,11 +388,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     previewData = computed(() => {
         const row = this.batch()?.rows?.[0];
-        if (!row) return { inputData: {}, results: {} };
-        return buildRowDataForResolution(row, {
-            steps: this.configuration()?.steps,
-            errors: row.errors,
-        });
+        if (row) {
+            return buildRowDataForResolution(row, {
+                steps: this.configuration()?.steps,
+                errors: row.errors,
+            });
+        }
+        const sample = this.selectedTemplate()?.sampleData;
+        if (sample) {
+            return {
+                batchName: sample.batchName || this.reportTitle() || '',
+                rowIndex: sample.rowIndex ?? 0,
+                inputData: sample.inputData ?? {},
+                results: sample.results ?? {},
+                errors: sample.errors,
+                report: sample.report,
+            };
+        }
+        return { inputData: {}, results: {} };
     });
 
     resultCards = computed((): GuideResultCard[] => {
@@ -627,6 +644,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     goBack(): void {
         if (!this.canGoBack()) return;
+        if (this._state.editingSavedLayout() && this.step() === 'layout') {
+            this._state.editingSavedLayout.set(false);
+            void this._router.navigate(['/smart-batch', 'workspace'], {
+                queryParams: { tab: 'templates' },
+            });
+            return;
+        }
         const steps = this.visibleSteps();
         const current = steps.indexOf(this.step());
         const previous = steps[Math.max(0, current - 1)];
@@ -2612,6 +2636,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
+        const templateId = this._route.snapshot.queryParamMap.get('templateId');
+        if (templateId) {
+            this._openSavedTemplateInLayout(
+                templateId,
+                this._route.snapshot.queryParamMap.get('configId')
+            );
+            return;
+        }
+
         const resumeRaw = this._route.snapshot.queryParamMap.get('resume');
         const mapped: GuideStepId | null =
             resumeRaw === 'preview' ||
@@ -2620,30 +2653,49 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             resumeRaw === 'template'
                 ? 'layout'
                 : (resumeRaw as GuideStepId | null);
-        const templateId = this._route.snapshot.queryParamMap.get('templateId');
         if (mapped && this.visibleSteps().includes(mapped)) {
             this._state.step.set(mapped);
-        } else if (this._state.intent() && this._state.step() !== 'intent') {
-            return;
         }
+    }
 
-        if (!templateId) return;
+    private _openSavedTemplateInLayout(templateId: string, configId: string | null): void {
         this._reports.getTemplate(templateId).subscribe({
             next: (template) => {
+                this._state.editingSavedLayout.set(true);
+                this._state.intent.set('template');
+                this._state.wantsReport.set(true);
+                this._state.mode.set('single');
+                this._state.templateChoice.set('mine');
                 this._state.selectedTemplate.set(template);
                 this._state.clonedTemplate.set(template);
-                this.hydrateCustomize(template);
-                if (template.sections?.length) {
-                    this.layoutSections.set(
-                        template.sections.map((section, index) => ({ ...section, order: index }))
-                    );
+                const entity = template.category;
+                if (entity === 'citizen' || entity === 'company' || entity === 'vehicle') {
+                    this._state.entities.set([entity]);
+                } else if (!this.entities().length) {
+                    this._state.entities.set(['citizen']);
                 }
-                const configId = this._state.configId();
-                if (configId && template._id) {
-                    this._batch
-                        .updateConfiguration(configId, { preferredReportTemplate: template._id })
-                        .subscribe();
+                this._state.applyDeductions();
+
+                const linkedConfig =
+                    configId ||
+                    (typeof template.batchConfiguration === 'string'
+                        ? template.batchConfiguration
+                        : template.batchConfiguration?._id ?? null);
+                if (linkedConfig) {
+                    this._state.configId.set(linkedConfig);
+                    this._batch.getConfiguration(linkedConfig).subscribe({
+                        next: (res) => this._state.configuration.set(res.data),
+                    });
                 }
+
+                this.hydrateCustomize(template, true);
+                this.layoutSections.set(
+                    (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
+                );
+                this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+                this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+                this.enterLayout();
+                this._state.step.set('layout');
             },
         });
     }

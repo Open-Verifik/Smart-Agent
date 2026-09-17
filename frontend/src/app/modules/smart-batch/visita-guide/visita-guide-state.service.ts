@@ -69,6 +69,8 @@ export class VisitaGuideStateService {
     consultError = signal<string | null>(null);
     pdfDataUrl = signal<string | null>(null);
     step = signal<GuideStepId>('intent');
+    /** Opened a saved template in the layout designer from the workspace. */
+    editingSavedLayout = signal(false);
 
     inputFields = computed(() =>
         inputFieldsFor(this.entities(), this.countryIso() ?? 'co', this.selectedFeatures())
@@ -77,6 +79,7 @@ export class VisitaGuideStateService {
     isMixed = computed(() => this.entities().length > 1);
 
     visibleSteps = computed((): GuideStepId[] => {
+        if (this.editingSavedLayout()) return ['layout', 'generate'];
         const intent = this.intent();
         const steps: GuideStepId[] = ['intent'];
         if (intent === 'report' || intent === 'template') steps.push('entity');
@@ -179,5 +182,6 @@ export class VisitaGuideStateService {
         this.consultError.set(null);
         this.pdfDataUrl.set(null);
         this.step.set('intent');
+        this.editingSavedLayout.set(false);
     }
 }

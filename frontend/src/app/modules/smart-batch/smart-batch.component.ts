@@ -327,12 +327,13 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         if (!templateId) return;
 
         const configId = this.resolveBatchConfigRef(template.batchConfiguration).id;
-        if (configId) {
-            this._router.navigate(['smart-batch', configId, 'report-builder', templateId]);
-            return;
-        }
-
-        this._router.navigate(['/smart-batch', 'report-builder', templateId]);
+        void this._router.navigate(['/smart-batch'], {
+            queryParams: {
+                templateId,
+                resume: 'layout',
+                ...(configId ? { configId } : {}),
+            },
+        });
     }
 
     resolveBatchConfigRef(

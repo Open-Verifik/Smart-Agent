@@ -1166,10 +1166,14 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const navigationExtras = previewData ? { state: { previewData } } : {};
 
         const templateId = createNew ? null : this.selectedTemplate()?._id;
-        const route = templateId
-            ? ['/smart-batch', configId, 'report-builder', templateId]
-            : ['/smart-batch', configId, 'report-builder'];
+        if (templateId) {
+            this._router.navigate(['/smart-batch'], {
+                queryParams: { templateId, resume: 'layout', configId },
+                ...navigationExtras,
+            });
+            return;
+        }
 
-        this._router.navigate(route, navigationExtras);
+        this._router.navigate(['/smart-batch', configId, 'report-builder'], navigationExtras);
     }
 }
