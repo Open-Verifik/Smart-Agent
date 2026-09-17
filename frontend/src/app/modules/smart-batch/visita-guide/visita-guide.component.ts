@@ -238,6 +238,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     endpointHoverVisible = signal(false);
     endpointHoverLeft = signal(0);
     endpointHoverTop = signal(0);
+    endpointHoverFlipX = signal(false);
+    endpointHoverFlipY = signal(false);
     private _endpointHoverHide: ReturnType<typeof setTimeout> | null = null;
     private _endpointHoverShow: ReturnType<typeof setTimeout> | null = null;
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
@@ -337,7 +339,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return Boolean(category && this.entities().includes(category));
     }
 
-    isWideStep = computed(() => this.step() === 'layout' || this.step() === 'template' || this.step() === 'generate');
+    isWideStep = computed(
+        () =>
+            this.step() === 'layout' ||
+            this.step() === 'template' ||
+            this.step() === 'generate' ||
+            this.step() === 'endpoints'
+    );
     isLayoutStep = computed(() => this.step() === 'layout');
 
     selectedLayoutSection = computed(() => {
@@ -2243,6 +2251,32 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.selectedFeatures.set([...current, feature]);
     }
 
+    removeFeatureFromCart(feature: AppFeature): void {
+        this._state.selectedFeatures.set(this.selectedFeatures().filter((item) => item._id !== feature._id));
+    }
+
+    dropEndpointOnCart(event: CdkDragDrop<AppFeature[]>): void {
+        if (event.previousContainer === event.container) {
+            const list = [...this.selectedFeatures()];
+            moveItemInArray(list, event.previousIndex, event.currentIndex);
+            this._state.selectedFeatures.set(list);
+            return;
+        }
+        const feature = event.item.data as AppFeature | undefined;
+        if (!feature?._id || this.isFeatureSelected(feature)) return;
+        const list = [...this.selectedFeatures()];
+        const index = Math.min(Math.max(0, event.currentIndex), list.length);
+        list.splice(index, 0, feature);
+        this._state.selectedFeatures.set(list);
+    }
+
+    dropEndpointOnCatalog(event: CdkDragDrop<AppFeature[]>): void {
+        if (event.previousContainer === event.container) return;
+        const feature = event.item.data as AppFeature | undefined;
+        if (!feature?._id) return;
+        this.removeFeatureFromCart(feature);
+    }
+
     isFeatureSelected(feature: AppFeature): boolean {
         return this.selectedFeatures().some((item) => item._id === feature._id);
     }
@@ -2303,18 +2337,31 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._endpointHoverHide = null;
         }
         this.hoveredEndpoint.set(feature);
-        this._placeEndpointHover(event.currentTarget as HTMLElement);
+        this._placeEndpointHover(event);
         if (this.endpointHoverVisible()) return;
         if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
         this._endpointHoverShow = setTimeout(() => {
             this.endpointHoverVisible.set(true);
             this._endpointHoverShow = null;
-        }, 280);
+        }, 420);
     }
 
     onEndpointCardMove(feature: AppFeature, event: MouseEvent): void {
         if (this.hoveredEndpoint()?._id !== feature._id) this.hoveredEndpoint.set(feature);
-        this._placeEndpointHover(event.currentTarget as HTMLElement);
+        this._placeEndpointHover(event);
+    }
+
+    private _placeEndpointHover(event: MouseEvent): void {
+        const pad = 10;
+        const offset = 16;
+        const maxW = Math.min(384, window.innerWidth - 32);
+        const tipH = 140;
+        const flipX = event.clientX + offset + maxW > window.innerWidth - pad;
+        const flipY = event.clientY + offset + tipH > window.innerHeight - pad;
+        this.endpointHoverFlipX.set(flipX);
+        this.endpointHoverFlipY.set(flipY);
+        this.endpointHoverLeft.set(flipX ? event.clientX - offset : event.clientX + offset);
+        this.endpointHoverTop.set(flipY ? event.clientY - offset : event.clientY + offset);
     }
 
     onEndpointCardLeave(): void {
@@ -2327,14 +2374,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._endpointHoverHide = setTimeout(() => {
             this.hoveredEndpoint.set(null);
             this._endpointHoverHide = null;
-        }, 320);
-    }
-
-    private _placeEndpointHover(host: HTMLElement | null): void {
-        if (!host) return;
-        const rect = host.getBoundingClientRect();
-        this.endpointHoverLeft.set(rect.left - 10);
-        this.endpointHoverTop.set(rect.top + rect.height / 2);
+        }, 280);
     }
 
     selectVisibleEndpoints(): void {

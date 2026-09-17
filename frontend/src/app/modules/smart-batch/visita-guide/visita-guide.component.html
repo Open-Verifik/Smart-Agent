@@ -338,15 +338,6 @@
                                 </div>
                             </div>
                         }
-                        <div class="mt-4">
-                            <input
-                                type="search"
-                                class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                [placeholder]="t('visitaGuide.endpointsSearch')"
-                                [ngModel]="endpointSearchQuery()"
-                                (ngModelChange)="endpointSearchQuery.set($event)"
-                            />
-                        </div>
                         <div class="mt-3 flex flex-wrap gap-3 text-xs">
                             <button
                                 type="button"
@@ -372,98 +363,216 @@
                         @if (featuresError()) {
                             <p class="mt-4 text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
                         }
-                        <div class="mt-4 max-h-[28rem] space-y-2 overflow-y-auto">
-                            @for (group of groupedEndpointFeatures(); track group.id) {
-                                <p
-                                    class="sticky top-0 z-[1] bg-stone-50 py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:bg-gray-950"
+                        <div class="mt-4 grid h-[min(38rem,calc(100dvh-20rem))] gap-4 lg:grid-cols-2">
+                            <section
+                                class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70"
+                            >
+                                <div class="shrink-0 border-b border-stone-100 px-4 py-3 dark:border-gray-800">
+                                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('visitaGuide.endpointsCatalogTitle') }}
+                                    </p>
+                                    <input
+                                        type="search"
+                                        class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [placeholder]="t('visitaGuide.endpointsSearch')"
+                                        [ngModel]="endpointSearchQuery()"
+                                        (ngModelChange)="endpointSearchQuery.set($event)"
+                                    />
+                                </div>
+                                <div
+                                    id="visita-endpoint-catalog"
+                                    cdkDropList
+                                    cdkDropListId="visita-endpoint-catalog"
+                                    [cdkDropListData]="visibleEndpointFeatures()"
+                                    [cdkDropListConnectedTo]="['visita-endpoint-cart']"
+                                    [cdkDropListSortingDisabled]="true"
+                                    (cdkDropListDropped)="dropEndpointOnCatalog($event)"
+                                    class="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3"
                                 >
-                                    {{ t(featureGroupLabelKey(group.id)) }}
-                                </p>
-                                @for (feature of group.items; track feature._id) {
-                                    <div
-                                        class="relative"
-                                        (mouseenter)="onEndpointCardEnter(feature, $event)"
-                                        (mousemove)="onEndpointCardMove(feature, $event)"
-                                        (mouseleave)="onEndpointCardLeave()"
-                                    >
-                                    <button
-                                        type="button"
-                                        class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition"
-                                        [ngClass]="
-                                            isFeatureSelected(feature)
-                                                ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400 dark:border-emerald-400 dark:bg-emerald-950 dark:ring-emerald-500'
-                                                : 'border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70'
-                                        "
-                                        (click)="toggleFeature(feature)"
-                                    >
-                                        <div class="min-w-0 flex-1">
-                                            <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
-                                                feature.name
-                                            }}</span>
-                                            @if (feature.description) {
-                                                <span class="mt-1 block text-xs text-stone-500">{{
-                                                    feature.description
-                                                }}</span>
-                                            }
-                                            <div class="mt-2 flex flex-wrap gap-1">
-                                                @for (field of featureParamFields(feature); track field) {
-                                                    <span
-                                                        class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
-                                                        [class.border-stone-950]="isRequiredParamFilterActive(field)"
-                                                        [class.text-stone-950]="isRequiredParamFilterActive(field)"
-                                                        [class.border-stone-200]="!isRequiredParamFilterActive(field)"
-                                                        [class.text-stone-500]="!isRequiredParamFilterActive(field)"
-                                                        [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
-                                                        >{{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}</span
+                                    @for (group of groupedEndpointFeatures(); track group.id) {
+                                        <p
+                                            class="sticky top-0 z-[1] bg-white py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:bg-gray-900"
+                                        >
+                                            {{ t(featureGroupLabelKey(group.id)) }}
+                                        </p>
+                                        @for (feature of group.items; track feature._id) {
+                                            <div
+                                                cdkDrag
+                                                [cdkDragData]="feature"
+                                                [cdkDragDisabled]="isFeatureSelected(feature)"
+                                                class="relative"
+                                                (mouseenter)="onEndpointCardEnter(feature, $event)"
+                                                (mousemove)="onEndpointCardMove(feature, $event)"
+                                                (mouseleave)="onEndpointCardLeave()"
+                                            >
+                                                <div
+                                                    class="flex w-full items-start gap-3 rounded-2xl border p-3 text-left"
+                                                    [ngClass]="
+                                                        isFeatureSelected(feature)
+                                                            ? 'border-emerald-200 bg-emerald-50/70 opacity-70 dark:border-emerald-800 dark:bg-emerald-950/40'
+                                                            : 'cursor-grab border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-950'
+                                                    "
+                                                >
+                                                    <mat-icon
+                                                        class="mt-0.5 shrink-0 !h-5 !w-5 !text-[20px] text-stone-400"
+                                                        [class.text-emerald-500]="isFeatureSelected(feature)"
+                                                        >{{ isFeatureSelected(feature) ? 'check_circle' : 'drag_indicator' }}</mat-icon
                                                     >
+                                                    <div class="min-w-0 flex-1">
+                                                        <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                            feature.name
+                                                        }}</span>
+                                                        @if (feature.description) {
+                                                            <span class="mt-1 block text-xs text-stone-500">{{
+                                                                feature.description
+                                                            }}</span>
+                                                        }
+                                                        <div class="mt-2 flex flex-wrap gap-1">
+                                                            @for (field of featureParamFields(feature); track field) {
+                                                                <span
+                                                                    class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                    [class.border-stone-950]="isRequiredParamFilterActive(field)"
+                                                                    [class.text-stone-950]="isRequiredParamFilterActive(field)"
+                                                                    [class.border-stone-200]="!isRequiredParamFilterActive(field)"
+                                                                    [class.text-stone-500]="!isRequiredParamFilterActive(field)"
+                                                                    [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
+                                                                    >{{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}</span
+                                                                >
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    @if (isFeatureSelected(feature)) {
+                                                        <span class="shrink-0 text-[10px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">{{
+                                                            t('visitaGuide.endpointsInCart')
+                                                        }}</span>
+                                                    } @else {
+                                                        <button
+                                                            type="button"
+                                                            class="shrink-0 rounded-lg border border-stone-200 px-2 py-1 text-[11px] font-medium text-stone-600 hover:border-stone-950 dark:border-gray-700 dark:text-stone-300"
+                                                            (click)="toggleFeature(feature); $event.stopPropagation()"
+                                                        >
+                                                            {{ t('visitaGuide.endpointsAdd') }}
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    @if (!isLoadingFeatures() && visibleEndpointFeatures().length === 0) {
+                                        <p class="px-1 py-6 text-sm text-stone-400">{{ t('visitaGuide.noEndpoints') }}</p>
+                                    }
+                                </div>
+                            </section>
+                            <section
+                                class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-950 bg-stone-50 dark:border-white dark:bg-gray-950/60"
+                            >
+                                <div class="shrink-0 border-b border-stone-200 px-4 py-3 dark:border-gray-800">
+                                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('visitaGuide.endpointsCartTitle') }}
+                                    </p>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('visitaGuide.endpointsCartHint') }}
+                                    </p>
+                                </div>
+                                <div
+                                    id="visita-endpoint-cart"
+                                    cdkDropList
+                                    cdkDropListId="visita-endpoint-cart"
+                                    [cdkDropListData]="selectedFeatures()"
+                                    [cdkDropListConnectedTo]="['visita-endpoint-catalog']"
+                                    (cdkDropListDropped)="dropEndpointOnCart($event)"
+                                    class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain p-3"
+                                >
+                                    @if (selectedFeatures().length === 0) {
+                                        <div
+                                            class="flex flex-1 items-center justify-center rounded-xl border border-dashed border-stone-300 px-4 py-10 text-center text-sm text-stone-400 dark:border-gray-700"
+                                        >
+                                            {{ t('visitaGuide.endpointsCartEmpty') }}
+                                        </div>
+                                    }
+                                    @for (feature of selectedFeatures(); track feature._id; let index = $index) {
+                                        <div
+                                            cdkDrag
+                                            [cdkDragData]="feature"
+                                            class="flex cursor-grab items-start gap-3 rounded-2xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
+                                        >
+                                            <span class="mt-0.5 w-5 shrink-0 text-center text-xs font-semibold text-stone-400">{{
+                                                index + 1
+                                            }}</span>
+                                            <mat-icon class="mt-0.5 shrink-0 !h-5 !w-5 !text-[20px] text-stone-400">drag_indicator</mat-icon>
+                                            <div class="min-w-0 flex-1">
+                                                <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                    feature.name
+                                                }}</span>
+                                                @if (feature.code) {
+                                                    <span class="mt-0.5 block font-mono text-[11px] text-stone-400">{{
+                                                        feature.code
+                                                    }}</span>
                                                 }
                                             </div>
+                                            <button
+                                                type="button"
+                                                class="shrink-0 rounded-lg px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                                                (click)="removeFeatureFromCart(feature); $event.stopPropagation()"
+                                            >
+                                                {{ t('visitaGuide.endpointsRemove') }}
+                                            </button>
                                         </div>
-                                        @if (isFeatureSelected(feature)) {
-                                            <mat-icon class="shrink-0 text-emerald-600 dark:text-emerald-400">check_circle</mat-icon>
-                                        } @else {
-                                            <mat-icon class="shrink-0 text-stone-300 dark:text-gray-600">add_circle_outline</mat-icon>
-                                        }
-                                    </button>
-                                    </div>
-                                }
-                            }
+                                    }
+                                </div>
+                            </section>
                         </div>
                         @if (hoveredEndpointDetails(); as tip) {
                             <div
-                                class="pointer-events-none fixed z-[80] w-80 origin-right -translate-x-full -translate-y-1/2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-left text-stone-950 shadow-xl transition-[opacity,transform] duration-300 ease-out"
-                                [class.scale-95]="!endpointHoverVisible()"
-                                [class.opacity-0]="!endpointHoverVisible()"
-                                [class.scale-100]="endpointHoverVisible()"
-                                [class.opacity-100]="endpointHoverVisible()"
+                                class="pointer-events-none fixed z-[80] w-[min(24rem,calc(100vw-2rem))]"
+                                [class.-translate-x-full]="endpointHoverFlipX()"
+                                [class.-translate-y-full]="endpointHoverFlipY()"
                                 [style.left.px]="endpointHoverLeft()"
                                 [style.top.px]="endpointHoverTop()"
                             >
-                                <p class="text-xs font-semibold leading-snug">{{ tip.title }}</p>
+                                <div
+                                    class="relative rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 text-left text-white shadow-xl opacity-0 scale-[0.97] transition-[opacity,transform] duration-300 ease-out"
+                                    [class.origin-top-left]="!endpointHoverFlipX() && !endpointHoverFlipY()"
+                                    [class.origin-top-right]="endpointHoverFlipX() && !endpointHoverFlipY()"
+                                    [class.origin-bottom-left]="!endpointHoverFlipX() && endpointHoverFlipY()"
+                                    [class.origin-bottom-right]="endpointHoverFlipX() && endpointHoverFlipY()"
+                                    [class.opacity-100]="endpointHoverVisible()"
+                                    [class.scale-100]="endpointHoverVisible()"
+                                >
+                                <span
+                                    class="absolute h-2.5 w-2.5 rotate-45 border-stone-800 bg-stone-950"
+                                    [class.top-[-5px]]="!endpointHoverFlipY()"
+                                    [class.bottom-[-5px]]="endpointHoverFlipY()"
+                                    [class.left-3]="!endpointHoverFlipX()"
+                                    [class.right-3]="endpointHoverFlipX()"
+                                    [class.border-t]="!endpointHoverFlipY()"
+                                    [class.border-l]="!endpointHoverFlipY()"
+                                    [class.border-b]="endpointHoverFlipY()"
+                                    [class.border-r]="endpointHoverFlipY()"
+                                ></span>
+                                <p class="text-xs font-semibold leading-snug text-white">{{ tip.title }}</p>
                                 @if (tip.description) {
-                                    <p class="mt-1 text-[11px] leading-snug text-stone-700">{{ tip.description }}</p>
+                                    <p class="mt-1 text-[11px] leading-snug text-white/80">{{ tip.description }}</p>
                                 }
-                                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+                                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/80">
                                     @if (tip.request) {
-                                        <span class="font-mono font-medium text-stone-800">{{ tip.request }}</span>
+                                        <span class="font-mono font-medium text-white">{{ tip.request }}</span>
                                     }
                                     @if (tip.code) {
-                                        <span class="text-stone-600">{{ t('visitaGuide.endpointTooltipCode') }}:
+                                        <span class="text-white/70">{{ t('visitaGuide.endpointTooltipCode') }}:
                                             {{ tip.code }}</span>
                                     }
                                 </div>
                                 @if (tip.params.length) {
-                                    <p class="mt-2 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+                                    <p class="mt-2 text-[10px] font-semibold uppercase tracking-wide text-white/60">
                                         {{ t('visitaGuide.endpointTooltipParams') }}
                                     </p>
-                                    <p class="mt-0.5 text-[11px] leading-snug text-stone-700">{{
+                                    <p class="mt-0.5 text-[11px] leading-snug text-white/80">{{
                                         tip.params.join(' · ')
                                     }}</p>
                                 }
+                                </div>
                             </div>
-                        }
-                        @if (!isLoadingFeatures() && visibleEndpointFeatures().length === 0) {
-                            <p class="mt-6 text-sm text-stone-400">{{ t('visitaGuide.noEndpoints') }}</p>
                         }
                         <button
                             type="button"
