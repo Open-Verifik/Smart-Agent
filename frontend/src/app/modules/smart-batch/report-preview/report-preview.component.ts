@@ -17,11 +17,11 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportCellPart, ReportSection, ReportSectionFrame, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportSection, ReportSectionFrame, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
 import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk } from '../report-param-entries.util';
 import { resolveTextRole } from '../report-text-role.util';
 
-export type ReportOverlayId = 'logo' | 'watermark' | 'signature';
+export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}`;
 
 const MM_TO_PX = 3.7795275591;
 /** Tailwind `mb-3` between blocks. Margin is not included in getBoundingClientRect. */
@@ -118,6 +118,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     logoRotation = input<number>(0);
     /** When true, content is auto-pushed below the logo overlay. */
     logoAutoFitContent = input<boolean>(false);
+    /** Extra logos/images placed freely on the sheet. */
+    sheetImages = input<ReportSheetImage[]>([]);
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding = input<number>(0);
@@ -131,6 +133,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() watermarkPositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() watermarkSizeChange = new EventEmitter<{ width: number; height: number }>();
     @Output() watermarkRotationChange = new EventEmitter<number>();
+    @Output() sheetImageChange = new EventEmitter<ReportSheetImage>();
     @Output() overlaySelect = new EventEmitter<ReportOverlayId>();
     @Output() backgroundClick = new EventEmitter<void>();
     @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
@@ -151,9 +154,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private isResizing = false;
     private isRotating = false;
     private isMoving = false;
-    private resizeTarget: 'signature' | 'logo' | 'watermark' | null = null;
-    private rotateTarget: 'logo' | 'watermark' | null = null;
-    private moveTarget: 'signature' | 'logo' | 'watermark' | null = null;
+    private resizeTarget: ReportOverlayId | null = null;
+    private rotateTarget: ReportOverlayId | null = null;
+    private moveTarget: ReportOverlayId | null = null;
     private startX = 0;
     private startY = 0;
     private startWidth = 0;
@@ -467,6 +470,33 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     get viewWatermarkHeight(): number {
         return this.watermarkHeight() / this._scaleFactors.y;
+    }
+
+    sheetOverlayId(id: string): ReportOverlayId {
+        return `img:${id}`;
+    }
+
+    sheetImageView(image: ReportSheetImage): { x: number; y: number; width: number; height: number } {
+        const scales = this._scaleFactors;
+        return {
+            x: image.x / scales.x,
+            y: image.y / scales.y,
+            width: image.width / scales.x,
+            height: image.height / scales.y,
+        };
+    }
+
+    sheetImageBorder(id: string): string {
+        return this.isOverlaySelected(this.sheetOverlayId(id)) ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    private _sheetImageId(target: ReportOverlayId | null): string | null {
+        return target?.startsWith('img:') ? target.slice(4) : null;
+    }
+
+    private _sheetImage(id: string | null): ReportSheetImage | null {
+        if (!id) return null;
+        return this.sheetImages().find((image) => image.id === id) ?? null;
     }
 
     get viewWatermarkFontSize(): number {
@@ -785,7 +815,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.effectiveContentPaddingTop / this._scaleFactors.y;
     }
 
-    startMove(event: PointerEvent, target: 'signature' | 'logo' | 'watermark') {
+    startMove(event: PointerEvent, target: ReportOverlayId) {
         if (!this.clickable() || this.isResizing || this.isRotating || event.button !== 0) return;
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-handle]')) return;
@@ -796,12 +826,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.startX = event.clientX;
         this.startY = event.clientY;
 
+        const extra = this._sheetImage(this._sheetImageId(target));
         if (target === 'logo') {
             this.startMoveX = this.logoX();
             this.startMoveY = this.logoY();
         } else if (target === 'watermark') {
             this.startMoveX = this.watermarkX();
             this.startMoveY = this.watermarkY();
+        } else if (extra) {
+            this.startMoveX = extra.x;
+            this.startMoveY = extra.y;
         } else {
             this.startMoveX = this.signatureX();
             this.startMoveY = this.signatureY();
@@ -830,10 +864,14 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     };
 
     private _emitMove(payload: { x: number; y: number }) {
+        const extraId = this._sheetImageId(this.moveTarget);
+        const extra = this._sheetImage(extraId);
         if (this.moveTarget === 'logo') {
             this.logoPositionChange.emit(payload);
         } else if (this.moveTarget === 'watermark') {
             this.watermarkPositionChange.emit(payload);
+        } else if (extra) {
+            this.sheetImageChange.emit({ ...extra, x: payload.x, y: payload.y });
         } else {
             this.signaturePositionChange.emit(payload);
         }
@@ -854,19 +892,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._releasePointer(this.onMove, this.stopMove);
     };
 
-    startResize(event: PointerEvent, target: 'signature' | 'logo' | 'watermark' = 'signature') {
+    startResize(event: PointerEvent, target: ReportOverlayId = 'signature') {
         if (event.button !== 0) return;
         this.isResizing = true;
         this.resizeTarget = target;
         this.startX = event.clientX;
         this.startY = event.clientY;
 
+        const extra = this._sheetImage(this._sheetImageId(target));
         if (target === 'logo') {
             this.startWidth = this.viewLogoWidth;
             this.startHeight = this.viewLogoHeight;
         } else if (target === 'watermark') {
             this.startWidth = this.viewWatermarkWidth;
             this.startHeight = this.viewWatermarkHeight;
+        } else if (extra) {
+            const view = this.sheetImageView(extra);
+            this.startWidth = view.width;
+            this.startHeight = view.height;
         } else {
             this.startWidth = this.viewSignatureWidth;
             this.startHeight = this.viewSignatureHeight;
@@ -875,7 +918,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._capturePointer(event, this.onResize, this.stopResize);
     }
 
-    startRotate(event: PointerEvent, target: 'logo' | 'watermark') {
+    startRotate(event: PointerEvent, target: ReportOverlayId) {
         if (event.button !== 0) return;
         const box = (event.currentTarget as HTMLElement).closest('[data-overlay-box]') as HTMLElement | null;
         if (!box) return;
@@ -889,7 +932,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             event.clientY - this.rotateCenterY,
             event.clientX - this.rotateCenterX
         );
-        this.startRotation = target === 'logo' ? this.logoRotation() : this.watermarkRotation();
+        const extra = this._sheetImage(this._sheetImageId(target));
+        this.startRotation =
+            target === 'logo'
+                ? this.logoRotation()
+                : extra
+                  ? extra.rotation || 0
+                  : this.watermarkRotation();
 
         this._capturePointer(event, this.onRotate, this.stopRotate);
     }
@@ -918,14 +967,21 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const payload = this.pendingResize;
         if (!payload) return;
         this.pendingResize = null;
+        this._emitResize(payload);
+    };
+
+    private _emitResize(payload: { width: number; height: number }): void {
+        const extra = this._sheetImage(this._sheetImageId(this.resizeTarget));
         if (this.resizeTarget === 'logo') {
             this.logoSizeChange.emit(payload);
         } else if (this.resizeTarget === 'watermark') {
             this.watermarkSizeChange.emit(payload);
+        } else if (extra) {
+            this.sheetImageChange.emit({ ...extra, width: payload.width, height: payload.height });
         } else {
             this.signatureSizeChange.emit(payload);
         }
-    };
+    }
 
     private stopResize = () => {
         this.isResizing = false;
@@ -936,13 +992,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (this.pendingResize) {
             const payload = this.pendingResize;
             this.pendingResize = null;
-            if (this.resizeTarget === 'logo') {
-                this.logoSizeChange.emit(payload);
-            } else if (this.resizeTarget === 'watermark') {
-                this.watermarkSizeChange.emit(payload);
-            } else {
-                this.signatureSizeChange.emit(payload);
-            }
+            this._emitResize(payload);
         }
         this.resizeTarget = null;
         this._releasePointer(this.onResize, this.stopResize);
@@ -955,8 +1005,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             event.clientX - this.rotateCenterX
         );
         const next = Math.round(this.startRotation + ((angle - this.startAngle) * 180) / Math.PI);
+        const extra = this._sheetImage(this._sheetImageId(this.rotateTarget));
         if (this.rotateTarget === 'logo') {
             this.logoRotationChange.emit(next);
+        } else if (extra) {
+            this.sheetImageChange.emit({ ...extra, rotation: next });
         } else {
             this.watermarkRotationChange.emit(next);
         }

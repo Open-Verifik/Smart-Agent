@@ -27,7 +27,7 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
@@ -76,6 +76,7 @@ type LayoutDesignSnapshot = {
     logoWidth: number;
     logoHeight: number;
     logoRotation: number;
+    sheetImages: ReportSheetImage[];
     legend: string;
     watermarkEnabled: boolean;
     watermarkType: 'text' | 'logo';
@@ -170,6 +171,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     logoWidth = this._state.logoWidth;
     logoHeight = this._state.logoHeight;
     logoRotation = this._state.logoRotation;
+    sheetImages = this._state.sheetImages;
     legend = this._state.legend;
     watermarkEnabled = this._state.watermarkEnabled;
     watermarkType = this._state.watermarkType;
@@ -193,7 +195,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isLoadingFeatures = signal(false);
     featuresError = signal<string | null>(null);
     selectedLayoutSectionId = signal<string | null>(null);
-    selectedLayoutOverlay = signal<'logo' | 'watermark' | 'signature' | null>(null);
+    selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
     selectedLayoutCellPart = signal<ReportCellPart>('cell');
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
@@ -375,6 +377,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 rotation: this.logoRotation(),
                 autoFitContent: true,
             },
+            sheetImages: this.sheetImages(),
             sections: useLayout ? layout : this._sectionsForPreview(base),
         };
     });
@@ -758,7 +761,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
     }
 
-    onLayoutOverlaySelect(id: 'logo' | 'watermark' | 'signature'): void {
+    onLayoutOverlaySelect(id: ReportOverlayId): void {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
@@ -814,6 +817,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.setWatermarkEnabled(false);
             this.selectedLayoutOverlay.set(null);
             this.layoutEditorKind.set(null);
+        } else if (menu.overlay?.startsWith('img:')) {
+            this.clearSheetImage(menu.overlay.slice(4));
+            this.layoutEditorKind.set(null);
         }
         this.closeLayoutContextMenu();
     }
@@ -844,6 +850,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             logoWidth: this.logoWidth(),
             logoHeight: this.logoHeight(),
             logoRotation: this.logoRotation(),
+            sheetImages: this.sheetImages(),
             legend: this.legend(),
             watermarkEnabled: this.watermarkEnabled(),
             watermarkType: this.watermarkType(),
@@ -926,6 +933,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoWidth.set(snapshot.logoWidth);
         this._state.logoHeight.set(snapshot.logoHeight);
         this._state.logoRotation.set(snapshot.logoRotation);
+        this._state.sheetImages.set(snapshot.sheetImages ?? []);
         this._state.legend.set(snapshot.legend);
         this._state.watermarkEnabled.set(snapshot.watermarkEnabled);
         this._state.watermarkType.set(snapshot.watermarkType);
@@ -1873,6 +1881,65 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    onLayoutSheetImageChange(image: ReportSheetImage): void {
+        this._state.sheetImages.update((list) =>
+            list.map((item) => (item.id === image.id ? { ...item, ...image } : item))
+        );
+    }
+
+    onSheetImagesSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input.files ?? []);
+        input.value = '';
+        const remaining = Math.max(0, 12 - this.sheetImages().length);
+        files.slice(0, remaining).forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const src = String(reader.result ?? '');
+                if (!src) return;
+                const offset = this.sheetImages().length;
+                this._state.sheetImages.update((list) => [
+                    ...list,
+                    {
+                        id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                        src,
+                        x: 48 + offset * 24,
+                        y: 48 + offset * 24,
+                        width: 160,
+                        height: 80,
+                        rotation: 0,
+                        page: 0,
+                    },
+                ]);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    clearSheetImage(id: string): void {
+        this._state.sheetImages.update((list) => list.filter((item) => item.id !== id));
+        if (this.selectedLayoutOverlay() === `img:${id}`) this.selectedLayoutOverlay.set(null);
+    }
+
+    selectedSheetImage(): ReportSheetImage | null {
+        const overlay = this.selectedLayoutOverlay();
+        if (!overlay?.startsWith('img:')) return null;
+        const id = overlay.slice(4);
+        return this.sheetImages().find((item) => item.id === id) ?? null;
+    }
+
+    imageOverlayId(id: string): ReportOverlayId {
+        return `img:${id}`;
+    }
+
+    setSelectedSheetImageRotation(value: string | number): void {
+        const image = this.selectedSheetImage();
+        if (!image) return;
+        const rotation = Number(value);
+        if (!Number.isFinite(rotation)) return;
+        this.onLayoutSheetImageChange({ ...image, rotation: Math.round(rotation) });
+    }
+
     onLogoSelected(event: Event): void {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (!file) return;
@@ -2227,6 +2294,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 rotation: this.logoRotation(),
                 autoFitContent: true,
             },
+            sheetImages: this.sheetImages(),
             sections: JSON.parse(JSON.stringify(this._sortLayoutByFrame(this.layoutSections()))),
             signature: draft.signature,
             sampleData: this.previewData(),
@@ -2344,6 +2412,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoWidth.set(160);
         this._state.logoHeight.set(60);
         this._state.logoRotation.set(0);
+        this._state.sheetImages.set([]);
         this._state.legend.set('');
         this._state.watermarkEnabled.set(false);
         this._state.watermarkType.set('text');
@@ -2365,6 +2434,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._state.pageBackgroundColor.set(template.pageBackgroundColor || '#ffffff');
         }
         if (force || template.logo) this._state.logoDataUrl.set(template.logo || null);
+        this._state.sheetImages.set(Array.isArray(template.sheetImages) ? template.sheetImages : []);
         if (force || template.legend) this._state.legend.set(template.legend || '');
         if (force || typeof template.showPageNumbers === 'boolean') {
             this._state.showPageNumbers.set(template.showPageNumbers ?? true);

@@ -46,6 +46,17 @@ export interface ReportSectionFrame {
     page?: number;
 }
 
+export interface ReportSheetImage {
+    id: string;
+    src: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation?: number;
+    page?: number;
+}
+
 export interface ReportTextRoleStyle {
     fontSize?: number;
     fontWeight?: 'normal' | 'bold';
@@ -233,6 +244,9 @@ export interface SmartReportTemplate {
         /** When true and overlay is enabled, content auto-pushes below the logo. */
         autoFitContent?: boolean;
     };
+
+    /** Extra logos/images placed freely on the sheet (canonical 96 DPI px). */
+    sheetImages?: ReportSheetImage[];
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding?: number;

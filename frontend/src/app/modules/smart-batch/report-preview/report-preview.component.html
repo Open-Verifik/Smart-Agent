@@ -216,6 +216,63 @@
                 </div>
             }
 
+            @if (isFirst) {
+                @for (image of sheetImages(); track image.id) {
+                    @if (image.src) {
+                        <div class="absolute inset-0 pointer-events-none z-20">
+                            <div
+                                data-overlay-box
+                                class="absolute"
+                                [class.cursor-move]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.cursor-pointer]="clickable() && !isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.pointer-events-auto]="clickable()"
+                                [class.group]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [style.left.px]="sheetImageView(image).x"
+                                [style.top.px]="sheetImageView(image).y"
+                                [style.width.px]="sheetImageView(image).width"
+                                [style.height.px]="sheetImageView(image).height"
+                                [style.border]="sheetImageBorder(image.id)"
+                                (pointerdown)="startMove($event, sheetOverlayId(image.id))"
+                                (click)="selectOverlay(sheetOverlayId(image.id), $event)"
+                                (contextmenu)="onOverlayContextMenu(sheetOverlayId(image.id), $event)"
+                            >
+                                <img
+                                    [src]="image.src"
+                                    alt=""
+                                    class="h-full w-full object-contain pointer-events-none select-none"
+                                    [style.transform]="'rotate(' + (image.rotation || 0) + 'deg)'"
+                                    draggable="false"
+                                />
+                                @if (isOverlaySelected(sheetOverlayId(image.id))) {
+                                    <div
+                                        data-overlay-handle
+                                        class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        (pointerdown)="startRotate($event, sheetOverlayId(image.id))"
+                                    >
+                                        <mat-icon
+                                            class="!h-4 !w-4 !text-[16px] text-indigo-500"
+                                            style="pointer-events: none"
+                                            >rotate_right</mat-icon
+                                        >
+                                    </div>
+                                    <div
+                                        data-overlay-handle
+                                        class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        (pointerdown)="startResize($event, sheetOverlayId(image.id))"
+                                    >
+                                        <mat-icon
+                                            class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                            style="pointer-events: none"
+                                            >open_in_full</mat-icon
+                                        >
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            }
+
             <!-- Top page number (every page when configured) -->
             @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
                 <div

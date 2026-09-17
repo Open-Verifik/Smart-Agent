@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch } from '../smart-batch.service';
-import { ReportSection, SmartReportTemplate } from '../smart-report.service';
+import { ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import {
     availableCountries,
     buildInputRow,
@@ -52,6 +52,7 @@ export class VisitaGuideStateService {
     logoWidth = signal(160);
     logoHeight = signal(60);
     logoRotation = signal(0);
+    sheetImages = signal<ReportSheetImage[]>([]);
     legend = signal('');
     watermarkEnabled = signal(false);
     watermarkType = signal<'text' | 'logo'>('text');
@@ -162,6 +163,7 @@ export class VisitaGuideStateService {
         this.logoWidth.set(160);
         this.logoHeight.set(60);
         this.logoRotation.set(0);
+        this.sheetImages.set([]);
         this.legend.set('');
         this.watermarkEnabled.set(false);
         this.watermarkType.set('text');
