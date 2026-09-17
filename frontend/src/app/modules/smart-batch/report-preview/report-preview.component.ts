@@ -182,6 +182,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     private _measureScheduled = false;
     private _measureFrameId: number | null = null;
+    private _autoPinFrameId: number | null = null;
+    private _autoPinAttempts = 0;
     private readonly _host = inject(ElementRef<HTMLElement>);
     private _sectionDrag: {
         id: string;
@@ -295,6 +297,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
         if (this.hasFreeLayout()) {
             this._setPagesIfDifferent(this._pagesFromFrames(sections));
+            this._scheduleAutoPinMissingFrames();
             return;
         }
 
@@ -361,6 +364,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
 
         this._setPagesIfDifferent(newPages);
+        this._scheduleAutoPinMissingFrames();
     }
 
     private _setPagesIfDifferent(newPages: ReportSection[][]): void {
@@ -592,25 +596,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) < 8) {
                 return;
             }
-            if (!this._usesPinnedFrames()) {
-                const pinned = this._snapshotSectionFrames();
-                const start = pinned.find((item) => item.id === drag.id)?.frame;
-                if (!start) {
-                    this._clearSectionDrag();
-                    return;
-                }
-                drag.startFrame = start;
-                this.liveFrames.set(Object.fromEntries(pinned.map((item) => [item.id, item.frame])));
-            } else {
-                const start =
-                    this.liveFrames()[drag.id] ??
-                    this.template().sections?.find((section) => section.id === drag.id)?.frame;
-                if (!start) {
-                    this._clearSectionDrag();
-                    return;
-                }
-                drag.startFrame = start;
+            const start = this._allSectionsHaveFrames()
+                ? this.liveFrames()[drag.id] ??
+                  this.template().sections?.find((section) => section.id === drag.id)?.frame ??
+                  null
+                : this._pinFlowLayout(drag.id);
+            if (!start) {
+                this._clearSectionDrag();
+                return;
             }
+            drag.startFrame = start;
             drag.active = true;
             this._sectionDragMoved = true;
             this.draggingSectionId.set(drag.id);
@@ -638,7 +633,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this.liveFrames.set({});
             return;
         }
-        this.sectionFramesChange.emit(updates);
+        this.sectionFramesChange.emit(this._framesForEmit(updates));
         this.liveFrames.set({});
     }
 
@@ -670,11 +665,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const page = Math.min(Math.max(0, this.displayFrame(section)?.page ?? 0), pageCount - 1);
             newPages[page].push(section);
         }
-        return newPages;
+        const filled = newPages.filter((page) => page.length > 0);
+        return filled.length ? filled : [[]];
     }
 
     private _usesPinnedFrames(): boolean {
         return (this.template().sections ?? []).some((section) => Boolean(section.frame));
+    }
+
+    private _allSectionsHaveFrames(): boolean {
+        const sections = this.template().sections ?? [];
+        return sections.length > 0 && sections.every((section) => Boolean(this.displayFrame(section)));
     }
 
     displayFrame(section: ReportSection): ReportSectionFrame | null {
@@ -705,29 +706,98 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         clientY: number
     ): void {
         const scales = this._scaleFactors;
-        let x = drag.startFrame.x + (clientX - drag.startClientX) * scales.x;
-        let y = drag.startFrame.y + (clientY - drag.startClientY) * scales.y;
-        const inner = this.reportPage?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
         const width = drag.startFrame.width || 240;
         const height = drag.startFrame.height || 80;
-        if (inner) {
-            const minX = 0;
-            const minY = 0;
-            const maxX = Math.max(minX, inner.clientWidth * scales.x - width);
-            const maxY = Math.max(minY, inner.clientHeight * scales.y - Math.min(height, 120));
-            x = Math.min(Math.max(minX, x), maxX);
-            y = Math.min(Math.max(minY, y), maxY);
+        const fromPage = drag.startFrame.page ?? 0;
+        const toPage = this._pageIndexAtPoint(clientX, clientY, fromPage);
+        let x = drag.startFrame.x + (clientX - drag.startClientX) * scales.x;
+        let y = drag.startFrame.y + (clientY - drag.startClientY) * scales.y;
+        const fromInner = this._pageInner(fromPage);
+        const toInner = this._pageInner(toPage);
+        if (fromInner && toInner && fromInner !== toInner) {
+            const fromOrigin = this._innerOrigin(fromInner);
+            const toOrigin = this._innerOrigin(toInner);
+            x += (fromOrigin.left - toOrigin.left) * scales.x;
+            y += (fromOrigin.top - toOrigin.top) * scales.y;
+        }
+        const clampInner = toInner ?? fromInner;
+        if (clampInner) {
+            const maxX = Math.max(0, clampInner.clientWidth * scales.x - width);
+            const maxY = Math.max(0, clampInner.clientHeight * scales.y - Math.min(height, 120));
+            x = Math.min(Math.max(0, x), maxX);
+            y = Math.min(Math.max(0, y), maxY);
         }
         const next: ReportSectionFrame = {
             ...drag.startFrame,
+            page: toPage,
             x,
             y,
             width,
             height,
         };
         this.liveFrames.update((current) => ({ ...current, [drag.id]: next }));
+        if (toPage !== fromPage) {
+            this._setPagesIfDifferent(this._pagesFromFrames(this.template().sections || []));
+            drag.startFrame = next;
+            drag.startClientX = clientX;
+            drag.startClientY = clientY;
+        }
     }
 
+    private _innerOrigin(inner: HTMLElement): { left: number; top: number } {
+        const host = inner.getBoundingClientRect();
+        const style = getComputedStyle(inner);
+        return {
+            left: host.left + (parseFloat(style.borderLeftWidth) || 0),
+            top: host.top + (parseFloat(style.borderTopWidth) || 0),
+        };
+    }
+
+    private _pageInner(pageIndex: number): HTMLElement | null {
+        const pages = this._reportPages?.toArray() ?? [];
+        const ref = pages[pageIndex] ?? pages[0];
+        return (ref?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? null;
+    }
+
+    /** Paper under the pointer; stays on the current sheet until the cursor actually enters another. */
+    private _pageIndexAtPoint(clientX: number, clientY: number, fallback: number): number {
+        const pages = this._reportPages?.toArray() ?? [];
+        if (pages.length <= 1) return 0;
+        for (let index = 0; index < pages.length; index++) {
+            const rect = pages[index].nativeElement.getBoundingClientRect();
+            if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+                return index;
+            }
+        }
+        return fallback;
+    }
+
+    /** Drop trailing / leading empty sheets and persist 0-based page indexes. */
+    private _framesForEmit(updates: { id: string; frame: ReportSectionFrame }[]): { id: string; frame: ReportSectionFrame }[] {
+        const merged: Record<string, ReportSectionFrame> = {};
+        for (const section of this.template().sections ?? []) {
+            const frame = this.liveFrames()[section.id] ?? section.frame;
+            if (frame) merged[section.id] = frame;
+        }
+        for (const item of updates) {
+            merged[item.id] = item.frame;
+        }
+        const used = [...new Set(Object.values(merged).map((frame) => frame.page ?? 0))].sort((a, b) => a - b);
+        const remap = new Map(used.map((page, index) => [page, index]));
+        return Object.entries(merged).map(([id, frame]) => ({
+            id,
+            frame: { ...frame, page: remap.get(frame.page ?? 0) ?? 0 },
+        }));
+    }
+
+    /**
+     * Layout coordinates of a block inside its page, in the same space that
+     * `position:absolute; left/top` uses (the inner padding box).
+     *
+     * `getBoundingClientRect()` is avoided here: when the first drag pins a
+     * flow layout into free placement, viewport rects can include ancestor
+     * zoom/scale and send every sibling off the visible sheet.
+     */
     private _sectionCssBox(el: HTMLElement): { x: number; y: number; width: number; height: number; page: number } {
         const inner = el.closest('[data-report-page-inner]') as HTMLElement | null;
         const pages = this._reportPages?.toArray() ?? [];
@@ -735,28 +805,30 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             0,
             pages.findIndex((ref) => ref.nativeElement.contains(el))
         );
+        const width = el.offsetWidth;
+        const height = el.offsetHeight;
         if (!inner) {
-            return { x: 0, y: 0, width: el.offsetWidth, height: el.offsetHeight, page };
+            return { x: 0, y: 0, width, height, page };
         }
-        const box = el.getBoundingClientRect();
-        const host = inner.getBoundingClientRect();
-        const style = getComputedStyle(inner);
-        const borderLeft = parseFloat(style.borderLeftWidth) || 0;
-        const borderTop = parseFloat(style.borderTopWidth) || 0;
-        return {
-            x: box.left - host.left - borderLeft,
-            y: box.top - host.top - borderTop,
-            width: el.offsetWidth,
-            height: el.offsetHeight,
-            page,
-        };
+        let x = el.offsetLeft;
+        let y = el.offsetTop;
+        if (el.offsetParent !== inner) {
+            const box = el.getBoundingClientRect();
+            const host = inner.getBoundingClientRect();
+            const visualScaleX = host.width / (inner.offsetWidth || host.width || 1) || 1;
+            const visualScaleY = host.height / (inner.offsetHeight || host.height || 1) || 1;
+            const style = getComputedStyle(inner);
+            x = (box.left - host.left - (parseFloat(style.borderLeftWidth) || 0)) / visualScaleX;
+            y = (box.top - host.top - (parseFloat(style.borderTopWidth) || 0)) / visualScaleY;
+        }
+        return { x, y, width, height, page };
     }
 
     private _snapshotSectionFrames(): { id: string; frame: ReportSectionFrame }[] {
         const scales = this._scaleFactors;
         const result: { id: string; frame: ReportSectionFrame }[] = [];
         const pages = this._reportPages?.toArray() ?? [];
-        pages.forEach((pageRef) => {
+        pages.forEach((pageRef, pageIndex) => {
             pageRef.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
                 const el = node as HTMLElement;
                 const id = el.dataset['sectionId'];
@@ -765,7 +837,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 result.push({
                     id,
                     frame: {
-                        page: placed.page,
+                        page: placed.page || pageIndex,
                         x: placed.x * scales.x,
                         y: placed.y * scales.y,
                         width: placed.width * scales.x,
@@ -775,6 +847,81 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             });
         });
         return result;
+    }
+
+    /**
+     * New reports add endpoint blocks without saved frames (flow layout).
+     * Saved templates already have frames, which is why editing those feels
+     * stable. Capture the stacked layout after pagination so the first drag
+     * is the same as opening a stored template.
+     */
+    private _scheduleAutoPinMissingFrames(): void {
+        if (!this.reorderable() || this.thumbnailMode() || this._sectionDrag) return;
+        const sections = this.template().sections ?? [];
+        if (!sections.length || sections.every((section) => Boolean(this.displayFrame(section)))) {
+            this._autoPinAttempts = 0;
+            return;
+        }
+        if (this._autoPinAttempts > 8) return;
+        if (this._autoPinFrameId !== null) cancelAnimationFrame(this._autoPinFrameId);
+        this._autoPinFrameId = requestAnimationFrame(() => {
+            this._autoPinFrameId = requestAnimationFrame(() => {
+                this._autoPinFrameId = null;
+                this._autoPinMissingFrames();
+            });
+        });
+    }
+
+    private _autoPinMissingFrames(): void {
+        if (this._sectionDrag || !this.reorderable() || this.thumbnailMode()) return;
+        const sections = this.template().sections ?? [];
+        if (!sections.length || sections.every((section) => Boolean(this.displayFrame(section)))) {
+            this._autoPinAttempts = 0;
+            return;
+        }
+        const pinned = this._snapshotSectionFrames();
+        if (!pinned.length) {
+            this._autoPinAttempts += 1;
+            this._scheduleAutoPinMissingFrames();
+            return;
+        }
+        const byId = new Map(pinned.map((item) => [item.id, item.frame]));
+        const updates = sections
+            .filter((section) => !this.displayFrame(section) && byId.has(section.id))
+            .map((section) => ({ id: section.id, frame: byId.get(section.id)! }));
+        if (!updates.length) {
+            this._autoPinAttempts += 1;
+            this._scheduleAutoPinMissingFrames();
+            return;
+        }
+        this._autoPinAttempts = 0;
+        this.sectionFramesChange.emit(this._framesForEmit(updates));
+    }
+
+    /**
+     * Freeze every block at its current on-sheet position before the first
+     * free-move. Without this, only the dragged block gets a frame and the
+     * rest jump into absolute layout with (0,0) or viewport-scaled coords.
+     */
+    private _pinFlowLayout(dragId: string): ReportSectionFrame | null {
+        const pinned = this._snapshotSectionFrames();
+        const merged: Record<string, ReportSectionFrame> = { ...this.liveFrames() };
+        for (const section of this.template().sections ?? []) {
+            const current = merged[section.id] ?? section.frame;
+            if (current) {
+                merged[section.id] = current;
+            }
+        }
+        for (const item of pinned) {
+            if (!merged[item.id]) {
+                merged[item.id] = item.frame;
+            }
+        }
+        const start = merged[dragId] ?? pinned.find((item) => item.id === dragId)?.frame ?? null;
+        if (!start) return null;
+        merged[dragId] = start;
+        this.liveFrames.set(merged);
+        return start;
     }
 
     private _stopSectionDragListeners(): void {
@@ -1085,6 +1232,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.stopRotate();
         this.stopMove();
         this._clearSectionDrag();
+        if (this._autoPinFrameId !== null) {
+            cancelAnimationFrame(this._autoPinFrameId);
+            this._autoPinFrameId = null;
+        }
     };
 
     resolveDataPath(path: string | undefined): string {
@@ -1460,6 +1611,14 @@ html,body{margin:0;padding:0;background:#fff}
             clone.querySelectorAll('[data-overlay-box]'),
             origin
         );
+        this._pinPrintedBoxes(
+            source.querySelectorAll('[data-report-footer],[data-report-top-chrome]'),
+            clone.querySelectorAll('[data-report-footer],[data-report-top-chrome]'),
+            origin
+        );
+        clone.querySelectorAll('[data-report-footer],[data-report-top-chrome]').forEach((node) => {
+            (node as HTMLElement).style.zIndex = '30';
+        });
     }
 
     private _pinPrintedBoxes(

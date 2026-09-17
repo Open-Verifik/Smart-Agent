@@ -279,6 +279,8 @@
                 <div
                     data-report-top-chrome
                     class="px-8 pt-4 text-[10px] text-gray-400"
+                    [style.position]="hasFreeLayout() ? 'relative' : null"
+                    [style.z-index]="hasFreeLayout() ? '30' : null"
                     [style.text-align]="
                         pageNumberPosition() === 'top-left'
                             ? 'left'
@@ -355,9 +357,26 @@
                     </div>
                 }
 
-                <!-- Footer (every page, mirrors Puppeteer footerTemplate) -->
+                <!-- Footer (every page). In free layout it is pinned to the
+                     sheet bottom so absolutely positioned blocks cannot cover
+                     it, and the PDF clone can copy that same box. -->
                 @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
-                    <div class="mt-auto shrink-0 pb-6">
+                    <div
+                        data-report-footer
+                        class="shrink-0"
+                        [class.mt-auto]="!hasFreeLayout()"
+                        [class.pb-6]="!hasFreeLayout()"
+                        [class.px-0]="!hasFreeLayout()"
+                        [style.position]="hasFreeLayout() ? 'absolute' : null"
+                        [style.left.px]="hasFreeLayout() ? 0 : null"
+                        [style.right.px]="hasFreeLayout() ? 0 : null"
+                        [style.bottom.px]="hasFreeLayout() ? 0 : null"
+                        [style.z-index]="hasFreeLayout() ? '30' : null"
+                        [style.padding-left.px]="hasFreeLayout() ? 32 : null"
+                        [style.padding-right.px]="hasFreeLayout() ? 32 : null"
+                        [style.padding-bottom.px]="hasFreeLayout() ? 24 : null"
+                        [style.background-color]="hasFreeLayout() ? (pageBackgroundColor() || '#ffffff') : null"
+                    >
                         @if (legend()) {
                             <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
                                 <p

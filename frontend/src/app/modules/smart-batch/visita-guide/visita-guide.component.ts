@@ -764,13 +764,33 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     onLayoutSectionFrames(updates: { id: string; frame: ReportSectionFrame }[]): void {
         const next = new Map(updates.map((item) => [item.id, item.frame]));
         this.layoutSections.update((list) =>
-            list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section))
+            this._compactLayoutPages(
+                list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section))
+            )
         );
     }
 
     onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
         this.layoutSections.update((list) =>
-            list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
+            this._compactLayoutPages(
+                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
+            )
+        );
+    }
+
+    /** Drop empty sheets and shift leftover blocks onto the first remaining page. */
+    private _compactLayoutPages(list: ReportSection[]): ReportSection[] {
+        const used = [
+            ...new Set(list.flatMap((section) => (section.frame ? [section.frame.page ?? 0] : []))),
+        ].sort((a, b) => a - b);
+        if (!used.length) return list;
+        const remap = new Map(used.map((page, index) => [page, index]));
+        const needsRemap = used.some((page, index) => page !== index);
+        if (!needsRemap) return list;
+        return list.map((section) =>
+            section.frame
+                ? { ...section, frame: { ...section.frame, page: remap.get(section.frame.page ?? 0) ?? 0 } }
+                : section
         );
     }
 
@@ -1067,10 +1087,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
+    /** New reports start with a single endpoint; the rest are dragged in by hand. */
+    seedDefaultLayout(): void {
+        if (this.layoutSections().length) return;
+        const card = this.layoutSourceCards()[0];
+        if (!card) return;
+        this.addCardToLayout(card);
+    }
+
     useVisitaLayout(): void {
         const sections = this.clonedTemplate()?.sections ?? [];
         if (!sections.length) {
-            this.addAllCardsToLayout();
+            this.seedDefaultLayout();
             return;
         }
         this.layoutSections.set(sections.map((section, index) => ({ ...section, order: index })));
@@ -1819,7 +1847,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const id = this.selectedLayoutSectionId();
         if (!id) return;
         this.layoutSections.update((list) =>
-            list.filter((section) => section.id !== id).map((section, index) => ({ ...section, order: index }))
+            this._compactLayoutPages(
+                list.filter((section) => section.id !== id).map((section, index) => ({ ...section, order: index }))
+            )
         );
         this.selectedLayoutSectionId.set(null);
         this.layoutEditorKind.set(null);
@@ -1839,7 +1869,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     async saveLayoutTemplate(): Promise<boolean> {
         this.isSavingLayout.set(true);
         try {
-            if (!this.layoutSections().length) this.addAllCardsToLayout();
+            if (!this.layoutSections().length) this.seedDefaultLayout();
             const template = await this._persistWorkingTemplate();
             if (!template) throw new Error('template');
             this._snack.open(this._transloco.translate('visitaGuide.layoutSaved'), undefined, {
@@ -1858,7 +1888,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     async saveLayoutAndGenerate(): Promise<void> {
-        if (!this.layoutSections().length) this.addAllCardsToLayout();
+        if (!this.layoutSections().length) this.seedDefaultLayout();
         const saved = await this.saveLayoutTemplate();
         if (!saved) return;
         if (this.mode() === 'batch') {
@@ -1965,7 +1995,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.selectedTemplate.set(null);
         this._resetLayoutBranding();
         this.layoutSections.set([]);
-        this.addAllCardsToLayout();
+        this.seedDefaultLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
         this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
         this.enterLayout();
@@ -2117,7 +2147,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     async generatePdf(printHtmlOverride?: string | null): Promise<void> {
         this.isGenerating.set(true);
         try {
-            if (!this.layoutSections().length) this.addAllCardsToLayout();
+            if (!this.layoutSections().length) this.seedDefaultLayout();
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
@@ -2548,7 +2578,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.set(
             (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
         );
-        this.addAllCardsToLayout();
+        this.seedDefaultLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
         this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
         this.enterLayout();
