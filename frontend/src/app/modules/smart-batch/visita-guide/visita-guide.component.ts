@@ -337,7 +337,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return Boolean(category && this.entities().includes(category));
     }
 
-    isWideStep = computed(() => this.step() === 'layout' || this.step() === 'template');
+    isWideStep = computed(() => this.step() === 'layout' || this.step() === 'template' || this.step() === 'generate');
     isLayoutStep = computed(() => this.step() === 'layout');
 
     selectedLayoutSection = computed(() => {
@@ -1851,14 +1851,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     async saveLayoutAndGenerate(): Promise<void> {
         if (!this.layoutSections().length) this.addAllCardsToLayout();
-        const printHtml = this._editorPrintHtml();
         const saved = await this.saveLayoutTemplate();
         if (!saved) return;
         if (this.mode() === 'batch') {
             this._continueBatchUpload();
             return;
         }
-        await this.generatePdf(printHtml);
         this.step.set('generate');
     }
 
@@ -2115,6 +2113,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
             const sample = this.previewData();
             const printHtml = printHtmlOverride ?? this._editorPrintHtml();
             const blob = await firstValueFrom(
@@ -2171,7 +2170,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _editorPrintHtml(): string | null {
         const previews = this._previews?.toArray() ?? [];
-        const preview = previews.find((item) => item.reorderable()) ?? previews[previews.length - 1];
+        const printSource = previews.find((item) => item.printCapture());
+        if (printSource) return printSource.exportPrintHtml();
+        const preview =
+            this.step() === 'generate'
+                ? previews.find((item) => !item.reorderable()) ?? previews[previews.length - 1]
+                : previews.find((item) => item.reorderable()) ?? previews[previews.length - 1];
         return preview?.exportPrintHtml() ?? null;
     }
 

@@ -76,6 +76,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     customContextMenu = input<boolean>(false);
     /** When true, holding a block lets the user reorder it on the page. */
     reorderable = input<boolean>(false);
+    /** Snapshot this instance for PDF, not the layout editor. */
+    printCapture = input<boolean>(false);
 
     /** Logo URL or base64 */
     logoUrl = input<string | null>(null);
@@ -682,12 +684,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     sectionHostStyle(section: ReportSection): Record<string, string> {
         const frame = this.displayFrame(section);
         if (!this.hasFreeLayout() || !frame) return {};
+        const x = Number(frame.x);
+        const y = Number(frame.y);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return {};
         const scales = this._scaleFactors;
-        const width = frame.width ? frame.width / scales.x : 0;
+        const width = Number(frame.width) > 0 ? Number(frame.width) / scales.x : 0;
         return {
             position: 'absolute',
-            left: `${frame.x / scales.x}px`,
-            top: `${frame.y / scales.y}px`,
+            left: `${x / scales.x}px`,
+            top: `${y / scales.y}px`,
             width: width ? `${width}px` : '100%',
             marginBottom: '0px',
             zIndex: this.draggingSectionId() === section.id ? '40' : '1',
@@ -1429,7 +1434,59 @@ html,body{margin:0;padding:0;background:#fff}
         clone.style.width = `${rect.width}px`;
         clone.style.height = `${rect.height}px`;
         const scale = (pageWidthMm * MM_TO_PX) / rect.width;
-        return `<div class="print-sheet"><div style="width:${rect.width}px;height:${rect.height}px;transform:scale(${scale});transform-origin:top left">${clone.outerHTML}</div></div>`;
+        this._pinPrintedLayout(paper, clone);
+        clone.style.zoom = String(scale);
+        return `<div class="print-sheet">${clone.outerHTML}</div>`;
+    }
+
+    private _pinPrintedLayout(source: HTMLElement, clone: HTMLElement): void {
+        const originEl =
+            (source.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? source;
+        const origin = originEl.getBoundingClientRect();
+        const cloneInner =
+            (clone.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? clone;
+        cloneInner.style.position = 'relative';
+        cloneInner.style.height = '100%';
+        cloneInner.style.minHeight = '100%';
+        cloneInner.style.overflow = 'visible';
+
+        const srcSections = source.querySelectorAll('[data-report-section]');
+        const dstSections = clone.querySelectorAll('[data-report-section]');
+        if (this.hasFreeLayout()) {
+            this._pinPrintedBoxes(srcSections, dstSections, origin);
+        }
+        this._pinPrintedBoxes(
+            source.querySelectorAll('[data-overlay-box]'),
+            clone.querySelectorAll('[data-overlay-box]'),
+            origin
+        );
+    }
+
+    private _pinPrintedBoxes(
+        srcNodes: NodeListOf<Element>,
+        dstNodes: NodeListOf<Element>,
+        origin: DOMRect
+    ): void {
+        const count = Math.min(srcNodes.length, dstNodes.length);
+        for (let i = 0; i < count; i++) {
+            const src = srcNodes[i] as HTMLElement;
+            const dst = dstNodes[i] as HTMLElement;
+            const box = src.getBoundingClientRect();
+            if (!box.width && !box.height) continue;
+            dst.style.position = 'absolute';
+            dst.style.left = `${Math.round(box.left - origin.left)}px`;
+            dst.style.top = `${Math.round(box.top - origin.top)}px`;
+            dst.style.width = `${Math.round(box.width)}px`;
+            dst.style.height = `${Math.round(box.height)}px`;
+            dst.style.margin = '0';
+            dst.style.right = 'auto';
+            dst.style.bottom = 'auto';
+            dst.style.transform = src.style.transform || 'none';
+        }
+    }
+
+    printSurfaceWidth(): number {
+        return this._reportPages?.first?.nativeElement.getBoundingClientRect().width ?? 0;
     }
 
     private _inlineComputedStyles(source: Element, target: Element): void {
@@ -1482,7 +1539,6 @@ html,body{margin:0;padding:0;background:#fff}
             'overflow',
             'object-fit',
             'object-position',
-            'transform',
             'z-index',
             'border-collapse',
             'vertical-align',

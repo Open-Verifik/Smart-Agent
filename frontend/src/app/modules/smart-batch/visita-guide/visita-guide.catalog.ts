@@ -337,7 +337,7 @@ export const STEP_PRIMARY_KEYS: Record<GuideStepId, string> = {
     input: 'visitaGuide.searchAction',
     consult: 'visitaGuide.searching',
     results: 'visitaGuide.continueToReport',
-    layout: 'visitaGuide.saveAndGenerate',
+    layout: 'visitaGuide.saveAndViewReport',
     include: 'visitaGuide.continue',
     template: 'visitaGuide.continue',
     customize: 'visitaGuide.continue',
