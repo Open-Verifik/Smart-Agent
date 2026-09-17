@@ -9,6 +9,7 @@ import {
     OnDestroy,
     OnInit,
     signal,
+    ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -102,6 +103,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     private _batchService = inject(SmartBatchService);
     private _sanitizer = inject(DomSanitizer);
     private _destroyRef = inject(DestroyRef);
+    @ViewChild('samplePreview') private _samplePreview?: ReportPreviewComponent;
 
     configId = signal<string | null>(null);
     templateId = signal<string | null>(null);
@@ -1577,8 +1579,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             if (!id) return;
 
             this.isDownloadingSample.set(true);
+            const printHtml = this._samplePreview?.exportPrintHtml();
             this._reportService
-                .downloadTemplateSample(id, { sampleData: this.previewData() })
+                .downloadTemplateSample(id, {
+                    sampleData: this.previewData(),
+                    ...(printHtml ? { printHtml } : {}),
+                })
                 .subscribe({
                     next: async (blob) => {
                         let pdfBlob = blob;

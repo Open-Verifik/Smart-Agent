@@ -540,7 +540,7 @@ export class SmartReportService {
      */
     downloadTemplateSample(
         id: string,
-        body: { sampleData: SampleReportData }
+        body: { sampleData: SampleReportData; printHtml?: string }
     ): Observable<Blob> {
         return this._httpClient.post(
             `${environment.apiUrl}/v2/smart-report-templates/${id}/download-sample`,

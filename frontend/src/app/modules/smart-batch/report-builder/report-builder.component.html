@@ -2450,6 +2450,7 @@
                         [class.hidden]="previewMode() !== 'edit' || builderStep() === 'deliver'"
                     >
                     <report-preview
+                        #samplePreview
                         [template]="{
                             sections: sections(),
                             primaryColor: templateForm.get('primaryColor')?.value,

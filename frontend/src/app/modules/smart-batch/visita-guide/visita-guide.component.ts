@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, signal, untracked } from '@angular/core';
+import { Component, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChildren } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -133,6 +133,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewBridge = inject(ReportBuilderPreviewDataService);
     private _destroyRef = inject(DestroyRef);
+    @ViewChildren(ReportPreviewComponent) private _previews!: QueryList<ReportPreviewComponent>;
 
     readonly intents = GUIDE_INTENTS;
     readonly entityOptions = GUIDE_ENTITIES;
@@ -1902,10 +1903,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!this.layoutSections().length) this.addAllCardsToLayout();
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
             const sample = this.previewData();
+            const printHtml = this._editorPrintHtml();
             try {
                 const blob = await firstValueFrom(
-                    this._reports.downloadTemplateSample(template._id, { sampleData: sample })
+                    this._reports.downloadTemplateSample(template._id, {
+                        sampleData: sample,
+                        ...(printHtml ? { printHtml } : {}),
+                    })
                 );
                 const url = URL.createObjectURL(blob);
                 this._state.pdfDataUrl.set(url);
@@ -1937,6 +1943,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         } finally {
             this.isGenerating.set(false);
         }
+    }
+
+    private _editorPrintHtml(): string | null {
+        const previews = this._previews?.toArray() ?? [];
+        const preview = previews.find((item) => item.reorderable()) ?? previews[previews.length - 1];
+        return preview?.exportPrintHtml() ?? null;
     }
 
     downloadJson(): void {

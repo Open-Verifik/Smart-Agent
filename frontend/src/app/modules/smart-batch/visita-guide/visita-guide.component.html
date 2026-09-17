@@ -1660,6 +1660,36 @@
                         </div>
                     }
                     @case ('generate') {
+                        @if (previewTemplate(); as template) {
+                            <div class="pointer-events-none fixed top-0 left-[-120vw] w-[210mm]" aria-hidden="true">
+                                <report-preview
+                                    [template]="template"
+                                    [previewData]="previewData()"
+                                    [primaryColor]="primaryColor()"
+                                    [pageBackgroundColor]="pageBackgroundColor()"
+                                    [logoUrl]="logoDataUrl()"
+                                    [legend]="legend()"
+                                    [showPageNumbers]="showPageNumbers()"
+                                    [watermarkEnabled]="watermarkEnabled()"
+                                    [watermarkType]="watermarkType()"
+                                    [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
+                                    [watermarkOpacity]="watermarkOpacity()"
+                                    [watermarkPattern]="watermarkPattern()"
+                                    [watermarkX]="watermarkX()"
+                                    [watermarkY]="watermarkY()"
+                                    [watermarkWidth]="watermarkWidth()"
+                                    [watermarkHeight]="watermarkHeight()"
+                                    [watermarkRotation]="watermarkRotation()"
+                                    [logoEnabled]="!!logoDataUrl()"
+                                    [logoX]="logoX()"
+                                    [logoY]="logoY()"
+                                    [logoWidth]="logoWidth()"
+                                    [logoHeight]="logoHeight()"
+                                    [logoRotation]="logoRotation()"
+                                    [logoAutoFitContent]="true"
+                                ></report-preview>
+                            </div>
+                        }
                         <div
                             class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/70"
                         >

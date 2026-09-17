@@ -1261,4 +1261,114 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
         return palette[section.style?.variant || 'neutral'] ?? palette.neutral;
     }
+
+    /**
+     * Snapshot the on-screen sheets as a standalone HTML document for Puppeteer,
+     * so the PDF matches the editor instead of a second EJS layout.
+     */
+    exportPrintHtml(): string | null {
+        const papers = this._reportPages?.toArray().map((ref) => ref.nativeElement) ?? [];
+        if (!papers.length) return null;
+
+        const landscape = this.orientation() === 'landscape';
+        const pageWidthMm = landscape ? 297 : 210;
+        const pageHeightMm = landscape ? 210 : 297;
+        const sheets = papers
+            .map((paper) => this._printSheetMarkup(paper, pageWidthMm, pageHeightMm))
+            .filter(Boolean)
+            .join('');
+
+        if (!sheets) return null;
+
+        return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>
+@page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
+html,body{margin:0;padding:0;background:#fff}
+.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;overflow:hidden;position:relative;page-break-after:always}
+.print-sheet:last-child{page-break-after:auto}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+</style></head><body>${sheets}</body></html>`;
+    }
+
+    private _printSheetMarkup(paper: HTMLElement, pageWidthMm: number, pageHeightMm: number): string {
+        const rect = paper.getBoundingClientRect();
+        if (!rect.width || !rect.height) return '';
+        const clone = paper.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('[data-print-hide],[data-overlay-handle]').forEach((node) => node.remove());
+        this._inlineComputedStyles(paper, clone);
+        clone.querySelectorAll('[class*="ring-"]').forEach((node) => {
+            (node as HTMLElement).style.boxShadow = 'none';
+        });
+        clone.style.boxShadow = 'none';
+        clone.style.borderRadius = '0';
+        clone.style.margin = '0';
+        clone.style.maxWidth = 'none';
+        clone.style.width = `${rect.width}px`;
+        clone.style.height = `${rect.height}px`;
+        const scale = (pageWidthMm * MM_TO_PX) / rect.width;
+        return `<div class="print-sheet"><div style="width:${rect.width}px;height:${rect.height}px;transform:scale(${scale});transform-origin:top left">${clone.outerHTML}</div></div>`;
+    }
+
+    private _inlineComputedStyles(source: Element, target: Element): void {
+        const computed = getComputedStyle(source);
+        const keys = [
+            'position',
+            'top',
+            'left',
+            'right',
+            'bottom',
+            'width',
+            'height',
+            'min-width',
+            'min-height',
+            'max-width',
+            'max-height',
+            'margin',
+            'padding',
+            'display',
+            'flex-direction',
+            'flex-wrap',
+            'align-items',
+            'justify-content',
+            'gap',
+            'grid-template-columns',
+            'grid-template-rows',
+            'font-family',
+            'font-size',
+            'font-weight',
+            'font-style',
+            'line-height',
+            'letter-spacing',
+            'text-align',
+            'text-transform',
+            'color',
+            'white-space',
+            'background-color',
+            'background-image',
+            'opacity',
+            'border',
+            'border-top',
+            'border-right',
+            'border-bottom',
+            'border-left',
+            'border-radius',
+            'box-sizing',
+            'overflow',
+            'object-fit',
+            'object-position',
+            'transform',
+            'z-index',
+            'border-collapse',
+            'vertical-align',
+        ];
+        let css = '';
+        for (const key of keys) {
+            const value = computed.getPropertyValue(key);
+            if (value) css += `${key}:${value};`;
+        }
+        (target as HTMLElement).style.cssText = css;
+        const srcKids = source.children;
+        const dstKids = target.children;
+        const n = Math.min(srcKids.length, dstKids.length);
+        for (let i = 0; i < n; i++) this._inlineComputedStyles(srcKids[i], dstKids[i]);
+    }
 }
