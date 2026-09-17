@@ -124,6 +124,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding = input<number>(0);
 
+    /** Library cards: first sheet only, no off-screen measurement. */
+    thumbnailMode = input<boolean>(false);
+
     // Output
     @Output() signaturePositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() signatureSizeChange = new EventEmitter<{ width: number; height: number }>();
@@ -287,6 +290,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
+        if (this.hasFreeLayout()) {
+            this._setPagesIfDifferent(this._pagesFromFrames(sections));
+            return;
+        }
+
+        if (this.thumbnailMode()) {
+            this._setPagesIfDifferent([sections.slice()]);
+            return;
+        }
+
         const els = this._measureSections?.toArray() || [];
         if (els.length !== sections.length) {
             // Off-screen list hasn't caught up yet; try again next frame.
@@ -307,20 +320,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const id = el.dataset['sectionId'];
             if (!id) continue;
             heights.set(id, el.getBoundingClientRect().height);
-        }
-
-        if (this.hasFreeLayout()) {
-            let pageCount = 1;
-            for (const section of sections) {
-                pageCount = Math.max(pageCount, (this.displayFrame(section)?.page ?? 0) + 1);
-            }
-            const newPages: ReportSection[][] = Array.from({ length: pageCount }, () => []);
-            for (const section of sections) {
-                const page = Math.min(Math.max(0, this.displayFrame(section)?.page ?? 0), pageCount - 1);
-                newPages[page].push(section);
-            }
-            this._setPagesIfDifferent(newPages);
-            return;
         }
 
         const pageHeightDom = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
@@ -650,6 +649,25 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     hasFreeLayout(): boolean {
         return this._usesPinnedFrames() || Object.keys(this.liveFrames()).length > 0;
+    }
+
+    visiblePages(): ReportSection[][] {
+        const pages = this.pages();
+        if (!this.thumbnailMode()) return pages;
+        return pages.length ? [pages[0]] : [[]];
+    }
+
+    private _pagesFromFrames(sections: ReportSection[]): ReportSection[][] {
+        let pageCount = 1;
+        for (const section of sections) {
+            pageCount = Math.max(pageCount, (this.displayFrame(section)?.page ?? 0) + 1);
+        }
+        const newPages: ReportSection[][] = Array.from({ length: pageCount }, () => []);
+        for (const section of sections) {
+            const page = Math.min(Math.max(0, this.displayFrame(section)?.page ?? 0), pageCount - 1);
+            newPages[page].push(section);
+        }
+        return newPages;
     }
 
     private _usesPinnedFrames(): boolean {

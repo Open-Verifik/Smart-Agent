@@ -6,13 +6,14 @@
 -->
 <div class="flex flex-col items-center gap-4" (click)="onPaperClick($event)">
     @for (
-        pageSections of pages();
+        pageSections of visiblePages();
         track $index;
         let pageIndex = $index, isFirst = $first, count = $count
     ) {
         <div
             #reportPage
-            class="rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative w-full"
+            class="mx-auto flex w-full flex-col relative overflow-hidden rounded-lg"
+            [class.shadow-lg]="!thumbnailMode()"
             [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
             [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
             [style.height]="orientation() === 'landscape' ? '210mm' : '297mm'"
@@ -396,6 +397,7 @@
     height and bin-pack them into pages. Hidden but still laid out so
     getBoundingClientRect returns real values.
 -->
+@if (!thumbnailMode()) {
 <div
     aria-hidden="true"
     class="px-8 sm:px-10 lg:px-12"
@@ -447,6 +449,7 @@
         </div>
     }
 </div>
+}
 
 <!--
     One definition per section type, used by both the visible cards and the

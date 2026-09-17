@@ -618,11 +618,12 @@ export class SmartReportService {
 
     generateReport(
         id: string,
-        options?: { engine?: 'pdfkit' | 'puppeteer'; rowIndex?: number }
+        options?: { engine?: 'pdfkit' | 'puppeteer'; rowIndex?: number; printHtml?: string }
     ): Observable<{ data: SmartReport; pdf: { buffer: string; size: number } }> {
-        const body: { engine?: string; rowIndex?: number } = {};
+        const body: { engine?: string; rowIndex?: number; printHtml?: string } = {};
         if (options?.engine) body.engine = options.engine;
         if (options?.rowIndex != null) body.rowIndex = options.rowIndex;
+        if (options?.printHtml) body.printHtml = options.printHtml;
         return this._httpClient.post<{
             data: SmartReport;
             pdf: { buffer: string; size: number };

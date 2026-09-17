@@ -303,39 +303,20 @@
                             </p>
                         </div>
                     } @else {
-                        <!--
-                            A card's thumbnail is a render of page one, so two templates
-                            over the same batch are told apart by what they produce rather
-                            than by a shared icon. Cropped to the top of the sheet: the
-                            masthead is the recognisable part, and a full page shrunk into
-                            a card is unreadable anyway.
-                        -->
                         <ng-template #templateThumb let-template="template" let-icon="icon">
-                            <div
-                                class="relative mb-4 flex h-36 items-center justify-center overflow-hidden rounded-xl border border-stone-200 bg-stone-100 dark:border-gray-800 dark:bg-gray-950"
-                            >
-                                @if (template.thumbnail?.image) {
-                                    <img
-                                        [src]="template.thumbnail.image"
-                                        [alt]="template.name"
-                                        loading="lazy"
-                                        class="h-full w-full object-cover object-top"
-                                    />
-                                } @else {
-                                    <mat-icon class="!h-8 !w-8 !text-3xl text-stone-300 dark:text-gray-700">{{
-                                        icon
-                                    }}</mat-icon>
-                                }
-                                <div
-                                    class="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-stone-950/70 to-transparent pb-3 opacity-0 transition group-hover:opacity-100"
-                                >
-                                    <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-stone-900"
+                            <div class="relative mb-4">
+                                <report-template-thumb [template]="template" [icon]="icon">
+                                    <div
+                                        class="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-stone-950/70 to-transparent pb-3 opacity-0 transition group-hover:opacity-100"
                                     >
-                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">visibility</mat-icon>
-                                        {{ t('smartBatchLanding.templatePreviewOpen') }}
-                                    </span>
-                                </div>
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-stone-900"
+                                        >
+                                            <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">visibility</mat-icon>
+                                            {{ t('smartBatchLanding.templatePreviewOpen') }}
+                                        </span>
+                                    </div>
+                                </report-template-thumb>
                             </div>
                         </ng-template>
 
@@ -615,7 +596,7 @@
             (click)="closeTemplatePreview()"
         >
             <div
-                class="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
+                class="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
                 (click)="$event.stopPropagation()"
             >
                 <div
@@ -638,29 +619,44 @@
                         <mat-icon>close</mat-icon>
                     </button>
                 </div>
-                <div class="min-h-[50vh] flex-1 overflow-auto bg-stone-100 dark:bg-gray-900">
+                <div class="min-h-[50vh] flex-1 overflow-auto bg-stone-100 p-4 dark:bg-gray-900 sm:p-6">
                     @if (previewLoading()) {
                         <div class="flex min-h-[50vh] flex-col items-center justify-center gap-3">
                             <mat-spinner diameter="36"></mat-spinner>
                             <p class="text-sm text-stone-500">{{ t('smartBatchLanding.templatePreviewLoading') }}</p>
                         </div>
-                    } @else if (previewHtmlUrl()) {
-                        <iframe
-                            class="block min-h-[70vh] w-full border-0 bg-white"
-                            [src]="previewHtmlUrl()"
-                            sandbox
-                            title="{{ templateTitle(preview) }}"
-                        ></iframe>
-                    } @else if (preview.thumbnail?.image) {
-                        <img
-                            [src]="preview.thumbnail.image"
-                            [alt]="templateTitle(preview)"
-                            class="mx-auto max-h-[80vh] w-auto max-w-full object-contain"
-                        />
                     } @else {
-                        <p class="px-6 py-16 text-center text-sm text-stone-500">
-                            {{ previewError() || t('smartBatchLanding.templatePreviewFailed') }}
-                        </p>
+                        <report-preview
+                            [template]="preview"
+                            [previewData]="previewData()"
+                            [primaryColor]="preview.primaryColor || '#4F46E5'"
+                            [pageBackgroundColor]="preview.pageBackgroundColor || '#ffffff'"
+                            [orientation]="preview.orientation || 'portrait'"
+                            [clickable]="false"
+                            [logoUrl]="preview.logo || null"
+                            [logoEnabled]="!!preview.logo"
+                            [logoX]="preview.logoSettings?.x ?? 32"
+                            [logoY]="preview.logoSettings?.y ?? 32"
+                            [logoWidth]="preview.logoSettings?.width ?? 160"
+                            [logoHeight]="preview.logoSettings?.height ?? 60"
+                            [logoRotation]="preview.logoSettings?.rotation ?? 0"
+                            [logoAutoFitContent]="preview.logoSettings?.autoFitContent ?? false"
+                            [sheetImages]="preview.sheetImages ?? []"
+                            [bodyTopPadding]="preview.bodyTopPadding ?? 0"
+                            [legend]="preview.legend || ''"
+                            [showPageNumbers]="preview.showPageNumbers || false"
+                            [pageNumberPosition]="preview.pageNumberPosition || 'bottom-center'"
+                            [watermarkEnabled]="preview.watermark?.enabled || false"
+                            [watermarkType]="preview.watermark?.type || 'text'"
+                            [watermarkText]="preview.watermark?.text || preview.name || 'CONFIDENTIAL'"
+                            [watermarkOpacity]="preview.watermark?.opacity ?? 0.08"
+                            [watermarkPattern]="preview.watermark?.pattern || 'single'"
+                            [watermarkX]="preview.watermark?.x ?? 250"
+                            [watermarkY]="preview.watermark?.y ?? 420"
+                            [watermarkWidth]="preview.watermark?.width ?? 280"
+                            [watermarkHeight]="preview.watermark?.height ?? 160"
+                            [watermarkRotation]="preview.watermark?.rotation ?? -15"
+                        ></report-preview>
                     }
                 </div>
             </div>

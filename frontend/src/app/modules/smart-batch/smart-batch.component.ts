@@ -5,17 +5,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { take } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { getPresetStepCount } from './batch-required-fields.util';
+import { ReportPreviewComponent } from './report-preview/report-preview.component';
+import { ReportTemplateThumbComponent } from './report-template-thumb.component';
 import { getCountryFlag as flagForCountry } from './smart-batch-country.util';
 import { SmartBatchInputModeService } from './smart-batch-input-mode.service';
 import { BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './smart-batch.service';
-import { BatchConfigurationRef, SmartReportService, SmartReportTemplate } from './smart-report.service';
+import { BatchConfigurationRef, SampleReportData, SmartReportService, SmartReportTemplate } from './smart-report.service';
 
 @Component({
     selector: 'smart-batch',
@@ -30,6 +31,8 @@ import { BatchConfigurationRef, SmartReportService, SmartReportTemplate } from '
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        ReportPreviewComponent,
+        ReportTemplateThumbComponent,
     ],
     templateUrl: './smart-batch.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -44,7 +47,6 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     private _inputModeService = inject(SmartBatchInputModeService);
     private _snackBar = inject(MatSnackBar);
     private _confirm = inject(FuseConfirmationService);
-    private _sanitizer = inject(DomSanitizer);
 
     configurations = this._smartBatchService.configurations;
     isLoading = this._smartBatchService.isLoading;
@@ -71,9 +73,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     isModeDialogOpen = signal(false);
     previewTemplate = signal<SmartReportTemplate | null>(null);
     previewLoading = signal(false);
-    previewError = signal<string | null>(null);
-    previewHtmlUrl = signal<SafeResourceUrl | null>(null);
-    private _previewObjectUrl: string | null = null;
+    previewData = computed<Record<string, any>>(() => this._sampleFromTemplate(this.previewTemplate()));
     private _previewGen = 0;
 
     systemTemplates = computed(() =>
@@ -120,19 +120,16 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         const gen = ++this._previewGen;
         this.previewTemplate.set(template);
         this.previewLoading.set(true);
-        this.previewError.set(null);
-        this._releasePreviewUrl();
-        this.previewHtmlUrl.set(null);
 
         const id = template._id;
         if (!id) {
-            this._renderPreview(template, gen);
+            this._showPreview(template, gen);
             return;
         }
 
         this._smartReportService.getTemplate(id).subscribe({
-            next: (full) => this._renderPreview(full ?? template, gen),
-            error: () => this._renderPreview(template, gen),
+            next: (full) => this._showPreview(full ?? template, gen),
+            error: () => this._showPreview(template, gen),
         });
     }
 
@@ -140,51 +137,24 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         this._previewGen += 1;
         this.previewTemplate.set(null);
         this.previewLoading.set(false);
-        this.previewError.set(null);
-        this._releasePreviewUrl();
-        this.previewHtmlUrl.set(null);
     }
 
-    private _renderPreview(template: SmartReportTemplate, gen: number): void {
+    private _showPreview(template: SmartReportTemplate, gen: number): void {
         if (gen !== this._previewGen) return;
-
         this.previewTemplate.set(template);
-        const sample = template.sampleData?.inputData || template.sampleData?.results
-            ? template.sampleData!
-            : {
-                  batchName: template.name,
-                  rowIndex: 0,
-                  inputData: {},
-                  results: {},
-              };
-
-        this._smartReportService.previewHtml(template, sample).subscribe({
-            next: (html) => {
-                if (gen !== this._previewGen) return;
-                this._setPreviewHtml(html);
-                this.previewLoading.set(false);
-            },
-            error: () => {
-                if (gen !== this._previewGen) return;
-                this.previewLoading.set(false);
-                if (!template.thumbnail?.image) {
-                    this.previewError.set(this._transloco.translate('smartBatchLanding.templatePreviewFailed'));
-                }
-            },
-        });
+        this.previewLoading.set(false);
     }
 
-    private _setPreviewHtml(html: string): void {
-        this._releasePreviewUrl();
-        const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-        this._previewObjectUrl = url;
-        this.previewHtmlUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
-    }
-
-    private _releasePreviewUrl(): void {
-        if (!this._previewObjectUrl) return;
-        URL.revokeObjectURL(this._previewObjectUrl);
-        this._previewObjectUrl = null;
+    private _sampleFromTemplate(template: SmartReportTemplate | null): Record<string, any> {
+        const sample: SampleReportData = template?.sampleData ?? {};
+        return {
+            batchName: sample.batchName || template?.name || '',
+            rowIndex: sample.rowIndex ?? 0,
+            inputData: sample.inputData ?? {},
+            results: sample.results ?? {},
+            errors: sample.errors,
+            report: sample.report,
+        };
     }
 
     private _loadLandingData(): void {

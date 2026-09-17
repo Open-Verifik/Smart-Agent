@@ -1992,7 +1992,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     })
                 );
                 const result = await firstValueFrom(
-                    this._reports.generateReport(report._id!, { rowIndex: 0 })
+                    this._reports.generateReport(report._id!, {
+                        rowIndex: 0,
+                        ...(printHtml ? { printHtml } : {}),
+                    })
                 );
                 if (result.pdf?.buffer) {
                     const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;

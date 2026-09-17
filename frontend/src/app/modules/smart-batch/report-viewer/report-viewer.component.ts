@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -118,6 +118,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _sanitizer = inject(DomSanitizer);
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
+
+    @ViewChild('livePreview') private _livePreview?: ReportPreviewComponent;
 
     // Route params
     configId = signal<string | null>(null);
@@ -787,6 +789,12 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             return;
         }
 
+        const previewRow = this.previewDataForCurrentPage();
+        const rowIndex =
+            this.selectedRowIndex() ??
+            (typeof previewRow.rowIndex === 'number' ? previewRow.rowIndex : null);
+        const printHtml = this._livePreview?.exportPrintHtml() ?? undefined;
+
         this.isGenerating.set(true);
 
         // First create the report record
@@ -800,11 +808,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 next: (report) => {
                     this.report.set(report);
 
-                    // Now generate the PDF (pass rowIndex for single-record report)
-                    const rowIndex = this.selectedRowIndex();
                     this._reportService
                         .generateReport(report._id!, {
                             ...(rowIndex != null ? { rowIndex } : {}),
+                            ...(printHtml ? { printHtml } : {}),
                         })
                         .subscribe({
                             next: (result) => {
