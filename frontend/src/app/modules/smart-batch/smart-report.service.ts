@@ -34,6 +34,57 @@ export type ReportConditionOperator =
 
 export type ReportStyleVariant = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'primary';
 
+export type ReportTextRole = 'title' | 'label' | 'value';
+export type ReportCellPart = 'cell' | 'label' | 'value';
+export type ReportRowLineStyle = 'solid' | 'dotted' | 'dashed';
+
+export interface ReportSectionFrame {
+    x: number;
+    y: number;
+    width?: number;
+    height?: number;
+    page?: number;
+}
+
+export interface ReportSheetImage {
+    id: string;
+    src: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation?: number;
+    page?: number;
+}
+
+export interface ReportTextRoleStyle {
+    fontSize?: number;
+    fontWeight?: 'normal' | 'bold';
+    fontStyle?: 'normal' | 'italic';
+    fontFamily?: string;
+    textAlign?: 'left' | 'center' | 'right' | 'justify';
+    color?: string;
+}
+
+/** Per-parameter cell inside a keyValueGrid / card / table. */
+export interface ReportKeyOverride {
+    label?: string;
+    backgroundColor?: string;
+    borderWidth?: number;
+    borderColor?: string;
+    borderRadius?: number;
+    /** When set, this cell ignores the block-level row-line toggle. */
+    showRowLine?: boolean;
+    rowLineStyle?: ReportRowLineStyle;
+    rowLineColor?: string;
+    /** Line thickness in px. */
+    rowLineWidth?: number;
+    /** Dot or dash length in px. */
+    rowLineMark?: number;
+    labelStyle?: ReportTextRoleStyle;
+    valueStyle?: ReportTextRoleStyle;
+}
+
 export interface ReportSectionCondition {
     field: string;
     operator: ReportConditionOperator;
@@ -55,6 +106,22 @@ export interface ReportSection {
 
     /** keyValueGrid */
     columnsPerRow?: number;
+    /** Keys to omit from keyValueGrid / table / card parameter lists. */
+    hiddenKeys?: string[];
+    /** Display order of parameter and nested-table keys inside the block. */
+    keyOrder?: string[];
+    /** Row separators between parameters. Default true. */
+    showRowLines?: boolean;
+    /** Separator look. Default solid. */
+    rowLineStyle?: ReportRowLineStyle;
+    /** Separator color. Independent from cell/block background. */
+    rowLineColor?: string;
+    /** Separator thickness in px. Default 3. */
+    rowLineWidth?: number;
+    /** Dot or dash length in px. */
+    rowLineMark?: number;
+    /** Independent label, value, and cell chrome per parameter key. */
+    keyOverrides?: Record<string, ReportKeyOverride>;
 
     /** repeater: `{field}` placeholders resolved against each array item. */
     itemTitle?: string;
@@ -67,13 +134,29 @@ export interface ReportSection {
     showWhenEmpty?: boolean;
     emptyMessage?: string;
 
+    /** Free placement on the sheet (canonical 96 DPI px from the page content origin). */
+    frame?: ReportSectionFrame;
+
     style?: {
         fontSize?: number;
         fontWeight?: 'normal' | 'bold';
-        textAlign?: 'left' | 'center' | 'right';
+        fontStyle?: 'normal' | 'italic';
+        fontFamily?: string;
+        textAlign?: 'left' | 'center' | 'right' | 'justify';
         color?: string;
+        labelColor?: string;
+        valueColor?: string;
+        /** Independent typography for the block title. */
+        titleStyle?: ReportTextRoleStyle;
+        /** Independent typography for parameter labels. */
+        labelStyle?: ReportTextRoleStyle;
+        /** Independent typography for parameter values. */
+        valueStyle?: ReportTextRoleStyle;
         backgroundColor?: string;
         padding?: string;
+        borderWidth?: number;
+        borderColor?: string;
+        borderRadius?: number;
         variant?: ReportStyleVariant;
         /** Data-driven appearance, first matching rule wins. */
         variantRules?: (ReportSectionCondition & { variant: ReportStyleVariant })[];
@@ -106,6 +189,7 @@ export interface SmartReportTemplate {
     // Branding
     logo?: string;
     primaryColor?: string;
+    pageBackgroundColor?: string;
     header?: ReportSection;
     footer?: ReportSection;
     legend?: string;
@@ -138,6 +222,11 @@ export interface SmartReportTemplate {
         text?: string;
         opacity?: number;
         pattern?: 'single' | 'repeated';
+        x?: number;
+        y?: number;
+        width?: number;
+        height?: number;
+        rotation?: number;
     };
 
     // Security
@@ -163,9 +252,13 @@ export interface SmartReportTemplate {
         y: number;
         width: number;
         height: number;
+        rotation?: number;
         /** When true and overlay is enabled, content auto-pushes below the logo. */
         autoFitContent?: boolean;
     };
+
+    /** Extra logos/images placed freely on the sheet (canonical 96 DPI px). */
+    sheetImages?: ReportSheetImage[];
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding?: number;
@@ -188,6 +281,57 @@ export interface SmartReportTemplate {
     createdAt?: string;
     updatedAt?: string;
 }
+
+const SYSTEM_TEMPLATE_FIELDS = [
+    'type',
+    'systemKey',
+    'country',
+    'category',
+    'tier',
+    'nameKey',
+    'descriptionKey',
+    'presetSteps',
+] as const;
+
+/** Drop fields the template API rejects on write. */
+export const sanitizeTemplateForApi = (
+    template: Partial<SmartReportTemplate>,
+    mode: 'create' | 'update' = 'create'
+): Partial<SmartReportTemplate> => {
+    const payload = JSON.parse(JSON.stringify(template)) as Partial<SmartReportTemplate> & {
+        __v?: unknown;
+    };
+
+    delete payload._id;
+    delete payload.client;
+    delete payload.thumbnail;
+    delete payload.createdAt;
+    delete payload.updatedAt;
+    delete payload.clonedFromSystemKey;
+    delete payload.__v;
+
+    const batchRef = payload.batchConfiguration;
+    if (batchRef && typeof batchRef === 'object') {
+        const id = (batchRef as BatchConfigurationRef)._id ?? (batchRef as BatchConfigurationRef).id;
+        if (typeof id === 'string' && id) {
+            payload.batchConfiguration = id;
+        } else {
+            delete payload.batchConfiguration;
+        }
+    }
+
+    if (typeof payload.logo !== 'string' || !payload.logo) {
+        delete payload.logo;
+    }
+
+    if (mode === 'update') {
+        for (const key of SYSTEM_TEMPLATE_FIELDS) {
+            delete payload[key];
+        }
+    }
+
+    return payload;
+};
 
 export interface SmartReport {
     _id?: string;
@@ -318,7 +462,7 @@ export class SmartReportService {
         return this._httpClient
             .post<{
                 data: SmartReportTemplate;
-            }>(`${environment.apiUrl}/v2/smart-report-templates`, template)
+            }>(`${environment.apiUrl}/v2/smart-report-templates`, sanitizeTemplateForApi(template, 'create'))
             .pipe(
                 map((res) => res.data),
                 tap((newTemplate) => {
@@ -334,7 +478,7 @@ export class SmartReportService {
         return this._httpClient
             .put<{
                 data: SmartReportTemplate;
-            }>(`${environment.apiUrl}/v2/smart-report-templates/${id}`, template)
+            }>(`${environment.apiUrl}/v2/smart-report-templates/${id}`, sanitizeTemplateForApi(template, 'update'))
             .pipe(
                 map((res) => res.data),
                 tap((updated) => {
@@ -381,7 +525,7 @@ export class SmartReportService {
             .post<{
                 data: { html: string };
             }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, {
-                ...template,
+                ...sanitizeTemplateForApi(template, 'create'),
                 sampleData,
             })
             .pipe(map((res) => res.data.html));
@@ -422,7 +566,7 @@ export class SmartReportService {
      */
     downloadTemplateSample(
         id: string,
-        body: { sampleData: SampleReportData }
+        body: { sampleData: SampleReportData; printHtml?: string }
     ): Observable<Blob> {
         return this._httpClient.post(
             `${environment.apiUrl}/v2/smart-report-templates/${id}/download-sample`,
@@ -486,11 +630,12 @@ export class SmartReportService {
 
     generateReport(
         id: string,
-        options?: { engine?: 'pdfkit' | 'puppeteer'; rowIndex?: number }
+        options?: { engine?: 'pdfkit' | 'puppeteer'; rowIndex?: number; printHtml?: string }
     ): Observable<{ data: SmartReport; pdf: { buffer: string; size: number } }> {
-        const body: { engine?: string; rowIndex?: number } = {};
+        const body: { engine?: string; rowIndex?: number; printHtml?: string } = {};
         if (options?.engine) body.engine = options.engine;
         if (options?.rowIndex != null) body.rowIndex = options.rowIndex;
+        if (options?.printHtml) body.printHtml = options.printHtml;
         return this._httpClient.post<{
             data: SmartReport;
             pdf: { buffer: string; size: number };

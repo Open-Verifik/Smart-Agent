@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, computed, HostListener, inject, OnDestroy, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -11,10 +11,12 @@ import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/
 import { take } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { getPresetStepCount } from './batch-required-fields.util';
+import { ReportPreviewComponent } from './report-preview/report-preview.component';
+import { ReportTemplateThumbComponent } from './report-template-thumb.component';
 import { getCountryFlag as flagForCountry } from './smart-batch-country.util';
 import { SmartBatchInputModeService } from './smart-batch-input-mode.service';
 import { BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './smart-batch.service';
-import { BatchConfigurationRef, SmartReportService, SmartReportTemplate } from './smart-report.service';
+import { BatchConfigurationRef, SampleReportData, SmartReportService, SmartReportTemplate } from './smart-report.service';
 
 @Component({
     selector: 'smart-batch',
@@ -29,11 +31,13 @@ import { BatchConfigurationRef, SmartReportService, SmartReportTemplate } from '
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        ReportPreviewComponent,
+        ReportTemplateThumbComponent,
     ],
     templateUrl: './smart-batch.component.html',
     encapsulation: ViewEncapsulation.None,
 })
-export class SmartBatchComponent implements OnInit {
+export class SmartBatchComponent implements OnInit, OnDestroy {
     private _smartBatchService = inject(SmartBatchService);
     private _smartReportService = inject(SmartReportService);
     private _router = inject(Router);
@@ -67,6 +71,10 @@ export class SmartBatchComponent implements OnInit {
     isLoadingTemplates = this._smartReportService.isLoading;
     isCloningPreset = signal(false);
     isModeDialogOpen = signal(false);
+    previewTemplate = signal<SmartReportTemplate | null>(null);
+    previewLoading = signal(false);
+    previewData = computed<Record<string, any>>(() => this._sampleFromTemplate(this.previewTemplate()));
+    private _previewGen = 0;
 
     systemTemplates = computed(() =>
         this.templates().filter((t) => t.type === 'System').sort((a, b) => {
@@ -99,6 +107,56 @@ export class SmartBatchComponent implements OnInit {
         });
     }
 
+    ngOnDestroy(): void {
+        this.closeTemplatePreview();
+    }
+
+    @HostListener('document:keydown.escape')
+    onEscapePreview(): void {
+        if (this.previewTemplate()) this.closeTemplatePreview();
+    }
+
+    openTemplatePreview(template: SmartReportTemplate): void {
+        const gen = ++this._previewGen;
+        this.previewTemplate.set(template);
+        this.previewLoading.set(true);
+
+        const id = template._id;
+        if (!id) {
+            this._showPreview(template, gen);
+            return;
+        }
+
+        this._smartReportService.getTemplate(id).subscribe({
+            next: (full) => this._showPreview(full ?? template, gen),
+            error: () => this._showPreview(template, gen),
+        });
+    }
+
+    closeTemplatePreview(): void {
+        this._previewGen += 1;
+        this.previewTemplate.set(null);
+        this.previewLoading.set(false);
+    }
+
+    private _showPreview(template: SmartReportTemplate, gen: number): void {
+        if (gen !== this._previewGen) return;
+        this.previewTemplate.set(template);
+        this.previewLoading.set(false);
+    }
+
+    private _sampleFromTemplate(template: SmartReportTemplate | null): Record<string, any> {
+        const sample: SampleReportData = template?.sampleData ?? {};
+        return {
+            batchName: sample.batchName || template?.name || '',
+            rowIndex: sample.rowIndex ?? 0,
+            inputData: sample.inputData ?? {},
+            results: sample.results ?? {},
+            errors: sample.errors,
+            report: sample.report,
+        };
+    }
+
     private _loadLandingData(): void {
         this._smartBatchService.getConfigurations().subscribe({
             error: (err) => console.error('[SmartBatch] getConfigurations error', err),
@@ -129,11 +187,11 @@ export class SmartBatchComponent implements OnInit {
     }
 
     createConfiguration() {
-        this._router.navigate(['smart-batch/create']);
+        this._router.navigate(['/smart-batch/create'], { queryParams: { from: 'guide' } });
     }
 
     createBlankTemplate(): void {
-        this._router.navigate(['/smart-batch', 'report-builder']);
+        this._router.navigate(['/smart-batch'], { queryParams: { start: 'report' } });
     }
 
     useSystemTemplate(template: SmartReportTemplate, event: Event) {
@@ -269,12 +327,13 @@ export class SmartBatchComponent implements OnInit {
         if (!templateId) return;
 
         const configId = this.resolveBatchConfigRef(template.batchConfiguration).id;
-        if (configId) {
-            this._router.navigate(['smart-batch', configId, 'report-builder', templateId]);
-            return;
-        }
-
-        this._router.navigate(['/smart-batch', 'report-builder', templateId]);
+        void this._router.navigate(['/smart-batch'], {
+            queryParams: {
+                templateId,
+                resume: 'layout',
+                ...(configId ? { configId } : {}),
+            },
+        });
     }
 
     resolveBatchConfigRef(

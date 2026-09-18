@@ -7,7 +7,7 @@
                 class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
             >
                 <a
-                    routerLink="/chat"
+                    routerLink="/home"
                     class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                 >
                     Verifik
@@ -20,9 +20,21 @@
                     routerLink="/smart-batch"
                     class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                 >
-                    {{ 'smartBatchLanding.title' | transloco }}
+                    {{ 'visitaGuide.brand' | transloco }}
                 </a>
                 <mat-icon
+                    class="icon-size-4 mx-2 text-stone-400"
+                    svgIcon="heroicons_solid:chevron-right"
+                ></mat-icon>
+                <a
+                    *ngIf="!fromGuide"
+                    routerLink="/smart-batch/workspace"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                >
+                    {{ 'smartBatchLanding.workspaceTitle' | transloco }}
+                </a>
+                <mat-icon
+                    *ngIf="!fromGuide"
                     class="icon-size-4 mx-2 text-stone-400"
                     svgIcon="heroicons_solid:chevron-right"
                 ></mat-icon>
@@ -37,7 +49,7 @@
                     <button
                         mat-icon-button
                         type="button"
-                        routerLink="/smart-batch"
+                        [routerLink]="backLink()"
                         class="shrink-0 !text-stone-600 dark:!text-stone-300"
                         [attr.aria-label]="'batchDashboard.backToSmartBatch' | transloco"
                     >
@@ -132,7 +144,34 @@
                                 </mat-select>
                                 <mat-error>{{ 'createBatchConfig.countryRequired' | transloco }}</mat-error>
                             </mat-form-field>
+                        </div>
+                </section>
 
+                <section
+                    class="rounded-2xl border border-dashed border-stone-300 bg-stone-50/70 p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900/40 md:p-6"
+                >
+                    <button
+                        type="button"
+                        class="flex w-full items-start justify-between gap-4 text-left"
+                        (click)="advancedOpen.set(!advancedOpen())"
+                        [attr.aria-expanded]="advancedOpen()"
+                    >
+                        <div>
+                            <p class="mb-1 text-xs font-medium uppercase tracking-wider text-stone-400">
+                                {{ 'createBatchConfig.advancedOptional' | transloco }}
+                            </p>
+                            <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                                {{ 'createBatchConfig.advancedTitle' | transloco }}
+                            </h2>
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ 'createBatchConfig.advancedHint' | transloco }}
+                            </p>
+                        </div>
+                        <mat-icon class="mt-1 shrink-0 text-stone-400">
+                            {{ advancedOpen() ? 'expand_less' : 'expand_more' }}
+                        </mat-icon>
+                    </button>
+                    <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2" *ngIf="advancedOpen()">
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-label>{{ 'createBatchConfig.mergeStrategy' | transloco }}</mat-label>
                                 <mat-select formControlName="mergeStrategy">
@@ -148,7 +187,7 @@
                                 </mat-select>
                             </mat-form-field>
 
-                            <div class="col-span-2 grid grid-cols-2 gap-6">
+                            <div class="grid grid-cols-2 gap-6 md:col-span-2">
                                 <mat-form-field appearance="outline">
                                     <mat-label>{{ 'createBatchConfig.inputFieldsFormat' | transloco }}</mat-label>
                                     <mat-select formControlName="inputFormat">
@@ -168,7 +207,7 @@
                                 </mat-form-field>
                             </div>
 
-                            <div class="col-span-2">
+                            <div class="md:col-span-2">
                                 <p class="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
                                     {{ 'createBatchConfig.runMode' | transloco }}
                                 </p>
@@ -183,7 +222,7 @@
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                    </div>
                 </section>
 
                 <section
@@ -354,9 +393,51 @@
                 class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:p-8"
             >
                 <section *ngIf="wizardStep() === 2">
-                        <h2 class="mb-2 text-base font-semibold text-stone-900 dark:text-white">
+                        <h2 class="mb-1 text-base font-semibold text-stone-900 dark:text-white">
                             {{ 'createBatchConfig.selectEndpoints' | transloco }}
                         </h2>
+                        <p class="mb-4 text-sm text-stone-500 dark:text-stone-400">
+                            {{ 'createBatchConfig.selectEndpointsHint' | transloco }}
+                        </p>
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            @for (group of ['all', 'citizen', 'vehicle', 'company', 'other']; track group) {
+                                <button
+                                    type="button"
+                                    class="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                                    [class.border-stone-950]="endpointGroupFilter() === group"
+                                    [class.bg-stone-950]="endpointGroupFilter() === group"
+                                    [class.text-white]="endpointGroupFilter() === group"
+                                    [class.border-stone-200]="endpointGroupFilter() !== group"
+                                    [class.text-stone-600]="endpointGroupFilter() !== group"
+                                    (click)="setEndpointGroupFilter($any(group))"
+                                >
+                                    @if (group === 'all') {
+                                        {{ 'createBatchConfig.groupAll' | transloco }}
+                                    } @else {
+                                        {{ featureGroupLabel($any(group)) }}
+                                    }
+                                </button>
+                            }
+                        </div>
+                        <p class="mb-2 text-xs text-stone-500 dark:text-stone-400">
+                            {{ 'visitaGuide.highlightHint' | transloco }}
+                        </p>
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            @for (highlight of paramHighlightOptions; track highlight.id) {
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                                    [ngClass]="highlightChipClass(highlight.id)"
+                                    (click)="setEndpointParamHighlight(highlight.id)"
+                                >
+                                    <span
+                                        class="h-2.5 w-2.5 shrink-0 rounded-full"
+                                        [ngClass]="highlightSwatchClass(highlight.id)"
+                                    ></span>
+                                    {{ highlight.labelKey | transloco }}
+                                </button>
+                            }
+                        </div>
                         <div class="flex h-[600px] flex-col gap-6 pt-4">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-sm font-medium uppercase text-stone-500 dark:text-stone-400">
@@ -412,47 +493,77 @@
                                             </button>
                                         </mat-form-field>
                                     </div>
-                                    <div class="flex-1 space-y-2 overflow-y-auto p-2">
-                                        <div
-                                            *ngFor="let feature of filteredAvailableFeatures()"
-                                            (click)="toggleFeature(feature)"
-                                            [class.opacity-50]="isSelected(feature)"
-                                            class="flex cursor-pointer select-none items-center justify-between rounded-lg border border-transparent p-3 transition-all hover:border-stone-200 hover:bg-stone-50 dark:hover:border-gray-600 dark:hover:bg-gray-800"
-                                        >
-                                            <div class="flex items-center gap-3">
-                                                <div
-                                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600"
+                                    <div class="flex-1 space-y-3 overflow-y-auto p-2">
+                                        <ng-container *ngFor="let group of groupedAvailableFeatures()">
+                                            <p
+                                                class="sticky top-0 z-[1] bg-white px-1 py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:bg-gray-900/60"
+                                            >
+                                                {{ featureGroupLabel(group.id) }}
+                                            </p>
+                                            <div
+                                                *ngFor="let feature of group.items"
+                                                (click)="toggleFeature(feature)"
+                                                [class.opacity-40]="isEndpointDimmed(feature)"
+                                                [ngClass]="highlightCardClass(feature)"
+                                                class="flex cursor-pointer select-none items-center justify-between rounded-lg border border-transparent p-3 transition-all hover:border-stone-200 hover:bg-stone-50 dark:hover:border-gray-600 dark:hover:bg-gray-800"
+                                            >
+                                                <div class="flex min-w-0 flex-1 items-center gap-3">
+                                                    <div class="flex min-w-0 flex-1 flex-col">
+                                                        <span
+                                                            class="text-sm font-medium text-stone-900 dark:text-white"
+                                                            >{{ feature.name }}</span
+                                                        >
+                                                        <span
+                                                            *ngIf="isParamHighlighted(feature)"
+                                                            class="mt-0.5 inline-flex w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide"
+                                                            [ngClass]="highlightBadgeClass()"
+                                                            >{{ 'visitaGuide.highlightMatch' | transloco }}</span
+                                                        >
+                                                        <span
+                                                            *ngIf="feature.description"
+                                                            class="truncate text-xs text-stone-500"
+                                                            >{{ feature.description }}</span
+                                                        >
+                                                        <div
+                                                            *ngIf="featureParamFields(feature).length"
+                                                            class="mt-2 flex flex-wrap gap-1"
+                                                        >
+                                                            <ng-container
+                                                                *ngFor="let chip of featureParamFields(feature)"
+                                                            >
+                                                                <span
+                                                                    class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                    [ngClass]="paramChipClass(chip.required)"
+                                                                >
+                                                                    {{
+                                                                        paramFilterLabelKey(chip.field)
+                                                                            | transloco: paramFilterLabelParams(chip.field)
+                                                                    }}
+                                                                    <span *ngIf="chip.required" class="ml-0.5 font-bold">*</span>
+                                                                </span>
+                                                                <span
+                                                                    *ngFor="let value of chip.enums"
+                                                                    class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                    [ngClass]="paramEnumClass()"
+                                                                >
+                                                                    {{ value }}
+                                                                </span>
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <mat-icon
+                                                    *ngIf="isSelected(feature)"
+                                                    class="icon-size-5 text-green-500"
+                                                    >check_circle</mat-icon
                                                 >
-                                                    {{ feature.code | slice: 0 : 2 | uppercase }}
-                                                </div>
-                                                <div class="flex min-w-0 flex-1 flex-col">
-                                                    <span
-                                                        class="text-sm font-medium text-stone-900 dark:text-white"
-                                                        >{{ feature.name }}</span
-                                                    >
-                                                    <span
-                                                        class="truncate font-mono text-xs text-blue-600 dark:text-blue-400"
-                                                        [title]="getEndpointDisplay(feature)"
-                                                        >{{ getEndpointDisplay(feature) }}</span
-                                                    >
-                                                    <span class="truncate text-xs text-stone-500"
-                                                        >{{
-                                                            feature.description | slice: 0 : 50
-                                                        }}...</span
-                                                    >
-                                                </div>
+                                                <mat-icon
+                                                    *ngIf="!isSelected(feature)"
+                                                    class="icon-size-5 text-stone-300"
+                                                    >add_circle_outline</mat-icon
+                                                >
                                             </div>
-                                            <mat-icon
-                                                *ngIf="isSelected(feature)"
-                                                class="icon-size-5 text-green-500"
-                                                >check_circle</mat-icon
-                                            >
-                                            <mat-icon
-                                                *ngIf="!isSelected(feature)"
-                                                class="icon-size-5 text-stone-300"
-                                                >add_circle_outline</mat-icon
-                                            >
-                                        </div>
+                                        </ng-container>
                                         <div
                                             *ngIf="
                                                 !isLoadingFeatures() &&
@@ -503,11 +614,35 @@
                                                         class="text-sm font-medium text-stone-900 dark:text-white"
                                                         >{{ feature.name }}</span
                                                     >
-                                                    <span
-                                                        class="truncate font-mono text-xs text-blue-600 dark:text-blue-400"
-                                                        [title]="getEndpointDisplay(feature)"
-                                                        >{{ getEndpointDisplay(feature) }}</span
+                                                    <span class="truncate text-xs text-stone-500">{{
+                                                        featureGroupLabel(featureGroup(feature))
+                                                    }}</span>
+                                                    <div
+                                                        *ngIf="featureParamFields(feature).length"
+                                                        class="mt-1 flex flex-wrap gap-1"
                                                     >
+                                                        <ng-container
+                                                            *ngFor="let chip of featureParamFields(feature)"
+                                                        >
+                                                            <span
+                                                                class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                [ngClass]="paramChipClass(chip.required)"
+                                                            >
+                                                                {{
+                                                                    paramFilterLabelKey(chip.field)
+                                                                        | transloco: paramFilterLabelParams(chip.field)
+                                                                }}
+                                                                <span *ngIf="chip.required" class="ml-0.5 font-bold">*</span>
+                                                            </span>
+                                                            <span
+                                                                *ngFor="let value of chip.enums"
+                                                                class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                [ngClass]="paramEnumClass()"
+                                                            >
+                                                                {{ value }}
+                                                            </span>
+                                                        </ng-container>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <button

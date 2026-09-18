@@ -231,15 +231,27 @@
                             </mat-form-field>
                         </div>
 
-                        <div class="flex items-center gap-4">
-                            <label class="text-sm text-stone-600 dark:text-stone-400"
-                                >{{ 'smartReport.primaryColor' | transloco }}:</label
-                            >
-                            <input
-                                type="color"
-                                formControlName="primaryColor"
-                                class="h-9 w-9 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
-                            />
+                        <div class="flex flex-wrap items-center gap-6">
+                            <div class="flex items-center gap-3">
+                                <label class="text-sm text-stone-600 dark:text-stone-400">{{
+                                    'smartReport.primaryColor' | transloco
+                                }}</label>
+                                <input
+                                    type="color"
+                                    formControlName="primaryColor"
+                                    class="h-9 w-9 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
+                                />
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <label class="text-sm text-stone-600 dark:text-stone-400">{{
+                                    'smartReport.pageBackgroundColor' | transloco
+                                }}</label>
+                                <input
+                                    type="color"
+                                    formControlName="pageBackgroundColor"
+                                    class="h-9 w-9 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
+                                />
+                            </div>
                         </div>
 
                         <!-- Workspace Logo (drag & resize on preview) -->
@@ -316,6 +328,20 @@
                                         />
                                     </label>
                                 </div>
+                                <label class="block pt-1">
+                                    <span class="text-[10px] text-stone-400 dark:text-stone-500">
+                                        {{ 'smartReport.rotation' | transloco }}
+                                        ({{ templateForm.get('logoRotation')?.value ?? 0 }}°)
+                                    </span>
+                                    <input
+                                        type="range"
+                                        min="-180"
+                                        max="180"
+                                        step="1"
+                                        formControlName="logoRotation"
+                                        class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-stone-200 accent-indigo-600 dark:bg-gray-700"
+                                    />
+                                </label>
 
                                 <!-- Auto-fit content below logo -->
                                 <div
@@ -459,9 +485,7 @@
                                     <div class="flex gap-1">
                                         <button
                                             type="button"
-                                            (click)="
-                                                templateForm.get('watermarkType')?.setValue('text')
-                                            "
+                                            (click)="onWatermarkTypeChange('text')"
                                             class="flex-1 rounded-lg border py-2 text-xs transition-colors text-stone-700 dark:text-stone-300"
                                             [ngClass]="
                                                 templateForm.get('watermarkType')?.value === 'text'
@@ -473,9 +497,7 @@
                                         </button>
                                         <button
                                             type="button"
-                                            (click)="
-                                                templateForm.get('watermarkType')?.setValue('logo')
-                                            "
+                                            (click)="onWatermarkTypeChange('logo')"
                                             class="flex-1 rounded-lg border py-2 text-xs transition-colors text-stone-700 dark:text-stone-300"
                                             [ngClass]="
                                                 templateForm.get('watermarkType')?.value === 'logo'
@@ -576,6 +598,21 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">
+                                        {{ 'smartReport.rotation' | transloco }}
+                                        ({{ templateForm.get('watermarkRotation')?.value ?? -15 }}°)
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="-180"
+                                        max="180"
+                                        step="1"
+                                        formControlName="watermarkRotation"
+                                        class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-stone-200 accent-indigo-600 dark:bg-gray-700"
+                                    />
+                                    <p class="text-[10px] text-stone-400 dark:text-stone-500">
+                                        {{ 'smartReport.dragWatermarkToPosition' | transloco }}
+                                    </p>
                                 </div>
                             }
                         </div>
@@ -1513,6 +1550,7 @@
                                             hintKey: 'smartReport.pathToObject',
                                         }"
                                     ></ng-container>
+                                    <ng-container [ngTemplateOutlet]="paramControls" [ngTemplateOutletContext]="{ sel: sel }"></ng-container>
                                 }
 
                                 <!-- IMAGE EDITOR -->
@@ -1771,6 +1809,7 @@
                                             class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                         />
                                     </div>
+                                    <ng-container [ngTemplateOutlet]="paramControls" [ngTemplateOutletContext]="{ sel: sel }"></ng-container>
                                 }
 
                                 <!-- CARD EDITOR -->
@@ -1794,6 +1833,7 @@
                                             "
                                         ></textarea>
                                     </div>
+                                    <ng-container [ngTemplateOutlet]="paramControls" [ngTemplateOutletContext]="{ sel: sel }"></ng-container>
                                 }
 
                                 <!-- REPEATER EDITOR -->
@@ -2087,7 +2127,13 @@
                                 @if (
                                     sel.type === 'header' ||
                                     sel.type === 'text' ||
-                                    sel.type === 'field'
+                                    sel.type === 'field' ||
+                                    sel.type === 'table' ||
+                                    sel.type === 'dataTable' ||
+                                    sel.type === 'keyValueGrid' ||
+                                    sel.type === 'card' ||
+                                    sel.type === 'badge' ||
+                                    sel.type === 'repeater'
                                 ) {
                                     <div class="space-y-3 border-t border-stone-100 pt-3 dark:border-gray-800">
                                         <h4 class="text-xs font-medium text-stone-500 dark:text-stone-400">
@@ -2101,7 +2147,7 @@
                                             }}</label>
                                             <div class="flex gap-1">
                                                 @for (
-                                                    align of ['left', 'center', 'right'];
+                                                    align of textAlignOptions;
                                                     track align
                                                 ) {
                                                     <button
@@ -2169,6 +2215,49 @@
                                             </div>
                                         </div>
 
+                                        <div>
+                                            <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">{{
+                                                'smartReport.italic' | transloco
+                                            }}</label>
+                                            <div class="flex gap-1">
+                                                <button
+                                                    (click)="updateFontStyle('normal')"
+                                                    class="flex-1 rounded-lg border py-2 text-sm transition-colors text-stone-700 dark:text-stone-300"
+                                                    [class.border-indigo-300]="sel.style?.fontStyle !== 'italic'"
+                                                    [class.bg-indigo-50]="sel.style?.fontStyle !== 'italic'"
+                                                    [class.border-stone-200]="sel.style?.fontStyle === 'italic'"
+                                                >
+                                                    {{ 'smartReport.normal' | transloco }}
+                                                </button>
+                                                <button
+                                                    (click)="updateFontStyle('italic')"
+                                                    class="flex-1 rounded-lg border py-2 text-sm italic transition-colors text-stone-700 dark:text-stone-300"
+                                                    [class.border-indigo-300]="sel.style?.fontStyle === 'italic'"
+                                                    [class.bg-indigo-50]="sel.style?.fontStyle === 'italic'"
+                                                    [class.border-stone-200]="sel.style?.fontStyle !== 'italic'"
+                                                >
+                                                    {{ 'smartReport.italic' | transloco }}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">{{
+                                                'smartReport.fontFamily' | transloco
+                                            }}</label>
+                                            <select
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                [value]="fontFamilyIndex(sel)"
+                                                (change)="updateFontFamilyByIndex($any($event.target).value)"
+                                            >
+                                                @for (font of reportFonts; track font.value; let i = $index) {
+                                                    <option [value]="i">
+                                                        {{ font.labelKey | transloco }}
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+
                                         <!-- Text Color -->
                                         <div class="flex items-center gap-3">
                                             <label class="text-xs text-stone-400 dark:text-stone-500">{{
@@ -2183,6 +2272,120 @@
                                                 class="h-8 w-8 cursor-pointer rounded border border-stone-200 dark:border-gray-700"
                                             />
                                         </div>
+                                        @if (showsParamControls(sel.type)) {
+                                            <div class="flex items-center gap-3">
+                                                <label class="text-xs text-stone-400 dark:text-stone-500">{{
+                                                    'smartReport.labelColor' | transloco
+                                                }}</label>
+                                                <input
+                                                    type="color"
+                                                    [value]="sel.style?.labelColor || sel.style?.color || '#6B7280'"
+                                                    (input)="
+                                                        updateSectionStyle(
+                                                            'labelColor',
+                                                            $any($event.target).value
+                                                        )
+                                                    "
+                                                    class="h-8 w-8 cursor-pointer rounded border border-stone-200 dark:border-gray-700"
+                                                />
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <label class="text-xs text-stone-400 dark:text-stone-500">{{
+                                                    'smartReport.valueColor' | transloco
+                                                }}</label>
+                                                <input
+                                                    type="color"
+                                                    [value]="sel.style?.valueColor || sel.style?.color || '#111827'"
+                                                    (input)="
+                                                        updateSectionStyle(
+                                                            'valueColor',
+                                                            $any($event.target).value
+                                                        )
+                                                    "
+                                                    class="h-8 w-8 cursor-pointer rounded border border-stone-200 dark:border-gray-700"
+                                                />
+                                            </div>
+                                        }
+                                        <div class="flex items-center gap-3">
+                                            <label class="text-xs text-stone-400 dark:text-stone-500">{{
+                                                'smartReport.blockBackground' | transloco
+                                            }}</label>
+                                            <input
+                                                type="color"
+                                                [value]="sel.style?.backgroundColor || '#ffffff'"
+                                                (input)="
+                                                    updateBgColor($any($event.target).value)
+                                                "
+                                                class="h-8 w-8 cursor-pointer rounded border border-stone-200 dark:border-gray-700"
+                                            />
+                                        </div>
+                                        <label class="flex items-center gap-2 text-xs text-stone-500">
+                                            <input
+                                                type="checkbox"
+                                                [checked]="(sel.style?.borderWidth || 0) > 0"
+                                                (change)="
+                                                    updateSectionStyle(
+                                                        'borderWidth',
+                                                        $any($event.target).checked ? 1 : 0
+                                                    )
+                                                "
+                                            />
+                                            {{ 'smartReport.blockBorder' | transloco }}
+                                        </label>
+                                        @if ((sel.style?.borderWidth || 0) > 0) {
+                                            <div class="flex items-center gap-3">
+                                                <label class="text-xs text-stone-400 dark:text-stone-500">{{
+                                                    'smartReport.blockBorderColor' | transloco
+                                                }}</label>
+                                                <input
+                                                    type="color"
+                                                    [value]="sel.style?.borderColor || '#d6d3d1'"
+                                                    (input)="
+                                                        updateSectionStyle(
+                                                            'borderColor',
+                                                            $any($event.target).value
+                                                        )
+                                                    "
+                                                    class="h-8 w-8 cursor-pointer rounded border border-stone-200 dark:border-gray-700"
+                                                />
+                                            </div>
+                                            <label class="flex items-center justify-between text-xs text-stone-400 dark:text-stone-500">
+                                                <span>{{ 'smartReport.blockBorderWidth' | transloco }}</span>
+                                                <span>{{ sel.style?.borderWidth || 1 }} px</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="1"
+                                                max="12"
+                                                step="1"
+                                                [value]="sel.style?.borderWidth || 1"
+                                                (input)="
+                                                    updateSectionStyle(
+                                                        'borderWidth',
+                                                        Number($any($event.target).value)
+                                                    )
+                                                "
+                                                class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-stone-200 accent-indigo-600"
+                                            />
+                                            <label class="flex items-center justify-between text-xs text-stone-400 dark:text-stone-500">
+                                                <span>{{ 'smartReport.blockBorderRadius' | transloco }}</span>
+                                                <span>{{ sel.style?.borderRadius || 0 }} px</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="32"
+                                                step="1"
+                                                [value]="sel.style?.borderRadius || 0"
+                                                (input)="
+                                                    updateSectionStyle(
+                                                        'borderRadius',
+                                                        Number($any($event.target).value)
+                                                    )
+                                                "
+                                                class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-stone-200 accent-indigo-600"
+                                            />
+                                        }
                                     </div>
                                 }
                             </div>
@@ -2243,19 +2446,28 @@
                         cdkDropList
                         [cdkDropListSortingDisabled]="true"
                         (cdkDropListDropped)="onCanvasDrop($event)"
+                        (click)="onCanvasBlankClick($event)"
                         [class.hidden]="previewMode() !== 'edit' || builderStep() === 'deliver'"
                     >
                     <report-preview
+                        #samplePreview
                         [template]="{
                             sections: sections(),
                             primaryColor: templateForm.get('primaryColor')?.value,
                         }"
                         [previewData]="previewData()"
                         [primaryColor]="templateForm.get('primaryColor')?.value || '#4F46E5'"
+                        [pageBackgroundColor]="
+                            templateForm.get('pageBackgroundColor')?.value || '#ffffff'
+                        "
                         [orientation]="templateForm.get('orientation')?.value || 'portrait'"
                         [clickable]="true"
                         [selectedSectionId]="currentSelectedSection()?.id ?? null"
+                        [selectedOverlay]="selectedOverlay()"
                         [sectionClick]="onPreviewSectionClick"
+                        (inlineTextChange)="onPreviewInlineText($event)"
+                        (overlaySelect)="onPreviewOverlaySelect($event)"
+                        (backgroundClick)="clearPreviewSelection()"
                         [logoUrl]="logoUrl()"
                         [legend]="templateForm.get('legend')?.value || ''"
                         [showPageNumbers]="templateForm.get('showPageNumbers')?.value || false"
@@ -2267,6 +2479,11 @@
                         [watermarkText]="templateForm.get('watermarkText')?.value || 'CONFIDENTIAL'"
                         [watermarkOpacity]="templateForm.get('watermarkOpacity')?.value ?? 0.08"
                         [watermarkPattern]="templateForm.get('watermarkPattern')?.value || 'single'"
+                        [watermarkX]="templateForm.get('watermarkX')?.value ?? 250"
+                        [watermarkY]="templateForm.get('watermarkY')?.value ?? 420"
+                        [watermarkWidth]="templateForm.get('watermarkWidth')?.value ?? 280"
+                        [watermarkHeight]="templateForm.get('watermarkHeight')?.value ?? 160"
+                        [watermarkRotation]="templateForm.get('watermarkRotation')?.value ?? -15"
                         [signatureEnabled]="templateForm.get('signatureEnabled')?.value || false"
                         [signatureImage]="templateForm.get('signatureImage')?.value || null"
                         [signatureX]="templateForm.get('signatureX')?.value || 0"
@@ -2278,6 +2495,7 @@
                         [logoY]="templateForm.get('logoY')?.value ?? 32"
                         [logoWidth]="templateForm.get('logoWidth')?.value ?? 160"
                         [logoHeight]="templateForm.get('logoHeight')?.value ?? 60"
+                        [logoRotation]="templateForm.get('logoRotation')?.value ?? 0"
                         [logoAutoFitContent]="
                             templateForm.get('logoAutoFitContent')?.value || false
                         "
@@ -2286,6 +2504,10 @@
                         (signatureSizeChange)="onSignatureSizeChange($event)"
                         (logoPositionChange)="onLogoPositionChange($event)"
                         (logoSizeChange)="onLogoSizeChange($event)"
+                        (logoRotationChange)="onLogoRotationChange($event)"
+                        (watermarkPositionChange)="onWatermarkPositionChange($event)"
+                        (watermarkSizeChange)="onWatermarkSizeChange($event)"
+                        (watermarkRotationChange)="onWatermarkRotationChange($event)"
                     />
                     </div>
                 </div>
@@ -2302,6 +2524,46 @@
     behind "Edit path" for the cases the palette cannot express, such as a payload
     the current sample does not contain.
 -->
+<ng-template #paramControls let-sel="sel">
+    <label class="flex items-center gap-2 text-xs text-stone-600 dark:text-stone-300">
+        <input
+            type="checkbox"
+            [checked]="sel.showRowLines !== false"
+            (change)="setShowRowLines(sel, $any($event.target).checked)"
+        />
+        {{ 'smartReport.showRowLines' | transloco }}
+    </label>
+    @if (sectionParamOptions(sel).length > 0) {
+        <p class="mt-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+            {{ 'smartReport.visibleParams' | transloco }}
+        </p>
+        <div
+            cdkDropList
+            class="max-h-48 space-y-1 overflow-y-auto"
+            (cdkDropListDropped)="onSectionParamDrop(sel, $event)"
+        >
+            @for (param of sectionParamOptions(sel); track param.key) {
+                <div
+                    cdkDrag
+                    class="flex items-center gap-2 rounded-lg border border-stone-200 px-2 py-1 text-xs text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                >
+                    <mat-icon cdkDragHandle class="!h-4 !w-4 !text-base cursor-grab text-stone-400">drag_indicator</mat-icon>
+                    <input
+                        type="checkbox"
+                        [checked]="isSectionParamVisible(sel, param.key)"
+                        (change)="
+                            setSectionParamVisible(sel, param.key, $any($event.target).checked)
+                        "
+                    />
+                    <span class="min-w-0 flex-1 truncate">{{ param.label }}</span>
+                </div>
+            }
+        </div>
+    } @else {
+        <p class="mt-2 text-[11px] text-stone-400">{{ 'smartReport.noSimpleParams' | transloco }}</p>
+    }
+</ng-template>
+
 <ng-template #dataBinding let-sel="sel" let-hintKey="hintKey">
     <div>
         <div class="mb-1 flex items-center justify-between">

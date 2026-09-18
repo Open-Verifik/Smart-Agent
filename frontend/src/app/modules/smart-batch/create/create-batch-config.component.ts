@@ -19,6 +19,21 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
 import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
+import {
+    featureParamChips,
+    FeatureParamChip,
+    humanizeParamField,
+    matchesParamHighlight,
+    ParamHighlight,
+    paramEnumChipClass,
+    paramFieldLabelKey,
+    paramHighlightBadgeClass,
+    paramHighlightCardClass,
+    paramHighlightChipClass,
+    paramHighlightSwatchClass,
+    requiredParamChipClass,
+} from '../endpoint-param-highlight.util';
+import { featureGroup as classifyFeatureGroup, FeatureGroupId } from '../feature-group.util';
 import { filterFeaturesForCountry, resolveDropdownCountry } from '../smart-batch-country.util';
 import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 import { CheckListBatchPrefill, readCheckListBatchPrefill } from '../../check-list/check-list-batch.util';
@@ -113,7 +128,7 @@ export class CreateBatchConfigComponent {
     step1Form: FormGroup = this._formBuilder.group({
         name: ['', [Validators.required, Validators.maxLength(150)]],
         description: ['', [Validators.maxLength(800)]],
-        country: ['', Validators.required],
+        country: ['Colombia', Validators.required],
         inputFormat: ['csv', Validators.required],
         outputFormat: ['csv', Validators.required],
         mergeStrategy: ['sequential', Validators.required],
@@ -130,6 +145,15 @@ export class CreateBatchConfigComponent {
     // Step 2: Selection
     selectedFeatures = signal<any[]>([]); // Ordered list of selected features
     endpointSearchQuery = signal('');
+    endpointGroupFilter = signal<'all' | 'citizen' | 'vehicle' | 'company' | 'other'>('all');
+    endpointParamHighlight = signal<ParamHighlight | null>(null);
+    readonly paramHighlightOptions: { id: ParamHighlight; labelKey: string }[] = [
+        { id: 'document-only', labelKey: 'visitaGuide.highlightDocumentOnly' },
+        { id: 'plate-only', labelKey: 'visitaGuide.highlightPlateOnly' },
+        { id: 'nit-only', labelKey: 'visitaGuide.highlightNitOnly' },
+    ];
+    advancedOpen = signal(false);
+    fromGuide = this._route.snapshot.queryParamMap.get('from') === 'guide';
     /** Country selected in Basic Info; used to limit endpoints to that country + world. */
     selectedCountryForEndpoints = signal<string>('');
 
@@ -141,14 +165,43 @@ export class CreateBatchConfigComponent {
     // Filtered by search (title / URL) within country-filtered list
     filteredAvailableFeatures = computed(() => {
         const query = this.endpointSearchQuery().trim().toLowerCase();
-        const features = this.availableFeaturesForCountry();
-        if (!query) return features;
-        return features.filter((feature) => {
+        const group = this.endpointGroupFilter();
+        const features = this.availableFeaturesForCountry().filter((feature) => {
+            if (group !== 'all' && this.featureGroup(feature) !== group) return false;
+            if (!query) return true;
             const name = (feature.name ?? '').toLowerCase();
             const url = this.getEndpointDisplay(feature).toLowerCase();
             const code = (feature.code ?? '').toLowerCase();
             return name.includes(query) || url.includes(query) || code.includes(query);
         });
+        return features;
+    });
+
+    groupedAvailableFeatures = computed(() => {
+        const buckets: {
+            id: 'citizen' | 'vehicle' | 'company' | 'other';
+            items: any[];
+        }[] = [
+            { id: 'citizen', items: [] },
+            { id: 'vehicle', items: [] },
+            { id: 'company', items: [] },
+            { id: 'other', items: [] },
+        ];
+        const highlight = this.endpointParamHighlight();
+        for (const feature of this.filteredAvailableFeatures()) {
+            const group = buckets.find((item) => item.id === this.featureGroup(feature));
+            group?.items.push(feature);
+        }
+        if (highlight) {
+            for (const bucket of buckets) {
+                bucket.items.sort((left, right) => {
+                    const leftMatch = this.isParamHighlighted(left) ? 0 : 1;
+                    const rightMatch = this.isParamHighlighted(right) ? 0 : 1;
+                    return leftMatch - rightMatch;
+                });
+            }
+        }
+        return buckets.filter((bucket) => bucket.items.length > 0);
     });
 
     // Cost calculation
@@ -174,14 +227,21 @@ export class CreateBatchConfigComponent {
         });
         this.step1Form.get('webhookUrl')?.valueChanges.subscribe(() => this.testResult.set(null));
 
-        if (!id && this._checkListPrefill?.country) {
-            this.step1Form.patchValue({
-                country: this._checkListPrefill.country,
-                name: this._checkListPrefill.name || this.step1Form.value.name,
-                description: this._checkListPrefill.name
-                    ? `Created from Check List: ${this._checkListPrefill.name}`
-                    : this.step1Form.value.description,
-            });
+        if (!id) {
+            if (this._checkListPrefill?.country) {
+                this.step1Form.patchValue(
+                    {
+                        country: this._checkListPrefill.country,
+                        name: this._checkListPrefill.name || this.step1Form.value.name,
+                        description: this._checkListPrefill.name
+                            ? `Created from Check List: ${this._checkListPrefill.name}`
+                            : this.step1Form.value.description,
+                    },
+                    { emitEvent: false }
+                );
+            }
+            const country = this.step1Form.get('country')?.value || 'Colombia';
+            this.fetchFeatures(country, { resetSelection: !this._checkListPrefill });
         }
     }
 
@@ -408,7 +468,77 @@ export class CreateBatchConfigComponent {
         return this.selectedFeatures().some((f) => f._id === feature._id);
     }
 
-    /** Display endpoint URL/path for a feature (e.g. /v2/co/cedula), fallback to code. */
+    featureGroup(feature: { code?: string; name?: string; url?: string; description?: string }): FeatureGroupId {
+        return classifyFeatureGroup(feature);
+    }
+
+    isParamHighlighted(feature: AppFeature): boolean {
+        return matchesParamHighlight(feature, this.endpointParamHighlight());
+    }
+
+    setEndpointParamHighlight(highlight: ParamHighlight): void {
+        this.endpointParamHighlight.update((current) => (current === highlight ? null : highlight));
+    }
+
+    highlightChipClass(highlight: ParamHighlight): string {
+        return paramHighlightChipClass(highlight, this.endpointParamHighlight() === highlight);
+    }
+
+    highlightCardClass(feature: AppFeature): string {
+        return paramHighlightCardClass(this.endpointParamHighlight(), this.isParamHighlighted(feature));
+    }
+
+    isEndpointDimmed(feature: AppFeature): boolean {
+        if (this.isParamHighlighted(feature)) return false;
+        return Boolean(this.endpointParamHighlight()) || this.isSelected(feature);
+    }
+
+    highlightBadgeClass(): string {
+        return paramHighlightBadgeClass(this.endpointParamHighlight());
+    }
+
+    highlightSwatchClass(highlight: ParamHighlight): string {
+        return paramHighlightSwatchClass(highlight);
+    }
+
+    featureParamFields(feature: AppFeature): FeatureParamChip[] {
+        return featureParamChips(feature);
+    }
+
+    paramChipClass(required: boolean): string {
+        return requiredParamChipClass(required);
+    }
+
+    paramEnumClass(): string {
+        return paramEnumChipClass;
+    }
+
+    paramFilterLabelKey(field: string): string {
+        return paramFieldLabelKey(field);
+    }
+
+    paramFilterLabelParams(field: string): { field: string } {
+        return { field: humanizeParamField(field) };
+    }
+
+    featureGroupLabel(group: 'citizen' | 'vehicle' | 'company' | 'other'): string {
+        const keys = {
+            citizen: 'visitaGuide.entityPerson',
+            vehicle: 'visitaGuide.entityVehicle',
+            company: 'visitaGuide.entityCompany',
+            other: 'createBatchConfig.groupOther',
+        };
+        return this._transloco.translate(keys[group]);
+    }
+
+    setEndpointGroupFilter(group: 'all' | 'citizen' | 'vehicle' | 'company' | 'other'): void {
+        this.endpointGroupFilter.set(group);
+    }
+
+    backLink(): string {
+        return this.fromGuide ? '/smart-batch' : '/smart-batch/workspace';
+    }
+
     getEndpointDisplay(feature: any): string {
         const url = feature?.url;
         if (!url) return feature?.code ?? '';
@@ -545,7 +675,7 @@ export class CreateBatchConfigComponent {
         if (this.isEditMode() && this.editConfigId()) {
             this._smartBatchService.updateConfiguration(this.editConfigId()!, config).subscribe({
                 next: () => {
-                    this._router.navigate(['/smart-batch']);
+                    this._router.navigate(['/smart-batch/workspace']);
                 },
                 error: (err) => {
                     console.error('Error updating batch', err);
@@ -560,7 +690,7 @@ export class CreateBatchConfigComponent {
                         this._router.navigate(['/smart-batch', id]);
                         return;
                     }
-                    this._router.navigate(['/smart-batch']);
+                    this._router.navigate(['/smart-batch/workspace']);
                 },
                 error: (err) => {
                     console.error('Error creating batch', err);
