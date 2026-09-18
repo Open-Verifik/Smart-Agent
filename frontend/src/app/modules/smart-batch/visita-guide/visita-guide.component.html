@@ -991,29 +991,6 @@
                                     {{ t('visitaGuide.layoutDataTitle') }}
                                 </p>
                                 <p class="text-[11px] text-stone-400">{{ t('visitaGuide.layoutEditorHint') }}</p>
-                                <div class="mb-1 flex flex-wrap gap-1">
-                                    <button
-                                        type="button"
-                                        class="rounded-full border border-stone-200 px-2 py-1 text-[11px] font-medium dark:border-gray-700"
-                                        (click)="addTitleBlock()"
-                                    >
-                                        {{ t('visitaGuide.layoutAddTitle') }}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="rounded-full border border-stone-200 px-2 py-1 text-[11px] font-medium dark:border-gray-700"
-                                        (click)="addTextBlock()"
-                                    >
-                                        {{ t('visitaGuide.layoutAddText') }}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="rounded-full border border-stone-200 px-2 py-1 text-[11px] font-medium dark:border-gray-700"
-                                        (click)="addDividerBlock()"
-                                    >
-                                        {{ t('visitaGuide.layoutAddDivider') }}
-                                    </button>
-                                </div>
                                 @for (card of layoutSourceCards(); track card.sequence) {
                                     <article
                                         cdkDrag
@@ -1048,6 +1025,30 @@
                                 }
                             </div>
 
+                            <div class="min-w-0">
+                            <div class="mb-2 flex flex-wrap items-center gap-1">
+                                <button
+                                    type="button"
+                                    class="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    (click)="addTitleBlock()"
+                                >
+                                    {{ t('visitaGuide.layoutAddTitle') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    (click)="addTextBlock()"
+                                >
+                                    {{ t('visitaGuide.layoutAddText') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    (click)="addDividerBlock()"
+                                >
+                                    {{ t('visitaGuide.layoutAddDivider') }}
+                                </button>
+                            </div>
                             <div
                                 cdkDropList
                                 id="visita-layout-canvas"
@@ -1117,6 +1118,7 @@
                                         (watermarkRotationChange)="onLayoutWatermarkRotationChange($event)"
                                     ></report-preview>
                                 }
+                            </div>
                             </div>
                         </div>
 
@@ -2093,6 +2095,30 @@
             >
                 <mat-icon class="!h-4 !w-4 !text-base text-stone-500">add_photo_alternate</mat-icon>
                 {{ t('visitaGuide.layoutContextInsertImage') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutTitleFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">title</mat-icon>
+                {{ t('visitaGuide.layoutAddTitle') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutTextFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">notes</mat-icon>
+                {{ t('visitaGuide.layoutAddText') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutDividerFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">horizontal_rule</mat-icon>
+                {{ t('visitaGuide.layoutAddDivider') }}
             </button>
             @if (menu.sectionId || menu.overlay) {
                 <button

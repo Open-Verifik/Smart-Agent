@@ -220,6 +220,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         overlay?: ReportOverlayId;
     } | null>(null);
     private _pendingSheetImagePoint: { x: number; y: number; page: number } | null = null;
+    private _pendingContentPoint: { x: number; y: number; page: number } | null = null;
     isSavingLayout = signal(false);
     templateSearchQuery = signal('');
     canUndoLayout = signal(false);
@@ -853,6 +854,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
     }
 
+    private _consumePendingContentFrame(height: number): ReportSectionFrame {
+        const pending = this._pendingContentPoint;
+        this._pendingContentPoint = null;
+        if (!pending) return this._nextNearbyFrame(height);
+        return {
+            page: pending.page,
+            x: pending.x,
+            y: pending.y,
+            width: 700,
+            height,
+        };
+    }
+
     onLayoutOverlaySelect(id: ReportOverlayId): void {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
@@ -902,16 +916,37 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     insertLayoutImageFromMenu(): void {
-        const menu = this.layoutContextMenu();
         if (!this.canInsertLayoutImage()) {
             this.closeLayoutContextMenu();
             return;
         }
-        this._pendingSheetImagePoint = menu
-            ? (this._layoutEditorPreview?.canonicalPointAt(menu.x, menu.y) ?? { x: 48, y: 48, page: 0 })
-            : null;
+        this._pendingSheetImagePoint = this._pointFromContextMenu();
         this.closeLayoutContextMenu();
         this._layoutInsertImageInput?.nativeElement.click();
+    }
+
+    insertLayoutTitleFromMenu(): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addTitleBlock();
+    }
+
+    insertLayoutTextFromMenu(): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addTextBlock();
+    }
+
+    insertLayoutDividerFromMenu(): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addDividerBlock();
+    }
+
+    private _pointFromContextMenu(): { x: number; y: number; page: number } | null {
+        const menu = this.layoutContextMenu();
+        if (!menu) return null;
+        return this._layoutEditorPreview?.canonicalPointAt(menu.x, menu.y) ?? { x: 48, y: 48, page: 0 };
     }
 
     onLayoutLayerContextMenu(section: ReportSection, event: MouseEvent): void {
@@ -1085,7 +1120,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         target: { sectionId?: string; overlay?: ReportOverlayId }
     ): void {
         const width = 220;
-        const height = 96;
+        const height = 220;
         this.layoutContextMenu.set({
             x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
             y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
@@ -1275,7 +1310,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             label: title,
             staticContent: title,
             style: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', color: this.primaryColor() },
-            frame: this._nextNearbyFrame(48),
+            frame: this._consumePendingContentFrame(48),
         };
         this.layoutSections.update((list) => [
             section,
@@ -1293,7 +1328,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             label: this._transloco.translate('visitaGuide.layoutTextBlock'),
             staticContent: this._transloco.translate('visitaGuide.layoutTextPlaceholder'),
             style: { fontSize: 12, textAlign: 'left' },
-            frame: this._nextNearbyFrame(72),
+            frame: this._consumePendingContentFrame(72),
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
@@ -1306,7 +1341,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             type: 'divider',
             order: this.layoutSections().length,
             style: { color: this.primaryColor() },
-            frame: this._nextNearbyFrame(16),
+            frame: this._consumePendingContentFrame(16),
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
