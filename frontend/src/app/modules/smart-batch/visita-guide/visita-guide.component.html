@@ -1124,8 +1124,15 @@
 
                         @if (layoutEditorKind()) {
                             <div
+                                #layoutEditorPanel
                                 cdkDrag
-                                class="visita-layout-editor fixed right-4 top-24 z-50 flex max-h-[78vh] w-80 flex-col rounded-xl border border-indigo-200 bg-white shadow-2xl dark:border-indigo-800 dark:bg-gray-900"
+                                class="visita-layout-editor fixed right-4 top-24 z-[70] flex max-h-[78vh] w-80 flex-col rounded-xl border bg-white shadow-2xl transition ring-offset-2 dark:bg-gray-900"
+                                [class.border-indigo-400]="layoutEditorFocused()"
+                                [class.ring-2]="layoutEditorFocused()"
+                                [class.ring-indigo-400]="layoutEditorFocused()"
+                                [class.border-indigo-200]="!layoutEditorFocused()"
+                                [class.dark:border-indigo-500]="layoutEditorFocused()"
+                                [class.dark:border-indigo-800]="!layoutEditorFocused()"
                                 (click)="$event.stopPropagation()"
                             >
                                 <div
@@ -1147,9 +1154,9 @@
                                         <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
                                     </button>
                                 </div>
-                                <div class="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
+                                <div #layoutEditorScroll class="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
                                 @if (layoutEditorKind() === 'page') {
-                                <section class="rounded-2xl border border-sky-300 bg-sky-50 p-3 dark:border-sky-800 dark:bg-sky-950/40">
+                                <section data-layout-control="page" class="rounded-2xl border border-sky-300 bg-sky-50 p-3 dark:border-sky-800 dark:bg-sky-950/40">
                                     <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-800 dark:text-sky-300">
                                         {{ t('visitaGuide.layoutPanelReport') }}
                                     </p>
@@ -1194,7 +1201,7 @@
                                 }
 
                                 @if (layoutEditorKind() === 'page' || layoutEditorKind() === 'overlay') {
-                                <section class="rounded-2xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
+                                <section data-layout-control="overlay" class="rounded-2xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
                                 <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-800 dark:text-violet-300">
                                     {{ t('visitaGuide.layoutBrand') }}
                                 </p>
@@ -1378,7 +1385,7 @@
                                 }
 
                                 @if (layoutEditorKind() === 'block' && selectedLayoutSection(); as selected) {
-                                    <div class="rounded-2xl border-2 border-indigo-400 bg-indigo-50 p-3 dark:border-indigo-500 dark:bg-indigo-950/50">
+                                    <div data-layout-control="block" class="rounded-2xl border-2 border-indigo-400 bg-indigo-50 p-3 dark:border-indigo-500 dark:bg-indigo-950/50">
                                         <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">
                                             {{ t('visitaGuide.layoutPanelBlock') }}
                                         </p>
@@ -1528,7 +1535,7 @@
                                             }
                                         }
                                         @if (selectedLayoutCellKey(); as cellKey) {
-                                            <div class="mt-3 rounded-xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
+                                            <div data-layout-control="cell" class="mt-3 rounded-xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
                                                 <div class="flex items-center justify-between gap-2">
                                                     <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-800 dark:text-violet-300">
                                                         {{ t('visitaGuide.layoutCell') }}

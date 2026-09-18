@@ -149,6 +149,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @ViewChildren(ReportPreviewComponent) private _previews!: QueryList<ReportPreviewComponent>;
     @ViewChild('layoutEditorPreview') private _layoutEditorPreview?: ReportPreviewComponent;
     @ViewChild('layoutInsertImageInput') private _layoutInsertImageInput?: ElementRef<HTMLInputElement>;
+    @ViewChild('layoutEditorPanel') private _layoutEditorPanel?: ElementRef<HTMLElement>;
+    @ViewChild('layoutEditorScroll') private _layoutEditorScroll?: ElementRef<HTMLElement>;
 
     readonly intents = GUIDE_INTENTS;
     readonly entityOptions = GUIDE_ENTITIES;
@@ -213,6 +215,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutCellKey = signal<string | null>(null);
     selectedLayoutCellPart = signal<ReportCellPart>('cell');
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
+    layoutEditorFocused = signal(false);
+    private _layoutFocusTimer: ReturnType<typeof setTimeout> | null = null;
     layoutContextMenu = signal<{
         x: number;
         y: number;
@@ -556,6 +560,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this._endpointHoverHide) clearTimeout(this._endpointHoverHide);
         if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
         if (this._layoutHistoryTimer) clearTimeout(this._layoutHistoryTimer);
+        if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
         this._stopPoll();
         this._browserRunner.stop();
     }
@@ -744,6 +749,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
     };
 
     onLayoutCellSelect = (event: {
@@ -756,6 +762,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutCellKey.set(event.key);
         this.selectedLayoutCellPart.set(event.part);
         this.layoutEditorKind.set('block');
+        this._revealLayoutControls(event.key ? 'cell' : 'block');
     };
 
     onLayoutSectionReorder(event: { fromId: string; toIndex: number }): void {
@@ -872,6 +879,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
         this.layoutEditorKind.set('overlay');
+        this._revealLayoutControls('overlay');
     };
 
     clearLayoutSelection(): void {
@@ -884,10 +892,31 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         event?.stopPropagation();
         this.clearLayoutSelection();
         this.layoutEditorKind.set('page');
+        this._revealLayoutControls('page');
     }
 
     closeLayoutEditor(): void {
         this.layoutEditorKind.set(null);
+        this.layoutEditorFocused.set(false);
+    }
+
+    private _revealLayoutControls(control: 'page' | 'block' | 'cell' | 'overlay'): void {
+        this.layoutEditorFocused.set(true);
+        if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
+        this._layoutFocusTimer = setTimeout(() => this.layoutEditorFocused.set(false), 1200);
+        queueMicrotask(() => {
+            requestAnimationFrame(() => {
+                const root = this._layoutEditorPanel?.nativeElement;
+                if (!root) return;
+                const target =
+                    (root.querySelector(`[data-layout-control="${control}"]`) as HTMLElement | null) ?? root;
+                target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                const field = target.querySelector<HTMLElement>(
+                    'input:not([type="file"]):not([type="checkbox"]):not([type="range"]), textarea, select'
+                );
+                field?.focus({ preventScroll: true });
+            });
+        });
     }
 
     onLayoutSectionContextMenu(event: { section: ReportSection; x: number; y: number }): void {
@@ -1172,6 +1201,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.update((list) => [...list, { ...section, order: list.length }]);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
     }
 
     addAllCardsToLayout(): void {
@@ -1318,6 +1348,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         ]);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
     }
 
     addTextBlock(): void {
@@ -1333,6 +1364,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
     }
 
     addDividerBlock(): void {
@@ -1346,6 +1378,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
     }
 
     setSelectedLayoutLabel(value: string): void {

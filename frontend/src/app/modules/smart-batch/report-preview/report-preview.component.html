@@ -165,7 +165,11 @@
             }
 
             @if (isFirst && logoEnabled() && logoUrl()) {
-                <div class="absolute inset-0 pointer-events-none z-20">
+                <div
+                    class="absolute inset-0 pointer-events-none"
+                    [class.z-40]="isOverlaySelected('logo')"
+                    [class.z-20]="!isOverlaySelected('logo')"
+                >
                     <div
                         data-overlay-box
                         class="absolute"
@@ -220,7 +224,7 @@
             @if (isFirst) {
                 @for (image of sheetImages(); track image.id) {
                     @if (image.src) {
-                        <div class="absolute inset-0 pointer-events-none z-20">
+                        <div class="absolute inset-0 pointer-events-none" [class.z-40]="isOverlaySelected(sheetOverlayId(image.id))" [class.z-20]="!isOverlaySelected(sheetOverlayId(image.id))">
                             <div
                                 data-overlay-box
                                 class="absolute"

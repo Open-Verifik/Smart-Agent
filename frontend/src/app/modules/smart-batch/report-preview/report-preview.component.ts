@@ -726,7 +726,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             top: `${y / scales.y}px`,
             width: width ? `${width}px` : '100%',
             marginBottom: '0px',
-            zIndex: this.draggingSectionId() === section.id ? '40' : '1',
+            zIndex:
+                this.draggingSectionId() === section.id
+                    ? '40'
+                    : this.selectedSectionId() === section.id
+                      ? '25'
+                      : '1',
         };
     }
 
