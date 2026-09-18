@@ -524,6 +524,32 @@
                                                             class="truncate text-xs text-stone-500"
                                                             >{{ feature.description }}</span
                                                         >
+                                                        <div
+                                                            *ngIf="featureParamFields(feature).length"
+                                                            class="mt-2 flex flex-wrap gap-1"
+                                                        >
+                                                            <ng-container
+                                                                *ngFor="let chip of featureParamFields(feature)"
+                                                            >
+                                                                <span
+                                                                    class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                    [ngClass]="paramChipClass(chip.required)"
+                                                                >
+                                                                    {{
+                                                                        paramFilterLabelKey(chip.field)
+                                                                            | transloco: paramFilterLabelParams(chip.field)
+                                                                    }}
+                                                                    <span *ngIf="chip.required" class="ml-0.5 font-bold">*</span>
+                                                                </span>
+                                                                <span
+                                                                    *ngFor="let value of chip.enums"
+                                                                    class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                    [ngClass]="paramEnumClass()"
+                                                                >
+                                                                    {{ value }}
+                                                                </span>
+                                                            </ng-container>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <mat-icon
@@ -591,6 +617,32 @@
                                                     <span class="truncate text-xs text-stone-500">{{
                                                         featureGroupLabel(featureGroup(feature))
                                                     }}</span>
+                                                    <div
+                                                        *ngIf="featureParamFields(feature).length"
+                                                        class="mt-1 flex flex-wrap gap-1"
+                                                    >
+                                                        <ng-container
+                                                            *ngFor="let chip of featureParamFields(feature)"
+                                                        >
+                                                            <span
+                                                                class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                [ngClass]="paramChipClass(chip.required)"
+                                                            >
+                                                                {{
+                                                                    paramFilterLabelKey(chip.field)
+                                                                        | transloco: paramFilterLabelParams(chip.field)
+                                                                }}
+                                                                <span *ngIf="chip.required" class="ml-0.5 font-bold">*</span>
+                                                            </span>
+                                                            <span
+                                                                *ngFor="let value of chip.enums"
+                                                                class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                [ngClass]="paramEnumClass()"
+                                                            >
+                                                                {{ value }}
+                                                            </span>
+                                                        </ng-container>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <button

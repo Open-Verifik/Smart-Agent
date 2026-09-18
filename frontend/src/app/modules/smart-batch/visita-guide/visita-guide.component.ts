@@ -20,10 +20,13 @@ import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
 import {
     collectRequiredParamFields,
-    featureParamFilterIds,
+    featureParamChips,
+    FeatureParamChip,
     humanizeParamField,
     matchesRequiredParamFilters,
+    paramEnumChipClass,
     paramFieldLabelKey,
+    requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
@@ -2371,8 +2374,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return keys[group];
     }
 
-    featureParamFields(feature: AppFeature): string[] {
-        return featureParamFilterIds(feature);
+    featureParamFields(feature: AppFeature): FeatureParamChip[] {
+        return featureParamChips(feature);
+    }
+
+    paramChipClass(required: boolean): string {
+        return requiredParamChipClass(required);
+    }
+
+    paramEnumClass(): string {
+        return paramEnumChipClass;
     }
 
     endpointHoverDetails(feature: AppFeature) {

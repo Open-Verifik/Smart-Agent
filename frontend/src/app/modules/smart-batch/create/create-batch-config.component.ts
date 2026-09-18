@@ -20,12 +20,18 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
 import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
 import {
+    featureParamChips,
+    FeatureParamChip,
+    humanizeParamField,
     matchesParamHighlight,
     ParamHighlight,
+    paramEnumChipClass,
+    paramFieldLabelKey,
     paramHighlightBadgeClass,
     paramHighlightCardClass,
     paramHighlightChipClass,
     paramHighlightSwatchClass,
+    requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
 import { featureGroup as classifyFeatureGroup, FeatureGroupId } from '../feature-group.util';
 import { filterFeaturesForCountry, resolveDropdownCountry } from '../smart-batch-country.util';
@@ -493,6 +499,26 @@ export class CreateBatchConfigComponent {
 
     highlightSwatchClass(highlight: ParamHighlight): string {
         return paramHighlightSwatchClass(highlight);
+    }
+
+    featureParamFields(feature: AppFeature): FeatureParamChip[] {
+        return featureParamChips(feature);
+    }
+
+    paramChipClass(required: boolean): string {
+        return requiredParamChipClass(required);
+    }
+
+    paramEnumClass(): string {
+        return paramEnumChipClass;
+    }
+
+    paramFilterLabelKey(field: string): string {
+        return paramFieldLabelKey(field);
+    }
+
+    paramFilterLabelParams(field: string): { field: string } {
+        return { field: humanizeParamField(field) };
     }
 
     featureGroupLabel(group: 'citizen' | 'vehicle' | 'company' | 'other'): string {

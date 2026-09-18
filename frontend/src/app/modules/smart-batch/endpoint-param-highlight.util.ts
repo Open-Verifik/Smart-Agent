@@ -157,6 +157,42 @@ export const declaredVisibleFields = (feature: FeatureParamShape): string[] => {
 export const featureParamFilterIds = (feature: FeatureParamShape): string[] =>
     uniqueFields(declaredVisibleFields(feature).map(canonicalParamFilterId));
 
+export const enumsForCanonicalParam = (feature: FeatureParamShape, canonical: string): string[] => {
+    const values = (feature.dependencies ?? [])
+        .filter((dep) => dep.field && canonicalParamFilterId(dep.field) === canonical)
+        .flatMap((dep) => dep.enum ?? []);
+    return uniqueFields(values.map((item) => String(item).trim()).filter(Boolean));
+};
+
+export const isCanonicalParamRequired = (feature: FeatureParamShape, canonical: string): boolean => {
+    const deps = (feature.dependencies ?? []).filter(
+        (dep) => dep.field && canonicalParamFilterId(dep.field) === canonical
+    );
+    if (deps.length) return deps.some((dep) => dep.required !== false && !dep.requiredWhen);
+    return requiredVisibleFields(feature).map(canonicalParamFilterId).includes(canonical);
+};
+
+export interface FeatureParamChip {
+    field: string;
+    required: boolean;
+    enums: string[];
+}
+
+export const featureParamChips = (feature: FeatureParamShape): FeatureParamChip[] =>
+    featureParamFilterIds(feature).map((field) => ({
+        field,
+        required: isCanonicalParamRequired(feature, field),
+        enums: enumsForCanonicalParam(feature, field),
+    }));
+
+export const requiredParamChipClass = (required: boolean): string =>
+    required
+        ? 'border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-800/60 dark:bg-orange-950/40 dark:text-orange-300'
+        : 'border-stone-200 bg-stone-50 text-stone-500 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-400';
+
+export const paramEnumChipClass =
+    'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300';
+
 export const humanizeParamField = (field: string): string =>
     field
         .replace(/([a-z])([A-Z])/g, '$1 $2')

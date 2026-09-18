@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     classifyParamField,
     matchesParamHighlight,
+    featureParamChips,
     matchesRequiredParamFilters,
     requiredVisibleFields,
 } from './endpoint-param-highlight.util';
@@ -145,5 +146,22 @@ describe('matchesRequiredParamFilters', () => {
             ],
         };
         expect(matchesRequiredParamFilters(feature, ['documentType', 'documentNumber'])).toBe(true);
+    });
+});
+
+describe('featureParamChips', () => {
+    it('marks required params and lists document type options', () => {
+        const chips = featureParamChips({
+            dependencies: [
+                { field: 'documentType', required: true, enum: ['CC', 'CE', 'PPT'] },
+                { field: 'documentNumber', required: true },
+                { field: 'dateOfBirth', required: true, requiredWhen: { field: 'documentType', in: ['CE'] } },
+            ],
+        });
+        expect(chips).toEqual([
+            { field: 'documentType', required: true, enums: ['CC', 'CE', 'PPT'] },
+            { field: 'documentNumber', required: true, enums: [] },
+            { field: 'dateOfBirth', required: false, enums: [] },
+        ]);
     });
 });

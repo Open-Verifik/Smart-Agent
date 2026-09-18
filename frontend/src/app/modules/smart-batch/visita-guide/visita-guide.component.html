@@ -429,16 +429,19 @@
                                                             }}</span>
                                                         }
                                                         <div class="mt-2 flex flex-wrap gap-1">
-                                                            @for (field of featureParamFields(feature); track field) {
+                                                            @for (chip of featureParamFields(feature); track chip.field) {
                                                                 <span
                                                                     class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
-                                                                    [class.border-stone-950]="isRequiredParamFilterActive(field)"
-                                                                    [class.text-stone-950]="isRequiredParamFilterActive(field)"
-                                                                    [class.border-stone-200]="!isRequiredParamFilterActive(field)"
-                                                                    [class.text-stone-500]="!isRequiredParamFilterActive(field)"
-                                                                    [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
-                                                                    >{{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}</span
+                                                                    [ngClass]="paramChipClass(chip.required)"
+                                                                    >{{ t(paramFilterLabelKey(chip.field), paramFilterLabelParams(chip.field)) }}@if (chip.required) {<span class="ml-0.5 font-bold">*</span>}</span
                                                                 >
+                                                                @for (value of chip.enums; track value) {
+                                                                    <span
+                                                                        class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                        [ngClass]="paramEnumClass()"
+                                                                        >{{ value }}</span
+                                                                    >
+                                                                }
                                                             }
                                                         </div>
                                                     </div>
@@ -509,6 +512,24 @@
                                                     <span class="mt-0.5 block font-mono text-[11px] text-stone-400">{{
                                                         feature.code
                                                     }}</span>
+                                                }
+                                                @if (featureParamFields(feature).length) {
+                                                    <div class="mt-2 flex flex-wrap gap-1">
+                                                        @for (chip of featureParamFields(feature); track chip.field) {
+                                                            <span
+                                                                class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                [ngClass]="paramChipClass(chip.required)"
+                                                                >{{ t(paramFilterLabelKey(chip.field), paramFilterLabelParams(chip.field)) }}@if (chip.required) {<span class="ml-0.5 font-bold">*</span>}</span
+                                                            >
+                                                            @for (value of chip.enums; track value) {
+                                                                <span
+                                                                    class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                    [ngClass]="paramEnumClass()"
+                                                                    >{{ value }}</span
+                                                                >
+                                                            }
+                                                        }
+                                                    </div>
                                                 }
                                             </div>
                                             <button
@@ -600,7 +621,7 @@
                                     field.labelText
                                         ? t(field.labelKey, { field: field.labelText })
                                         : t(field.labelKey)
-                                }}</label>
+                                }}@if (field.required) {<span class="ml-0.5 text-orange-600 dark:text-orange-400">*</span>}</label>
                                 @if (field.options?.length) {
                                     <select
                                         [id]="'guide-' + field.key"
