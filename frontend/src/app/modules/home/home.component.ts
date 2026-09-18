@@ -352,7 +352,8 @@ export class HomeComponent implements OnInit {
                 this.canRecharge.set(typeof user?.canRecharge === 'boolean' ? user.canRecharge : undefined);
                 this.approvalRequestStatus.set(user?.approvalRequestStatus);
                 this.pendingWelcomeCredits.set(
-                    user?.pendingWelcomeCredits?.lockedUntilApproval &&
+                    (user?.pendingWelcomeCredits?.lockedUntilPurchase ||
+                        user?.pendingWelcomeCredits?.lockedUntilApproval) &&
                         (user.pendingWelcomeCredits.amount ?? 0) > 0
                         ? user.pendingWelcomeCredits
                         : undefined

@@ -948,11 +948,11 @@
             }
         },
         "companyVerification": {
-            "title": "Vérifiez votre entreprise pour libérer {{amount}} USD de crédits gratuits.",
-            "body": "Pour libérer vos crédits gratuits, nous devons examiner les informations de votre entreprise afin de répondre aux exigences de nos régulateurs et partenaires. Après vérification, ces crédits deviennent disponibles et vous pouvez passer en Production.",
+            "title": "Vérifiez votre entreprise pour passer en Production.",
+            "body": "Pour utiliser la Production, nous devons examiner les informations de votre entreprise pour nos régulateurs et partenaires. Les crédits gratuits se débloquent lorsque vous achetez des crédits ou souscrivez un forfait payant.",
             "cta": "Démarrer la vérification d'entreprise",
             "pendingTitle": "La vérification de votre entreprise est en cours d'examen.",
-            "pendingBody": "Nous examinons les informations de votre entreprise. Nous libérerons {{amount}} USD de crédits gratuits et activerons la Production une fois la vérification terminée.",
+            "pendingBody": "Nous examinons les informations de votre entreprise. La Production s'active à la fin de la vérification. Les crédits gratuits se débloquent à l'achat de crédits ou à la souscription d'un forfait payant.",
             "step1": "Fournir les informations de l'entreprise",
             "step2": "Examen",
             "step3": "Résultat de la vérification",
@@ -1273,9 +1273,17 @@
     },
     "accountEnv": {
         "verifyStrip": {
-            "text": "Vérifiez votre compte pour accéder aux crédits gratuits initiaux et passer en Production.",
+            "eyebrow": "Votre parcours vers la Production",
+            "title": "Deux étapes rapides. Deux avantages distincts.",
+            "verifyTitle": "Vérifiez votre identité",
+            "verifyText": "Débloquez l'accès sécurisé à la Production.",
+            "pendingTitle": "Vérification en cours",
+            "pendingText": "Votre vérification est en cours d'examen. Nous vous informerons dès qu'elle sera terminée.",
+            "creditTitle": "Débloquez vos crédits gratuits",
+            "creditText": "Effectuez votre première recharge ou choisissez un forfait payant.",
             "cta": "Vérifier l'identité",
-            "pendingText": "La vérification de votre compte est en cours d'examen."
+            "pendingCta": "Examen en cours",
+            "rechargeCta": "Recharger"
         },
         "identityVerificationModal": {
             "title": "Vérifiez votre identité pour obtenir le mode production",
@@ -1287,7 +1295,7 @@
             "reason3_title": "Accès à la production",
             "reason3_desc": "Déverrouillez le mode Production pour commencer à exécuter de réelles demandes de vérification d'API en direct.",
             "reason4_title": "Crédits et recharge",
-            "reason4_desc": "Rechargez des crédits et payez votre utilisation de manière transparente après validation.",
+            "reason4_desc": "Votre première recharge ou un forfait payant débloque vos crédits gratuits, indépendamment de la vérification d'identité.",
             "reason5_title": "Prévention de la fraude",
             "reason5_desc": "Assurer un environnement sûr et prévenir toute utilisation non autorisée ou frauduleuse.",
             "cta": "Vérifier l'identité",
@@ -4497,7 +4505,7 @@
         "availableCredits": "Crédits disponibles",
         "pendingWelcome": {
             "title": "{{amount}} crédits de bienvenue verrouillés",
-            "body": "Vous recevrez ces crédits une fois votre compte approuvé. Ils ne sont pas utilisables avant."
+            "body": "Achetez des crédits (ajoutez une carte et rechargez) ou souscrivez un forfait payant pour les débloquer."
         },
         "purchaseCredits": "Acheter des crédits",
         "addCard": "Ajouter une carte",

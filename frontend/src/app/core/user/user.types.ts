@@ -19,10 +19,12 @@ export interface BringBackOffer {
     proposedAt?: string;
 }
 
-/** Signup welcome credits reserved until account approval (`canRecharge`). */
+/** Signup / task promo credits reserved until a paid purchase or paid plan. */
 export interface PendingWelcomeCredits {
     amount: number;
     lockedUntilApproval: boolean;
+    lockedUntilPurchase?: boolean;
+    spendableFreeAmount?: number;
     message?: string;
 }
 
@@ -51,7 +53,7 @@ export interface User {
     promotion?: SmartAgentWeekOneUsd50Promotion;
     /** Active bring-back win-back offer from session (proposed, not expired). */
     bringBackOffer?: BringBackOffer;
-    /** Welcome credits reserved at signup; spendable only after approval. */
+    /** Promo credits reserved at signup / tasks; spendable after purchase or a paid plan. */
     pendingWelcomeCredits?: PendingWelcomeCredits;
     /** Present on session user from Client Settings (see backend authentication.module). */
     settings?: ClientSettingsSnapshot;

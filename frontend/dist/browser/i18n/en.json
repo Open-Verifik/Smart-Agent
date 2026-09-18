@@ -952,11 +952,11 @@
             }
         },
         "companyVerification": {
-            "title": "Verify your company to release {{amount}} USD in free credits.",
-            "body": "To release your free credits, we need to review your company information in order to meet the requirements of our regulators and partners. After verification, those credits become available and you can switch to Production.",
+            "title": "Verify your company to switch to Production.",
+            "body": "To use Production, we need to review your company information for our regulators and partners. Free credits unlock when you buy credits or subscribe to a paid plan.",
             "cta": "Start company verification",
             "pendingTitle": "Your company verification is under review.",
-            "pendingBody": "We're reviewing your company information. We'll release {{amount}} USD in free credits and unlock Production when verification is complete.",
+            "pendingBody": "We're reviewing your company information. Production unlocks when verification is complete. Free credits unlock when you buy credits or subscribe to a paid plan.",
             "step1": "Provide company information",
             "step2": "Review",
             "step3": "Verification result",
@@ -1277,9 +1277,17 @@
     },
     "accountEnv": {
         "verifyStrip": {
-            "text": "Verify your account to access the initial free credits and switch to Production.",
+            "eyebrow": "Your path to Production",
+            "title": "Two quick steps. Two separate benefits.",
+            "verifyTitle": "Verify your identity",
+            "verifyText": "Unlock secure Production access.",
+            "pendingTitle": "Verification in review",
             "pendingText": "Your verification is under manual review. We'll notify you when it's complete.",
-            "cta": "Verify identity"
+            "creditTitle": "Unlock your free credits",
+            "creditText": "Make your first credit recharge or choose a paid plan.",
+            "cta": "Verify identity",
+            "pendingCta": "Review pending",
+            "rechargeCta": "Recharge credits"
         },
         "identityVerificationModal": {
             "title": "Verify Identity to Obtain Production Mode",
@@ -1291,7 +1299,7 @@
             "reason3_title": "Production Access",
             "reason3_desc": "Unlock Production mode to start executing real, live API verification requests.",
             "reason4_title": "Credits & Recharge",
-            "reason4_desc": "Recharge credits and pay for usage seamlessly after validation.",
+            "reason4_desc": "Your first credit recharge or paid plan unlocks your free credits. This is separate from identity verification.",
             "reason5_title": "Fraud Prevention",
             "reason5_desc": "Ensure a safe environment and prevent unauthorized or fraudulent usage.",
             "cta": "Verify identity",
@@ -4515,7 +4523,7 @@
         "availableCredits": "Available credits",
         "pendingWelcome": {
             "title": "{{amount}} welcome credits locked",
-            "body": "You'll receive these credits once your account is approved. They are not spendable until then."
+            "body": "Buy credits (add a card and purchase) or subscribe to a paid plan to unlock these credits."
         },
         "purchaseCredits": "Purchase Credits",
         "addCard": "Add Card",

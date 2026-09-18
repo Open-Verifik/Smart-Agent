@@ -948,11 +948,11 @@
             }
         },
         "companyVerification": {
-            "title": "Verifica tu empresa para liberar {{amount}} USD en créditos gratuitos.",
-            "body": "Para liberar tus créditos gratuitos, debemos revisar la información de tu empresa y cumplir con los requisitos de nuestros reguladores y socios. Tras la verificación, esos créditos estarán disponibles y podrás pasar a Producción.",
+            "title": "Verifica tu empresa para pasar a Producción.",
+            "body": "Para usar Producción debemos revisar la información de tu empresa por requisitos de reguladores y socios. Los créditos gratuitos se desbloquean al comprar créditos o suscribirte a un plan de pago.",
             "cta": "Iniciar verificación de empresa",
             "pendingTitle": "La verificación de tu empresa está en revisión.",
-            "pendingBody": "Estamos revisando la información de tu empresa. Liberaremos {{amount}} USD en créditos gratuitos y activaremos Producción cuando se complete la verificación.",
+            "pendingBody": "Estamos revisando la información de tu empresa. Producción se activa al completar la verificación. Los créditos gratuitos se desbloquean al comprar créditos o suscribirte a un plan de pago.",
             "step1": "Proporcionar información de la empresa",
             "step2": "Revisión",
             "step3": "Resultado de la verificación",
@@ -1273,9 +1273,17 @@
     },
     "accountEnv": {
         "verifyStrip": {
-            "text": "Verifica tu cuenta para acceder a los créditos gratuitos iniciales y cambiar a Producción.",
+            "eyebrow": "Tu camino a Producción",
+            "title": "Dos pasos rápidos. Dos beneficios distintos.",
+            "verifyTitle": "Verifica tu identidad",
+            "verifyText": "Desbloquea el acceso seguro a Producción.",
+            "pendingTitle": "Verificación en revisión",
             "pendingText": "Tu verificación está en revisión manual. Te avisaremos cuando esté completa.",
-            "cta": "Verificar identidad"
+            "creditTitle": "Desbloquea tus créditos gratis",
+            "creditText": "Haz tu primera recarga de créditos o elige un plan de pago.",
+            "cta": "Verificar identidad",
+            "pendingCta": "Revisión pendiente",
+            "rechargeCta": "Recargar créditos"
         },
         "identityVerificationModal": {
             "title": "Verifica tu identidad para obtener el Modo Producción",
@@ -1287,7 +1295,7 @@
             "reason3_title": "Acceso a producción",
             "reason3_desc": "Desbloquea el modo Producción para comenzar a realizar solicitudes de verificación de API reales en vivo.",
             "reason4_title": "Créditos y recargas",
-            "reason4_desc": "Recarga créditos y paga por tu consumo sin inconvenientes tras la validación.",
+            "reason4_desc": "Tu primera recarga de créditos o plan de pago desbloquea tus créditos gratis. Esto es independiente de la verificación de identidad.",
             "reason5_title": "Prevención de fraude",
             "reason5_desc": "Garantizar un entorno seguro y prevenir el uso no autorizado o fraudulento.",
             "cta": "Verificar identidad",
@@ -4511,7 +4519,7 @@
         "availableCredits": "Créditos disponibles",
         "pendingWelcome": {
             "title": "{{amount}} créditos de bienvenida bloqueados",
-            "body": "Recibirás estos créditos cuando tu cuenta sea aprobada. No se pueden usar hasta entonces."
+            "body": "Compra créditos (agrega una tarjeta y recarga) o suscríbete a un plan de pago para desbloquearlos."
         },
         "purchaseCredits": "Comprar Créditos",
         "addCard": "Agregar Tarjeta",
