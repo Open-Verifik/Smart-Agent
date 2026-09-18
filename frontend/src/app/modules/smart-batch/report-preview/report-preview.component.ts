@@ -24,6 +24,15 @@ import { resolveTextRole } from '../report-text-role.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}`;
 
+export type ReportInlineTextKind = 'title' | 'body' | 'cellLabel';
+
+export type ReportInlineTextChange = {
+    sectionId: string;
+    kind: ReportInlineTextKind;
+    key?: string;
+    value: string;
+};
+
 const MM_TO_PX = 3.7795275591;
 /** Tailwind `mb-3` between blocks. Margin is not included in getBoundingClientRect. */
 const SECTION_GAP_PX = 12;
@@ -153,6 +162,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         key: string | null;
         part: ReportCellPart;
     }>();
+    @Output() inlineTextChange = new EventEmitter<ReportInlineTextChange>();
 
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
@@ -197,6 +207,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _sectionDragMoved = false;
     private _sectionDragRaf: number | null = null;
     readonly draggingSectionId = signal<string | null>(null);
+    readonly editingText = signal<{
+        sectionId: string;
+        kind: ReportInlineTextKind;
+        key?: string;
+    } | null>(null);
+    readonly inlineDraft = signal('');
+    private _suppressInlineBlur = false;
     readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
 
     constructor() {
@@ -584,6 +601,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._sectionDragMoved = false;
             return;
         }
+        if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
         if (!this.clickable() || !this.sectionClick()) return;
         const cell = (event.target as HTMLElement | null)?.closest('[data-report-cell]');
         if (!cell) {
@@ -592,10 +610,132 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.sectionClick()!(section);
     }
 
+    canInlineEdit(measure?: boolean): boolean {
+        return Boolean(
+            this.clickable() && this.sectionClick() && !this.thumbnailMode() && !this.printCapture() && !measure
+        );
+    }
+
+    isEditingText(sectionId: string, kind: string, key?: string | null): boolean {
+        const current = this.editingText();
+        return (
+            !!current &&
+            current.sectionId === sectionId &&
+            current.kind === kind &&
+            (current.key ?? '') === (key ?? '')
+        );
+    }
+
+    sheetTextContext(
+        section: ReportSection,
+        kind: ReportInlineTextKind | string,
+        text: string,
+        measure?: boolean,
+        multiline = false,
+        key?: string,
+        fallback?: string
+    ): {
+        section: ReportSection;
+        kind: string;
+        text: string;
+        measure?: boolean;
+        key?: string;
+        fallback?: string;
+        multiline?: boolean;
+    } {
+        return { section, kind, text, measure, multiline, key, fallback };
+    }
+
+    startInlineEdit(
+        section: ReportSection,
+        kind: ReportInlineTextKind | string,
+        event: Event,
+        key?: string,
+        fallback = ''
+    ): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.canInlineEdit()) return;
+        const editKind = kind as ReportInlineTextKind;
+        this._clearSectionDrag();
+        this._flushInlineEdit();
+        this._suppressInlineBlur = true;
+        this.sectionClick()?.(section);
+        if (editKind === 'cellLabel' && key) {
+            this.cellSelect.emit({ section, key, part: 'label' });
+        } else {
+            this.cellSelect.emit({ section, key: null, part: 'cell' });
+        }
+        this.inlineDraft.set(this._inlineSeed(section, editKind, key, fallback));
+        this.editingText.set({ sectionId: section.id, kind: editKind, ...(key ? { key } : {}) });
+        queueMicrotask(() => {
+            this._suppressInlineBlur = false;
+            this._focusInlineEditor();
+        });
+    }
+
+    onInlineDraftInput(event: Event): void {
+        this.inlineDraft.set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
+    }
+
+    onInlineKeydown(event: KeyboardEvent, multiline: boolean): void {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this._suppressInlineBlur = true;
+            this.editingText.set(null);
+            queueMicrotask(() => {
+                this._suppressInlineBlur = false;
+            });
+            return;
+        }
+        if (event.key === 'Enter' && (!multiline || event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            this.commitInlineEdit();
+        }
+    }
+
+    commitInlineEdit(): void {
+        if (this._suppressInlineBlur) return;
+        this._flushInlineEdit();
+    }
+
+    private _flushInlineEdit(): void {
+        const editing = this.editingText();
+        if (!editing) return;
+        const value = this.inlineDraft();
+        this.editingText.set(null);
+        this.inlineTextChange.emit({ ...editing, value });
+    }
+
+    private _inlineSeed(
+        section: ReportSection,
+        kind: ReportInlineTextKind,
+        key?: string,
+        fallback = ''
+    ): string {
+        if (kind === 'body') return section.staticContent || '';
+        if (kind === 'cellLabel' && key) {
+            return this.entryLabel(section, { key, label: fallback || key });
+        }
+        if (section.type === 'header') return section.staticContent || section.label || '';
+        return section.label || '';
+    }
+
+    private _focusInlineEditor(): void {
+        const el = this._host.nativeElement.querySelector('[data-inline-edit]') as
+            | HTMLInputElement
+            | HTMLTextAreaElement
+            | null;
+        if (!el) return;
+        el.focus();
+        el.select();
+    }
+
     onSectionPointerDown(section: ReportSection, event: PointerEvent): void {
         if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
+        if (origin?.closest('[data-inline-edit]')) return;
         this._sectionDragMoved = false;
         this._sectionDrag = {
             id: section.id,
@@ -605,7 +745,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             startFrame: this.displayFrame(section) ?? { page: 0, x: 0, y: 0, width: 0 },
             active: false,
         };
-        event.preventDefault();
         window.addEventListener('pointermove', this._onWindowSectionMove);
         window.addEventListener('pointerup', this._onWindowSectionUp, true);
         window.addEventListener('pointercancel', this._onWindowSectionUp, true);
@@ -638,6 +777,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             drag.startFrame = start;
             drag.active = true;
             this._sectionDragMoved = true;
+            if (this.editingText()) this.commitInlineEdit();
             this.draggingSectionId.set(drag.id);
             document.body.style.userSelect = 'none';
             document.body.style.cursor = 'grabbing';

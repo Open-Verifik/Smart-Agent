@@ -356,7 +356,7 @@
                         }
                         <ng-container
                             [ngTemplateOutlet]="sectionBody"
-                            [ngTemplateOutletContext]="{ section: section }"
+                            [ngTemplateOutletContext]="{ section: section, measure: false }"
                         ></ng-container>
                     </div>
                 }
@@ -444,7 +444,7 @@
         >
             <ng-container
                 [ngTemplateOutlet]="sectionBody"
-                [ngTemplateOutletContext]="{ section: section }"
+                [ngTemplateOutletContext]="{ section: section, measure: true }"
             ></ng-container>
         </div>
     }
@@ -484,7 +484,7 @@
     which the builder shows in its "Exact" iframe. The canvas only needs enough to
     recognize, select and reorder a block.
 -->
-<ng-template #sectionBody let-section="section">
+<ng-template #sectionBody let-section="section" let-measure="measure">
     @if (section.type === 'header') {
         <div class="mb-4" [style.text-align]="roleTextAlign(section, 'title')">
             <h2
@@ -495,7 +495,10 @@
                 [style.color]="roleColor(section, 'title')"
                 class="leading-tight"
             >
-                {{ section.staticContent || section.label || ('smartReport.untitled' | transloco) }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.staticContent || section.label || ('smartReport.untitled' | transloco), measure)"
+                ></ng-container>
             </h2>
         </div>
     }
@@ -511,7 +514,10 @@
                 [style.color]="roleColor(section, 'title')"
                 class="leading-relaxed whitespace-pre-wrap"
             >
-                {{ section.staticContent || ('smartReport.textContent' | transloco) }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'body', section.staticContent || ('smartReport.textContent' | transloco), measure, true)"
+                ></ng-container>
             </p>
         </div>
     }
@@ -530,8 +536,12 @@
                 [style.font-family]="roleFontFamily(section, 'label')"
                 [style.text-align]="roleTextAlign(section, 'label')"
                 [style.color]="roleColor(section, 'label')"
-                >{{ section.label || ('smartReport.field' | transloco) }}</span
             >
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label || ('smartReport.field' | transloco), measure)"
+                ></ng-container>
+            </span>
             <span
                 [style.font-size.px]="roleFontSize(section, 'value')"
                 [style.font-weight]="roleFontWeight(section, 'value')"
@@ -554,7 +564,10 @@
                     [style.font-style]="roleFontStyle(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             <table class="w-full">
@@ -644,7 +657,10 @@
                     [style.font-style]="roleFontStyle(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (structuralColumns(section).length > 0) {
@@ -716,7 +732,10 @@
                     [style.font-style]="roleFontStyle(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (sectionHasStructuredData(section)) {
@@ -755,7 +774,10 @@
                                         [style.color]="roleColor(section, 'label', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'label', $event)"
                                     >
-                                        {{ entryLabel(section, entry) }}
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, entry), measure, false, entry.key, entry.label)"
+                                        ></ng-container>
                                     </div>
                                     <div
                                         class="truncate"
@@ -845,8 +867,12 @@
                     [style.font-weight]="roleFontWeight(section, 'label')"
                     [style.font-style]="roleFontStyle(section, 'label')"
                     [style.color]="roleColor(section, 'label')"
-                    >{{ section.label }}</span
                 >
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
+                </span>
             }
             <span
                 class="inline-flex items-center rounded-full border px-2.5 py-0.5"
@@ -876,7 +902,10 @@
                     [style.font-style]="roleFontStyle(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (section.staticContent) {
@@ -889,7 +918,10 @@
                     [style.text-align]="roleTextAlign(section, 'value')"
                     [style.color]="roleColor(section, 'value')"
                 >
-                    {{ section.staticContent }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'body', section.staticContent, measure, true)"
+                    ></ng-container>
                 </p>
             }
             @if (sectionHasStructuredData(section)) {
@@ -920,8 +952,12 @@
                                         [style.text-align]="roleTextAlign(section, 'label', entry.key)"
                                         [style.color]="roleColor(section, 'label', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'label', $event)"
-                                        >{{ entryLabel(section, entry) }}</span
                                     >
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, entry), measure, false, entry.key, entry.label)"
+                                        ></ng-container>
+                                    </span>
                                     <span
                                         [class.ring-1]="isCellSelected(section, entry.key, 'value')"
                                         [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
@@ -998,7 +1034,10 @@
                     [style.font-style]="roleFontStyle(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (structuralRecords(section).length > 0) {
@@ -1047,5 +1086,52 @@
                 }
             </p>
         </div>
+    }
+</ng-template>
+
+<ng-template
+    #sheetText
+    let-section="section"
+    let-kind="kind"
+    let-text="text"
+    let-key="key"
+    let-fallback="fallback"
+    let-multiline="multiline"
+    let-measure="measure"
+>
+    @if (canInlineEdit(measure) && isEditingText(section.id, kind, key)) {
+        @if (multiline) {
+            <textarea
+                data-inline-edit
+                rows="3"
+                class="m-0 w-full resize-y bg-transparent p-0 leading-[inherit] outline-none ring-1 ring-indigo-400 rounded-sm"
+                [value]="inlineDraft()"
+                (input)="onInlineDraftInput($event)"
+                (blur)="commitInlineEdit()"
+                (keydown)="onInlineKeydown($event, true)"
+                (click)="$event.stopPropagation()"
+                (pointerdown)="$event.stopPropagation()"
+                (dblclick)="$event.stopPropagation()"
+            ></textarea>
+        } @else {
+            <input
+                data-inline-edit
+                type="text"
+                class="m-0 w-full bg-transparent p-0 leading-[inherit] outline-none ring-1 ring-indigo-400 rounded-sm"
+                [value]="inlineDraft()"
+                (input)="onInlineDraftInput($event)"
+                (blur)="commitInlineEdit()"
+                (keydown)="onInlineKeydown($event, false)"
+                (click)="$event.stopPropagation()"
+                (pointerdown)="$event.stopPropagation()"
+                (dblclick)="$event.stopPropagation()"
+            />
+        }
+    } @else {
+        <span
+            [class.cursor-text]="canInlineEdit(measure)"
+            (dblclick)="startInlineEdit(section, kind, $event, key, fallback)"
+            >{{ text }}</span
+        >
     }
 </ng-template>

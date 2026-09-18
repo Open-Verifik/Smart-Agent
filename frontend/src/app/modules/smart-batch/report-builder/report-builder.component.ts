@@ -39,7 +39,7 @@ import {
     type LayoutSheetItem,
 } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
-import { ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
 import {
     DataNode,
@@ -1742,6 +1742,33 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     /** Wrapper for ReportPreviewComponent section click (preserves this context) */
     onPreviewSectionClick = (section: ReportSection): void => {
         this.selectSection(section);
+    };
+
+    onPreviewInlineText(event: ReportInlineTextChange): void {
+        const section = this.sections().find((item) => item.id === event.sectionId);
+        if (!section) return;
+        this.selectSection(section);
+        if (event.kind === 'cellLabel' && event.key) {
+            this.updateSection(section.id, {
+                keyOverrides: {
+                    ...(section.keyOverrides ?? {}),
+                    [event.key]: {
+                        ...(section.keyOverrides?.[event.key] ?? {}),
+                        label: event.value,
+                    },
+                },
+            });
+            return;
+        }
+        if (event.kind === 'body') {
+            this.updateSection(section.id, { staticContent: event.value });
+            return;
+        }
+        const updates: Partial<ReportSection> = { label: event.value };
+        if (section.type === 'header' || section.type === 'text') {
+            updates.staticContent = event.value;
+        }
+        this.updateSection(section.id, updates);
     };
 
     /** Flattened data paths for the helper panel (only leaf paths for fields) */

@@ -14,7 +14,7 @@ import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.se
 import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
-import { ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
@@ -749,6 +749,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
+    };
+
+    onLayoutInlineText = (event: ReportInlineTextChange): void => {
+        const section = this.layoutSections().find((item) => item.id === event.sectionId);
+        if (!section) return;
+        this.selectedLayoutSectionId.set(event.sectionId);
+        this.selectedLayoutOverlay.set(null);
+        if (event.kind === 'cellLabel' && event.key) {
+            this.selectedLayoutCellKey.set(event.key);
+            this.selectedLayoutCellPart.set('label');
+            this.layoutEditorKind.set('block');
+            this.setSelectedLayoutCellLabel(event.value);
+            this._revealLayoutControls('cell');
+            return;
+        }
+        this.selectedLayoutCellKey.set(null);
+        this.selectedLayoutCellPart.set('cell');
+        this.layoutEditorKind.set('block');
+        if (event.kind === 'body') {
+            this.setSelectedLayoutBody(event.value);
+        } else {
+            this.setSelectedLayoutLabel(event.value);
+        }
         this._revealLayoutControls('block');
     };
 
