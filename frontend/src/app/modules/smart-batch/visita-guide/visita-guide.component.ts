@@ -1502,6 +1502,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._patchSelectedKeyOverride({ borderWidth: Math.max(1, Math.min(12, Math.round(width))) });
     }
 
+    selectedLayoutCellBorderRadius(): number {
+        const explicit = Number(this.selectedLayoutCellOverride()?.borderRadius);
+        if (Number.isFinite(explicit) && explicit >= 0) return explicit;
+        return this.selectedLayoutCellHasBorder() ? 8 : 0;
+    }
+
+    setSelectedLayoutCellBorderRadius(value: string | number): void {
+        const radius = Number(value);
+        if (!Number.isFinite(radius)) return;
+        this._patchSelectedKeyOverride({ borderRadius: Math.max(0, Math.min(48, Math.round(radius))) });
+    }
+
     selectedLayoutCellRowLineMode(): 'inherit' | 'none' | ReportRowLineStyle {
         const override = this.selectedLayoutCellOverride();
         if (override?.showRowLine === false) return 'none';
