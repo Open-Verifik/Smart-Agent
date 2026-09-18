@@ -1766,6 +1766,7 @@ html,body{margin:0;padding:0;background:#fff}
     }
 
     private _pinPrintedLayout(source: HTMLElement, clone: HTMLElement): void {
+        const paperOrigin = source.getBoundingClientRect();
         const originEl =
             (source.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? source;
         const origin = originEl.getBoundingClientRect();
@@ -1784,12 +1785,12 @@ html,body{margin:0;padding:0;background:#fff}
         this._pinPrintedBoxes(
             source.querySelectorAll('[data-overlay-box]'),
             clone.querySelectorAll('[data-overlay-box]'),
-            origin
+            paperOrigin
         );
         this._pinPrintedBoxes(
             source.querySelectorAll('[data-report-footer],[data-report-top-chrome]'),
             clone.querySelectorAll('[data-report-footer],[data-report-top-chrome]'),
-            origin
+            paperOrigin
         );
         clone.querySelectorAll('[data-report-footer],[data-report-top-chrome]').forEach((node) => {
             (node as HTMLElement).style.zIndex = '30';
@@ -1855,6 +1856,8 @@ html,body{margin:0;padding:0;background:#fff}
             'letter-spacing',
             'text-align',
             'text-transform',
+            'transform',
+            'transform-origin',
             'color',
             'white-space',
             'background-color',
