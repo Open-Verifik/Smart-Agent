@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChild, ViewChildren } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -147,6 +147,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _previewBridge = inject(ReportBuilderPreviewDataService);
     private _destroyRef = inject(DestroyRef);
     @ViewChildren(ReportPreviewComponent) private _previews!: QueryList<ReportPreviewComponent>;
+    @ViewChild('layoutEditorPreview') private _layoutEditorPreview?: ReportPreviewComponent;
+    @ViewChild('layoutInsertImageInput') private _layoutInsertImageInput?: ElementRef<HTMLInputElement>;
 
     readonly intents = GUIDE_INTENTS;
     readonly entityOptions = GUIDE_ENTITIES;
@@ -217,6 +219,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         sectionId?: string;
         overlay?: ReportOverlayId;
     } | null>(null);
+    private _pendingSheetImagePoint: { x: number; y: number; page: number } | null = null;
     isSavingLayout = signal(false);
     templateSearchQuery = signal('');
     canUndoLayout = signal(false);
@@ -881,6 +884,36 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._openLayoutContextMenu(event.x, event.y, { overlay: event.overlay });
     }
 
+    onLayoutPaperContextMenu(event: { x: number; y: number }): void {
+        this.openLayoutPageEditor();
+        this._openLayoutContextMenu(event.x, event.y, {});
+    }
+
+    onLayoutCanvasContextMenu(event: MouseEvent): void {
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('report-preview') || target?.closest('.visita-layout-context-menu')) return;
+        event.preventDefault();
+        this.openLayoutPageEditor();
+        this._openLayoutContextMenu(event.clientX, event.clientY, {});
+    }
+
+    canInsertLayoutImage(): boolean {
+        return this.sheetImages().length < 12;
+    }
+
+    insertLayoutImageFromMenu(): void {
+        const menu = this.layoutContextMenu();
+        if (!this.canInsertLayoutImage()) {
+            this.closeLayoutContextMenu();
+            return;
+        }
+        this._pendingSheetImagePoint = menu
+            ? (this._layoutEditorPreview?.canonicalPointAt(menu.x, menu.y) ?? { x: 48, y: 48, page: 0 })
+            : null;
+        this.closeLayoutContextMenu();
+        this._layoutInsertImageInput?.nativeElement.click();
+    }
+
     onLayoutLayerContextMenu(section: ReportSection, event: MouseEvent): void {
         event.preventDefault();
         event.stopPropagation();
@@ -1051,8 +1084,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         y: number,
         target: { sectionId?: string; overlay?: ReportOverlayId }
     ): void {
-        const width = 176;
-        const height = 48;
+        const width = 220;
+        const height = 96;
         this.layoutContextMenu.set({
             x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
             y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
@@ -2122,23 +2155,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const files = Array.from(input.files ?? []);
         input.value = '';
         const remaining = Math.max(0, 12 - this.sheetImages().length);
-        files.slice(0, remaining).forEach((file) => {
+        const origin = this._pendingSheetImagePoint;
+        this._pendingSheetImagePoint = null;
+        files.slice(0, remaining).forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = () => {
                 const src = String(reader.result ?? '');
                 if (!src) return;
-                const offset = this.sheetImages().length;
+                const offset = origin ? index : this.sheetImages().length;
                 this._state.sheetImages.update((list) => [
                     ...list,
                     {
                         id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
                         src,
-                        x: 48 + offset * 24,
-                        y: 48 + offset * 24,
+                        x: (origin?.x ?? 48) + offset * 24,
+                        y: (origin?.y ?? 48) + offset * 24,
                         width: 160,
                         height: 80,
                         rotation: 0,
-                        page: 0,
+                        page: origin?.page ?? 0,
                     },
                 ]);
             };

@@ -144,6 +144,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() backgroundClick = new EventEmitter<void>();
     @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
     @Output() overlayContextMenu = new EventEmitter<{ overlay: ReportOverlayId; x: number; y: number }>();
+    @Output() paperContextMenu = new EventEmitter<{ x: number; y: number }>();
     @Output() sectionReorder = new EventEmitter<{ fromId: string; toIndex: number }>();
     @Output() sectionFramesChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }[]>();
     @Output() sectionFrameChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }>();
@@ -546,6 +547,35 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.backgroundClick.emit();
+    }
+
+    onPaperContextMenu(event: MouseEvent): void {
+        if (!this.clickable() || !this.customContextMenu()) return;
+        const target = event.target as HTMLElement | null;
+        if (
+            target?.closest('[data-overlay-box]') ||
+            target?.closest('[data-report-section]') ||
+            target?.closest('[data-report-cell]')
+        ) {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        this.paperContextMenu.emit({ x: event.clientX, y: event.clientY });
+    }
+
+    /** Sheet coordinates under the pointer, for dropping new overlays. */
+    canonicalPointAt(clientX: number, clientY: number): { x: number; y: number; page: number } {
+        const page = this._pageIndexAtPoint(clientX, clientY, 0);
+        const inner = this._pageInner(page);
+        if (!inner) return { x: 48, y: 48, page };
+        const origin = this._innerOrigin(inner);
+        const scales = this._scaleFactors;
+        return {
+            page,
+            x: Math.max(0, (clientX - origin.left) * scales.x),
+            y: Math.max(0, (clientY - origin.top) * scales.y),
+        };
     }
 
     onSectionActivate(section: ReportSection, event: Event): void {

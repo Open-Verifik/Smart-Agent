@@ -402,6 +402,7 @@
         "layoutEditorPage": "Hoja y marca",
         "layoutEditorClose": "Cerrar menú",
         "layoutContextDelete": "Eliminar",
+        "layoutContextInsertImage": "Insertar imagen",
         "layoutEditorHint": "Arrastra un bloque (ícono de mover) para colocarlo donde quieras en la hoja. Haz clic para abrir el menú.",
         "layoutTextTitle": "Título",
         "layoutTextLabels": "Etiquetas",

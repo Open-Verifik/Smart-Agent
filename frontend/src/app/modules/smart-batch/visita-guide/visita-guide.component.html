@@ -1055,6 +1055,7 @@
                                 [cdkDropListSortingDisabled]="true"
                                 (cdkDropListDropped)="onLayoutCanvasDrop($event)"
                                 (click)="onLayoutBlankClick($event)"
+                                (contextmenu)="onLayoutCanvasContextMenu($event)"
                                 class="min-h-[480px] rounded-2xl border border-dashed border-stone-300 bg-stone-100/80 p-3 dark:border-gray-700 dark:bg-gray-900/40"
                             >
                                 @if (!layoutSections().length) {
@@ -1064,6 +1065,7 @@
                                 }
                                 @if (previewTemplate(); as template) {
                                     <report-preview
+                                        #layoutEditorPreview
                                         [template]="template"
                                         [previewData]="previewData()"
                                         [primaryColor]="primaryColor()"
@@ -1101,6 +1103,7 @@
                                         (overlaySelect)="onLayoutOverlaySelect($event)"
                                         (sectionContextMenu)="onLayoutSectionContextMenu($event)"
                                         (overlayContextMenu)="onLayoutOverlayContextMenu($event)"
+                                        (paperContextMenu)="onLayoutPaperContextMenu($event)"
                                         (sectionReorder)="onLayoutSectionReorder($event)"
                                         (sectionFramesChange)="onLayoutSectionFrames($event)"
                                         (sectionFrameChange)="onLayoutSectionFrame($event)"
@@ -2077,19 +2080,38 @@
     </div>
     @if (layoutContextMenu(); as menu) {
         <div
-            class="visita-layout-context-menu fixed z-[80] min-w-[11rem] overflow-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            class="visita-layout-context-menu fixed z-[80] min-w-[12.5rem] overflow-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
             [style.left.px]="menu.x"
             [style.top.px]="menu.y"
             (contextmenu)="$event.preventDefault(); $event.stopPropagation()"
         >
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-amber-300 dark:hover:bg-amber-400/15 dark:hover:text-amber-200"
-                (click)="deleteLayoutContextTarget(); $event.stopPropagation()"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 disabled:opacity-40 dark:text-stone-200 dark:hover:bg-gray-800"
+                [disabled]="!canInsertLayoutImage()"
+                (click)="insertLayoutImageFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-red-600 dark:text-amber-300">delete</mat-icon>
-                {{ t('visitaGuide.layoutContextDelete') }}
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">add_photo_alternate</mat-icon>
+                {{ t('visitaGuide.layoutContextInsertImage') }}
             </button>
+            @if (menu.sectionId || menu.overlay) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-amber-300 dark:hover:bg-amber-400/15 dark:hover:text-amber-200"
+                    (click)="deleteLayoutContextTarget(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-red-600 dark:text-amber-300">delete</mat-icon>
+                    {{ t('visitaGuide.layoutContextDelete') }}
+                </button>
+            }
         </div>
     }
+    <input
+        #layoutInsertImageInput
+        type="file"
+        accept="image/*"
+        multiple
+        class="hidden"
+        (change)="onSheetImagesSelected($event)"
+    />
 </ng-container>

@@ -406,6 +406,7 @@
         "layoutEditorPage": "Page and branding",
         "layoutEditorClose": "Close menu",
         "layoutContextDelete": "Delete",
+        "layoutContextInsertImage": "Insert image",
         "layoutEditorHint": "Drag a block (move icon) to place it anywhere on the page. Click it to open the menu.",
         "layoutTextTitle": "Title",
         "layoutTextLabels": "Labels",
