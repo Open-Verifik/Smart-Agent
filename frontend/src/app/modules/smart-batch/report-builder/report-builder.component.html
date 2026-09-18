@@ -1630,6 +1630,43 @@
                                     </div>
                                 }
 
+                                @if (sel.type === 'shape') {
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'visitaGuide.layoutShapeKind' | transloco }}</label
+                                        >
+                                        <select
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [value]="sel.shape || sel.staticContent || 'rectangle'"
+                                            (change)="
+                                                updateSection(sel.id, {
+                                                    shape: $any($event.target).value,
+                                                    staticContent: $any($event.target).value,
+                                                })
+                                            "
+                                        >
+                                            @for (kind of shapeKinds; track kind) {
+                                                <option [value]="kind">
+                                                    {{ shapeLabelKey(kind) | transloco }}
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="mt-3">
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'visitaGuide.layoutShapeFill' | transloco }}</label
+                                        >
+                                        <input
+                                            type="color"
+                                            [value]="sel.style?.color || '#4F46E5'"
+                                            (input)="updateStyleColor($any($event.target).value)"
+                                            class="h-9 w-9 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
+                                        />
+                                    </div>
+                                }
+
                                 <!-- LABEL + DATA PATH (rich data-bound sections) -->
                                 @if (
                                     sel.type === 'dataTable' ||

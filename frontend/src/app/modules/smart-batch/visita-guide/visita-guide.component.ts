@@ -30,7 +30,7 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
@@ -76,6 +76,22 @@ import {
 const POLL_MS = 2500;
 const LAYOUT_HISTORY_LIMIT = 40;
 const LAYOUT_HISTORY_DEBOUNCE_MS = 400;
+
+const LAYOUT_SHAPE_TOOLS: {
+    kind: ReportShapeKind;
+    icon: string;
+    labelKey: string;
+    width: number;
+    height: number;
+}[] = [
+    { kind: 'rectangle', icon: 'rectangle', labelKey: 'visitaGuide.layoutAddRectangle', width: 180, height: 96 },
+    { kind: 'square', icon: 'square', labelKey: 'visitaGuide.layoutAddSquare', width: 96, height: 96 },
+    { kind: 'circle', icon: 'circle', labelKey: 'visitaGuide.layoutAddCircle', width: 96, height: 96 },
+    { kind: 'star', icon: 'star', labelKey: 'visitaGuide.layoutAddStar', width: 96, height: 96 },
+    { kind: 'triangle', icon: 'change_history', labelKey: 'visitaGuide.layoutAddTriangle', width: 96, height: 96 },
+    { kind: 'diamond', icon: 'diamond', labelKey: 'visitaGuide.layoutAddDiamond', width: 88, height: 96 },
+    { kind: 'bullet', icon: 'fiber_manual_record', labelKey: 'visitaGuide.layoutAddBullet', width: 16, height: 16 },
+];
 
 type LayoutDesignSnapshot = {
     sections: ReportSection[];
@@ -151,6 +167,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @ViewChild('layoutInsertImageInput') private _layoutInsertImageInput?: ElementRef<HTMLInputElement>;
     @ViewChild('layoutEditorPanel') private _layoutEditorPanel?: ElementRef<HTMLElement>;
     @ViewChild('layoutEditorScroll') private _layoutEditorScroll?: ElementRef<HTMLElement>;
+    @ViewChild('layoutContextMenuEl') private _layoutContextMenuEl?: ElementRef<HTMLElement>;
 
     readonly intents = GUIDE_INTENTS;
     readonly entityOptions = GUIDE_ENTITIES;
@@ -215,11 +232,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutCellKey = signal<string | null>(null);
     selectedLayoutCellPart = signal<ReportCellPart>('cell');
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
+    readonly layoutShapeTools = LAYOUT_SHAPE_TOOLS;
     layoutEditorFocused = signal(false);
     private _layoutFocusTimer: ReturnType<typeof setTimeout> | null = null;
     layoutContextMenu = signal<{
         x: number;
         y: number;
+        originX: number;
+        originY: number;
+        maxHeight?: number;
         sectionId?: string;
         overlay?: ReportOverlayId;
     } | null>(null);
@@ -800,6 +821,22 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutEditorKind.set('block');
     }
 
+    onLayoutSectionRotation(event: { id: string; rotation: number }): void {
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.id === event.id
+                    ? { ...section, style: { ...(section.style ?? {}), rotation: event.rotation } }
+                    : section
+            )
+        );
+    }
+
+    setSelectedLayoutRotation(value: string | number): void {
+        const rotation = Number(value);
+        if (!Number.isFinite(rotation)) return;
+        this._patchSelectedLayoutStyle({ rotation: Math.max(-180, Math.min(180, Math.round(rotation))) });
+    }
+
     onLayoutSectionFrames(updates: { id: string; frame: ReportSectionFrame }[]): void {
         const next = new Map(updates.map((item) => [item.id, item.frame]));
         this.layoutSections.update((list) =>
@@ -869,31 +906,31 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
      * Title / text / divider drop next to the current selection (or last
      * inserted content block), not below a tall endpoint card.
      */
-    private _nextNearbyFrame(height: number): ReportSectionFrame {
+    private _nextNearbyFrame(height: number, width = 700): ReportSectionFrame {
         const selected = this.selectedLayoutSection()?.frame;
         const lastContent = [...this.layoutSections()]
             .reverse()
-            .find((section) => section.frame && ['header', 'text', 'divider'].includes(section.type))
+            .find((section) => section.frame && ['header', 'text', 'divider', 'shape'].includes(section.type))
             ?.frame;
         const origin = selected ?? lastContent ?? this.layoutSections().find((section) => section.frame)?.frame;
         return {
             page: origin?.page ?? 0,
             x: origin?.x ?? 0,
             y: (origin?.y ?? 32) + 24,
-            width: origin?.width ?? 700,
+            width: width || origin?.width || 700,
             height,
         };
     }
 
-    private _consumePendingContentFrame(height: number): ReportSectionFrame {
+    private _consumePendingContentFrame(height: number, width = 700): ReportSectionFrame {
         const pending = this._pendingContentPoint;
         this._pendingContentPoint = null;
-        if (!pending) return this._nextNearbyFrame(height);
+        if (!pending) return this._nextNearbyFrame(height, width);
         return {
             page: pending.page,
             x: pending.x,
             y: pending.y,
-            width: 700,
+            width,
             height,
         };
     }
@@ -996,10 +1033,74 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.addDividerBlock();
     }
 
+    insertLayoutShapeFromMenu(kind: ReportShapeKind): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addShapeBlock(kind);
+    }
+
     private _pointFromContextMenu(): { x: number; y: number; page: number } | null {
         const menu = this.layoutContextMenu();
         if (!menu) return null;
-        return this._layoutEditorPreview?.canonicalPointAt(menu.x, menu.y) ?? { x: 48, y: 48, page: 0 };
+        return (
+            this._layoutEditorPreview?.canonicalPointAt(menu.originX, menu.originY) ?? {
+                x: 48,
+                y: 48,
+                page: 0,
+            }
+        );
+    }
+
+    canCopyLayoutContextTarget(): boolean {
+        const section = this._layoutContextSection();
+        if (!section) return false;
+        return (
+            section.type === 'header' ||
+            section.type === 'text' ||
+            section.type === 'divider' ||
+            section.type === 'shape'
+        );
+    }
+
+    copyLayoutContextTarget(): void {
+        const source = this._layoutContextSection();
+        if (!source || !this.canCopyLayoutContextTarget()) {
+            this.closeLayoutContextMenu();
+            return;
+        }
+        const copy = JSON.parse(JSON.stringify(source)) as ReportSection;
+        const prefix =
+            source.type === 'header'
+                ? 'titulo'
+                : source.type === 'text'
+                  ? 'texto'
+                  : source.type === 'divider'
+                    ? 'linea'
+                    : 'forma';
+        copy.id = `${prefix}-copia-${Date.now()}`;
+        if (copy.frame) {
+            copy.frame = {
+                ...copy.frame,
+                x: (copy.frame.x ?? 0) + 16,
+                y: (copy.frame.y ?? 0) + 16,
+            };
+        }
+        this.layoutSections.update((list) => {
+            const index = list.findIndex((section) => section.id === source.id);
+            const next = [...list];
+            next.splice(index < 0 ? next.length : index + 1, 0, copy);
+            return next.map((section, order) => ({ ...section, order }));
+        });
+        this.selectedLayoutSectionId.set(copy.id);
+        this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
+        this.closeLayoutContextMenu();
+    }
+
+    private _layoutContextSection(): ReportSection | null {
+        const id = this.layoutContextMenu()?.sectionId;
+        if (!id) return null;
+        return this.layoutSections().find((section) => section.id === id) ?? null;
     }
 
     onLayoutLayerContextMenu(section: ReportSection, event: MouseEvent): void {
@@ -1172,13 +1273,36 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         y: number,
         target: { sectionId?: string; overlay?: ReportOverlayId }
     ): void {
-        const width = 220;
-        const height = 220;
         this.layoutContextMenu.set({
-            x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
-            y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
+            x,
+            y,
+            originX: x,
+            originY: y,
             ...target,
         });
+        queueMicrotask(() => requestAnimationFrame(() => this._fitLayoutContextMenu()));
+    }
+
+    private _fitLayoutContextMenu(): void {
+        const menu = this.layoutContextMenu();
+        const el = this._layoutContextMenuEl?.nativeElement;
+        if (!menu || !el) return;
+        const pad = 8;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const maxHeight = Math.max(120, vh - pad * 2);
+        el.style.maxHeight = `${maxHeight}px`;
+        const rect = el.getBoundingClientRect();
+        const width = rect.width;
+        const height = Math.min(rect.height, maxHeight);
+        let nextX = menu.originX;
+        let nextY = menu.originY;
+        if (nextX + width > vw - pad) nextX = menu.originX - width;
+        if (nextY + height > vh - pad) nextY = menu.originY - height;
+        nextX = Math.min(Math.max(pad, nextX), Math.max(pad, vw - width - pad));
+        nextY = Math.min(Math.max(pad, nextY), Math.max(pad, vh - height - pad));
+        if (menu.x === nextX && menu.y === nextY && menu.maxHeight === maxHeight) return;
+        this.layoutContextMenu.set({ ...menu, x: nextX, y: nextY, maxHeight });
     }
 
     layoutEditorTitleKey(): string {
@@ -1405,6 +1529,42 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._revealLayoutControls('block');
     }
 
+    addShapeBlock(kind: ReportShapeKind): void {
+        const tool = LAYOUT_SHAPE_TOOLS.find((item) => item.kind === kind) ?? LAYOUT_SHAPE_TOOLS[0];
+        const section: ReportSection = {
+            id: `forma-${kind}-${Date.now()}`,
+            type: 'shape',
+            order: this.layoutSections().length,
+            label: this._transloco.translate(tool.labelKey),
+            shape: kind,
+            staticContent: kind,
+            style: { color: this.primaryColor() },
+            frame: this._consumePendingContentFrame(tool.height, tool.width),
+        };
+        this.layoutSections.update((list) => [...list, section]);
+        this.selectedLayoutSectionId.set(section.id);
+        this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
+    }
+
+    setSelectedLayoutShape(kind: ReportShapeKind): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        const tool = LAYOUT_SHAPE_TOOLS.find((item) => item.kind === kind);
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.id === id
+                    ? {
+                          ...section,
+                          shape: kind,
+                          staticContent: kind,
+                          label: tool ? this._transloco.translate(tool.labelKey) : section.label,
+                      }
+                    : section
+            )
+        );
+    }
+
     setSelectedLayoutLabel(value: string): void {
         const id = this.selectedLayoutSectionId();
         if (!id) return;
@@ -1436,7 +1596,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     selectedLayoutShowsTypography(): boolean {
         const type = this.selectedLayoutSection()?.type;
-        return Boolean(type) && type !== 'spacer' && type !== 'image' && type !== 'divider';
+        return Boolean(type) && type !== 'spacer' && type !== 'image' && type !== 'divider' && type !== 'shape';
     }
 
     selectedLayoutTextRoles(): ReportTextRole[] {
@@ -1761,10 +1921,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         const current = this.selectedLayoutSection()?.style;
+        const isShape = this.selectedLayoutSection()?.type === 'shape';
         this._patchSelectedLayoutStyle({
             borderWidth: current?.borderWidth && current.borderWidth > 0 ? current.borderWidth : 1,
-            borderColor: current?.borderColor || '#d6d3d1',
-            borderRadius: current?.borderRadius && current.borderRadius > 0 ? current.borderRadius : 8,
+            borderColor: current?.borderColor || (isShape ? '#111827' : '#d6d3d1'),
+            ...(isShape
+                ? {}
+                : {
+                      borderRadius:
+                          current?.borderRadius && current.borderRadius > 0 ? current.borderRadius : 8,
+                  }),
         });
     }
 
@@ -2006,6 +2172,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             borderWidth: style.borderWidth,
             borderColor: style.borderColor,
             borderRadius: style.borderRadius,
+            rotation: style.rotation,
             variant: style.variant,
         };
     }

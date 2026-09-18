@@ -46,6 +46,8 @@ import {
     ReportConditionOperator,
     ReportSection,
     ReportSectionType,
+    ReportShapeKind,
+    REPORT_SHAPE_KINDS,
     ReportStyleVariant,
     SampleReportData,
     SmartReport,
@@ -253,6 +255,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             group: 'layout',
         },
         {
+            type: 'shape',
+            labelKey: 'smartReport.sectionShape',
+            icon: 'category',
+            group: 'layout',
+        },
+        {
             type: 'spacer',
             labelKey: 'smartReport.sectionSpacer',
             icon: 'space_bar',
@@ -266,6 +274,8 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             legacy: true,
         },
     ];
+
+    readonly shapeKinds = REPORT_SHAPE_KINDS;
 
     /** Palette groups, in the order they appear in the "Add sections" panel. */
     readonly sectionGroups: { key: 'content' | 'data' | 'layout'; labelKey: string }[] = [
@@ -978,6 +988,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             table: { label: 'Data Table', dataPath: 'results.1' },
             image: { staticContent: '', style: { textAlign: 'center' } },
             divider: {
+                style: { color: this.templateForm.get('primaryColor')?.value || '#4F46E5' },
+            },
+            shape: {
+                shape: 'rectangle',
+                staticContent: 'rectangle',
                 style: { color: this.templateForm.get('primaryColor')?.value || '#4F46E5' },
             },
             spacer: { style: { padding: '16' } },
@@ -1732,6 +1747,10 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     getSectionIcon(type: string): string {
         return this.sectionTypes.find((t) => t.type === type)?.icon || 'help';
+    }
+
+    shapeLabelKey(kind: ReportShapeKind): string {
+        return `visitaGuide.layoutAdd${kind.charAt(0).toUpperCase()}${kind.slice(1)}`;
     }
 
     getSectionLabel(type: string): string {

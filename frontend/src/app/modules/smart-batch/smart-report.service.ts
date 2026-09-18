@@ -11,12 +11,25 @@ export type ReportSectionType =
     | 'image'
     | 'divider'
     | 'spacer'
+    | 'shape'
     | 'dataTable'
     | 'card'
     | 'badge'
     | 'keyValueGrid'
     | 'repeater'
     | 'reportBlocks';
+
+export const REPORT_SHAPE_KINDS = [
+    'rectangle',
+    'square',
+    'circle',
+    'star',
+    'triangle',
+    'diamond',
+    'bullet',
+] as const;
+
+export type ReportShapeKind = (typeof REPORT_SHAPE_KINDS)[number];
 
 export type ReportConditionOperator =
     | 'equals'
@@ -98,6 +111,8 @@ export interface ReportSection {
     dataPath?: string;
     label?: string;
     staticContent?: string;
+    /** Decorative shape when `type` is `shape`. */
+    shape?: ReportShapeKind;
 
     /** dataTable: explicit columns; derived from the row keys when omitted. */
     columns?: { key: string; label?: string }[];
@@ -157,6 +172,7 @@ export interface ReportSection {
         borderWidth?: number;
         borderColor?: string;
         borderRadius?: number;
+        rotation?: number;
         variant?: ReportStyleVariant;
         /** Data-driven appearance, first matching rule wins. */
         variantRules?: (ReportSectionCondition & { variant: ReportStyleVariant })[];

@@ -1029,25 +1029,38 @@
                             <div class="mb-2 flex flex-wrap items-center gap-1">
                                 <button
                                     type="button"
-                                    class="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
                                     (click)="addTitleBlock()"
                                 >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">title</mat-icon>
                                     {{ t('visitaGuide.layoutAddTitle') }}
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
                                     (click)="addTextBlock()"
                                 >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">notes</mat-icon>
                                     {{ t('visitaGuide.layoutAddText') }}
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
                                     (click)="addDividerBlock()"
                                 >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">horizontal_rule</mat-icon>
                                     {{ t('visitaGuide.layoutAddDivider') }}
                                 </button>
+                                @for (tool of layoutShapeTools; track tool.kind) {
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                        [matTooltip]="t(tool.labelKey)"
+                                        (click)="addShapeBlock(tool.kind)"
+                                    >
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">{{ tool.icon }}</mat-icon>
+                                    </button>
+                                }
                             </div>
                             <div
                                 cdkDropList
@@ -1109,6 +1122,7 @@
                                         (sectionReorder)="onLayoutSectionReorder($event)"
                                         (sectionFramesChange)="onLayoutSectionFrames($event)"
                                         (sectionFrameChange)="onLayoutSectionFrame($event)"
+                                        (sectionRotationChange)="onLayoutSectionRotation($event)"
                                         (backgroundClick)="openLayoutPageEditor()"
                                         (logoPositionChange)="onLayoutLogoPositionChange($event)"
                                         (logoSizeChange)="onLayoutLogoSizeChange($event)"
@@ -1723,6 +1737,7 @@
                                                 }
                                             </div>
                                         }
+                                        @if (selected.type !== 'shape') {
                                         <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutBlockTitle') }}</label>
                                         <input
                                             type="text"
@@ -1730,6 +1745,88 @@
                                             [ngModel]="selected.label"
                                             (ngModelChange)="setSelectedLayoutLabel($event)"
                                         />
+                                        }
+                                        @if (selected.type === 'shape') {
+                                            <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
+                                            <select
+                                                class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                [ngModel]="selected.shape || selected.staticContent"
+                                                (ngModelChange)="setSelectedLayoutShape($event)"
+                                            >
+                                                @for (tool of layoutShapeTools; track tool.kind) {
+                                                    <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
+                                                }
+                                            </select>
+                                            <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                t('visitaGuide.layoutShapeFill')
+                                            }}</span>
+                                            <color-hex-field
+                                                class="mt-1 block"
+                                                [ngModel]="selected.style?.color || primaryColor()"
+                                                (ngModelChange)="setSelectedLayoutColor($event)"
+                                                [ariaLabel]="t('visitaGuide.layoutShapeFill')"
+                                            />
+                                            <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                                <input
+                                                    type="checkbox"
+                                                    [ngModel]="selectedLayoutHasBorder()"
+                                                    (ngModelChange)="setSelectedLayoutBorderEnabled($event)"
+                                                />
+                                                {{ t('visitaGuide.layoutBlockBorder') }}
+                                            </label>
+                                            @if (selectedLayoutHasBorder()) {
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('visitaGuide.layoutShapeStroke')
+                                                }}</label>
+                                                <color-hex-field
+                                                    class="mt-1 block"
+                                                    [ngModel]="selected.style?.borderColor || '#111827'"
+                                                    (ngModelChange)="setSelectedLayoutBorderColor($event)"
+                                                    [ariaLabel]="t('visitaGuide.layoutShapeStroke')"
+                                                />
+                                                <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('visitaGuide.layoutBlockBorderWidth') }}</span>
+                                                    <span>{{ selected.style?.borderWidth || 1 }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="1"
+                                                    max="12"
+                                                    step="1"
+                                                    class="mt-1 w-full"
+                                                    [ngModel]="selected.style?.borderWidth || 1"
+                                                    (ngModelChange)="setSelectedLayoutBorderWidth($event)"
+                                                />
+                                            }
+                                            <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
+                                                <span>{{ t('visitaGuide.layoutRotation') }}</span>
+                                                <span>{{ selected.style?.rotation || 0 }}°</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="-180"
+                                                max="180"
+                                                step="1"
+                                                class="mt-1 w-full"
+                                                [ngModel]="selected.style?.rotation || 0"
+                                                (ngModelChange)="setSelectedLayoutRotation($event)"
+                                            />
+                                            @if (selected.shape === 'rectangle' || selected.shape === 'square' || !selected.shape) {
+                                                <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
+                                                    <span>{{ selected.style?.borderRadius || 0 }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="48"
+                                                    step="1"
+                                                    class="mt-1 w-full"
+                                                    [ngModel]="selected.style?.borderRadius || 0"
+                                                    (ngModelChange)="setSelectedLayoutBorderRadius($event)"
+                                                />
+                                            }
+                                        }
                                         @if (selected.type === 'text' || selected.type === 'header') {
                                             <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutBlockBody') }}</label>
                                             <textarea
@@ -1822,6 +1919,7 @@
                                                 />
                                             </div>
                                         }
+                                        @if (selected.type !== 'shape') {
                                         <div class="mt-3 rounded-xl border border-rose-300 bg-rose-50 p-3 dark:border-rose-800 dark:bg-rose-950/40">
                                         <p class="text-[11px] font-semibold uppercase tracking-wider text-rose-800 dark:text-rose-300">
                                             {{ t('visitaGuide.layoutBlockLook') }}
@@ -1883,6 +1981,7 @@
                                             />
                                         }
                                         </div>
+                                        }
                                         @if (canApplyLayoutStyleToAll()) {
                                             <button
                                                 type="button"
@@ -2090,11 +2189,23 @@
     </div>
     @if (layoutContextMenu(); as menu) {
         <div
-            class="visita-layout-context-menu fixed z-[80] min-w-[12.5rem] overflow-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            #layoutContextMenuEl
+            class="visita-layout-context-menu fixed z-[80] min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
             [style.left.px]="menu.x"
             [style.top.px]="menu.y"
+            [style.max-height.px]="menu.maxHeight"
             (contextmenu)="$event.preventDefault(); $event.stopPropagation()"
         >
+            @if (canCopyLayoutContextTarget()) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="copyLayoutContextTarget(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_copy</mat-icon>
+                    {{ t('visitaGuide.layoutContextCopy') }}
+                </button>
+            }
             <button
                 type="button"
                 class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 disabled:opacity-40 dark:text-stone-200 dark:hover:bg-gray-800"
@@ -2128,6 +2239,16 @@
                 <mat-icon class="!h-4 !w-4 !text-base text-stone-500">horizontal_rule</mat-icon>
                 {{ t('visitaGuide.layoutAddDivider') }}
             </button>
+            @for (tool of layoutShapeTools; track tool.kind) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="insertLayoutShapeFromMenu(tool.kind); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">{{ tool.icon }}</mat-icon>
+                    {{ t(tool.labelKey) }}
+                </button>
+            }
             @if (menu.sectionId || menu.overlay) {
                 <button
                     type="button"

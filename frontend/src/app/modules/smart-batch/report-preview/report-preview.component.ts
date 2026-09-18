@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportCellPart, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
 import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk } from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
@@ -157,6 +157,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() sectionReorder = new EventEmitter<{ fromId: string; toIndex: number }>();
     @Output() sectionFramesChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }[]>();
     @Output() sectionFrameChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }>();
+    @Output() sectionRotationChange = new EventEmitter<{ id: string; rotation: number }>();
     @Output() cellSelect = new EventEmitter<{
         section: ReportSection;
         key: string | null;
@@ -207,6 +208,25 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _sectionDragMoved = false;
     private _sectionDragRaf: number | null = null;
     readonly draggingSectionId = signal<string | null>(null);
+    readonly liveRotations = signal<Record<string, number>>({});
+    private _sectionResize: {
+        id: string;
+        pointerId: number;
+        handle: 'nw' | 'ne' | 'sw' | 'se';
+        startClientX: number;
+        startClientY: number;
+        startFrame: ReportSectionFrame;
+        keepRatio: boolean;
+        rotation: number;
+    } | null = null;
+    private _sectionRotate: {
+        id: string;
+        pointerId: number;
+        centerX: number;
+        centerY: number;
+        startAngle: number;
+        startRotation: number;
+    } | null = null;
     readonly editingText = signal<{
         sectionId: string;
         kind: ReportInlineTextKind;
@@ -735,6 +755,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
+        if (origin?.closest('[data-section-handle]')) return;
         if (origin?.closest('[data-inline-edit]')) return;
         this._sectionDragMoved = false;
         this._sectionDrag = {
@@ -749,6 +770,141 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         window.addEventListener('pointerup', this._onWindowSectionUp, true);
         window.addEventListener('pointercancel', this._onWindowSectionUp, true);
     }
+
+    startSectionResize(
+        section: ReportSection,
+        event: PointerEvent,
+        handle: 'nw' | 'ne' | 'sw' | 'se' = 'se'
+    ): void {
+        if (!this.clickable() || event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const frame = this.displayFrame(section);
+        if (!frame) return;
+        this._clearSectionDrag();
+        this._sectionResize = {
+            id: section.id,
+            pointerId: event.pointerId,
+            handle,
+            startClientX: event.clientX,
+            startClientY: event.clientY,
+            startFrame: { ...frame, width: frame.width || 48, height: frame.height || 48 },
+            keepRatio: this.shapeKeepRatio(section),
+            rotation: this.sectionRotation(section),
+        };
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor =
+            handle === 'ne' || handle === 'sw' ? 'nesw-resize' : 'nwse-resize';
+        window.addEventListener('pointermove', this._onWindowSectionResizeMove);
+        window.addEventListener('pointerup', this._onWindowSectionResizeUp, true);
+        window.addEventListener('pointercancel', this._onWindowSectionResizeUp, true);
+    }
+
+    startSectionRotate(section: ReportSection, event: PointerEvent): void {
+        if (!this.clickable() || event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const box = (event.currentTarget as HTMLElement).closest('[data-report-section]') as HTMLElement | null;
+        if (!box) return;
+        const rect = box.getBoundingClientRect();
+        this._clearSectionDrag();
+        this._sectionRotate = {
+            id: section.id,
+            pointerId: event.pointerId,
+            centerX: rect.left + rect.width / 2,
+            centerY: rect.top + rect.height / 2,
+            startAngle: Math.atan2(event.clientY - (rect.top + rect.height / 2), event.clientX - (rect.left + rect.width / 2)),
+            startRotation: this.sectionRotation(section),
+        };
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'grabbing';
+        window.addEventListener('pointermove', this._onWindowSectionRotateMove);
+        window.addEventListener('pointerup', this._onWindowSectionRotateUp, true);
+        window.addEventListener('pointercancel', this._onWindowSectionRotateUp, true);
+    }
+
+    private _onWindowSectionResizeMove = (event: PointerEvent): void => {
+        const resize = this._sectionResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+        event.preventDefault();
+        const scales = this._scaleFactors;
+        const start = resize.startFrame;
+        const startW = start.width || 48;
+        const startH = start.height || 48;
+        const rad = (-resize.rotation * Math.PI) / 180;
+        const dx = (event.clientX - resize.startClientX) * scales.x;
+        const dy = (event.clientY - resize.startClientY) * scales.y;
+        const localX = dx * Math.cos(rad) - dy * Math.sin(rad);
+        const localY = dx * Math.sin(rad) + dy * Math.cos(rad);
+        let width = startW;
+        let height = startH;
+        let x = start.x;
+        let y = start.y;
+        if (resize.handle.includes('e')) width = startW + localX;
+        if (resize.handle.includes('w')) {
+            width = startW - localX;
+            x = start.x + localX;
+        }
+        if (resize.handle.includes('s')) height = startH + localY;
+        if (resize.handle.includes('n')) {
+            height = startH - localY;
+            y = start.y + localY;
+        }
+        if (resize.keepRatio) {
+            const ratio = startW / Math.max(1, startH);
+            const fromWidth = Math.abs(width - startW) >= Math.abs(height - startH);
+            if (fromWidth) height = width / ratio;
+            else width = height * ratio;
+            if (resize.handle.includes('w')) x = start.x + startW - width;
+            if (resize.handle.includes('n')) y = start.y + startH - height;
+        }
+        width = Math.max(12, width);
+        height = Math.max(12, height);
+        this.liveFrames.update((current) => ({
+            ...current,
+            [resize.id]: { ...start, x, y, width, height },
+        }));
+    };
+
+    private _onWindowSectionResizeUp = (event: PointerEvent): void => {
+        const resize = this._sectionResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+        this._onWindowSectionResizeMove(event);
+        const frame = this.liveFrames()[resize.id];
+        this._sectionResize = null;
+        window.removeEventListener('pointermove', this._onWindowSectionResizeMove);
+        window.removeEventListener('pointerup', this._onWindowSectionResizeUp, true);
+        window.removeEventListener('pointercancel', this._onWindowSectionResizeUp, true);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        if (frame) this.sectionFrameChange.emit({ id: resize.id, frame });
+        this.liveFrames.set({});
+    };
+
+    private _onWindowSectionRotateMove = (event: PointerEvent): void => {
+        const rotate = this._sectionRotate;
+        if (!rotate || event.pointerId !== rotate.pointerId) return;
+        event.preventDefault();
+        const angle = Math.atan2(event.clientY - rotate.centerY, event.clientX - rotate.centerX);
+        const degrees = rotate.startRotation + ((angle - rotate.startAngle) * 180) / Math.PI;
+        const next = Math.round(((degrees % 360) + 360) % 360);
+        this.liveRotations.update((current) => ({ ...current, [rotate.id]: next > 180 ? next - 360 : next }));
+    };
+
+    private _onWindowSectionRotateUp = (event: PointerEvent): void => {
+        const rotate = this._sectionRotate;
+        if (!rotate || event.pointerId !== rotate.pointerId) return;
+        this._onWindowSectionRotateMove(event);
+        const rotation = this.liveRotations()[rotate.id] ?? 0;
+        this._sectionRotate = null;
+        window.removeEventListener('pointermove', this._onWindowSectionRotateMove);
+        window.removeEventListener('pointerup', this._onWindowSectionRotateUp, true);
+        window.removeEventListener('pointercancel', this._onWindowSectionRotateUp, true);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        this.sectionRotationChange.emit({ id: rotate.id, rotation });
+        this.liveRotations.set({});
+    };
 
     private _onWindowSectionMove = (event: PointerEvent): void => {
         this.onSectionPointerMove(event);
@@ -860,7 +1016,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!Number.isFinite(x) || !Number.isFinite(y)) return {};
         const scales = this._scaleFactors;
         const width = Number(frame.width) > 0 ? Number(frame.width) / scales.x : 0;
-        return {
+        const height = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
+        const rotation = this.sectionRotation(section);
+        const style: Record<string, string> = {
             position: 'absolute',
             left: `${x / scales.x}px`,
             top: `${y / scales.y}px`,
@@ -873,6 +1031,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                       ? '25'
                       : '1',
         };
+        if (height) style['height'] = `${height}px`;
+        if (section.type === 'shape') style['overflow'] = 'visible';
+        if (section.type !== 'shape' && rotation) {
+            style['transform'] = `rotate(${rotation}deg)`;
+            style['transform-origin'] = 'center center';
+        }
+        return style;
+    }
+
+    sectionRotation(section: ReportSection): number {
+        const live = this.liveRotations()[section.id];
+        if (Number.isFinite(live)) return live;
+        const stored = Number(section.style?.rotation);
+        return Number.isFinite(stored) ? stored : 0;
+    }
+
+    isShapeSection(section: ReportSection): boolean {
+        return section.type === 'shape';
     }
 
     private _applySectionDrag(
@@ -898,7 +1074,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const clampInner = toInner ?? fromInner;
         if (clampInner) {
             const maxX = Math.max(0, clampInner.clientWidth * scales.x - width);
-            const maxY = Math.max(0, clampInner.clientHeight * scales.y - Math.min(height, 120));
+            const maxY = Math.max(0, clampInner.clientHeight * scales.y - Math.min(height, 24));
             x = Math.min(Math.max(0, x), maxX);
             y = Math.min(Math.max(0, y), maxY);
         }
@@ -1545,6 +1721,52 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return section.keyOverrides?.[entry.key]?.label || entry.label;
     }
 
+    shapeKind(section: ReportSection): ReportShapeKind {
+        const value = section.shape || section.staticContent;
+        if (
+            value === 'rectangle' ||
+            value === 'square' ||
+            value === 'circle' ||
+            value === 'star' ||
+            value === 'triangle' ||
+            value === 'diamond' ||
+            value === 'bullet'
+        ) {
+            return value;
+        }
+        return 'rectangle';
+    }
+
+    shapeKeepRatio(section: ReportSection): boolean {
+        return this.shapeKind(section) !== 'rectangle';
+    }
+
+    shapeRotateStyle(section: ReportSection): string {
+        const rotation = this.sectionRotation(section);
+        return rotation ? `rotate(${rotation}deg)` : 'none';
+    }
+
+    shapeFill(section: ReportSection): string {
+        return section.style?.color || section.style?.backgroundColor || this.primaryColor();
+    }
+
+    shapeStroke(section: ReportSection): string {
+        return Number(section.style?.borderWidth) > 0 ? section.style?.borderColor || '#111827' : 'none';
+    }
+
+    shapeStrokeWidth(section: ReportSection): number {
+        const width = Number(section.style?.borderWidth);
+        return width > 0 ? Math.max(1, Math.round(width)) : 0;
+    }
+
+    shapeRectRadius(section: ReportSection): number {
+        const radius = Number(section.style?.borderRadius);
+        if (!Number.isFinite(radius) || radius <= 0) return this.shapeKind(section) === 'square' ? 4 : 2;
+        const frame = this.displayFrame(section);
+        const width = Math.max(12, Number(frame?.width) || 96);
+        return Math.max(0, Math.min(48, (radius / width) * 96));
+    }
+
     cellBackground(section: ReportSection, key: string): string {
         return section.keyOverrides?.[key]?.backgroundColor || '';
     }
@@ -1780,7 +2002,7 @@ html,body{margin:0;padding:0;background:#fff}
         const srcSections = source.querySelectorAll('[data-report-section]');
         const dstSections = clone.querySelectorAll('[data-report-section]');
         if (this.hasFreeLayout()) {
-            this._pinPrintedBoxes(srcSections, dstSections, origin);
+            this._pinPrintedBoxes(srcSections, dstSections, origin, true);
         }
         this._pinPrintedBoxes(
             source.querySelectorAll('[data-overlay-box]'),
@@ -1800,23 +2022,32 @@ html,body{margin:0;padding:0;background:#fff}
     private _pinPrintedBoxes(
         srcNodes: NodeListOf<Element>,
         dstNodes: NodeListOf<Element>,
-        origin: DOMRect
+        origin: DOMRect,
+        useLayoutBox = false
     ): void {
         const count = Math.min(srcNodes.length, dstNodes.length);
         for (let i = 0; i < count; i++) {
             const src = srcNodes[i] as HTMLElement;
             const dst = dstNodes[i] as HTMLElement;
-            const box = src.getBoundingClientRect();
-            if (!box.width && !box.height) continue;
             dst.style.position = 'absolute';
-            dst.style.left = `${Math.round(box.left - origin.left)}px`;
-            dst.style.top = `${Math.round(box.top - origin.top)}px`;
-            dst.style.width = `${Math.round(box.width)}px`;
-            dst.style.height = `${Math.round(box.height)}px`;
             dst.style.margin = '0';
             dst.style.right = 'auto';
             dst.style.bottom = 'auto';
             dst.style.transform = src.style.transform || 'none';
+            dst.style.transformOrigin = src.style.transformOrigin || 'center center';
+            if (useLayoutBox && src.offsetWidth) {
+                dst.style.left = `${Math.round(src.offsetLeft)}px`;
+                dst.style.top = `${Math.round(src.offsetTop)}px`;
+                dst.style.width = `${Math.round(src.offsetWidth)}px`;
+                dst.style.height = `${Math.round(src.offsetHeight)}px`;
+                continue;
+            }
+            const box = src.getBoundingClientRect();
+            if (!box.width && !box.height) continue;
+            dst.style.left = `${Math.round(box.left - origin.left)}px`;
+            dst.style.top = `${Math.round(box.top - origin.top)}px`;
+            dst.style.width = `${Math.round(box.width)}px`;
+            dst.style.height = `${Math.round(box.height)}px`;
         }
     }
 
