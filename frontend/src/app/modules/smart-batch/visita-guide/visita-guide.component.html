@@ -403,6 +403,7 @@
                                                 class="relative"
                                                 (mouseenter)="onEndpointCardEnter(feature, $event)"
                                                 (mousemove)="onEndpointCardMove(feature, $event)"
+                                                (pointermove)="onEndpointCardMove(feature, $event)"
                                                 (mouseleave)="onEndpointCardLeave()"
                                             >
                                                 <div
@@ -531,7 +532,9 @@
                                 [style.top.px]="endpointHoverTop()"
                             >
                                 <div
-                                    class="relative rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 text-left text-white shadow-xl opacity-0 scale-[0.97] transition-[opacity,transform] duration-300 ease-out"
+                                    class="relative rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 text-left text-white shadow-xl opacity-0 scale-[0.97] transition-[opacity,transform] ease-out"
+                                    [class.duration-300]="endpointHoverVisible()"
+                                    [class.duration-75]="!endpointHoverVisible()"
                                     [class.origin-top-left]="!endpointHoverFlipX() && !endpointHoverFlipY()"
                                     [class.origin-top-right]="endpointHoverFlipX() && !endpointHoverFlipY()"
                                     [class.origin-bottom-left]="!endpointHoverFlipX() && endpointHoverFlipY()"

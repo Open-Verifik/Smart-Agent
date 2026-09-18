@@ -242,6 +242,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     endpointHoverFlipY = signal(false);
     private _endpointHoverHide: ReturnType<typeof setTimeout> | null = null;
     private _endpointHoverShow: ReturnType<typeof setTimeout> | null = null;
+    private _endpointHoverArmed = false;
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
     readonly layoutRowLineStyles: ReportRowLineStyle[] = ['solid', 'dotted', 'dashed'];
@@ -826,6 +827,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
     }
 
+    /**
+     * Title / text / divider drop next to the current selection (or last
+     * inserted content block), not below a tall endpoint card.
+     */
+    private _nextNearbyFrame(height: number): ReportSectionFrame {
+        const selected = this.selectedLayoutSection()?.frame;
+        const lastContent = [...this.layoutSections()]
+            .reverse()
+            .find((section) => section.frame && ['header', 'text', 'divider'].includes(section.type))
+            ?.frame;
+        const origin = selected ?? lastContent ?? this.layoutSections().find((section) => section.frame)?.frame;
+        return {
+            page: origin?.page ?? 0,
+            x: origin?.x ?? 0,
+            y: (origin?.y ?? 32) + 24,
+            width: origin?.width ?? 700,
+            height,
+        };
+    }
+
     onLayoutOverlaySelect(id: ReportOverlayId): void {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
@@ -896,6 +917,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const target = event.target as HTMLElement | null;
         if (target?.closest('.visita-layout-context-menu')) return;
         this.closeLayoutContextMenu();
+    }
+
+    @HostListener('document:pointermove', ['$event'])
+    onDocumentPointerMove(event: PointerEvent): void {
+        if (!this._endpointHoverArmed) return;
+        this._armEndpointHover(event);
     }
 
     @HostListener('document:keydown.escape')
@@ -1212,7 +1239,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             label: title,
             staticContent: title,
             style: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', color: this.primaryColor() },
-            frame: this._nextLayoutFrame(),
+            frame: this._nextNearbyFrame(48),
         };
         this.layoutSections.update((list) => [
             section,
@@ -1230,7 +1257,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             label: this._transloco.translate('visitaGuide.layoutTextBlock'),
             staticContent: this._transloco.translate('visitaGuide.layoutTextPlaceholder'),
             style: { fontSize: 12, textAlign: 'left' },
-            frame: this._nextLayoutFrame(),
+            frame: this._nextNearbyFrame(72),
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
@@ -1243,7 +1270,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             type: 'divider',
             order: this.layoutSections().length,
             style: { color: this.primaryColor() },
-            frame: this._nextLayoutFrame(),
+            frame: this._nextNearbyFrame(16),
         };
         this.layoutSections.update((list) => [...list, section]);
         this.selectedLayoutSectionId.set(section.id);
@@ -2366,19 +2393,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             clearTimeout(this._endpointHoverHide);
             this._endpointHoverHide = null;
         }
+        this._endpointHoverArmed = true;
         this.hoveredEndpoint.set(feature);
+        this._armEndpointHover(event);
+    }
+
+    onEndpointCardMove(feature: AppFeature, event: MouseEvent): void {
+        if (this.hoveredEndpoint()?._id !== feature._id) this.hoveredEndpoint.set(feature);
+        this._endpointHoverArmed = true;
+        this._armEndpointHover(event);
+    }
+
+    /** Show the tooltip only while the cursor is still; any move hides it and restarts the wait. */
+    private _armEndpointHover(event: MouseEvent | PointerEvent): void {
         this._placeEndpointHover(event);
-        if (this.endpointHoverVisible()) return;
+        this.endpointHoverVisible.set(false);
         if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
         this._endpointHoverShow = setTimeout(() => {
             this.endpointHoverVisible.set(true);
             this._endpointHoverShow = null;
         }, 420);
-    }
-
-    onEndpointCardMove(feature: AppFeature, event: MouseEvent): void {
-        if (this.hoveredEndpoint()?._id !== feature._id) this.hoveredEndpoint.set(feature);
-        this._placeEndpointHover(event);
     }
 
     private _placeEndpointHover(event: MouseEvent): void {
@@ -2395,6 +2429,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onEndpointCardLeave(): void {
+        this._endpointHoverArmed = false;
         if (this._endpointHoverShow) {
             clearTimeout(this._endpointHoverShow);
             this._endpointHoverShow = null;
