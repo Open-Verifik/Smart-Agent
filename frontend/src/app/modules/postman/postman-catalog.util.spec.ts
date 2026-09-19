@@ -16,13 +16,12 @@ describe('postman-catalog.util', () => {
         expect(DEFAULT_POSTMAN_COUNTRY).toBe('Colombia');
     });
 
-    it('scopes a named country with worldwide endpoints', () => {
-        expect(catalogCountryScope('Chile')).toEqual(['Chile', 'world']);
+    it('scopes a named country to that country only', () => {
+        expect(catalogCountryScope('Chile')).toEqual(['Chile']);
     });
 
-    it('scopes a missing selection to the full catalog', () => {
-        expect(catalogCountryScope(null)).toEqual([]);
-        expect(countryCacheKey([])).toBe('*');
+    it('scopes a missing selection to Colombia only', () => {
+        expect(catalogCountryScope(null)).toEqual(['Colombia']);
     });
 
     it('scopes world alone when world is selected', () => {
@@ -62,13 +61,11 @@ describe('postman-catalog.util', () => {
         expect(catalogCountryScopeForCountries([])).toEqual(['Colombia', 'world']);
     });
 
-    it('shows the selected country plus worldwide endpoints in the sidebar', () => {
+    it('shows only the selected country in the sidebar', () => {
         expect(endpointMatchesCountryFilter('Bolivia', 'Bolivia')).toBe(true);
-        expect(endpointMatchesCountryFilter('world', 'Bolivia')).toBe(true);
+        expect(endpointMatchesCountryFilter('world', 'Bolivia')).toBe(false);
         expect(endpointMatchesCountryFilter('Chile', 'Colombia')).toBe(false);
         expect(endpointMatchesCountryFilter('world', 'world')).toBe(true);
-        expect(endpointMatchesCountryFilter('Colombia', 'world')).toBe(false);
-        expect(endpointMatchesCountryFilter('world', null)).toBe(true);
     });
 
     it('treats HTTP status 0 as a catalog transport failure', () => {

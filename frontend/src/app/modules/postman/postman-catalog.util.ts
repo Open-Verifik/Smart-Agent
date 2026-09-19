@@ -12,25 +12,21 @@ const isWorldCountry = (value: string | null | undefined): boolean => {
 };
 
 /**
- * Countries to request for a Postman sidebar load.
- * No selection → empty scope (full catalog). A named country also includes
- * worldwide endpoints so phone/IP/sanctions stay searchable.
+ * Countries to request for a Postman sidebar load: the selected country only.
  */
 export const catalogCountryScope = (selected: string | null | undefined): string[] => {
     const country = selected?.trim();
     if (!country) {
-        return [];
+        return [DEFAULT_POSTMAN_COUNTRY];
     }
     if (isWorldCountry(country)) {
         return [WORLD_CATALOG_COUNTRY];
     }
-    return [country, WORLD_CATALOG_COUNTRY];
+    return [country];
 };
 
-export const countryCacheKey = (countries: string[]): string => {
-    const named = [...new Set(countries.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'en'));
-    return named.length ? named.join('|') : '*';
-};
+export const countryCacheKey = (countries: string[]): string =>
+    [...new Set(countries.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'en')).join('|');
 
 /**
  * Scope for Check List and multi-country loads: selected countries plus world.
@@ -55,7 +51,7 @@ export const endpointMatchesCountryFilter = (
 ): boolean => {
     if (!selected) return true;
     if (isWorldCountry(selected)) return isWorldCountry(endpointCountry);
-    return endpointCountry === selected || isWorldCountry(endpointCountry);
+    return endpointCountry === selected;
 };
 
 export const catalogNeedsDetailHydration = (

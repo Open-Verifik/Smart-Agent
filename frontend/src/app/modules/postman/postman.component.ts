@@ -13,7 +13,11 @@ import {
     PostmanCountryFlagUi,
     resolveCountryNameFromIso,
 } from './postman-country.util';
-import { catalogCountryScope, endpointMatchesCountryFilter } from './postman-catalog.util';
+import {
+    DEFAULT_POSTMAN_COUNTRY,
+    catalogCountryScope,
+    endpointMatchesCountryFilter,
+} from './postman-catalog.util';
 import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
     PostmanHistoryPrefillPayload,
@@ -442,14 +446,6 @@ export class PostmanComponent {
 
     toggleCountry(country: string) {
         if (this.selectedCountry() === country) {
-            this.selectedCountry.set(null);
-            this._postmanService.loadFeaturesForCountries([]);
-            this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: { country: null },
-                queryParamsHandling: 'merge',
-                replaceUrl: true,
-            });
             return;
         }
         this.selectedCountry.set(country);
@@ -543,9 +539,8 @@ export class PostmanComponent {
                 if (params?.get('code')) {
                     return;
                 }
-                if (this._postmanService.selectedCountry() != null) {
-                    this._postmanService.selectedCountry.set(null);
-                    this._postmanService.loadFeaturesForCountries([]);
+                if (this._postmanService.selectedCountry() !== DEFAULT_POSTMAN_COUNTRY) {
+                    this._postmanService.selectedCountry.set(DEFAULT_POSTMAN_COUNTRY);
                 }
                 return;
             }
