@@ -12,26 +12,32 @@ const isWorldCountry = (value: string | null | undefined): boolean => {
 };
 
 /**
- * Countries to request for a Postman sidebar load: the selected country only.
+ * Countries to request for a Postman sidebar load.
+ * No selection → empty scope (full catalog). A named country also includes
+ * worldwide endpoints so phone/IP/sanctions stay searchable.
  */
 export const catalogCountryScope = (selected: string | null | undefined): string[] => {
     const country = selected?.trim();
     if (!country) {
-        return [DEFAULT_POSTMAN_COUNTRY];
+        return [];
     }
     if (isWorldCountry(country)) {
         return [WORLD_CATALOG_COUNTRY];
     }
-    return [country];
+    return [country, WORLD_CATALOG_COUNTRY];
 };
 
-export const countryCacheKey = (countries: string[]): string =>
-    [...new Set(countries.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'en')).join('|');
+export const countryCacheKey = (countries: string[]): string => {
+    const named = [...new Set(countries.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'en'));
+    return named.length ? named.join('|') : '*';
+};
 
 /**
  * Scope for Check List and multi-country loads: selected countries plus world.
  */
-export const catalogCountryScopeForCountries = (countries: string[] | null | undefined): string[] => {
+export const catalogCountryScopeForCountries = (
+    countries: string[] | null | undefined
+): string[] => {
     const named = [...new Set((countries ?? []).map((value) => value.trim()).filter(Boolean))];
     if (!named.length) {
         return [DEFAULT_POSTMAN_COUNTRY, WORLD_CATALOG_COUNTRY];
@@ -39,9 +45,7 @@ export const catalogCountryScopeForCountries = (countries: string[] | null | und
     if (named.every((value) => isWorldCountry(value))) {
         return [WORLD_CATALOG_COUNTRY];
     }
-    const scoped = named.map((value) =>
-        isWorldCountry(value) ? WORLD_CATALOG_COUNTRY : value
-    );
+    const scoped = named.map((value) => (isWorldCountry(value) ? WORLD_CATALOG_COUNTRY : value));
     return [...new Set([...scoped, WORLD_CATALOG_COUNTRY])];
 };
 
@@ -51,7 +55,7 @@ export const endpointMatchesCountryFilter = (
 ): boolean => {
     if (!selected) return true;
     if (isWorldCountry(selected)) return isWorldCountry(endpointCountry);
-    return endpointCountry === selected;
+    return endpointCountry === selected || isWorldCountry(endpointCountry);
 };
 
 export const catalogNeedsDetailHydration = (

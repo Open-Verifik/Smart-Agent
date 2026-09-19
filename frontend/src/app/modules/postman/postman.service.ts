@@ -15,7 +15,6 @@ import {
 import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
 import {
     CatalogCountryRow,
-    DEFAULT_POSTMAN_COUNTRY,
     catalogCountryScope,
     catalogNeedsDetailHydration,
     countryCacheKey,
@@ -112,7 +111,7 @@ export class PostmanService {
     });
 
     selectedEndpoint = signal<ApiEndpoint | null>(null);
-    selectedCountry = signal<string | null>(DEFAULT_POSTMAN_COUNTRY);
+    selectedCountry = signal<string | null>(null);
     catalogCountries = signal<CatalogCountryRow[]>([]);
     detailLoading = signal(false);
     response = signal<any>(null);
@@ -215,7 +214,7 @@ export class PostmanService {
      * Fetches slim features for the given countries (plus cache). Used when switching pills.
      */
     loadFeaturesForCountries(countries: string[]): void {
-        const scope = countries.length ? countries : catalogCountryScope(this.selectedCountry());
+        const scope = countries;
         const cacheKey = countryCacheKey(scope);
         this._requestedScopeKey = cacheKey;
         const cached = this._featureCache.get(cacheKey);
@@ -361,9 +360,11 @@ export class PostmanService {
             folders: this.layoutFolders(),
             endpoints: this.layoutEndpointsRaw(),
         });
-        const scoped = withLayout.filter((endpoint) =>
-            countries.some((country) => endpointMatchesCountryFilter(endpoint.country, country))
-        );
+        const scoped = countries.length
+            ? withLayout.filter((endpoint) =>
+                  countries.some((country) => endpointMatchesCountryFilter(endpoint.country, country))
+              )
+            : withLayout;
         const cacheKey = countryCacheKey(countries);
         this._featureCache.set(cacheKey, scoped);
         if (cacheKey !== this._requestedScopeKey) {
