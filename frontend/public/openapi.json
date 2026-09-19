@@ -243,7 +243,7 @@
           "LATAM"
         ],
         "operationId": "colombia_api_driver",
-        "summary": "Colombia - RUNT - Driver's License",
+        "summary": "Colombia - RUNT - Driver's License (Premium)",
         "description": "Verify driver''s licenses in Colombia using the document number with the Verifik API. Access official RUNT data, including license status, categories, and expiration dates.",
         "x-payment-info": {
           "price": {
@@ -432,57 +432,6 @@
               "type": "string"
             },
             "description": "Parameter: plate"
-          }
-        ]
-      }
-    },
-    "/api/co/runt/propietarios": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "colombia_api_runt_owners",
-        "summary": "Colombia - Vehicle Owners Verification (RUNT)",
-        "description": "Verify vehicle ownership and registered owners through the RUNT system using a Colombian license plate.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "6"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "plate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Vehicle license plate to query, without spaces or punctuation."
           }
         ]
       }
@@ -3913,6 +3862,73 @@
         ]
       }
     },
+    "/api/co/policia/consultar": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_special_api_police_identity_lookup",
+        "summary": "Colombia - Colombian Police Record Check",
+        "description": "Colombian police record check service",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CC",
+                "CE",
+                "PPT",
+                "PA",
+                "DP"
+              ]
+            },
+            "description": "Parameter: documentType"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
+          }
+        ]
+      }
+    },
     "/api/co/situacion-militar": {
       "post": {
         "tags": [
@@ -4587,6 +4603,110 @@
         ]
       }
     },
+    "/api/co/runt/propietarios": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_runt_owners",
+        "summary": "Colombia - Vehicle Owners Verification (RUNT)",
+        "description": "Verify vehicle ownership and registered owners through the RUNT system.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "6"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: plate"
+          }
+        ]
+      }
+    },
+    "/api/co/runt/vehicle-by-plate-only": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_runt_vehicle_by_plate_only",
+        "summary": "RUNT Vehicle by Plate Only",
+        "description": "Query a Colombian RUNT vehicle using only the plate, without the owner's document type or number.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "2"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minimum": 5,
+              "maximum": 9
+            },
+            "description": "Parameter: plate"
+          }
+        ]
+      }
+    },
     "/api/communication/sms": {
       "post": {
         "tags": [
@@ -4775,6 +4895,66 @@
               "type": "string"
             },
             "description": "Parameter: date"
+          }
+        ]
+      }
+    },
+    "/api/look-ups/phone": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "world_api_phone_lookup",
+        "summary": "Global - Phone Lookup",
+        "description": "Look up a phone number worldwide. Returns the listed owner name and related profile fields when available.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "countryCode",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Numeric calling code, e.g. 57 for Colombia"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "National phone number without country code"
           }
         ]
       }
@@ -9757,15 +9937,6 @@
                     "description": "Require a live face when creating the HumanID",
                     "default": false
                   },
-                  "storageProvider": {
-                    "type": "string",
-                    "description": "Store in IPFS or return without Verifik persistence",
-                    "enum": [
-                      "ipfs",
-                      "none"
-                    ],
-                    "default": "ipfs"
-                  },
                   "tolerance": {
                     "type": "string",
                     "description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
@@ -9894,15 +10065,6 @@
                     "description": "Require a live face when creating the HumanID",
                     "default": false
                   },
-                  "storageProvider": {
-                    "type": "string",
-                    "description": "Store in IPFS or return without Verifik persistence",
-                    "enum": [
-                      "ipfs",
-                      "none"
-                    ],
-                    "default": "ipfs"
-                  },
                   "tolerance": {
                     "type": "string",
                     "description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
@@ -10001,7 +10163,7 @@
                     ],
                     "default": "DESKTOP"
                   },
-                  "humanID": {
+                  "zelfProof": {
                     "type": "string",
                     "description": "HumanID token returned by encrypt"
                   },
@@ -10017,7 +10179,7 @@
                 "required": [
                   "faceBase64",
                   "os",
-                  "humanID"
+                  "zelfProof"
                 ]
               }
             }
@@ -10070,7 +10232,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "humanID": {
+                  "zelfProof": {
                     "type": "string",
                     "description": "HumanID token returned by encrypt"
                   },
@@ -10080,7 +10242,7 @@
                   }
                 },
                 "required": [
-                  "humanID"
+                  "zelfProof"
                 ]
               }
             }
@@ -10616,57 +10778,6 @@
               ]
             },
             "description": "When true, bypasses cached records and fetches fresh data from the source."
-          }
-        ]
-      }
-    },
-    "/api/cl/vehicle-stolen": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "chile_api_vehicle_stolen",
-        "summary": "Chile - Stolen Vehicle",
-        "description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto).",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.3"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "plate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Chilean license plate (Patente), 4–7 alphanumeric characters."
           }
         ]
       }
@@ -11398,6 +11509,318 @@
             "description": "Document number without spaces or periods"
           }
         ]
+      }
+    },
+    "/api/v3/co/runt/conductor": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_driver_basic",
+        "summary": "Colombia - RUNT - Driver's License (Basic)",
+        "description": "Verify driver's licenses in Colombia using the document number and first last name with the Verifik API. Access official RUNT data, including license status, categories, and expiration dates.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CC",
+                "CE",
+                "PA",
+                "PPT"
+              ]
+            },
+            "description": "Parameter: documentType"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
+          },
+          {
+            "name": "primerApellido",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: primerApellido"
+          }
+        ]
+      }
+    },
+    "/api/cl/vehicle-stolen": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "chile_api_vehicle_stolen",
+        "summary": "Chile - Stolen Vehicle",
+        "description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto) in AutoSeguro.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Chilean license plate (Patente), 4–7 alphanumeric characters."
+          }
+        ]
+      }
+    },
+    "/api/co/cedula/vigencia": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_identity_lookup_vigencia",
+        "summary": "Colombia — National ID status (CC)",
+        "description": "Check Colombian CC vigencia with Registraduría: exists, alive, or cancelled by death. GET/POST /v2/co/cedula/vigencia. No name sources.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.1"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minimum": 5,
+              "maximum": 10
+            },
+            "description": "Parameter: documentNumber"
+          }
+        ]
+      }
+    },
+    "/api/co/copnia": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_copnia",
+        "summary": "COPNIA",
+        "description": "Query COPNIA (Consejo Profesional Nacional de Ingeniería) professional licenses by Colombian ID.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE",
+                      "PA",
+                      "PEP",
+                      "PE",
+                      "PPT",
+                      "TI",
+                      "NIT"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/co/copnia/matricula": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_copnia_license",
+        "summary": "COPNIA LICENSE",
+        "description": "Query a COPNIA professional license by registration number (matrícula).",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "licenseNumber": {
+                    "type": "string",
+                    "description": "Parameter: licenseNumber"
+                  }
+                },
+                "required": [
+                  "licenseNumber"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "/api/proxy": {

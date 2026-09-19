@@ -425,8 +425,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "world_api_phone_lookup": {
-            "title": "グローバル - Phone Lookup",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "電話番号照会",
+            "description": "GET または POST /v2/look-ups/phone で世界の電話番号を照会します。掲載されている名義人名と関連プロファイル項目を返します。"
         },
         "Mexico_api_ine_model_e": {
             "title": "メキシコ - INE Model E",

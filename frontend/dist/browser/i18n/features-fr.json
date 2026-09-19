@@ -425,8 +425,8 @@
             "description": "Fournit des services de vérification et de validation fiables."
         },
         "world_api_phone_lookup": {
-            "title": "Mondial - Phone Lookup",
-            "description": "Fournit des services de vérification et de validation fiables."
+            "title": "Recherche de téléphone",
+            "description": "Recherchez un numéro de téléphone dans le monde via GET ou POST /v2/look-ups/phone. Renvoie le nom du titulaire listé et les champs de profil associés lorsqu'ils sont disponibles."
         },
         "Mexico_api_ine_model_e": {
             "title": "Mexique - INE Model E",

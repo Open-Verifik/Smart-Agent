@@ -425,8 +425,8 @@
             "description": "Provides reliable verification and validation services."
         },
         "world_api_phone_lookup": {
-            "title": "Global - Phone Lookup",
-            "description": "Provides reliable verification and validation services."
+            "title": "Phone Lookup",
+            "description": "Look up a phone number worldwide via GET or POST /v2/look-ups/phone. Returns the listed owner name and related profile fields when available."
         },
         "Mexico_api_ine_model_e": {
             "title": "Mexico - INE Model E",
