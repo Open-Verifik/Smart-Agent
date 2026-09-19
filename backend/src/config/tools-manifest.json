@@ -81,20 +81,29 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
 			"id": "colombia_api_driver",
-			"name": "Colombia - RUNT - Driver's License",
-			"category": "Colombia - RUNT - Driver's License",
+			"name": "Colombia - RUNT - Driver's License (Premium)",
+			"category": "Colombia - RUNT - Driver's License (Premium)",
 			"url": "https://ai.verifik.co/api/co/runt/conductor",
 			"verifikPath": "/v2/co/runt/conductor",
 			"method": "GET",
@@ -107,14 +116,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "PPT", "NIT"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"PPT",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -135,7 +153,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -154,7 +174,13 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "TI", "CE", "PA", "RC"]
+						"enum": [
+							"CC",
+							"TI",
+							"CE",
+							"PA",
+							"RC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -165,28 +191,11 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["documentType", "documentNumber", "plate"]
-			}
-		},
-		{
-			"id": "colombia_api_runt_owners",
-			"name": "Colombia - Vehicle Owners Verification (RUNT)",
-			"category": "Colombia - Vehicle Owners Verification (RUNT)",
-			"url": "https://ai.verifik.co/api/co/runt/propietarios",
-			"verifikPath": "/v2/co/runt/propietarios",
-			"method": "GET",
-			"description": "Verify vehicle ownership and registered owners through the RUNT system using a Colombian license plate.",
-			"country": "Colombia",
-			"priceUsd": 6,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Vehicle license plate to query, without spaces or punctuation."
-					}
-				},
-				"required": ["plate"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
 			}
 		},
 		{
@@ -205,14 +214,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -233,7 +251,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -254,7 +274,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -275,7 +297,9 @@
 						"description": "Parameter: vin"
 					}
 				},
-				"required": ["vin"]
+				"required": [
+					"vin"
+				]
 			}
 		},
 		{
@@ -294,7 +318,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CPF"]
+						"enum": [
+							"CPF"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -305,7 +331,11 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -326,7 +356,9 @@
 						"description": "Parameter: email"
 					}
 				},
-				"required": ["email"]
+				"required": [
+					"email"
+				]
 			}
 		},
 		{
@@ -345,14 +377,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PPT", "NIT", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"PPT",
+							"NIT",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -371,14 +412,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -397,14 +443,24 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "PE", "PEP", "PPT"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"PE",
+							"PEP",
+							"PPT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -423,14 +479,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "TI", "PA", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"TI",
+							"PA",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -449,14 +514,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CCVE"]
+						"enum": [
+							"CCVE"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -477,7 +547,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -626,14 +698,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CURP"]
+						"enum": [
+							"CURP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -654,7 +731,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -675,7 +754,9 @@
 						"description": "Vehicle license plate to query, without spaces or punctuation."
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -696,7 +777,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -715,14 +798,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -741,14 +833,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PPT", "NIT", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"PPT",
+							"NIT",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -767,14 +868,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CCCR"]
+						"enum": [
+							"CCCR"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -795,7 +901,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -820,7 +928,10 @@
 						"description": "Parameter: policyNumber"
 					}
 				},
-				"required": ["plate", "policyNumber"]
+				"required": [
+					"plate",
+					"policyNumber"
+				]
 			}
 		},
 		{
@@ -839,14 +950,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUT"]
+						"enum": [
+							"RUT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -867,7 +983,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -886,7 +1004,13 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -901,7 +1025,12 @@
 						"description": "Parameter: idOrganismoTransito"
 					}
 				},
-				"required": ["documentType", "documentNumber", "numeroComparendo", "idOrganismoTransito"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"numeroComparendo",
+					"idOrganismoTransito"
+				]
 			}
 		},
 		{
@@ -920,14 +1049,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CNPJ"]
+						"enum": [
+							"CNPJ"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -946,14 +1080,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT"]
+						"enum": [
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -972,14 +1111,29 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT", "CC", "CE", "PA", "RC", "TI", "PEP", "CCVE", "CURP", "DNI", "CCEC"]
+						"enum": [
+							"NIT",
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI",
+							"PEP",
+							"CCVE",
+							"CURP",
+							"DNI",
+							"CCEC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -998,7 +1152,12 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "TI", "PA"]
+						"enum": [
+							"CC",
+							"CE",
+							"TI",
+							"PA"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1009,7 +1168,11 @@
 						"description": "Parameter: date"
 					}
 				},
-				"required": ["documentType", "documentNumber", "date"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
 			}
 		},
 		{
@@ -1028,14 +1191,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT"]
+						"enum": [
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1056,7 +1224,9 @@
 						"description": "Parameter: processNumber"
 					}
 				},
-				"required": ["processNumber"]
+				"required": [
+					"processNumber"
+				]
 			}
 		},
 		{
@@ -1075,14 +1245,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1101,7 +1280,12 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1112,7 +1296,11 @@
 						"description": "Parameter: date"
 					}
 				},
-				"required": ["documentType", "documentNumber", "date"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
 			}
 		},
 		{
@@ -1131,7 +1319,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1142,7 +1332,11 @@
 						"description": "Parameter: date"
 					}
 				},
-				"required": ["documentType", "documentNumber", "date"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
 			}
 		},
 		{
@@ -1161,14 +1355,21 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT", "CE"]
+						"enum": [
+							"CC",
+							"NIT",
+							"CE"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1189,7 +1390,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1210,7 +1413,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -1231,7 +1436,9 @@
 						"description": "Vehicle license plate to query, without spaces or punctuation."
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -1250,14 +1457,24 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT", "CC", "CE", "PA", "RC", "TI"]
+						"enum": [
+							"NIT",
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1341,14 +1558,20 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT"]
+						"enum": [
+							"CC",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1367,14 +1590,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CCPA"]
+						"enum": [
+							"CCPA"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1393,7 +1621,10 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIE", "DNIES"]
+						"enum": [
+							"NIE",
+							"DNIES"
+						]
 					},
 					"expirationDate": {
 						"type": "string",
@@ -1404,7 +1635,11 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "expirationDate", "documentNumber"]
+				"required": [
+					"documentType",
+					"expirationDate",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1423,14 +1658,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["DNI"]
+						"enum": [
+							"DNI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1455,7 +1695,10 @@
 						"description": "Parameter: securityCode"
 					}
 				},
-				"required": ["requestCode", "securityCode"]
+				"required": [
+					"requestCode",
+					"securityCode"
+				]
 			}
 		},
 		{
@@ -1482,7 +1725,10 @@
 						"description": "Parameter: verificationCode"
 					}
 				},
-				"required": ["folio", "verificationCode"]
+				"required": [
+					"folio",
+					"verificationCode"
+				]
 			}
 		},
 		{
@@ -1503,7 +1749,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1524,7 +1772,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -1543,14 +1793,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["DNIAR"]
+						"enum": [
+							"DNIAR"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1569,14 +1824,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUCEC"]
+						"enum": [
+							"RUCEC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1595,14 +1855,54 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUCEC"]
+						"enum": [
+							"RUCEC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_special_api_police_identity_lookup",
+			"name": "Colombia - Colombian Police Record Check",
+			"category": "Colombia - Colombian Police Record Check",
+			"url": "https://ai.verifik.co/api/co/policia/consultar",
+			"verifikPath": "/v2/co/policia/consultar",
+			"method": "GET",
+			"description": "Colombian police record check service",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PPT",
+							"PA",
+							"DP"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1621,14 +1921,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1712,14 +2017,24 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "TI", "CE", "PA", "RC", "PEP"]
+						"enum": [
+							"CC",
+							"TI",
+							"CE",
+							"PA",
+							"RC",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1805,7 +2120,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -1824,14 +2141,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUN"]
+						"enum": [
+							"RUN"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1850,7 +2172,12 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "NIT"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1861,7 +2188,11 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["documentType", "documentNumber", "plate"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
 			}
 		},
 		{
@@ -1880,14 +2211,21 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1908,7 +2246,57 @@
 						"description": "Parameter: ip"
 					}
 				},
-				"required": ["ip"]
+				"required": [
+					"ip"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_runt_owners",
+			"name": "Colombia - Vehicle Owners Verification (RUNT)",
+			"category": "Colombia - Vehicle Owners Verification (RUNT)",
+			"url": "https://ai.verifik.co/api/co/runt/propietarios",
+			"verifikPath": "/v2/co/runt/propietarios",
+			"method": "GET",
+			"description": "Verify vehicle ownership and registered owners through the RUNT system.",
+			"country": "Colombia",
+			"priceUsd": 6,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_runt_vehicle_by_plate_only",
+			"name": "RUNT Vehicle by Plate Only",
+			"category": "Colombia - RUNT Vehicle by Plate Only",
+			"url": "https://ai.verifik.co/api/co/runt/vehicle-by-plate-only",
+			"verifikPath": "/v2/co/runt/vehicle-by-plate-only",
+			"method": "GET",
+			"description": "Query a Colombian RUNT vehicle using only the plate, without the owner's document type or number.",
+			"country": "Colombia",
+			"priceUsd": 2,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate",
+						"minimum": 5,
+						"maximum": 9
+					}
+				},
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -1937,7 +2325,11 @@
 						"description": "Parameter: message"
 					}
 				},
-				"required": ["countryCode", "phone", "message"]
+				"required": [
+					"countryCode",
+					"phone",
+					"message"
+				]
 			}
 		},
 		{
@@ -1958,7 +2350,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -1977,7 +2371,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1988,7 +2384,39 @@
 						"description": "Parameter: date"
 					}
 				},
-				"required": ["documentType", "documentNumber", "date"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
+			}
+		},
+		{
+			"id": "world_api_phone_lookup",
+			"name": "Global - Phone Lookup",
+			"category": "Global - Phone Lookup",
+			"url": "https://ai.verifik.co/api/look-ups/phone",
+			"verifikPath": "/v2/look-ups/phone",
+			"method": "GET",
+			"description": "Look up a phone number worldwide. Returns the listed owner name and related profile fields when available.",
+			"country": "world",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"countryCode": {
+						"type": "string",
+						"description": "Numeric calling code, e.g. 57 for Colombia"
+					},
+					"phone": {
+						"type": "string",
+						"description": "National phone number without country code"
+					}
+				},
+				"required": [
+					"countryCode",
+					"phone"
+				]
 			}
 		},
 		{
@@ -2007,14 +2435,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2033,7 +2466,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CI"]
+						"enum": [
+							"CI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -2044,7 +2479,11 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -2065,7 +2504,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2084,14 +2525,20 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE"]
+						"enum": [
+							"CC",
+							"CE"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2110,7 +2557,13 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "TI", "CE", "PA", "RC"]
+						"enum": [
+							"CC",
+							"TI",
+							"CE",
+							"PA",
+							"RC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -2121,7 +2574,11 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["documentType", "documentNumber", "plate"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
 			}
 		},
 		{
@@ -2142,7 +2599,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2167,7 +2626,10 @@
 						"description": "Parameter: permitNumber"
 					}
 				},
-				"required": ["plate", "permitNumber"]
+				"required": [
+					"plate",
+					"permitNumber"
+				]
 			}
 		},
 		{
@@ -2196,7 +2658,9 @@
 						"description": "Parameter: image"
 					}
 				},
-				"required": ["documentType"]
+				"required": [
+					"documentType"
+				]
 			}
 		},
 		{
@@ -2221,7 +2685,10 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentNumber", "dateOfBirth"]
+				"required": [
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -2242,7 +2709,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2267,7 +2736,10 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["expeditionDate", "documentNumber"]
+				"required": [
+					"expeditionDate",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2292,7 +2764,10 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["expeditionDate", "documentNumber"]
+				"required": [
+					"expeditionDate",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2321,7 +2796,9 @@
 						"description": "Parameter: image"
 					}
 				},
-				"required": ["documentType"]
+				"required": [
+					"documentType"
+				]
 			}
 		},
 		{
@@ -2340,14 +2817,25 @@
 					"province": {
 						"type": "string",
 						"description": "Parameter: province",
-						"enum": ["AB", "BC", "MB", "NS", "ON", "QC", "SK"]
+						"enum": [
+							"AB",
+							"BC",
+							"MB",
+							"NS",
+							"ON",
+							"QC",
+							"SK"
+						]
 					},
 					"business": {
 						"type": "string",
 						"description": "Parameter: business"
 					}
 				},
-				"required": ["province", "business"]
+				"required": [
+					"province",
+					"business"
+				]
 			}
 		},
 		{
@@ -2376,7 +2864,11 @@
 						"description": "Parameter: probe"
 					}
 				},
-				"required": ["search_mode", "gallery", "probe"]
+				"required": [
+					"search_mode",
+					"gallery",
+					"probe"
+				]
 			}
 		},
 		{
@@ -2413,7 +2905,13 @@
 						"description": "Parameter: liveness_min_score"
 					}
 				},
-				"required": ["search_mode", "gallery", "probe", "os", "liveness_min_score"]
+				"required": [
+					"search_mode",
+					"gallery",
+					"probe",
+					"os",
+					"liveness_min_score"
+				]
 			}
 		},
 		{
@@ -2438,7 +2936,10 @@
 						"description": "Parameter: os"
 					}
 				},
-				"required": ["image", "os"]
+				"required": [
+					"image",
+					"os"
+				]
 			}
 		},
 		{
@@ -2463,7 +2964,10 @@
 						"description": "Parameter: os"
 					}
 				},
-				"required": ["image", "os"]
+				"required": [
+					"image",
+					"os"
+				]
 			}
 		},
 		{
@@ -2490,7 +2994,10 @@
 					"gender": {
 						"type": "string",
 						"description": "Parameter: gender",
-						"enum": ["M", "F"]
+						"enum": [
+							"M",
+							"F"
+						]
 					},
 					"date_of_birth": {
 						"type": "string",
@@ -2519,10 +3026,22 @@
 					"search_mode": {
 						"type": "string",
 						"description": "Parameter: search_mode",
-						"enum": ["FAST", "ACCURATE"]
+						"enum": [
+							"FAST",
+							"ACCURATE"
+						]
 					}
 				},
-				"required": ["name", "images", "gender", "date_of_birth", "collection_id", "liveness_min_score", "min_score", "search_mode"]
+				"required": [
+					"name",
+					"images",
+					"gender",
+					"date_of_birth",
+					"collection_id",
+					"liveness_min_score",
+					"min_score",
+					"search_mode"
+				]
 			}
 		},
 		{
@@ -2549,7 +3068,10 @@
 					"gender": {
 						"type": "string",
 						"description": "Parameter: gender",
-						"enum": ["M", "F"]
+						"enum": [
+							"M",
+							"F"
+						]
 					},
 					"date_of_birth": {
 						"type": "string",
@@ -2564,7 +3086,13 @@
 						"description": "Parameter: collections"
 					}
 				},
-				"required": ["name", "images", "gender", "date_of_birth", "collections"]
+				"required": [
+					"name",
+					"images",
+					"gender",
+					"date_of_birth",
+					"collections"
+				]
 			}
 		},
 		{
@@ -2585,7 +3113,9 @@
 						"description": "Parameter: id"
 					}
 				},
-				"required": ["id"]
+				"required": [
+					"id"
+				]
 			}
 		},
 		{
@@ -2610,7 +3140,9 @@
 						"description": "Parameter: description"
 					}
 				},
-				"required": ["name"]
+				"required": [
+					"name"
+				]
 			}
 		},
 		{
@@ -2647,7 +3179,11 @@
 						"description": "Parameter: search_mode"
 					}
 				},
-				"required": ["image", "min_score", "search_mode"]
+				"required": [
+					"image",
+					"min_score",
+					"search_mode"
+				]
 			}
 		},
 		{
@@ -2684,7 +3220,11 @@
 						"description": "Parameter: search_mode"
 					}
 				},
-				"required": ["images", "min_score", "search_mode"]
+				"required": [
+					"images",
+					"min_score",
+					"search_mode"
+				]
 			}
 		},
 		{
@@ -2703,14 +3243,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["FME"]
+						"enum": [
+							"FME"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -2731,7 +3276,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2752,7 +3299,9 @@
 						"description": "Parameter: codeFasecolda"
 					}
 				},
-				"required": ["codeFasecolda"]
+				"required": [
+					"codeFasecolda"
+				]
 			}
 		},
 		{
@@ -2773,7 +3322,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2794,7 +3345,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2815,7 +3368,9 @@
 						"description": "Vehicle license plate to query, without spaces or punctuation."
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2836,7 +3391,9 @@
 						"description": "Vehicle license plate to query, without spaces or punctuation."
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2857,7 +3414,9 @@
 						"description": "Vehicle license plate to query, without spaces or punctuation."
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2878,7 +3437,9 @@
 						"description": "Vehicle license plate to query, without spaces or punctuation."
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2899,7 +3460,9 @@
 						"description": "Parameter: business"
 					}
 				},
-				"required": ["business"]
+				"required": [
+					"business"
+				]
 			}
 		},
 		{
@@ -2932,7 +3495,12 @@
 						"description": "Parameter: lastName"
 					}
 				},
-				"required": ["documentNumber", "dateOfBirth", "firstName", "lastName"]
+				"required": [
+					"documentNumber",
+					"dateOfBirth",
+					"firstName",
+					"lastName"
+				]
 			}
 		},
 		{
@@ -2953,7 +3521,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -2972,7 +3542,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CPF"]
+						"enum": [
+							"CPF"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -2983,7 +3555,11 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -3002,14 +3578,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NITE"]
+						"enum": [
+							"NITE"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3030,7 +3611,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3049,14 +3632,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CUIT"]
+						"enum": [
+							"CUIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3075,14 +3663,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT"]
+						"enum": [
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3103,7 +3696,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -3122,7 +3717,10 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT"]
+						"enum": [
+							"CC",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -3133,7 +3731,11 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["documentType", "documentNumber", "plate"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
 			}
 		},
 		{
@@ -3152,19 +3754,31 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT", "CE"]
+						"enum": [
+							"CC",
+							"NIT",
+							"CE"
+						]
 					},
 					"quality": {
 						"type": "string",
 						"description": "Parameter: quality",
-						"enum": ["ABG", "JUEZPAZ", "LT"]
+						"enum": [
+							"ABG",
+							"JUEZPAZ",
+							"LT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "quality", "documentNumber"]
+				"required": [
+					"documentType",
+					"quality",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3183,7 +3797,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"city": {
 						"type": "string",
@@ -3213,7 +3829,10 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3232,14 +3851,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUC"]
+						"enum": [
+							"RUC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3258,7 +3882,10 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUT", "RUN"]
+						"enum": [
+							"RUT",
+							"RUN"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -3269,7 +3896,11 @@
 						"description": "Parameter: serialNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber", "serialNumber"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"serialNumber"
+				]
 			}
 		},
 		{
@@ -3288,14 +3919,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUT"]
+						"enum": [
+							"RUT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3316,7 +3952,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -3337,7 +3975,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -3358,7 +3998,9 @@
 						"description": "Parameter: vin"
 					}
 				},
-				"required": ["vin"]
+				"required": [
+					"vin"
+				]
 			}
 		},
 		{
@@ -3377,7 +4019,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CUI"]
+						"enum": [
+							"CUI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -3388,7 +4032,11 @@
 						"description": "Date of birth in DD/MM/YYYY format."
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -3409,7 +4057,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -3430,7 +4080,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -3449,14 +4101,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["DNIHN"]
+						"enum": [
+							"DNIHN"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3475,14 +4132,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CIE"]
+						"enum": [
+							"CIE"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3503,7 +4165,9 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3524,7 +4188,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -3543,7 +4209,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CCUY"]
+						"enum": [
+							"CCUY"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -3554,7 +4222,11 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -3573,14 +4245,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIF"]
+						"enum": [
+							"NIF"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3599,7 +4276,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUC"]
+						"enum": [
+							"RUC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -3610,7 +4289,11 @@
 						"description": "Parameter: dv"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dv"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dv"
+				]
 			}
 		},
 		{
@@ -3635,7 +4318,10 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentNumber", "dateOfBirth"]
+				"required": [
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -3654,19 +4340,34 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT"]
+						"enum": [
+							"NIT"
+						]
 					},
 					"category": {
 						"type": "string",
 						"description": "Parameter: category",
-						"enum": ["RM", "PROP", "RUNEOL", "RNT", "ESAL", "RESAL", "JUEGOS", "EXTRANJERAS"]
+						"enum": [
+							"RM",
+							"PROP",
+							"RUNEOL",
+							"RNT",
+							"ESAL",
+							"RESAL",
+							"JUEGOS",
+							"EXTRANJERAS"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "category", "documentNumber"]
+				"required": [
+					"documentType",
+					"category",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3685,19 +4386,34 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT"]
+						"enum": [
+							"NIT"
+						]
 					},
 					"category": {
 						"type": "string",
 						"description": "Parameter: category",
-						"enum": ["RM", "PROP", "RUNEOL", "RNT", "ESAL", "RESAL", "JUEGOS", "EXTRANJERAS"]
+						"enum": [
+							"RM",
+							"PROP",
+							"RUNEOL",
+							"RNT",
+							"ESAL",
+							"RESAL",
+							"JUEGOS",
+							"EXTRANJERAS"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "category", "documentNumber"]
+				"required": [
+					"documentType",
+					"category",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3716,14 +4432,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["DNI"]
+						"enum": [
+							"DNI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3742,14 +4463,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["DNI"]
+						"enum": [
+							"DNI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3774,7 +4500,10 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["expeditionDate", "documentNumber"]
+				"required": [
+					"expeditionDate",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3793,14 +4522,23 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PPT", "PEP", "PA"]
+						"enum": [
+							"CC",
+							"CE",
+							"PPT",
+							"PEP",
+							"PA"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3821,7 +4559,9 @@
 						"description": "Parameter: image"
 					}
 				},
-				"required": ["image"]
+				"required": [
+					"image"
+				]
 			}
 		},
 		{
@@ -3840,14 +4580,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["RUC"]
+						"enum": [
+							"RUC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3888,7 +4633,9 @@
 						"description": "Parameter: category"
 					}
 				},
-				"required": ["externalDatabaseRefID"]
+				"required": [
+					"externalDatabaseRefID"
+				]
 			}
 		},
 		{
@@ -3909,7 +4656,9 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -3930,7 +4679,9 @@
 						"description": "Parameter: fullName"
 					}
 				},
-				"required": ["fullName"]
+				"required": [
+					"fullName"
+				]
 			}
 		},
 		{
@@ -3949,14 +4700,20 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT"]
+						"enum": [
+							"CC",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -3975,7 +4732,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -3986,7 +4745,11 @@
 						"description": "Parameter: firstSurname"
 					}
 				},
-				"required": ["documentType", "documentNumber", "firstSurname"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"firstSurname"
+				]
 			}
 		},
 		{
@@ -3996,7 +4759,7 @@
 			"url": "https://ai.verifik.co/api/human-id/encrypt",
 			"verifikPath": "/v2/human-id/encrypt",
 			"method": "POST",
-			"description": "Create a HumanID by encrypting metadata and optionally storing the encrypted output in IPFS",
+			"description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS",
 			"country": "world",
 			"priceUsd": 0.84,
 			"parameters": {
@@ -4024,7 +4787,11 @@
 					"os": {
 						"type": "string",
 						"description": "Client operating system",
-						"enum": ["DESKTOP", "ANDROID", "IOS"],
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
 						"default": "DESKTOP"
 					},
 					"identifier": {
@@ -4042,16 +4809,16 @@
 						"description": "Require a live face when creating the HumanID",
 						"default": false
 					},
-					"storageProvider": {
-						"type": "string",
-						"description": "Store in IPFS or return without Verifik persistence",
-						"enum": ["ipfs", "none"],
-						"default": "ipfs"
-					},
 					"tolerance": {
 						"type": "string",
 						"description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
-						"enum": ["SOFT", "REGULAR", "HARDENED", "REGULAR_HARD", "REGULAR_SOFT"],
+						"enum": [
+							"SOFT",
+							"REGULAR",
+							"HARDENED",
+							"REGULAR_HARD",
+							"REGULAR_SOFT"
+						],
 						"default": "HARDENED"
 					},
 					"password": {
@@ -4067,7 +4834,14 @@
 						"description": "Optional verifier key"
 					}
 				},
-				"required": ["publicData", "metadata", "faceBase64", "os", "identifier", "requireLiveness"]
+				"required": [
+					"publicData",
+					"metadata",
+					"faceBase64",
+					"os",
+					"identifier",
+					"requireLiveness"
+				]
 			}
 		},
 		{
@@ -4105,7 +4879,11 @@
 					"os": {
 						"type": "string",
 						"description": "Client operating system",
-						"enum": ["DESKTOP", "ANDROID", "IOS"],
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
 						"default": "DESKTOP"
 					},
 					"identifier": {
@@ -4123,16 +4901,16 @@
 						"description": "Require a live face when creating the HumanID",
 						"default": false
 					},
-					"storageProvider": {
-						"type": "string",
-						"description": "Store in IPFS or return without Verifik persistence",
-						"enum": ["ipfs", "none"],
-						"default": "ipfs"
-					},
 					"tolerance": {
 						"type": "string",
 						"description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
-						"enum": ["SOFT", "REGULAR", "HARDENED", "REGULAR_HARD", "REGULAR_SOFT"],
+						"enum": [
+							"SOFT",
+							"REGULAR",
+							"HARDENED",
+							"REGULAR_HARD",
+							"REGULAR_SOFT"
+						],
 						"default": "HARDENED"
 					},
 					"password": {
@@ -4148,7 +4926,14 @@
 						"description": "Optional verifier key"
 					}
 				},
-				"required": ["publicData", "metadata", "faceBase64", "os", "identifier", "requireLiveness"]
+				"required": [
+					"publicData",
+					"metadata",
+					"faceBase64",
+					"os",
+					"identifier",
+					"requireLiveness"
+				]
 			}
 		},
 		{
@@ -4186,7 +4971,11 @@
 					"os": {
 						"type": "string",
 						"description": "Client operating system",
-						"enum": ["DESKTOP", "ANDROID", "IOS"],
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
 						"default": "DESKTOP"
 					},
 					"identifier": {
@@ -4204,16 +4993,16 @@
 						"description": "Require a live face when creating the HumanID",
 						"default": false
 					},
-					"storageProvider": {
-						"type": "string",
-						"description": "Store in IPFS or return without Verifik persistence",
-						"enum": ["ipfs", "none"],
-						"default": "ipfs"
-					},
 					"tolerance": {
 						"type": "string",
 						"description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
-						"enum": ["SOFT", "REGULAR", "HARDENED", "REGULAR_HARD", "REGULAR_SOFT"],
+						"enum": [
+							"SOFT",
+							"REGULAR",
+							"HARDENED",
+							"REGULAR_HARD",
+							"REGULAR_SOFT"
+						],
 						"default": "HARDENED"
 					},
 					"password": {
@@ -4229,7 +5018,14 @@
 						"description": "Optional verifier key"
 					}
 				},
-				"required": ["publicData", "metadata", "faceBase64", "os", "identifier", "requireLiveness"]
+				"required": [
+					"publicData",
+					"metadata",
+					"faceBase64",
+					"os",
+					"identifier",
+					"requireLiveness"
+				]
 			}
 		},
 		{
@@ -4252,10 +5048,14 @@
 					"os": {
 						"type": "string",
 						"description": "Client operating system",
-						"enum": ["DESKTOP", "ANDROID", "IOS"],
+						"enum": [
+							"DESKTOP",
+							"ANDROID",
+							"IOS"
+						],
 						"default": "DESKTOP"
 					},
-					"humanID": {
+					"zelfProof": {
 						"type": "string",
 						"description": "HumanID token returned by encrypt"
 					},
@@ -4268,7 +5068,11 @@
 						"description": "Optional verifier key"
 					}
 				},
-				"required": ["faceBase64", "os", "humanID"]
+				"required": [
+					"faceBase64",
+					"os",
+					"zelfProof"
+				]
 			}
 		},
 		{
@@ -4284,7 +5088,7 @@
 			"parameters": {
 				"type": "object",
 				"properties": {
-					"humanID": {
+					"zelfProof": {
 						"type": "string",
 						"description": "HumanID token returned by encrypt"
 					},
@@ -4293,7 +5097,9 @@
 						"description": "Optional verifier key"
 					}
 				},
-				"required": ["humanID"]
+				"required": [
+					"zelfProof"
+				]
 			}
 		},
 		{
@@ -4312,7 +5118,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CUI"]
+						"enum": [
+							"CUI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -4323,7 +5131,11 @@
 						"description": "Date of birth in DD/MM/YYYY format."
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -4342,14 +5154,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["EPIC"]
+						"enum": [
+							"EPIC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -4368,14 +5185,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["EPIC"]
+						"enum": [
+							"EPIC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -4398,7 +5220,9 @@
 						"maximum": 6
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -4421,7 +5245,9 @@
 						"maximum": 15
 					}
 				},
-				"required": ["card"]
+				"required": [
+					"card"
+				]
 			}
 		},
 		{
@@ -4444,10 +5270,15 @@
 					"force": {
 						"type": "string",
 						"description": "When true, bypasses cached records and fetches fresh data from the source.",
-						"enum": ["true", "false"]
+						"enum": [
+							"true",
+							"false"
+						]
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -4466,7 +5297,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Document type. Allowed value: CI.",
-						"enum": ["CI"]
+						"enum": [
+							"CI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -4479,10 +5312,17 @@
 					"force": {
 						"type": "string",
 						"description": "When true, bypasses cached records and fetches fresh data from the source.",
-						"enum": ["true", "false"]
+						"enum": [
+							"true",
+							"false"
+						]
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
@@ -4505,31 +5345,15 @@
 					"force": {
 						"type": "string",
 						"description": "When true, bypasses cached records and fetches fresh data from the source.",
-						"enum": ["true", "false"]
+						"enum": [
+							"true",
+							"false"
+						]
 					}
 				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "chile_api_vehicle_stolen",
-			"name": "Chile - Stolen Vehicle",
-			"category": "Chile - Stolen Vehicle",
-			"url": "https://ai.verifik.co/api/cl/vehicle-stolen",
-			"verifikPath": "/v2/cl/vehicle-stolen",
-			"method": "GET",
-			"description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto).",
-			"country": "Chile",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Chilean license plate (Patente), 4–7 alphanumeric characters."
-					}
-				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -4548,14 +5372,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Document type. Allowed value: DNIHN.",
-						"enum": ["DNIHN"]
+						"enum": [
+							"DNIHN"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Honduran identity document number (13 digits)."
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -4574,14 +5403,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Document type. Allowed value: CCCR.",
-						"enum": ["CCCR"]
+						"enum": [
+							"CCCR"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Costa Rican identity document number (9 to 13 digits)."
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -4600,7 +5434,9 @@
 					"documentType": {
 						"type": "string",
 						"description": "Document type. Allowed value: INE.",
-						"enum": ["INE"]
+						"enum": [
+							"INE"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -4619,10 +5455,20 @@
 					"model": {
 						"type": "string",
 						"description": "Optional INE card model hint to select the correct field combination.",
-						"enum": ["C", "D", "E", "F", "G", "H"]
+						"enum": [
+							"C",
+							"D",
+							"E",
+							"F",
+							"G",
+							"H"
+						]
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -4647,7 +5493,9 @@
 						"description": "Optional back image as a public URL or base64 string. Improves OCR accuracy."
 					}
 				},
-				"required": ["front"]
+				"required": [
+					"front"
+				]
 			}
 		},
 		{
@@ -4672,10 +5520,15 @@
 					"force": {
 						"type": "string",
 						"description": "When true, bypasses cached records and fetches fresh data from the source.",
-						"enum": ["true", "false"]
+						"enum": [
+							"true",
+							"false"
+						]
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
@@ -4702,7 +5555,12 @@
 					"sexo": {
 						"type": "string",
 						"description": "Sex as registered (MASCULINO or FEMENINO)",
-						"enum": ["MASCULINO", "FEMENINO", "M", "F"]
+						"enum": [
+							"MASCULINO",
+							"FEMENINO",
+							"M",
+							"F"
+						]
 					},
 					"fecha": {
 						"type": "string",
@@ -4717,7 +5575,12 @@
 						"description": "Second surname"
 					}
 				},
-				"required": ["primerNombre", "primerApellido", "sexo", "fecha"]
+				"required": [
+					"primerNombre",
+					"primerApellido",
+					"sexo",
+					"fecha"
+				]
 			}
 		},
 		{
@@ -4738,7 +5601,9 @@
 						"description": "Civil registry serial printed on the registro civil (up to 10 digits)"
 					}
 				},
-				"required": ["serial"]
+				"required": [
+					"serial"
+				]
 			}
 		},
 		{
@@ -4785,7 +5650,12 @@
 					"sexo": {
 						"type": "string",
 						"description": "Required for document (Option B) and name (Option A) modes; not used with serial",
-						"enum": ["MASCULINO", "FEMENINO", "M", "F"]
+						"enum": [
+							"MASCULINO",
+							"FEMENINO",
+							"M",
+							"F"
+						]
 					}
 				},
 				"required": []
@@ -4807,14 +5677,19 @@
 					"documentType": {
 						"type": "string",
 						"description": "Document type (CC only)",
-						"enum": ["CC"]
+						"enum": [
+							"CC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Colombian cédula number"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
@@ -4833,14 +5708,171 @@
 					"documentType": {
 						"type": "string",
 						"description": "Document type supported by Procuraduría",
-						"enum": ["CC", "CE", "PPT", "NIT", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"PPT",
+							"NIT",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Document number without spaces or periods"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_driver_basic",
+			"name": "Colombia - RUNT - Driver's License (Basic)",
+			"category": "Colombia - RUNT - Driver's License (Basic)",
+			"url": "https://ai.verifik.co/api/v3/co/runt/conductor",
+			"verifikPath": "/v3/co/runt/conductor",
+			"method": "GET",
+			"description": "Verify driver's licenses in Colombia using the document number and first last name with the Verifik API. Access official RUNT data, including license status, categories, and expiration dates.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"PPT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"primerApellido": {
+						"type": "string",
+						"description": "Parameter: primerApellido"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"primerApellido"
+				]
+			}
+		},
+		{
+			"id": "chile_api_vehicle_stolen",
+			"name": "Chile - Stolen Vehicle",
+			"category": "Chile - Stolen Vehicle",
+			"url": "https://ai.verifik.co/api/cl/vehicle-stolen",
+			"verifikPath": "/v2/cl/vehicle-stolen",
+			"method": "GET",
+			"description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto) in AutoSeguro.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Chilean license plate (Patente), 4–7 alphanumeric characters."
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_lookup_vigencia",
+			"name": "Colombia — National ID status (CC)",
+			"category": "Colombia — National ID status (CC)",
+			"url": "https://ai.verifik.co/api/co/cedula/vigencia",
+			"verifikPath": "/v2/co/cedula/vigencia",
+			"method": "GET",
+			"description": "Check Colombian CC vigencia with Registraduría: exists, alive, or cancelled by death. GET/POST /v2/co/cedula/vigencia. No name sources.",
+			"country": "Colombia",
+			"priceUsd": 0.1,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber",
+						"minimum": 5,
+						"maximum": 10
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_copnia",
+			"name": "COPNIA",
+			"category": "Colombia - COPNIA",
+			"url": "https://ai.verifik.co/api/co/copnia",
+			"verifikPath": "/v2/co/copnia",
+			"method": "POST",
+			"description": "Query COPNIA (Consejo Profesional Nacional de Ingeniería) professional licenses by Colombian ID.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"PEP",
+							"PE",
+							"PPT",
+							"TI",
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_copnia_license",
+			"name": "COPNIA LICENSE",
+			"category": "Colombia - COPNIA LICENSE",
+			"url": "https://ai.verifik.co/api/co/copnia/matricula",
+			"verifikPath": "/v2/co/copnia/matricula",
+			"method": "POST",
+			"description": "Query a COPNIA professional license by registration number (matrícula).",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"licenseNumber": {
+						"type": "string",
+						"description": "Parameter: licenseNumber"
+					}
+				},
+				"required": [
+					"licenseNumber"
+				]
 			}
 		}
 	]
