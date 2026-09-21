@@ -30,6 +30,15 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 import { SetupService } from '../../setup.service';
+import {
+    buildCountryCheckSections,
+    CountryCheckSection,
+    criminalCheckDocs,
+    criminalCheckDocsUrl,
+    CriminalCheckOption,
+    isCountryCheckSelected,
+    toggleCountryCheck,
+} from './criminal-check-catalog.util';
 import { DocumentVerificationTypeListComponent } from './document-verification-type/document-verification-type-list.component';
 
 type LocalApiFeature = {
@@ -86,6 +95,7 @@ export class SetupDocumentsComponent implements OnInit {
     @Input() stepFormControlName: 'document' | 'legalRepresentative' | 'businessVerification' = 'document';
 
     @ViewChild('localApiDialog') localApiDialog?: TemplateRef<unknown>;
+    @ViewChild('checkDetailsDialog') checkDetailsDialog?: TemplateRef<unknown>;
 
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
@@ -94,15 +104,23 @@ export class SetupDocumentsComponent implements OnInit {
     private _setup = inject(SetupService);
     private _transloco = inject(TranslocoService);
 
-    readonly criminalRecordsEndpoints: { value: string; label: string }[] = [
-        { value: 'local_api', label: 'smartEnrollProjects.setup.documents.screening.localApi' },
-        { value: 'world_api_interpol', label: 'Interpol' },
-        { value: 'world_api_fbi', label: 'FBI' },
-        { value: 'world_api_dea', label: 'DEA' },
-        { value: 'world_api_europol', label: 'Europol' },
-        { value: 'world_api_ofac', label: 'OFAC' },
-        { value: 'world_api_onu', label: 'ONU' },
+    readonly internationalChecks: CriminalCheckOption[] = [
+        this._checkOption('world_api_interpol', 'interpol'),
+        this._checkOption('world_api_fbi', 'fbi'),
+        this._checkOption('world_api_dea', 'dea'),
+        this._checkOption('world_api_europol', 'europol'),
+        this._checkOption('world_api_ofac', 'ofac'),
+        this._checkOption('world_api_onu', 'un'),
     ];
+
+    readonly colombiaSources: CriminalCheckOption[] = [
+        this._checkOption('colombia_api_inpec', 'colombia.inpec'),
+        this._checkOption('colombia_api_identity_lookup_procuraduria', 'colombia.procuraduria'),
+        this._checkOption('colombia_api_police_rnmc', 'colombia.rnmc'),
+        this._checkOption('colombia_special_api_police_identity_lookup', 'colombia.police'),
+    ];
+
+    private readonly _legacyColombiaSources = ['colombia_api_inpec', 'colombia_api_identity_lookup_procuraduria'];
 
     readonly attemptOptions: number[] = [1, 2, 3, 4, 5];
 
@@ -113,12 +131,24 @@ export class SetupDocumentsComponent implements OnInit {
 
     localApiFeatures: LocalApiFeature[] = [];
     loadingFeatures = false;
+    selectedCheck: CriminalCheckOption | null = null;
 
     private _previousDocumentStepValue: string | null = null;
 
     ngOnInit(): void {
+        this.documentTypesFormArray?.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
+            this._cdr.markForCheck();
+        });
         if (!this.isFormReady) return;
         this._initDocumentStepSubscription();
+    }
+
+    get countryCheckSections(): CountryCheckSection[] {
+        const countries = this.documentTypesFormArray?.controls
+            .map((control) => String(control.get('country')?.value || '').trim())
+            .filter(Boolean) || [];
+
+        return buildCountryCheckSections(countries, { colombia: this.colombiaSources });
     }
 
     get documentTypesFormArray(): FormArray | null {
@@ -229,19 +259,73 @@ export class SetupDocumentsComponent implements OnInit {
     }
 
     isEndpointSelected(endpoint: string): boolean {
-        return this.criminalEndpointsValue.includes(endpoint);
+        const current = this.criminalEndpointsValue;
+        const colombiaCodes = this.colombiaSources.map((source) => source.value);
+
+        if (!colombiaCodes.includes(endpoint)) return current.includes(endpoint);
+
+        return isCountryCheckSelected(current, endpoint, colombiaCodes, this._legacyColombiaSources);
     }
 
     toggleCriminalEndpoint(endpoint: string): void {
+        const colombiaCodes = this.colombiaSources.map((source) => source.value);
+
+        if (colombiaCodes.includes(endpoint)) {
+            this._toggleColombiaSource(endpoint, colombiaCodes);
+            return;
+        }
+
         const ctrl = this.formGroup?.get('criminalHistoryVerificationEndpoints');
         if (!ctrl) return;
         const current = this.criminalEndpointsValue;
-        const next = current.includes(endpoint)
-            ? current.filter((e) => e !== endpoint)
-            : [...current, endpoint];
+        const next = current.includes(endpoint) ? current.filter((code) => code !== endpoint) : [...current, endpoint];
         ctrl.setValue(next);
         ctrl.markAsDirty();
         this._cdr.markForCheck();
+    }
+
+    /**
+     * A saved `local_api` with no Colombia codes displays as INPEC and Procuraduría.
+     * The first edit stores the explicit codes and drops `local_api`.
+     */
+    private _toggleColombiaSource(endpoint: string, colombiaCodes: string[]): void {
+        const ctrl = this.formGroup?.get('criminalHistoryVerificationEndpoints');
+        if (!ctrl) return;
+
+        const current = this.criminalEndpointsValue;
+        ctrl.setValue(toggleCountryCheck(current, endpoint, colombiaCodes, this._legacyColombiaSources));
+        ctrl.markAsDirty();
+        this._cdr.markForCheck();
+    }
+
+    openCheckDetails(event: Event, check: CriminalCheckOption): void {
+        event.preventDefault();
+        event.stopPropagation();
+        this.selectedCheck = check;
+        if (!this.checkDetailsDialog) return;
+
+        this._dialog.open(this.checkDetailsDialog, { width: '560px', maxHeight: '90vh', autoFocus: false });
+    }
+
+    docsUrl(check: CriminalCheckOption): string {
+        return criminalCheckDocsUrl(check.docs, this._transloco.getActiveLang());
+    }
+
+    postmanUrl(check: CriminalCheckOption): string {
+        return `/postman?code=${encodeURIComponent(check.value)}`;
+    }
+
+    private _checkOption(value: string, key: string): CriminalCheckOption {
+        const baseKey = `smartEnrollProjects.setup.documents.screening.checks.${key}`;
+
+        return {
+            value,
+            titleKey: `${baseKey}.title`,
+            descriptionKey: `${baseKey}.description`,
+            sourceKey: `${baseKey}.source`,
+            aboutKey: `${baseKey}.about`,
+            docs: criminalCheckDocs[value],
+        };
     }
 
     openLocalApiModal(event: Event): void {

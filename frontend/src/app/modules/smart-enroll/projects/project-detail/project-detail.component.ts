@@ -506,6 +506,18 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             world_api_europol: 'Europol',
             world_api_ofac: 'OFAC',
             world_api_onu: 'ONU',
+            colombia_api_inpec: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.inpec.title'
+            ),
+            colombia_api_identity_lookup_procuraduria: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.procuraduria.title'
+            ),
+            colombia_api_police_rnmc: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.rnmc.title'
+            ),
+            colombia_special_api_police_identity_lookup: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.police.title'
+            ),
         };
         return map[value] ?? value;
     }
