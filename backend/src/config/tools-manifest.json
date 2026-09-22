@@ -1176,6 +1176,37 @@
 			}
 		},
 		{
+			"id": "colombia_api_police_rnmc_premium",
+			"name": "Colombia - Police RNMC premium (CC)",
+			"category": "Colombia - Police RNMC premium (CC)",
+			"url": "https://ai.verifik.co/api/co/policia/rnmc/premium",
+			"verifikPath": "/v2/co/policia/rnmc/premium",
+			"method": "POST",
+			"description": "Same Policía RNMC corrective-measures result as the standard lookup, for CC only. Send the document number; Verifik resolves the issue date. Costs 1.20 credits.",
+			"country": "Colombia",
+			"priceUsd": 1.2,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
 			"id": "colombia_api_dian",
 			"name": "Colombia - Colombia DIAN Verification",
 			"category": "Colombia - Colombia DIAN Verification",
@@ -2309,6 +2340,39 @@
 			"description": "Send SMS messages via Verifik's global gateway. Provide the destination phone number and message body; supports OTPs, transactional alerts, and notification flows with delivery metadata in the response.",
 			"country": "world",
 			"priceUsd": 0.1,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"countryCode": {
+						"type": "string",
+						"description": "Parameter: countryCode"
+					},
+					"phone": {
+						"type": "string",
+						"description": "Parameter: phone"
+					},
+					"message": {
+						"type": "string",
+						"description": "Parameter: message"
+					}
+				},
+				"required": [
+					"countryCode",
+					"phone",
+					"message"
+				]
+			}
+		},
+		{
+			"id": "communication_global_messaging_whatsapp",
+			"name": "Global - WhatsApp Messaging",
+			"category": "Global - WhatsApp Messaging",
+			"url": "https://ai.verifik.co/api/communication/whatsapp",
+			"verifikPath": "/v2/communication/whatsapp",
+			"method": "POST",
+			"description": "Send a WhatsApp one-time passcode through Verifik's gateway. Provide the destination country code and phone number; the API delivers an OTP template the same way SMS OTP does.",
+			"country": "world",
+			"priceUsd": 0.02,
 			"parameters": {
 				"type": "object",
 				"properties": {
