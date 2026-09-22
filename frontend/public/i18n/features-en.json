@@ -412,6 +412,10 @@
             "title": "Verify Police Compliance with Corrective Measures",
             "description": "Verify police compliance with corrective measures in Colombia"
         },
+        "colombia_api_police_rnmc_premium": {
+            "title": "Police RNMC premium",
+            "description": "Same Policía RNMC corrective-measures result as the standard lookup, for CC only. Send the document number; Verifik resolves the issue date. Costs 1.20 credits."
+        },
         "bolivia_api_identity_lookup": {
             "title": "Bolivian Citizen",
             "description": "Validate the identity of individuals in Bolivia with Verifik's KYC API. Connect with official sources and verify personal data in seconds."

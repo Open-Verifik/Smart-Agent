@@ -412,6 +412,10 @@
             "title": "Conformité aux mesures correctives (RNMC)",
             "description": "Vérifiez les mesures correctives en cours auprès de la police nationale (RNMC)."
         },
+        "colombia_api_police_rnmc_premium": {
+            "title": "RNMC de la police premium",
+            "description": "Même résultat de mesures correctives RNMC, uniquement pour la CC. Envoyez le numéro de document ; Verifik résout la date d'émission. Coûte 1,20 crédit."
+        },
         "bolivia_api_identity_lookup": {
             "title": "Bolivie — Citoyen",
             "description": "Validez l'identité de personnes en Bolivie avec l'API KYC de Verifik. Connectez-vous aux sources officielles et vérifiez les données personnelles en quelques secondes."

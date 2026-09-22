@@ -2417,6 +2417,73 @@
         }
       }
     },
+    "/api/co/policia/rnmc/premium": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_police_rnmc_premium",
+        "summary": "Colombia - Police RNMC premium (CC)",
+        "description": "Same Policía RNMC corrective-measures result as the standard lookup, for CC only. Send the document number; Verifik resolves the issue date. Costs 1.20 credits.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "1.2"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/co/company/dian": {
       "get": {
         "tags": [
@@ -4723,6 +4790,75 @@
             "mode": "fixed",
             "currency": "USD",
             "amount": "0.1"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "countryCode": {
+                    "type": "string",
+                    "description": "Parameter: countryCode"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Parameter: phone"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Parameter: message"
+                  }
+                },
+                "required": [
+                  "countryCode",
+                  "phone",
+                  "message"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/communication/whatsapp": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "communication_global_messaging_whatsapp",
+        "summary": "Global - WhatsApp Messaging",
+        "description": "Send a WhatsApp one-time passcode through Verifik's gateway. Provide the destination country code and phone number; the API delivers an OTP template the same way SMS OTP does.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.02"
           },
           "protocols": [
             {

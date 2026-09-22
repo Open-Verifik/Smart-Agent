@@ -281,42 +281,107 @@
                                             </span>
                                         </label>
 
-                                        <div class="screening-option-group">
-                                            <label class="screening-option">
-                                                <mat-checkbox formControlName="criminalHistoryVerification"></mat-checkbox>
-                                                <mat-icon>security</mat-icon>
-                                                <span>
-                                                    <strong>{{ t('smartEnrollProjects.setup.documents.screening.criminalHistory') }}</strong>
-                                                    <small>{{ t('smartEnrollProjects.setup.documents.screening.criminalHistoryDescription') }}</small>
-                                                </span>
-                                            </label>
+                                        <label class="screening-option">
+                                            <mat-checkbox formControlName="criminalHistoryVerification"></mat-checkbox>
+                                            <mat-icon>security</mat-icon>
+                                            <span>
+                                                <strong>{{ t('smartEnrollProjects.setup.documents.screening.criminalHistory') }}</strong>
+                                                <small>{{ t('smartEnrollProjects.setup.documents.screening.criminalHistoryDescription') }}</small>
+                                            </span>
+                                        </label>
+                                    </div>
 
-                                            @if (formGroup?.get('criminalHistoryVerification')?.value) {
-                                                <div class="endpoint-options">
-                                                    @for (endpoint of criminalRecordsEndpoints; track endpoint.value) {
-                                                        <div class="endpoint-option" [class.endpoint-option--local]="endpoint.value === 'local_api'">
-                                                            <mat-checkbox
-                                                                [checked]="isEndpointSelected(endpoint.value)"
-                                                                (change)="toggleCriminalEndpoint(endpoint.value)"
-                                                            >
-                                                                {{ endpoint.value === 'local_api' ? t(endpoint.label) : endpoint.label }}
-                                                            </mat-checkbox>
-                                                            @if (endpoint.value === 'local_api') {
-                                                                <button
-                                                                    type="button"
-                                                                    mat-icon-button
-                                                                    (click)="openLocalApiModal($event)"
-                                                                    [matTooltip]="t('smartEnrollProjects.setup.documents.screening.localApiTooltip')"
-                                                                >
-                                                                    <mat-icon>info</mat-icon>
-                                                                </button>
+                                    @if (formGroup?.get('criminalHistoryVerification')?.value) {
+                                        <div class="criminal-check-catalog">
+                                            <div class="criminal-check-catalog__intro">
+                                                <div>
+                                                    <span>{{ t('smartEnrollProjects.setup.documents.screening.catalogEyebrow') }}</span>
+                                                    <h4>{{ t('smartEnrollProjects.setup.documents.screening.catalogTitle') }}</h4>
+                                                </div>
+                                                <p>{{ t('smartEnrollProjects.setup.documents.screening.catalogDescription') }}</p>
+                                            </div>
+
+                                            @for (section of countryCheckSections; track section.country) {
+                                                <section class="check-scope">
+                                                    <header class="check-scope__header">
+                                                        <div>
+                                                            <span class="check-scope__badge">
+                                                                {{ t('smartEnrollProjects.setup.documents.screening.countryChecks') }}
+                                                            </span>
+                                                            <h5>{{ section.country }}</h5>
+                                                        </div>
+                                                        <p>{{ t('smartEnrollProjects.setup.documents.screening.countryDescription', { country: section.country }) }}</p>
+                                                    </header>
+
+                                                    @if (section.checks.length) {
+                                                        <div class="check-card-grid">
+                                                            @for (check of section.checks; track check.value) {
+                                                                <label class="check-card" [class.check-card--selected]="isEndpointSelected(check.value)">
+                                                                    <mat-checkbox
+                                                                        [checked]="isEndpointSelected(check.value)"
+                                                                        (change)="toggleCriminalEndpoint(check.value)"
+                                                                    ></mat-checkbox>
+                                                                    <span class="check-card__copy">
+                                                                        <strong>{{ t(check.titleKey) }}</strong>
+                                                                        <small>{{ t(check.descriptionKey) }}</small>
+                                                                        <button
+                                                                            type="button"
+                                                                            class="check-card__source"
+                                                                            [matTooltip]="t('smartEnrollProjects.setup.documents.screening.aboutTooltip')"
+                                                                            matTooltipPosition="above"
+                                                                            (click)="openCheckDetails($event, check)"
+                                                                        >
+                                                                            {{ t(check.sourceKey) }}
+                                                                        </button>
+                                                                    </span>
+                                                                </label>
                                                             }
                                                         </div>
+                                                    } @else {
+                                                        <div class="check-scope__empty">
+                                                            <mat-icon>info_outline</mat-icon>
+                                                            <span>{{ t('smartEnrollProjects.setup.documents.screening.noCountryChecks') }}</span>
+                                                        </div>
+                                                    }
+                                                </section>
+                                            }
+
+                                            <section class="check-scope check-scope--international">
+                                                <span class="check-scope__badge check-scope__badge--floating">
+                                                    {{ t('smartEnrollProjects.setup.documents.screening.globalChecks') }}
+                                                </span>
+                                                <header class="check-scope__header">
+                                                    <div>
+                                                        <h5>{{ t('smartEnrollProjects.setup.documents.screening.internationalTitle') }}</h5>
+                                                    </div>
+                                                    <p>{{ t('smartEnrollProjects.setup.documents.screening.internationalDescription') }}</p>
+                                                </header>
+                                                <div class="check-card-grid">
+                                                    @for (check of internationalChecks; track check.value) {
+                                                        <label class="check-card" [class.check-card--selected]="isEndpointSelected(check.value)">
+                                                            <mat-checkbox
+                                                                [checked]="isEndpointSelected(check.value)"
+                                                                (change)="toggleCriminalEndpoint(check.value)"
+                                                            ></mat-checkbox>
+                                                            <span class="check-card__copy">
+                                                                <strong>{{ t(check.titleKey) }}</strong>
+                                                                <small>{{ t(check.descriptionKey) }}</small>
+                                                                <button
+                                                                    type="button"
+                                                                    class="check-card__source"
+                                                                    [matTooltip]="t('smartEnrollProjects.setup.documents.screening.aboutTooltip')"
+                                                                    matTooltipPosition="above"
+                                                                    (click)="openCheckDetails($event, check)"
+                                                                >
+                                                                    {{ t(check.sourceKey) }}
+                                                                </button>
+                                                            </span>
+                                                        </label>
                                                     }
                                                 </div>
-                                            }
+                                            </section>
                                         </div>
-                                    </div>
+                                    }
                                 }
                             </div>
                         }
@@ -325,6 +390,33 @@
             </ng-container>
         </ol>
     </div>
+
+    <ng-template #checkDetailsDialog>
+        @if (selectedCheck) {
+            <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-lg bg-white dark:bg-gray-900">
+                <div class="flex items-start justify-between gap-4 border-b border-stone-200 bg-stone-50 p-5 dark:border-gray-700 dark:bg-gray-900/60">
+                    <div class="flex min-w-0 flex-col items-start gap-2">
+                        <span class="check-card__source">{{ t(selectedCheck.sourceKey) }}</span>
+                        <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">{{ t(selectedCheck.titleKey) }}</h2>
+                    </div>
+                    <button mat-icon-button mat-dialog-close>
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5">
+                    <p class="m-0 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{{ t(selectedCheck.aboutKey) }}</p>
+                </div>
+                <div class="flex flex-wrap justify-end gap-2 border-t border-stone-200 p-4 dark:border-gray-700">
+                    <a mat-stroked-button [href]="docsUrl(selectedCheck)" target="_blank" rel="noopener noreferrer">
+                        {{ t('smartEnrollProjects.setup.documents.screening.readDocs') }}
+                    </a>
+                    <a mat-flat-button color="primary" [href]="postmanUrl(selectedCheck)" target="_blank" rel="noopener noreferrer">
+                        {{ t('smartEnrollProjects.setup.documents.screening.tryInPostman') }}
+                    </a>
+                </div>
+            </div>
+        }
+    </ng-template>
 
     <!-- Local background-check feature modal -->
     <ng-template #localApiDialog>

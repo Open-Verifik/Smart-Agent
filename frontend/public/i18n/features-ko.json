@@ -412,6 +412,10 @@
             "title": "콜롬비아 — 경찰 시정 조치 준수 확인",
             "description": "콜롬비아 RNMC에서 시정 조치 준수 여부를 조회합니다."
         },
+        "colombia_api_police_rnmc_premium": {
+            "title": "경찰 RNMC 프리미엄",
+            "description": "표준 RNMC 시정 조치 조회와 같은 결과이며 CC만 지원합니다. 문서 번호를 보내면 Verifik이 발급일을 확인합니다. 1.20 크레딧입니다."
+        },
         "bolivia_api_identity_lookup": {
             "title": "볼리비아 — 국민 신분증",
             "description": "Verifik KYC API로 볼리비아 개인의 신원을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 개인 데이터를 확인합니다."

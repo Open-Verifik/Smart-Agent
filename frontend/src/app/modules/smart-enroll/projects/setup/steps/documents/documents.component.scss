@@ -409,12 +409,6 @@
     margin-top: 1.25rem;
 }
 
-.screening-option-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
 .screening-option {
     display: grid;
     grid-template-columns: auto auto minmax(0, 1fr);
@@ -450,42 +444,216 @@
     }
 }
 
-.endpoint-options {
+.criminal-check-catalog {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #d6d3d1;
+    border-radius: 1rem;
+    background: #fafaf9;
+}
+
+.criminal-check-catalog__intro {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.15rem 0.2rem 0.25rem;
+
+    > div {
+        flex: 0 0 auto;
+    }
+
+    span {
+        color: #2563eb;
+        font-size: 0.64rem;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    h4 {
+        margin: 0.18rem 0 0;
+        color: #1c1917;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+    }
+
+    p {
+        max-width: 31rem;
+        margin: 0;
+        color: #78716c;
+        font-size: 0.72rem;
+        line-height: 1.5;
+        text-align: right;
+    }
+}
+
+.check-scope {
+    padding: 1rem;
+    border: 1px solid #e7e5e4;
+    border-radius: 0.9rem;
+    background: #fff;
+}
+
+.check-scope--international {
+    position: relative;
+    margin-top: 0.35rem;
+    border-color: #dbeafe;
+    background: #f8fbff;
+}
+
+.check-scope__header {
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.7fr) minmax(14rem, 1.3fr);
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 0.85rem;
+
+    > div {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    h5 {
+        margin: 0;
+        color: #292524;
+        font-size: 0.86rem;
+        font-weight: 700;
+    }
+
+    p {
+        margin: 0;
+        color: #78716c;
+        font-size: 0.68rem;
+        line-height: 1.45;
+        text-align: right;
+    }
+}
+
+.check-scope__badge,
+.check-card__source {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.check-scope__badge {
+    padding: 0.25rem 0.48rem;
+    background: #e7e5e4;
+    color: #57534e;
+}
+
+.check-scope--international > .check-scope__badge {
+    position: absolute;
+    top: 0;
+    left: 1rem;
+    z-index: 1;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    border: 1px solid #bfdbfe;
+    background: #f8fbff;
+    color: #1d4ed8;
+}
+
+.check-card-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.4rem 0.75rem;
-    padding: 0.75rem;
-    border: 1px solid #e7e5e4;
-    border-radius: 0.8rem;
+    gap: 0.65rem;
 }
 
-.endpoint-option {
+.check-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.65rem;
+    min-height: 7rem;
+    padding: 0.8rem;
+    border: 1px solid #e7e5e4;
+    border-radius: 0.78rem;
+    background: #fff;
+    cursor: pointer;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+
+    &:hover {
+        border-color: #a8a29e;
+        box-shadow: 0 5px 16px rgb(28 25 23 / 0.06);
+        transform: translateY(-1px);
+    }
+}
+
+.check-card--selected {
+    border-color: #93c5fd;
+    box-shadow: inset 0 0 0 1px #bfdbfe;
+}
+
+.check-card__copy {
     display: flex;
     min-width: 0;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
 
-    mat-checkbox {
-        min-width: 0;
+    strong {
+        color: #292524;
+        font-size: 0.76rem;
+        font-weight: 700;
     }
 
-    button {
-        width: 1.8rem;
-        height: 1.8rem;
-        margin-left: auto;
-        padding: 0;
-
-        mat-icon {
-            width: 1rem;
-            height: 1rem;
-            font-size: 1rem;
-        }
+    small {
+        color: #78716c;
+        font-size: 0.65rem;
+        line-height: 1.45;
     }
 }
 
-.endpoint-option--local {
-    grid-column: 1 / -1;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid #e7e5e4;
+.check-card__source {
+    margin-top: auto;
+    padding: 0.22rem 0.43rem;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+button.check-card__source {
+    border: 0;
+    font-family: inherit;
+    line-height: 1.2;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        background: #dbeafe;
+        outline: 2px solid #93c5fd;
+        outline-offset: 2px;
+    }
+}
+
+.check-scope__empty {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 0.65rem;
+    background: #f5f5f4;
+    color: #78716c;
+    font-size: 0.7rem;
+
+    mat-icon {
+        width: 1rem;
+        height: 1rem;
+        font-size: 1rem;
+    }
 }
 
 :host-context(.dark) {
@@ -532,7 +700,8 @@
     .disabled-stage,
     .method-option,
     .screening-option,
-    .endpoint-options,
+    .criminal-check-catalog,
+    .check-scope,
     .requirement-options ::ng-deep .mat-button-toggle {
         border-color: #374151;
         background: #1f2937;
@@ -547,8 +716,50 @@
         color: #f9fafb;
     }
 
-    .endpoint-option--local {
-        border-color: #374151;
+    .check-scope--international,
+    .check-card {
+        border-color: #4b5563;
+        background: #111827;
+    }
+
+    .check-card--selected {
+        border-color: #60a5fa;
+        box-shadow: inset 0 0 0 1px #1d4ed8;
+    }
+
+    .criminal-check-catalog__intro h4,
+    .check-scope__header h5,
+    .check-card__copy strong {
+        color: #f9fafb;
+    }
+
+    .criminal-check-catalog__intro p,
+    .check-scope__header p,
+    .check-card__copy small {
+        color: #9ca3af;
+    }
+
+    .check-scope__badge,
+    .check-scope__empty {
+        background: #374151;
+        color: #d1d5db;
+    }
+
+    .check-scope__badge--floating {
+        border-color: #1d4ed8;
+        background: #111827;
+        color: #bfdbfe;
+    }
+
+    .check-card__source {
+        background: #1e3a8a;
+        color: #dbeafe;
+    }
+
+    button.check-card__source:hover,
+    button.check-card__source:focus-visible {
+        background: #1d4ed8;
+        outline-color: #93c5fd;
     }
 
     .validation-summary {
@@ -586,8 +797,24 @@
     .requirement-options,
     .method-options,
     .screening-options,
+    .check-card-grid,
+    .check-scope__header,
     .policy-section--attempts {
         grid-template-columns: 1fr;
+    }
+
+    .criminal-check-catalog__intro {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        p {
+            text-align: left;
+        }
+    }
+
+    .check-scope__header p {
+        text-align: left;
     }
 
     .documents-panel__header,

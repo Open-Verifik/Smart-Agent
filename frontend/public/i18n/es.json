@@ -2717,7 +2717,83 @@
                     "informationVerificationDescription": "Valida la identidad contra bases de datos oficiales.",
                     "requiresVerification": "Activa al menos una verificación cuando la revisión esté encendida.",
                     "localApi": "Verificación local",
-                    "localApiTooltip": "Consulta las APIs locales de Verifik disponibles para los países seleccionados."
+                    "localApiTooltip": "Consulta las APIs locales de Verifik disponibles para los países seleccionados.",
+                    "catalogEyebrow": "Cobertura de consultas",
+                    "catalogTitle": "Elige los registros que deseas consultar",
+                    "catalogDescription": "Los registros nacionales usan el documento seleccionado. Las listas internacionales consultan el nombre en fuentes globales.",
+                    "countryChecks": "Registros nacionales",
+                    "countryDescription": "Registros oficiales disponibles para documentos de identidad de {{country}}.",
+                    "globalChecks": "Cobertura global",
+                    "internationalTitle": "Listas de vigilancia internacionales",
+                    "internationalDescription": "Consultas por nombre que aplican a todos los países de documento seleccionados.",
+                    "noCountryChecks": "Actualmente no hay consultas penales nacionales configurables disponibles.",
+                    "aboutTooltip": "Acerca de esta fuente",
+                    "tryInPostman": "Probar en Postman",
+                    "readDocs": "Leer la documentación",
+                    "checks": {
+                        "colombia": {
+                            "inpec": {
+                                "title": "Estado actual de reclusión",
+                                "description": "Verifica si la persona está recluida en un centro del INPEC y devuelve detalles penitenciarios y jurídicos.",
+                                "source": "Fuente · INPEC",
+                                "about": "El INPEC es la autoridad penitenciaria de Colombia. Este endpoint consulta una cédula y reporta si la persona está recluida, con datos del centro y del estado jurídico cuando existe un registro. Un hallazgo significa que la persona figura como actualmente recluida."
+                            },
+                            "procuraduria": {
+                                "title": "Antecedentes disciplinarios",
+                                "description": "Consulta sanciones, delitos e inhabilidades certificadas por la Procuraduría.",
+                                "source": "Fuente · Procuraduría General",
+                                "about": "La Procuraduría General de la Nación certifica sanciones disciplinarias, delitos e inhabilidades. Este endpoint consulta una cédula y devuelve esos registros certificados. Un hallazgo significa que la entidad tiene una sanción, un delito o una inhabilidad registrada."
+                            },
+                            "rnmc": {
+                                "title": "Medidas correctivas de Policía",
+                                "description": "Consulta medidas pendientes en el Registro Nacional de Medidas Correctivas. Usa la fecha de expedición del documento.",
+                                "source": "Fuente · Policía Nacional · RNMC",
+                                "about": "El Registro Nacional de Medidas Correctivas (RNMC) lo administra la Policía Nacional. Este endpoint consulta una cédula y la fecha de expedición del documento, y devuelve las medidas correctivas pendientes. Un hallazgo significa que el registro lista medidas que siguen pendientes."
+                            },
+                            "police": {
+                                "title": "Estado de antecedentes judiciales",
+                                "description": "Consulta asuntos pendientes con autoridades judiciales colombianas. Algunos resultados pueden requerir verificación presencial.",
+                                "source": "Fuente · Policía Nacional",
+                                "about": "La consulta de antecedentes judiciales de la Policía Nacional busca una cédula y reporta si hay asuntos pendientes con autoridades judiciales colombianas. Un resultado limpio significa que no hay asuntos pendientes. Algunas respuestas oficiales indican que el certificado no puede generarse en línea y debe solicitarse de forma presencial; eso sigue siendo un resultado completado."
+                            }
+                        },
+                        "interpol": {
+                            "title": "Notificaciones de INTERPOL",
+                            "description": "Consulta notificaciones internacionales y registros de personas buscadas.",
+                            "source": "Fuente · INTERPOL",
+                            "about": "INTERPOL publica notificaciones internacionales y registros de personas buscadas. Este endpoint consulta el nombre completo contra esas notificaciones. Un hallazgo significa que el nombre coincide con una notificación publicada."
+                        },
+                        "fbi": {
+                            "title": "Personas buscadas por el FBI",
+                            "description": "Consulta los registros de personas buscadas por el FBI.",
+                            "source": "Fuente · FBI",
+                            "about": "El FBI publica registros de personas buscadas. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con un registro publicado."
+                        },
+                        "dea": {
+                            "title": "Fugitivos de la DEA",
+                            "description": "Consulta registros de fugitivos de la agencia antidrogas de Estados Unidos.",
+                            "source": "Fuente · DEA",
+                            "about": "La agencia antidrogas de Estados Unidos publica registros de fugitivos. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con un registro publicado."
+                        },
+                        "europol": {
+                            "title": "Más buscados de Europol",
+                            "description": "Consulta los registros de personas más buscadas en Europa.",
+                            "source": "Fuente · Europol",
+                            "about": "Europol publica los registros de las personas más buscadas en Europa. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con un registro publicado."
+                        },
+                        "ofac": {
+                            "title": "Sanciones de OFAC",
+                            "description": "Consulta listas de sanciones administradas por el Tesoro de Estados Unidos.",
+                            "source": "Fuente · Tesoro de EE. UU. · OFAC",
+                            "about": "La Oficina de Control de Activos Extranjeros del Tesoro de Estados Unidos administra listas de sanciones. Este endpoint consulta el nombre completo contra esas listas. Un hallazgo significa que el nombre coincide con una parte sancionada."
+                        },
+                        "un": {
+                            "title": "Sanciones de Naciones Unidas",
+                            "description": "Consulta la lista consolidada de sanciones del Consejo de Seguridad de la ONU.",
+                            "source": "Fuente · Naciones Unidas",
+                            "about": "El Consejo de Seguridad de la ONU publica una lista consolidada de sanciones. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con una parte sancionada."
+                        }
+                    }
                 },
                 "types": {
                     "title": "Tipos de documento aceptados",
