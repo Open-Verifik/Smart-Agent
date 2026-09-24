@@ -473,5 +473,17 @@ describe('postman-endpoint-copy.util', () => {
         it('does not match unrelated queries', () => {
             expect(postmanEndpointMatchesSearch(ownersEndpoint, 'cedula', {}, 'en')).toBe(false);
         });
+
+        it('matches world country and phone lookup copy', () => {
+            const phoneLookup = {
+                code: 'world_api_phone_lookup',
+                country: 'world',
+                label: 'Global - Phone Lookup',
+                url: 'https://api.verifik.co/v2/look-ups/phone',
+            };
+
+            expect(postmanEndpointMatchesSearch(phoneLookup, 'world', {}, 'pt')).toBe(true);
+            expect(postmanEndpointMatchesSearch(phoneLookup, 'phone', {}, 'pt')).toBe(true);
+        });
     });
 });

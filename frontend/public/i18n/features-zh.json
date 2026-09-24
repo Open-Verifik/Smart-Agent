@@ -412,6 +412,10 @@
             "title": "警方矫正措施合规核查",
             "description": "核查哥伦比亚个人是否对警方下发的矫正措施保持合规。"
         },
+        "colombia_api_police_rnmc_premium": {
+            "title": "警方 RNMC 高级查询",
+            "description": "与标准 RNMC 矫正措施查询相同的结果，仅限 CC。发送证件号码，由 Verifik 解析签发日期。费用为 1.20 积分。"
+        },
         "bolivia_api_identity_lookup": {
             "title": "玻利维亚公民（CI）",
             "description": "使用 CI 号码与出生日期核验玻利维亚公民身份，对接官方数据源，适用于 KYC 与合规。"
@@ -425,8 +429,8 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "world_api_phone_lookup": {
-            "title": "全球 - Phone Lookup",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "电话号码查询",
+            "description": "通过 GET 或 POST /v2/look-ups/phone 查询全球电话号码。返回名册上的机主姓名及相关资料字段（如有）。"
         },
         "Mexico_api_ine_model_e": {
             "title": "墨西哥 - INE Model E",

@@ -1078,11 +1078,11 @@
             }
         },
         "companyVerification": {
-            "title": "完成企业验证即可发放 {{amount}} USD 免费额度。",
-            "body": "为发放免费额度，我们需要审核贵司信息，以满足监管机构和合作伙伴的要求。验证完成后，这些额度即可使用，并可切换到生产环境。",
+            "title": "完成企业验证以切换到生产环境。",
+            "body": "使用生产环境前，我们需要审核贵司信息以满足监管机构和合作伙伴的要求。免费额度在购买积分或订阅付费套餐后解锁。",
             "cta": "开始企业验证",
             "pendingTitle": "您的企业验证正在审核中。",
-            "pendingBody": "我们正在审核贵司信息。验证完成后将发放 {{amount}} USD 免费额度并开通生产环境。",
+            "pendingBody": "我们正在审核贵司信息。验证完成后将开通生产环境。免费额度在购买积分或订阅付费套餐后解锁。",
             "step1": "提供公司信息",
             "step2": "审核",
             "step3": "验证结果",
@@ -1403,9 +1403,17 @@
     },
     "accountEnv": {
         "verifyStrip": {
-            "text": "验证您的账户即可获取初始免费积分并切换到正式环境。",
+            "eyebrow": "开启生产环境",
+            "title": "两个简单步骤，获得两项独立权益。",
+            "verifyTitle": "验证您的身份",
+            "verifyText": "解锁安全的生产环境访问权限。",
+            "pendingTitle": "验证审核中",
+            "pendingText": "您的验证正在人工审核中，完成后我们会通知您。",
+            "creditTitle": "解锁免费积分",
+            "creditText": "完成首次积分充值或选择付费套餐。",
             "cta": "验证身份",
-            "pendingText": "您的账户验证正在审核中。"
+            "pendingCta": "审核中",
+            "rechargeCta": "充值积分"
         },
         "identityVerificationModal": {
             "title": "验证身份以解锁生产环境模式",
@@ -1417,7 +1425,7 @@
             "reason3_title": "生产环境访问",
             "reason3_desc": "解锁生产模式，开始执行真实的实时 API 验证请求。",
             "reason4_title": "额度与充值",
-            "reason4_desc": "验证通过后即可轻松充值额度并支付使用费用。",
+            "reason4_desc": "首次积分充值或付费套餐会解锁免费积分，此流程与身份验证相互独立。",
             "reason5_title": "欺诈预防",
             "reason5_desc": "确保环境安全，防止未经授权或欺诈性的使用行为。",
             "cta": "验证身份",
@@ -4623,7 +4631,7 @@
         "availableCredits": "可用积分",
         "pendingWelcome": {
             "title": "{{amount}} 欢迎积分已锁定",
-            "body": "账户获批后您将收到这些积分。在此之前不可使用。"
+            "body": "购买积分（添加卡片并充值）或订阅付费套餐后即可解锁。"
         },
         "purchaseCredits": "购买积分",
         "addCard": "添加卡片",

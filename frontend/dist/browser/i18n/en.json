@@ -952,11 +952,11 @@
             }
         },
         "companyVerification": {
-            "title": "Verify your company to release {{amount}} USD in free credits.",
-            "body": "To release your free credits, we need to review your company information in order to meet the requirements of our regulators and partners. After verification, those credits become available and you can switch to Production.",
+            "title": "Verify your company to switch to Production.",
+            "body": "To use Production, we need to review your company information for our regulators and partners. Free credits unlock when you buy credits or subscribe to a paid plan.",
             "cta": "Start company verification",
             "pendingTitle": "Your company verification is under review.",
-            "pendingBody": "We're reviewing your company information. We'll release {{amount}} USD in free credits and unlock Production when verification is complete.",
+            "pendingBody": "We're reviewing your company information. Production unlocks when verification is complete. Free credits unlock when you buy credits or subscribe to a paid plan.",
             "step1": "Provide company information",
             "step2": "Review",
             "step3": "Verification result",
@@ -1277,9 +1277,17 @@
     },
     "accountEnv": {
         "verifyStrip": {
-            "text": "Verify your account to access the initial free credits and switch to Production.",
+            "eyebrow": "Your path to Production",
+            "title": "Two quick steps. Two separate benefits.",
+            "verifyTitle": "Verify your identity",
+            "verifyText": "Unlock secure Production access.",
+            "pendingTitle": "Verification in review",
             "pendingText": "Your verification is under manual review. We'll notify you when it's complete.",
-            "cta": "Verify identity"
+            "creditTitle": "Unlock your free credits",
+            "creditText": "Make your first credit recharge or choose a paid plan.",
+            "cta": "Verify identity",
+            "pendingCta": "Review pending",
+            "rechargeCta": "Recharge credits"
         },
         "identityVerificationModal": {
             "title": "Verify Identity to Obtain Production Mode",
@@ -1291,7 +1299,7 @@
             "reason3_title": "Production Access",
             "reason3_desc": "Unlock Production mode to start executing real, live API verification requests.",
             "reason4_title": "Credits & Recharge",
-            "reason4_desc": "Recharge credits and pay for usage seamlessly after validation.",
+            "reason4_desc": "Your first credit recharge or paid plan unlocks your free credits. This is separate from identity verification.",
             "reason5_title": "Fraud Prevention",
             "reason5_desc": "Ensure a safe environment and prevent unauthorized or fraudulent usage.",
             "cta": "Verify identity",
@@ -2245,7 +2253,83 @@
                     "informationVerificationDescription": "Validate identity against official government databases.",
                     "requiresVerification": "Enable at least one verification when screening is on.",
                     "localApi": "Local background check",
-                    "localApiTooltip": "See which Verifik local APIs are available for the countries you have selected."
+                    "localApiTooltip": "See which Verifik local APIs are available for the countries you have selected.",
+                    "catalogEyebrow": "Screening coverage",
+                    "catalogTitle": "Choose the records to check",
+                    "catalogDescription": "Country records use the selected document. International watchlists screen the person's name across global sources.",
+                    "countryChecks": "Country records",
+                    "countryDescription": "Official records available for {{country}} identity documents.",
+                    "globalChecks": "Global coverage",
+                    "internationalTitle": "International watchlists",
+                    "internationalDescription": "Name-based screening that applies to every selected document country.",
+                    "noCountryChecks": "No configurable country-specific criminal record checks are currently available.",
+                    "aboutTooltip": "About this source",
+                    "tryInPostman": "Try in Postman",
+                    "readDocs": "Read the documentation",
+                    "checks": {
+                        "colombia": {
+                            "inpec": {
+                                "title": "Current incarceration status",
+                                "description": "Checks whether the person is currently held in an INPEC facility and returns prison and legal-status details.",
+                                "source": "Source · INPEC",
+                                "about": "INPEC is Colombia's national prison authority. This endpoint looks up a cédula and reports whether the person is currently incarcerated, including facility and legal-status details when a record exists. A hit means the person is listed as currently held."
+                            },
+                            "procuraduria": {
+                                "title": "Disciplinary records",
+                                "description": "Checks sanctions, offenses, and disqualifications certified by the Procuraduría.",
+                                "source": "Source · Procuraduría General",
+                                "about": "The Procuraduría General de la Nación certifies disciplinary sanctions, offenses, and disqualifications. This endpoint looks up a cédula and returns those certified records. A hit means the office has registered a sanction, offense, or disqualification."
+                            },
+                            "rnmc": {
+                                "title": "Police corrective measures",
+                                "description": "Checks pending measures in the National Registry of Corrective Measures. Uses the document issue date.",
+                                "source": "Source · National Police · RNMC",
+                                "about": "The National Registry of Corrective Measures (RNMC) is maintained by the National Police. This endpoint looks up a cédula plus the document issue date and returns pending police corrective measures. A hit means the registry lists measures that are still pending."
+                            },
+                            "police": {
+                                "title": "Judicial background status",
+                                "description": "Checks for pending matters with Colombian judicial authorities. Some results may require in-person verification.",
+                                "source": "Source · National Police",
+                                "about": "The National Police judicial background check looks up a cédula and reports whether Colombian judicial authorities have pending matters. A clear result means no pending matters. Some official responses say the certificate cannot be generated online and must be requested in person; that is still a completed result."
+                            }
+                        },
+                        "interpol": {
+                            "title": "INTERPOL notices",
+                            "description": "Screens international notices and wanted-person records.",
+                            "source": "Source · INTERPOL",
+                            "about": "INTERPOL publishes international notices and wanted-person records. This endpoint screens the person's full name against those notices. A hit means the name matches a published INTERPOL notice."
+                        },
+                        "fbi": {
+                            "title": "FBI wanted persons",
+                            "description": "Screens the FBI's wanted-person records.",
+                            "source": "Source · FBI",
+                            "about": "The FBI publishes wanted-person records. This endpoint screens the person's full name against that list. A hit means the name matches a published FBI wanted record."
+                        },
+                        "dea": {
+                            "title": "DEA fugitives",
+                            "description": "Screens US Drug Enforcement Administration fugitive records.",
+                            "source": "Source · DEA",
+                            "about": "The US Drug Enforcement Administration publishes fugitive records. This endpoint screens the person's full name against that list. A hit means the name matches a published DEA fugitive record."
+                        },
+                        "europol": {
+                            "title": "Europol most wanted",
+                            "description": "Screens Europe's most-wanted records.",
+                            "source": "Source · Europol",
+                            "about": "Europol publishes Europe's most-wanted records. This endpoint screens the person's full name against that list. A hit means the name matches a published Europol record."
+                        },
+                        "ofac": {
+                            "title": "OFAC sanctions",
+                            "description": "Screens sanctions lists maintained by the US Treasury.",
+                            "source": "Source · US Treasury · OFAC",
+                            "about": "The US Treasury's Office of Foreign Assets Control maintains sanctions lists. This endpoint screens the person's full name against those lists. A hit means the name matches a listed sanctioned party."
+                        },
+                        "un": {
+                            "title": "United Nations sanctions",
+                            "description": "Screens the UN Security Council consolidated sanctions list.",
+                            "source": "Source · United Nations",
+                            "about": "The UN Security Council publishes a consolidated sanctions list. This endpoint screens the person's full name against that list. A hit means the name matches a listed sanctioned party."
+                        }
+                    }
                 },
                 "types": {
                     "title": "Accepted document types",
@@ -4515,7 +4599,7 @@
         "availableCredits": "Available credits",
         "pendingWelcome": {
             "title": "{{amount}} welcome credits locked",
-            "body": "You'll receive these credits once your account is approved. They are not spendable until then."
+            "body": "Buy credits (add a card and purchase) or subscribe to a paid plan to unlock these credits."
         },
         "purchaseCredits": "Purchase Credits",
         "addCard": "Add Card",

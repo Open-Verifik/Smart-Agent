@@ -412,6 +412,10 @@
             "title": "콜롬비아 — 경찰 시정 조치 준수 확인",
             "description": "콜롬비아 RNMC에서 시정 조치 준수 여부를 조회합니다."
         },
+        "colombia_api_police_rnmc_premium": {
+            "title": "경찰 RNMC 프리미엄",
+            "description": "표준 RNMC 시정 조치 조회와 같은 결과이며 CC만 지원합니다. 문서 번호를 보내면 Verifik이 발급일을 확인합니다. 1.20 크레딧입니다."
+        },
         "bolivia_api_identity_lookup": {
             "title": "볼리비아 — 국민 신분증",
             "description": "Verifik KYC API로 볼리비아 개인의 신원을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 개인 데이터를 확인합니다."
@@ -425,8 +429,8 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "world_api_phone_lookup": {
-            "title": "글로벌 - Phone Lookup",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "전화번호 조회",
+            "description": "GET 또는 POST /v2/look-ups/phone 으로 전 세계 전화번호를 조회합니다. 목록에 있는 소유자 이름과 관련 프로필 필드를 반환합니다."
         },
         "Mexico_api_ine_model_e": {
             "title": "멕시코 - INE Model E",

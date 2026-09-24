@@ -948,11 +948,11 @@
             }
         },
         "companyVerification": {
-            "title": "Verifica tu empresa para liberar {{amount}} USD en créditos gratuitos.",
-            "body": "Para liberar tus créditos gratuitos, debemos revisar la información de tu empresa y cumplir con los requisitos de nuestros reguladores y socios. Tras la verificación, esos créditos estarán disponibles y podrás pasar a Producción.",
+            "title": "Verifica tu empresa para pasar a Producción.",
+            "body": "Para usar Producción debemos revisar la información de tu empresa por requisitos de reguladores y socios. Los créditos gratuitos se desbloquean al comprar créditos o suscribirte a un plan de pago.",
             "cta": "Iniciar verificación de empresa",
             "pendingTitle": "La verificación de tu empresa está en revisión.",
-            "pendingBody": "Estamos revisando la información de tu empresa. Liberaremos {{amount}} USD en créditos gratuitos y activaremos Producción cuando se complete la verificación.",
+            "pendingBody": "Estamos revisando la información de tu empresa. Producción se activa al completar la verificación. Los créditos gratuitos se desbloquean al comprar créditos o suscribirte a un plan de pago.",
             "step1": "Proporcionar información de la empresa",
             "step2": "Revisión",
             "step3": "Resultado de la verificación",
@@ -1273,9 +1273,17 @@
     },
     "accountEnv": {
         "verifyStrip": {
-            "text": "Verifica tu cuenta para acceder a los créditos gratuitos iniciales y cambiar a Producción.",
+            "eyebrow": "Tu camino a Producción",
+            "title": "Dos pasos rápidos. Dos beneficios distintos.",
+            "verifyTitle": "Verifica tu identidad",
+            "verifyText": "Desbloquea el acceso seguro a Producción.",
+            "pendingTitle": "Verificación en revisión",
             "pendingText": "Tu verificación está en revisión manual. Te avisaremos cuando esté completa.",
-            "cta": "Verificar identidad"
+            "creditTitle": "Desbloquea tus créditos gratis",
+            "creditText": "Haz tu primera recarga de créditos o elige un plan de pago.",
+            "cta": "Verificar identidad",
+            "pendingCta": "Revisión pendiente",
+            "rechargeCta": "Recargar créditos"
         },
         "identityVerificationModal": {
             "title": "Verifica tu identidad para obtener el Modo Producción",
@@ -1287,7 +1295,7 @@
             "reason3_title": "Acceso a producción",
             "reason3_desc": "Desbloquea el modo Producción para comenzar a realizar solicitudes de verificación de API reales en vivo.",
             "reason4_title": "Créditos y recargas",
-            "reason4_desc": "Recarga créditos y paga por tu consumo sin inconvenientes tras la validación.",
+            "reason4_desc": "Tu primera recarga de créditos o plan de pago desbloquea tus créditos gratis. Esto es independiente de la verificación de identidad.",
             "reason5_title": "Prevención de fraude",
             "reason5_desc": "Garantizar un entorno seguro y prevenir el uso no autorizado o fraudulento.",
             "cta": "Verificar identidad",
@@ -2709,7 +2717,83 @@
                     "informationVerificationDescription": "Valida la identidad contra bases de datos oficiales.",
                     "requiresVerification": "Activa al menos una verificación cuando la revisión esté encendida.",
                     "localApi": "Verificación local",
-                    "localApiTooltip": "Consulta las APIs locales de Verifik disponibles para los países seleccionados."
+                    "localApiTooltip": "Consulta las APIs locales de Verifik disponibles para los países seleccionados.",
+                    "catalogEyebrow": "Cobertura de consultas",
+                    "catalogTitle": "Elige los registros que deseas consultar",
+                    "catalogDescription": "Los registros nacionales usan el documento seleccionado. Las listas internacionales consultan el nombre en fuentes globales.",
+                    "countryChecks": "Registros nacionales",
+                    "countryDescription": "Registros oficiales disponibles para documentos de identidad de {{country}}.",
+                    "globalChecks": "Cobertura global",
+                    "internationalTitle": "Listas de vigilancia internacionales",
+                    "internationalDescription": "Consultas por nombre que aplican a todos los países de documento seleccionados.",
+                    "noCountryChecks": "Actualmente no hay consultas penales nacionales configurables disponibles.",
+                    "aboutTooltip": "Acerca de esta fuente",
+                    "tryInPostman": "Probar en Postman",
+                    "readDocs": "Leer la documentación",
+                    "checks": {
+                        "colombia": {
+                            "inpec": {
+                                "title": "Estado actual de reclusión",
+                                "description": "Verifica si la persona está recluida en un centro del INPEC y devuelve detalles penitenciarios y jurídicos.",
+                                "source": "Fuente · INPEC",
+                                "about": "El INPEC es la autoridad penitenciaria de Colombia. Este endpoint consulta una cédula y reporta si la persona está recluida, con datos del centro y del estado jurídico cuando existe un registro. Un hallazgo significa que la persona figura como actualmente recluida."
+                            },
+                            "procuraduria": {
+                                "title": "Antecedentes disciplinarios",
+                                "description": "Consulta sanciones, delitos e inhabilidades certificadas por la Procuraduría.",
+                                "source": "Fuente · Procuraduría General",
+                                "about": "La Procuraduría General de la Nación certifica sanciones disciplinarias, delitos e inhabilidades. Este endpoint consulta una cédula y devuelve esos registros certificados. Un hallazgo significa que la entidad tiene una sanción, un delito o una inhabilidad registrada."
+                            },
+                            "rnmc": {
+                                "title": "Medidas correctivas de Policía",
+                                "description": "Consulta medidas pendientes en el Registro Nacional de Medidas Correctivas. Usa la fecha de expedición del documento.",
+                                "source": "Fuente · Policía Nacional · RNMC",
+                                "about": "El Registro Nacional de Medidas Correctivas (RNMC) lo administra la Policía Nacional. Este endpoint consulta una cédula y la fecha de expedición del documento, y devuelve las medidas correctivas pendientes. Un hallazgo significa que el registro lista medidas que siguen pendientes."
+                            },
+                            "police": {
+                                "title": "Estado de antecedentes judiciales",
+                                "description": "Consulta asuntos pendientes con autoridades judiciales colombianas. Algunos resultados pueden requerir verificación presencial.",
+                                "source": "Fuente · Policía Nacional",
+                                "about": "La consulta de antecedentes judiciales de la Policía Nacional busca una cédula y reporta si hay asuntos pendientes con autoridades judiciales colombianas. Un resultado limpio significa que no hay asuntos pendientes. Algunas respuestas oficiales indican que el certificado no puede generarse en línea y debe solicitarse de forma presencial; eso sigue siendo un resultado completado."
+                            }
+                        },
+                        "interpol": {
+                            "title": "Notificaciones de INTERPOL",
+                            "description": "Consulta notificaciones internacionales y registros de personas buscadas.",
+                            "source": "Fuente · INTERPOL",
+                            "about": "INTERPOL publica notificaciones internacionales y registros de personas buscadas. Este endpoint consulta el nombre completo contra esas notificaciones. Un hallazgo significa que el nombre coincide con una notificación publicada."
+                        },
+                        "fbi": {
+                            "title": "Personas buscadas por el FBI",
+                            "description": "Consulta los registros de personas buscadas por el FBI.",
+                            "source": "Fuente · FBI",
+                            "about": "El FBI publica registros de personas buscadas. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con un registro publicado."
+                        },
+                        "dea": {
+                            "title": "Fugitivos de la DEA",
+                            "description": "Consulta registros de fugitivos de la agencia antidrogas de Estados Unidos.",
+                            "source": "Fuente · DEA",
+                            "about": "La agencia antidrogas de Estados Unidos publica registros de fugitivos. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con un registro publicado."
+                        },
+                        "europol": {
+                            "title": "Más buscados de Europol",
+                            "description": "Consulta los registros de personas más buscadas en Europa.",
+                            "source": "Fuente · Europol",
+                            "about": "Europol publica los registros de las personas más buscadas en Europa. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con un registro publicado."
+                        },
+                        "ofac": {
+                            "title": "Sanciones de OFAC",
+                            "description": "Consulta listas de sanciones administradas por el Tesoro de Estados Unidos.",
+                            "source": "Fuente · Tesoro de EE. UU. · OFAC",
+                            "about": "La Oficina de Control de Activos Extranjeros del Tesoro de Estados Unidos administra listas de sanciones. Este endpoint consulta el nombre completo contra esas listas. Un hallazgo significa que el nombre coincide con una parte sancionada."
+                        },
+                        "un": {
+                            "title": "Sanciones de Naciones Unidas",
+                            "description": "Consulta la lista consolidada de sanciones del Consejo de Seguridad de la ONU.",
+                            "source": "Fuente · Naciones Unidas",
+                            "about": "El Consejo de Seguridad de la ONU publica una lista consolidada de sanciones. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con una parte sancionada."
+                        }
+                    }
                 },
                 "types": {
                     "title": "Tipos de documento aceptados",
@@ -4511,7 +4595,7 @@
         "availableCredits": "Créditos disponibles",
         "pendingWelcome": {
             "title": "{{amount}} créditos de bienvenida bloqueados",
-            "body": "Recibirás estos créditos cuando tu cuenta sea aprobada. No se pueden usar hasta entonces."
+            "body": "Compra créditos (agrega una tarjeta y recarga) o suscríbete a un plan de pago para desbloquearlos."
         },
         "purchaseCredits": "Comprar Créditos",
         "addCard": "Agregar Tarjeta",

@@ -112,7 +112,9 @@ export class AddCreditsComponent implements OnInit {
 
     showPendingWelcomeCreditsBanner = computed(() => {
         const pending = this.pendingWelcomeCredits();
-        return Boolean(pending?.lockedUntilApproval && (pending.amount ?? 0) > 0);
+        return Boolean(
+            (pending?.lockedUntilPurchase || pending?.lockedUntilApproval) && (pending.amount ?? 0) > 0
+        );
     });
 
     weekOneUsd50PromoMinLabel = computed(
@@ -312,7 +314,9 @@ export class AddCreditsComponent implements OnInit {
         const pending = user?.pendingWelcomeCredits;
 
         this.pendingWelcomeCredits.set(
-            pending?.lockedUntilApproval && (pending.amount ?? 0) > 0 ? pending : undefined,
+            (pending?.lockedUntilPurchase || pending?.lockedUntilApproval) && (pending.amount ?? 0) > 0
+                ? pending
+                : undefined,
         );
     }
 

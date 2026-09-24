@@ -323,6 +323,7 @@ export const collectPostmanEndpointSearchText = (
         endpoint.nameES,
         endpoint.url,
         endpoint.code,
+        endpoint.country,
         endpoint.layoutDisplayName,
         endpoint.description,
         catalog.title,

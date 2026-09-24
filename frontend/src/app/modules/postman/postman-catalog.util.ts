@@ -31,7 +31,9 @@ export const countryCacheKey = (countries: string[]): string =>
 /**
  * Scope for Check List and multi-country loads: selected countries plus world.
  */
-export const catalogCountryScopeForCountries = (countries: string[] | null | undefined): string[] => {
+export const catalogCountryScopeForCountries = (
+    countries: string[] | null | undefined
+): string[] => {
     const named = [...new Set((countries ?? []).map((value) => value.trim()).filter(Boolean))];
     if (!named.length) {
         return [DEFAULT_POSTMAN_COUNTRY, WORLD_CATALOG_COUNTRY];
@@ -39,9 +41,7 @@ export const catalogCountryScopeForCountries = (countries: string[] | null | und
     if (named.every((value) => isWorldCountry(value))) {
         return [WORLD_CATALOG_COUNTRY];
     }
-    const scoped = named.map((value) =>
-        isWorldCountry(value) ? WORLD_CATALOG_COUNTRY : value
-    );
+    const scoped = named.map((value) => (isWorldCountry(value) ? WORLD_CATALOG_COUNTRY : value));
     return [...new Set([...scoped, WORLD_CATALOG_COUNTRY])];
 };
 

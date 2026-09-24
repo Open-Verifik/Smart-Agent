@@ -412,6 +412,10 @@
             "title": "コロンビア — 警察の是正措置遵守確認",
             "description": "コロンビア RNMC で是正措置の遵守状況を照会します。"
         },
+        "colombia_api_police_rnmc_premium": {
+            "title": "警察 RNMC プレミアム",
+            "description": "標準の RNMC 是正措置照会と同じ結果です。CC のみ。文書番号を送ると Verifik が発行日を解決します。1.20 クレジットです。"
+        },
         "bolivia_api_identity_lookup": {
             "title": "ボリビア — 国民身分証",
             "description": "Verifik の KYC API でボリビアの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
@@ -425,8 +429,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "world_api_phone_lookup": {
-            "title": "グローバル - Phone Lookup",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "電話番号照会",
+            "description": "GET または POST /v2/look-ups/phone で世界の電話番号を照会します。掲載されている名義人名と関連プロファイル項目を返します。"
         },
         "Mexico_api_ine_model_e": {
             "title": "メキシコ - INE Model E",

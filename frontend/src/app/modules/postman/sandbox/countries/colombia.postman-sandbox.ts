@@ -83,6 +83,7 @@ export const COLOMBIA_AFFILIATIONS_ENDPOINT_CODE = 'colombia_api_affiliations';
 export const COLOMBIA_CRIMINAL_HISTORY_ENDPOINT_CODE = 'colombia_api_criminal_history';
 export const COLOMBIA_DIAN_ENDPOINT_CODE = 'colombia_api_dian';
 export const COLOMBIA_POLICE_RNMC_ENDPOINT_CODE = 'colombia_api_police_rnmc';
+export const COLOMBIA_POLICE_RNMC_PREMIUM_ENDPOINT_CODE = 'colombia_api_police_rnmc_premium';
 export const COLOMBIA_CONTRALORIA_CERTIFICATE_ENDPOINT_CODE = 'colombia_api_contraloria_certificate';
 export const COLOMBIA_DIAN_INVOICER_ENDPOINT_CODE = 'colombia_api_dian_invoicer';
 export const COLOMBIA_RUES_V3_ENDPOINT_CODE = 'colombia_api_rues_v3';
@@ -1071,6 +1072,19 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         defaultDate: COLOMBIA_POLICE_RNMC_DEFAULT_DATE,
         documentTypeByCode: {
             [COLOMBIA_POLICE_RNMC_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_POLICE_RNMC_PREMIUM_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_POLICE_RNMC_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_POLICE_RNMC_PREMIUM_ENDPOINT_CODE]: 'CC',
         },
         showProfileMeta: false,
     },

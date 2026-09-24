@@ -412,6 +412,10 @@
             "title": "Verificar Cumplimiento Policial con Medidas Correctivas",
             "description": "El servicio RNMC de Policía permite verificar si un individuo tiene medidas correctivas pendientes. Al proporcionar el nombre del individuo, tipo de documento, número de documento y la fecha de verificación, puede obtener detalles sobre cualquier medida correctiva pendiente."
         },
+        "colombia_api_police_rnmc_premium": {
+            "title": "RNMC de la Policía premium",
+            "description": "El mismo resultado de medidas correctivas del RNMC de la Policía, solo para CC. Envía el número de documento; Verifik resuelve la fecha de expedición. Cuesta 1.20 créditos."
+        },
         "bolivia_api_identity_lookup": {
             "title": "Ciudadano Boliviano",
             "description": "Valida la identidad de personas en Bolivia con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
@@ -425,8 +429,8 @@
             "description": "Proporciona servicios confiables de verificación y validación."
         },
         "world_api_phone_lookup": {
-            "title": "Global - Consulta de Teléfono",
-            "description": "Proporciona servicios confiables de verificación y validación."
+            "title": "Consulta de Teléfono",
+            "description": "Consulte un número telefónico a nivel mundial vía GET o POST /v2/look-ups/phone. Devuelve el nombre del titular listado y campos de perfil relacionados cuando están disponibles."
         },
         "Mexico_api_ine_model_e": {
             "title": "México - INE Modelo E",
