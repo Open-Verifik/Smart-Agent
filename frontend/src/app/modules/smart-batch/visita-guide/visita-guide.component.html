@@ -1,0 +1,2272 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <header
+            class="border-b border-stone-200/90 bg-white/90 px-5 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
+            [class.py-5]="!isLayoutStep()"
+            [class.py-3]="isLayoutStep()"
+        >
+            <div
+                class="mx-auto flex w-full flex-col"
+                [class.gap-4]="!isLayoutStep()"
+                [class.gap-2]="isLayoutStep()"
+                [class.max-w-3xl]="!isWideStep()"
+                [class.max-w-7xl]="isWideStep() && !isLayoutStep()"
+                [class.max-w-none]="isLayoutStep()"
+            >
+                @if (!isLayoutStep()) {
+                <div
+                    class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
+                >
+                    <a
+                        routerLink="/home"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >Verifik</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">{{
+                        t('visitaGuide.brand')
+                    }}</span>
+                </div>
+                }
+
+                <div class="flex flex-wrap items-center gap-3">
+                    @if (canGoBack()) {
+                        <button
+                            type="button"
+                            (click)="goBack()"
+                            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                            [attr.aria-label]="t('visitaGuide.back')"
+                        >
+                            <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
+                        </button>
+                    }
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                            {{ t('visitaGuide.progress', { current: stepIndex() + 1, total: stepCount() }) }}
+                        </p>
+                        <h1
+                            class="font-semibold tracking-tight text-stone-950 dark:text-white"
+                            [class.mt-1]="!isLayoutStep()"
+                            [class.text-2xl]="!isLayoutStep()"
+                            [class.md:text-3xl]="!isLayoutStep()"
+                            [class.text-xl]="isLayoutStep()"
+                        >
+                            {{ t(currentTitleKey()) }}
+                        </h1>
+                        @if (!isLayoutStep()) {
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('visitaGuide.nowHint') }}
+                            </p>
+                        }
+                    </div>
+                    @if (isLayoutStep()) {
+                        <div class="flex flex-wrap items-center gap-1">
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [disabled]="!canUndoLayout()"
+                                [matTooltip]="t('visitaGuide.layoutUndo')"
+                                [attr.aria-label]="t('visitaGuide.layoutUndo')"
+                                (click)="undoLayout()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">undo</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [disabled]="!canRedoLayout()"
+                                [matTooltip]="t('visitaGuide.layoutRedo')"
+                                [attr.aria-label]="t('visitaGuide.layoutRedo')"
+                                (click)="redoLayout()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">redo</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.layoutAddAll')"
+                                [attr.aria-label]="t('visitaGuide.layoutAddAll')"
+                                (click)="addAllCardsToLayout()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">playlist_add</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.layoutUseVisita')"
+                                [attr.aria-label]="t('visitaGuide.layoutUseVisita')"
+                                (click)="useVisitaLayout()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">dashboard_customize</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.openDesigner')"
+                                [attr.aria-label]="t('visitaGuide.openDesigner')"
+                                (click)="openMoldEditor()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">design_services</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [matTooltip]="t('visitaGuide.layoutEditorPage')"
+                                [attr.aria-label]="t('visitaGuide.layoutEditorPage')"
+                                (click)="openLayoutPageEditor($event)"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">web_asset</mat-icon>
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                @if (entities().length || countryIso()) {
+                    <div
+                        class="flex flex-wrap text-xs"
+                        [class.gap-2]="!isLayoutStep()"
+                        [class.gap-1]="isLayoutStep()"
+                        [class.mt-2]="isLayoutStep()"
+                    >
+                        @for (key of entityTitleKeys(); track key) {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
+                                >{{ t(key) }}</span
+                            >
+                        }
+                        @if (countryIso()) {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
+                                >{{ countryFlag() }} Colombia</span
+                            >
+                        }
+                        @if (mode() === 'batch') {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
+                                >{{ t('visitaGuide.modeBatch') }}</span
+                            >
+                        }
+                        @if (mode() === 'single') {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                [class.px-3]="!isLayoutStep()"
+                                [class.px-2]="isLayoutStep()"
+                                >{{ t('visitaGuide.modeSingle') }}</span
+                            >
+                        }
+                    </div>
+                }
+            </div>
+        </header>
+
+        <main
+            class="flex flex-auto flex-col px-5 md:px-8"
+            [class.py-8]="!isLayoutStep()"
+            [class.md:py-10]="!isLayoutStep()"
+            [class.py-3]="isLayoutStep()"
+        >
+            <div
+                class="mx-auto flex w-full flex-col gap-4"
+                [class.max-w-3xl]="!isWideStep()"
+                [class.max-w-7xl]="isWideStep() && !isLayoutStep()"
+                [class.max-w-none]="isLayoutStep()"
+            >
+                @switch (step()) {
+                    @case ('intent') {
+                        @for (item of intents; track item.id) {
+                            <button
+                                type="button"
+                                class="group flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-white"
+                                (click)="selectIntent(item.id)"
+                            >
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                >
+                                    <mat-icon>{{ item.icon }}</mat-icon>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t(item.titleKey)
+                                    }}</span>
+                                    <span class="mt-1 block text-sm text-stone-500 dark:text-stone-400">{{
+                                        t(item.descKey)
+                                    }}</span>
+                                </div>
+                                <mat-icon class="mt-1 shrink-0 text-stone-300">arrow_forward</mat-icon>
+                            </button>
+                        }
+                    }
+                    @case ('entity') {
+                        @if (allowsMultiEntity()) {
+                            <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.entityMultiHint') }}</p>
+                        }
+                        @for (item of entityOptions; track item.id) {
+                            <button
+                                type="button"
+                                class="group flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition"
+                                [ngClass]="
+                                    isEntitySelected(item.id)
+                                        ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400 dark:border-emerald-400 dark:bg-emerald-950 dark:ring-emerald-500'
+                                        : 'border-stone-200 bg-white hover:border-stone-400 dark:border-gray-800 dark:bg-gray-900/70'
+                                "
+                                (click)="toggleEntity(item.id)"
+                            >
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+                                    [ngClass]="
+                                        isEntitySelected(item.id)
+                                            ? 'border-emerald-400 bg-emerald-100 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-900 dark:text-emerald-300'
+                                            : 'border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200'
+                                    "
+                                >
+                                    <mat-icon>{{ item.icon }}</mat-icon>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t(item.titleKey)
+                                    }}</span>
+                                    <span class="mt-1 block text-sm text-stone-500 dark:text-stone-400">{{
+                                        t(item.descKey)
+                                    }}</span>
+                                </div>
+                                @if (isEntitySelected(item.id)) {
+                                    <mat-icon class="shrink-0 text-emerald-600 dark:text-emerald-400">check_circle</mat-icon>
+                                } @else {
+                                    <mat-icon class="shrink-0 text-stone-300 dark:text-gray-600">add_circle_outline</mat-icon>
+                                }
+                            </button>
+                        }
+                        @if (allowsMultiEntity()) {
+                            <button
+                                type="button"
+                                class="mt-2 inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                                (click)="confirmEntities()"
+                            >
+                                {{ t('visitaGuide.continue') }}
+                            </button>
+                        }
+                    }
+                    @case ('mode') {
+                        <button
+                            type="button"
+                            class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
+                            (click)="selectMode('single')"
+                        >
+                            <mat-icon>person_search</mat-icon>
+                            <div>
+                                <span class="block text-sm font-semibold">{{ t('visitaGuide.modeSingle') }}</span>
+                                <span class="mt-1 block text-sm text-stone-500">{{ t('visitaGuide.modeSingleDesc') }}</span>
+                            </div>
+                        </button>
+                        <button
+                            type="button"
+                            class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
+                            (click)="selectMode('batch')"
+                        >
+                            <mat-icon>upload_file</mat-icon>
+                            <div>
+                                <span class="block text-sm font-semibold">{{ t('visitaGuide.modeBatch') }}</span>
+                                <span class="mt-1 block text-sm text-stone-500">{{ t('visitaGuide.modeBatchDesc') }}</span>
+                            </div>
+                        </button>
+                    }
+                    @case ('country') {
+                        @for (country of countries; track country.iso) {
+                            <button
+                                type="button"
+                                class="flex w-full items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
+                                (click)="selectCountry(country.iso)"
+                            >
+                                <span class="text-xl">{{ flagFor(country.iso) }}</span>
+                                <span class="text-sm font-semibold text-stone-950 dark:text-white">{{
+                                    country.name
+                                }}</span>
+                            </button>
+                        }
+                    }
+                    @case ('endpoints') {
+                        <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.endpointsHint') }}</p>
+                        @if (availableRequiredParamFilters().length) {
+                            <div class="mt-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                            {{ t('visitaGuide.paramFilterTitle') }}
+                                        </p>
+                                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                            {{ t('visitaGuide.paramFilterHint') }}
+                                        </p>
+                                    </div>
+                                    @if (requiredParamFilters().length) {
+                                        <button
+                                            type="button"
+                                            class="shrink-0 text-xs font-medium text-stone-600 underline-offset-4 hover:underline dark:text-stone-300"
+                                            (click)="clearRequiredParamFilters()"
+                                        >
+                                            {{ t('visitaGuide.paramFilterClear') }}
+                                        </button>
+                                    }
+                                </div>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @for (field of availableRequiredParamFilters(); track field) {
+                                        <button
+                                            type="button"
+                                            class="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                                            [class.border-stone-950]="isRequiredParamFilterActive(field)"
+                                            [class.bg-stone-950]="isRequiredParamFilterActive(field)"
+                                            [class.text-white]="isRequiredParamFilterActive(field)"
+                                            [class.dark:border-white]="isRequiredParamFilterActive(field)"
+                                            [class.dark:bg-white]="isRequiredParamFilterActive(field)"
+                                            [class.dark:text-gray-950]="isRequiredParamFilterActive(field)"
+                                            [class.border-stone-200]="!isRequiredParamFilterActive(field)"
+                                            [class.bg-stone-50]="!isRequiredParamFilterActive(field)"
+                                            [class.text-stone-700]="!isRequiredParamFilterActive(field)"
+                                            [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
+                                            [class.dark:bg-gray-950]="!isRequiredParamFilterActive(field)"
+                                            [class.dark:text-stone-200]="!isRequiredParamFilterActive(field)"
+                                            (click)="toggleRequiredParamFilter(field)"
+                                        >
+                                            {{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div class="mt-3 flex flex-wrap gap-3 text-xs">
+                            <button
+                                type="button"
+                                class="font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                                (click)="selectVisibleEndpoints()"
+                            >
+                                {{ t('visitaGuide.selectVisibleEndpoints') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                                (click)="clearEndpointSelection()"
+                            >
+                                {{ t('visitaGuide.clearEndpoints') }}
+                            </button>
+                            <span class="text-stone-400">{{ selectedEndpointsLabel() }}</span>
+                        </div>
+                        @if (isLoadingFeatures()) {
+                            <div class="mt-8 flex justify-center">
+                                <mat-spinner diameter="32"></mat-spinner>
+                            </div>
+                        }
+                        @if (featuresError()) {
+                            <p class="mt-4 text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
+                        }
+                        <div class="mt-4 grid h-[min(38rem,calc(100dvh-20rem))] gap-4 lg:grid-cols-2">
+                            <section
+                                class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70"
+                            >
+                                <div class="shrink-0 border-b border-stone-100 px-4 py-3 dark:border-gray-800">
+                                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('visitaGuide.endpointsCatalogTitle') }}
+                                    </p>
+                                    <input
+                                        type="search"
+                                        class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [placeholder]="t('visitaGuide.endpointsSearch')"
+                                        [ngModel]="endpointSearchQuery()"
+                                        (ngModelChange)="endpointSearchQuery.set($event)"
+                                    />
+                                </div>
+                                <div
+                                    id="visita-endpoint-catalog"
+                                    cdkDropList
+                                    cdkDropListId="visita-endpoint-catalog"
+                                    [cdkDropListData]="visibleEndpointFeatures()"
+                                    [cdkDropListConnectedTo]="['visita-endpoint-cart']"
+                                    [cdkDropListSortingDisabled]="true"
+                                    (cdkDropListDropped)="dropEndpointOnCatalog($event)"
+                                    class="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3"
+                                >
+                                    @for (group of groupedEndpointFeatures(); track group.id) {
+                                        <p
+                                            class="sticky top-0 z-[1] bg-white py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:bg-gray-900"
+                                        >
+                                            {{ t(featureGroupLabelKey(group.id)) }}
+                                        </p>
+                                        @for (feature of group.items; track feature._id) {
+                                            <div
+                                                cdkDrag
+                                                [cdkDragData]="feature"
+                                                [cdkDragDisabled]="isFeatureSelected(feature)"
+                                                class="relative"
+                                                (mouseenter)="onEndpointCardEnter(feature, $event)"
+                                                (mousemove)="onEndpointCardMove(feature, $event)"
+                                                (pointermove)="onEndpointCardMove(feature, $event)"
+                                                (mouseleave)="onEndpointCardLeave()"
+                                            >
+                                                <div
+                                                    class="flex w-full items-start gap-3 rounded-2xl border p-3 text-left"
+                                                    [ngClass]="
+                                                        isFeatureSelected(feature)
+                                                            ? 'border-emerald-200 bg-emerald-50/70 opacity-70 dark:border-emerald-800 dark:bg-emerald-950/40'
+                                                            : 'cursor-grab border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-950'
+                                                    "
+                                                >
+                                                    <mat-icon
+                                                        class="mt-0.5 shrink-0 !h-5 !w-5 !text-[20px] text-stone-400"
+                                                        [class.text-emerald-500]="isFeatureSelected(feature)"
+                                                        >{{ isFeatureSelected(feature) ? 'check_circle' : 'drag_indicator' }}</mat-icon
+                                                    >
+                                                    <div class="min-w-0 flex-1">
+                                                        <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                            feature.name
+                                                        }}</span>
+                                                        @if (feature.description) {
+                                                            <span class="mt-1 block text-xs text-stone-500">{{
+                                                                feature.description
+                                                            }}</span>
+                                                        }
+                                                        <div class="mt-2 flex flex-wrap gap-1">
+                                                            @for (chip of featureParamFields(feature); track chip.field) {
+                                                                <span
+                                                                    class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                    [ngClass]="paramChipClass(chip.required)"
+                                                                    >{{ t(paramFilterLabelKey(chip.field), paramFilterLabelParams(chip.field)) }}@if (chip.required) {<span class="ml-0.5 font-bold">*</span>}</span
+                                                                >
+                                                                @for (value of chip.enums; track value) {
+                                                                    <span
+                                                                        class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                        [ngClass]="paramEnumClass()"
+                                                                        >{{ value }}</span
+                                                                    >
+                                                                }
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    @if (isFeatureSelected(feature)) {
+                                                        <span class="shrink-0 text-[10px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">{{
+                                                            t('visitaGuide.endpointsInCart')
+                                                        }}</span>
+                                                    } @else {
+                                                        <button
+                                                            type="button"
+                                                            class="shrink-0 rounded-lg border border-stone-200 px-2 py-1 text-[11px] font-medium text-stone-600 hover:border-stone-950 dark:border-gray-700 dark:text-stone-300"
+                                                            (click)="toggleFeature(feature); $event.stopPropagation()"
+                                                        >
+                                                            {{ t('visitaGuide.endpointsAdd') }}
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    @if (!isLoadingFeatures() && visibleEndpointFeatures().length === 0) {
+                                        <p class="px-1 py-6 text-sm text-stone-400">{{ t('visitaGuide.noEndpoints') }}</p>
+                                    }
+                                </div>
+                            </section>
+                            <section
+                                class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-950 bg-stone-50 dark:border-white dark:bg-gray-950/60"
+                            >
+                                <div class="shrink-0 border-b border-stone-200 px-4 py-3 dark:border-gray-800">
+                                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('visitaGuide.endpointsCartTitle') }}
+                                    </p>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('visitaGuide.endpointsCartHint') }}
+                                    </p>
+                                </div>
+                                <div
+                                    id="visita-endpoint-cart"
+                                    cdkDropList
+                                    cdkDropListId="visita-endpoint-cart"
+                                    [cdkDropListData]="selectedFeatures()"
+                                    [cdkDropListConnectedTo]="['visita-endpoint-catalog']"
+                                    (cdkDropListDropped)="dropEndpointOnCart($event)"
+                                    class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain p-3"
+                                >
+                                    @if (selectedFeatures().length === 0) {
+                                        <div
+                                            class="flex flex-1 items-center justify-center rounded-xl border border-dashed border-stone-300 px-4 py-10 text-center text-sm text-stone-400 dark:border-gray-700"
+                                        >
+                                            {{ t('visitaGuide.endpointsCartEmpty') }}
+                                        </div>
+                                    }
+                                    @for (feature of selectedFeatures(); track feature._id; let index = $index) {
+                                        <div
+                                            cdkDrag
+                                            [cdkDragData]="feature"
+                                            class="flex cursor-grab items-start gap-3 rounded-2xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
+                                        >
+                                            <span class="mt-0.5 w-5 shrink-0 text-center text-xs font-semibold text-stone-400">{{
+                                                index + 1
+                                            }}</span>
+                                            <mat-icon class="mt-0.5 shrink-0 !h-5 !w-5 !text-[20px] text-stone-400">drag_indicator</mat-icon>
+                                            <div class="min-w-0 flex-1">
+                                                <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                    feature.name
+                                                }}</span>
+                                                @if (feature.code) {
+                                                    <span class="mt-0.5 block font-mono text-[11px] text-stone-400">{{
+                                                        feature.code
+                                                    }}</span>
+                                                }
+                                                @if (featureParamFields(feature).length) {
+                                                    <div class="mt-2 flex flex-wrap gap-1">
+                                                        @for (chip of featureParamFields(feature); track chip.field) {
+                                                            <span
+                                                                class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                [ngClass]="paramChipClass(chip.required)"
+                                                                >{{ t(paramFilterLabelKey(chip.field), paramFilterLabelParams(chip.field)) }}@if (chip.required) {<span class="ml-0.5 font-bold">*</span>}</span
+                                                            >
+                                                            @for (value of chip.enums; track value) {
+                                                                <span
+                                                                    class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                    [ngClass]="paramEnumClass()"
+                                                                    >{{ value }}</span
+                                                                >
+                                                            }
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                            <button
+                                                type="button"
+                                                class="shrink-0 rounded-lg px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                                                (click)="removeFeatureFromCart(feature); $event.stopPropagation()"
+                                            >
+                                                {{ t('visitaGuide.endpointsRemove') }}
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </section>
+                        </div>
+                        @if (hoveredEndpointDetails(); as tip) {
+                            <div
+                                class="pointer-events-none fixed z-[80] w-[min(24rem,calc(100vw-2rem))]"
+                                [class.-translate-x-full]="endpointHoverFlipX()"
+                                [class.-translate-y-full]="endpointHoverFlipY()"
+                                [style.left.px]="endpointHoverLeft()"
+                                [style.top.px]="endpointHoverTop()"
+                            >
+                                <div
+                                    class="relative rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 text-left text-white shadow-xl opacity-0 scale-[0.97] transition-[opacity,transform] ease-out"
+                                    [class.duration-300]="endpointHoverVisible()"
+                                    [class.duration-75]="!endpointHoverVisible()"
+                                    [class.origin-top-left]="!endpointHoverFlipX() && !endpointHoverFlipY()"
+                                    [class.origin-top-right]="endpointHoverFlipX() && !endpointHoverFlipY()"
+                                    [class.origin-bottom-left]="!endpointHoverFlipX() && endpointHoverFlipY()"
+                                    [class.origin-bottom-right]="endpointHoverFlipX() && endpointHoverFlipY()"
+                                    [class.opacity-100]="endpointHoverVisible()"
+                                    [class.scale-100]="endpointHoverVisible()"
+                                >
+                                <span
+                                    class="absolute h-2.5 w-2.5 rotate-45 border-stone-800 bg-stone-950"
+                                    [class.top-[-5px]]="!endpointHoverFlipY()"
+                                    [class.bottom-[-5px]]="endpointHoverFlipY()"
+                                    [class.left-3]="!endpointHoverFlipX()"
+                                    [class.right-3]="endpointHoverFlipX()"
+                                    [class.border-t]="!endpointHoverFlipY()"
+                                    [class.border-l]="!endpointHoverFlipY()"
+                                    [class.border-b]="endpointHoverFlipY()"
+                                    [class.border-r]="endpointHoverFlipY()"
+                                ></span>
+                                <p class="text-xs font-semibold leading-snug text-white">{{ tip.title }}</p>
+                                @if (tip.description) {
+                                    <p class="mt-1 text-[11px] leading-snug text-white/80">{{ tip.description }}</p>
+                                }
+                                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/80">
+                                    @if (tip.request) {
+                                        <span class="font-mono font-medium text-white">{{ tip.request }}</span>
+                                    }
+                                    @if (tip.code) {
+                                        <span class="text-white/70">{{ t('visitaGuide.endpointTooltipCode') }}:
+                                            {{ tip.code }}</span>
+                                    }
+                                </div>
+                                @if (tip.params.length) {
+                                    <p class="mt-2 text-[10px] font-semibold uppercase tracking-wide text-white/60">
+                                        {{ t('visitaGuide.endpointTooltipParams') }}
+                                    </p>
+                                    <p class="mt-0.5 text-[11px] leading-snug text-white/80">{{
+                                        tip.params.join(' · ')
+                                    }}</p>
+                                }
+                                </div>
+                            </div>
+                        }
+                        <button
+                            type="button"
+                            class="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                            (click)="confirmEndpoints()"
+                        >
+                            {{ t('visitaGuide.continue') }}
+                        </button>
+                    }
+                    @case ('input') {
+                        <div
+                            class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            @if (isMixed()) {
+                                <p class="mb-4 text-sm text-stone-500">{{ t('visitaGuide.mixedHint') }}</p>
+                            }
+                            @if (consultError()) {
+                                <p class="mb-3 text-sm text-red-600 dark:text-red-400">{{ consultError() }}</p>
+                            }
+                            @for (field of inputFields(); track field.key) {
+                                <label class="mt-4 block text-sm font-medium text-stone-800 first:mt-0 dark:text-stone-100" [attr.for]="'guide-' + field.key">{{
+                                    field.labelText
+                                        ? t(field.labelKey, { field: field.labelText })
+                                        : t(field.labelKey)
+                                }}@if (field.required) {<span class="ml-0.5 text-orange-600 dark:text-orange-400">*</span>}</label>
+                                @if (field.options?.length) {
+                                    <select
+                                        [id]="'guide-' + field.key"
+                                        class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-base text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [ngModel]="fieldValue(field.key)"
+                                        (ngModelChange)="setFieldValue(field.key, $event)"
+                                    >
+                                        <option value="">{{ t(field.placeholderKey) }}</option>
+                                        @for (option of field.options; track option) {
+                                            <option [value]="option">{{ option }}</option>
+                                        }
+                                    </select>
+                                } @else {
+                                    <input
+                                        [id]="'guide-' + field.key"
+                                        type="text"
+                                        class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-base text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [placeholder]="t(field.placeholderKey)"
+                                        [ngModel]="fieldValue(field.key)"
+                                        (ngModelChange)="setFieldValue(field.key, $event)"
+                                        (keyup.enter)="goNext()"
+                                    />
+                                }
+                            }
+                            <button
+                                type="button"
+                                class="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950"
+                                (click)="goNext()"
+                            >
+                                {{ t('visitaGuide.searchAction') }}
+                            </button>
+                        </div>
+                    }
+                    @case ('consult') {
+                        <div
+                            class="flex flex-col items-center rounded-2xl border border-dashed border-stone-200 px-5 py-16 text-center dark:border-gray-800"
+                        >
+                            <mat-spinner diameter="40"></mat-spinner>
+                            <p class="mt-4 text-sm font-medium text-stone-800 dark:text-stone-100">
+                                {{ t(mode() === 'batch' ? 'visitaGuide.preparingBatch' : 'visitaGuide.searching') }}
+                            </p>
+                            <p class="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('visitaGuide.searchingHint') }}
+                            </p>
+                        </div>
+                    }
+                    @case ('results') {
+                        @if (resultCards().length === 0) {
+                            <div
+                                class="rounded-2xl border border-dashed border-stone-200 px-5 py-12 text-center dark:border-gray-800"
+                            >
+                                <p class="text-sm text-stone-500">{{ t('visitaGuide.noResults') }}</p>
+                            </div>
+                        } @else {
+                            <p class="text-sm text-stone-500 dark:text-stone-400">
+                                {{ resultsAllHintLabel() }}
+                            </p>
+                        }
+                        @for (card of resultCards(); track card.sequence) {
+                            <article
+                                class="rounded-2xl border bg-white p-5 dark:bg-gray-900/70"
+                                [class.border-emerald-300]="card.status === 'ok'"
+                                [class.dark:border-emerald-800]="card.status === 'ok'"
+                                [class.border-red-300]="card.status === 'failed'"
+                                [class.dark:border-red-800]="card.status === 'failed'"
+                                [class.border-amber-300]="card.status === 'skipped'"
+                                [class.border-stone-200]="card.status === 'empty'"
+                                [class.dark:border-gray-800]="card.status === 'empty' || card.status === 'skipped'"
+                            >
+                                <div class="flex items-start justify-between gap-3">
+                                    <h2 class="text-sm font-semibold text-stone-950 dark:text-white">{{ card.label }}</h2>
+                                    <span
+                                        class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                                        [class.bg-emerald-100]="card.status === 'ok'"
+                                        [class.text-emerald-800]="card.status === 'ok'"
+                                        [class.bg-red-100]="card.status === 'failed'"
+                                        [class.text-red-800]="card.status === 'failed'"
+                                        [class.bg-amber-100]="card.status === 'skipped'"
+                                        [class.text-amber-900]="card.status === 'skipped'"
+                                        [class.bg-stone-100]="card.status === 'empty'"
+                                        [class.text-stone-600]="card.status === 'empty'"
+                                        >{{ t(resultStatusKey(card.status)) }}</span
+                                    >
+                                </div>
+                                @if (card.error) {
+                                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ card.error }}</p>
+                                }
+                                @if (card.skipMessage && !card.error) {
+                                    <p class="mt-2 text-sm text-amber-800 dark:text-amber-300">{{ card.skipMessage }}</p>
+                                }
+                                @if (!card.hasData && !card.error && !card.skipMessage) {
+                                    <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.resultStatusEmpty') }}</p>
+                                }
+                                @for (field of card.fields; track field.label) {
+                                    <div class="mt-2 flex justify-between gap-4 text-sm">
+                                        <span class="text-stone-500">{{ field.label }}</span>
+                                        <span class="text-right text-stone-900 dark:text-stone-100">{{
+                                            field.value
+                                        }}</span>
+                                    </div>
+                                }
+                            </article>
+                        }
+                        <div class="mt-2 flex flex-col gap-3">
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                                (click)="continueToReport()"
+                            >
+                                {{ t('visitaGuide.continueToReport') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                                (click)="openFullReport()"
+                            >
+                                {{ t('visitaGuide.openFullReport') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                                (click)="startOver()"
+                            >
+                                {{ t('visitaGuide.newConsultation') }}
+                            </button>
+                        </div>
+                    }
+                    @case ('include') {
+                        <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.includeHint') }}</p>
+                        <div class="flex flex-col gap-2" cdkDropList (cdkDropListDropped)="dropInclude($event)">
+                            @for (item of includeItems(); track item.sequence) {
+                                <button
+                                    type="button"
+                                    cdkDrag
+                                    class="flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 text-left dark:border-gray-800 dark:bg-gray-900/70"
+                                    (click)="toggleInclude(item.sequence)"
+                                >
+                                    <span
+                                        class="flex h-5 w-5 items-center justify-center rounded border"
+                                        [class.bg-stone-950]="item.included"
+                                        [class.border-stone-950]="item.included"
+                                        [class.border-stone-300]="!item.included"
+                                    >
+                                        @if (item.included) {
+                                            <mat-icon class="!h-4 !w-4 !text-[16px] text-white">check</mat-icon>
+                                        }
+                                    </span>
+                                    <span class="flex-1 text-sm font-medium text-stone-900 dark:text-white">{{
+                                        item.label
+                                    }}</span>
+                                    @if (includeCardStatus(item.sequence); as status) {
+                                        <span
+                                            class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                                            [class.bg-emerald-100]="status === 'ok'"
+                                            [class.text-emerald-800]="status === 'ok'"
+                                            [class.bg-red-100]="status === 'failed'"
+                                            [class.text-red-800]="status === 'failed'"
+                                            [class.bg-amber-100]="status === 'skipped'"
+                                            [class.text-amber-900]="status === 'skipped'"
+                                            [class.bg-stone-100]="status === 'empty'"
+                                            [class.text-stone-600]="status === 'empty'"
+                                            >{{ t(resultStatusKey(status)) }}</span
+                                        >
+                                    }
+                                    <mat-icon class="text-stone-300" cdkDragHandle>drag_indicator</mat-icon>
+                                </button>
+                            }
+                        </div>
+                        <button
+                            type="button"
+                            class="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                            (click)="goNext()"
+                        >
+                            {{ t('visitaGuide.continue') }}
+                        </button>
+                    }
+                    @case ('template') {
+                        <p class="text-sm text-stone-500 dark:text-stone-400">{{
+                            t(mode() === 'batch' ? 'visitaGuide.templateBatchHint' : 'visitaGuide.templateHint')
+                        }}</p>
+                        <p class="mt-2 text-xs text-stone-400">{{
+                            t(
+                                mode() === 'batch'
+                                    ? 'visitaGuide.templateBatchCreateHint'
+                                    : 'visitaGuide.templateConsultLink'
+                            )
+                        }}</p>
+                        <input
+                            type="search"
+                            class="mt-4 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="t('visitaGuide.templateSearch')"
+                            [ngModel]="templateSearchQuery()"
+                            (ngModelChange)="templateSearchQuery.set($event)"
+                        />
+
+                        <p class="mt-6 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                            {{ t('visitaGuide.templateSystem') }}
+                        </p>
+                        <div class="mt-2 grid gap-3 sm:grid-cols-2">
+                            @for (template of visibleSystemTemplates(); track template._id) {
+                                <button
+                                    type="button"
+                                    class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left dark:border-gray-800"
+                                    [class.border-stone-950]="isTemplateSelected(template)"
+                                    [class.border-stone-200]="!isTemplateSelected(template)"
+                                    (click)="pickSystemTemplate(template)"
+                                >
+                                    <mat-icon>verified</mat-icon>
+                                    <div class="min-w-0">
+                                        <span class="block text-sm font-semibold">{{ template.name }}</span>
+                                        <span class="mt-1 block text-xs text-stone-500">{{
+                                            template.description || t('visitaGuide.templateVisitaDesc')
+                                        }}</span>
+                                    </div>
+                                </button>
+                            }
+                            @if (systemTemplates().length && !visibleSystemTemplates().length) {
+                                <p class="sm:col-span-2 text-sm text-stone-500">{{
+                                    t('visitaGuide.templateSearchEmpty')
+                                }}</p>
+                            }
+                            @if (!systemTemplates().length) {
+                                <button
+                                    type="button"
+                                    class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left sm:col-span-2"
+                                    [class.border-stone-950]="templateChoice() === 'visita'"
+                                    [class.border-stone-200]="templateChoice() !== 'visita'"
+                                    (click)="pickVisitaTemplate()"
+                                >
+                                    <mat-icon>verified</mat-icon>
+                                    <div>
+                                        <span class="block text-sm font-semibold">{{
+                                            t('visitaGuide.templateVisita')
+                                        }}</span>
+                                        <span class="mt-1 block text-sm text-stone-500">{{
+                                            t('visitaGuide.templateVisitaDesc')
+                                        }}</span>
+                                    </div>
+                                </button>
+                            }
+                        </div>
+
+                        <p class="mt-6 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                            {{ t('visitaGuide.templateMineTitle') }}
+                        </p>
+                        @if (!myTemplates().length) {
+                            <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.templateMineEmpty') }}</p>
+                        } @else if (!visibleMyTemplates().length) {
+                            <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.templateSearchEmpty') }}</p>
+                        }
+                        <div class="mt-2 grid gap-3 sm:grid-cols-2">
+                            @for (template of visibleMyTemplates(); track template._id) {
+                                <button
+                                    type="button"
+                                    class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left dark:border-gray-800"
+                                    [class.border-stone-950]="isTemplateSelected(template)"
+                                    [class.border-stone-200]="!isTemplateSelected(template)"
+                                    (click)="pickMyTemplate(template)"
+                                >
+                                    <mat-icon>folder</mat-icon>
+                                    <div class="min-w-0">
+                                        <span class="block truncate text-sm font-semibold">{{ template.name }}</span>
+                                        <span class="mt-1 block text-xs text-stone-500">{{
+                                            templateMatchesConsult(template)
+                                                ? t('visitaGuide.templateMatchesConsult')
+                                                : t('visitaGuide.templateMine')
+                                        }}</span>
+                                    </div>
+                                </button>
+                            }
+                        </div>
+
+                        @if (mode() !== 'batch') {
+                        <button
+                            type="button"
+                            class="mt-6 flex w-full items-start gap-4 rounded-2xl border border-dashed border-stone-300 p-4 text-left dark:border-gray-700"
+                            [class.border-stone-950]="templateChoice() === 'scratch'"
+                            (click)="pickScratch()"
+                        >
+                            <mat-icon>add</mat-icon>
+                            <div>
+                                <span class="block text-sm font-semibold">{{ t('visitaGuide.templateNew') }}</span>
+                                <span class="mt-1 block text-sm text-stone-500">{{
+                                    t('visitaGuide.templateNewDesc')
+                                }}</span>
+                            </div>
+                        </button>
+                        }
+                    }
+                    @case ('customize') {
+                        <div
+                            class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            <p class="text-sm leading-relaxed text-stone-500 dark:text-stone-400">
+                                {{ t('visitaGuide.designerHint') }}
+                            </p>
+                            <ul class="mt-4 space-y-2 text-sm text-stone-600 dark:text-stone-300">
+                                <li>{{ t('visitaGuide.designerHintData') }}</li>
+                                <li>{{ t('visitaGuide.designerHintBlocks') }}</li>
+                                <li>{{ t('visitaGuide.designerHintBrand') }}</li>
+                            </ul>
+                            <button
+                                type="button"
+                                class="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                                (click)="openMoldEditor()"
+                            >
+                                {{ t('visitaGuide.openDesigner') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium dark:border-gray-700"
+                                (click)="goNext()"
+                            >
+                                {{ t('visitaGuide.skipDesigner') }}
+                            </button>
+                        </div>
+                    }
+                    @case ('preview') {
+                        @if (previewTemplate(); as template) {
+                            <report-preview
+                                [template]="template"
+                                [previewData]="previewData()"
+                                [primaryColor]="primaryColor()"
+                                [pageBackgroundColor]="pageBackgroundColor()"
+                                [logoUrl]="logoDataUrl()"
+                                [legend]="legend()"
+                                [showPageNumbers]="showPageNumbers()"
+                                [watermarkEnabled]="watermarkEnabled()"
+                                [watermarkType]="watermarkType()"
+                                [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
+                                [watermarkOpacity]="watermarkOpacity()"
+                                [watermarkPattern]="watermarkPattern()"
+                                [watermarkX]="watermarkX()"
+                                [watermarkY]="watermarkY()"
+                                [watermarkWidth]="watermarkWidth()"
+                                [watermarkHeight]="watermarkHeight()"
+                                [watermarkRotation]="watermarkRotation()"
+                                [logoEnabled]="!!logoDataUrl()"
+                                [logoX]="logoX()"
+                                [logoY]="logoY()"
+                                [logoWidth]="logoWidth()"
+                                [logoHeight]="logoHeight()"
+                                [logoRotation]="logoRotation()"
+                                [sheetImages]="sheetImages()"
+                            ></report-preview>
+                        } @else {
+                            <p class="text-sm text-stone-500">{{ t('visitaGuide.needTemplate') }}</p>
+                        }
+                        <button
+                            type="button"
+                            class="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                            (click)="goNext()"
+                        >
+                            {{ t('visitaGuide.continue') }}
+                        </button>
+                    }
+                    @case ('layout') {
+                        <div class="grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)]">
+                            <div
+                                cdkDropList
+                                id="visita-layout-data"
+                                [cdkDropListConnectedTo]="['visita-layout-canvas']"
+                                [cdkDropListSortingDisabled]="true"
+                                class="flex max-h-[70vh] flex-col gap-2 overflow-y-auto"
+                            >
+                                <p class="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                    {{ t('visitaGuide.layoutDataTitle') }}
+                                </p>
+                                <p class="text-[11px] text-stone-400">{{ t('visitaGuide.layoutEditorHint') }}</p>
+                                @for (card of layoutSourceCards(); track card.sequence) {
+                                    <article
+                                        cdkDrag
+                                        [cdkDragData]="card"
+                                        class="cursor-grab rounded-2xl border bg-white p-3 text-left dark:bg-gray-900/70"
+                                        [class.border-emerald-300]="card.status === 'ok'"
+                                        [class.border-red-300]="card.status === 'failed'"
+                                        [class.border-stone-200]="card.status === 'empty' || card.status === 'skipped'"
+                                        [class.opacity-50]="isCardOnLayout(card.sequence)"
+                                    >
+                                        <div class="flex items-start justify-between gap-2">
+                                            <span class="text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                card.label
+                                            }}</span>
+                                            <span class="text-[10px] font-semibold uppercase text-stone-500">{{
+                                                t(resultStatusKey(card.status))
+                                            }}</span>
+                                        </div>
+                                        @if (isCardOnLayout(card.sequence)) {
+                                            <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutOnCanvas') }}</p>
+                                        } @else {
+                                            <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutDragHint') }}</p>
+                                        }
+                                        <button
+                                            type="button"
+                                            class="mt-2 text-xs font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                                            (click)="addCardToLayout(card); $event.stopPropagation()"
+                                        >
+                                            {{ t('visitaGuide.layoutAddOne') }}
+                                        </button>
+                                    </article>
+                                }
+                            </div>
+
+                            <div class="min-w-0">
+                            <div class="mb-2 flex flex-wrap items-center gap-1">
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    (click)="addTitleBlock()"
+                                >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">title</mat-icon>
+                                    {{ t('visitaGuide.layoutAddTitle') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    (click)="addTextBlock()"
+                                >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">notes</mat-icon>
+                                    {{ t('visitaGuide.layoutAddText') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    (click)="addDividerBlock()"
+                                >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">horizontal_rule</mat-icon>
+                                    {{ t('visitaGuide.layoutAddDivider') }}
+                                </button>
+                                @for (tool of layoutShapeTools; track tool.kind) {
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                        [matTooltip]="t(tool.labelKey)"
+                                        (click)="addShapeBlock(tool.kind)"
+                                    >
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">{{ tool.icon }}</mat-icon>
+                                    </button>
+                                }
+                            </div>
+                            <div
+                                cdkDropList
+                                id="visita-layout-canvas"
+                                [cdkDropListConnectedTo]="['visita-layout-data', 'visita-layout-layers']"
+                                [cdkDropListSortingDisabled]="true"
+                                (cdkDropListDropped)="onLayoutCanvasDrop($event)"
+                                (click)="onLayoutBlankClick($event)"
+                                (contextmenu)="onLayoutCanvasContextMenu($event)"
+                                class="min-h-[480px] rounded-2xl border border-dashed border-stone-300 bg-stone-100/80 p-3 dark:border-gray-700 dark:bg-gray-900/40"
+                            >
+                                @if (!layoutSections().length) {
+                                    <p class="px-4 py-16 text-center text-sm text-stone-400">
+                                        {{ t('visitaGuide.layoutEmpty') }}
+                                    </p>
+                                }
+                                @if (previewTemplate(); as template) {
+                                    <report-preview
+                                        #layoutEditorPreview
+                                        [template]="template"
+                                        [previewData]="previewData()"
+                                        [primaryColor]="primaryColor()"
+                                        [pageBackgroundColor]="pageBackgroundColor()"
+                                        [logoUrl]="logoDataUrl()"
+                                        [legend]="legend()"
+                                        [showPageNumbers]="showPageNumbers()"
+                                        [watermarkEnabled]="watermarkEnabled()"
+                                        [watermarkType]="watermarkType()"
+                                        [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
+                                        [watermarkOpacity]="watermarkOpacity()"
+                                        [watermarkPattern]="watermarkPattern()"
+                                        [watermarkX]="watermarkX()"
+                                        [watermarkY]="watermarkY()"
+                                        [watermarkWidth]="watermarkWidth()"
+                                        [watermarkHeight]="watermarkHeight()"
+                                        [watermarkRotation]="watermarkRotation()"
+                                        [logoEnabled]="!!logoDataUrl()"
+                                        [logoX]="logoX()"
+                                        [logoY]="logoY()"
+                                        [logoWidth]="logoWidth()"
+                                        [logoHeight]="logoHeight()"
+                                        [logoRotation]="logoRotation()"
+                                        [sheetImages]="sheetImages()"
+                                        [logoAutoFitContent]="true"
+                                        [clickable]="true"
+                                        [customContextMenu]="true"
+                                        [reorderable]="true"
+                                        [selectedSectionId]="selectedLayoutSectionId()"
+                                        [selectedCellKey]="selectedLayoutCellKey()"
+                                        [selectedCellPart]="selectedLayoutCellPart()"
+                                        [selectedOverlay]="selectedLayoutOverlay()"
+                                        [sectionClick]="onLayoutSectionClick"
+                                        (cellSelect)="onLayoutCellSelect($event)"
+                                        (inlineTextChange)="onLayoutInlineText($event)"
+                                        (overlaySelect)="onLayoutOverlaySelect($event)"
+                                        (sectionContextMenu)="onLayoutSectionContextMenu($event)"
+                                        (overlayContextMenu)="onLayoutOverlayContextMenu($event)"
+                                        (paperContextMenu)="onLayoutPaperContextMenu($event)"
+                                        (sectionReorder)="onLayoutSectionReorder($event)"
+                                        (sectionFramesChange)="onLayoutSectionFrames($event)"
+                                        (sectionFrameChange)="onLayoutSectionFrame($event)"
+                                        (sectionRotationChange)="onLayoutSectionRotation($event)"
+                                        (backgroundClick)="openLayoutPageEditor()"
+                                        (logoPositionChange)="onLayoutLogoPositionChange($event)"
+                                        (logoSizeChange)="onLayoutLogoSizeChange($event)"
+                                        (logoRotationChange)="onLayoutLogoRotationChange($event)"
+                                        (sheetImageChange)="onLayoutSheetImageChange($event)"
+                                        (watermarkPositionChange)="onLayoutWatermarkPositionChange($event)"
+                                        (watermarkSizeChange)="onLayoutWatermarkSizeChange($event)"
+                                        (watermarkRotationChange)="onLayoutWatermarkRotationChange($event)"
+                                    ></report-preview>
+                                }
+                            </div>
+                            </div>
+                        </div>
+
+                        @if (layoutEditorKind()) {
+                            <div
+                                #layoutEditorPanel
+                                cdkDrag
+                                class="visita-layout-editor fixed right-4 top-24 z-[70] flex max-h-[78vh] w-80 flex-col rounded-xl border bg-white shadow-2xl transition ring-offset-2 dark:bg-gray-900"
+                                [class.border-indigo-400]="layoutEditorFocused()"
+                                [class.ring-2]="layoutEditorFocused()"
+                                [class.ring-indigo-400]="layoutEditorFocused()"
+                                [class.border-indigo-200]="!layoutEditorFocused()"
+                                [class.dark:border-indigo-500]="layoutEditorFocused()"
+                                [class.dark:border-indigo-800]="!layoutEditorFocused()"
+                                (click)="$event.stopPropagation()"
+                            >
+                                <div
+                                    cdkDragHandle
+                                    class="flex cursor-grab select-none items-center justify-between rounded-t-xl border-b border-stone-100 bg-stone-50 px-3 py-2 active:cursor-grabbing dark:border-gray-800 dark:bg-gray-950/50"
+                                >
+                                    <div class="flex min-w-0 items-center gap-2">
+                                        <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-400">drag_indicator</mat-icon>
+                                        <h3 class="truncate text-sm font-semibold text-stone-950 dark:text-white">
+                                            {{ t(layoutEditorTitleKey()) }}
+                                        </h3>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-gray-800"
+                                        (click)="closeLayoutEditor(); $event.stopPropagation()"
+                                        [attr.aria-label]="t('visitaGuide.layoutEditorClose')"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                                    </button>
+                                </div>
+                                <div #layoutEditorScroll class="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
+                                @if (layoutEditorKind() === 'page') {
+                                <section data-layout-control="page" class="rounded-2xl border border-sky-300 bg-sky-50 p-3 dark:border-sky-800 dark:bg-sky-950/40">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-800 dark:text-sky-300">
+                                        {{ t('visitaGuide.layoutPanelReport') }}
+                                    </p>
+                                    <label class="mt-2 block text-xs font-medium text-stone-600 dark:text-stone-300">{{
+                                        t('visitaGuide.fieldTitle')
+                                    }}</label>
+                                    <input
+                                        type="text"
+                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [ngModel]="reportTitle()"
+                                        (ngModelChange)="setLayoutTitle($event)"
+                                    />
+                                </section>
+
+                                <section class="rounded-2xl border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/40">
+                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                                        {{ t('visitaGuide.layoutPanelPage') }}
+                                    </p>
+                                    <div class="mt-3">
+                                        <span class="text-xs text-stone-600 dark:text-stone-300">{{
+                                            t('visitaGuide.layoutPageBg')
+                                        }}</span>
+                                        <color-hex-field
+                                            class="mt-1 block"
+                                            [ngModel]="pageBackgroundColor() || '#ffffff'"
+                                            (ngModelChange)="setLayoutPageBackground($event)"
+                                            [ariaLabel]="t('visitaGuide.layoutPageBg')"
+                                        />
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="text-xs text-stone-600 dark:text-stone-300">{{
+                                            t('visitaGuide.layoutAccentColor')
+                                        }}</span>
+                                        <color-hex-field
+                                            class="mt-1 block"
+                                            [ngModel]="primaryColor()"
+                                            (ngModelChange)="setLayoutPrimaryColor($event)"
+                                            [ariaLabel]="t('visitaGuide.layoutAccentColor')"
+                                        />
+                                    </div>
+                                </section>
+                                }
+
+                                @if (layoutEditorKind() === 'page' || layoutEditorKind() === 'overlay') {
+                                <section data-layout-control="overlay" class="rounded-2xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
+                                <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-800 dark:text-violet-300">
+                                    {{ t('visitaGuide.layoutBrand') }}
+                                </p>
+                                <label class="text-xs font-medium text-stone-600 dark:text-stone-300">{{
+                                    t('visitaGuide.fieldLogo')
+                                }}</label>
+                                <input
+                                    id="visita-layout-logo"
+                                    type="file"
+                                    accept="image/*"
+                                    class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-stone-900 file:px-3 file:py-1.5 file:text-xs file:text-white"
+                                    (change)="onLogoSelected($event)"
+                                />
+                                @if (logoDataUrl()) {
+                                    <div class="flex items-center gap-2">
+                                        <img [src]="logoDataUrl()" alt="" class="h-10 w-10 rounded object-contain" />
+                                        <button
+                                            type="button"
+                                            class="text-xs font-medium text-red-600"
+                                            (click)="clearLogo()"
+                                        >
+                                            {{ t('visitaGuide.layoutRemoveLogo') }}
+                                        </button>
+                                    </div>
+                                    <p class="text-[11px] text-stone-500">
+                                        {{ t('visitaGuide.layoutLogoHint') }}
+                                    </p>
+                                    <label class="text-xs text-stone-500">{{ t('visitaGuide.layoutRotation') }}</label>
+                                    <input
+                                        type="range"
+                                        min="-180"
+                                        max="180"
+                                        step="1"
+                                        [ngModel]="logoRotation()"
+                                        (ngModelChange)="setLogoRotation($event)"
+                                    />
+                                }
+
+                                <label class="mt-3 text-xs font-medium text-stone-600 dark:text-stone-300">{{
+                                    t('visitaGuide.layoutExtraImages')
+                                }}</label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-stone-900 file:px-3 file:py-1.5 file:text-xs file:text-white"
+                                    (change)="onSheetImagesSelected($event)"
+                                />
+                                <p class="text-[11px] text-stone-500">{{ t('visitaGuide.layoutExtraImagesHint') }}</p>
+                                @for (image of sheetImages(); track image.id) {
+                                    <div class="mt-2 flex items-center gap-2">
+                                        <img [src]="image.src" alt="" class="h-10 w-10 rounded object-contain" />
+                                        <button
+                                            type="button"
+                                            class="text-xs font-medium text-indigo-700"
+                                            (click)="onLayoutOverlaySelect(imageOverlayId(image.id))"
+                                        >
+                                            {{ t('visitaGuide.layoutSelectImage') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="text-xs font-medium text-red-600"
+                                            (click)="clearSheetImage(image.id)"
+                                        >
+                                            {{ t('visitaGuide.layoutRemoveImage') }}
+                                        </button>
+                                    </div>
+                                }
+                                @if (selectedSheetImage(); as selectedImage) {
+                                    <label class="mt-2 text-xs text-stone-500">{{ t('visitaGuide.layoutRotation') }}</label>
+                                    <input
+                                        type="range"
+                                        min="-180"
+                                        max="180"
+                                        step="1"
+                                        [ngModel]="selectedImage.rotation || 0"
+                                        (ngModelChange)="setSelectedSheetImageRotation($event)"
+                                    />
+                                }
+
+                                <label class="flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                    <input
+                                        type="checkbox"
+                                        [ngModel]="watermarkEnabled()"
+                                        (ngModelChange)="setWatermarkEnabled($event)"
+                                    />
+                                    {{ t('visitaGuide.layoutWatermark') }}
+                                </label>
+                                @if (watermarkEnabled()) {
+                                    <p class="text-[11px] text-stone-500">
+                                        {{ t('visitaGuide.layoutWatermarkHint') }}
+                                    </p>
+                                    @if (watermarkType() === 'text') {
+                                        <input
+                                            type="text"
+                                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [placeholder]="t('visitaGuide.layoutWatermarkPlaceholder')"
+                                            [ngModel]="watermarkText()"
+                                            (ngModelChange)="setWatermarkText($event)"
+                                        />
+                                    }
+                                    <div class="flex gap-2">
+                                        <button
+                                            type="button"
+                                            class="rounded-full border px-2 py-1 text-[11px]"
+                                            [class.border-stone-950]="watermarkType() === 'text'"
+                                            [class.border-stone-200]="watermarkType() !== 'text'"
+                                            (click)="setWatermarkType('text')"
+                                        >
+                                            {{ t('visitaGuide.layoutWatermarkText') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="rounded-full border px-2 py-1 text-[11px]"
+                                            [class.border-stone-950]="watermarkType() === 'logo'"
+                                            [class.border-stone-200]="watermarkType() !== 'logo'"
+                                            (click)="setWatermarkType('logo')"
+                                        >
+                                            {{ t('visitaGuide.layoutWatermarkLogo') }}
+                                        </button>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button
+                                            type="button"
+                                            class="rounded-full border px-2 py-1 text-[11px]"
+                                            [class.border-stone-950]="watermarkPattern() === 'single'"
+                                            [class.border-stone-200]="watermarkPattern() !== 'single'"
+                                            (click)="setWatermarkPattern('single')"
+                                        >
+                                            {{ t('visitaGuide.layoutWatermarkOnce') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="rounded-full border px-2 py-1 text-[11px]"
+                                            [class.border-stone-950]="watermarkPattern() === 'repeated'"
+                                            [class.border-stone-200]="watermarkPattern() !== 'repeated'"
+                                            (click)="setWatermarkPattern('repeated')"
+                                        >
+                                            {{ t('visitaGuide.layoutWatermarkRepeat') }}
+                                        </button>
+                                    </div>
+                                    <label class="text-xs text-stone-500">{{ t('visitaGuide.layoutWatermarkOpacity') }}</label>
+                                    <input
+                                        type="range"
+                                        min="0.04"
+                                        max="0.35"
+                                        step="0.01"
+                                        [ngModel]="watermarkOpacity()"
+                                        (ngModelChange)="setWatermarkOpacity($event)"
+                                    />
+                                    <label class="text-xs text-stone-500">{{ t('visitaGuide.layoutRotation') }}</label>
+                                    <input
+                                        type="range"
+                                        min="-180"
+                                        max="180"
+                                        step="1"
+                                        [ngModel]="watermarkRotation()"
+                                        (ngModelChange)="setWatermarkRotation($event)"
+                                    />
+                                }
+
+                                <label class="text-xs font-medium text-stone-600 dark:text-stone-300">{{
+                                    t('visitaGuide.layoutFooter')
+                                }}</label>
+                                <input
+                                    type="text"
+                                    class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                    [placeholder]="t('visitaGuide.layoutFooterPlaceholder')"
+                                    [ngModel]="legend()"
+                                    (ngModelChange)="setLegend($event)"
+                                />
+                                <label class="flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                    <input
+                                        type="checkbox"
+                                        [ngModel]="showPageNumbers()"
+                                        (ngModelChange)="setShowPageNumbers($event)"
+                                    />
+                                    {{ t('visitaGuide.layoutPageNumbers') }}
+                                </label>
+                                </section>
+                                }
+
+                                @if (layoutEditorKind() === 'block' && selectedLayoutSection(); as selected) {
+                                    <div data-layout-control="block" class="rounded-2xl border-2 border-indigo-400 bg-indigo-50 p-3 dark:border-indigo-500 dark:bg-indigo-950/50">
+                                        <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">
+                                            {{ t('visitaGuide.layoutPanelBlock') }}
+                                        </p>
+                                        @if (selectedLayoutShowsParams()) {
+                                            <p class="mt-1 text-[11px] text-stone-500">{{ t('visitaGuide.layoutCellHint') }}</p>
+                                            <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                                {{ t('visitaGuide.layoutShowRowLines') }}
+                                            </p>
+                                            <div class="mt-1 flex gap-1">
+                                                <button
+                                                    type="button"
+                                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                                    [class.border-stone-950]="selectedLayoutShowsRowLines()"
+                                                    [class.bg-white]="selectedLayoutShowsRowLines()"
+                                                    [class.border-stone-200]="!selectedLayoutShowsRowLines()"
+                                                    (click)="setSelectedLayoutShowRowLines(true)"
+                                                >
+                                                    {{ t('visitaGuide.layoutRowLine') }}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                                    [class.border-stone-950]="!selectedLayoutShowsRowLines()"
+                                                    [class.bg-white]="!selectedLayoutShowsRowLines()"
+                                                    [class.border-stone-200]="selectedLayoutShowsRowLines()"
+                                                    (click)="setSelectedLayoutShowRowLines(false)"
+                                                >
+                                                    {{ t('visitaGuide.layoutRowLineNone') }}
+                                                </button>
+                                            </div>
+                                            @if (selectedLayoutShowsRowLines()) {
+                                                <div class="mt-1 flex gap-1">
+                                                    @for (style of layoutRowLineStyles; track style) {
+                                                        <button
+                                                            type="button"
+                                                            class="flex-1 rounded-lg border py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                            [class.border-stone-950]="selectedLayoutRowLineStyle() === style"
+                                                            [class.bg-white]="selectedLayoutRowLineStyle() === style"
+                                                            [class.border-stone-200]="selectedLayoutRowLineStyle() !== style"
+                                                            (click)="setSelectedLayoutRowLineStyle(style)"
+                                                        >
+                                                            {{ t(layoutRowLineStyleKey(style)) }}
+                                                        </button>
+                                                    }
+                                                </div>
+                                                <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                    t('visitaGuide.layoutRowLineColor')
+                                                }}</span>
+                                                <color-hex-field
+                                                    class="mt-1 block"
+                                                    [ngModel]="selectedLayoutRowLineColor()"
+                                                    (ngModelChange)="setSelectedLayoutRowLineColor($event)"
+                                                    [ariaLabel]="t('visitaGuide.layoutRowLineColor')"
+                                                />
+                                                <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('visitaGuide.layoutRowLineWidth') }}</span>
+                                                    <span>{{ selectedLayoutRowLineWidth() }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    class="mt-1 w-full"
+                                                    [min]="layoutRowLineWidthMin"
+                                                    [max]="layoutRowLineWidthMax"
+                                                    step="1"
+                                                    [ngModel]="selectedLayoutRowLineWidth()"
+                                                    (ngModelChange)="setSelectedLayoutRowLineWidth($event)"
+                                                />
+                                                @if (selectedLayoutRowLineStyle() !== 'solid') {
+                                                    <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                        <span>{{
+                                                            t(
+                                                                selectedLayoutRowLineStyle() === 'dotted'
+                                                                    ? 'visitaGuide.layoutRowLineDottedSize'
+                                                                    : 'visitaGuide.layoutRowLineDashedSize'
+                                                            )
+                                                        }}</span>
+                                                        <span>{{ selectedLayoutRowLineMark() }} px</span>
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        class="mt-1 w-full"
+                                                        [min]="layoutRowLineMarkMin"
+                                                        [max]="layoutRowLineMarkMax"
+                                                        step="1"
+                                                        [ngModel]="selectedLayoutRowLineMark()"
+                                                        (ngModelChange)="setSelectedLayoutRowLineMark($event)"
+                                                    />
+                                                }
+                                            }
+                                            @if (layoutHiddenParamOptions().length > 0) {
+                                                <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                                    {{ t('visitaGuide.layoutHiddenCells') }}
+                                                </p>
+                                                <div class="mt-1 flex flex-wrap gap-1">
+                                                    @for (param of layoutHiddenParamOptions(); track param.key) {
+                                                        <button
+                                                            type="button"
+                                                            class="rounded-lg border border-dashed border-stone-300 px-2 py-1 text-[11px] text-stone-600 hover:border-indigo-400 hover:text-indigo-700 dark:border-gray-600 dark:text-stone-300"
+                                                            (click)="addLayoutParam(param.key)"
+                                                        >
+                                                            + {{ param.label }}
+                                                            @if (param.kind === 'table') {
+                                                                <span class="text-stone-400">{{ t('visitaGuide.layoutParamTable') }}</span>
+                                                            }
+                                                        </button>
+                                                    }
+                                                </div>
+                                            }
+                                            @if (layoutOrderedItems().length > 0) {
+                                                <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                                    {{ t('visitaGuide.layoutVisibleParams') }}
+                                                </p>
+                                                <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutParamOrder') }}</p>
+                                                <div
+                                                    cdkDropList
+                                                    class="mt-2 max-h-56 space-y-1 overflow-y-auto"
+                                                    (cdkDropListDropped)="onLayoutParamDrop($event)"
+                                                >
+                                                    @for (item of layoutOrderedItems(); track item.key) {
+                                                        <div
+                                                            cdkDrag
+                                                            class="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                                        >
+                                                            <mat-icon
+                                                                cdkDragHandle
+                                                                class="!h-4 !w-4 shrink-0 cursor-grab !text-base text-stone-400 active:cursor-grabbing"
+                                                                >drag_indicator</mat-icon
+                                                            >
+                                                            <input
+                                                                type="checkbox"
+                                                                [ngModel]="isLayoutParamVisible(item.key)"
+                                                                (ngModelChange)="setLayoutParamVisible(item.key, $event)"
+                                                            />
+                                                            <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
+                                                            @if (item.kind === 'table') {
+                                                                <span class="shrink-0 text-[10px] font-normal uppercase tracking-wide text-stone-400">
+                                                                    {{ t('visitaGuide.layoutParamTable') }}
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            } @else {
+                                                <p class="mt-2 text-[11px] text-stone-400">
+                                                    {{ t('visitaGuide.layoutNoParams') }}
+                                                </p>
+                                            }
+                                        }
+                                        @if (selectedLayoutCellKey(); as cellKey) {
+                                            <div data-layout-control="cell" class="mt-3 rounded-xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-800 dark:text-violet-300">
+                                                        {{ t('visitaGuide.layoutCell') }}
+                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        class="text-[11px] font-medium text-violet-800 underline-offset-4 hover:underline dark:text-violet-300"
+                                                        (click)="clearSelectedLayoutCell()"
+                                                    >
+                                                        {{ t('visitaGuide.layoutCellBack') }}
+                                                    </button>
+                                                </div>
+                                                <p class="mt-1 truncate text-xs text-stone-600 dark:text-stone-300">{{
+                                                    selectedLayoutCellTitle()
+                                                }}</p>
+                                                <div class="mt-2 flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        class="flex-1 rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-medium text-stone-700 disabled:opacity-40 dark:border-gray-700 dark:text-stone-200"
+                                                        [disabled]="!canMoveSelectedLayoutParam(-1)"
+                                                        (click)="moveSelectedLayoutParam(-1)"
+                                                    >
+                                                        {{ t('visitaGuide.layoutParamMoveUp') }}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="flex-1 rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-medium text-stone-700 disabled:opacity-40 dark:border-gray-700 dark:text-stone-200"
+                                                        [disabled]="!canMoveSelectedLayoutParam(1)"
+                                                        (click)="moveSelectedLayoutParam(1)"
+                                                    >
+                                                        {{ t('visitaGuide.layoutParamMoveDown') }}
+                                                    </button>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="mt-2 w-full rounded-lg border border-red-200 bg-white px-2 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:bg-transparent dark:hover:bg-red-950/40"
+                                                    (click)="removeSelectedLayoutCell()"
+                                                >
+                                                    {{ t('visitaGuide.layoutCellRemove') }}
+                                                </button>
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('visitaGuide.layoutCellLabelText')
+                                                }}</label>
+                                                <input
+                                                    type="text"
+                                                    class="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [ngModel]="selectedLayoutCellOverride()?.label || selectedLayoutCellTitle()"
+                                                    (ngModelChange)="setSelectedLayoutCellLabel($event)"
+                                                />
+                                                <div class="mt-2">
+                                                    <span class="text-xs text-stone-600 dark:text-stone-300">{{
+                                                        t('visitaGuide.layoutCellBg')
+                                                    }}</span>
+                                                    <color-hex-field
+                                                        class="mt-1 block"
+                                                        [ngModel]="selectedLayoutCellOverride()?.backgroundColor || '#fafaf9'"
+                                                        (ngModelChange)="setSelectedLayoutCellBackground($event)"
+                                                        [ariaLabel]="t('visitaGuide.layoutCellBg')"
+                                                    />
+                                                </div>
+                                                <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                                    <input
+                                                        type="checkbox"
+                                                        [ngModel]="selectedLayoutCellHasBorder()"
+                                                        (ngModelChange)="setSelectedLayoutCellBorderEnabled($event)"
+                                                    />
+                                                    {{ t('visitaGuide.layoutCellBorder') }}
+                                                </label>
+                                                @if (selectedLayoutCellHasBorder()) {
+                                                    <color-hex-field
+                                                        class="mt-2 block"
+                                                        [ngModel]="selectedLayoutCellOverride()?.borderColor || '#d6d3d1'"
+                                                        (ngModelChange)="setSelectedLayoutCellBorderColor($event)"
+                                                        [ariaLabel]="t('visitaGuide.layoutCellBorder')"
+                                                    />
+                                                    <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                        <span>{{ t('visitaGuide.layoutBlockBorderWidth') }}</span>
+                                                        <span>{{ selectedLayoutCellOverride()?.borderWidth || 1 }} px</span>
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        min="1"
+                                                        max="8"
+                                                        step="1"
+                                                        class="mt-1 w-full"
+                                                        [ngModel]="selectedLayoutCellOverride()?.borderWidth || 1"
+                                                        (ngModelChange)="setSelectedLayoutCellBorderWidth($event)"
+                                                    />
+                                                }
+                                                <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
+                                                    <span>{{ selectedLayoutCellBorderRadius() }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="32"
+                                                    step="1"
+                                                    class="mt-1 w-full"
+                                                    [ngModel]="selectedLayoutCellBorderRadius()"
+                                                    (ngModelChange)="setSelectedLayoutCellBorderRadius($event)"
+                                                />
+                                                <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                                    {{ t('visitaGuide.layoutCellRowLine') }}
+                                                </p>
+                                                <div class="mt-1 flex flex-wrap gap-1">
+                                                    <button
+                                                        type="button"
+                                                        class="rounded-lg border px-2 py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="selectedLayoutCellRowLineMode() === 'inherit'"
+                                                        [class.bg-white]="selectedLayoutCellRowLineMode() === 'inherit'"
+                                                        [class.border-stone-200]="selectedLayoutCellRowLineMode() !== 'inherit'"
+                                                        (click)="setSelectedLayoutCellRowLineMode('inherit')"
+                                                    >
+                                                        {{ t('visitaGuide.layoutCellRowLineInherit') }}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="rounded-lg border px-2 py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="selectedLayoutCellRowLineMode() === 'none'"
+                                                        [class.bg-white]="selectedLayoutCellRowLineMode() === 'none'"
+                                                        [class.border-stone-200]="selectedLayoutCellRowLineMode() !== 'none'"
+                                                        (click)="setSelectedLayoutCellRowLineMode('none')"
+                                                    >
+                                                        {{ t('visitaGuide.layoutRowLineNone') }}
+                                                    </button>
+                                                    @for (style of layoutRowLineStyles; track style) {
+                                                        <button
+                                                            type="button"
+                                                            class="rounded-lg border px-2 py-2 text-[11px] text-stone-700 dark:text-stone-200"
+                                                            [class.border-stone-950]="selectedLayoutCellRowLineMode() === style"
+                                                            [class.bg-white]="selectedLayoutCellRowLineMode() === style"
+                                                            [class.border-stone-200]="selectedLayoutCellRowLineMode() !== style"
+                                                            (click)="setSelectedLayoutCellRowLineMode(style)"
+                                                        >
+                                                            {{ t(layoutRowLineStyleKey(style)) }}
+                                                        </button>
+                                                    }
+                                                </div>
+                                                @if (selectedLayoutCellRowLineMode() !== 'none') {
+                                                    <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                        t('visitaGuide.layoutRowLineColor')
+                                                    }}</span>
+                                                    <color-hex-field
+                                                        class="mt-1 block"
+                                                        [ngModel]="selectedLayoutCellRowLineColor()"
+                                                        (ngModelChange)="setSelectedLayoutCellRowLineColor($event)"
+                                                        [ariaLabel]="t('visitaGuide.layoutRowLineColor')"
+                                                    />
+                                                    <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                        <span>{{ t('visitaGuide.layoutRowLineWidth') }}</span>
+                                                        <span>{{ selectedLayoutCellRowLineWidth() }} px</span>
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        class="mt-1 w-full"
+                                                        [min]="layoutRowLineWidthMin"
+                                                        [max]="layoutRowLineWidthMax"
+                                                        step="1"
+                                                        [ngModel]="selectedLayoutCellRowLineWidth()"
+                                                        (ngModelChange)="setSelectedLayoutCellRowLineWidth($event)"
+                                                    />
+                                                    @if (selectedLayoutCellEffectiveRowLineStyle() !== 'solid') {
+                                                        <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                            <span>{{
+                                                                t(
+                                                                    selectedLayoutCellEffectiveRowLineStyle() === 'dotted'
+                                                                        ? 'visitaGuide.layoutRowLineDottedSize'
+                                                                        : 'visitaGuide.layoutRowLineDashedSize'
+                                                                )
+                                                            }}</span>
+                                                            <span>{{ selectedLayoutCellRowLineMark() }} px</span>
+                                                        </label>
+                                                        <input
+                                                            type="range"
+                                                            class="mt-1 w-full"
+                                                            [min]="layoutRowLineMarkMin"
+                                                            [max]="layoutRowLineMarkMax"
+                                                            step="1"
+                                                            [ngModel]="selectedLayoutCellRowLineMark()"
+                                                            (ngModelChange)="setSelectedLayoutCellRowLineMark($event)"
+                                                        />
+                                                    }
+                                                }
+                                            </div>
+                                        }
+                                        @if (selected.type !== 'shape') {
+                                        <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutBlockTitle') }}</label>
+                                        <input
+                                            type="text"
+                                            class="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [ngModel]="selected.label"
+                                            (ngModelChange)="setSelectedLayoutLabel($event)"
+                                        />
+                                        }
+                                        @if (selected.type === 'shape') {
+                                            <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
+                                            <select
+                                                class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                [ngModel]="selected.shape || selected.staticContent"
+                                                (ngModelChange)="setSelectedLayoutShape($event)"
+                                            >
+                                                @for (tool of layoutShapeTools; track tool.kind) {
+                                                    <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
+                                                }
+                                            </select>
+                                            <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                t('visitaGuide.layoutShapeFill')
+                                            }}</span>
+                                            <color-hex-field
+                                                class="mt-1 block"
+                                                [ngModel]="selected.style?.color || primaryColor()"
+                                                (ngModelChange)="setSelectedLayoutColor($event)"
+                                                [ariaLabel]="t('visitaGuide.layoutShapeFill')"
+                                            />
+                                            <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                                <input
+                                                    type="checkbox"
+                                                    [ngModel]="selectedLayoutHasBorder()"
+                                                    (ngModelChange)="setSelectedLayoutBorderEnabled($event)"
+                                                />
+                                                {{ t('visitaGuide.layoutBlockBorder') }}
+                                            </label>
+                                            @if (selectedLayoutHasBorder()) {
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('visitaGuide.layoutShapeStroke')
+                                                }}</label>
+                                                <color-hex-field
+                                                    class="mt-1 block"
+                                                    [ngModel]="selected.style?.borderColor || '#111827'"
+                                                    (ngModelChange)="setSelectedLayoutBorderColor($event)"
+                                                    [ariaLabel]="t('visitaGuide.layoutShapeStroke')"
+                                                />
+                                                <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('visitaGuide.layoutBlockBorderWidth') }}</span>
+                                                    <span>{{ selected.style?.borderWidth || 1 }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="1"
+                                                    max="12"
+                                                    step="1"
+                                                    class="mt-1 w-full"
+                                                    [ngModel]="selected.style?.borderWidth || 1"
+                                                    (ngModelChange)="setSelectedLayoutBorderWidth($event)"
+                                                />
+                                            }
+                                            <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
+                                                <span>{{ t('visitaGuide.layoutRotation') }}</span>
+                                                <span>{{ selected.style?.rotation || 0 }}°</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="-180"
+                                                max="180"
+                                                step="1"
+                                                class="mt-1 w-full"
+                                                [ngModel]="selected.style?.rotation || 0"
+                                                (ngModelChange)="setSelectedLayoutRotation($event)"
+                                            />
+                                            @if (selected.shape === 'rectangle' || selected.shape === 'square' || !selected.shape) {
+                                                <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
+                                                    <span>{{ selected.style?.borderRadius || 0 }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="48"
+                                                    step="1"
+                                                    class="mt-1 w-full"
+                                                    [ngModel]="selected.style?.borderRadius || 0"
+                                                    (ngModelChange)="setSelectedLayoutBorderRadius($event)"
+                                                />
+                                            }
+                                        }
+                                        @if (selected.type === 'text' || selected.type === 'header') {
+                                            <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutBlockBody') }}</label>
+                                            <textarea
+                                                rows="3"
+                                                class="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                [ngModel]="selected.staticContent"
+                                                (ngModelChange)="setSelectedLayoutBody($event)"
+                                            ></textarea>
+                                        }
+                                        @for (role of selectedLayoutTextRoles(); track role) {
+                                            <div [class]="layoutRolePanelClass(role)">
+                                                <p [class]="layoutRoleHeadingClass(role)">
+                                                    {{ t(layoutRoleTitleKey(role)) }}
+                                                </p>
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('smartReport.fontFamily')
+                                                }}</label>
+                                                <select
+                                                    class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [ngModel]="layoutRoleFontFamily(role)"
+                                                    (ngModelChange)="setLayoutRoleFontFamily(role, $event)"
+                                                >
+                                                    @for (font of reportFonts; track font.value) {
+                                                        <option [ngValue]="font.value">{{ t(font.labelKey) }}</option>
+                                                    }
+                                                </select>
+                                                <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                    <span>{{ t('smartReport.fontSize') }}</span>
+                                                    <span>{{ layoutRoleFontSize(role) }} px</span>
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="8"
+                                                    max="48"
+                                                    step="1"
+                                                    class="mt-1 w-full"
+                                                    [ngModel]="layoutRoleFontSize(role)"
+                                                    (ngModelChange)="setLayoutRoleFontSize(role, $event)"
+                                                />
+                                                <label class="mt-2 block text-xs text-stone-500">{{
+                                                    t('smartReport.textAlign')
+                                                }}</label>
+                                                <div class="mt-1 flex gap-1">
+                                                    @for (align of layoutTextAligns; track align) {
+                                                        <button
+                                                            type="button"
+                                                            class="flex flex-1 items-center justify-center rounded-lg border py-2 text-stone-700 dark:text-stone-200"
+                                                            [class.border-stone-950]="layoutRoleAlign(role) === align"
+                                                            [class.bg-white]="layoutRoleAlign(role) === align"
+                                                            [class.border-stone-200]="layoutRoleAlign(role) !== align"
+                                                            [attr.aria-label]="align"
+                                                            (click)="setLayoutRoleAlign(role, align)"
+                                                        >
+                                                            <mat-icon class="!h-4 !w-4 !text-base">{{
+                                                                'format_align_' + align
+                                                            }}</mat-icon>
+                                                        </button>
+                                                    }
+                                                </div>
+                                                <div class="mt-2 flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        class="flex-1 rounded-lg border py-2 text-xs font-bold text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="layoutRoleIsBold(role)"
+                                                        [class.bg-white]="layoutRoleIsBold(role)"
+                                                        [class.border-stone-200]="!layoutRoleIsBold(role)"
+                                                        (click)="setLayoutRoleBold(role, !layoutRoleIsBold(role))"
+                                                    >
+                                                        {{ t('smartReport.bold') }}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="flex-1 rounded-lg border py-2 text-xs italic text-stone-700 dark:text-stone-200"
+                                                        [class.border-stone-950]="layoutRoleIsItalic(role)"
+                                                        [class.bg-white]="layoutRoleIsItalic(role)"
+                                                        [class.border-stone-200]="!layoutRoleIsItalic(role)"
+                                                        (click)="setLayoutRoleItalic(role, !layoutRoleIsItalic(role))"
+                                                    >
+                                                        {{ t('smartReport.italic') }}
+                                                    </button>
+                                                </div>
+                                                <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                    t('visitaGuide.layoutBlockColor')
+                                                }}</span>
+                                                <color-hex-field
+                                                    class="mt-1 block"
+                                                    [ngModel]="layoutRoleColor(role)"
+                                                    (ngModelChange)="setLayoutRoleColor(role, $event)"
+                                                    [ariaLabel]="t(layoutRoleTitleKey(role))"
+                                                />
+                                            </div>
+                                        }
+                                        @if (selected.type !== 'shape') {
+                                        <div class="mt-3 rounded-xl border border-rose-300 bg-rose-50 p-3 dark:border-rose-800 dark:bg-rose-950/40">
+                                        <p class="text-[11px] font-semibold uppercase tracking-wider text-rose-800 dark:text-rose-300">
+                                            {{ t('visitaGuide.layoutBlockLook') }}
+                                        </p>
+                                        <div class="mt-2">
+                                            <span class="text-xs text-stone-600 dark:text-stone-300">{{
+                                                t('visitaGuide.layoutBlockBg')
+                                            }}</span>
+                                            <color-hex-field
+                                                class="mt-1 block"
+                                                [ngModel]="selected.style?.backgroundColor || '#ffffff'"
+                                                (ngModelChange)="setSelectedLayoutBackground($event)"
+                                                [ariaLabel]="t('visitaGuide.layoutBlockBg')"
+                                            />
+                                        </div>
+                                        <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                            <input
+                                                type="checkbox"
+                                                [ngModel]="selectedLayoutHasBorder()"
+                                                (ngModelChange)="setSelectedLayoutBorderEnabled($event)"
+                                            />
+                                            {{ t('visitaGuide.layoutBlockBorder') }}
+                                        </label>
+                                        @if (selectedLayoutHasBorder()) {
+                                            <label class="mt-2 block text-xs text-stone-500">{{
+                                                t('visitaGuide.layoutBlockBorderColor')
+                                            }}</label>
+                                            <color-hex-field
+                                                class="mt-1 block"
+                                                [ngModel]="selected.style?.borderColor || '#d6d3d1'"
+                                                (ngModelChange)="setSelectedLayoutBorderColor($event)"
+                                                [ariaLabel]="t('visitaGuide.layoutBlockBorderColor')"
+                                            />
+                                            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                <span>{{ t('visitaGuide.layoutBlockBorderWidth') }}</span>
+                                                <span>{{ selected.style?.borderWidth || 1 }} px</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="1"
+                                                max="12"
+                                                step="1"
+                                                class="mt-1 w-full"
+                                                [ngModel]="selected.style?.borderWidth || 1"
+                                                (ngModelChange)="setSelectedLayoutBorderWidth($event)"
+                                            />
+                                            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                                <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
+                                                <span>{{ selected.style?.borderRadius || 0 }} px</span>
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="32"
+                                                step="1"
+                                                class="mt-1 w-full"
+                                                [ngModel]="selected.style?.borderRadius || 0"
+                                                (ngModelChange)="setSelectedLayoutBorderRadius($event)"
+                                            />
+                                        }
+                                        </div>
+                                        }
+                                        @if (canApplyLayoutStyleToAll()) {
+                                            <button
+                                                type="button"
+                                                class="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                                (click)="applySelectedLayoutStyleToAll()"
+                                            >
+                                                {{ t('visitaGuide.layoutApplyStyleToAll') }}
+                                            </button>
+                                            <p class="mt-1 text-[11px] text-stone-400">
+                                                {{ t('visitaGuide.layoutApplyStyleToAllHint') }}
+                                            </p>
+                                        }
+                                        <div class="mt-3 flex gap-2">
+                                            <button
+                                                type="button"
+                                                class="rounded-lg border border-stone-200 px-2 py-1 text-xs"
+                                                (click)="moveSelectedLayout(-1)"
+                                            >
+                                                {{ t('visitaGuide.layoutMoveUp') }}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="rounded-lg border border-stone-200 px-2 py-1 text-xs"
+                                                (click)="moveSelectedLayout(1)"
+                                            >
+                                                {{ t('visitaGuide.layoutMoveDown') }}
+                                            </button>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            class="mt-2 text-xs font-medium text-red-600"
+                                            (click)="removeSelectedLayoutSection()"
+                                        >
+                                            {{ t('visitaGuide.layoutRemove') }}
+                                        </button>
+                                    </div>
+                                }
+
+                                @if (layoutEditorKind() === 'page') {
+                                <section class="rounded-2xl border border-teal-300 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/40">
+                                <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300">
+                                    {{ t('visitaGuide.layoutLayers') }}
+                                </p>
+                                <div
+                                    cdkDropList
+                                    id="visita-layout-layers"
+                                    [cdkDropListData]="layoutSections()"
+                                    (cdkDropListDropped)="onLayoutReorder($event)"
+                                    class="mt-2 flex flex-col gap-1"
+                                >
+                                    @for (section of layoutSections(); track section.id) {
+                                        <button
+                                            type="button"
+                                            cdkDrag
+                                            class="rounded-lg border bg-white px-3 py-2 text-left text-xs dark:bg-gray-900"
+                                            [class.border-indigo-500]="selectedLayoutSectionId() === section.id"
+                                            [class.bg-indigo-100]="selectedLayoutSectionId() === section.id"
+                                            [class.border-teal-200]="selectedLayoutSectionId() !== section.id"
+                                            [class.dark:border-indigo-400]="selectedLayoutSectionId() === section.id"
+                                            [class.dark:border-teal-800]="selectedLayoutSectionId() !== section.id"
+                                            (click)="onLayoutSectionClick(section)"
+                                            (contextmenu)="onLayoutLayerContextMenu(section, $event)"
+                                        >
+                                            {{ section.label || section.type }}
+                                        </button>
+                                    }
+                                </div>
+                                </section>
+                                }
+                                </div>
+                            </div>
+                        }
+                        <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium dark:border-gray-700"
+                                [disabled]="isSavingLayout()"
+                                (click)="saveLayoutTemplate()"
+                            >
+                                {{ t('visitaGuide.layoutSave') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-gray-950"
+                                [disabled]="isSavingLayout()"
+                                (click)="saveLayoutAndGenerate()"
+                            >
+                                {{
+                                    t(
+                                        mode() === 'batch'
+                                            ? 'visitaGuide.saveAndUploadCsv'
+                                            : 'visitaGuide.saveAndViewReport'
+                                    )
+                                }}
+                            </button>
+                        </div>
+                    }
+                    @case ('generate') {
+                        @if (previewTemplate(); as template) {
+                            <div class="pointer-events-none fixed top-0 left-[-120vw] w-[210mm]" aria-hidden="true">
+                                <report-preview
+                                    [printCapture]="true"
+                                    [template]="template"
+                                    [previewData]="previewData()"
+                                    [primaryColor]="primaryColor()"
+                                    [pageBackgroundColor]="pageBackgroundColor()"
+                                    [logoUrl]="logoDataUrl()"
+                                    [legend]="legend()"
+                                    [showPageNumbers]="showPageNumbers()"
+                                    [watermarkEnabled]="watermarkEnabled()"
+                                    [watermarkType]="watermarkType()"
+                                    [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
+                                    [watermarkOpacity]="watermarkOpacity()"
+                                    [watermarkPattern]="watermarkPattern()"
+                                    [watermarkX]="watermarkX()"
+                                    [watermarkY]="watermarkY()"
+                                    [watermarkWidth]="watermarkWidth()"
+                                    [watermarkHeight]="watermarkHeight()"
+                                    [watermarkRotation]="watermarkRotation()"
+                                    [logoEnabled]="!!logoDataUrl()"
+                                    [logoX]="logoX()"
+                                    [logoY]="logoY()"
+                                    [logoWidth]="logoWidth()"
+                                    [logoHeight]="logoHeight()"
+                                    [logoRotation]="logoRotation()"
+                                    [sheetImages]="sheetImages()"
+                                    [logoAutoFitContent]="true"
+                                ></report-preview>
+                            </div>
+                        }
+                        <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+                            <div class="min-w-0 flex-1 overflow-x-auto">
+                                @if (previewTemplate(); as template) {
+                                    <div class="w-[210mm] max-w-none">
+                                    <report-preview
+                                        [template]="template"
+                                        [previewData]="previewData()"
+                                        [primaryColor]="primaryColor()"
+                                        [pageBackgroundColor]="pageBackgroundColor()"
+                                        [logoUrl]="logoDataUrl()"
+                                        [legend]="legend()"
+                                        [showPageNumbers]="showPageNumbers()"
+                                        [watermarkEnabled]="watermarkEnabled()"
+                                        [watermarkType]="watermarkType()"
+                                        [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
+                                        [watermarkOpacity]="watermarkOpacity()"
+                                        [watermarkPattern]="watermarkPattern()"
+                                        [watermarkX]="watermarkX()"
+                                        [watermarkY]="watermarkY()"
+                                        [watermarkWidth]="watermarkWidth()"
+                                        [watermarkHeight]="watermarkHeight()"
+                                        [watermarkRotation]="watermarkRotation()"
+                                        [logoEnabled]="!!logoDataUrl()"
+                                        [logoX]="logoX()"
+                                        [logoY]="logoY()"
+                                        [logoWidth]="logoWidth()"
+                                        [logoHeight]="logoHeight()"
+                                        [logoRotation]="logoRotation()"
+                                        [sheetImages]="sheetImages()"
+                                        [logoAutoFitContent]="true"
+                                    ></report-preview>
+                                    </div>
+                                } @else {
+                                    <p class="text-sm text-stone-500">{{ t('visitaGuide.needTemplate') }}</p>
+                                }
+                            </div>
+                            <div
+                                class="w-full shrink-0 rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/70 lg:w-80"
+                            >
+                            <p class="text-sm text-stone-500">{{ t('visitaGuide.generateHint') }}</p>
+                            <button
+                                type="button"
+                                class="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-gray-950"
+                                [disabled]="isGenerating()"
+                                (click)="generatePdf()"
+                            >
+                                @if (isGenerating()) {
+                                    <mat-spinner diameter="18"></mat-spinner>
+                                } @else {
+                                    <mat-icon>picture_as_pdf</mat-icon>
+                                }
+                                {{ t('visitaGuide.downloadPdf') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium dark:border-gray-700"
+                                (click)="downloadJson()"
+                            >
+                                <mat-icon>data_object</mat-icon>
+                                {{ t('visitaGuide.downloadJson') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-medium text-stone-600"
+                                (click)="startOver()"
+                            >
+                                {{ t('visitaGuide.newConsultation') }}
+                            </button>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </main>
+    </div>
+    @if (layoutContextMenu(); as menu) {
+        <div
+            #layoutContextMenuEl
+            class="visita-layout-context-menu fixed z-[80] min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            [style.left.px]="menu.x"
+            [style.top.px]="menu.y"
+            [style.max-height.px]="menu.maxHeight"
+            (contextmenu)="$event.preventDefault(); $event.stopPropagation()"
+        >
+            @if (canCopyLayoutContextTarget()) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="copyLayoutContextTarget(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_copy</mat-icon>
+                    {{ t('visitaGuide.layoutContextCopy') }}
+                </button>
+            }
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 disabled:opacity-40 dark:text-stone-200 dark:hover:bg-gray-800"
+                [disabled]="!canInsertLayoutImage()"
+                (click)="insertLayoutImageFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">add_photo_alternate</mat-icon>
+                {{ t('visitaGuide.layoutContextInsertImage') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutTitleFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">title</mat-icon>
+                {{ t('visitaGuide.layoutAddTitle') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutTextFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">notes</mat-icon>
+                {{ t('visitaGuide.layoutAddText') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutDividerFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">horizontal_rule</mat-icon>
+                {{ t('visitaGuide.layoutAddDivider') }}
+            </button>
+            @for (tool of layoutShapeTools; track tool.kind) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="insertLayoutShapeFromMenu(tool.kind); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">{{ tool.icon }}</mat-icon>
+                    {{ t(tool.labelKey) }}
+                </button>
+            }
+            @if (menu.sectionId || menu.overlay) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-amber-300 dark:hover:bg-amber-400/15 dark:hover:text-amber-200"
+                    (click)="deleteLayoutContextTarget(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-red-600 dark:text-amber-300">delete</mat-icon>
+                    {{ t('visitaGuide.layoutContextDelete') }}
+                </button>
+            }
+        </div>
+    }
+    <input
+        #layoutInsertImageInput
+        type="file"
+        accept="image/*"
+        multiple
+        class="hidden"
+        (change)="onSheetImagesSelected($event)"
+    />
+</ng-container>

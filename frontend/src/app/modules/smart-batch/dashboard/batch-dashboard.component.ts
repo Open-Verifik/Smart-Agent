@@ -133,7 +133,7 @@ export class BatchDashboardComponent implements OnInit {
             this.configId.set(id);
             this.loadData(id);
         } else {
-            this._router.navigate(['/smart-batch']);
+            this._router.navigate(['/smart-batch/workspace']);
         }
     }
 
@@ -147,7 +147,7 @@ export class BatchDashboardComponent implements OnInit {
                 this.resolveWebhook(res.data);
             },
             error: () => {
-                this._router.navigate(['/smart-batch']);
+                this._router.navigate(['/smart-batch/workspace']);
             },
         });
 

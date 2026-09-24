@@ -226,7 +226,7 @@ export class QuickValidateComponent implements OnInit {
             return;
         }
 
-        this._router.navigate(['/smart-batch'], { queryParams: { tab: 'templates' } });
+        this._router.navigate(['/smart-batch/workspace'], { queryParams: { tab: 'templates' } });
     }
 
     submit(): void {

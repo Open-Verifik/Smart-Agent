@@ -9,6 +9,7 @@ import {
     OnDestroy,
     OnInit,
     signal,
+    ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -28,13 +29,25 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
-import { ReportPreviewComponent } from '../report-preview/report-preview.component';
+import {
+    applyVisibleKeyReorder,
+    collectLayoutSheetItems,
+    isHiddenParamKey,
+    setHiddenParamKey,
+    sortByKeyOrder,
+    valueAtDataPath,
+    type LayoutSheetItem,
+} from '../report-param-entries.util';
+import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
+import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
 import {
     DataNode,
     ReportConditionOperator,
     ReportSection,
     ReportSectionType,
+    ReportShapeKind,
+    REPORT_SHAPE_KINDS,
     ReportStyleVariant,
     SampleReportData,
     SmartReport,
@@ -92,6 +105,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     private _batchService = inject(SmartBatchService);
     private _sanitizer = inject(DomSanitizer);
     private _destroyRef = inject(DestroyRef);
+    @ViewChild('samplePreview') private _samplePreview?: ReportPreviewComponent;
 
     configId = signal<string | null>(null);
     templateId = signal<string | null>(null);
@@ -178,6 +192,9 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     sections = signal<ReportSection[]>([]);
     selectedSection = signal<ReportSection | null>(null);
+    selectedOverlay = signal<ReportOverlayId | null>(null);
+    readonly reportFonts = REPORT_FONT_STACKS;
+    readonly textAlignOptions = REPORT_TEXT_ALIGNS;
 
     /** Keep selected section in sync when sections array changes. */
     currentSelectedSection = computed(() => {
@@ -238,6 +255,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             group: 'layout',
         },
         {
+            type: 'shape',
+            labelKey: 'smartReport.sectionShape',
+            icon: 'category',
+            group: 'layout',
+        },
+        {
             type: 'spacer',
             labelKey: 'smartReport.sectionSpacer',
             icon: 'space_bar',
@@ -251,6 +274,8 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             legacy: true,
         },
     ];
+
+    readonly shapeKinds = REPORT_SHAPE_KINDS;
 
     /** Palette groups, in the order they appear in the "Add sections" panel. */
     readonly sectionGroups: { key: 'content' | 'data' | 'layout'; labelKey: string }[] = [
@@ -350,6 +375,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             name: ['', [Validators.required, Validators.maxLength(150)]],
             description: ['', Validators.maxLength(500)],
             primaryColor: ['#4F46E5'],
+            pageBackgroundColor: ['#ffffff'],
             pageSize: ['A4'],
             orientation: ['portrait'],
             pdfEngine: ['puppeteer'],
@@ -361,6 +387,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             watermarkText: ['CONFIDENTIAL'],
             watermarkOpacity: [0.08],
             watermarkPattern: ['single'],
+            watermarkX: [250],
+            watermarkY: [420],
+            watermarkWidth: [280],
+            watermarkHeight: [160],
+            watermarkRotation: [-15],
             securityEnabled: [false],
             securityPassword: [''],
             // Signature
@@ -378,6 +409,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             logoY: [OVERLAY_MIN_Y],
             logoWidth: [160],
             logoHeight: [60],
+            logoRotation: [0],
             logoAutoFitContent: [false],
             // Section content top padding (canonical px)
             bodyTopPadding: [0],
@@ -686,7 +718,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     if (configId) {
                         this._router.navigate(['/smart-batch', configId]);
                     } else {
-                        this._router.navigate(['/smart-batch']);
+                        this._router.navigate(['/smart-batch/workspace']);
                     }
                     return;
                 }
@@ -717,6 +749,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     name: template.name,
                     description: template.description,
                     primaryColor: template.primaryColor || '#4F46E5',
+                    pageBackgroundColor: template.pageBackgroundColor || '#ffffff',
                     pageSize: template.pageSize || 'A4',
                     orientation: template.orientation || 'portrait',
                     pdfEngine: template.pdfEngine || 'puppeteer',
@@ -728,6 +761,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     watermarkText: template.watermark?.text || 'CONFIDENTIAL',
                     watermarkOpacity: template.watermark?.opacity ?? 0.08,
                     watermarkPattern: template.watermark?.pattern || 'single',
+                    watermarkX: template.watermark?.x ?? 250,
+                    watermarkY: template.watermark?.y ?? 420,
+                    watermarkWidth: template.watermark?.width ?? 280,
+                    watermarkHeight: template.watermark?.height ?? 160,
+                    watermarkRotation: template.watermark?.rotation ?? -15,
                     securityEnabled: template.security?.enabled || false,
                     // If enabled, assume password exists and mask it. If not, empty.
                     securityPassword: template.security?.enabled ? '******' : '',
@@ -742,10 +780,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     signatureHeight: template.signature?.height || 50,
                     // Workspace logo overlay (visibility derived from logoUrl).
                     // Same clamp as signature for WYSIWYG with the PDF.
-                    logoX: Math.max(OVERLAY_MIN_X, template.logoSettings?.x ?? OVERLAY_MIN_X),
-                    logoY: Math.max(OVERLAY_MIN_Y, template.logoSettings?.y ?? OVERLAY_MIN_Y),
+                    logoX: template.logoSettings?.x ?? 32,
+                    logoY: template.logoSettings?.y ?? 32,
                     logoWidth: template.logoSettings?.width ?? 160,
                     logoHeight: template.logoSettings?.height ?? 60,
+                    logoRotation: template.logoSettings?.rotation ?? 0,
                     logoAutoFitContent: template.logoSettings?.autoFitContent ?? false,
                     // Section content top padding
                     bodyTopPadding: template.bodyTopPadding ?? 0,
@@ -951,6 +990,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             divider: {
                 style: { color: this.templateForm.get('primaryColor')?.value || '#4F46E5' },
             },
+            shape: {
+                shape: 'rectangle',
+                staticContent: 'rectangle',
+                style: { color: this.templateForm.get('primaryColor')?.value || '#4F46E5' },
+            },
             spacer: { style: { padding: '16' } },
             dataTable: { label: 'Records', dataPath: '', columns: [], maxRows: 20 },
             keyValueGrid: { label: 'Details', dataPath: '', columnsPerRow: 2 },
@@ -1007,6 +1051,40 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this.updateSection(id, {
             [key]: Number.isFinite(parsed) && parsed > 0 ? parsed : undefined,
         } as Partial<ReportSection>);
+    }
+
+    showsParamControls(type: ReportSectionType | undefined): boolean {
+        return type === 'keyValueGrid' || type === 'table' || type === 'card';
+    }
+
+    sectionParamOptions(section: ReportSection): LayoutSheetItem[] {
+        return collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
+            hiddenKeys: section.hiddenKeys,
+            keyOrder: section.keyOrder,
+        });
+    }
+
+    isSectionParamVisible(section: ReportSection, key: string): boolean {
+        return !isHiddenParamKey(key, section.hiddenKeys);
+    }
+
+    setSectionParamVisible(section: ReportSection, key: string, visible: boolean): void {
+        this.updateSection(section.id, { hiddenKeys: setHiddenParamKey(section.hiddenKeys, key, visible) });
+    }
+
+    onSectionParamDrop(section: ReportSection, event: CdkDragDrop<LayoutSheetItem[]>): void {
+        if (event.previousIndex === event.currentIndex) return;
+        const visible = this.sectionParamOptions(section).map((item) => item.key);
+        moveItemInArray(visible, event.previousIndex, event.currentIndex);
+        const allKeys = collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
+            hiddenKeys: [],
+        }).map((item) => item.key);
+        const seed = sortByKeyOrder(allKeys, section.keyOrder, (key) => key);
+        this.updateSection(section.id, { keyOrder: applyVisibleKeyReorder(seed, visible) });
+    }
+
+    setShowRowLines(section: ReportSection, enabled: boolean): void {
+        this.updateSection(section.id, { showRowLines: enabled });
     }
 
     sectionTypesForGroup(group: 'content' | 'data' | 'layout'): typeof this.sectionTypes {
@@ -1128,8 +1206,25 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     selectSection(section: ReportSection): void {
+        this.selectedOverlay.set(null);
         this.selectedSection.set({ ...section });
         this.showAdvancedPath.set(false);
+    }
+
+    onPreviewOverlaySelect(id: ReportOverlayId): void {
+        this.selectedSection.set(null);
+        this.selectedOverlay.set(id);
+    }
+
+    clearPreviewSelection(): void {
+        this.selectedSection.set(null);
+        this.selectedOverlay.set(null);
+    }
+
+    onCanvasBlankClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('report-preview')) return;
+        this.clearPreviewSelection();
     }
 
     /**
@@ -1228,6 +1323,26 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this.updateSectionStyle('fontWeight', weight);
     }
 
+    updateFontStyle(style: 'normal' | 'italic'): void {
+        this.updateSectionStyle('fontStyle', style);
+    }
+
+    updateFontFamily(family: string): void {
+        this.updateSectionStyle('fontFamily', family);
+    }
+
+    fontFamilyIndex(section: ReportSection): number {
+        const family = section.style?.fontFamily;
+        const index = REPORT_FONT_STACKS.findIndex((font) => font.value === family);
+        return index >= 0 ? index : 0;
+    }
+
+    updateFontFamilyByIndex(raw: string): void {
+        const index = Number(raw);
+        const font = REPORT_FONT_STACKS[index];
+        if (font) this.updateFontFamily(font.value);
+    }
+
     updateStyleColor(color: string): void {
         this.updateSectionStyle('color', color);
     }
@@ -1261,6 +1376,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 text: formVal.watermarkText || 'CONFIDENTIAL',
                 opacity: formVal.watermarkOpacity ?? 0.08,
                 pattern: formVal.watermarkPattern || 'single',
+                x: formVal.watermarkX ?? 250,
+                y: formVal.watermarkY ?? 420,
+                width: formVal.watermarkWidth ?? 280,
+                height: formVal.watermarkHeight ?? 160,
+                rotation: formVal.watermarkRotation ?? -15,
             },
             security: {
                 enabled: formVal.securityEnabled ?? false,
@@ -1281,6 +1401,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 y: formVal.logoY ?? 32,
                 width: formVal.logoWidth ?? 160,
                 height: formVal.logoHeight ?? 60,
+                rotation: formVal.logoRotation ?? 0,
                 autoFitContent: formVal.logoAutoFitContent ?? false,
             },
             bodyTopPadding: formVal.bodyTopPadding ?? 0,
@@ -1293,6 +1414,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             'watermarkText',
             'watermarkOpacity',
             'watermarkPattern',
+            'watermarkX',
+            'watermarkY',
+            'watermarkWidth',
+            'watermarkHeight',
+            'watermarkRotation',
             'securityEnabled',
             'securityPassword',
             'signatureEnabled',
@@ -1305,6 +1431,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             'logoY',
             'logoWidth',
             'logoHeight',
+            'logoRotation',
             'logoAutoFitContent',
         ];
 
@@ -1345,15 +1472,19 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     this.isSaving.set(false);
                     if (onSuccess) onSuccess();
                     const linkedId = this.linkedConfigId();
+                    const fromGuide = this._route.snapshot.queryParamMap.get('from') === 'guide';
+                    const queryParams = fromGuide
+                        ? { from: 'guide' }
+                        : undefined;
                     if (linkedId) {
-                        this._router.navigate([
-                            '/smart-batch',
-                            linkedId,
-                            'report-builder',
-                            created._id,
-                        ]);
+                        this._router.navigate(
+                            ['/smart-batch', linkedId, 'report-builder', created._id],
+                            { queryParams }
+                        );
                     } else {
-                        this._router.navigate(['/smart-batch', 'report-builder', created._id]);
+                        this._router.navigate(['/smart-batch', 'report-builder', created._id], {
+                            queryParams,
+                        });
                     }
                 },
                 error: (err) => {
@@ -1463,8 +1594,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             if (!id) return;
 
             this.isDownloadingSample.set(true);
+            const printHtml = this._samplePreview?.exportPrintHtml();
             this._reportService
-                .downloadTemplateSample(id, { sampleData: this.previewData() })
+                .downloadTemplateSample(id, {
+                    sampleData: this.previewData(),
+                    ...(printHtml ? { printHtml } : {}),
+                })
                 .subscribe({
                     next: async (blob) => {
                         let pdfBlob = blob;
@@ -1573,11 +1708,20 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     // ============================================
 
     goBack(): void {
+        if (this._route.snapshot.queryParamMap.get('from') === 'guide') {
+            this._router.navigate(['/smart-batch'], {
+                queryParams: this.templateId()
+                    ? { resume: 'layout', templateId: this.templateId() }
+                    : {},
+            });
+            return;
+        }
+
         const configId = this.configId() ?? this.linkedConfigId();
         if (configId) {
             this._router.navigate(['/smart-batch', configId]);
         } else {
-            this._router.navigate(['/smart-batch'], { queryParams: { tab: 'templates' } });
+            this._router.navigate(['/smart-batch/workspace'], { queryParams: { tab: 'templates' } });
         }
     }
 
@@ -1605,6 +1749,10 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         return this.sectionTypes.find((t) => t.type === type)?.icon || 'help';
     }
 
+    shapeLabelKey(kind: ReportShapeKind): string {
+        return `visitaGuide.layoutAdd${kind.charAt(0).toUpperCase()}${kind.slice(1)}`;
+    }
+
     getSectionLabel(type: string): string {
         const labelKey = this.sectionTypes.find((t) => t.type === type)?.labelKey;
         return labelKey ? this._transloco.translate(labelKey) : type;
@@ -1613,6 +1761,33 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     /** Wrapper for ReportPreviewComponent section click (preserves this context) */
     onPreviewSectionClick = (section: ReportSection): void => {
         this.selectSection(section);
+    };
+
+    onPreviewInlineText(event: ReportInlineTextChange): void {
+        const section = this.sections().find((item) => item.id === event.sectionId);
+        if (!section) return;
+        this.selectSection(section);
+        if (event.kind === 'cellLabel' && event.key) {
+            this.updateSection(section.id, {
+                keyOverrides: {
+                    ...(section.keyOverrides ?? {}),
+                    [event.key]: {
+                        ...(section.keyOverrides?.[event.key] ?? {}),
+                        label: event.value,
+                    },
+                },
+            });
+            return;
+        }
+        if (event.kind === 'body') {
+            this.updateSection(section.id, { staticContent: event.value });
+            return;
+        }
+        const updates: Partial<ReportSection> = { label: event.value };
+        if (section.type === 'header' || section.type === 'text') {
+            updates.staticContent = event.value;
+        }
+        this.updateSection(section.id, updates);
     };
 
     /** Flattened data paths for the helper panel (only leaf paths for fields) */
@@ -1680,11 +1855,9 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     onLogoPositionChange(pos: { x: number; y: number }): void {
-        // Clamp to the safe printable-area inset so the preview never lets
-        // the user place the logo where the PDF would have to nudge it.
         this.templateForm.patchValue({
-            logoX: Math.max(OVERLAY_MIN_X, Math.round(pos.x)),
-            logoY: Math.max(OVERLAY_MIN_Y, Math.round(pos.y)),
+            logoX: Math.max(0, Math.round(pos.x)),
+            logoY: Math.max(0, Math.round(pos.y)),
         });
         this.templateForm.markAsDirty();
     }
@@ -1693,6 +1866,40 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this.templateForm.patchValue({
             logoWidth: Math.round(size.width),
             logoHeight: Math.round(size.height),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onLogoRotationChange(rotation: number): void {
+        this.templateForm.patchValue({ logoRotation: Math.round(rotation) });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkPositionChange(pos: { x: number; y: number }): void {
+        this.templateForm.patchValue({
+            watermarkX: Math.max(0, Math.round(pos.x)),
+            watermarkY: Math.max(0, Math.round(pos.y)),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkSizeChange(size: { width: number; height: number }): void {
+        this.templateForm.patchValue({
+            watermarkWidth: Math.round(size.width),
+            watermarkHeight: Math.round(size.height),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkRotationChange(rotation: number): void {
+        this.templateForm.patchValue({ watermarkRotation: Math.round(rotation) });
+        this.templateForm.markAsDirty();
+    }
+
+    onWatermarkTypeChange(type: 'text' | 'logo'): void {
+        this.templateForm.patchValue({
+            watermarkType: type,
+            ...(type === 'logo' ? { watermarkPattern: 'single' } : {}),
         });
         this.templateForm.markAsDirty();
     }

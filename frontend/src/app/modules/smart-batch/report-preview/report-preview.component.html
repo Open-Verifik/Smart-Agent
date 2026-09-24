@@ -4,45 +4,86 @@
     overlays and the optional content top spacer; every page renders the
     legend at the bottom (mirrors Puppeteer's footerTemplate).
 -->
-<div class="flex flex-col items-center gap-4">
+<div class="flex flex-col items-center gap-4" (click)="onPaperClick($event)" (contextmenu)="onPaperContextMenu($event)">
     @for (
-        pageSections of pages();
+        pageSections of visiblePages();
         track $index;
         let pageIndex = $index, isFirst = $first, count = $count
     ) {
         <div
             #reportPage
-            class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative w-full"
+            class="mx-auto flex w-full flex-col relative overflow-hidden rounded-lg"
+            [class.shadow-lg]="!thumbnailMode()"
             [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
             [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
+            [style.height]="orientation() === 'landscape' ? '210mm' : '297mm'"
+            [style.background-color]="pageBackgroundColor() || '#ffffff'"
             style="border: 1px solid #e5e7eb"
         >
             <!-- Watermark overlay (every page, matches PDF behaviour) -->
             @if (watermarkEnabled()) {
                 @if (watermarkPattern() === 'single') {
-                    <div
-                        class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden"
-                    >
-                        @if (watermarkType() === 'text') {
-                            <span
-                                class="text-gray-500 font-bold select-none whitespace-nowrap"
-                                [style.opacity]="watermarkOpacity()"
-                                style="
-                                    font-size: 72px;
-                                    transform: rotate(-35deg);
-                                    letter-spacing: 8px;
-                                "
-                                >{{ watermarkText() }}</span
-                            >
-                        } @else if (watermarkType() === 'logo' && logoUrl()) {
-                            <img
-                                [src]="logoUrl()"
-                                alt="Watermark"
-                                class="select-none max-w-[60%] max-h-[40%] object-contain"
-                                [style.opacity]="watermarkOpacity()"
-                                style="transform: rotate(-15deg)"
-                            />
-                        }
+                    <div class="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+                        <div
+                            data-overlay-box
+                            class="absolute flex items-center justify-center"
+                            [class.cursor-move]="isOverlaySelected('watermark')"
+                            [class.cursor-pointer]="clickable() && isFirst && !isOverlaySelected('watermark')"
+                            [class.pointer-events-auto]="clickable() && isFirst"
+                            [class.group]="isOverlaySelected('watermark')"
+                            [style.left.px]="viewWatermarkX"
+                            [style.top.px]="viewWatermarkY"
+                            [style.width.px]="viewWatermarkWidth"
+                            [style.height.px]="viewWatermarkHeight"
+                            [style.border]="watermarkOverlayBorder"
+                            (pointerdown)="startMove($event, 'watermark')"
+                            (click)="selectOverlay('watermark', $event)"
+                            (contextmenu)="onOverlayContextMenu('watermark', $event)"
+                        >
+                            @if (watermarkType() === 'text') {
+                                <span
+                                    class="pointer-events-none select-none whitespace-nowrap text-center font-bold text-gray-500"
+                                    [style.opacity]="watermarkOpacity()"
+                                    [style.font-size.px]="viewWatermarkFontSize"
+                                    [style.transform]="watermarkRotateStyle"
+                                    [style.letter-spacing.px]="6"
+                                    >{{ watermarkText() }}</span
+                                >
+                            } @else if (watermarkType() === 'logo' && logoUrl()) {
+                                <img
+                                    [src]="logoUrl()"
+                                    alt="Watermark"
+                                    class="h-full w-full object-contain pointer-events-none select-none"
+                                    [style.opacity]="watermarkOpacity()"
+                                    [style.transform]="watermarkRotateStyle"
+                                    draggable="false"
+                                />
+                            }
+                            @if (isOverlaySelected('watermark')) {
+                                <div
+                                    data-overlay-handle
+                                    class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    (pointerdown)="startRotate($event, 'watermark')"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] text-amber-600"
+                                        style="pointer-events: none"
+                                        >rotate_right</mat-icon
+                                    >
+                                </div>
+                                <div
+                                    data-overlay-handle
+                                    class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    (pointerdown)="startResize($event, 'watermark')"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] rotate-90 text-amber-600"
+                                        style="pointer-events: none"
+                                        >open_in_full</mat-icon
+                                    >
+                                </div>
+                            }
+                        </div>
                     </div>
                 } @else {
                     <div
@@ -58,22 +99,19 @@
                             <div class="flex items-center justify-center">
                                 @if (watermarkType() === 'text') {
                                     <span
-                                        class="text-gray-500 font-bold select-none whitespace-nowrap"
+                                        class="select-none whitespace-nowrap font-bold text-gray-500"
                                         [style.opacity]="watermarkOpacity()"
-                                        style="
-                                            font-size: 18px;
-                                            transform: rotate(-35deg);
-                                            letter-spacing: 3px;
-                                        "
+                                        [style.transform]="watermarkRotateStyle"
+                                        style="font-size: 18px; letter-spacing: 3px"
                                         >{{ watermarkText() }}</span
                                     >
                                 } @else if (watermarkType() === 'logo' && logoUrl()) {
                                     <img
                                         [src]="logoUrl()"
                                         alt=""
-                                        class="select-none w-16 h-16 object-contain"
+                                        class="h-16 w-16 select-none object-contain"
                                         [style.opacity]="watermarkOpacity()"
-                                        style="transform: rotate(-15deg)"
+                                        [style.transform]="watermarkRotateStyle"
                                     />
                                 }
                             </div>
@@ -90,66 +128,163 @@
             @if (isFirst && signatureEnabled() && signatureImage()) {
                 <div class="absolute inset-0 pointer-events-none z-20">
                     <div
-                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        data-overlay-box
+                        class="absolute"
+                        [class.cursor-move]="isOverlaySelected('signature')"
+                        [class.cursor-pointer]="clickable() && !isOverlaySelected('signature')"
+                        [class.pointer-events-auto]="clickable()"
+                        [style.left.px]="viewSignatureX"
+                        [style.top.px]="viewSignatureY"
                         [style.width.px]="viewSignatureWidth"
                         [style.height.px]="viewSignatureHeight"
-                        cdkDrag
-                        [cdkDragFreeDragPosition]="{ x: viewSignatureX, y: viewSignatureY }"
-                        (cdkDragEnded)="onSignatureDragEnd($event)"
+                        [style.border]="signatureOverlayBorder"
+                        (pointerdown)="startMove($event, 'signature')"
+                        (click)="selectOverlay('signature', $event)"
+                        (contextmenu)="onOverlayContextMenu('signature', $event)"
                     >
                         <img
                             [src]="signatureImage()"
                             class="w-full h-full object-contain pointer-events-none select-none"
                             draggable="false"
                         />
-                        <div
-                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                            (mousedown)="startResize($event, 'signature')"
-                        >
-                            <mat-icon
-                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                                style="pointer-events: none"
-                                >open_in_full</mat-icon
+                        @if (isOverlaySelected('signature')) {
+                            <div
+                                data-overlay-handle
+                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startResize($event, 'signature')"
                             >
-                        </div>
+                                <mat-icon
+                                    class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
+                                    style="pointer-events: none"
+                                    >open_in_full</mat-icon
+                                >
+                            </div>
+                        }
                     </div>
                 </div>
             }
 
             @if (isFirst && logoEnabled() && logoUrl()) {
-                <div class="absolute inset-0 pointer-events-none z-20">
+                <div
+                    class="absolute inset-0 pointer-events-none"
+                    [class.z-40]="isOverlaySelected('logo')"
+                    [class.z-20]="!isOverlaySelected('logo')"
+                >
                     <div
-                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        data-overlay-box
+                        class="absolute"
+                        [class.cursor-move]="isOverlaySelected('logo')"
+                        [class.cursor-pointer]="clickable() && !isOverlaySelected('logo')"
+                        [class.pointer-events-auto]="clickable()"
+                        [class.group]="isOverlaySelected('logo')"
+                        [style.left.px]="viewLogoX"
+                        [style.top.px]="viewLogoY"
                         [style.width.px]="viewLogoWidth"
                         [style.height.px]="viewLogoHeight"
-                        cdkDrag
-                        [cdkDragFreeDragPosition]="{ x: viewLogoX, y: viewLogoY }"
-                        (cdkDragEnded)="onLogoDragEnd($event)"
+                        [style.border]="logoOverlayBorder"
+                        (pointerdown)="startMove($event, 'logo')"
+                        (click)="selectOverlay('logo', $event)"
+                        (contextmenu)="onOverlayContextMenu('logo', $event)"
                     >
                         <img
                             [src]="logoUrl()"
                             alt="Logo"
-                            class="w-full h-full object-contain pointer-events-none select-none"
+                            class="h-full w-full object-contain pointer-events-none select-none"
+                            [style.transform]="logoRotateStyle"
                             draggable="false"
                         />
-                        <div
-                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                            (mousedown)="startResize($event, 'logo')"
-                        >
-                            <mat-icon
-                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                                style="pointer-events: none"
-                                >open_in_full</mat-icon
+                        @if (isOverlaySelected('logo')) {
+                            <div
+                                data-overlay-handle
+                                class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startRotate($event, 'logo')"
                             >
-                        </div>
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-[16px] text-indigo-500"
+                                    style="pointer-events: none"
+                                    >rotate_right</mat-icon
+                                >
+                            </div>
+                            <div
+                                data-overlay-handle
+                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startResize($event, 'logo')"
+                            >
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                    style="pointer-events: none"
+                                    >open_in_full</mat-icon
+                                >
+                            </div>
+                        }
                     </div>
                 </div>
+            }
+
+            @if (isFirst) {
+                @for (image of sheetImages(); track image.id) {
+                    @if (image.src) {
+                        <div class="absolute inset-0 pointer-events-none" [class.z-40]="isOverlaySelected(sheetOverlayId(image.id))" [class.z-20]="!isOverlaySelected(sheetOverlayId(image.id))">
+                            <div
+                                data-overlay-box
+                                class="absolute"
+                                [class.cursor-move]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.cursor-pointer]="clickable() && !isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.pointer-events-auto]="clickable()"
+                                [class.group]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [style.left.px]="sheetImageView(image).x"
+                                [style.top.px]="sheetImageView(image).y"
+                                [style.width.px]="sheetImageView(image).width"
+                                [style.height.px]="sheetImageView(image).height"
+                                [style.border]="sheetImageBorder(image.id)"
+                                (pointerdown)="startMove($event, sheetOverlayId(image.id))"
+                                (click)="selectOverlay(sheetOverlayId(image.id), $event)"
+                                (contextmenu)="onOverlayContextMenu(sheetOverlayId(image.id), $event)"
+                            >
+                                <img
+                                    [src]="image.src"
+                                    alt=""
+                                    class="h-full w-full object-contain pointer-events-none select-none"
+                                    [style.transform]="'rotate(' + (image.rotation || 0) + 'deg)'"
+                                    draggable="false"
+                                />
+                                @if (isOverlaySelected(sheetOverlayId(image.id))) {
+                                    <div
+                                        data-overlay-handle
+                                        class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        (pointerdown)="startRotate($event, sheetOverlayId(image.id))"
+                                    >
+                                        <mat-icon
+                                            class="!h-4 !w-4 !text-[16px] text-indigo-500"
+                                            style="pointer-events: none"
+                                            >rotate_right</mat-icon
+                                        >
+                                    </div>
+                                    <div
+                                        data-overlay-handle
+                                        class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        (pointerdown)="startResize($event, sheetOverlayId(image.id))"
+                                    >
+                                        <mat-icon
+                                            class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                            style="pointer-events: none"
+                                            >open_in_full</mat-icon
+                                        >
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
             }
 
             <!-- Top page number (every page when configured) -->
             @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
                 <div
-                    class="px-8 sm:px-10 lg:px-12 pt-4 text-[10px] text-gray-400"
+                    data-report-top-chrome
+                    class="px-8 pt-4 text-[10px] text-gray-400"
+                    [style.position]="hasFreeLayout() ? 'relative' : null"
+                    [style.z-index]="hasFreeLayout() ? '30' : null"
                     [style.text-align]="
                         pageNumberPosition() === 'top-left'
                             ? 'left'
@@ -162,7 +297,13 @@
                 </div>
             }
 
-            <div class="p-8 sm:p-10 lg:p-12 flex-1 flex flex-col min-h-0">
+            <div
+                data-report-page-inner
+                class="relative p-8 flex-1 flex flex-col min-h-0"
+                [class.overflow-hidden]="!hasFreeLayout()"
+                [class.overflow-visible]="hasFreeLayout()"
+                [style.box-shadow]="clickable() && reorderable() ? 'inset 0 0 0 1px rgba(99, 102, 241, 0.25)' : null"
+            >
                 <!-- Logo top spacer (page 1 only) -->
                 @if (isFirst && viewContentPaddingTop > 0) {
                     <div [style.height.px]="viewContentPaddingTop"></div>
@@ -178,23 +319,106 @@
 
                 @for (section of pageSections; track section.id) {
                     <div
-                        class="transition-all duration-200"
-                        [class.cursor-pointer]="clickable()"
-                        [class.ring-2]="clickable() && selectedSectionId() === section.id"
-                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id"
-                        [class.rounded-md]="clickable() && selectedSectionId() === section.id"
-                        (click)="clickable() && sectionClick() ? sectionClick()!(section) : null"
+                        data-report-section
+                        [attr.data-section-id]="section.id"
+                        class="relative"
+                        [class.mb-3]="!hasFreeLayout()"
+                        [class.cursor-pointer]="clickable() && !reorderable()"
+                        [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
+                        [class.cursor-grabbing]="draggingSectionId() === section.id"
+                        [class.opacity-90]="draggingSectionId() === section.id"
+                        [class.ring-2]="clickable() && selectedSectionId() === section.id && !isShapeSection(section)"
+                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id && !isShapeSection(section)"
+                        [class.rounded-md]="clickable() && selectedSectionId() === section.id && !isShapeSection(section)"
+                        [style.background-color]="isShapeSection(section) ? null : sectionFrameBackground(section)"
+                        [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"
+                        [style.border-radius.px]="isShapeSection(section) ? 0 : sectionFrameRadius(section)"
+                        [style.padding]="isShapeSection(section) ? '0' : sectionFramePadding(section)"
+                        [ngStyle]="sectionHostStyle(section)"
+                        (click)="onSectionActivate(section, $event)"
+                        (contextmenu)="onSectionContextMenu(section, $event)"
+                        (pointerdown)="onSectionPointerDown(section, $event)"
                     >
+                        @if (clickable() && reorderable() && (selectedSectionId() === section.id || draggingSectionId() === section.id)) {
+                            <div
+                                data-print-hide
+                                class="absolute -left-1 -top-1 z-30 flex h-6 w-6 items-center justify-center rounded-full border border-indigo-200 bg-white text-indigo-500 shadow-sm"
+                                title="Mover"
+                            >
+                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]" style="pointer-events: none">open_with</mat-icon>
+                            </div>
+                        }
+                        @if (clickable() && isShapeSection(section) && selectedSectionId() === section.id) {
+                            <div
+                                data-print-hide
+                                data-section-handle
+                                class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startSectionRotate(section, $event)"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-[16px] text-indigo-500" style="pointer-events: none">rotate_right</mat-icon>
+                            </div>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute left-[-8px] top-[-8px] z-30 h-4 w-4 cursor-nwse-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'nw')"
+                            ></button>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute right-[-8px] top-[-8px] z-30 h-4 w-4 cursor-nesw-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'ne')"
+                            ></button>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute bottom-[-8px] left-[-8px] z-30 h-4 w-4 cursor-nesw-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'sw')"
+                            ></button>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute bottom-[-8px] right-[-8px] z-30 h-4 w-4 cursor-nwse-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'se')"
+                            ></button>
+                        }
+                        @if (isSectionDropBefore(section)) {
+                            <div class="pointer-events-none absolute left-1 right-1 top-0 z-20 h-1 rounded-full bg-indigo-500"></div>
+                        }
+                        @if (isSectionDropAfter(section)) {
+                            <div class="pointer-events-none absolute bottom-0 left-1 right-1 z-20 h-1 rounded-full bg-indigo-500"></div>
+                        }
                         <ng-container
                             [ngTemplateOutlet]="sectionBody"
-                            [ngTemplateOutletContext]="{ section: section }"
+                            [ngTemplateOutletContext]="{ section: section, measure: false }"
                         ></ng-container>
                     </div>
                 }
 
-                <!-- Footer (every page, mirrors Puppeteer footerTemplate) -->
+                <!-- Footer (every page). In free layout it is pinned to the
+                     sheet bottom so absolutely positioned blocks cannot cover
+                     it, and the PDF clone can copy that same box. -->
                 @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
-                    <div class="mt-auto shrink-0 pb-6">
+                    <div
+                        data-report-footer
+                        class="shrink-0"
+                        [class.mt-auto]="!hasFreeLayout()"
+                        [class.pb-6]="!hasFreeLayout()"
+                        [class.px-0]="!hasFreeLayout()"
+                        [style.position]="hasFreeLayout() ? 'absolute' : null"
+                        [style.left.px]="hasFreeLayout() ? 0 : null"
+                        [style.right.px]="hasFreeLayout() ? 0 : null"
+                        [style.bottom.px]="hasFreeLayout() ? 0 : null"
+                        [style.z-index]="hasFreeLayout() ? '30' : null"
+                        [style.padding-left.px]="hasFreeLayout() ? 32 : null"
+                        [style.padding-right.px]="hasFreeLayout() ? 32 : null"
+                        [style.padding-bottom.px]="hasFreeLayout() ? 24 : null"
+                        [style.background-color]="hasFreeLayout() ? (pageBackgroundColor() || '#ffffff') : null"
+                    >
                         @if (legend()) {
                             <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
                                 <p
@@ -234,6 +458,7 @@
     height and bin-pack them into pages. Hidden but still laid out so
     getBoundingClientRect returns real values.
 -->
+@if (!thumbnailMode()) {
 <div
     aria-hidden="true"
     class="px-8 sm:px-10 lg:px-12"
@@ -247,25 +472,45 @@
     [style.width]="orientation() === 'landscape' ? '297mm' : '210mm'"
 >
     @for (section of template().sections || []; track section.id) {
-        <div #measureSection [attr.data-section-id]="section.id">
+        <div
+            #measureSection
+            [attr.data-section-id]="section.id"
+            [style.background-color]="sectionFrameBackground(section)"
+            [style.border]="sectionFrameBorder(section)"
+            [style.border-radius.px]="sectionFrameRadius(section)"
+            [style.padding]="sectionFramePadding(section)"
+        >
             <ng-container
                 [ngTemplateOutlet]="sectionBody"
-                [ngTemplateOutletContext]="{ section: section }"
+                [ngTemplateOutletContext]="{ section: section, measure: true }"
             ></ng-container>
         </div>
     }
 
-    @if (legend()) {
+    @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
         <div #measureLegend class="pb-6">
-            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
-                <p
-                    class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
-                    [textContent]="legend()"
-                ></p>
-            </div>
+            @if (legend()) {
+                <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
+                    <p
+                        class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
+                        [textContent]="legend()"
+                    ></p>
+                </div>
+            }
+            @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
+                <div
+                    class="text-[10px] text-gray-400"
+                    [class.border-t]="!legend()"
+                    [class.border-gray-200]="!legend()"
+                    [class.pt-3]="!legend()"
+                >
+                    Page 1 of 1
+                </div>
+            }
         </div>
     }
 </div>
+}
 
 <!--
     One definition per section type, used by both the visible cards and the
@@ -277,16 +522,21 @@
     which the builder shows in its "Exact" iframe. The canvas only needs enough to
     recognize, select and reorder a block.
 -->
-<ng-template #sectionBody let-section="section">
+<ng-template #sectionBody let-section="section" let-measure="measure">
     @if (section.type === 'header') {
-        <div class="mb-4" [style.text-align]="section.style?.textAlign || 'left'">
+        <div class="mb-4" [style.text-align]="roleTextAlign(section, 'title')">
             <h2
-                [style.font-size.px]="section.style?.fontSize || 22"
-                [style.font-weight]="section.style?.fontWeight || 'bold'"
-                [style.color]="section.style?.color || primaryColor()"
+                [style.font-size.px]="roleFontSize(section, 'title')"
+                [style.font-weight]="roleFontWeight(section, 'title')"
+                [style.font-style]="roleFontStyle(section, 'title')"
+                [style.font-family]="roleFontFamily(section, 'title')"
+                [style.color]="roleColor(section, 'title')"
                 class="leading-tight"
             >
-                {{ section.staticContent || section.label || ('smartReport.untitled' | transloco) }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.staticContent || section.label || ('smartReport.untitled' | transloco), measure)"
+                ></ng-container>
             </h2>
         </div>
     }
@@ -294,57 +544,101 @@
     @if (section.type === 'text') {
         <div class="mb-3">
             <p
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight || 'normal'"
-                [style.text-align]="section.style?.textAlign || 'left'"
-                [style.color]="section.style?.color || '#374151'"
+                [style.font-size.px]="roleFontSize(section, 'title')"
+                [style.font-weight]="roleFontWeight(section, 'title')"
+                [style.font-style]="roleFontStyle(section, 'title')"
+                [style.font-family]="roleFontFamily(section, 'title')"
+                [style.text-align]="roleTextAlign(section, 'title')"
+                [style.color]="roleColor(section, 'title')"
                 class="leading-relaxed whitespace-pre-wrap"
             >
-                {{ section.staticContent || ('smartReport.textContent' | transloco) }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'body', section.staticContent || ('smartReport.textContent' | transloco), measure, true)"
+                ></ng-container>
             </p>
         </div>
     }
 
     @if (section.type === 'field') {
         <div
-            class="flex gap-3 py-2.5 border-b border-gray-100"
-            [style.text-align]="section.style?.textAlign || 'left'"
+            class="flex gap-3 py-2.5"
+            [ngStyle]="rowLineBg(section)"
+            [style.text-align]="roleTextAlign(section, 'value')"
         >
             <span
                 class="min-w-[140px] shrink-0"
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight || 'normal'"
-                [style.color]="section.style?.color || '#6B7280'"
-                >{{ section.label || ('smartReport.field' | transloco) }}</span
+                [style.font-size.px]="roleFontSize(section, 'label')"
+                [style.font-weight]="roleFontWeight(section, 'label')"
+                [style.font-style]="roleFontStyle(section, 'label')"
+                [style.font-family]="roleFontFamily(section, 'label')"
+                [style.text-align]="roleTextAlign(section, 'label')"
+                [style.color]="roleColor(section, 'label')"
             >
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label || ('smartReport.field' | transloco), measure)"
+                ></ng-container>
+            </span>
             <span
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight === 'bold' ? 'bold' : 500"
-                [style.color]="section.style?.color || '#111827'"
+                [style.font-size.px]="roleFontSize(section, 'value')"
+                [style.font-weight]="roleFontWeight(section, 'value')"
+                [style.font-style]="roleFontStyle(section, 'value')"
+                [style.font-family]="roleFontFamily(section, 'value')"
+                [style.text-align]="roleTextAlign(section, 'value')"
+                [style.color]="roleColor(section, 'value')"
                 >{{ resolveDataPath(section.dataPath) || '—' }}</span
             >
         </div>
     }
 
     @if (section.type === 'table') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="tracking-wide mb-2"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
-            <table class="w-full text-sm">
+            <table class="w-full">
                 <tbody>
-                    @for (row of resolveTableData(section.dataPath); track row.key) {
-                        <tr class="border-b border-gray-100">
-                            <td class="py-2 pr-4 text-gray-500 w-1/3">{{ row.key }}</td>
-                            <td class="py-2 text-gray-900 font-medium">{{ row.value }}</td>
+                    @for (row of resolveTableData(section); track row.key) {
+                        <tr
+                            [ngStyle]="rowLineBg(section)"
+                        >
+                            <td
+                                class="py-2 pr-4 w-1/3"
+                                [style.font-family]="roleFontFamily(section, 'label')"
+                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                [style.font-weight]="roleFontWeight(section, 'label')"
+                                [style.font-style]="roleFontStyle(section, 'label')"
+                                [style.text-align]="roleTextAlign(section, 'label')"
+                                [style.color]="roleColor(section, 'label')"
+                            >
+                                {{ row.key }}
+                            </td>
+                            <td
+                                class="py-2"
+                                [style.font-family]="roleFontFamily(section, 'value')"
+                                [style.font-size.px]="roleFontSize(section, 'value')"
+                                [style.font-weight]="roleFontWeight(section, 'value')"
+                                [style.font-style]="roleFontStyle(section, 'value')"
+                                [style.text-align]="roleTextAlign(section, 'value')"
+                                [style.color]="roleColor(section, 'value')"
+                            >
+                                {{ row.value }}
+                            </td>
                         </tr>
                     }
-                    @if (resolveTableData(section.dataPath).length === 0) {
+                    @if (resolveTableData(section).length === 0) {
                         <tr>
                             <td colspan="2" class="py-4 text-center text-gray-300 text-xs">
                                 {{
@@ -360,7 +654,7 @@
     }
 
     @if (section.type === 'image') {
-        <div class="mb-4" [style.text-align]="section.style?.textAlign || 'center'">
+        <div class="mb-4" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.staticContent) {
                 <img
                     [src]="section.staticContent"
@@ -386,27 +680,123 @@
         />
     }
 
+    @if (section.type === 'shape') {
+        <div
+            class="h-full w-full min-h-[12px] overflow-visible"
+            [style.transform]="shapeRotateStyle(section)"
+            style="transform-origin: center center"
+        >
+            <svg
+                viewBox="0 0 100 100"
+                class="h-full w-full overflow-visible"
+                [attr.preserveAspectRatio]="shapeKeepRatio(section) ? 'xMidYMid meet' : 'none'"
+                aria-hidden="true"
+            >
+                @switch (shapeKind(section)) {
+                    @case ('circle') {
+                        <ellipse
+                            cx="50"
+                            cy="50"
+                            rx="46"
+                            ry="46"
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                        />
+                    }
+                    @case ('bullet') {
+                        <ellipse
+                            cx="50"
+                            cy="50"
+                            rx="46"
+                            ry="46"
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                        />
+                    }
+                    @case ('star') {
+                        <polygon
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                            points="50,4 61,38 97,38 68,59 79,95 50,74 21,95 32,59 3,38 39,38"
+                        />
+                    }
+                    @case ('triangle') {
+                        <polygon
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                            points="50,8 94,92 6,92"
+                        />
+                    }
+                    @case ('diamond') {
+                        <polygon
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                            points="50,4 96,50 50,96 4,50"
+                        />
+                    }
+                    @default {
+                        <rect
+                            x="2"
+                            y="2"
+                            width="96"
+                            height="96"
+                            [attr.rx]="shapeRectRadius(section)"
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                        />
+                    }
+                }
+            </svg>
+        </div>
+    }
+
     @if (section.type === 'spacer') {
         <div [style.height.px]="section.style?.padding || 16"></div>
     }
 
     <!-- dataTable: derived headings plus two sample rows. -->
     @if (section.type === 'dataTable') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="tracking-wide mb-2"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (structuralColumns(section).length > 0) {
-                <table class="w-full text-xs">
+                <table class="w-full">
                     <thead>
                         <tr class="border-b-2" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
-                                <th class="py-1.5 pr-3 text-left font-semibold text-gray-600">
+                                <th
+                                    class="py-1.5 pr-3 text-left"
+                                    [style.font-family]="roleFontFamily(section, 'label')"
+                                    [style.font-size.px]="roleFontSize(section, 'label')"
+                                    [style.font-weight]="roleFontWeight(section, 'label')"
+                                    [style.font-style]="roleFontStyle(section, 'label')"
+                                    [style.text-align]="roleTextAlign(section, 'label')"
+                                    [style.color]="roleColor(section, 'label')"
+                                >
                                     {{ column.label }}
                                 </th>
                             }
@@ -414,9 +804,19 @@
                     </thead>
                     <tbody>
                         @for (row of structuralSampleRows(section); track $index) {
-                            <tr class="border-b border-gray-100">
+                            <tr [ngStyle]="rowLineBg(section)">
                                 @for (cell of row; track $index) {
-                                    <td class="py-1.5 pr-3 text-gray-800">{{ cell }}</td>
+                                    <td
+                                        class="py-1.5 pr-3"
+                                        [style.font-family]="roleFontFamily(section, 'value')"
+                                        [style.font-size.px]="roleFontSize(section, 'value')"
+                                        [style.font-weight]="roleFontWeight(section, 'value')"
+                                        [style.font-style]="roleFontStyle(section, 'value')"
+                                        [style.text-align]="roleTextAlign(section, 'value')"
+                                        [style.color]="roleColor(section, 'value')"
+                                    >
+                                        {{ cell }}
+                                    </td>
                                 }
                             </tr>
                         }
@@ -443,33 +843,126 @@
 
     <!-- keyValueGrid: label/value pairs in the configured column count. -->
     @if (section.type === 'keyValueGrid') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="tracking-wide mb-2"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
-            @if (structuralEntries(section).length > 0) {
-                <div
-                    class="grid gap-x-4 gap-y-1.5"
-                    [style.grid-template-columns]="
-                        'repeat(' + (section.columnsPerRow || 2) + ', minmax(0, 1fr))'
-                    "
-                >
-                    @for (entry of structuralEntries(section); track entry.key) {
-                        <div class="min-w-0 border-b border-gray-100 pb-1">
-                            <div class="text-[10px] uppercase tracking-wide text-gray-400">
-                                {{ entry.key }}
-                            </div>
-                            <div class="truncate text-xs font-medium text-gray-800">
-                                {{ entry.value }}
-                            </div>
+            @if (sectionHasStructuredData(section)) {
+                @for (chunk of sheetChunks(section); track chunk.kind === 'table' ? chunk.table.key : chunk.entries[0]?.key) {
+                    @if (chunk.kind === 'fields') {
+                        <div
+                            class="grid gap-x-4 gap-y-1.5"
+                            [style.grid-template-columns]="
+                                'repeat(' + (section.columnsPerRow || 2) + ', minmax(0, 1fr))'
+                            "
+                        >
+                            @for (entry of chunk.entries; track entry.key; let last = $last) {
+                                <div
+                                    data-report-cell
+                                    class="min-w-0 px-2 py-1.5"
+                                    [class.overflow-hidden]="cellRadius(section, entry.key) > 0"
+                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-indigo-400]="isCellSelected(section, entry.key)"
+                                    [class.cursor-pointer]="clickable()"
+                                    [ngStyle]="rowLineBg(section, entry.key, last)"
+                                    [style.background-color]="cellBackground(section, entry.key) || null"
+                                    [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
+                                    [style.border-radius.px]="cellRadius(section, entry.key)"
+                                    (click)="onCellActivate(section, entry.key, 'cell', $event)"
+                                >
+                                    <div
+                                        class="tracking-wide"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'label')"
+                                        [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
+                                        [class.rounded-sm]="isCellSelected(section, entry.key, 'label')"
+                                        [style.font-family]="roleFontFamily(section, 'label', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'label', entry.key)"
+                                        [style.color]="roleColor(section, 'label', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'label', $event)"
+                                    >
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, entry), measure, false, entry.key, entry.label)"
+                                        ></ng-container>
+                                    </div>
+                                    <div
+                                        class="truncate"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
+                                        [class.rounded-sm]="isCellSelected(section, entry.key, 'value')"
+                                        [style.font-family]="roleFontFamily(section, 'value', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'value', entry.key)"
+                                        [style.color]="roleColor(section, 'value', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'value', $event)"
+                                    >
+                                        {{ entry.value }}
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <div class="mt-3 overflow-x-auto">
+                            <p
+                                class="mb-1 tracking-wide"
+                                [style.font-family]="roleFontFamily(section, 'label')"
+                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                [style.font-weight]="roleFontWeight(section, 'label')"
+                                [style.color]="roleColor(section, 'label')"
+                            >
+                                {{ chunk.table.label }}
+                            </p>
+                            <table class="w-full">
+                                <thead>
+                                    <tr [ngStyle]="rowLineBg(section)">
+                                        @for (column of chunk.table.columns; track column.key) {
+                                            <th
+                                                class="py-1 pr-2 text-left"
+                                                [style.font-family]="roleFontFamily(section, 'label')"
+                                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                                [style.color]="roleColor(section, 'label')"
+                                            >
+                                                {{ column.label }}
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (row of chunk.table.rows; track $index; let last = $last) {
+                                        <tr [ngStyle]="!last ? rowLineBg(section) : null">
+                                            @for (column of chunk.table.columns; track column.key) {
+                                                <td
+                                                    class="py-1 pr-2"
+                                                    [style.font-family]="roleFontFamily(section, 'value')"
+                                                    [style.font-size.px]="roleFontSize(section, 'value')"
+                                                    [style.color]="roleColor(section, 'value')"
+                                                >
+                                                    {{ row[column.key] }}
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     }
-                </div>
+                }
             } @else {
                 <div
                     class="rounded-lg border border-dashed border-gray-200 py-4 text-center text-xs text-gray-300"
@@ -482,14 +975,30 @@
 
     <!-- badge: a pill in the static variant colour. -->
     @if (section.type === 'badge') {
-        <div class="mb-3 flex items-center gap-2">
+        <div
+            class="mb-3 flex items-center gap-2"
+            [style.font-family]="roleFontFamily(section, 'title')"
+            [style.text-align]="roleTextAlign(section, 'title')"
+        >
             @if (section.label) {
-                <span class="text-[11px] uppercase tracking-wide text-gray-400">{{
-                    section.label
-                }}</span>
+                <span
+                    class="tracking-wide"
+                    [style.font-size.px]="roleFontSize(section, 'label')"
+                    [style.font-weight]="roleFontWeight(section, 'label')"
+                    [style.font-style]="roleFontStyle(section, 'label')"
+                    [style.color]="roleColor(section, 'label')"
+                >
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
+                </span>
             }
             <span
-                class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                class="inline-flex items-center rounded-full border px-2.5 py-0.5"
+                [style.font-size.px]="roleFontSize(section, 'value')"
+                [style.font-weight]="roleFontWeight(section, 'value')"
+                [style.font-style]="roleFontStyle(section, 'value')"
                 [ngClass]="variantClasses(section)"
             >
                 {{ resolveDataPath(section.dataPath) || '—' }}
@@ -499,35 +1008,156 @@
 
     <!-- card: titled box with its copy and any resolved entries. -->
     @if (section.type === 'card') {
-        <div class="mb-4 rounded-lg border p-3" [ngClass]="variantClasses(section)">
+        <div
+            class="mb-4 rounded-lg border p-3"
+            [ngClass]="variantClasses(section)"
+            [style.font-family]="roleFontFamily(section, 'title')"
+            [style.text-align]="roleTextAlign(section, 'title')"
+        >
             @if (section.label) {
-                <h4 class="mb-1 text-xs font-semibold">{{ section.label }}</h4>
+                <h4
+                    class="mb-1"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
+                >
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
+                </h4>
             }
             @if (section.staticContent) {
-                <p class="whitespace-pre-wrap text-xs opacity-90">{{ section.staticContent }}</p>
+                <p
+                    class="whitespace-pre-wrap opacity-90"
+                    [style.font-family]="roleFontFamily(section, 'value')"
+                    [style.font-size.px]="roleFontSize(section, 'value')"
+                    [style.font-weight]="roleFontWeight(section, 'value')"
+                    [style.font-style]="roleFontStyle(section, 'value')"
+                    [style.text-align]="roleTextAlign(section, 'value')"
+                    [style.color]="roleColor(section, 'value')"
+                >
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'body', section.staticContent, measure, true)"
+                    ></ng-container>
+                </p>
             }
-            @if (structuralEntries(section).length > 0) {
-                <div class="mt-2 space-y-0.5">
-                    @for (entry of structuralEntries(section); track entry.key) {
-                        <div class="flex gap-2 text-[11px]">
-                            <span class="opacity-60">{{ entry.key }}</span>
-                            <span class="font-medium">{{ entry.value }}</span>
+            @if (sectionHasStructuredData(section)) {
+                @for (chunk of sheetChunks(section); track chunk.kind === 'table' ? chunk.table.key : chunk.entries[0]?.key) {
+                    @if (chunk.kind === 'fields') {
+                        <div class="mt-2 space-y-0.5">
+                            @for (entry of chunk.entries; track entry.key; let last = $last) {
+                                <div
+                                    data-report-cell
+                                    class="flex gap-2 px-2 py-1"
+                                    [class.overflow-hidden]="cellRadius(section, entry.key) > 0"
+                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-indigo-400]="isCellSelected(section, entry.key)"
+                                    [class.cursor-pointer]="clickable()"
+                                    [ngStyle]="rowLineBg(section, entry.key, last)"
+                                    [style.background-color]="cellBackground(section, entry.key) || null"
+                                    [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
+                                    [style.border-radius.px]="cellRadius(section, entry.key)"
+                                    (click)="onCellActivate(section, entry.key, 'cell', $event)"
+                                >
+                                    <span
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'label')"
+                                        [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
+                                        [style.font-family]="roleFontFamily(section, 'label', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'label', entry.key)"
+                                        [style.color]="roleColor(section, 'label', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'label', $event)"
+                                    >
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, entry), measure, false, entry.key, entry.label)"
+                                        ></ng-container>
+                                    </span>
+                                    <span
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
+                                        [style.font-family]="roleFontFamily(section, 'value', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'value', entry.key)"
+                                        [style.color]="roleColor(section, 'value', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'value', $event)"
+                                        >{{ entry.value }}</span
+                                    >
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <div class="mt-3 overflow-x-auto">
+                            <p
+                                class="mb-1 tracking-wide"
+                                [style.font-family]="roleFontFamily(section, 'label')"
+                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                [style.font-weight]="roleFontWeight(section, 'label')"
+                                [style.color]="roleColor(section, 'label')"
+                            >
+                                {{ chunk.table.label }}
+                            </p>
+                            <table class="w-full">
+                                <thead>
+                                    <tr [ngStyle]="rowLineBg(section)">
+                                        @for (column of chunk.table.columns; track column.key) {
+                                            <th
+                                                class="py-1 pr-2 text-left"
+                                                [style.font-family]="roleFontFamily(section, 'label')"
+                                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                                [style.color]="roleColor(section, 'label')"
+                                            >
+                                                {{ column.label }}
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (row of chunk.table.rows; track $index; let last = $last) {
+                                        <tr [ngStyle]="!last ? rowLineBg(section) : null">
+                                            @for (column of chunk.table.columns; track column.key) {
+                                                <td
+                                                    class="py-1 pr-2"
+                                                    [style.font-family]="roleFontFamily(section, 'value')"
+                                                    [style.font-size.px]="roleFontSize(section, 'value')"
+                                                    [style.color]="roleColor(section, 'value')"
+                                                >
+                                                    {{ row[column.key] }}
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     }
-                </div>
+                }
             }
         </div>
     }
 
     <!-- repeater: one outlined item per record, capped for the canvas. -->
     @if (section.type === 'repeater') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    class="tracking-wide mb-2"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (structuralRecords(section).length > 0) {
@@ -576,5 +1206,52 @@
                 }
             </p>
         </div>
+    }
+</ng-template>
+
+<ng-template
+    #sheetText
+    let-section="section"
+    let-kind="kind"
+    let-text="text"
+    let-key="key"
+    let-fallback="fallback"
+    let-multiline="multiline"
+    let-measure="measure"
+>
+    @if (canInlineEdit(measure) && isEditingText(section.id, kind, key)) {
+        @if (multiline) {
+            <textarea
+                data-inline-edit
+                rows="3"
+                class="m-0 w-full resize-y bg-transparent p-0 leading-[inherit] outline-none ring-1 ring-indigo-400 rounded-sm"
+                [value]="inlineDraft()"
+                (input)="onInlineDraftInput($event)"
+                (blur)="commitInlineEdit()"
+                (keydown)="onInlineKeydown($event, true)"
+                (click)="$event.stopPropagation()"
+                (pointerdown)="$event.stopPropagation()"
+                (dblclick)="$event.stopPropagation()"
+            ></textarea>
+        } @else {
+            <input
+                data-inline-edit
+                type="text"
+                class="m-0 w-full bg-transparent p-0 leading-[inherit] outline-none ring-1 ring-indigo-400 rounded-sm"
+                [value]="inlineDraft()"
+                (input)="onInlineDraftInput($event)"
+                (blur)="commitInlineEdit()"
+                (keydown)="onInlineKeydown($event, false)"
+                (click)="$event.stopPropagation()"
+                (pointerdown)="$event.stopPropagation()"
+                (dblclick)="$event.stopPropagation()"
+            />
+        }
+    } @else {
+        <span
+            [class.cursor-text]="canInlineEdit(measure)"
+            (dblclick)="startInlineEdit(section, kind, $event, key, fallback)"
+            >{{ text }}</span
+        >
     }
 </ng-template>
