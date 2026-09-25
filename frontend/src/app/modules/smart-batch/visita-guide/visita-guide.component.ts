@@ -1148,7 +1148,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this._layoutEditorPreview) {
             return this._layoutEditorPreview.fitFrameOnSheet(frame);
         }
-        const pageHeight = (this.orientation() === 'landscape' ? 210 : 297) * 3.7795275591;
+        const pageHeight =
+            this._layoutEditorPreview?.pageHeightPx() ??
+            (this.orientation() === 'landscape' ? 210 : 297) * 3.7795275591;
         const limit = pageHeight - 32 - 80;
         const height = Number(frame.height) || 0;
         const y = Number(frame.y) || 0;

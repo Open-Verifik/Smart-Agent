@@ -14,9 +14,9 @@
             #reportPage
             class="mx-auto flex w-full flex-col relative overflow-hidden rounded-lg"
             [class.shadow-lg]="!thumbnailMode()"
-            [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
-            [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
-            [style.height]="orientation() === 'landscape' ? '210mm' : '297mm'"
+            [style.max-width]="pageWidthCss()"
+            [style.min-height]="pageHeightCss()"
+            [style.height]="pageHeightCss()"
             [style.background-color]="pageBackgroundColor() || '#ffffff'"
             style="border: 1px solid #e5e7eb"
         >
@@ -485,7 +485,7 @@
         visibility: hidden;
         pointer-events: none;
     "
-    [style.width]="orientation() === 'landscape' ? '297mm' : '210mm'"
+    [style.width]="pageWidthCss()"
 >
     @for (section of template().sections || []; track section.id) {
         <div

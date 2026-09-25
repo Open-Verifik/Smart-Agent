@@ -43,6 +43,19 @@ const SECTION_GAP_PX = 12;
 /** Where a block starts when it spills onto the next page. */
 const PAGE_INSET_PX = 32;
 
+export type ReportPageSizeName = 'A4' | 'Letter' | 'Legal';
+
+/** Portrait paper in millimeters. Matches Chromium `format` / 96 DPI preview. */
+const PAGE_SIZE_MM: Record<ReportPageSizeName, { width: number; height: number }> = {
+    A4: { width: 210, height: 297 },
+    Letter: { width: 215.9, height: 279.4 },
+    Legal: { width: 215.9, height: 355.6 },
+};
+
+function resolvePageSizeName(value: string | null | undefined): ReportPageSizeName {
+    return value === 'Letter' || value === 'Legal' ? value : 'A4';
+}
+
 /**
  * Shared report preview component - renders a template with data, paginating
  * sections into multiple A4-sized "paper" cards so the live preview matches
@@ -75,6 +88,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     pageBackgroundColor = input<string>('#ffffff');
     /** Orientation for container sizing */
     orientation = input<'portrait' | 'landscape'>('portrait');
+    /** Paper format. Falls back to the template when omitted. */
+    pageSize = input<ReportPageSizeName | null>(null);
     /** Whether sections are clickable (for builder edit mode) */
     clickable = input<boolean>(false);
     /** Currently selected section ID (for builder highlight) */
@@ -431,7 +446,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             heights.set(id, el.getBoundingClientRect().height);
         }
 
-        const pageHeightDom = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
+        const pageHeightDom = this.pageHeightPx();
         const innerPaddingTopBottom = this._getInnerPaddingTopBottom();
         const legendHeight = this._getLegendHeight();
         const topChromeHeight = this._getTopChromeHeight();
@@ -536,8 +551,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return { x: 1, y: 1 };
         }
 
-        const canonicalWidth = (this.orientation() === 'landscape' ? 297 : 210) * MM_TO_PX;
-        const canonicalHeight = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
+        const canonicalWidth = this.pageWidthPx();
+        const canonicalHeight = this.pageHeightPx();
 
         return {
             x: canonicalWidth / currentWidth,
@@ -1108,8 +1123,31 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.liveFrames()[section.id] ?? section.frame ?? null;
     }
 
+    paperName(): ReportPageSizeName {
+        return resolvePageSizeName(this.pageSize() ?? this.template()?.pageSize);
+    }
+
+    paperSizeMm(): { width: number; height: number } {
+        const base = PAGE_SIZE_MM[this.paperName()];
+        return this.orientation() === 'landscape'
+            ? { width: base.height, height: base.width }
+            : { width: base.width, height: base.height };
+    }
+
+    pageWidthCss(): string {
+        return `${this.paperSizeMm().width}mm`;
+    }
+
+    pageHeightCss(): string {
+        return `${this.paperSizeMm().height}mm`;
+    }
+
+    pageWidthPx(): number {
+        return this.paperSizeMm().width * MM_TO_PX;
+    }
+
     pageHeightPx(): number {
-        return (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
+        return this.paperSizeMm().height * MM_TO_PX;
     }
 
     /** Last usable Y before the footer / bottom margin. A box past this opens the next sheet. */
@@ -2191,9 +2229,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const papers = this._reportPages?.toArray().map((ref) => ref.nativeElement) ?? [];
         if (!papers.length) return null;
 
-        const landscape = this.orientation() === 'landscape';
-        const pageWidthMm = landscape ? 297 : 210;
-        const pageHeightMm = landscape ? 210 : 297;
+        const { width: pageWidthMm, height: pageHeightMm } = this.paperSizeMm();
         const sheets = papers
             .map((paper) => this._printSheetMarkup(paper, pageWidthMm, pageHeightMm))
             .filter(Boolean)

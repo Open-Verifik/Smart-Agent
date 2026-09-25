@@ -2516,6 +2516,7 @@
                         [template]="{
                             sections: sections(),
                             primaryColor: templateForm.get('primaryColor')?.value,
+                            pageSize: templateForm.get('pageSize')?.value || 'A4',
                         }"
                         [previewData]="previewData()"
                         [primaryColor]="templateForm.get('primaryColor')?.value || '#4F46E5'"
