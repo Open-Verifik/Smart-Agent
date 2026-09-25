@@ -1,19 +1,28 @@
 <ng-container *transloco="let t">
-    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+    <div
+        class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950"
+        [class.h-dvh]="isFillViewportStep()"
+        [class.max-h-dvh]="isFillViewportStep()"
+        [class.overflow-hidden]="isFillViewportStep()"
+    >
         <header
-            class="border-b border-stone-200/90 bg-white/90 px-5 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
-            [class.py-5]="!isLayoutStep()"
-            [class.py-3]="isLayoutStep()"
+            class="shrink-0 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90"
+            [class.py-5]="!isLayoutStep() && !isEndpointsStep()"
+            [class.py-3]="isLayoutStep() || isEndpointsStep()"
+            [class.px-5]="!isEndpointsStep()"
+            [class.md:px-8]="!isEndpointsStep()"
+            [class.px-3]="isEndpointsStep()"
+            [class.md:px-4]="isEndpointsStep()"
         >
             <div
                 class="mx-auto flex w-full flex-col"
-                [class.gap-4]="!isLayoutStep()"
-                [class.gap-2]="isLayoutStep()"
+                [class.gap-4]="!isLayoutStep() && !isEndpointsStep()"
+                [class.gap-2]="isLayoutStep() || isEndpointsStep()"
                 [class.max-w-3xl]="!isWideStep()"
-                [class.max-w-7xl]="isWideStep() && !isLayoutStep()"
-                [class.max-w-none]="isLayoutStep()"
+                [class.max-w-7xl]="isWideStep() && !isLayoutStep() && !isEndpointsStep()"
+                [class.max-w-none]="isLayoutStep() || isEndpointsStep()"
             >
-                @if (!isLayoutStep()) {
+                @if (!isLayoutStep() && !isEndpointsStep()) {
                 <div
                     class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
                 >
@@ -46,14 +55,14 @@
                         </p>
                         <h1
                             class="font-semibold tracking-tight text-stone-950 dark:text-white"
-                            [class.mt-1]="!isLayoutStep()"
-                            [class.text-2xl]="!isLayoutStep()"
-                            [class.md:text-3xl]="!isLayoutStep()"
-                            [class.text-xl]="isLayoutStep()"
+                            [class.mt-1]="!isLayoutStep() && !isEndpointsStep()"
+                            [class.text-2xl]="!isLayoutStep() && !isEndpointsStep()"
+                            [class.md:text-3xl]="!isLayoutStep() && !isEndpointsStep()"
+                            [class.text-xl]="isLayoutStep() || isEndpointsStep()"
                         >
                             {{ t(currentTitleKey()) }}
                         </h1>
-                        @if (!isLayoutStep()) {
+                        @if (!isLayoutStep() && !isEndpointsStep()) {
                             <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
                                 {{ t('visitaGuide.nowHint') }}
                             </p>
@@ -121,7 +130,7 @@
                     }
                 </div>
 
-                @if (entities().length || countryIso()) {
+                @if (entities().length || hasCountries()) {
                     <div
                         class="flex flex-wrap text-xs"
                         [class.gap-2]="!isLayoutStep()"
@@ -136,13 +145,16 @@
                                 >{{ t(key) }}</span
                             >
                         }
-                        @if (countryIso()) {
-                            <span
-                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                        @if (hasCountries()) {
+                            <button
+                                type="button"
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-white"
                                 [class.px-3]="!isLayoutStep()"
                                 [class.px-2]="isLayoutStep()"
-                                >{{ countryFlag() }} Colombia</span
+                                (click)="openCountryStep()"
                             >
+                                {{ countryFlag() }} {{ countryLabel() }}
+                            </button>
                         }
                         @if (mode() === 'batch') {
                             <span
@@ -166,16 +178,24 @@
         </header>
 
         <main
-            class="flex flex-auto flex-col px-5 md:px-8"
-            [class.py-8]="!isLayoutStep()"
-            [class.md:py-10]="!isLayoutStep()"
-            [class.py-3]="isLayoutStep()"
+            class="flex flex-auto flex-col"
+            [class.px-5]="!isEndpointsStep()"
+            [class.md:px-8]="!isEndpointsStep()"
+            [class.px-3]="isEndpointsStep()"
+            [class.md:px-4]="isEndpointsStep()"
+            [class.py-8]="!isLayoutStep() && !isFillViewportStep()"
+            [class.md:py-10]="!isLayoutStep() && !isFillViewportStep()"
+            [class.py-3]="isLayoutStep() || isFillViewportStep()"
+            [class.min-h-0]="isFillViewportStep()"
         >
             <div
                 class="mx-auto flex w-full flex-col gap-4"
                 [class.max-w-3xl]="!isWideStep()"
-                [class.max-w-7xl]="isWideStep() && !isLayoutStep()"
-                [class.max-w-none]="isLayoutStep()"
+                [class.max-w-7xl]="isWideStep() && !isLayoutStep() && !isEndpointsStep()"
+                [class.max-w-none]="isLayoutStep() || isEndpointsStep()"
+                [class.min-h-0]="isFillViewportStep()"
+                [class.flex-1]="isFillViewportStep()"
+                [class.gap-2]="isFillViewportStep()"
             >
                 @switch (step()) {
                     @case ('intent') {
@@ -277,107 +297,249 @@
                         </button>
                     }
                     @case ('country') {
-                        @for (country of countries; track country.iso) {
+                        <div class="flex min-h-0 flex-1 flex-col gap-3">
+                        <p class="shrink-0 text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.countryPickHint') }}</p>
+                        <div class="flex shrink-0 flex-wrap items-center gap-2">
                             <button
                                 type="button"
-                                class="flex w-full items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
-                                (click)="selectCountry(country.iso)"
+                                class="inline-flex h-8 items-center rounded-lg bg-stone-950 px-3 text-xs font-semibold text-white hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                (click)="selectAllVisibleCountries()"
                             >
-                                <span class="text-xl">{{ flagFor(country.iso) }}</span>
-                                <span class="text-sm font-semibold text-stone-950 dark:text-white">{{
-                                    country.name
-                                }}</span>
+                                {{ t('visitaGuide.countrySelectAll') }}
                             </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-8 items-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300 dark:hover:bg-red-950"
+                                [disabled]="!hasCountries()"
+                                (click)="clearCountrySelection()"
+                            >
+                                {{ t('visitaGuide.countryClear') }}
+                            </button>
+                            @if (hasCountries()) {
+                                <span class="text-[11px] text-stone-400">{{
+                                    t('visitaGuide.countrySelectedCount', { count: countryIsos().length })
+                                }}</span>
+                            }
+                            <div class="ml-auto flex flex-wrap items-center gap-1">
+                                <button
+                                    type="button"
+                                    class="inline-flex h-8 items-center rounded-lg border px-3 text-xs font-semibold transition"
+                                    [class.border-stone-950]="countrySort() === 'alpha'"
+                                    [class.bg-stone-950]="countrySort() === 'alpha'"
+                                    [class.text-white]="countrySort() === 'alpha'"
+                                    [class.dark:border-white]="countrySort() === 'alpha'"
+                                    [class.dark:bg-white]="countrySort() === 'alpha'"
+                                    [class.dark:text-gray-950]="countrySort() === 'alpha'"
+                                    [class.border-stone-200]="countrySort() !== 'alpha'"
+                                    [class.bg-white]="countrySort() !== 'alpha'"
+                                    [class.text-stone-700]="countrySort() !== 'alpha'"
+                                    [class.dark:border-gray-700]="countrySort() !== 'alpha'"
+                                    [class.dark:bg-gray-950]="countrySort() !== 'alpha'"
+                                    [class.dark:text-stone-200]="countrySort() !== 'alpha'"
+                                    (click)="countrySort.set('alpha')"
+                                >
+                                    {{ t('visitaGuide.countrySortAlpha') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-8 items-center rounded-lg border px-3 text-xs font-semibold transition"
+                                    [class.border-stone-950]="countrySort() === 'sources'"
+                                    [class.bg-stone-950]="countrySort() === 'sources'"
+                                    [class.text-white]="countrySort() === 'sources'"
+                                    [class.dark:border-white]="countrySort() === 'sources'"
+                                    [class.dark:bg-white]="countrySort() === 'sources'"
+                                    [class.dark:text-gray-950]="countrySort() === 'sources'"
+                                    [class.border-stone-200]="countrySort() !== 'sources'"
+                                    [class.bg-white]="countrySort() !== 'sources'"
+                                    [class.text-stone-700]="countrySort() !== 'sources'"
+                                    [class.dark:border-gray-700]="countrySort() !== 'sources'"
+                                    [class.dark:bg-gray-950]="countrySort() !== 'sources'"
+                                    [class.dark:text-stone-200]="countrySort() !== 'sources'"
+                                    (click)="countrySort.set('sources')"
+                                >
+                                    {{ t('visitaGuide.countrySortSources') }}
+                                </button>
+                            </div>
+                        </div>
+                        <input
+                            #countrySearchInput
+                            type="search"
+                            class="w-full shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="t('visitaGuide.countrySearch')"
+                            [attr.aria-label]="t('visitaGuide.countrySearch')"
+                            [ngModel]="countrySearchQuery()"
+                            (ngModelChange)="countrySearchQuery.set($event)"
+                            (keydown)="onCountrySearchKeydown($event)"
+                        />
+                        @if (featuresError()) {
+                            <p class="shrink-0 text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
                         }
-                    }
-                    @case ('endpoints') {
-                        <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.endpointsHint') }}</p>
-                        @if (availableRequiredParamFilters().length) {
-                            <div class="mt-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div>
-                                        <p class="text-sm font-semibold text-stone-950 dark:text-white">
-                                            {{ t('visitaGuide.paramFilterTitle') }}
-                                        </p>
-                                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                                            {{ t('visitaGuide.paramFilterHint') }}
-                                        </p>
-                                    </div>
-                                    @if (requiredParamFilters().length) {
-                                        <button
-                                            type="button"
-                                            class="shrink-0 text-xs font-medium text-stone-600 underline-offset-4 hover:underline dark:text-stone-300"
-                                            (click)="clearRequiredParamFilters()"
-                                        >
-                                            {{ t('visitaGuide.paramFilterClear') }}
-                                        </button>
-                                    }
-                                </div>
-                                <div class="mt-3 flex flex-wrap gap-2">
-                                    @for (field of availableRequiredParamFilters(); track field) {
-                                        <button
-                                            type="button"
-                                            class="rounded-full border px-3 py-1.5 text-xs font-medium transition"
-                                            [class.border-stone-950]="isRequiredParamFilterActive(field)"
-                                            [class.bg-stone-950]="isRequiredParamFilterActive(field)"
-                                            [class.text-white]="isRequiredParamFilterActive(field)"
-                                            [class.dark:border-white]="isRequiredParamFilterActive(field)"
-                                            [class.dark:bg-white]="isRequiredParamFilterActive(field)"
-                                            [class.dark:text-gray-950]="isRequiredParamFilterActive(field)"
-                                            [class.border-stone-200]="!isRequiredParamFilterActive(field)"
-                                            [class.bg-stone-50]="!isRequiredParamFilterActive(field)"
-                                            [class.text-stone-700]="!isRequiredParamFilterActive(field)"
-                                            [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
-                                            [class.dark:bg-gray-950]="!isRequiredParamFilterActive(field)"
-                                            [class.dark:text-stone-200]="!isRequiredParamFilterActive(field)"
-                                            (click)="toggleRequiredParamFilter(field)"
-                                        >
-                                            {{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}
-                                        </button>
-                                    }
-                                </div>
+                        <div
+                            class="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                        @if (isLoadingFeatures() && availableFeatures().length === 0) {
+                            <div class="flex h-full min-h-40 flex-col items-center justify-center gap-3 py-10">
+                                <mat-spinner diameter="36"></mat-spinner>
+                                <p class="text-sm text-stone-400">{{ t('visitaGuide.countryLoading') }}</p>
+                            </div>
+                        } @else if (countryTiles().length === 0) {
+                            <p class="px-1 py-6 text-sm text-stone-400">
+                                @if (countrySearchQuery().trim()) {
+                                    {{ t('visitaGuide.countrySearchEmpty') }}
+                                } @else {
+                                    {{ t('visitaGuide.countryNoSources') }}
+                                }
+                            </p>
+                        } @else {
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                @for (country of countryTiles(); track country.iso) {
+                                    <button
+                                        type="button"
+                                        class="flex min-h-16 items-center gap-3 rounded-2xl border p-4 text-left transition"
+                                        [ngClass]="countryTileClass(country.iso, country.count)"
+                                        (click)="toggleCountry(country.iso)"
+                                    >
+                                        @if (flagSrcFor(country.iso); as flagSrc) {
+                                            <img
+                                                [src]="flagSrc"
+                                                alt=""
+                                                class="h-6 w-8 shrink-0 rounded-sm object-cover shadow-sm ring-1 ring-stone-200 dark:ring-gray-700"
+                                            />
+                                        } @else {
+                                            <span class="text-2xl leading-none" aria-hidden="true">{{
+                                                flagFor(country.iso)
+                                            }}</span>
+                                        }
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                country.name
+                                            }}</span>
+                                            <span class="mt-0.5 block text-xs text-stone-500 dark:text-stone-400">
+                                                @if (country.count === null && !featuresError()) {
+                                                    {{ t('visitaGuide.countryCountLoading') }}
+                                                } @else if (country.count === 0) {
+                                                    {{ t('visitaGuide.countryNoSources') }}
+                                                } @else if (country.count === 1) {
+                                                    {{ t('visitaGuide.countrySourceOne') }}
+                                                } @else {
+                                                    {{ t('visitaGuide.countrySourceCount', { count: country.count }) }}
+                                                }
+                                            </span>
+                                        </span>
+                                        @if (isCountrySelected(country.iso)) {
+                                            <mat-icon class="shrink-0 text-emerald-600 dark:text-emerald-400"
+                                                >check_circle</mat-icon
+                                            >
+                                        }
+                                    </button>
+                                }
                             </div>
                         }
-                        <div class="mt-3 flex flex-wrap gap-3 text-xs">
-                            <button
-                                type="button"
-                                class="font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                                (click)="selectVisibleEndpoints()"
-                            >
-                                {{ t('visitaGuide.selectVisibleEndpoints') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                                (click)="clearEndpointSelection()"
-                            >
-                                {{ t('visitaGuide.clearEndpoints') }}
-                            </button>
-                            <span class="text-stone-400">{{ selectedEndpointsLabel() }}</span>
                         </div>
-                        @if (isLoadingFeatures()) {
-                            <div class="mt-8 flex justify-center">
-                                <mat-spinner diameter="32"></mat-spinner>
+                        <button
+                            type="button"
+                            class="w-full shrink-0 rounded-2xl bg-stone-950 px-4 py-3 text-sm font-semibold text-white disabled:opacity-40 dark:bg-white dark:text-gray-950"
+                            [disabled]="!hasCountries()"
+                            (click)="confirmCountries()"
+                        >
+                            {{ t('visitaGuide.countryContinue') }}
+                        </button>
+                        </div>
+                    }
+                    @case ('endpoints') {
+                        <div class="flex h-full min-h-0 flex-1 flex-col gap-2">
+                        <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
+                            <p class="min-w-0 flex-1 truncate text-sm font-semibold text-stone-950 dark:text-white">
+                                <span aria-hidden="true">{{ countryFlag() }}</span>
+                                {{ t('visitaGuide.endpointsCatalogForCountry', { country: countryLabel() }) }}
+                            </p>
+                            <p class="hidden text-xs text-stone-500 lg:block dark:text-stone-400">{{
+                                t('visitaGuide.endpointsHint')
+                            }}</p>
+                            <button
+                                type="button"
+                                class="shrink-0 text-xs font-medium text-stone-600 underline-offset-4 hover:underline dark:text-stone-300"
+                                (click)="openCountryStep()"
+                            >
+                                {{ t('visitaGuide.changeCountry') }}
+                            </button>
+                        </div>
+                        @if (availableRequiredParamFilters().length) {
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="mr-1 text-[11px] font-semibold uppercase tracking-wide text-stone-400">{{
+                                    t('visitaGuide.paramFilterTitle')
+                                }}</span>
+                                @for (field of availableRequiredParamFilters(); track field) {
+                                    <button
+                                        type="button"
+                                        class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
+                                        [class.border-stone-950]="isRequiredParamFilterActive(field)"
+                                        [class.bg-stone-950]="isRequiredParamFilterActive(field)"
+                                        [class.text-white]="isRequiredParamFilterActive(field)"
+                                        [class.dark:border-white]="isRequiredParamFilterActive(field)"
+                                        [class.dark:bg-white]="isRequiredParamFilterActive(field)"
+                                        [class.dark:text-gray-950]="isRequiredParamFilterActive(field)"
+                                        [class.border-stone-200]="!isRequiredParamFilterActive(field)"
+                                        [class.bg-white]="!isRequiredParamFilterActive(field)"
+                                        [class.text-stone-700]="!isRequiredParamFilterActive(field)"
+                                        [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
+                                        [class.dark:bg-gray-950]="!isRequiredParamFilterActive(field)"
+                                        [class.dark:text-stone-200]="!isRequiredParamFilterActive(field)"
+                                        (click)="toggleRequiredParamFilter(field)"
+                                    >
+                                        {{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}
+                                    </button>
+                                }
+                                @if (requiredParamFilters().length) {
+                                    <button
+                                        type="button"
+                                        class="text-[11px] font-medium text-stone-500 underline-offset-4 hover:underline dark:text-stone-300"
+                                        (click)="clearRequiredParamFilters()"
+                                    >
+                                        {{ t('visitaGuide.paramFilterClear') }}
+                                    </button>
+                                }
                             </div>
                         }
                         @if (featuresError()) {
-                            <p class="mt-4 text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
+                            <p class="text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
                         }
-                        <div class="mt-4 grid h-[min(38rem,calc(100dvh-20rem))] gap-4 lg:grid-cols-2">
+                        <div
+                            class="grid min-h-[28rem] flex-1 gap-3 lg:min-h-0 lg:grid-cols-2"
+                        >
                             <section
                                 class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70"
                             >
-                                <div class="shrink-0 border-b border-stone-100 px-4 py-3 dark:border-gray-800">
+                                <div
+                                    class="flex shrink-0 flex-wrap items-center gap-2 border-b border-stone-100 px-3 py-2 dark:border-gray-800"
+                                >
                                     <p class="text-sm font-semibold text-stone-950 dark:text-white">
                                         {{ t('visitaGuide.endpointsCatalogTitle') }}
                                     </p>
                                     <input
                                         type="search"
-                                        class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        class="min-w-[12rem] flex-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                         [placeholder]="t('visitaGuide.endpointsSearch')"
                                         [ngModel]="endpointSearchQuery()"
                                         (ngModelChange)="endpointSearchQuery.set($event)"
                                     />
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-8 items-center rounded-lg bg-stone-950 px-3 text-xs font-semibold text-white hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                            (click)="selectVisibleEndpoints()"
+                                        >
+                                            {{ t('visitaGuide.selectVisibleEndpoints') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-8 items-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300 dark:hover:bg-red-950"
+                                            (click)="clearEndpointSelection()"
+                                        >
+                                            {{ t('visitaGuide.clearEndpoints') }}
+                                        </button>
+                                        <span class="text-[11px] text-stone-400">{{ selectedEndpointsLabel() }}</span>
+                                    </div>
                                 </div>
                                 <div
                                     id="visita-endpoint-catalog"
@@ -387,8 +549,14 @@
                                     [cdkDropListConnectedTo]="['visita-endpoint-cart']"
                                     [cdkDropListSortingDisabled]="true"
                                     (cdkDropListDropped)="dropEndpointOnCatalog($event)"
-                                    class="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3"
+                                    class="flex min-h-0 flex-1 flex-col space-y-1 overflow-y-auto overscroll-contain p-2"
                                 >
+                                    @if (isLoadingFeatures() && !visibleEndpointFeatures().length) {
+                                        <div class="flex h-full min-h-40 flex-col items-center justify-center gap-3 py-10">
+                                            <mat-spinner diameter="36"></mat-spinner>
+                                            <p class="text-sm text-stone-400">{{ t('visitaGuide.endpointsLoading') }}</p>
+                                        </div>
+                                    }
                                     @for (group of groupedEndpointFeatures(); track group.id) {
                                         <p
                                             class="sticky top-0 z-[1] bg-white py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:bg-gray-900"
@@ -407,7 +575,7 @@
                                                 (mouseleave)="onEndpointCardLeave()"
                                             >
                                                 <div
-                                                    class="flex w-full items-start gap-3 rounded-2xl border p-3 text-left"
+                                                    class="flex w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left"
                                                     [ngClass]="
                                                         isFeatureSelected(feature)
                                                             ? 'border-emerald-200 bg-emerald-50/70 opacity-70 dark:border-emerald-800 dark:bg-emerald-950/40'
@@ -415,29 +583,44 @@
                                                     "
                                                 >
                                                     <mat-icon
-                                                        class="mt-0.5 shrink-0 !h-5 !w-5 !text-[20px] text-stone-400"
+                                                        class="shrink-0 !h-4 !w-4 !text-[16px] text-stone-400"
                                                         [class.text-emerald-500]="isFeatureSelected(feature)"
                                                         >{{ isFeatureSelected(feature) ? 'check_circle' : 'drag_indicator' }}</mat-icon
                                                     >
-                                                    <div class="min-w-0 flex-1">
-                                                        <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
-                                                            feature.name
-                                                        }}</span>
-                                                        @if (feature.description) {
-                                                            <span class="mt-1 block text-xs text-stone-500">{{
-                                                                feature.description
-                                                            }}</span>
+                                                    <span
+                                                        class="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-200"
+                                                    >
+                                                        <mat-icon class="!h-5 !w-5 !text-[22px]">{{
+                                                            featureIcon(feature)
+                                                        }}</mat-icon>
+                                                        @if (flagSrcFor(feature.country); as flagSrc) {
+                                                            <img
+                                                                [src]="flagSrc"
+                                                                alt=""
+                                                                class="absolute -bottom-0.5 -right-0.5 h-3 w-4 rounded-[2px] object-cover shadow-sm ring-1 ring-white dark:ring-gray-900"
+                                                            />
+                                                        } @else if (isWorldFeature(feature)) {
+                                                            <span
+                                                                class="absolute -bottom-0.5 -right-0.5 flex h-3 w-4 items-center justify-center rounded-[2px] bg-white text-[8px] shadow-sm ring-1 ring-white dark:bg-gray-900 dark:ring-gray-900"
+                                                                aria-hidden="true"
+                                                                >🌐</span
+                                                            >
                                                         }
-                                                        <div class="mt-2 flex flex-wrap gap-1">
+                                                    </span>
+                                                    <div class="min-w-0 flex-1">
+                                                        <span class="block truncate text-sm font-medium text-stone-950 dark:text-white">{{
+                                                            featureDisplayName(feature)
+                                                        }}</span>
+                                                        <div class="mt-0.5 flex flex-wrap gap-1">
                                                             @for (chip of featureParamFields(feature); track chip.field) {
                                                                 <span
-                                                                    class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                    class="rounded-full border px-1.5 py-px text-[10px] font-medium"
                                                                     [ngClass]="paramChipClass(chip.required)"
                                                                     >{{ t(paramFilterLabelKey(chip.field), paramFilterLabelParams(chip.field)) }}@if (chip.required) {<span class="ml-0.5 font-bold">*</span>}</span
                                                                 >
                                                                 @for (value of chip.enums; track value) {
                                                                     <span
-                                                                        class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                                                        class="rounded border px-1 py-px text-[10px] font-medium"
                                                                         [ngClass]="paramEnumClass()"
                                                                         >{{ value }}</span
                                                                     >
@@ -452,10 +635,12 @@
                                                     } @else {
                                                         <button
                                                             type="button"
-                                                            class="shrink-0 rounded-lg border border-stone-200 px-2 py-1 text-[11px] font-medium text-stone-600 hover:border-stone-950 dark:border-gray-700 dark:text-stone-300"
+                                                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:border-stone-950 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:border-white dark:hover:bg-gray-800"
+                                                            [matTooltip]="t('visitaGuide.endpointsAdd')"
+                                                            [attr.aria-label]="t('visitaGuide.endpointsAdd')"
                                                             (click)="toggleFeature(feature); $event.stopPropagation()"
                                                         >
-                                                            {{ t('visitaGuide.endpointsAdd') }}
+                                                            <mat-icon class="!h-5 !w-5 !text-[20px]">add</mat-icon>
                                                         </button>
                                                     }
                                                 </div>
@@ -463,18 +648,42 @@
                                         }
                                     }
                                     @if (!isLoadingFeatures() && visibleEndpointFeatures().length === 0) {
-                                        <p class="px-1 py-6 text-sm text-stone-400">{{ t('visitaGuide.noEndpoints') }}</p>
+                                        <div class="px-1 py-6">
+                                            <p class="text-sm text-stone-400">
+                                                @if (entities().length === 1) {
+                                                    {{
+                                                        t('visitaGuide.noEndpointsForCountry', {
+                                                            lookup: t(lookupKey()),
+                                                            country: countryLabel(),
+                                                        })
+                                                    }}
+                                                } @else {
+                                                    {{
+                                                        t('visitaGuide.noEndpointsForCountryMixed', {
+                                                            country: countryLabel(),
+                                                        })
+                                                    }}
+                                                }
+                                            </p>
+                                            <button
+                                                type="button"
+                                                class="mt-3 text-sm font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-200"
+                                                (click)="openCountryStep()"
+                                            >
+                                                {{ t('visitaGuide.chooseAnotherCountry') }}
+                                            </button>
+                                        </div>
                                     }
                                 </div>
                             </section>
                             <section
                                 class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-950 bg-stone-50 dark:border-white dark:bg-gray-950/60"
                             >
-                                <div class="shrink-0 border-b border-stone-200 px-4 py-3 dark:border-gray-800">
+                                <div class="shrink-0 border-b border-stone-200 px-3 py-2 dark:border-gray-800">
                                     <p class="text-sm font-semibold text-stone-950 dark:text-white">
                                         {{ t('visitaGuide.endpointsCartTitle') }}
                                     </p>
-                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                    <p class="text-[11px] text-stone-500 dark:text-stone-400">
                                         {{ t('visitaGuide.endpointsCartHint') }}
                                     </p>
                                 </div>
@@ -485,11 +694,11 @@
                                     [cdkDropListData]="selectedFeatures()"
                                     [cdkDropListConnectedTo]="['visita-endpoint-catalog']"
                                     (cdkDropListDropped)="dropEndpointOnCart($event)"
-                                    class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain p-3"
+                                    class="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain p-2"
                                 >
                                     @if (selectedFeatures().length === 0) {
                                         <div
-                                            class="flex flex-1 items-center justify-center rounded-xl border border-dashed border-stone-300 px-4 py-10 text-center text-sm text-stone-400 dark:border-gray-700"
+                                            class="flex flex-1 items-center justify-center rounded-lg border border-dashed border-stone-300 px-3 py-6 text-center text-xs text-stone-400 dark:border-gray-700"
                                         >
                                             {{ t('visitaGuide.endpointsCartEmpty') }}
                                         </div>
@@ -498,51 +707,71 @@
                                         <div
                                             cdkDrag
                                             [cdkDragData]="feature"
-                                            class="flex cursor-grab items-start gap-3 rounded-2xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
+                                            class="flex cursor-grab items-center gap-2 rounded-lg border border-stone-200 bg-white px-2 py-1.5 dark:border-gray-800 dark:bg-gray-900"
                                         >
-                                            <span class="mt-0.5 w-5 shrink-0 text-center text-xs font-semibold text-stone-400">{{
+                                            <span class="w-4 shrink-0 text-center text-[11px] font-semibold text-stone-400">{{
                                                 index + 1
                                             }}</span>
-                                            <mat-icon class="mt-0.5 shrink-0 !h-5 !w-5 !text-[20px] text-stone-400">drag_indicator</mat-icon>
-                                            <div class="min-w-0 flex-1">
-                                                <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
-                                                    feature.name
-                                                }}</span>
-                                                @if (feature.code) {
-                                                    <span class="mt-0.5 block font-mono text-[11px] text-stone-400">{{
-                                                        feature.code
-                                                    }}</span>
+                                            <mat-icon class="shrink-0 !h-4 !w-4 !text-[16px] text-stone-400">drag_indicator</mat-icon>
+                                            <span
+                                                class="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-200"
+                                            >
+                                                <mat-icon class="!h-5 !w-5 !text-[22px]">{{
+                                                    featureIcon(feature)
+                                                }}</mat-icon>
+                                                @if (flagSrcFor(feature.country); as flagSrc) {
+                                                    <img
+                                                        [src]="flagSrc"
+                                                        alt=""
+                                                        class="absolute -bottom-0.5 -right-0.5 h-3 w-4 rounded-[2px] object-cover shadow-sm ring-1 ring-white dark:ring-gray-900"
+                                                    />
+                                                } @else if (isWorldFeature(feature)) {
+                                                    <span
+                                                        class="absolute -bottom-0.5 -right-0.5 flex h-3 w-4 items-center justify-center rounded-[2px] bg-white text-[8px] shadow-sm ring-1 ring-white dark:bg-gray-900 dark:ring-gray-900"
+                                                        aria-hidden="true"
+                                                        >🌐</span
+                                                    >
                                                 }
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <span class="block truncate text-sm font-medium text-stone-950 dark:text-white">{{
+                                                    featureDisplayName(feature)
+                                                }}</span>
                                                 @if (featureParamFields(feature).length) {
-                                                    <div class="mt-2 flex flex-wrap gap-1">
+                                                    <div class="mt-0.5 flex flex-wrap gap-1">
                                                         @for (chip of featureParamFields(feature); track chip.field) {
                                                             <span
-                                                                class="rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                                                                class="rounded-full border px-1.5 py-px text-[10px] font-medium"
                                                                 [ngClass]="paramChipClass(chip.required)"
                                                                 >{{ t(paramFilterLabelKey(chip.field), paramFilterLabelParams(chip.field)) }}@if (chip.required) {<span class="ml-0.5 font-bold">*</span>}</span
                                                             >
-                                                            @for (value of chip.enums; track value) {
-                                                                <span
-                                                                    class="rounded border px-1.5 py-0.5 text-[10px] font-medium"
-                                                                    [ngClass]="paramEnumClass()"
-                                                                    >{{ value }}</span
-                                                                >
-                                                            }
                                                         }
                                                     </div>
                                                 }
                                             </div>
                                             <button
                                                 type="button"
-                                                class="shrink-0 rounded-lg px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                                                class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                                                [matTooltip]="t('visitaGuide.endpointsRemove')"
+                                                [attr.aria-label]="t('visitaGuide.endpointsRemove')"
                                                 (click)="removeFeatureFromCart(feature); $event.stopPropagation()"
                                             >
-                                                {{ t('visitaGuide.endpointsRemove') }}
+                                                <mat-icon class="!h-5 !w-5 !text-[20px]">delete</mat-icon>
                                             </button>
                                         </div>
                                     }
                                 </div>
+                                <div class="shrink-0 border-t border-stone-200 p-2 dark:border-gray-800">
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-10 w-full items-center justify-center rounded-lg bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                                        (click)="confirmEndpoints()"
+                                    >
+                                        {{ t('visitaGuide.continue') }}
+                                    </button>
+                                </div>
                             </section>
+                        </div>
                         </div>
                         @if (hoveredEndpointDetails(); as tip) {
                             <div
@@ -574,7 +803,14 @@
                                     [class.border-b]="endpointHoverFlipY()"
                                     [class.border-r]="endpointHoverFlipY()"
                                 ></span>
-                                <p class="text-xs font-semibold leading-snug text-white">{{ tip.title }}</p>
+                                <div class="flex items-start gap-2.5">
+                                    <span
+                                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/15 text-white"
+                                    >
+                                        <mat-icon class="!h-6 !w-6 !text-[26px]">{{ tip.icon }}</mat-icon>
+                                    </span>
+                                    <p class="pt-1 text-sm font-semibold leading-snug text-white">{{ tip.title }}</p>
+                                </div>
                                 @if (tip.description) {
                                     <p class="mt-1 text-[11px] leading-snug text-white/80">{{ tip.description }}</p>
                                 }
@@ -598,13 +834,6 @@
                                 </div>
                             </div>
                         }
-                        <button
-                            type="button"
-                            class="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
-                            (click)="confirmEndpoints()"
-                        >
-                            {{ t('visitaGuide.continue') }}
-                        </button>
                     }
                     @case ('input') {
                         <div

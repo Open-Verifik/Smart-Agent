@@ -1,4 +1,5 @@
 import { mergeEnumValues } from '../batch-required-fields.util';
+import { isWorldCountry, normalizeCountryName } from '../smart-batch-country.util';
 import {
     canonicalParamFilterId,
     collectRequiredParamFields,
@@ -43,8 +44,77 @@ export interface GuideInputField {
 }
 
 export const GUIDE_COUNTRIES: GuideCountryOption[] = [
+    { iso: 'ar', name: 'Argentina', available: true },
+    { iso: 'bo', name: 'Bolivia', available: true },
+    { iso: 'br', name: 'Brazil', available: true },
+    { iso: 'ca', name: 'Canada', available: true },
+    { iso: 'cl', name: 'Chile', available: true },
     { iso: 'co', name: 'Colombia', available: true },
+    { iso: 'cr', name: 'Costa Rica', available: true },
+    { iso: 'do', name: 'Dominican Republic', available: true },
+    { iso: 'ec', name: 'Ecuador', available: true },
+    { iso: 'sv', name: 'El Salvador', available: true },
+    { iso: 'gt', name: 'Guatemala', available: true },
+    { iso: 'hn', name: 'Honduras', available: true },
+    { iso: 'in', name: 'India', available: true },
+    { iso: 'mx', name: 'Mexico', available: true },
+    { iso: 'pa', name: 'Panama', available: true },
+    { iso: 'py', name: 'Paraguay', available: true },
+    { iso: 'pe', name: 'Peru', available: true },
+    { iso: 'es', name: 'Spain', available: true },
+    { iso: 'us', name: 'United States', available: true },
+    { iso: 'uy', name: 'Uruguay', available: true },
+    { iso: 've', name: 'Venezuela', available: true },
 ];
+
+export const countryNameForIso = (iso?: string | null): string => {
+    const raw = (iso ?? '').trim();
+    const key = raw.toLowerCase();
+    if (!key) return '';
+    return GUIDE_COUNTRIES.find((country) => country.iso === key)?.name ?? normalizeCountryName(raw);
+};
+
+/** Catalog countries, plus any other country that shows up on a loaded feature. */
+export const guideCountriesFromFeatures = (features: { country?: string }[]): GuideCountryOption[] => {
+    const byName = new Map(availableCountries().map((country) => [country.name, country]));
+    for (const feature of features) {
+        if (isWorldCountry(feature.country)) continue;
+        const name = normalizeCountryName(feature.country);
+        if (!name || isWorldCountry(name) || byName.has(name)) continue;
+        byName.set(name, {
+            iso: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            name,
+            available: true,
+        });
+    }
+    return [...byName.values()];
+};
+
+/** Countries that actually appear on loaded endpoints (skips `world`). */
+export const countriesFromEndpointFeatures = (
+    features: { country?: string }[]
+): GuideCountryOption[] => {
+    const catalog = new Map(
+        availableCountries().map((country) => [country.name.toLowerCase(), country])
+    );
+    const byName = new Map<string, GuideCountryOption>();
+    for (const feature of features) {
+        if (isWorldCountry(feature.country)) continue;
+        const name = normalizeCountryName(feature.country);
+        if (!name || isWorldCountry(name)) continue;
+        const key = name.toLowerCase();
+        if (byName.has(key)) continue;
+        byName.set(
+            key,
+            catalog.get(key) ?? {
+                iso: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                name,
+                available: true,
+            }
+        );
+    }
+    return [...byName.values()].sort((left, right) => left.name.localeCompare(right.name));
+};
 
 export const GUIDE_INTENTS: {
     id: GuideIntent;

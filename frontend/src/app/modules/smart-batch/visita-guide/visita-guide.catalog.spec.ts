@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildInputRow, inputFieldsFor } from './visita-guide.catalog';
+import {
+    availableCountries,
+    buildInputRow,
+    countryNameForIso,
+    countriesFromEndpointFeatures,
+    guideCountriesFromFeatures,
+    inputFieldsFor,
+} from './visita-guide.catalog';
 
 describe('inputFieldsFor', () => {
     it('asks for document type and number from selected endpoints', () => {
@@ -51,5 +58,42 @@ describe('inputFieldsFor', () => {
                 features
             )
         ).toEqual({ documentType: 'CE', documentNumber: '123' });
+    });
+});
+
+describe('countryNameForIso', () => {
+    it('maps an iso code to the catalog display name', () => {
+        expect(countryNameForIso('pe')).toBe('Peru');
+        expect(countryNameForIso('pa')).toBe('Panama');
+        expect(countryNameForIso('US')).toBe('United States');
+        expect(countryNameForIso('')).toBe('');
+    });
+});
+
+describe('guideCountriesFromFeatures', () => {
+    it('includes every catalog country, including Panama', () => {
+        const names = availableCountries().map((country) => country.name);
+        expect(names).toContain('Panama');
+        expect(names).toContain('Costa Rica');
+        expect(names).toContain('Bolivia');
+        expect(names).not.toContain('world');
+    });
+
+    it('adds a country that is on a feature but missing from the static list', () => {
+        const names = guideCountriesFromFeatures([{ country: 'Nicaragua' }]).map((country) => country.name);
+        expect(names).toContain('Nicaragua');
+        expect(names).toContain('Panama');
+    });
+});
+
+describe('countriesFromEndpointFeatures', () => {
+    it('lists only countries that appear on endpoints and skips world', () => {
+        const names = countriesFromEndpointFeatures([
+            { country: 'Panama' },
+            { country: 'world' },
+            { country: 'PE' },
+            { country: 'Panama' },
+        ]).map((country) => country.name);
+        expect(names).toEqual(['Panama', 'Peru']);
     });
 });

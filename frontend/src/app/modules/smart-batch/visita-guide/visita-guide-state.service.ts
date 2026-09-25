@@ -2,7 +2,6 @@ import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch } from '../smart-batch.service';
 import { ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import {
-    availableCountries,
     buildInputRow,
     GuideEntity,
     GuideIntent,
@@ -25,7 +24,7 @@ export type GuideTemplateChoice = 'visita' | 'mine' | 'scratch';
 export class VisitaGuideStateService {
     intent = signal<GuideIntent | null>(null);
     entities = signal<GuideEntity[]>([]);
-    countryIso = signal<string | null>(null);
+    countryIsos = signal<string[]>([]);
     mode = signal<GuideMode | null>(null);
     inputValues = signal<Record<string, string>>({});
     selectedFeatures = signal<AppFeature[]>([]);
@@ -73,7 +72,7 @@ export class VisitaGuideStateService {
     editingSavedLayout = signal(false);
 
     inputFields = computed(() =>
-        inputFieldsFor(this.entities(), this.countryIso() ?? 'co', this.selectedFeatures())
+        inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', this.selectedFeatures())
     );
 
     isMixed = computed(() => this.entities().length > 1);
@@ -82,9 +81,11 @@ export class VisitaGuideStateService {
         if (this.editingSavedLayout()) return ['layout', 'generate'];
         const intent = this.intent();
         const steps: GuideStepId[] = ['intent'];
-        if (intent === 'report' || intent === 'template') steps.push('entity');
-        if (this.entities().length && availableCountries().length > 1) steps.push('country');
-        if (this.entities().length) steps.push('endpoints', 'mode');
+        if (intent) steps.push('country');
+        if ((intent === 'report' || intent === 'template') && this.countryIsos().length) {
+            steps.push('entity');
+        }
+        if (this.entities().length && this.countryIsos().length) steps.push('endpoints', 'mode');
         if (this.mode() === 'single' && this.entities().length) {
             steps.push('input', 'consult', 'results');
             if (intent === 'report' || intent === 'template' || this.wantsReport()) {
@@ -104,11 +105,6 @@ export class VisitaGuideStateService {
         const fromIntent = intentEntity(this.intent());
         if (fromIntent && (this.entities().length !== 1 || this.entities()[0] !== fromIntent)) {
             this.entities.set([fromIntent]);
-        }
-
-        const countries = availableCountries();
-        if (!this.countryIso() && countries.length === 1) {
-            this.countryIso.set(countries[0].iso);
         }
     }
 
@@ -132,7 +128,7 @@ export class VisitaGuideStateService {
     buildRow(): Record<string, string> {
         return buildInputRow(
             this.entities(),
-            this.countryIso() ?? 'co',
+            this.countryIsos()[0] ?? 'co',
             this.inputValues(),
             this.selectedFeatures()
         );
@@ -141,7 +137,7 @@ export class VisitaGuideStateService {
     resetAll(): void {
         this.intent.set(null);
         this.entities.set([]);
-        this.countryIso.set(null);
+        this.countryIsos.set([]);
         this.mode.set(null);
         this.inputValues.set({});
         this.selectedFeatures.set([]);

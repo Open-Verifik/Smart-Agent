@@ -6,6 +6,7 @@ import {
     paramFieldLabelKey,
 } from '../endpoint-param-highlight.util';
 import { GENERIC_APP_FEATURE_DESCRIPTIONS } from '../../postman/postman-endpoint-copy.util';
+import { featureGroupIcon } from '../feature-group.util';
 
 export type TooltipTranslate = (key: string, params?: Record<string, string>) => string;
 
@@ -35,6 +36,7 @@ const isRequiredCanonical = (feature: AppFeature, canonical: string): boolean =>
 
 export type VisitaEndpointTooltipDetails = {
     title: string;
+    icon: string;
     description?: string;
     request?: string;
     code?: string;
@@ -68,6 +70,7 @@ export const visitaEndpointTooltipDetails = (
 
     return {
         title,
+        icon: featureGroupIcon(feature),
         description: description && description !== title ? description : undefined,
         request: path ? `${method} ${path}` : undefined,
         code: feature.code || undefined,

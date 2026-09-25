@@ -1,5 +1,19 @@
 export type FeatureGroupId = 'citizen' | 'vehicle' | 'company' | 'other';
 
+export const FEATURE_GROUP_ICONS: Record<FeatureGroupId, string> = {
+    citizen: 'person_search',
+    vehicle: 'directions_car',
+    company: 'business',
+    other: 'hub',
+};
+
+export const featureGroupIcon = (feature: {
+    code?: string;
+    name?: string;
+    url?: string;
+    description?: string;
+}): string => FEATURE_GROUP_ICONS[featureGroup(feature)];
+
 export const featureGroup = (feature: {
     code?: string;
     name?: string;
@@ -21,4 +35,9 @@ export const featureGroup = (feature: {
         return 'citizen';
     }
     return 'other';
+};
+
+export const isSmartBatchCatalogFeature = (feature: unknown): boolean => {
+    const group = feature && typeof feature === 'object' && 'group' in feature ? feature.group : undefined;
+    return !group || group === 'apiRequest';
 };

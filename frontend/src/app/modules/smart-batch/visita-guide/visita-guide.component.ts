@@ -1,7 +1,7 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChild, ViewChildren } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +17,7 @@ import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.
 import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
-import { filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
+import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
     collectRequiredParamFields,
     featureParamChips,
@@ -28,7 +28,7 @@ import {
     paramFieldLabelKey,
     requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
-import { featureGroup, FeatureGroupId } from '../feature-group.util';
+import { featureGroup, featureGroupIcon, FeatureGroupId, isSmartBatchCatalogFeature } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
 import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import {
@@ -61,8 +61,11 @@ import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
 import { visitaEndpointTooltipDetails } from './visita-guide-endpoint-tooltip.util';
 import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-state.service';
+import { parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
 import {
     availableCountries,
+    countryNameForIso,
+    countriesFromEndpointFeatures,
     GUIDE_ENTITIES,
     GUIDE_INTENTS,
     GuideEntity,
@@ -158,6 +161,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _authGate = inject(AuthRequiredGateService);
     private _transloco = inject(TranslocoService);
+    private readonly _activeLang = toSignal(this._transloco.langChanges$, {
+        initialValue: this._transloco.getActiveLang(),
+    });
     private _snack = inject(MatSnackBar);
     private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewBridge = inject(ReportBuilderPreviewDataService);
@@ -168,6 +174,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @ViewChild('layoutEditorPanel') private _layoutEditorPanel?: ElementRef<HTMLElement>;
     @ViewChild('layoutEditorScroll') private _layoutEditorScroll?: ElementRef<HTMLElement>;
     @ViewChild('layoutContextMenuEl') private _layoutContextMenuEl?: ElementRef<HTMLElement>;
+    @ViewChild('countrySearchInput') private _countrySearchInput?: ElementRef<HTMLInputElement>;
 
     readonly intents = GUIDE_INTENTS;
     readonly entityOptions = GUIDE_ENTITIES;
@@ -180,10 +187,34 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _pollSub: Subscription | null = null;
     private _alive = true;
+    private _guideUrlReady = false;
+    private _pendingFeatureIds: string[] = [];
+    private readonly _guideUrlEffect = effect(() => {
+        const step = this.step();
+        const intent = this.intent();
+        const countries = this.countryIsos();
+        const entities = this.entities();
+        const mode = this.mode();
+        const configId = this._state.configId();
+        const batchId = this._state.batchId();
+        const templateId = this.selectedTemplate()?._id ?? this.clonedTemplate()?._id ?? null;
+        const features = this.selectedFeatures().map((feature) => feature._id).filter(Boolean);
+        untracked(() => this._writeGuideUrl({
+            step,
+            intent,
+            countries,
+            entities,
+            mode,
+            configId,
+            batchId,
+            templateId,
+            features,
+        }));
+    });
 
     intent = this._state.intent;
     entities = this._state.entities;
-    countryIso = this._state.countryIso;
+    countryIsos = this._state.countryIsos;
     mode = this._state.mode;
     inputValues = this._state.inputValues;
     inputFields = this._state.inputFields;
@@ -227,6 +258,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     availableFeatures = signal<AppFeature[]>([]);
     isLoadingFeatures = signal(false);
     featuresError = signal<string | null>(null);
+    countrySearchQuery = signal('');
+    countrySort = signal<'sources' | 'alpha'>('sources');
     selectedLayoutSectionId = signal<string | null>(null);
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
@@ -293,12 +326,56 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._state.editingSavedLayout() ||
             (this.step() !== 'intent' && this.step() !== 'consult')
     );
-    countryFlag = computed(() => getCountryFlag(this.countryIso() ?? 'Colombia'));
+    hasCountries = computed(() => this.countryIsos().length > 0);
+    countryNames = computed(() =>
+        this.countryIsos().map((iso) => countryNameForIso(iso)).filter(Boolean)
+    );
+    countryLabel = computed(() => {
+        const names = this.countryNames();
+        if (!names.length) return '';
+        if (names.length === 1) return names[0];
+        if (names.length === 2) return `${names[0]}, ${names[1]}`;
+        return `${names[0]} +${names.length - 1}`;
+    });
+    countryFlag = computed(() =>
+        this.countryIsos()
+            .slice(0, 3)
+            .map((iso) => getCountryFlag(countryNameForIso(iso) || iso))
+            .join(' ')
+    );
 
     countryFilteredFeatures = computed(() => {
-        const iso = this.countryIso() ?? 'co';
-        const countryName = iso.toLowerCase() === 'co' ? 'Colombia' : iso;
-        return filterFeaturesForCountry(this.availableFeatures(), countryName);
+        const selected = this.countryNames();
+        if (!selected.length) return [];
+        return filterFeaturesForCountries(this.availableFeatures(), selected).filter(isSmartBatchCatalogFeature);
+    });
+
+    countryTiles = computed(() => {
+        const query = this.countrySearchQuery().trim().toLowerCase();
+        const catalog = this.availableFeatures().filter(isSmartBatchCatalogFeature);
+        return countriesFromEndpointFeatures(catalog)
+            .map((country) => ({
+                ...country,
+                count: this._sourceCountForCountry(country.iso),
+            }))
+            .filter((country) => country.count > 0)
+            .filter((country) => !query || country.name.toLowerCase().includes(query))
+            .sort((left, right) => {
+                if (this.countrySort() === 'alpha') {
+                    return left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
+                }
+                const bySources = right.count - left.count;
+                if (bySources !== 0) return bySources;
+                return left.name.localeCompare(right.name, undefined, { sensitivity: 'base' });
+            });
+    });
+
+    private readonly _prepareCountryStep = effect(() => {
+        if (this.step() !== 'country') return;
+        untracked(() => {
+            this.ensureFeaturesLoaded();
+            setTimeout(() => this._countrySearchInput?.nativeElement.focus(), 0);
+        });
     });
 
     visibleEndpointFeatures = computed(() => {
@@ -311,7 +388,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (group === 'other' && selected.size) return false;
             if (!matchesRequiredParamFilters(feature, paramFilters)) return false;
             if (!query) return true;
-            const blob = `${feature.name ?? ''} ${feature.code ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
+            const blob = `${this.featureDisplayName(feature)} ${feature.name ?? ''} ${feature.code ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
             return blob.includes(query);
         });
     });
@@ -337,6 +414,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         for (const feature of this.visibleEndpointFeatures()) {
             const group = buckets.find((item) => item.id === featureGroup(feature));
             group?.items.push(feature);
+        }
+        for (const bucket of buckets) {
+            bucket.items.sort(compareFeaturesForSelectedCountry);
         }
         return buckets.filter((bucket) => bucket.items.length > 0);
     });
@@ -380,6 +460,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.step() === 'endpoints'
     );
     isLayoutStep = computed(() => this.step() === 'layout');
+    isEndpointsStep = computed(() => this.step() === 'endpoints');
+    isFillViewportStep = computed(() => this.step() === 'country' || this.step() === 'endpoints');
 
     selectedLayoutSection = computed(() => {
         const id = this.selectedLayoutSectionId();
@@ -398,7 +480,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const base = template ?? {
             name: this.reportTitle() || pipelineName(this.entities()),
             type: 'client' as const,
-            country: this.countryIso() === 'co' ? 'Colombia' : 'Colombia',
+            country: this.countryNames()[0] || 'Colombia',
             sections: [],
             primaryColor: this.primaryColor(),
             logo: this.logoDataUrl(),
@@ -481,8 +563,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     typeof feature === 'object' ? feature.code : selected?.code;
                 const name =
                     typeof feature === 'object'
-                        ? feature.name
-                        : selected?.name ?? `Paso ${step.sequence}`;
+                        ? this.featureDisplayName(feature)
+                        : selected
+                          ? this.featureDisplayName(selected)
+                          : `Paso ${step.sequence}`;
                 const payload = results[step.sequence] ?? results[String(step.sequence)];
                 const error = row.errors?.find((item) => Number(item.step) === Number(step.sequence));
                 const skip = skipped.find((item) => Number(item.sequence) === Number(step.sequence));
@@ -525,8 +609,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         : null;
                 const name =
                     typeof feature === 'object'
-                        ? feature.name
-                        : selected?.name ?? `Paso ${step.sequence}`;
+                        ? this.featureDisplayName(feature)
+                        : selected
+                          ? this.featureDisplayName(selected)
+                          : `Paso ${step.sequence}`;
                 const code = typeof feature === 'object' ? feature.code : selected?.code;
                 return {
                     sequence: step.sequence,
@@ -543,7 +629,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
         return this.selectedFeatures().map((feature, index) => ({
             sequence: index + 1,
-            label: feature.name,
+            label: this.featureDisplayName(feature),
             code: feature.code,
             hasData: false,
             error: null,
@@ -569,8 +655,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             onAuthenticated: () => {
                 this._alive = true;
                 this._state.applyDeductions();
+                this.ensureFeaturesLoaded();
                 this._reports.getTemplates().subscribe();
-                this._resumeFromDesigner();
+                this._resumeFromUrl();
             },
             panelClass: 'auth-required-dialog',
         });
@@ -632,9 +719,75 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.goNext();
     }
 
-    selectCountry(iso: string): void {
-        this._state.countryIso.set(iso);
+    isCountrySelected(iso: string): boolean {
+        return this.countryIsos().includes(iso);
+    }
+
+    toggleCountry(iso: string): void {
+        const current = this.countryIsos();
+        const next = current.includes(iso) ? current.filter((item) => item !== iso) : [...current, iso];
+        if (next.join(',') !== current.join(',')) {
+            this._state.selectedFeatures.set([]);
+            this._state.requiredParamFilters.set([]);
+            this._state.endpointSearchQuery.set('');
+        }
+        this._state.countryIsos.set(next);
+    }
+
+    selectAllVisibleCountries(): void {
+        const next = this.countryTiles().map((country) => country.iso);
+        this._state.countryIsos.set(next);
+        this._state.selectedFeatures.set([]);
+        this._state.requiredParamFilters.set([]);
+        this._state.endpointSearchQuery.set('');
+    }
+
+    clearCountrySelection(): void {
+        this._state.countryIsos.set([]);
+        this._state.selectedFeatures.set([]);
+        this._state.requiredParamFilters.set([]);
+    }
+
+    confirmCountries(): void {
+        if (!this.countryIsos().length) {
+            this._snack.open(this._transloco.translate('visitaGuide.pickCountry'), undefined, {
+                duration: 2500,
+            });
+            return;
+        }
+        this.countrySearchQuery.set('');
         this.goNext();
+    }
+
+    openCountryStep(): void {
+        if (!this.visibleSteps().includes('country')) return;
+        this.countrySearchQuery.set('');
+        this.step.set('country');
+    }
+
+    onCountrySearchKeydown(event: KeyboardEvent): void {
+        if (event.key !== 'Enter') return;
+        const first = this.countryTiles()[0];
+        if (!first) return;
+        event.preventDefault();
+        this.toggleCountry(first.iso);
+    }
+
+    lookupKey(): string {
+        const entity = this.entities()[0];
+        if (entity === 'vehicle') return 'visitaGuide.lookupVehicle';
+        if (entity === 'company') return 'visitaGuide.lookupCompany';
+        return 'visitaGuide.lookupPerson';
+    }
+
+    countryTileClass(iso: string, count: number | null): string {
+        if (this.isCountrySelected(iso)) {
+            return 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400 dark:border-emerald-400 dark:bg-emerald-950 dark:ring-emerald-500';
+        }
+        if (count === 0) {
+            return 'border-stone-200 bg-white opacity-60 hover:border-stone-400 hover:opacity-100 dark:border-gray-800 dark:bg-gray-900/70';
+        }
+        return 'border-stone-200 bg-white hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-white';
     }
 
     selectMode(mode: GuideMode): void {
@@ -656,7 +809,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (next === 'endpoints') void this.ensureFeaturesLoaded();
+        if (next === 'country' || next === 'endpoints') void this.ensureFeaturesLoaded();
 
         if (this.step() === 'endpoints' && !this.selectedFeatures().length) {
             this._snack.open(this._transloco.translate('visitaGuide.pickEndpoints'), undefined, {
@@ -715,7 +868,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     startOver(): void {
         this._stopPoll();
         this._browserRunner.stop();
+        this._pendingFeatureIds = [];
         this._state.resetAll();
+        void this._router.navigate(['/smart-batch'], { queryParams: {}, replaceUrl: true });
     }
 
     continueToReport(): void {
@@ -2575,6 +2730,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return getCountryFlag(iso);
     }
 
+    flagSrcFor(iso: string): string | null {
+        return countryFlagImageUrl(iso);
+    }
+
+    isWorldFeature(feature: AppFeature): boolean {
+        return isWorldCountry(feature.country);
+    }
+
+    private _sourceCountForCountry(iso: string): number {
+        return filterFeaturesForCountry(this.availableFeatures(), countryNameForIso(iso)).filter(
+            isSmartBatchCatalogFeature
+        ).length;
+    }
+
     resultStatusKey(status: 'ok' | 'failed' | 'skipped' | 'empty'): string {
         const keys = {
             ok: 'visitaGuide.resultStatusOk',
@@ -2670,6 +2839,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return { field: humanizeParamField(field) };
     }
 
+    featureIcon(feature: AppFeature): string {
+        return featureGroupIcon(feature);
+    }
+
     featureGroupLabelKey(group: FeatureGroupId): string {
         const keys: Record<FeatureGroupId, string> = {
             citizen: 'visitaGuide.entityPerson',
@@ -2678,6 +2851,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             other: 'createBatchConfig.groupOther',
         };
         return keys[group];
+    }
+
+    featureDisplayName(feature: AppFeature): string {
+        this._activeLang();
+        const catalog = getAppFeatureCatalogCopy(this._transloco, feature.code);
+        if (catalog.title) return catalog.title;
+        const lang = (this._activeLang() ?? this._transloco.getActiveLang()).split('-')[0].toLowerCase();
+        if (lang === 'es' && feature.nameES?.trim()) return feature.nameES.trim();
+        return (feature.name || feature.code || '').trim();
     }
 
     featureParamFields(feature: AppFeature): FeatureParamChip[] {
@@ -2696,7 +2878,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return visitaEndpointTooltipDetails(
             feature,
             (key, params) => this._transloco.translate(key, params),
-            getAppFeatureCatalogCopy(this._transloco, feature.code)
+            {
+                ...getAppFeatureCatalogCopy(this._transloco, feature.code),
+                title: this.featureDisplayName(feature),
+            }
         );
     }
 
@@ -2784,6 +2969,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             next: (res) => {
                 this.availableFeatures.set(res.data || []);
                 this.isLoadingFeatures.set(false);
+                this._applyPendingFeatureIds();
             },
             error: () => {
                 this.isLoadingFeatures.set(false);
@@ -2901,7 +3087,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._reports.createTemplate({
                 ...payload,
                 type: 'client',
-                country: this.countryIso() === 'co' ? 'Colombia' : draft.country,
+                country: this.countryNames()[0] || draft.country,
                 pageSize: draft.pageSize ?? 'A4',
                 orientation: draft.orientation ?? 'portrait',
                 pdfEngine: draft.pdfEngine ?? 'puppeteer',
@@ -3091,7 +3277,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         try {
             const resolved = await this._pipeline.resolve(
                 this.entities(),
-                this.countryIso() ?? 'co',
+                this.countryIsos()[0] ?? 'co',
                 pipelineName(this.entities()),
                 this.selectedFeatures()
             );
@@ -3185,33 +3371,70 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._pollSub = null;
     }
 
-    private _resumeFromDesigner(): void {
-        const start = this._route.snapshot.queryParamMap.get('start');
-        if (start === 'report' && !this._state.intent()) {
-            this.selectIntent('report');
+    private _resumeFromUrl(): void {
+        const parsed = parseGuideUrl(this._route.snapshot.queryParamMap);
+        this._pendingFeatureIds = parsed.features;
+
+        if (parsed.templateId && (parsed.step === 'layout' || !this._state.intent())) {
+            this._openSavedTemplateInLayout(parsed.templateId, parsed.configId);
+            this._guideUrlReady = true;
             return;
         }
 
-        const templateId = this._route.snapshot.queryParamMap.get('templateId');
-        if (templateId) {
-            this._openSavedTemplateInLayout(
-                templateId,
-                this._route.snapshot.queryParamMap.get('configId')
-            );
-            return;
+        if (parsed.intent && !this._state.intent()) {
+            this._state.intent.set(parsed.intent);
+            this._state.wantsReport.set(parsed.intent === 'report' || parsed.intent === 'template');
+        }
+        if (parsed.countries.length) this._state.countryIsos.set(parsed.countries);
+        if (parsed.entities.length) this._state.entities.set(parsed.entities);
+        if (parsed.mode) this._state.mode.set(parsed.mode);
+        this._state.applyDeductions();
+
+        if (parsed.configId) {
+            this._state.configId.set(parsed.configId);
+            this._batch.getConfiguration(parsed.configId).subscribe({
+                next: (res) => this._state.configuration.set(res.data),
+            });
+        }
+        if (parsed.batchId) {
+            this._state.batchId.set(parsed.batchId);
+            this._batch.getSmartBatch(parsed.batchId).subscribe({
+                next: (res) => this._state.batch.set(res.data),
+            });
         }
 
-        const resumeRaw = this._route.snapshot.queryParamMap.get('resume');
-        const mapped: GuideStepId | null =
-            resumeRaw === 'preview' ||
-            resumeRaw === 'customize' ||
-            resumeRaw === 'include' ||
-            resumeRaw === 'template'
-                ? 'layout'
-                : (resumeRaw as GuideStepId | null);
-        if (mapped && this.visibleSteps().includes(mapped)) {
-            this._state.step.set(mapped);
+        if (parsed.step && this.visibleSteps().includes(parsed.step)) {
+            if (parsed.step === 'layout') this.enterLayout();
+            if (parsed.step === 'include') this.ensureIncludeItems();
+            if (parsed.step === 'template') this._refreshTemplates();
+            this._state.step.set(parsed.step);
+        } else if (parsed.intent && this.step() === 'intent') {
+            const steps = this.visibleSteps();
+            const next = steps[1];
+            if (next) this._state.step.set(next);
         }
+
+        this._applyPendingFeatureIds();
+        this._guideUrlReady = true;
+    }
+
+    private _applyPendingFeatureIds(): void {
+        const ids = new Set(this._pendingFeatureIds);
+        if (!ids.size || !this.availableFeatures().length) return;
+        const selected = this.availableFeatures().filter((feature) => ids.has(feature._id));
+        if (selected.length) this._state.selectedFeatures.set(selected);
+        this._pendingFeatureIds = [];
+    }
+
+    private _writeGuideUrl(state: ReturnType<typeof parseGuideUrl>): void {
+        if (!this._guideUrlReady) return;
+        const path = this._router.url.split('?')[0];
+        if (path !== '/smart-batch' && path !== '/smart-batch/') return;
+        void this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: serializeGuideUrl(state),
+            replaceUrl: true,
+        });
     }
 
     private _openSavedTemplateInLayout(templateId: string, configId: string | null): void {

@@ -34,8 +34,9 @@ import {
     requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
 import { featureGroup as classifyFeatureGroup, FeatureGroupId } from '../feature-group.util';
-import { filterFeaturesForCountry, resolveDropdownCountry } from '../smart-batch-country.util';
+import { filterFeaturesForCountry, getCountryFlag, resolveDropdownCountry } from '../smart-batch-country.util';
 import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
+import { availableCountries } from '../visita-guide/visita-guide.catalog';
 import { CheckListBatchPrefill, readCheckListBatchPrefill } from '../../check-list/check-list-batch.util';
 
 const EMAIL_TOKEN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -108,18 +109,14 @@ export class CreateBatchConfigComponent {
     ] as const;
 
     // Data
-    countries = signal([
-        { code: 'Colombia', name: '🇨🇴 Colombia' },
-        { code: 'Peru', name: '🇵🇪 Peru' },
-        { code: 'Mexico', name: '🇲🇽 Mexico' },
-        { code: 'Brazil', name: '🇧🇷 Brazil' },
-        { code: 'Chile', name: '🇨🇱 Chile' },
-        { code: 'Argentina', name: '🇦🇷 Argentina' },
-        { code: 'Ecuador', name: '🇪🇨 Ecuador' },
-        { code: 'Venezuela', name: '🇻🇪 Venezuela' },
-        { code: 'United States', name: '🇺🇸 United States' },
-        { code: 'Spain', name: '🇪🇸 Spain' },
-    ]);
+    countries = signal(
+        availableCountries()
+            .map((country) => ({
+                code: country.name,
+                name: `${getCountryFlag(country.name)} ${country.name}`,
+            }))
+            .sort((left, right) => left.code.localeCompare(right.code))
+    );
 
     availableFeatures = signal<any[]>([]);
     isLoadingFeatures = signal(false);
