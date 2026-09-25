@@ -16,7 +16,7 @@ import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
-import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
@@ -42,6 +42,7 @@ import {
     setHiddenParamKey,
     sortByKeyOrder,
     valueAtDataPath,
+    joinReportDataPath,
     humanizeParamKey,
     type LayoutParamGroup,
     type LayoutSheetItem,
@@ -329,6 +330,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         maxHeight?: number;
         sectionId?: string;
         overlay?: ReportOverlayId;
+        cellKey?: string;
     } | null>(null);
     private _pendingSheetImagePoint: { x: number; y: number; page: number } | null = null;
     private _pendingContentPoint: { x: number; y: number; page: number } | null = null;
@@ -993,13 +995,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         if (key === 'd') {
+            if (this.selectedLayoutCellKey()) {
+                event.preventDefault();
+                this.copySelectedLayoutItem();
+                return;
+            }
             if (!this.canCopySelectedLayout()) return;
             event.preventDefault();
             this.copySelectedLayoutSection();
         }
     }
 
+    isLayoutPageAnchor(section: ReportSection): boolean {
+        return isReportPageAnchor(section);
+    }
+
     onLayoutSectionClick = (section: ReportSection): void => {
+        if (isReportPageAnchor(section)) return;
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
@@ -1092,37 +1104,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
     }
 
-    /** Drop empty sheets and shift leftover blocks onto the first remaining page. */
+    /** Keep reserved blank sheets; only drop trailing pages that have no blocks. */
     private _compactLayoutPages(list: ReportSection[]): ReportSection[] {
-        const used = [
-            ...new Set(list.flatMap((section) => (section.frame ? [section.frame.page ?? 0] : []))),
-        ].sort((a, b) => a - b);
-        if (!used.length) return list;
-        const remap = new Map(used.map((page, index) => [page, index]));
-        const needsRemap = used.some((page, index) => page !== index);
-        if (!needsRemap) return list;
-        return list.map((section) =>
-            section.frame
-                ? { ...section, frame: { ...section.frame, page: remap.get(section.frame.page ?? 0) ?? 0 } }
-                : section
-        );
+        return list;
     }
 
     private _nextLayoutFrame(width = 620, height = 200): ReportSectionFrame {
-        const framed = this.layoutSections().filter((section) => section.frame);
+        const below = this._layoutEditorPreview?.frameBelowContent({ width, height });
+        if (below) return below;
+        const framed = this.layoutSections().filter((section) => section.frame && !isReportPageAnchor(section));
         if (!framed.length) return { page: 0, x: 24, y: 24, width, height };
         const last = framed.reduce((current, section) => {
             const currentRank = (current.frame?.page ?? 0) * 10000 + (current.frame?.y ?? 0);
             const nextRank = (section.frame?.page ?? 0) * 10000 + (section.frame?.y ?? 0);
             return nextRank >= currentRank ? section : current;
         });
-        return {
+        return this._fitFrameOnSheet({
             page: last.frame?.page ?? 0,
             x: last.frame?.x ?? 24,
             y: (last.frame?.y ?? 0) + Math.min(last.frame?.height ?? height, 220) + 16,
             width,
             height,
-        };
+        });
     }
 
     private _frameForNewEndpoint(
@@ -1131,13 +1134,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const width = 620;
         const height = 200;
         if (!point) return this._nextLayoutFrame(width, height);
-        return {
+        return this._fitFrameOnSheet({
             page: point.page,
             x: Math.max(0, point.x),
             y: Math.max(0, point.y),
             width,
             height,
-        };
+        });
+    }
+
+    /** If a new block would sit on the footer, open the next sheet. */
+    private _fitFrameOnSheet(frame: ReportSectionFrame): ReportSectionFrame {
+        if (this._layoutEditorPreview) {
+            return this._layoutEditorPreview.fitFrameOnSheet(frame);
+        }
+        const pageHeight = (this.orientation() === 'landscape' ? 210 : 297) * 3.7795275591;
+        const limit = pageHeight - 32 - 80;
+        const height = Number(frame.height) || 0;
+        const y = Number(frame.y) || 0;
+        if (height > 0 && y + height > limit) {
+            return { ...frame, page: (frame.page ?? 0) + 1, y: 32 };
+        }
+        return frame;
     }
 
     /**
@@ -1148,29 +1166,29 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const selected = this.selectedLayoutSection()?.frame;
         const lastContent = [...this.layoutSections()]
             .reverse()
-            .find((section) => section.frame && ['header', 'text', 'divider', 'shape'].includes(section.type))
+            .find((section) => section.frame && ['header', 'text', 'divider', 'shape', 'field'].includes(section.type))
             ?.frame;
         const origin = selected ?? lastContent ?? this.layoutSections().find((section) => section.frame)?.frame;
-        return {
+        return this._fitFrameOnSheet({
             page: origin?.page ?? 0,
             x: origin?.x ?? 0,
             y: (origin?.y ?? 32) + 24,
             width: width || origin?.width || 700,
             height,
-        };
+        });
     }
 
     private _consumePendingContentFrame(height: number, width = 700): ReportSectionFrame {
         const pending = this._pendingContentPoint;
         this._pendingContentPoint = null;
         if (!pending) return this._nextNearbyFrame(height, width);
-        return {
+        return this._fitFrameOnSheet({
             page: pending.page,
             x: pending.x,
             y: pending.y,
             width,
             height,
-        };
+        });
     }
 
     onLayoutOverlaySelect(id: ReportOverlayId): void {
@@ -1220,6 +1238,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutSectionContextMenu(event: { section: ReportSection; x: number; y: number }): void {
         this._openLayoutContextMenu(event.x, event.y, { sectionId: event.section.id });
+    }
+
+    onLayoutCellContextMenu(event: { section: ReportSection; key: string; x: number; y: number }): void {
+        this.selectedLayoutSectionId.set(event.section.id);
+        this.selectedLayoutCellKey.set(event.key);
+        this.selectedLayoutCellPart.set('cell');
+        this.layoutEditorKind.set('block');
+        this._openLayoutContextMenu(event.x, event.y, { sectionId: event.section.id, cellKey: event.key });
+    }
+
+    onLayoutCellPlace(event: {
+        section: ReportSection;
+        key: string;
+        clientX: number;
+        clientY: number;
+        extract: boolean;
+    }): void {
+        const point = this._layoutEditorPreview?.canonicalPointAt(event.clientX, event.clientY) ?? null;
+        this._placeLayoutItem(event.section, event.key, { extract: event.extract, point });
     }
 
     onLayoutOverlayContextMenu(event: { overlay: ReportOverlayId; x: number; y: number }): void {
@@ -1298,13 +1335,130 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     copyLayoutContextTarget(): void {
+        const menu = this.layoutContextMenu();
         const source = this._layoutContextSection();
         if (!source) {
             this.closeLayoutContextMenu();
             return;
         }
-        this._duplicateLayoutSection(source);
+        if (menu?.cellKey) {
+            this._placeLayoutItem(source, menu.cellKey, { extract: false });
+        } else {
+            this._duplicateLayoutSection(source);
+        }
         this.closeLayoutContextMenu();
+    }
+
+    extractLayoutContextItem(): void {
+        const menu = this.layoutContextMenu();
+        const source = this._layoutContextSection();
+        if (!source || !menu?.cellKey) {
+            this.closeLayoutContextMenu();
+            return;
+        }
+        this._placeLayoutItem(source, menu.cellKey, { extract: true });
+        this.closeLayoutContextMenu();
+    }
+
+    copySelectedLayoutItem(): void {
+        const source = this.selectedLayoutSection();
+        const key = this.selectedLayoutCellKey();
+        if (!source || !key) return;
+        this._placeLayoutItem(source, key, { extract: false });
+    }
+
+    extractSelectedLayoutItem(): void {
+        const source = this.selectedLayoutSection();
+        const key = this.selectedLayoutCellKey();
+        if (!source || !key) return;
+        this._placeLayoutItem(source, key, { extract: true });
+    }
+
+    private _placeLayoutItem(
+        source: ReportSection,
+        key: string,
+        options: { extract: boolean; point?: { x: number; y: number; page: number } | null }
+    ): void {
+        const dataPath = joinReportDataPath(source.dataPath, key);
+        if (!dataPath) return;
+        const override = source.keyOverrides?.[key];
+        const label = override?.label || this._layoutItemLabel(source, key);
+        const origin = source.frame;
+        const point = options.point;
+        const lastField = [...this.layoutSections()]
+            .reverse()
+            .find((section) => section.type === 'field' && section.frame)?.frame;
+        const stacked = lastField
+            ? {
+                  page: lastField.page ?? origin?.page ?? 0,
+                  x: lastField.x ?? (origin?.x ?? 32) + Math.min(240, (origin?.width ?? 200) * 0.45),
+                  y: (lastField.y ?? 0) + (lastField.height ?? 56) + 12,
+                  width: 220,
+                  height: 56,
+              }
+            : {
+                  page: origin?.page ?? 0,
+                  x: (origin?.x ?? 32) + Math.min(240, (origin?.width ?? 200) * 0.45),
+                  y: (origin?.y ?? 32) + 28,
+                  width: 220,
+                  height: 56,
+              };
+        const frame: ReportSectionFrame = this._fitFrameOnSheet(
+            point ? { page: point.page, x: point.x, y: point.y, width: 220, height: 56 } : stacked
+        );
+        const topZ = Math.max(0, ...this.layoutSections().map((section) => Number(section.style?.zIndex) || 0));
+        const field: ReportSection = {
+            id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            type: 'field',
+            order: this.layoutSections().length,
+            label,
+            dataPath,
+            showRowLines: override?.showRowLine ?? source.showRowLines,
+            rowLineStyle: override?.rowLineStyle ?? source.rowLineStyle,
+            rowLineColor: override?.rowLineColor ?? source.rowLineColor,
+            rowLineWidth: override?.rowLineWidth ?? source.rowLineWidth,
+            rowLineMark: override?.rowLineMark ?? source.rowLineMark,
+            style: {
+                zIndex: topZ + 1,
+                backgroundColor: override?.backgroundColor ?? source.style?.backgroundColor,
+                borderWidth: override?.borderWidth ?? source.style?.borderWidth,
+                borderColor: override?.borderColor ?? source.style?.borderColor,
+                borderRadius: override?.borderRadius ?? source.style?.borderRadius,
+                fontFamily: source.style?.fontFamily,
+                fontSize: source.style?.fontSize,
+                color: source.style?.color,
+                labelColor: source.style?.labelColor,
+                valueColor: source.style?.valueColor,
+                labelStyle: {
+                    ...(source.style?.labelStyle ?? {}),
+                    ...(override?.labelStyle ?? {}),
+                },
+                valueStyle: {
+                    ...(source.style?.valueStyle ?? {}),
+                    ...(override?.valueStyle ?? {}),
+                },
+            },
+        };
+        field.frame = frame;
+        this.layoutSections.update((list) => {
+            const next = list.map((section) => {
+                if (!options.extract || section.id !== source.id) return section;
+                return { ...section, hiddenKeys: setHiddenParamKey(section.hiddenKeys, key, false) };
+            });
+            return [...next, field].map((section, order) => ({ ...section, order }));
+        });
+        this.selectedLayoutSectionId.set(field.id);
+        this.selectedLayoutCellKey.set(null);
+        this.selectedLayoutCellPart.set('cell');
+        this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
+    }
+
+    private _layoutItemLabel(source: ReportSection, key: string): string {
+        const items = collectLayoutSheetItems(valueAtDataPath(this.previewData(), source.dataPath), {
+            hiddenKeys: [],
+        });
+        return items.find((item) => item.key === key)?.label || humanizeParamKey(key);
     }
 
     copySelectedLayoutSection(): void {
@@ -1327,11 +1481,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                       : 'bloque';
         copy.id = `${prefix}-copia-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         if (copy.frame) {
-            copy.frame = {
+            copy.frame = this._fitFrameOnSheet({
                 ...copy.frame,
                 x: (copy.frame.x ?? 0) + 16,
                 y: (copy.frame.y ?? 0) + 16,
-            };
+            });
         }
         const topZ = Math.max(
             0,
@@ -1559,7 +1713,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _openLayoutContextMenu(
         x: number,
         y: number,
-        target: { sectionId?: string; overlay?: ReportOverlayId }
+        target: { sectionId?: string; overlay?: ReportOverlayId; cellKey?: string }
     ): void {
         this.layoutContextMenu.set({
             x,
@@ -1865,6 +2019,49 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     clearLogo(): void {
         this._state.logoDataUrl.set(null);
+    }
+
+    addPageSheet(afterPage?: number): void {
+        const lastPage = this._layoutPageCount() - 1;
+        const insertAt = afterPage == null ? lastPage + 1 : afterPage + 1;
+        const marker: ReportSection = {
+            id: `hoja-${Date.now()}`,
+            type: 'spacer',
+            order: this.layoutSections().length,
+            label: '',
+            frame: { page: insertAt, x: 0, y: 0, width: 1, height: 1 },
+            style: { padding: '0' },
+        };
+        this.layoutSections.update((list) => [
+            ...list.map((section) =>
+                section.frame && (section.frame.page ?? 0) >= insertAt
+                    ? { ...section, frame: { ...section.frame, page: (section.frame.page ?? 0) + 1 } }
+                    : section
+            ),
+            marker,
+        ]);
+        this._pendingContentPoint = { page: insertAt, x: 32, y: 32 };
+        this.clearLayoutSelection();
+        this.layoutEditorKind.set('page');
+        queueMicrotask(() => {
+            requestAnimationFrame(() => {
+                this._layoutEditorPreview?.pageHost(insertAt)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+            });
+        });
+    }
+
+    insertLayoutPageFromMenu(): void {
+        const page = this._pointFromContextMenu()?.page;
+        this.closeLayoutContextMenu();
+        this.addPageSheet(page);
+    }
+
+    private _layoutPageCount(): number {
+        const fromFrames = this.layoutSections().reduce(
+            (highest, section) => Math.max(highest, (section.frame?.page ?? 0) + 1),
+            1
+        );
+        return Math.max(fromFrames, this._layoutEditorPreview?.visiblePages().length ?? 1);
     }
 
     addTitleBlock(): void {

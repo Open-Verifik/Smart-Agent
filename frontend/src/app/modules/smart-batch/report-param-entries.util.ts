@@ -143,6 +143,14 @@ const formatCodeDescriptionLine = (item: Record<string, unknown>): string => {
     return codeText || descText || '—';
 };
 
+export const joinReportDataPath = (base: string | undefined, key: string): string => {
+    const left = (base || '').replace(/\.+$/, '');
+    const right = (key || '').replace(/^\.+/, '');
+    if (!left) return right;
+    if (!right) return left;
+    return `${left}.${right}`;
+};
+
 export const valueAtDataPath = (root: unknown, dataPath?: string): unknown => {
     if (!dataPath) return root;
     let current: unknown = root;
