@@ -148,11 +148,22 @@ export class VisitaGuidePipelineService {
                     sections: mergedSections.map((section, index) => ({ ...section, order: index })),
                     logo: base?.logo,
                     primaryColor: base?.primaryColor,
+                    identityColor: base?.identityColor,
                     header: base?.header,
                     footer: base?.footer,
+                    legend: base?.legend,
+                    legendPosition: base?.legendPosition,
+                    termsAndConditions: base?.termsAndConditions,
+                    termsPosition: base?.termsPosition,
+                    showPageNumbers: base?.showPageNumbers,
+                    pageNumberPosition: base?.pageNumberPosition,
                     pageSize: base?.pageSize ?? 'A4',
                     orientation: base?.orientation ?? 'portrait',
                     pdfEngine: base?.pdfEngine ?? 'puppeteer',
+                    watermark: base?.watermark,
+                    security: base?.security,
+                    signature: base?.signature,
+                    logoSettings: base?.logoSettings,
                 })
             );
             await firstValueFrom(

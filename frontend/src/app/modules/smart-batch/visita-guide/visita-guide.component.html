@@ -53,19 +53,46 @@
                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
                             {{ t('visitaGuide.progress', { current: stepIndex() + 1, total: stepCount() }) }}
                         </p>
-                        <h1
-                            class="font-semibold tracking-tight text-stone-950 dark:text-white"
-                            [class.mt-1]="!isLayoutStep() && !isEndpointsStep()"
-                            [class.text-2xl]="!isLayoutStep() && !isEndpointsStep()"
-                            [class.md:text-3xl]="!isLayoutStep() && !isEndpointsStep()"
-                            [class.text-xl]="isLayoutStep() || isEndpointsStep()"
-                        >
-                            {{ t(currentTitleKey()) }}
-                        </h1>
-                        @if (!isLayoutStep() && !isEndpointsStep()) {
-                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                                {{ t('visitaGuide.nowHint') }}
-                            </p>
+                        @if (isLayoutStep()) {
+                            <div class="mt-1 flex min-w-0 flex-wrap items-center gap-2">
+                                <h1 class="shrink-0 text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                                    {{ t(currentTitleKey()) }}
+                                </h1>
+                                <label class="flex min-w-0 flex-1 items-center gap-2">
+                                    <span class="sr-only">{{ t('visitaGuide.layoutTemplateName') }}</span>
+                                    <input
+                                        type="text"
+                                        class="h-9 min-w-[12rem] max-w-sm flex-1 rounded-lg border border-stone-200 bg-white px-3 text-sm font-medium text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-stone-500"
+                                        [ngModel]="reportTitle()"
+                                        (ngModelChange)="setLayoutTitle($event)"
+                                        [placeholder]="t('visitaGuide.layoutTemplateNamePlaceholder')"
+                                        [attr.aria-label]="t('visitaGuide.layoutTemplateName')"
+                                    />
+                                    <input
+                                        type="color"
+                                        class="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-stone-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-900"
+                                        [ngModel]="identityColor()"
+                                        (ngModelChange)="setLayoutIdentityColor($event)"
+                                        [matTooltip]="t('visitaGuide.layoutIdentifyColor')"
+                                        [attr.aria-label]="t('visitaGuide.layoutIdentifyColor')"
+                                    />
+                                </label>
+                            </div>
+                        } @else {
+                            <h1
+                                class="font-semibold tracking-tight text-stone-950 dark:text-white"
+                                [class.mt-1]="!isEndpointsStep()"
+                                [class.text-2xl]="!isEndpointsStep()"
+                                [class.md:text-3xl]="!isEndpointsStep()"
+                                [class.text-xl]="isEndpointsStep()"
+                            >
+                                {{ t(currentTitleKey()) }}
+                            </h1>
+                            @if (!isEndpointsStep()) {
+                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('visitaGuide.nowHint') }}
+                                </p>
+                            }
                         }
                     </div>
                     @if (isLayoutStep()) {
@@ -89,6 +116,16 @@
                                 (click)="redoLayout()"
                             >
                                 <mat-icon class="!h-5 !w-5 !text-[20px]">redo</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                [disabled]="!canCopySelectedLayout()"
+                                [matTooltip]="t('visitaGuide.layoutCopyBlock')"
+                                [attr.aria-label]="t('visitaGuide.layoutCopyBlock')"
+                                (click)="copySelectedLayoutSection()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">content_copy</mat-icon>
                             </button>
                             <button
                                 type="button"
@@ -944,6 +981,22 @@
                                 @if (!card.hasData && !card.error && !card.skipMessage) {
                                     <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.resultStatusEmpty') }}</p>
                                 }
+                                @if (canRetryResult(card)) {
+                                    <button
+                                        type="button"
+                                        class="mt-3 inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-stone-200 px-3 text-xs font-medium text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                        [disabled]="isRetryingResult(card.sequence)"
+                                        (click)="retryResultCard(card)"
+                                    >
+                                        @if (isRetryingResult(card.sequence)) {
+                                            <mat-spinner diameter="14"></mat-spinner>
+                                            {{ t('visitaGuide.retryingEndpoint') }}
+                                        } @else {
+                                            <mat-icon class="!h-4 !w-4 !text-base">refresh</mat-icon>
+                                            {{ t('visitaGuide.retryEndpoint') }}
+                                        }
+                                    </button>
+                                }
                                 @for (field of card.fields; track field.label) {
                                     <div class="mt-2 flex justify-between gap-4 text-sm">
                                         <span class="text-stone-500">{{ field.label }}</span>
@@ -1058,7 +1111,10 @@
                                     [class.border-stone-200]="!isTemplateSelected(template)"
                                     (click)="pickSystemTemplate(template)"
                                 >
-                                    <mat-icon>verified</mat-icon>
+                                    <span
+                                        class="mt-0.5 h-8 w-8 shrink-0 rounded-xl border border-black/5"
+                                        [style.background]="template.identityColor || '#000000'"
+                                    ></span>
                                     <div class="min-w-0">
                                         <span class="block text-sm font-semibold">{{ template.name }}</span>
                                         <span class="mt-1 block text-xs text-stone-500">{{
@@ -1110,7 +1166,11 @@
                                     [class.border-stone-200]="!isTemplateSelected(template)"
                                     (click)="pickMyTemplate(template)"
                                 >
-                                    <mat-icon>folder</mat-icon>
+                                    <span
+                                        class="mt-0.5 h-8 w-8 shrink-0 rounded-xl border border-black/5"
+                                        [style.background]="template.identityColor || '#000000'"
+                                        [matTooltip]="t('visitaGuide.layoutIdentifyColor')"
+                                    ></span>
                                     <div class="min-w-0">
                                         <span class="block truncate text-sm font-semibold">{{ template.name }}</span>
                                         <span class="mt-1 block text-xs text-stone-500">{{
@@ -1175,9 +1235,20 @@
                                 [previewData]="previewData()"
                                 [primaryColor]="primaryColor()"
                                 [pageBackgroundColor]="pageBackgroundColor()"
+                                [orientation]="orientation()"
                                 [logoUrl]="logoDataUrl()"
                                 [legend]="legend()"
+                                [legendPosition]="legendPosition()"
+                                [termsAndConditions]="termsAndConditions()"
+                                [termsPosition]="termsPosition()"
                                 [showPageNumbers]="showPageNumbers()"
+                                [pageNumberPosition]="pageNumberPosition()"
+                                [signatureEnabled]="signatureEnabled()"
+                                [signatureImage]="signatureImage()"
+                                [signatureX]="signatureX()"
+                                [signatureY]="signatureY()"
+                                [signatureWidth]="signatureWidth()"
+                                [signatureHeight]="signatureHeight()"
                                 [watermarkEnabled]="watermarkEnabled()"
                                 [watermarkType]="watermarkType()"
                                 [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
@@ -1228,7 +1299,7 @@
                                         [class.border-emerald-300]="card.status === 'ok'"
                                         [class.border-red-300]="card.status === 'failed'"
                                         [class.border-stone-200]="card.status === 'empty' || card.status === 'skipped'"
-                                        [class.opacity-50]="isCardOnLayout(card.sequence)"
+                                        [class.opacity-80]="isCardOnLayout(card.sequence)"
                                     >
                                         <div class="flex items-start justify-between gap-2">
                                             <span class="text-sm font-semibold text-stone-950 dark:text-white">{{
@@ -1239,7 +1310,7 @@
                                             }}</span>
                                         </div>
                                         @if (isCardOnLayout(card.sequence)) {
-                                            <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutOnCanvas') }}</p>
+                                            <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutAddAnother') }}</p>
                                         } @else {
                                             <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutDragHint') }}</p>
                                         }
@@ -1258,32 +1329,32 @@
                             <div class="mb-2 flex flex-wrap items-center gap-1">
                                 <button
                                     type="button"
-                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    class="inline-flex items-center gap-1 rounded-full border border-cyan-300 bg-cyan-50 px-2.5 py-1 text-[11px] font-medium text-cyan-800 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-300"
                                     (click)="addTitleBlock()"
                                 >
-                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">title</mat-icon>
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-cyan-700 dark:text-cyan-300">title</mat-icon>
                                     {{ t('visitaGuide.layoutAddTitle') }}
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    class="inline-flex items-center gap-1 rounded-full border border-lime-300 bg-lime-50 px-2.5 py-1 text-[11px] font-medium text-lime-800 dark:border-lime-800 dark:bg-lime-950/40 dark:text-lime-300"
                                     (click)="addTextBlock()"
                                 >
-                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">notes</mat-icon>
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-lime-700 dark:text-lime-300">notes</mat-icon>
                                     {{ t('visitaGuide.layoutAddText') }}
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                    class="inline-flex items-center gap-1 rounded-full border border-rose-300 bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
                                     (click)="addDividerBlock()"
                                 >
-                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-stone-500">horizontal_rule</mat-icon>
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px] text-rose-700 dark:text-rose-300">horizontal_rule</mat-icon>
                                     {{ t('visitaGuide.layoutAddDivider') }}
                                 </button>
                                 @for (tool of layoutShapeTools; track tool.kind) {
                                     <button
                                         type="button"
-                                        class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                        class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300"
                                         [matTooltip]="t(tool.labelKey)"
                                         (click)="addShapeBlock(tool.kind)"
                                     >
@@ -1294,7 +1365,7 @@
                             <div
                                 cdkDropList
                                 id="visita-layout-canvas"
-                                [cdkDropListConnectedTo]="['visita-layout-data', 'visita-layout-layers']"
+                                [cdkDropListConnectedTo]="['visita-layout-data']"
                                 [cdkDropListSortingDisabled]="true"
                                 (cdkDropListDropped)="onLayoutCanvasDrop($event)"
                                 (click)="onLayoutBlankClick($event)"
@@ -1313,9 +1384,14 @@
                                         [previewData]="previewData()"
                                         [primaryColor]="primaryColor()"
                                         [pageBackgroundColor]="pageBackgroundColor()"
+                                        [orientation]="orientation()"
                                         [logoUrl]="logoDataUrl()"
                                         [legend]="legend()"
+                                        [legendPosition]="legendPosition()"
+                                        [termsAndConditions]="termsAndConditions()"
+                                        [termsPosition]="termsPosition()"
                                         [showPageNumbers]="showPageNumbers()"
+                                        [pageNumberPosition]="pageNumberPosition()"
                                         [watermarkEnabled]="watermarkEnabled()"
                                         [watermarkType]="watermarkType()"
                                         [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
@@ -1326,6 +1402,12 @@
                                         [watermarkWidth]="watermarkWidth()"
                                         [watermarkHeight]="watermarkHeight()"
                                         [watermarkRotation]="watermarkRotation()"
+                                        [signatureEnabled]="signatureEnabled()"
+                                        [signatureImage]="signatureImage()"
+                                        [signatureX]="signatureX()"
+                                        [signatureY]="signatureY()"
+                                        [signatureWidth]="signatureWidth()"
+                                        [signatureHeight]="signatureHeight()"
                                         [logoEnabled]="!!logoDataUrl()"
                                         [logoX]="logoX()"
                                         [logoY]="logoY()"
@@ -1348,7 +1430,6 @@
                                         (sectionContextMenu)="onLayoutSectionContextMenu($event)"
                                         (overlayContextMenu)="onLayoutOverlayContextMenu($event)"
                                         (paperContextMenu)="onLayoutPaperContextMenu($event)"
-                                        (sectionReorder)="onLayoutSectionReorder($event)"
                                         (sectionFramesChange)="onLayoutSectionFrames($event)"
                                         (sectionFrameChange)="onLayoutSectionFrame($event)"
                                         (sectionRotationChange)="onLayoutSectionRotation($event)"
@@ -1360,6 +1441,8 @@
                                         (watermarkPositionChange)="onLayoutWatermarkPositionChange($event)"
                                         (watermarkSizeChange)="onLayoutWatermarkSizeChange($event)"
                                         (watermarkRotationChange)="onLayoutWatermarkRotationChange($event)"
+                                        (signaturePositionChange)="onLayoutSignaturePositionChange($event)"
+                                        (signatureSizeChange)="onLayoutSignatureSizeChange($event)"
                                     ></report-preview>
                                 }
                             </div>
@@ -1400,22 +1483,7 @@
                                 </div>
                                 <div #layoutEditorScroll class="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
                                 @if (layoutEditorKind() === 'page') {
-                                <section data-layout-control="page" class="rounded-2xl border border-sky-300 bg-sky-50 p-3 dark:border-sky-800 dark:bg-sky-950/40">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-800 dark:text-sky-300">
-                                        {{ t('visitaGuide.layoutPanelReport') }}
-                                    </p>
-                                    <label class="mt-2 block text-xs font-medium text-stone-600 dark:text-stone-300">{{
-                                        t('visitaGuide.fieldTitle')
-                                    }}</label>
-                                    <input
-                                        type="text"
-                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                        [ngModel]="reportTitle()"
-                                        (ngModelChange)="setLayoutTitle($event)"
-                                    />
-                                </section>
-
-                                <section class="rounded-2xl border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/40">
+                                <section data-layout-control="page" class="rounded-2xl border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/40">
                                     <p class="text-[11px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
                                         {{ t('visitaGuide.layoutPanelPage') }}
                                     </p>
@@ -1441,6 +1509,147 @@
                                             [ariaLabel]="t('visitaGuide.layoutAccentColor')"
                                         />
                                     </div>
+                                    <label class="mt-3 block text-xs text-stone-600 dark:text-stone-300">{{
+                                        t('smartReport.pageSize')
+                                    }}</label>
+                                    <select
+                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [ngModel]="pageSize()"
+                                        (ngModelChange)="setPageSize($event)"
+                                    >
+                                        <option value="A4">A4</option>
+                                        <option value="Letter">Letter</option>
+                                        <option value="Legal">Legal</option>
+                                    </select>
+                                    <label class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                        t('smartReport.orientation')
+                                    }}</label>
+                                    <div class="mt-1 flex gap-1">
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                            [class.border-stone-950]="orientation() === 'portrait'"
+                                            [class.bg-white]="orientation() === 'portrait'"
+                                            [class.border-stone-200]="orientation() !== 'portrait'"
+                                            (click)="setOrientation('portrait')"
+                                        >
+                                            {{ t('smartReport.portrait') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                            [class.border-stone-950]="orientation() === 'landscape'"
+                                            [class.bg-white]="orientation() === 'landscape'"
+                                            [class.border-stone-200]="orientation() !== 'landscape'"
+                                            (click)="setOrientation('landscape')"
+                                        >
+                                            {{ t('smartReport.landscape') }}
+                                        </button>
+                                    </div>
+                                    <label class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                        t('smartReport.pdfEngine')
+                                    }}</label>
+                                    <select
+                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        [ngModel]="pdfEngine()"
+                                        (ngModelChange)="setPdfEngine($event)"
+                                    >
+                                        <option value="puppeteer">{{ t('smartReport.pdfEngineHtml') }}</option>
+                                        <option value="pdfkit">{{ t('smartReport.pdfEngineClassic') }}</option>
+                                    </select>
+                                    <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                        <input
+                                            type="checkbox"
+                                            [ngModel]="securityEnabled()"
+                                            (ngModelChange)="setSecurityEnabled($event)"
+                                        />
+                                        {{ t('smartReport.securityTitle') }}
+                                    </label>
+                                    @if (securityEnabled()) {
+                                        <div class="relative mt-1">
+                                            <input
+                                                [type]="showPdfPassword() ? 'text' : 'password'"
+                                                class="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 pr-10 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                [placeholder]="t('smartReport.securityPasswordPlaceholder')"
+                                                [ngModel]="securityPassword()"
+                                                (ngModelChange)="setSecurityPassword($event)"
+                                            />
+                                            <button
+                                                type="button"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                                                (click)="showPdfPassword.set(!showPdfPassword())"
+                                            >
+                                                <mat-icon class="!h-4 !w-4 !text-base">{{
+                                                    showPdfPassword() ? 'visibility_off' : 'visibility'
+                                                }}</mat-icon>
+                                            </button>
+                                        </div>
+                                        <p class="mt-1 text-[11px] text-stone-500">
+                                            {{ t('smartReport.securityPasswordHint') }}
+                                        </p>
+                                    }
+                                    <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                        <input
+                                            type="checkbox"
+                                            [ngModel]="signatureEnabled()"
+                                            (ngModelChange)="setSignatureEnabled($event)"
+                                        />
+                                        {{ t('smartReport.signature') }}
+                                    </label>
+                                    @if (signatureEnabled()) {
+                                        @if (signatureImage()) {
+                                            <div class="relative mt-2 flex justify-center rounded-lg border border-stone-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900/70">
+                                                <img [src]="signatureImage()" alt="" class="h-16 object-contain" />
+                                                <button
+                                                    type="button"
+                                                    class="absolute right-1 top-1 rounded-full bg-red-50 p-1 text-red-500"
+                                                    (click)="clearSignature()"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                                                </button>
+                                            </div>
+                                            <p class="mt-1 text-[11px] text-stone-500">
+                                                {{ t('smartReport.dragSignatureToPosition') }}
+                                            </p>
+                                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                                <label class="block">
+                                                    <span class="text-[10px] text-stone-400">
+                                                        {{ t('smartReport.width') }} (px)
+                                                    </span>
+                                                    <input
+                                                        type="number"
+                                                        min="24"
+                                                        max="800"
+                                                        class="w-full rounded-md border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                        [ngModel]="signatureWidth()"
+                                                        (ngModelChange)="setSignatureWidth($event)"
+                                                    />
+                                                </label>
+                                                <label class="block">
+                                                    <span class="text-[10px] text-stone-400">
+                                                        {{ t('smartReport.height') }} (px)
+                                                    </span>
+                                                    <input
+                                                        type="number"
+                                                        min="16"
+                                                        max="600"
+                                                        class="w-full rounded-md border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                        [ngModel]="signatureHeight()"
+                                                        (ngModelChange)="setSignatureHeight($event)"
+                                                    />
+                                                </label>
+                                            </div>
+                                        } @else {
+                                            <button
+                                                type="button"
+                                                class="mt-2 inline-flex w-full items-center justify-center gap-1 rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium text-stone-800 dark:border-gray-600 dark:text-stone-100"
+                                                (click)="openSignatureDialog()"
+                                            >
+                                                <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
+                                                {{ t('smartReport.drawSignature') }}
+                                            </button>
+                                        }
+                                    }
                                 </section>
                                 }
 
@@ -1607,17 +1816,58 @@
                                     />
                                 }
 
+                                <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                    {{ t('visitaGuide.layoutFooter') }}
+                                </p>
                                 <label class="text-xs font-medium text-stone-600 dark:text-stone-300">{{
-                                    t('visitaGuide.layoutFooter')
+                                    t('visitaGuide.layoutCompanyName')
                                 }}</label>
-                                <input
-                                    type="text"
+                                <textarea
+                                    rows="2"
                                     class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                    [placeholder]="t('visitaGuide.layoutFooterPlaceholder')"
+                                    [placeholder]="t('visitaGuide.layoutCompanyPlaceholder')"
                                     [ngModel]="legend()"
                                     (ngModelChange)="setLegend($event)"
-                                />
-                                <label class="flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                ></textarea>
+                                <div class="flex gap-1">
+                                    @for (align of footerAligns; track align) {
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                            [class.border-stone-950]="legendPosition() === align"
+                                            [class.bg-white]="legendPosition() === align"
+                                            [class.border-stone-200]="legendPosition() !== align"
+                                            (click)="setLegendPosition(align)"
+                                        >
+                                            {{ t(footerAlignKey(align)) }}
+                                        </button>
+                                    }
+                                </div>
+                                <label class="mt-2 text-xs font-medium text-stone-600 dark:text-stone-300">{{
+                                    t('visitaGuide.layoutTerms')
+                                }}</label>
+                                <textarea
+                                    rows="3"
+                                    class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                    [placeholder]="t('visitaGuide.layoutTermsPlaceholder')"
+                                    [ngModel]="termsAndConditions()"
+                                    (ngModelChange)="setTermsAndConditions($event)"
+                                ></textarea>
+                                <div class="flex gap-1">
+                                    @for (align of footerAligns; track align) {
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                            [class.border-stone-950]="termsPosition() === align"
+                                            [class.bg-white]="termsPosition() === align"
+                                            [class.border-stone-200]="termsPosition() !== align"
+                                            (click)="setTermsPosition(align)"
+                                        >
+                                            {{ t(footerAlignKey(align)) }}
+                                        </button>
+                                    }
+                                </div>
+                                <label class="mt-2 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
                                     <input
                                         type="checkbox"
                                         [ngModel]="showPageNumbers()"
@@ -1625,6 +1875,44 @@
                                     />
                                     {{ t('visitaGuide.layoutPageNumbers') }}
                                 </label>
+                                @if (showPageNumbers()) {
+                                    <div class="flex gap-1">
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                            [class.border-stone-950]="pageNumberBand() === 'bottom'"
+                                            [class.bg-white]="pageNumberBand() === 'bottom'"
+                                            [class.border-stone-200]="pageNumberBand() !== 'bottom'"
+                                            (click)="setPageNumberBand('bottom')"
+                                        >
+                                            {{ t('visitaGuide.layoutPageNumberBottom') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                            [class.border-stone-950]="pageNumberBand() === 'top'"
+                                            [class.bg-white]="pageNumberBand() === 'top'"
+                                            [class.border-stone-200]="pageNumberBand() !== 'top'"
+                                            (click)="setPageNumberBand('top')"
+                                        >
+                                            {{ t('visitaGuide.layoutPageNumberTop') }}
+                                        </button>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        @for (align of footerAligns; track align) {
+                                            <button
+                                                type="button"
+                                                class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                                [class.border-stone-950]="pageNumberAlign() === align"
+                                                [class.bg-white]="pageNumberAlign() === align"
+                                                [class.border-stone-200]="pageNumberAlign() !== align"
+                                                (click)="setPageNumberAlign(align)"
+                                            >
+                                                {{ t(footerAlignKey(align)) }}
+                                            </button>
+                                        }
+                                    </div>
+                                }
                                 </section>
                                 }
 
@@ -2223,22 +2511,13 @@
                                                 {{ t('visitaGuide.layoutApplyStyleToAllHint') }}
                                             </p>
                                         }
-                                        <div class="mt-3 flex gap-2">
-                                            <button
-                                                type="button"
-                                                class="rounded-lg border border-stone-200 px-2 py-1 text-xs"
-                                                (click)="moveSelectedLayout(-1)"
-                                            >
-                                                {{ t('visitaGuide.layoutMoveUp') }}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="rounded-lg border border-stone-200 px-2 py-1 text-xs"
-                                                (click)="moveSelectedLayout(1)"
-                                            >
-                                                {{ t('visitaGuide.layoutMoveDown') }}
-                                            </button>
-                                        </div>
+                                        <button
+                                            type="button"
+                                            class="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                            (click)="copySelectedLayoutSection()"
+                                        >
+                                            {{ t('visitaGuide.layoutCopyBlock') }}
+                                        </button>
                                         <button
                                             type="button"
                                             class="mt-2 text-xs font-medium text-red-600"
@@ -2254,17 +2533,10 @@
                                 <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300">
                                     {{ t('visitaGuide.layoutLayers') }}
                                 </p>
-                                <div
-                                    cdkDropList
-                                    id="visita-layout-layers"
-                                    [cdkDropListData]="layoutSections()"
-                                    (cdkDropListDropped)="onLayoutReorder($event)"
-                                    class="mt-2 flex flex-col gap-1"
-                                >
+                                <div class="mt-2 flex flex-col gap-1">
                                     @for (section of layoutSections(); track section.id) {
                                         <button
                                             type="button"
-                                            cdkDrag
                                             class="rounded-lg border bg-white px-3 py-2 text-left text-xs dark:bg-gray-900"
                                             [class.border-indigo-500]="selectedLayoutSectionId() === section.id"
                                             [class.bg-indigo-100]="selectedLayoutSectionId() === section.id"
@@ -2310,16 +2582,32 @@
                     }
                     @case ('generate') {
                         @if (previewTemplate(); as template) {
-                            <div class="pointer-events-none fixed top-0 left-[-120vw] w-[210mm]" aria-hidden="true">
+                            <div
+                                class="pointer-events-none fixed top-0 left-[-120vw]"
+                                [class.w-[210mm]]="orientation() !== 'landscape'"
+                                [class.w-[297mm]]="orientation() === 'landscape'"
+                                aria-hidden="true"
+                            >
                                 <report-preview
                                     [printCapture]="true"
                                     [template]="template"
                                     [previewData]="previewData()"
                                     [primaryColor]="primaryColor()"
                                     [pageBackgroundColor]="pageBackgroundColor()"
+                                    [orientation]="orientation()"
                                     [logoUrl]="logoDataUrl()"
                                     [legend]="legend()"
+                                    [legendPosition]="legendPosition()"
+                                    [termsAndConditions]="termsAndConditions()"
+                                    [termsPosition]="termsPosition()"
                                     [showPageNumbers]="showPageNumbers()"
+                                    [pageNumberPosition]="pageNumberPosition()"
+                                    [signatureEnabled]="signatureEnabled()"
+                                    [signatureImage]="signatureImage()"
+                                    [signatureX]="signatureX()"
+                                    [signatureY]="signatureY()"
+                                    [signatureWidth]="signatureWidth()"
+                                    [signatureHeight]="signatureHeight()"
                                     [watermarkEnabled]="watermarkEnabled()"
                                     [watermarkType]="watermarkType()"
                                     [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
@@ -2344,15 +2632,30 @@
                         <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
                             <div class="min-w-0 flex-1 overflow-x-auto">
                                 @if (previewTemplate(); as template) {
-                                    <div class="w-[210mm] max-w-none">
+                                    <div
+                                        class="max-w-none"
+                                        [class.w-[210mm]]="orientation() !== 'landscape'"
+                                        [class.w-[297mm]]="orientation() === 'landscape'"
+                                    >
                                     <report-preview
                                         [template]="template"
                                         [previewData]="previewData()"
                                         [primaryColor]="primaryColor()"
                                         [pageBackgroundColor]="pageBackgroundColor()"
+                                        [orientation]="orientation()"
                                         [logoUrl]="logoDataUrl()"
                                         [legend]="legend()"
+                                        [legendPosition]="legendPosition()"
+                                        [termsAndConditions]="termsAndConditions()"
+                                        [termsPosition]="termsPosition()"
                                         [showPageNumbers]="showPageNumbers()"
+                                        [pageNumberPosition]="pageNumberPosition()"
+                                        [signatureEnabled]="signatureEnabled()"
+                                        [signatureImage]="signatureImage()"
+                                        [signatureX]="signatureX()"
+                                        [signatureY]="signatureY()"
+                                        [signatureWidth]="signatureWidth()"
+                                        [signatureHeight]="signatureHeight()"
                                         [watermarkEnabled]="watermarkEnabled()"
                                         [watermarkType]="watermarkType()"
                                         [watermarkText]="watermarkText() || reportTitle() || 'CONFIDENTIAL'"
@@ -2449,7 +2752,7 @@
                 class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutTitleFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">title</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-cyan-700">title</mat-icon>
                 {{ t('visitaGuide.layoutAddTitle') }}
             </button>
             <button
@@ -2457,7 +2760,7 @@
                 class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutTextFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">notes</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-lime-700">notes</mat-icon>
                 {{ t('visitaGuide.layoutAddText') }}
             </button>
             <button
@@ -2465,7 +2768,7 @@
                 class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutDividerFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">horizontal_rule</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-rose-700">horizontal_rule</mat-icon>
                 {{ t('visitaGuide.layoutAddDivider') }}
             </button>
             @for (tool of layoutShapeTools; track tool.kind) {
@@ -2474,7 +2777,7 @@
                     class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                     (click)="insertLayoutShapeFromMenu(tool.kind); $event.stopPropagation()"
                 >
-                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">{{ tool.icon }}</mat-icon>
+                    <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">{{ tool.icon }}</mat-icon>
                     {{ t(tool.labelKey) }}
                 </button>
             }

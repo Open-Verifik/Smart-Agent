@@ -90,8 +90,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Logo URL or base64 */
     logoUrl = input<string | null>(null);
-    /** Footer legend text */
+    /** Footer company / legend text */
     legend = input<string>('');
+    legendPosition = input<'left' | 'center' | 'right'>('left');
+    termsAndConditions = input<string>('');
+    termsPosition = input<'left' | 'center' | 'right'>('left');
     /** Show page numbers */
     showPageNumbers = input<boolean>(false);
     /** Page number position */
@@ -206,6 +209,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         active: boolean;
     } | null = null;
     private _sectionDragMoved = false;
+    private _pinnedIdsThisDrag = new Set<string>();
     private _sectionDragRaf: number | null = null;
     readonly draggingSectionId = signal<string | null>(null);
     readonly liveRotations = signal<Record<string, number>>({});
@@ -246,6 +250,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this.template().sections;
             this.previewData();
             this.legend();
+            this.legendPosition();
+            this.termsAndConditions();
+            this.termsPosition();
             this.orientation();
             this.bodyTopPadding();
             this.logoEnabled();
@@ -421,8 +428,22 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.pages.set(newPages);
     }
 
+    hasBottomChrome(): boolean {
+        return (
+            Boolean(this.legend()) ||
+            Boolean(this.termsAndConditions()) ||
+            (this.showPageNumbers() && this.pageNumberPosition().startsWith('bottom'))
+        );
+    }
+
+    footerAlign(position: string): 'left' | 'center' | 'right' {
+        if (position.includes('right') || position === 'right') return 'right';
+        if (position.includes('center') || position === 'center') return 'center';
+        return 'left';
+    }
+
     private _hasBottomChrome(): boolean {
-        return Boolean(this.legend()) || (this.showPageNumbers() && this.pageNumberPosition().startsWith('bottom'));
+        return this.hasBottomChrome();
     }
 
     private _getLegendHeight(): number {
@@ -949,9 +970,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (wasActive) {
             this._applySectionDrag(drag, event.clientX, event.clientY);
         }
-        const updates = Object.entries(this.liveFrames()).map(([id, frame]) => ({ id, frame }));
+        const live = this.liveFrames();
+        const changedIds = new Set<string>([drag.id, ...this._pinnedIdsThisDrag]);
+        const updates = [...changedIds]
+            .map((id) => {
+                const frame = live[id];
+                return frame ? { id, frame } : null;
+            })
+            .filter((item): item is { id: string; frame: ReportSectionFrame } => Boolean(item));
         this._stopSectionDragListeners();
         this._sectionDrag = null;
+        this._pinnedIdsThisDrag.clear();
         this.draggingSectionId.set(null);
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
@@ -959,7 +988,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this.liveFrames.set({});
             return;
         }
-        this.sectionFramesChange.emit(this._framesForEmit(updates));
+        this.sectionFramesChange.emit(updates);
         this.liveFrames.set({});
     }
 
@@ -1026,10 +1055,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             marginBottom: '0px',
             zIndex:
                 this.draggingSectionId() === section.id
-                    ? '40'
-                    : this.selectedSectionId() === section.id
-                      ? '25'
-                      : '1',
+                    ? '1000'
+                    : String(
+                          Math.max(
+                              Number(section.style?.zIndex) || 1,
+                              this.selectedSectionId() === section.id ? 25 : 1
+                          )
+                      ),
         };
         if (height) style['height'] = `${height}px`;
         if (section.type === 'shape') style['overflow'] = 'visible';
@@ -1073,10 +1105,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
         const clampInner = toInner ?? fromInner;
         if (clampInner) {
-            const maxX = Math.max(0, clampInner.clientWidth * scales.x - width);
-            const maxY = Math.max(0, clampInner.clientHeight * scales.y - Math.min(height, 24));
-            x = Math.min(Math.max(0, x), maxX);
-            y = Math.min(Math.max(0, y), maxY);
+            const innerW = clampInner.clientWidth * scales.x;
+            const innerH = clampInner.clientHeight * scales.y;
+            const keep = 48;
+            x = Math.min(Math.max(keep - width, x), Math.max(0, innerW - keep));
+            y = Math.min(Math.max(keep - height, y), Math.max(0, innerH - keep));
         }
         const next: ReportSectionFrame = {
             ...drag.startFrame,
@@ -1246,7 +1279,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this._autoPinAttempts = 0;
-        this.sectionFramesChange.emit(this._framesForEmit(updates));
+        this.sectionFramesChange.emit(updates);
     }
 
     /**
@@ -1266,6 +1299,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         for (const item of pinned) {
             if (!merged[item.id]) {
                 merged[item.id] = item.frame;
+                this._pinnedIdsThisDrag.add(item.id);
             }
         }
         const start = merged[dragId] ?? pinned.find((item) => item.id === dragId)?.frame ?? null;
@@ -1290,6 +1324,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
         this._sectionDrag = null;
+        this._pinnedIdsThisDrag.clear();
         this.draggingSectionId.set(null);
         this.liveFrames.set({});
     }

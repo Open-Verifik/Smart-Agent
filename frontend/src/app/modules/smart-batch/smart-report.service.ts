@@ -173,6 +173,8 @@ export interface ReportSection {
         borderColor?: string;
         borderRadius?: number;
         rotation?: number;
+        /** Paint order on the sheet; higher stays on top when blocks overlap. */
+        zIndex?: number;
         variant?: ReportStyleVariant;
         /** Data-driven appearance, first matching rule wins. */
         variantRules?: (ReportSectionCondition & { variant: ReportStyleVariant })[];
@@ -205,10 +207,15 @@ export interface SmartReportTemplate {
     // Branding
     logo?: string;
     primaryColor?: string;
+    /** Library swatch only. Does not change report design. Default black. */
+    identityColor?: string;
     pageBackgroundColor?: string;
     header?: ReportSection;
     footer?: ReportSection;
     legend?: string;
+    legendPosition?: 'left' | 'center' | 'right';
+    termsAndConditions?: string;
+    termsPosition?: 'left' | 'center' | 'right';
 
     // Report sections
     sections: ReportSection[];

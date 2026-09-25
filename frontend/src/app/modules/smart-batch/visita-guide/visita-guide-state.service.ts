@@ -44,6 +44,7 @@ export class VisitaGuideStateService {
 
     reportTitle = signal('');
     primaryColor = signal('#0f172a');
+    identityColor = signal('#000000');
     pageBackgroundColor = signal('#ffffff');
     logoDataUrl = signal<string | null>(null);
     logoX = signal(32);
@@ -53,6 +54,9 @@ export class VisitaGuideStateService {
     logoRotation = signal(0);
     sheetImages = signal<ReportSheetImage[]>([]);
     legend = signal('');
+    legendPosition = signal<'left' | 'center' | 'right'>('left');
+    termsAndConditions = signal('');
+    termsPosition = signal<'left' | 'center' | 'right'>('left');
     watermarkEnabled = signal(false);
     watermarkType = signal<'text' | 'logo'>('text');
     watermarkText = signal('');
@@ -64,6 +68,20 @@ export class VisitaGuideStateService {
     watermarkHeight = signal(160);
     watermarkRotation = signal(-15);
     showPageNumbers = signal(true);
+    pageNumberPosition = signal<
+        'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+    >('bottom-center');
+    pageSize = signal<'A4' | 'Letter' | 'Legal'>('A4');
+    orientation = signal<'portrait' | 'landscape'>('portrait');
+    pdfEngine = signal<'puppeteer' | 'pdfkit'>('puppeteer');
+    securityEnabled = signal(false);
+    securityPassword = signal('');
+    signatureEnabled = signal(false);
+    signatureImage = signal<string | null>(null);
+    signatureX = signal(48);
+    signatureY = signal(720);
+    signatureWidth = signal(160);
+    signatureHeight = signal(64);
 
     consultError = signal<string | null>(null);
     pdfDataUrl = signal<string | null>(null);
@@ -155,6 +173,7 @@ export class VisitaGuideStateService {
         this.layoutSections.set([]);
         this.reportTitle.set('');
         this.primaryColor.set('#0f172a');
+        this.identityColor.set('#000000');
         this.pageBackgroundColor.set('#ffffff');
         this.logoDataUrl.set(null);
         this.logoX.set(32);
@@ -164,6 +183,9 @@ export class VisitaGuideStateService {
         this.logoRotation.set(0);
         this.sheetImages.set([]);
         this.legend.set('');
+        this.legendPosition.set('left');
+        this.termsAndConditions.set('');
+        this.termsPosition.set('left');
         this.watermarkEnabled.set(false);
         this.watermarkType.set('text');
         this.watermarkText.set('');
@@ -175,6 +197,18 @@ export class VisitaGuideStateService {
         this.watermarkHeight.set(160);
         this.watermarkRotation.set(-15);
         this.showPageNumbers.set(true);
+        this.pageNumberPosition.set('bottom-center');
+        this.pageSize.set('A4');
+        this.orientation.set('portrait');
+        this.pdfEngine.set('puppeteer');
+        this.securityEnabled.set(false);
+        this.securityPassword.set('');
+        this.signatureEnabled.set(false);
+        this.signatureImage.set(null);
+        this.signatureX.set(48);
+        this.signatureY.set(720);
+        this.signatureWidth.set(160);
+        this.signatureHeight.set(64);
         this.consultError.set(null);
         this.pdfDataUrl.set(null);
         this.step.set('intent');

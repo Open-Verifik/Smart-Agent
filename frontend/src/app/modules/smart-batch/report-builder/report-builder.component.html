@@ -414,7 +414,7 @@
                         <!-- Footer Legend -->
                         <div class="border-t border-stone-100 pt-3 dark:border-gray-800">
                             <label class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">{{
-                                'smartReport.footerLegend' | transloco
+                                'smartReport.footerCompany' | transloco
                             }}</label>
                             <textarea
                                 formControlName="legend"
@@ -422,6 +422,31 @@
                                 rows="2"
                                 [placeholder]="'smartReport.footerLegendPlaceholder' | transloco"
                             ></textarea>
+                            <label class="mb-1 mt-2 block text-[10px] text-stone-400">{{
+                                'smartReport.footerAlign' | transloco
+                            }}</label>
+                            <mat-select formControlName="legendPosition">
+                                <mat-option value="left">{{ 'smartReport.alignLeft' | transloco }}</mat-option>
+                                <mat-option value="center">{{ 'smartReport.alignCenter' | transloco }}</mat-option>
+                                <mat-option value="right">{{ 'smartReport.alignRight' | transloco }}</mat-option>
+                            </mat-select>
+                            <label class="mb-1 mt-3 block text-xs font-medium text-stone-500 dark:text-stone-400">{{
+                                'smartReport.termsAndConditions' | transloco
+                            }}</label>
+                            <textarea
+                                formControlName="termsAndConditions"
+                                class="w-full resize-none rounded-lg border border-stone-200 px-3 py-2 text-xs text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
+                                rows="3"
+                                [placeholder]="'smartReport.termsPlaceholder' | transloco"
+                            ></textarea>
+                            <label class="mb-1 mt-2 block text-[10px] text-stone-400">{{
+                                'smartReport.footerAlign' | transloco
+                            }}</label>
+                            <mat-select formControlName="termsPosition">
+                                <mat-option value="left">{{ 'smartReport.alignLeft' | transloco }}</mat-option>
+                                <mat-option value="center">{{ 'smartReport.alignCenter' | transloco }}</mat-option>
+                                <mat-option value="right">{{ 'smartReport.alignRight' | transloco }}</mat-option>
+                            </mat-select>
                         </div>
 
                         <!-- Pagination -->
@@ -2507,6 +2532,9 @@
                         (backgroundClick)="clearPreviewSelection()"
                         [logoUrl]="logoUrl()"
                         [legend]="templateForm.get('legend')?.value || ''"
+                        [legendPosition]="templateForm.get('legendPosition')?.value || 'left'"
+                        [termsAndConditions]="templateForm.get('termsAndConditions')?.value || ''"
+                        [termsPosition]="templateForm.get('termsPosition')?.value || 'left'"
                         [showPageNumbers]="templateForm.get('showPageNumbers')?.value || false"
                         [pageNumberPosition]="
                             templateForm.get('pageNumberPosition')?.value || 'bottom-center'

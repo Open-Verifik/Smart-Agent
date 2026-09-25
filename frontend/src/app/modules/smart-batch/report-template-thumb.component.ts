@@ -14,6 +14,7 @@ const MM_TO_PX = 3.7795275591;
         <div
             class="report-template-thumb relative flex h-36 items-center justify-center overflow-hidden rounded-xl border border-stone-200 bg-stone-100 dark:border-gray-800 dark:bg-gray-950"
             [class.report-template-thumb--landscape]="isLandscape()"
+            [style.box-shadow]="'inset 0 6px 0 0 ' + (template().identityColor || '#000000')"
         >
             @if (template().sections?.length) {
                 <div #frame class="report-template-thumb__frame">

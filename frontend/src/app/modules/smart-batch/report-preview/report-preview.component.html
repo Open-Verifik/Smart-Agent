@@ -293,7 +293,7 @@
                               : 'center'
                     "
                 >
-                    Page {{ pageIndex + 1 }} of {{ count }}
+                    {{ 'smartReport.pageOf' | transloco: { current: pageIndex + 1, total: count } }}
                 </div>
             }
 
@@ -402,7 +402,7 @@
                 <!-- Footer (every page). In free layout it is pinned to the
                      sheet bottom so absolutely positioned blocks cannot cover
                      it, and the PDF clone can copy that same box. -->
-                @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
+                @if (hasBottomChrome()) {
                     <div
                         data-report-footer
                         class="shrink-0"
@@ -419,29 +419,33 @@
                         [style.padding-bottom.px]="hasFreeLayout() ? 24 : null"
                         [style.background-color]="hasFreeLayout() ? (pageBackgroundColor() || '#ffffff') : null"
                     >
-                        @if (legend()) {
-                            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
-                                <p
-                                    class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
-                                    [textContent]="legend()"
-                                ></p>
+                        @if (legend() || termsAndConditions()) {
+                            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2 space-y-1.5">
+                                @if (legend()) {
+                                    <p
+                                        class="text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0 font-medium"
+                                        [style.text-align]="legendPosition()"
+                                        [textContent]="legend()"
+                                    ></p>
+                                }
+                                @if (termsAndConditions()) {
+                                    <p
+                                        class="text-[9px] text-gray-400 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0"
+                                        [style.text-align]="termsPosition()"
+                                        [textContent]="termsAndConditions()"
+                                    ></p>
+                                }
                             </div>
                         }
                         @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
                             <div
                                 class="text-[10px] text-gray-400"
-                                [class.border-t]="!legend()"
-                                [class.border-gray-200]="!legend()"
-                                [class.pt-3]="!legend()"
-                                [style.text-align]="
-                                    pageNumberPosition() === 'bottom-left'
-                                        ? 'left'
-                                        : pageNumberPosition() === 'bottom-right'
-                                          ? 'right'
-                                          : 'center'
-                                "
+                                [class.border-t]="!legend() && !termsAndConditions()"
+                                [class.border-gray-200]="!legend() && !termsAndConditions()"
+                                [class.pt-3]="!legend() && !termsAndConditions()"
+                                [style.text-align]="footerAlign(pageNumberPosition())"
                             >
-                                Page {{ pageIndex + 1 }} of {{ count }}
+                                {{ 'smartReport.pageOf' | transloco: { current: pageIndex + 1, total: count } }}
                             </div>
                         }
                     </div>
@@ -487,24 +491,35 @@
         </div>
     }
 
-    @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
+    @if (hasBottomChrome()) {
         <div #measureLegend class="pb-6">
-            @if (legend()) {
-                <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
-                    <p
-                        class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
-                        [textContent]="legend()"
-                    ></p>
+            @if (legend() || termsAndConditions()) {
+                <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2 space-y-1.5">
+                    @if (legend()) {
+                        <p
+                            class="text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0 font-medium"
+                            [style.text-align]="legendPosition()"
+                            [textContent]="legend()"
+                        ></p>
+                    }
+                    @if (termsAndConditions()) {
+                        <p
+                            class="text-[9px] text-gray-400 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0"
+                            [style.text-align]="termsPosition()"
+                            [textContent]="termsAndConditions()"
+                        ></p>
+                    }
                 </div>
             }
             @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
                 <div
                     class="text-[10px] text-gray-400"
-                    [class.border-t]="!legend()"
-                    [class.border-gray-200]="!legend()"
-                    [class.pt-3]="!legend()"
+                    [class.border-t]="!legend() && !termsAndConditions()"
+                    [class.border-gray-200]="!legend() && !termsAndConditions()"
+                    [class.pt-3]="!legend() && !termsAndConditions()"
+                    [style.text-align]="footerAlign(pageNumberPosition())"
                 >
-                    Page 1 of 1
+                    {{ 'smartReport.pageOf' | transloco: { current: 1, total: 1 } }}
                 </div>
             }
         </div>

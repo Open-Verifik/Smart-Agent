@@ -4,6 +4,7 @@ import { Component, ElementRef, HostListener, computed, DestroyRef, effect, inje
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -14,6 +15,7 @@ import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.se
 import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
+import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
 import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
@@ -61,6 +63,7 @@ import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
 import { visitaEndpointTooltipDetails } from './visita-guide-endpoint-tooltip.util';
 import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-state.service';
+import { clearScratchDraft, readScratchDraft, writeScratchDraft } from './visita-guide-scratch-draft';
 import { parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
 import {
     availableCountries,
@@ -100,6 +103,7 @@ type LayoutDesignSnapshot = {
     sections: ReportSection[];
     reportTitle: string;
     primaryColor: string;
+    identityColor: string;
     pageBackgroundColor: string;
     logoDataUrl: string | null;
     logoX: number;
@@ -109,6 +113,9 @@ type LayoutDesignSnapshot = {
     logoRotation: number;
     sheetImages: ReportSheetImage[];
     legend: string;
+    legendPosition: 'left' | 'center' | 'right';
+    termsAndConditions: string;
+    termsPosition: 'left' | 'center' | 'right';
     watermarkEnabled: boolean;
     watermarkType: 'text' | 'logo';
     watermarkText: string;
@@ -120,6 +127,31 @@ type LayoutDesignSnapshot = {
     watermarkHeight: number;
     watermarkRotation: number;
     showPageNumbers: boolean;
+    pageNumberPosition:
+        | 'top-left'
+        | 'top-center'
+        | 'top-right'
+        | 'bottom-left'
+        | 'bottom-center'
+        | 'bottom-right';
+    pageSize: 'A4' | 'Letter' | 'Legal';
+    orientation: 'portrait' | 'landscape';
+    pdfEngine: 'puppeteer' | 'pdfkit';
+    securityEnabled: boolean;
+    securityPassword: string;
+    signatureEnabled: boolean;
+    signatureImage: string | null;
+    signatureX: number;
+    signatureY: number;
+    signatureWidth: number;
+    signatureHeight: number;
+};
+
+const isEmptyResultPayload = (payload: unknown): boolean => {
+    if (payload == null) return true;
+    if (Array.isArray(payload)) return payload.length === 0;
+    if (typeof payload !== 'object') return false;
+    return Object.keys(payload as object).length === 0;
 };
 
 type GuideResultCard = {
@@ -167,6 +199,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewBridge = inject(ReportBuilderPreviewDataService);
+    private _dialog = inject(MatDialog);
     private _destroyRef = inject(DestroyRef);
     @ViewChildren(ReportPreviewComponent) private _previews!: QueryList<ReportPreviewComponent>;
     @ViewChild('layoutEditorPreview') private _layoutEditorPreview?: ReportPreviewComponent;
@@ -183,6 +216,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     step = this._state.step;
     isWorking = signal(false);
     isGenerating = signal(false);
+    retryingSequences = signal<number[]>([]);
     templates = this._reports.templates;
 
     private _pollSub: Subscription | null = null;
@@ -197,7 +231,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const mode = this.mode();
         const configId = this._state.configId();
         const batchId = this._state.batchId();
-        const templateId = this.selectedTemplate()?._id ?? this.clonedTemplate()?._id ?? null;
+        const templateChoice = this.templateChoice();
+        const templateId = templateChoice === 'scratch' ? null : this.selectedTemplate()?._id ?? null;
         const features = this.selectedFeatures().map((feature) => feature._id).filter(Boolean);
         untracked(() => this._writeGuideUrl({
             step,
@@ -208,6 +243,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             configId,
             batchId,
             templateId,
+            templateChoice,
             features,
         }));
     });
@@ -228,6 +264,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     clonedTemplate = this._state.clonedTemplate;
     reportTitle = this._state.reportTitle;
     primaryColor = this._state.primaryColor;
+    identityColor = this._state.identityColor;
     pageBackgroundColor = this._state.pageBackgroundColor;
     logoDataUrl = this._state.logoDataUrl;
     logoX = this._state.logoX;
@@ -237,6 +274,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     logoRotation = this._state.logoRotation;
     sheetImages = this._state.sheetImages;
     legend = this._state.legend;
+    legendPosition = this._state.legendPosition;
+    termsAndConditions = this._state.termsAndConditions;
+    termsPosition = this._state.termsPosition;
     watermarkEnabled = this._state.watermarkEnabled;
     watermarkType = this._state.watermarkType;
     watermarkText = this._state.watermarkText;
@@ -248,6 +288,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     watermarkHeight = this._state.watermarkHeight;
     watermarkRotation = this._state.watermarkRotation;
     showPageNumbers = this._state.showPageNumbers;
+    pageNumberPosition = this._state.pageNumberPosition;
+    pageSize = this._state.pageSize;
+    orientation = this._state.orientation;
+    pdfEngine = this._state.pdfEngine;
+    securityEnabled = this._state.securityEnabled;
+    securityPassword = this._state.securityPassword;
+    signatureEnabled = this._state.signatureEnabled;
+    signatureImage = this._state.signatureImage;
+    signatureX = this._state.signatureX;
+    signatureY = this._state.signatureY;
+    signatureWidth = this._state.signatureWidth;
+    signatureHeight = this._state.signatureHeight;
+    showPdfPassword = signal(false);
     consultError = this._state.consultError;
     visibleSteps = this._state.visibleSteps;
     isMixed = this._state.isMixed;
@@ -297,6 +350,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 return;
             }
             this._queueLayoutHistory(snapshot);
+            if (this.templateChoice() === 'scratch') writeScratchDraft(snapshot);
         });
     });
     hoveredEndpoint = signal<AppFeature | null>(null);
@@ -311,6 +365,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     readonly layoutTextAligns = REPORT_TEXT_ALIGNS;
     readonly reportFonts = REPORT_FONT_STACKS;
     readonly layoutRowLineStyles: ReportRowLineStyle[] = ['solid', 'dotted', 'dashed'];
+    readonly footerAligns = ['left', 'center', 'right'] as const;
+
+    footerAlignKey(align: 'left' | 'center' | 'right'): string {
+        if (align === 'center') return 'visitaGuide.layoutAlignCenter';
+        if (align === 'right') return 'visitaGuide.layoutAlignRight';
+        return 'visitaGuide.layoutAlignLeft';
+    }
     readonly layoutRowLineWidthMin = ROW_LINE_WIDTH_MIN;
     readonly layoutRowLineWidthMax = ROW_LINE_WIDTH_MAX;
     readonly layoutRowLineMarkMin = ROW_LINE_MARK_MIN;
@@ -483,19 +544,29 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             country: this.countryNames()[0] || 'Colombia',
             sections: [],
             primaryColor: this.primaryColor(),
+            identityColor: this.identityColor() || '#000000',
             logo: this.logoDataUrl(),
-            pageSize: 'A4' as const,
-            orientation: 'portrait' as const,
+            pageSize: this.pageSize(),
+            orientation: this.orientation(),
         };
         return {
             ...base,
             name: this.reportTitle() || base.name,
             primaryColor: this.primaryColor() || base.primaryColor,
+            identityColor: this.identityColor() || base.identityColor || '#000000',
             pageBackgroundColor: this.pageBackgroundColor() || '#ffffff',
+            pageSize: this.pageSize(),
+            orientation: this.orientation(),
+            pdfEngine: this.pdfEngine(),
+            security: this._securityPayload(),
+            signature: this._signaturePayload(),
             logo: this.logoDataUrl() || base.logo,
             legend: this.legend(),
+            legendPosition: this.legendPosition(),
+            termsAndConditions: this.termsAndConditions(),
+            termsPosition: this.termsPosition(),
             showPageNumbers: this.showPageNumbers(),
-            pageNumberPosition: 'bottom-center',
+            pageNumberPosition: this.pageNumberPosition(),
             watermark: {
                 enabled: this.watermarkEnabled(),
                 type: this.watermarkType(),
@@ -570,7 +641,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 const payload = results[step.sequence] ?? results[String(step.sequence)];
                 const error = row.errors?.find((item) => Number(item.step) === Number(step.sequence));
                 const skip = skipped.find((item) => Number(item.sequence) === Number(step.sequence));
-                const hasData = payload != null;
+                const hasData = !isEmptyResultPayload(payload);
                 const fields = hasData
                     ? getStepDisplayFields({ featureCode: code }, payload).slice(0, 8)
                     : [];
@@ -870,6 +941,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._browserRunner.stop();
         this._pendingFeatureIds = [];
         this._state.resetAll();
+        clearScratchDraft();
         void this._router.navigate(['/smart-batch'], { queryParams: {}, replaceUrl: true });
     }
 
@@ -918,6 +990,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (key === 'y' || (key === 'z' && event.shiftKey)) {
             event.preventDefault();
             this.redoLayout();
+            return;
+        }
+        if (key === 'd') {
+            if (!this.canCopySelectedLayout()) return;
+            event.preventDefault();
+            this.copySelectedLayoutSection();
         }
     }
 
@@ -965,17 +1043,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._revealLayoutControls(event.key ? 'cell' : 'block');
     };
 
-    onLayoutSectionReorder(event: { fromId: string; toIndex: number }): void {
-        const list = [...this.layoutSections()];
-        const from = list.findIndex((section) => section.id === event.fromId);
-        if (from < 0 || from === event.toIndex) return;
-        if (event.toIndex < 0 || event.toIndex >= list.length) return;
-        moveItemInArray(list, from, event.toIndex);
-        this.layoutSections.set(list.map((section, order) => ({ ...section, order })));
-        this.selectedLayoutSectionId.set(event.fromId);
-        this.layoutEditorKind.set('block');
-    }
-
     onLayoutSectionRotation(event: { id: string; rotation: number }): void {
         this.layoutSections.update((list) =>
             list.map((section) =>
@@ -994,18 +1061,34 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutSectionFrames(updates: { id: string; frame: ReportSectionFrame }[]): void {
         const next = new Map(updates.map((item) => [item.id, item.frame]));
-        this.layoutSections.update((list) =>
-            this._compactLayoutPages(
-                list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section))
-            )
-        );
+        this.layoutSections.update((list) => {
+            const mapped = list.map((section) =>
+                next.has(section.id) ? { ...section, frame: next.get(section.id) } : section
+            );
+            return updates.length === 1 ? this._bringSectionsToFront(mapped, [updates[0].id]) : mapped;
+        });
     }
 
     onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
         this.layoutSections.update((list) =>
-            this._compactLayoutPages(
-                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
+            this._bringSectionsToFront(
+                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section)),
+                [event.id]
             )
+        );
+    }
+
+    private _bringSectionsToFront(list: ReportSection[], ids: string[]): ReportSection[] {
+        if (!ids.length) return list;
+        const moved = new Set(ids);
+        const maxZ = list.reduce((highest, section) => Math.max(highest, Number(section.style?.zIndex) || 0), 0);
+        return list.map((section) =>
+            moved.has(section.id)
+                ? {
+                      ...section,
+                      style: { ...(section.style ?? {}), zIndex: maxZ + 1 + ids.indexOf(section.id) },
+                  }
+                : section
         );
     }
 
@@ -1025,24 +1108,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
     }
 
-    private _sortLayoutByFrame(list: ReportSection[]): ReportSection[] {
-        if (!list.some((section) => section.frame)) {
-            return list.map((section, order) => ({ ...section, order }));
-        }
-        return [...list]
-            .sort((left, right) => {
-                const page = (left.frame?.page ?? 0) - (right.frame?.page ?? 0);
-                if (page !== 0) return page;
-                const top = (left.frame?.y ?? 0) - (right.frame?.y ?? 0);
-                if (top !== 0) return top;
-                return (left.frame?.x ?? 0) - (right.frame?.x ?? 0);
-            })
-            .map((section, order) => ({ ...section, order }));
-    }
-
-    private _nextLayoutFrame(): ReportSectionFrame | undefined {
+    private _nextLayoutFrame(width = 620, height = 200): ReportSectionFrame {
         const framed = this.layoutSections().filter((section) => section.frame);
-        if (!framed.length) return undefined;
+        if (!framed.length) return { page: 0, x: 24, y: 24, width, height };
         const last = framed.reduce((current, section) => {
             const currentRank = (current.frame?.page ?? 0) * 10000 + (current.frame?.y ?? 0);
             const nextRank = (section.frame?.page ?? 0) * 10000 + (section.frame?.y ?? 0);
@@ -1050,10 +1118,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
         return {
             page: last.frame?.page ?? 0,
-            x: 0,
-            y: (last.frame?.y ?? 0) + (last.frame?.height ?? 180) + 16,
-            width: last.frame?.width ?? 700,
-            height: last.frame?.height ?? 180,
+            x: last.frame?.x ?? 24,
+            y: (last.frame?.y ?? 0) + Math.min(last.frame?.height ?? height, 220) + 16,
+            width,
+            height,
+        };
+    }
+
+    private _frameForNewEndpoint(
+        point?: { x: number; y: number; page: number } | null
+    ): ReportSectionFrame {
+        const width = 620;
+        const height = 200;
+        if (!point) return this._nextLayoutFrame(width, height);
+        return {
+            page: point.page,
+            x: Math.max(0, point.x),
+            y: Math.max(0, point.y),
+            width,
+            height,
         };
     }
 
@@ -1207,22 +1290,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     canCopyLayoutContextTarget(): boolean {
-        const section = this._layoutContextSection();
-        if (!section) return false;
-        return (
-            section.type === 'header' ||
-            section.type === 'text' ||
-            section.type === 'divider' ||
-            section.type === 'shape'
-        );
+        return Boolean(this._layoutContextSection());
+    }
+
+    canCopySelectedLayout(): boolean {
+        return Boolean(this.selectedLayoutSection());
     }
 
     copyLayoutContextTarget(): void {
         const source = this._layoutContextSection();
-        if (!source || !this.canCopyLayoutContextTarget()) {
+        if (!source) {
             this.closeLayoutContextMenu();
             return;
         }
+        this._duplicateLayoutSection(source);
+        this.closeLayoutContextMenu();
+    }
+
+    copySelectedLayoutSection(): void {
+        const source = this.selectedLayoutSection();
+        if (!source) return;
+        this._duplicateLayoutSection(source);
+    }
+
+    private _duplicateLayoutSection(source: ReportSection): void {
         const copy = JSON.parse(JSON.stringify(source)) as ReportSection;
         const prefix =
             source.type === 'header'
@@ -1231,8 +1322,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                   ? 'texto'
                   : source.type === 'divider'
                     ? 'linea'
-                    : 'forma';
-        copy.id = `${prefix}-copia-${Date.now()}`;
+                    : source.type === 'shape'
+                      ? 'forma'
+                      : 'bloque';
+        copy.id = `${prefix}-copia-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         if (copy.frame) {
             copy.frame = {
                 ...copy.frame,
@@ -1240,6 +1333,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 y: (copy.frame.y ?? 0) + 16,
             };
         }
+        const topZ = Math.max(
+            0,
+            ...this.layoutSections().map((section) => Number(section.style?.zIndex) || 0)
+        );
+        copy.style = { ...(copy.style ?? {}), zIndex: topZ + 1 };
         this.layoutSections.update((list) => {
             const index = list.findIndex((section) => section.id === source.id);
             const next = [...list];
@@ -1249,7 +1347,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(copy.id);
         this.layoutEditorKind.set('block');
         this._revealLayoutControls('block');
-        this.closeLayoutContextMenu();
     }
 
     private _layoutContextSection(): ReportSection | null {
@@ -1281,6 +1378,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.layoutEditorKind.set(null);
         } else if (menu.overlay === 'watermark') {
             this.setWatermarkEnabled(false);
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
+        } else if (menu.overlay === 'signature') {
+            this.clearSignature();
             this.selectedLayoutOverlay.set(null);
             this.layoutEditorKind.set(null);
         } else if (menu.overlay?.startsWith('img:')) {
@@ -1315,6 +1416,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             sections: this.layoutSections(),
             reportTitle: this.reportTitle(),
             primaryColor: this.primaryColor(),
+            identityColor: this.identityColor(),
             pageBackgroundColor: this.pageBackgroundColor(),
             logoDataUrl: this.logoDataUrl(),
             logoX: this.logoX(),
@@ -1324,6 +1426,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             logoRotation: this.logoRotation(),
             sheetImages: this.sheetImages(),
             legend: this.legend(),
+            legendPosition: this.legendPosition(),
+            termsAndConditions: this.termsAndConditions(),
+            termsPosition: this.termsPosition(),
             watermarkEnabled: this.watermarkEnabled(),
             watermarkType: this.watermarkType(),
             watermarkText: this.watermarkText(),
@@ -1335,6 +1440,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             watermarkHeight: this.watermarkHeight(),
             watermarkRotation: this.watermarkRotation(),
             showPageNumbers: this.showPageNumbers(),
+            pageNumberPosition: this.pageNumberPosition(),
+            pageSize: this.pageSize(),
+            orientation: this.orientation(),
+            pdfEngine: this.pdfEngine(),
+            securityEnabled: this.securityEnabled(),
+            securityPassword: this.securityPassword(),
+            signatureEnabled: this.signatureEnabled(),
+            signatureImage: this.signatureImage(),
+            signatureX: this.signatureX(),
+            signatureY: this.signatureY(),
+            signatureWidth: this.signatureWidth(),
+            signatureHeight: this.signatureHeight(),
         };
     }
 
@@ -1398,6 +1515,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
         this._state.reportTitle.set(snapshot.reportTitle);
         this._state.primaryColor.set(snapshot.primaryColor);
+        this._state.identityColor.set(snapshot.identityColor || '#000000');
         this._state.pageBackgroundColor.set(snapshot.pageBackgroundColor);
         this._state.logoDataUrl.set(snapshot.logoDataUrl);
         this._state.logoX.set(snapshot.logoX);
@@ -1407,6 +1525,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoRotation.set(snapshot.logoRotation);
         this._state.sheetImages.set(snapshot.sheetImages ?? []);
         this._state.legend.set(snapshot.legend);
+        this._state.legendPosition.set(snapshot.legendPosition ?? 'left');
+        this._state.termsAndConditions.set(snapshot.termsAndConditions ?? '');
+        this._state.termsPosition.set(snapshot.termsPosition ?? 'left');
         this._state.watermarkEnabled.set(snapshot.watermarkEnabled);
         this._state.watermarkType.set(snapshot.watermarkType);
         this._state.watermarkText.set(snapshot.watermarkText);
@@ -1418,6 +1539,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.watermarkHeight.set(snapshot.watermarkHeight);
         this._state.watermarkRotation.set(snapshot.watermarkRotation);
         this._state.showPageNumbers.set(snapshot.showPageNumbers);
+        this._state.pageNumberPosition.set(snapshot.pageNumberPosition ?? 'bottom-center');
+        this._state.pageSize.set(snapshot.pageSize ?? 'A4');
+        this._state.orientation.set(snapshot.orientation ?? 'portrait');
+        this._state.pdfEngine.set(snapshot.pdfEngine ?? 'puppeteer');
+        this._state.securityEnabled.set(Boolean(snapshot.securityEnabled));
+        this._state.securityPassword.set(snapshot.securityPassword ?? '');
+        this._state.signatureEnabled.set(Boolean(snapshot.signatureEnabled));
+        this._state.signatureImage.set(snapshot.signatureImage ?? null);
+        this._state.signatureX.set(snapshot.signatureX ?? 48);
+        this._state.signatureY.set(snapshot.signatureY ?? 720);
+        this._state.signatureWidth.set(snapshot.signatureWidth ?? 160);
+        this._state.signatureHeight.set(snapshot.signatureHeight ?? 64);
         queueMicrotask(() => {
             this._layoutHistoryApplying = false;
         });
@@ -1478,29 +1611,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const payload = event.item.data as GuideResultCard | ReportSection | undefined;
         if (!payload) return;
         if ('sequence' in payload && typeof payload.sequence === 'number' && 'status' in payload) {
-            this.addCardToLayout(payload);
-            return;
-        }
-        if ('id' in payload && event.previousContainer === event.container) {
-            this.onLayoutReorder(event);
+            const drop = event.dropPoint;
+            const point = drop
+                ? this._layoutEditorPreview?.canonicalPointAt(drop.x, drop.y) ?? null
+                : null;
+            this.addCardToLayout(payload, point);
         }
     }
 
-    onLayoutReorder(event: CdkDragDrop<unknown>): void {
-        const list = [...this.layoutSections()];
-        moveItemInArray(list, event.previousIndex, event.currentIndex);
-        this.layoutSections.set(list.map((section, index) => ({ ...section, order: index })));
-    }
-
-    addCardToLayout(card: GuideResultCard): void {
-        const path = `results.${card.sequence}`;
-        if (this.layoutSections().some((section) => section.dataPath === path)) {
-            this._snack.open(this._transloco.translate('visitaGuide.layoutAlreadyAdded'), undefined, {
-                duration: 2000,
-            });
-            return;
-        }
-        const section = { ...this._sectionFromCard(card), order: 0, frame: this._nextLayoutFrame() };
+    addCardToLayout(card: GuideResultCard, point?: { x: number; y: number; page: number } | null): void {
+        const section = { ...this._sectionFromCard(card), order: 0, frame: this._frameForNewEndpoint(point) };
         this.layoutSections.update((list) => [...list, { ...section, order: list.length }]);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
@@ -1550,12 +1670,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.primaryColor.set(value);
     }
 
+    setLayoutIdentityColor(value: string): void {
+        this._state.identityColor.set(value || '#000000');
+    }
+
     setLayoutPageBackground(value: string): void {
         this._state.pageBackgroundColor.set(value);
     }
 
     setLegend(value: string): void {
         this._state.legend.set(value);
+    }
+
+    setLegendPosition(value: 'left' | 'center' | 'right'): void {
+        this._state.legendPosition.set(value);
+    }
+
+    setTermsAndConditions(value: string): void {
+        this._state.termsAndConditions.set(value);
+    }
+
+    setTermsPosition(value: 'left' | 'center' | 'right'): void {
+        this._state.termsPosition.set(value);
     }
 
     setWatermarkEnabled(enabled: boolean): void {
@@ -1590,6 +1726,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.showPageNumbers.set(enabled);
     }
 
+    pageNumberAlign(): 'left' | 'center' | 'right' {
+        if (this.pageNumberPosition().includes('left')) return 'left';
+        if (this.pageNumberPosition().includes('right')) return 'right';
+        return 'center';
+    }
+
+    pageNumberBand(): 'top' | 'bottom' {
+        return this.pageNumberPosition().startsWith('top') ? 'top' : 'bottom';
+    }
+
+    setPageNumberAlign(align: 'left' | 'center' | 'right'): void {
+        this._state.pageNumberPosition.set(
+            `${this.pageNumberBand()}-${align}` as NonNullable<SmartReportTemplate['pageNumberPosition']>
+        );
+    }
+
+    setPageNumberBand(band: 'top' | 'bottom'): void {
+        this._state.pageNumberPosition.set(
+            `${band}-${this.pageNumberAlign()}` as NonNullable<SmartReportTemplate['pageNumberPosition']>
+        );
+    }
+
     onLayoutLogoPositionChange(pos: { x: number; y: number }): void {
         this._state.logoX.set(Math.max(0, Math.round(pos.x)));
         this._state.logoY.set(Math.max(0, Math.round(pos.y)));
@@ -1622,6 +1780,81 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutWatermarkRotationChange(rotation: number): void {
         this._state.watermarkRotation.set(Math.round(rotation));
+    }
+
+    setPageSize(value: string): void {
+        if (value === 'A4' || value === 'Letter' || value === 'Legal') this._state.pageSize.set(value);
+    }
+
+    setOrientation(value: 'portrait' | 'landscape'): void {
+        this._state.orientation.set(value);
+    }
+
+    setPdfEngine(value: string): void {
+        if (value === 'puppeteer' || value === 'pdfkit') this._state.pdfEngine.set(value);
+    }
+
+    setSecurityEnabled(enabled: boolean): void {
+        this._state.securityEnabled.set(enabled);
+        if (!enabled) this._state.securityPassword.set('');
+    }
+
+    setSecurityPassword(value: string): void {
+        this._state.securityPassword.set(value);
+    }
+
+    setSignatureEnabled(enabled: boolean): void {
+        this._state.signatureEnabled.set(enabled);
+        if (enabled && !this.signatureImage()) {
+            this.openSignatureDialog();
+        }
+        if (!enabled) this.selectedLayoutOverlay.set(null);
+    }
+
+    setSignatureWidth(value: string | number): void {
+        const width = Number(value);
+        if (!Number.isFinite(width)) return;
+        this._state.signatureWidth.set(Math.max(24, Math.round(width)));
+    }
+
+    setSignatureHeight(value: string | number): void {
+        const height = Number(value);
+        if (!Number.isFinite(height)) return;
+        this._state.signatureHeight.set(Math.max(16, Math.round(height)));
+    }
+
+    onLayoutSignaturePositionChange(pos: { x: number; y: number }): void {
+        this._state.signatureX.set(Math.max(0, Math.round(pos.x)));
+        this._state.signatureY.set(Math.max(0, Math.round(pos.y)));
+    }
+
+    onLayoutSignatureSizeChange(size: { width: number; height: number }): void {
+        this._state.signatureWidth.set(Math.max(24, Math.round(size.width)));
+        this._state.signatureHeight.set(Math.max(16, Math.round(size.height)));
+    }
+
+    clearSignature(): void {
+        this._state.signatureImage.set(null);
+        this._state.signatureEnabled.set(false);
+        this.selectedLayoutOverlay.set(null);
+    }
+
+    openSignatureDialog(): void {
+        this._dialog
+            .open(SignaturePadDialogComponent, {
+                width: '640px',
+                disableClose: true,
+                autoFocus: false,
+            })
+            .afterClosed()
+            .subscribe((result) => {
+                if (!result) {
+                    if (!this.signatureImage()) this._state.signatureEnabled.set(false);
+                    return;
+                }
+                this._state.signatureImage.set(String(result));
+                this._state.signatureEnabled.set(true);
+            });
     }
 
     setWatermarkRotation(value: string | number): void {
@@ -2344,17 +2577,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutEditorKind.set(null);
     }
 
-    moveSelectedLayout(offset: number): void {
-        const id = this.selectedLayoutSectionId();
-        if (!id) return;
-        const list = [...this.layoutSections()];
-        const index = list.findIndex((section) => section.id === id);
-        const next = index + offset;
-        if (index < 0 || next < 0 || next >= list.length) return;
-        moveItemInArray(list, index, next);
-        this.layoutSections.set(list.map((section, order) => ({ ...section, order })));
-    }
-
     async saveLayoutTemplate(): Promise<boolean> {
         this.isSavingLayout.set(true);
         try {
@@ -2487,6 +2709,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.seedDefaultLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
         this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+        writeScratchDraft(this._layoutDesignSnapshot());
         this.enterLayout();
         this.step.set('layout');
     }
@@ -2513,6 +2736,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         sections: template.sections,
                         logo: template.logo,
                         primaryColor: template.primaryColor,
+                        identityColor: this.identityColor() || template.identityColor || '#000000',
                         header: template.header,
                         footer: template.footer,
                         pageSize: template.pageSize ?? 'A4',
@@ -2742,6 +2966,52 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return filterFeaturesForCountry(this.availableFeatures(), countryNameForIso(iso)).filter(
             isSmartBatchCatalogFeature
         ).length;
+    }
+
+    canRetryResult(card: GuideResultCard): boolean {
+        return card.status === 'failed' || card.status === 'empty' || card.status === 'skipped';
+    }
+
+    isRetryingResult(sequence: number): boolean {
+        return this.retryingSequences().includes(sequence);
+    }
+
+    async retryResultCard(card: GuideResultCard): Promise<void> {
+        const batch = this.batch();
+        const config = this.configuration();
+        const batchId = batch?._id;
+        if (!batchId || !config || this.isRetryingResult(card.sequence)) return;
+
+        this.retryingSequences.update((list) => [...list, card.sequence]);
+        try {
+            const executor = batch.executor ?? config.executor;
+            if (executor === 'queue' || (executor === 'featureRunner' && batch.run)) {
+                const res = await firstValueFrom(
+                    this._batch.retrySmartBatchSteps(batchId, {
+                        rowIndex: 0,
+                        sequences: [card.sequence],
+                    })
+                );
+                this._state.batch.set(res.data.batch);
+                this._startPoll(batchId);
+                return;
+            }
+
+            await this._browserRunner.retryRowSteps(
+                batch,
+                config.steps ?? [],
+                0,
+                [card.sequence],
+                (next) => this._state.batch.set(next)
+            );
+        } catch {
+            this._snack.open(this._transloco.translate('visitaGuide.retryEndpointFailed'), undefined, {
+                duration: 3500,
+            });
+        } finally {
+            if (this._pollSub) return;
+            this.retryingSequences.update((list) => list.filter((sequence) => sequence !== card.sequence));
+        }
     }
 
     resultStatusKey(status: 'ok' | 'failed' | 'skipped' | 'empty'): string {
@@ -3037,11 +3307,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const payload: Partial<SmartReportTemplate> = {
             name: this.reportTitle() || draft.name,
             primaryColor: this.primaryColor() || draft.primaryColor,
+            identityColor: this.identityColor() || draft.identityColor || '#000000',
             pageBackgroundColor: this.pageBackgroundColor() || '#ffffff',
             logo: this.logoDataUrl() || draft.logo,
             legend: this.legend(),
+            legendPosition: this.legendPosition(),
+            termsAndConditions: this.termsAndConditions(),
+            termsPosition: this.termsPosition(),
             showPageNumbers: this.showPageNumbers(),
-            pageNumberPosition: 'bottom-center',
+            pageNumberPosition: this.pageNumberPosition(),
             watermark: {
                 enabled: this.watermarkEnabled(),
                 type: this.watermarkType(),
@@ -3064,8 +3338,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 autoFitContent: true,
             },
             sheetImages: this.sheetImages(),
-            sections: JSON.parse(JSON.stringify(this._sortLayoutByFrame(this.layoutSections()))),
-            signature: draft.signature,
+            sections: JSON.parse(JSON.stringify(this.layoutSections())),
+            pageSize: this.pageSize(),
+            orientation: this.orientation(),
+            pdfEngine: this.pdfEngine(),
+            security: this._securityPayload(),
+            signature: this._signaturePayload(),
             sampleData: this.previewData(),
             batchConfiguration: configId ?? draft.batchConfiguration,
             category: this.entities().length === 1 ? this.entities()[0] : draft.category,
@@ -3075,6 +3353,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (draft._id && !isSystemTemplate) {
             const updated = await firstValueFrom(this._reports.updateTemplate(draft._id, payload));
             this._state.selectedTemplate.set(updated);
+            clearScratchDraft();
             if (configId && updated._id) {
                 await firstValueFrom(
                     this._batch.updateConfiguration(configId, { preferredReportTemplate: updated._id })
@@ -3088,12 +3367,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...payload,
                 type: 'client',
                 country: this.countryNames()[0] || draft.country,
-                pageSize: draft.pageSize ?? 'A4',
-                orientation: draft.orientation ?? 'portrait',
-                pdfEngine: draft.pdfEngine ?? 'puppeteer',
             })
         );
         this._state.selectedTemplate.set(created);
+        if (created?._id) clearScratchDraft();
         this._state.clonedTemplate.set(created);
         this._state.templateChoice.set('mine');
         if (configId && created._id) {
@@ -3109,6 +3386,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _applyPickedTemplate(template: SmartReportTemplate, choice: GuideTemplateChoice): void {
+        clearScratchDraft();
         this._state.templateChoice.set(choice);
         this._state.selectedTemplate.set(template);
         this.hydrateCustomize(template, true);
@@ -3174,6 +3452,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _resetLayoutBranding(): void {
         this._state.reportTitle.set(pipelineName(this.entities()));
         this._state.primaryColor.set('#0f172a');
+        this._state.identityColor.set('#000000');
         this._state.pageBackgroundColor.set('#ffffff');
         this._state.logoDataUrl.set(null);
         this._state.logoX.set(32);
@@ -3183,6 +3462,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoRotation.set(0);
         this._state.sheetImages.set([]);
         this._state.legend.set('');
+        this._state.legendPosition.set('left');
+        this._state.termsAndConditions.set('');
+        this._state.termsPosition.set('left');
         this._state.watermarkEnabled.set(false);
         this._state.watermarkType.set('text');
         this._state.watermarkText.set('');
@@ -3194,19 +3476,92 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.watermarkHeight.set(160);
         this._state.watermarkRotation.set(-15);
         this._state.showPageNumbers.set(true);
+        this._state.pageNumberPosition.set('bottom-center');
+        this._state.pageSize.set('A4');
+        this._state.orientation.set('portrait');
+        this._state.pdfEngine.set('puppeteer');
+        this._state.securityEnabled.set(false);
+        this._state.securityPassword.set('');
+        this._state.signatureEnabled.set(false);
+        this._state.signatureImage.set(null);
+        this._state.signatureX.set(48);
+        this._state.signatureY.set(720);
+        this._state.signatureWidth.set(160);
+        this._state.signatureHeight.set(64);
+    }
+
+    private _securityPayload(): NonNullable<SmartReportTemplate['security']> {
+        const password = this.securityPassword();
+        return {
+            enabled: this.securityEnabled(),
+            ...(password && password !== '******' ? { password } : {}),
+        };
+    }
+
+    private _signaturePayload(): NonNullable<SmartReportTemplate['signature']> {
+        return {
+            enabled: this.signatureEnabled() && Boolean(this.signatureImage()),
+            image: this.signatureImage() || '',
+            x: this.signatureX(),
+            y: this.signatureY(),
+            width: this.signatureWidth(),
+            height: this.signatureHeight(),
+        };
     }
 
     private hydrateCustomize(template: SmartReportTemplate, force = false): void {
         if (force || !this.reportTitle()) this._state.reportTitle.set(template.name);
         if (force || template.primaryColor) this._state.primaryColor.set(template.primaryColor || '#0f172a');
+        if (force || template.identityColor) this._state.identityColor.set(template.identityColor || '#000000');
         if (force || template.pageBackgroundColor) {
             this._state.pageBackgroundColor.set(template.pageBackgroundColor || '#ffffff');
         }
         if (force || template.logo) this._state.logoDataUrl.set(template.logo || null);
         this._state.sheetImages.set(Array.isArray(template.sheetImages) ? template.sheetImages : []);
         if (force || template.legend) this._state.legend.set(template.legend || '');
+        if (force || template.legendPosition) {
+            this._state.legendPosition.set(template.legendPosition ?? 'left');
+        }
+        if (force || template.termsAndConditions) {
+            this._state.termsAndConditions.set(template.termsAndConditions || '');
+        }
+        if (force || template.termsPosition) {
+            this._state.termsPosition.set(template.termsPosition ?? 'left');
+        }
         if (force || typeof template.showPageNumbers === 'boolean') {
             this._state.showPageNumbers.set(template.showPageNumbers ?? true);
+        }
+        if (force || template.pageNumberPosition) {
+            this._state.pageNumberPosition.set(template.pageNumberPosition ?? 'bottom-center');
+        }
+        if (force || template.pageSize) {
+            this._state.pageSize.set(template.pageSize ?? 'A4');
+        }
+        if (force || template.orientation) {
+            this._state.orientation.set(template.orientation ?? 'portrait');
+        }
+        if (force || template.pdfEngine) {
+            this._state.pdfEngine.set(template.pdfEngine ?? 'puppeteer');
+        }
+        if (force || template.security) {
+            this._state.securityEnabled.set(Boolean(template.security?.enabled));
+            this._state.securityPassword.set(template.security?.enabled ? '******' : '');
+        }
+        if (force && !template.security) {
+            this._state.securityEnabled.set(false);
+            this._state.securityPassword.set('');
+        }
+        if (force || template.signature) {
+            this._state.signatureEnabled.set(Boolean(template.signature?.enabled && template.signature?.image));
+            this._state.signatureImage.set(template.signature?.image || null);
+            this._state.signatureX.set(template.signature?.x ?? 48);
+            this._state.signatureY.set(template.signature?.y ?? 720);
+            this._state.signatureWidth.set(template.signature?.width ?? 160);
+            this._state.signatureHeight.set(template.signature?.height ?? 64);
+        }
+        if (force && !template.signature) {
+            this._state.signatureEnabled.set(false);
+            this._state.signatureImage.set(null);
         }
         if (template.watermark) {
             this._state.watermarkEnabled.set(Boolean(template.watermark.enabled));
@@ -3354,6 +3709,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     if (status === 'completed' || status === 'failed' || status === 'cancelled') {
                         this._stopPoll();
                         this.isWorking.set(false);
+                        this.retryingSequences.set([]);
                         this.ensureIncludeItems();
                         this.step.set('results');
                     }
@@ -3375,7 +3731,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const parsed = parseGuideUrl(this._route.snapshot.queryParamMap);
         this._pendingFeatureIds = parsed.features;
 
-        if (parsed.templateId && (parsed.step === 'layout' || !this._state.intent())) {
+        if (
+            parsed.templateChoice !== 'scratch' &&
+            parsed.templateId &&
+            (parsed.step === 'layout' || parsed.step === null)
+        ) {
             this._openSavedTemplateInLayout(parsed.templateId, parsed.configId);
             this._guideUrlReady = true;
             return;
@@ -3403,19 +3763,35 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
         }
 
+        if (parsed.templateChoice === 'scratch') {
+            this._resumeScratchTemplate();
+        }
+
         if (parsed.step && this.visibleSteps().includes(parsed.step)) {
-            if (parsed.step === 'layout') this.enterLayout();
+            if (parsed.step === 'layout' && parsed.templateChoice !== 'scratch') this.enterLayout();
             if (parsed.step === 'include') this.ensureIncludeItems();
             if (parsed.step === 'template') this._refreshTemplates();
             this._state.step.set(parsed.step);
-        } else if (parsed.intent && this.step() === 'intent') {
-            const steps = this.visibleSteps();
-            const next = steps[1];
-            if (next) this._state.step.set(next);
         }
 
         this._applyPendingFeatureIds();
         this._guideUrlReady = true;
+    }
+
+    private _resumeScratchTemplate(): void {
+        this._state.templateChoice.set('scratch');
+        this._state.selectedTemplate.set(null);
+        const draft = readScratchDraft();
+        if (draft?.sections?.length) {
+            this._applyLayoutSnapshot(JSON.stringify(draft));
+        } else {
+            this._resetLayoutBranding();
+            this.layoutSections.set([]);
+            this.seedDefaultLayout();
+        }
+        this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+        this.enterLayout();
     }
 
     private _applyPendingFeatureIds(): void {

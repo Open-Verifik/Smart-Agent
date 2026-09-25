@@ -527,9 +527,13 @@
                                                 ></ng-container>
 
                                                 <h3
-                                                    class="line-clamp-1 text-base font-semibold text-stone-950 dark:text-white"
+                                                    class="mt-3 flex items-center gap-2 text-base font-semibold text-stone-950 dark:text-white"
                                                 >
-                                                    {{ template.name }}
+                                                    <span
+                                                        class="h-3 w-3 shrink-0 rounded-full border border-black/10"
+                                                        [style.background]="template.identityColor || '#000000'"
+                                                    ></span>
+                                                    <span class="line-clamp-1">{{ template.name }}</span>
                                                 </h3>
                                                 <p
                                                     class="mt-3 line-clamp-2 flex-1 text-sm text-stone-500 dark:text-stone-400"

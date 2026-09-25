@@ -321,6 +321,17 @@ export class SmartBatchService {
         );
     }
 
+    /** Re-run specific endpoints on one row; other step results stay as they are. */
+    retrySmartBatchSteps(id: string, options: { rowIndex?: number; sequences: number[] }) {
+        return this._httpClient.post<{ data: { batch: SmartBatch; retried: number } }>(
+            `${environment.apiUrl}/v2/smart-batches/${id}/retry-steps`,
+            {
+                sequences: options.sequences,
+                ...(options.rowIndex != null ? { rowIndex: options.rowIndex } : {}),
+            }
+        );
+    }
+
     cancelSmartBatch(id: string) {
         return this._httpClient.post<{ data: SmartBatch }>(
             `${environment.apiUrl}/v2/smart-batches/${id}/cancel`,
