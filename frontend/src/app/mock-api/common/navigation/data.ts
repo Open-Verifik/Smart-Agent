@@ -60,7 +60,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 subtitle: 'nav.visita_guide_subtitle',
                 type: 'basic',
                 icon: 'heroicons_outline:queue-list',
-                link: '/smart-batch',
+                link: '/smart-batch/workspace',
             },
             {
                 id: 'history',
@@ -406,7 +406,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 subtitle: 'nav.visita_guide_subtitle',
                 type: 'basic',
                 icon: 'heroicons_outline:queue-list',
-                link: '/smart-batch',
+                link: '/smart-batch/workspace',
             },
             {
                 id: 'history',

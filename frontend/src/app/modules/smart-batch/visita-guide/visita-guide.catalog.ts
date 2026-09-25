@@ -1,4 +1,5 @@
 import { mergeEnumValues } from '../batch-required-fields.util';
+import { isWorldCountry, normalizeCountryName } from '../smart-batch-country.util';
 import {
     canonicalParamFilterId,
     collectRequiredParamFields,
@@ -11,12 +12,28 @@ import { featureGroup } from '../feature-group.util';
 export type GuideIntent = 'report' | 'person' | 'vehicle' | 'company' | 'template' | 'other';
 export type GuideEntity = 'citizen' | 'vehicle' | 'company';
 export type GuideMode = 'single' | 'batch';
+export type GuideFileFormat = 'csv' | 'jsonl' | 'xlsx';
+export type GuideMergeStrategy = 'sequential' | 'parallel-independent' | 'parallel-with-fallback';
+export type GuideRunMode = 'queue' | 'browser';
+export type GuideConfigOrigin = 'created' | 'reused';
+
+export interface GuideBatchSettings {
+    name: string;
+    description: string;
+    inputFormat: GuideFileFormat;
+    outputFormat: GuideFileFormat;
+    mergeStrategy: GuideMergeStrategy;
+    executor: GuideRunMode;
+    webhookUrl: string;
+    emailOnCompletion: string[];
+}
 export type GuideStepId =
     | 'intent'
     | 'entity'
     | 'country'
     | 'mode'
     | 'endpoints'
+    | 'setup'
     | 'input'
     | 'consult'
     | 'results'
@@ -43,8 +60,51 @@ export interface GuideInputField {
 }
 
 export const GUIDE_COUNTRIES: GuideCountryOption[] = [
+    { iso: 'ar', name: 'Argentina', available: true },
+    { iso: 'bo', name: 'Bolivia', available: true },
+    { iso: 'br', name: 'Brazil', available: true },
+    { iso: 'ca', name: 'Canada', available: true },
+    { iso: 'cl', name: 'Chile', available: true },
     { iso: 'co', name: 'Colombia', available: true },
+    { iso: 'cr', name: 'Costa Rica', available: true },
+    { iso: 'do', name: 'Dominican Republic', available: true },
+    { iso: 'ec', name: 'Ecuador', available: true },
+    { iso: 'sv', name: 'El Salvador', available: true },
+    { iso: 'gt', name: 'Guatemala', available: true },
+    { iso: 'hn', name: 'Honduras', available: true },
+    { iso: 'in', name: 'India', available: true },
+    { iso: 'mx', name: 'Mexico', available: true },
+    { iso: 'pa', name: 'Panama', available: true },
+    { iso: 'py', name: 'Paraguay', available: true },
+    { iso: 'pe', name: 'Peru', available: true },
+    { iso: 'es', name: 'Spain', available: true },
+    { iso: 'us', name: 'United States', available: true },
+    { iso: 'uy', name: 'Uruguay', available: true },
+    { iso: 've', name: 'Venezuela', available: true },
 ];
+
+export const countryNameForIso = (iso?: string | null): string => {
+    const raw = (iso ?? '').trim();
+    const key = raw.toLowerCase();
+    if (!key) return '';
+    return GUIDE_COUNTRIES.find((country) => country.iso === key)?.name ?? normalizeCountryName(raw);
+};
+
+/** Catalog countries, plus any other country that shows up on a loaded feature. */
+export const guideCountriesFromFeatures = (features: { country?: string }[]): GuideCountryOption[] => {
+    const byName = new Map(availableCountries().map((country) => [country.name, country]));
+    for (const feature of features) {
+        if (isWorldCountry(feature.country)) continue;
+        const name = normalizeCountryName(feature.country);
+        if (!name || isWorldCountry(name) || byName.has(name)) continue;
+        byName.set(name, {
+            iso: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            name,
+            available: true,
+        });
+    }
+    return [...byName.values()];
+};
 
 export const GUIDE_INTENTS: {
     id: GuideIntent;
@@ -128,8 +188,6 @@ export const intentEntity = (intent: GuideIntent | null): GuideEntity | null => 
 export const defaultSystemKey = (entity: GuideEntity, iso: string): string =>
     `${iso.toLowerCase()}.${entity}.comprehensive`;
 
-const DEFAULT_DOCUMENT_TYPES = ['CC', 'CE', 'NIT', 'PA', 'PEP', 'PPT', 'RC', 'TI'];
-
 const FIELD_ORDER = [
     'documentType',
     'citizenDocumentType',
@@ -170,7 +228,7 @@ const enumsForCanonical = (feature: FeatureParamShape, canonical: string): strin
 };
 
 const labelForInputKey = (key: string, canonical: string): { labelKey: string; labelText?: string } => {
-    if (key === 'citizenDocumentNumber') return { labelKey: 'visitaGuide.idCedula' };
+    if (key === 'citizenDocumentNumber') return { labelKey: 'visitaGuide.paramFieldDocumentNumber' };
     if (key === 'companyDocumentNumber') return { labelKey: 'visitaGuide.idNit' };
     const labelKey = paramFieldLabelKey(canonical);
     if (labelKey === 'visitaGuide.paramFieldOther') {
@@ -186,10 +244,9 @@ const toGuideInputField = (
     options?: string[]
 ): GuideInputField => {
     const { labelKey, labelText } = labelForInputKey(key, canonical);
-    const select = canonical === 'documentType' || Boolean(options?.length);
+    const hasOptions = Boolean(options?.length);
     let placeholderKey = 'visitaGuide.inputValuePlaceholder';
-    if (select) placeholderKey = 'visitaGuide.paramFieldSelectPlaceholder';
-    else if (canonical === 'documentNumber') placeholderKey = 'visitaGuide.idCedulaPlaceholder';
+    if (hasOptions) placeholderKey = 'visitaGuide.paramFieldSelectPlaceholder';
     else if (canonical === 'plate') placeholderKey = 'visitaGuide.idPlatePlaceholder';
     return {
         key,
@@ -197,7 +254,7 @@ const toGuideInputField = (
         labelText,
         placeholderKey,
         required,
-        options: select ? (options?.length ? options : DEFAULT_DOCUMENT_TYPES) : undefined,
+        options: hasOptions ? options : undefined,
     };
 };
 
@@ -245,17 +302,13 @@ const inputFieldsFromEntities = (entities: GuideEntity[]): GuideInputField[] => 
     if (selected.has('citizen')) {
         const typeKey = mixedCitizenCompany ? 'citizenDocumentType' : 'documentType';
         const numberKey = mixedCitizenCompany ? 'citizenDocumentNumber' : 'documentNumber';
-        fields.push(toGuideInputField(typeKey, 'documentType', true, DEFAULT_DOCUMENT_TYPES));
-        fields.push({
-            ...toGuideInputField(numberKey, 'documentNumber', true),
-            labelKey: 'visitaGuide.idCedula',
-            placeholderKey: 'visitaGuide.idCedulaPlaceholder',
-        });
+        fields.push(toGuideInputField(typeKey, 'documentType', true));
+        fields.push(toGuideInputField(numberKey, 'documentNumber', true));
     }
     if (selected.has('company')) {
         const typeKey = mixedCitizenCompany ? 'companyDocumentType' : 'documentType';
         const numberKey = mixedCitizenCompany ? 'companyDocumentNumber' : 'documentNumber';
-        fields.push(toGuideInputField(typeKey, 'documentType', true, DEFAULT_DOCUMENT_TYPES));
+        fields.push(toGuideInputField(typeKey, 'documentType', true));
         fields.push({
             ...toGuideInputField(numberKey, 'documentNumber', true),
             labelKey: 'visitaGuide.idNit',
@@ -265,7 +318,7 @@ const inputFieldsFromEntities = (entities: GuideEntity[]): GuideInputField[] => 
     if (selected.has('vehicle')) {
         fields.push(toGuideInputField('plate', 'plate', true));
         if (!selected.has('citizen') && !selected.has('company')) {
-            fields.push(toGuideInputField('documentType', 'documentType', false, DEFAULT_DOCUMENT_TYPES));
+            fields.push(toGuideInputField('documentType', 'documentType', false));
             fields.push({
                 ...toGuideInputField('documentNumber', 'documentNumber', false),
                 labelKey: 'visitaGuide.idOwnerOptional',
@@ -279,10 +332,9 @@ const inputFieldsFromEntities = (entities: GuideEntity[]): GuideInputField[] => 
 
 export const inputFieldsFor = (
     entities: GuideEntity[],
-    iso: string,
+    _iso: string,
     features: FeatureParamShape[] = []
 ): GuideInputField[] => {
-    if (iso.toLowerCase() !== 'co') return [];
     if (features.length) return inputFieldsFromFeatures(entities, features);
     return inputFieldsFromEntities(entities);
 };
@@ -317,6 +369,7 @@ export const STEP_TITLE_KEYS: Record<GuideStepId, string> = {
     country: 'visitaGuide.stepCountry',
     mode: 'visitaGuide.stepMode',
     endpoints: 'visitaGuide.stepEndpoints',
+    setup: 'visitaGuide.stepSetup',
     input: 'visitaGuide.stepInput',
     consult: 'visitaGuide.stepConsult',
     results: 'visitaGuide.stepResults',
@@ -334,6 +387,7 @@ export const STEP_PRIMARY_KEYS: Record<GuideStepId, string> = {
     country: 'visitaGuide.continue',
     mode: 'visitaGuide.continue',
     endpoints: 'visitaGuide.continue',
+    setup: 'visitaGuide.confirmSetup',
     input: 'visitaGuide.searchAction',
     consult: 'visitaGuide.searching',
     results: 'visitaGuide.continueToReport',

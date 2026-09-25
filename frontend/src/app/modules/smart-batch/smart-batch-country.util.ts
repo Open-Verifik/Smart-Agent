@@ -18,6 +18,7 @@ const ISO_TO_NAME: Record<string, string> = {
 	usa: 'United States',
 	es: 'Spain',
 	pa: 'Panama',
+	in: 'India',
 	cr: 'Costa Rica',
 	gt: 'Guatemala',
 	hn: 'Honduras',
@@ -41,6 +42,7 @@ const NAME_ALIASES: Record<string, string> = {
 	'united states': 'United States',
 	spain: 'Spain',
 	panama: 'Panama',
+	india: 'India',
 	'costa rica': 'Costa Rica',
 	guatemala: 'Guatemala',
 	honduras: 'Honduras',
@@ -66,6 +68,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
 	'united states': '🇺🇸',
 	spain: '🇪🇸',
 	panama: '🇵🇦',
+	india: '🇮🇳',
 	'costa rica': '🇨🇷',
 	guatemala: '🇬🇹',
 	honduras: '🇭🇳',
@@ -116,6 +119,21 @@ export const filterFeaturesForCountry = <T extends { country?: string }>(
 	if (!selectedCountry) return [];
 
 	return features.filter((feature) => isFeatureForCountry(feature.country, selectedCountry));
+};
+
+/**
+ * Selected-country sources before world sources, then by name.
+ * World stays last so a national registry is the first card in its category.
+ */
+export const compareFeaturesForSelectedCountry = <T extends { country?: string; name?: string }>(
+	left: T,
+	right: T
+): number => {
+	const rank = (feature: T): number => (isWorldCountry(feature.country) ? 1 : 0);
+	const byCountry = rank(left) - rank(right);
+	if (byCountry !== 0) return byCountry;
+
+	return (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' });
 };
 
 /**

@@ -35,6 +35,7 @@ import { BatchConfigurationRef, SampleReportData, SmartReportService, SmartRepor
         ReportTemplateThumbComponent,
     ],
     templateUrl: './smart-batch.component.html',
+    styleUrls: ['./smart-batch.component.scss'],
     encapsulation: ViewEncapsulation.None,
 })
 export class SmartBatchComponent implements OnInit, OnDestroy {
@@ -75,6 +76,45 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     previewLoading = signal(false);
     previewData = computed<Record<string, any>>(() => this._sampleFromTemplate(this.previewTemplate()));
     private _previewGen = 0;
+
+    searchQuery = signal('');
+    countryFilter = signal('all');
+    executorFilter = signal<'all' | SmartBatchExecutor>('all');
+
+    statsTotal = computed(() => this.configurations().length);
+    statsActive = computed(() => this.configurations().filter((c) => c.isActive !== false).length);
+    statsCountries = computed(() => new Set(this.configurations().map((c) => c.country)).size);
+
+    countryOptions = computed(() => {
+        const options = new Set<string>();
+        for (const config of this.configurations()) {
+            if (config.country) options.add(config.country);
+        }
+        return [...options].sort((a, b) => a.localeCompare(b));
+    });
+
+    filteredConfigurations = computed(() => {
+        const query = this.searchQuery().trim().toLowerCase();
+        const country = this.countryFilter();
+        const executor = this.executorFilter();
+        return this.configurations().filter((config) => {
+            if (country !== 'all' && config.country !== country) return false;
+            if (executor !== 'all' && (config.executor ?? 'queue') !== executor) return false;
+            if (!query) return true;
+            const blob = `${config.name ?? ''} ${config.description ?? ''} ${config.country ?? ''}`.toLowerCase();
+            return blob.includes(query);
+        });
+    });
+
+    hasActiveFilters = computed(
+        () => this.searchQuery().trim() !== '' || this.countryFilter() !== 'all' || this.executorFilter() !== 'all'
+    );
+
+    clearFilters(): void {
+        this.searchQuery.set('');
+        this.countryFilter.set('all');
+        this.executorFilter.set('all');
+    }
 
     systemTemplates = computed(() =>
         this.templates().filter((t) => t.type === 'System').sort((a, b) => {
@@ -187,7 +227,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     createConfiguration() {
-        this._router.navigate(['/smart-batch/create'], { queryParams: { from: 'guide' } });
+        this._router.navigate(['/smart-batch'], { queryParams: { start: 'country' } });
     }
 
     createBlankTemplate(): void {

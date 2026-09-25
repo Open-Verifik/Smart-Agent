@@ -53,7 +53,11 @@
                         >
                             {{ t(currentTitleKey()) }}
                         </h1>
-                        @if (!isLayoutStep()) {
+                        @if (step() === 'country') {
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('visitaGuide.countryStepHint') }}
+                            </p>
+                        } @else if (!isLayoutStep()) {
                             <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
                                 {{ t('visitaGuide.nowHint') }}
                             </p>
@@ -121,6 +125,22 @@
                     }
                 </div>
 
+                <div class="flex flex-wrap gap-2">
+                    <a
+                        routerLink="/smart-batch/workspace"
+                        class="inline-flex min-h-9 items-center rounded-xl border border-stone-200 bg-white px-3 text-sm font-medium text-stone-700 transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-white"
+                    >
+                        {{ t('visitaGuide.openConfigurations') }}
+                    </a>
+                    <a
+                        routerLink="/smart-batch/workspace"
+                        [queryParams]="{ tab: 'templates' }"
+                        class="inline-flex min-h-9 items-center rounded-xl border border-stone-200 bg-white px-3 text-sm font-medium text-stone-700 transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-white"
+                    >
+                        {{ t('visitaGuide.openTemplates') }}
+                    </a>
+                </div>
+
                 @if (entities().length || countryIso()) {
                     <div
                         class="flex flex-wrap text-xs"
@@ -137,12 +157,15 @@
                             >
                         }
                         @if (countryIso()) {
-                            <span
-                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                            <button
+                                type="button"
+                                class="rounded-full border border-stone-200 bg-white py-1 text-stone-700 transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-white"
                                 [class.px-3]="!isLayoutStep()"
                                 [class.px-2]="isLayoutStep()"
-                                >{{ countryFlag() }} Colombia</span
+                                (click)="openCountryStep()"
                             >
+                                {{ countryFlag() }} {{ countryLabel() }}
+                            </button>
                         }
                         @if (mode() === 'batch') {
                             <span
@@ -252,6 +275,211 @@
                             </button>
                         }
                     }
+                    @case ('setup') {
+                        <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.setupHint') }}</p>
+                        <label class="mt-4 block text-sm font-medium text-stone-800 dark:text-stone-100" for="guide-setup-name">{{
+                            t('createBatchConfig.configurationName')
+                        }}</label>
+                        <input
+                            id="guide-setup-name"
+                            type="text"
+                            maxlength="150"
+                            class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [ngModel]="setupName()"
+                            (ngModelChange)="setupName.set($event)"
+                        />
+                        <label class="mt-4 block text-sm font-medium text-stone-800 dark:text-stone-100" for="guide-setup-description">{{
+                            t('createBatchConfig.description')
+                        }}</label>
+                        <textarea
+                            id="guide-setup-description"
+                            rows="2"
+                            maxlength="800"
+                            class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [ngModel]="setupDescription()"
+                            (ngModelChange)="setupDescription.set($event)"
+                        ></textarea>
+                        <p class="mb-2 mt-5 text-sm font-medium text-stone-700 dark:text-stone-300">
+                            {{ t('createBatchConfig.runMode') }}
+                        </p>
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <button type="button" [class]="runModeCardClass(isAsyncSelected())" (click)="selectRunMode('queue')">
+                                <span>
+                                    <span class="block text-sm font-semibold">{{ t('createBatchConfig.runModeAsync') }}</span>
+                                    <span [class]="runModeHintClass(isAsyncSelected())">{{ t('createBatchConfig.runModeAsyncHint') }}</span>
+                                </span>
+                            </button>
+                            <button type="button" [class]="runModeCardClass(!isAsyncSelected())" (click)="selectRunMode('browser')">
+                                <span>
+                                    <span class="block text-sm font-semibold">{{ t('createBatchConfig.runModeSync') }}</span>
+                                    <span [class]="runModeHintClass(!isAsyncSelected())">{{ t('createBatchConfig.runModeSyncHint') }}</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <label class="block text-sm font-medium text-stone-800 dark:text-stone-100">
+                                {{ t('createBatchConfig.inputFieldsFormat') }}
+                                <select
+                                    class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                    [ngModel]="setupInputFormat()"
+                                    (ngModelChange)="setInputFormat($event)"
+                                >
+                                    <option value="csv">CSV</option>
+                                    <option value="xlsx">Excel (XLSX)</option>
+                                    <option value="jsonl">JSONL</option>
+                                </select>
+                            </label>
+                            <label class="block text-sm font-medium text-stone-800 dark:text-stone-100">
+                                {{ t('createBatchConfig.resultOutputFormat') }}
+                                <select
+                                    class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                    [ngModel]="setupOutputFormat()"
+                                    (ngModelChange)="setOutputFormat($event)"
+                                >
+                                    <option value="csv">CSV</option>
+                                    <option value="xlsx">Excel (XLSX)</option>
+                                    <option value="jsonl">JSONL</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label class="mt-4 block text-sm font-medium text-stone-800 dark:text-stone-100">
+                            {{ t('createBatchConfig.mergeStrategy') }}
+                            <select
+                                class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                [ngModel]="setupMergeStrategy()"
+                                (ngModelChange)="setMergeStrategy($event)"
+                            >
+                                <option value="sequential">{{ t('createBatchConfig.sequential') }}</option>
+                                <option value="parallel-independent">{{ t('createBatchConfig.parallelIndependent') }}</option>
+                                <option value="parallel-with-fallback">{{ t('createBatchConfig.parallelWithFallback') }}</option>
+                            </select>
+                        </label>
+                        <div class="mt-5 rounded-2xl border border-dashed border-stone-300 bg-stone-50/70 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                            <button type="button" class="flex w-full items-center justify-between text-left" (click)="toggleNotifications()">
+                                <span>
+                                    <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t('createBatchConfig.notifications')
+                                    }}</span>
+                                    <span class="mt-1 block text-xs text-stone-500">{{ t('createBatchConfig.notificationsHint') }}</span>
+                                </span>
+                                <mat-icon>{{ notificationsOpen() ? 'expand_less' : 'expand_more' }}</mat-icon>
+                            </button>
+                            @if (notificationsOpen()) {
+                                <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start">
+                                    <input
+                                        type="url"
+                                        class="min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        placeholder="https://example.com/webhooks/smart-batch"
+                                        [attr.aria-label]="t('createBatchConfig.webhookUrl')"
+                                        [ngModel]="setupWebhookUrl()"
+                                        (ngModelChange)="onWebhookInput($event)"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-stone-300 px-4 text-sm font-medium disabled:opacity-40"
+                                        [disabled]="!canTestWebhook()"
+                                        (click)="testWebhook()"
+                                    >
+                                        {{ testingWebhook() ? t('createBatchConfig.testing') : t('createBatchConfig.testWebhook') }}
+                                    </button>
+                                </div>
+                                @if (setupWebhookUrl().trim() && !isWebhookReady() && !webhookTestResult()) {
+                                    <p class="mt-2 text-xs text-amber-700 dark:text-amber-300">{{
+                                        t('createBatchConfig.webhookMustTest')
+                                    }}</p>
+                                }
+                                @if (webhookTestResult(); as result) {
+                                    <p
+                                        class="mt-2 text-xs"
+                                        [class.text-emerald-700]="result.status === 'success'"
+                                        [class.text-red-600]="result.status !== 'success'"
+                                    >
+                                        {{
+                                            t(result.status === 'success' ? 'createBatchConfig.testSuccess' : 'createBatchConfig.testFailed')
+                                        }}
+                                        @if (result.statusCode) { HTTP {{ result.statusCode }} }
+                                        @if (result.message) { {{ result.message }} }
+                                    </p>
+                                }
+                                <label class="mt-4 block text-sm font-medium text-stone-800 dark:text-stone-100">{{
+                                    t('createBatchConfig.emailOnCompletion')
+                                }}</label>
+                                <div
+                                    class="mt-1 flex min-h-12 flex-wrap items-center gap-2 rounded-xl border bg-white px-3 py-2 dark:bg-gray-950"
+                                    [class.border-red-400]="emailDraftError()"
+                                    [class.border-stone-200]="!emailDraftError()"
+                                >
+                                    @for (email of setupEmails(); track email) {
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-sm text-stone-800 dark:bg-gray-800 dark:text-stone-100">
+                                            {{ email }}
+                                            <button type="button" class="text-stone-500" (click)="removeEmailChip(email)" [attr.aria-label]="t('createBatchConfig.removeEmail')">×</button>
+                                        </span>
+                                    }
+                                    <input
+                                        type="email"
+                                        class="min-w-[10rem] flex-1 border-0 bg-transparent py-1 text-sm outline-none dark:text-white"
+                                        [placeholder]="t('createBatchConfig.emailChipPlaceholder')"
+                                        [ngModel]="emailDraft()"
+                                        (ngModelChange)="onEmailInput($event)"
+                                        (keydown)="onEmailKeydown($event)"
+                                        (blur)="onEmailBlur()"
+                                    />
+                                </div>
+                                @if (emailDraftError()) {
+                                    <p class="mt-1 text-xs text-red-600">{{ t('createBatchConfig.invalidEmails') }}</p>
+                                } @else {
+                                    <p class="mt-1 text-xs text-stone-500">{{ t('createBatchConfig.emailOnCompletionHint') }}</p>
+                                }
+                            }
+                        </div>
+                        <div class="mt-5 rounded-2xl border border-stone-200 bg-white p-4 text-sm dark:border-gray-800 dark:bg-gray-900/70">
+                            <p class="font-semibold text-stone-950 dark:text-white">{{ t('visitaGuide.reviewSummary') }}</p>
+                            <dl class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                <div>
+                                    <dt class="text-xs uppercase tracking-wide text-stone-400">{{ t('createBatchConfig.configurationName') }}</dt>
+                                    <dd class="text-stone-800 dark:text-stone-100">{{ setupName() || '—' }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs uppercase tracking-wide text-stone-400">{{ t('visitaGuide.endpointsCartTitle') }}</dt>
+                                    <dd class="text-stone-800 dark:text-stone-100">{{ countryFlag() }} {{ countryLabel() }} · {{ selectedFeatures().length }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs uppercase tracking-wide text-stone-400">{{ t('createBatchConfig.runMode') }}</dt>
+                                    <dd class="text-stone-800 dark:text-stone-100">{{
+                                        t(isAsyncSelected() ? 'createBatchConfig.runModeAsync' : 'createBatchConfig.runModeSync')
+                                    }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs uppercase tracking-wide text-stone-400">{{ t('createBatchConfig.mergeStrategy') }}</dt>
+                                    <dd class="text-stone-800 dark:text-stone-100">{{ t(mergeStrategyLabelKey()) }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-xs uppercase tracking-wide text-stone-400">{{ t('createBatchConfig.inputFieldsFormat') }}</dt>
+                                    <dd class="text-stone-800 dark:text-stone-100">{{ formatLabel(setupInputFormat()) }} → {{ formatLabel(setupOutputFormat()) }}</dd>
+                                </div>
+                                @if (setupWebhookUrl().trim()) {
+                                    <div class="sm:col-span-2">
+                                        <dt class="text-xs uppercase tracking-wide text-stone-400">{{ t('createBatchConfig.webhookUrl') }}</dt>
+                                        <dd class="break-all text-stone-800 dark:text-stone-100">{{ setupWebhookUrl() }}</dd>
+                                    </div>
+                                }
+                                @if (setupEmails().length) {
+                                    <div class="sm:col-span-2">
+                                        <dt class="text-xs uppercase tracking-wide text-stone-400">{{ t('createBatchConfig.emailOnCompletion') }}</dt>
+                                        <dd class="text-stone-800 dark:text-stone-100">{{ setupEmails().join(', ') }}</dd>
+                                    </div>
+                                }
+                            </dl>
+                        </div>
+                        <button
+                            type="button"
+                            class="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white disabled:opacity-40 dark:bg-white dark:text-gray-950"
+                            [disabled]="isWorking() || !setupName().trim() || !isWebhookReady()"
+                            (click)="confirmSetup()"
+                        >
+                            {{ isWorking() ? t('visitaGuide.setupSaving') : t('visitaGuide.confirmSetup') }}
+                        </button>
+                    }
                     @case ('mode') {
                         <button
                             type="button"
@@ -277,21 +505,96 @@
                         </button>
                     }
                     @case ('country') {
-                        @for (country of countries; track country.iso) {
-                            <button
-                                type="button"
-                                class="flex w-full items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
-                                (click)="selectCountry(country.iso)"
-                            >
-                                <span class="text-xl">{{ flagFor(country.iso) }}</span>
-                                <span class="text-sm font-semibold text-stone-950 dark:text-white">{{
-                                    country.name
-                                }}</span>
-                            </button>
+                        <input
+                            #countrySearchInput
+                            type="search"
+                            class="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="t('visitaGuide.countrySearch')"
+                            [attr.aria-label]="t('visitaGuide.countrySearch')"
+                            [ngModel]="countrySearchQuery()"
+                            (ngModelChange)="countrySearchQuery.set($event)"
+                            (keydown)="onCountrySearchKeydown($event)"
+                        />
+                        @if (featuresError()) {
+                            <p class="text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
+                        }
+                        @if (countryTiles().length === 0) {
+                            <p class="px-1 py-6 text-sm text-stone-400">{{ t('visitaGuide.countrySearchEmpty') }}</p>
+                        } @else {
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                @for (country of countryTiles(); track country.iso) {
+                                    <button
+                                        type="button"
+                                        class="flex min-h-16 items-center gap-3 rounded-2xl border p-4 text-left transition"
+                                        [ngClass]="countryTileClass(country.iso, country.count)"
+                                        (click)="selectCountry(country.iso)"
+                                    >
+                                        <span class="text-2xl leading-none" aria-hidden="true">{{
+                                            flagFor(country.iso)
+                                        }}</span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                country.name
+                                            }}</span>
+                                            <span class="mt-0.5 block text-xs text-stone-500 dark:text-stone-400">
+                                                @if (country.count === null && !featuresError()) {
+                                                    {{ t('visitaGuide.countryCountLoading') }}
+                                                } @else if (country.count === 0) {
+                                                    {{ t('visitaGuide.countryNoSources') }}
+                                                } @else if (country.count === 1) {
+                                                    {{ t('visitaGuide.countrySourceOne') }}
+                                                } @else {
+                                                    {{ t('visitaGuide.countrySourceCount', { count: country.count }) }}
+                                                }
+                                            </span>
+                                        </span>
+                                        @if (countryIso() === country.iso) {
+                                            <mat-icon class="shrink-0 text-emerald-600 dark:text-emerald-400"
+                                                >check_circle</mat-icon
+                                            >
+                                        }
+                                    </button>
+                                }
+                            </div>
                         }
                     }
                     @case ('endpoints') {
                         <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.endpointsHint') }}</p>
+                        @if (savedConfigsForCountry().length) {
+                            <div class="mt-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                    {{ t('visitaGuide.savedConfigsTitle') }}
+                                </p>
+                                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                    {{ t('visitaGuide.savedConfigsHint') }}
+                                </p>
+                                <div class="mt-3 grid grid-cols-1 gap-2">
+                                    @for (config of savedConfigsForCountry(); track config._id ?? config.id) {
+                                        <button
+                                            type="button"
+                                            class="flex w-full items-center gap-3 rounded-xl border border-stone-200 px-3 py-3 text-left transition hover:border-stone-950 dark:border-gray-800 dark:hover:border-white"
+                                            (click)="useSavedConfiguration(config)"
+                                        >
+                                            <span class="text-xl leading-none" aria-hidden="true">{{
+                                                flagFor(config.country)
+                                            }}</span>
+                                            <span class="min-w-0 flex-1">
+                                                <span class="block truncate text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                    config.name
+                                                }}</span>
+                                                <span class="mt-0.5 block text-xs uppercase tracking-wide text-stone-500">
+                                                    {{ config.inputFormat }} → {{ config.outputFormat }}
+                                                    · {{ t(executorBadgeKey(config.executor)) }}
+                                                </span>
+                                            </span>
+                                            <span class="shrink-0 text-xs font-medium text-stone-700 dark:text-stone-200">{{
+                                                t('visitaGuide.useThisConfiguration')
+                                            }}</span>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
                         @if (availableRequiredParamFilters().length) {
                             <div class="mt-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
                                 <div class="flex items-start justify-between gap-3">
@@ -368,9 +671,19 @@
                                 class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70"
                             >
                                 <div class="shrink-0 border-b border-stone-100 px-4 py-3 dark:border-gray-800">
-                                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
-                                        {{ t('visitaGuide.endpointsCatalogTitle') }}
-                                    </p>
+                                    <div class="flex items-start justify-between gap-3">
+                                        <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                            <span aria-hidden="true">{{ countryFlag() }}</span>
+                                            {{ t('visitaGuide.endpointsCatalogForCountry', { country: countryLabel() }) }}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            class="shrink-0 text-xs font-medium text-stone-600 underline-offset-4 hover:underline dark:text-stone-300"
+                                            (click)="openCountryStep()"
+                                        >
+                                            {{ t('visitaGuide.changeCountry') }}
+                                        </button>
+                                    </div>
                                     <input
                                         type="search"
                                         class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
@@ -390,11 +703,13 @@
                                     class="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3"
                                 >
                                     @for (group of groupedEndpointFeatures(); track group.id) {
+                                        @if (group.items.length) {
                                         <p
                                             class="sticky top-0 z-[1] bg-white py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400 dark:bg-gray-900"
                                         >
                                             {{ t(featureGroupLabelKey(group.id)) }}
                                         </p>
+                                        }
                                         @for (feature of group.items; track feature._id) {
                                             <div
                                                 cdkDrag
@@ -463,7 +778,31 @@
                                         }
                                     }
                                     @if (!isLoadingFeatures() && visibleEndpointFeatures().length === 0) {
-                                        <p class="px-1 py-6 text-sm text-stone-400">{{ t('visitaGuide.noEndpoints') }}</p>
+                                        <div class="px-1 py-6 text-center">
+                                            <p class="text-sm text-stone-500 dark:text-stone-400">
+                                                @if (entities().length === 1) {
+                                                    {{
+                                                        t('visitaGuide.noEndpointsForCountry', {
+                                                            lookup: t(lookupKey()),
+                                                            country: countryLabel(),
+                                                        })
+                                                    }}
+                                                } @else {
+                                                    {{
+                                                        t('visitaGuide.noEndpointsForCountryMixed', {
+                                                            country: countryLabel(),
+                                                        })
+                                                    }}
+                                                }
+                                            </p>
+                                            <button
+                                                type="button"
+                                                class="mt-3 text-sm font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-200"
+                                                (click)="openCountryStep()"
+                                            >
+                                                {{ t('visitaGuide.chooseAnotherCountry') }}
+                                            </button>
+                                        </div>
                                     }
                                 </div>
                             </section>

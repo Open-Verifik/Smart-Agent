@@ -120,6 +120,9 @@ export interface AppFeature {
     method?: string;
     url?: string;
     country?: string;
+    group?: string;
+    baseCategory?: string;
+    checkListDomains?: Array<'people' | 'vehicles' | 'businesses'>;
     requiredParams?: string[];
     dependencies?: { field: string; required?: boolean; enum?: string[] }[];
     smartBatchSuccessWhen?: SmartBatchSuccessWhenRule[];

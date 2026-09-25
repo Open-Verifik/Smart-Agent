@@ -33,8 +33,19 @@ import {
     paramHighlightSwatchClass,
     requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
-import { featureGroup as classifyFeatureGroup, FeatureGroupId } from '../feature-group.util';
-import { filterFeaturesForCountry, resolveDropdownCountry } from '../smart-batch-country.util';
+import {
+    featureGroup as classifyFeatureGroup,
+    FeatureGroupId,
+    isSmartBatchCatalogFeature,
+} from '../feature-group.util';
+import {
+    compareFeaturesForSelectedCountry,
+    filterFeaturesForCountry,
+    getCountryFlag,
+    isWorldCountry,
+    resolveDropdownCountry,
+} from '../smart-batch-country.util';
+import { availableCountries } from '../visita-guide/visita-guide.catalog';
 import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 import { CheckListBatchPrefill, readCheckListBatchPrefill } from '../../check-list/check-list-batch.util';
 
@@ -108,18 +119,14 @@ export class CreateBatchConfigComponent {
     ] as const;
 
     // Data
-    countries = signal([
-        { code: 'Colombia', name: '🇨🇴 Colombia' },
-        { code: 'Peru', name: '🇵🇪 Peru' },
-        { code: 'Mexico', name: '🇲🇽 Mexico' },
-        { code: 'Brazil', name: '🇧🇷 Brazil' },
-        { code: 'Chile', name: '🇨🇱 Chile' },
-        { code: 'Argentina', name: '🇦🇷 Argentina' },
-        { code: 'Ecuador', name: '🇪🇨 Ecuador' },
-        { code: 'Venezuela', name: '🇻🇪 Venezuela' },
-        { code: 'United States', name: '🇺🇸 United States' },
-        { code: 'Spain', name: '🇪🇸 Spain' },
-    ]);
+    countries = signal(
+        availableCountries()
+            .map((country) => ({
+                code: country.name,
+                name: `${getCountryFlag(country.name)} ${country.name}`,
+            }))
+            .sort((left, right) => left.code.localeCompare(right.code))
+    );
 
     availableFeatures = signal<any[]>([]);
     isLoadingFeatures = signal(false);
@@ -128,7 +135,7 @@ export class CreateBatchConfigComponent {
     step1Form: FormGroup = this._formBuilder.group({
         name: ['', [Validators.required, Validators.maxLength(150)]],
         description: ['', [Validators.maxLength(800)]],
-        country: ['Colombia', Validators.required],
+        country: ['', Validators.required],
         inputFormat: ['csv', Validators.required],
         outputFormat: ['csv', Validators.required],
         mergeStrategy: ['sequential', Validators.required],
@@ -159,7 +166,9 @@ export class CreateBatchConfigComponent {
 
     // Available features limited to selected country + world endpoints
     availableFeaturesForCountry = computed(() => {
-        return filterFeaturesForCountry(this.availableFeatures(), this.selectedCountryForEndpoints());
+        return filterFeaturesForCountry(this.availableFeatures(), this.selectedCountryForEndpoints()).filter(
+            isSmartBatchCatalogFeature
+        );
     });
 
     // Filtered by search (title / URL) within country-filtered list
@@ -192,14 +201,17 @@ export class CreateBatchConfigComponent {
             const group = buckets.find((item) => item.id === this.featureGroup(feature));
             group?.items.push(feature);
         }
-        if (highlight) {
-            for (const bucket of buckets) {
-                bucket.items.sort((left, right) => {
+        for (const bucket of buckets) {
+            bucket.items.sort((left, right) => {
+                const byCountry = (isWorldCountry(left.country) ? 1 : 0) - (isWorldCountry(right.country) ? 1 : 0);
+                if (byCountry !== 0) return byCountry;
+                if (highlight) {
                     const leftMatch = this.isParamHighlighted(left) ? 0 : 1;
                     const rightMatch = this.isParamHighlighted(right) ? 0 : 1;
-                    return leftMatch - rightMatch;
-                });
-            }
+                    if (leftMatch !== rightMatch) return leftMatch - rightMatch;
+                }
+                return compareFeaturesForSelectedCountry(left, right);
+            });
         }
         return buckets.filter((bucket) => bucket.items.length > 0);
     });
@@ -240,8 +252,10 @@ export class CreateBatchConfigComponent {
                     { emitEvent: false }
                 );
             }
-            const country = this.step1Form.get('country')?.value || 'Colombia';
-            this.fetchFeatures(country, { resetSelection: !this._checkListPrefill });
+            const country = this.step1Form.get('country')?.value;
+            if (country) {
+                this.fetchFeatures(country, { resetSelection: !this._checkListPrefill });
+            }
         }
     }
 
@@ -468,7 +482,7 @@ export class CreateBatchConfigComponent {
         return this.selectedFeatures().some((f) => f._id === feature._id);
     }
 
-    featureGroup(feature: { code?: string; name?: string; url?: string; description?: string }): FeatureGroupId {
+    featureGroup(feature: AppFeature): FeatureGroupId {
         return classifyFeatureGroup(feature);
     }
 

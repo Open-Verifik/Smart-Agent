@@ -1,6 +1,6 @@
-<div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+<div class="bd-root flex min-h-screen min-w-0 flex-auto flex-col dark:bg-gray-950">
     <header
-        class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+        class="bd-hero border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
     >
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
             <div
@@ -44,7 +44,7 @@
                         <mat-icon>arrow_back</mat-icon>
                     </button>
                     <div class="flex min-w-0 items-start gap-3">
-                        <span class="shrink-0 text-3xl" *ngIf="configuration()">{{
+                        <span class="bd-flag-medallion shrink-0 text-3xl" *ngIf="configuration()">{{
                             getCountryFlag(configuration()!.country)
                         }}</span>
                         <div class="min-w-0">
@@ -59,19 +59,56 @@
                                         || ('batchDashboard.batchProcessingDashboard' | transloco)
                                 }}
                             </p>
+                            <div class="mt-3 flex flex-wrap gap-2" *ngIf="configuration()">
+                                <span class="bd-pill">
+                                    {{
+                                        (configuration()!.executor === 'browser'
+                                            ? 'createBatchConfig.runModeSync'
+                                            : 'createBatchConfig.runModeAsync'
+                                        ) | transloco
+                                    }}
+                                </span>
+                                <span class="bd-pill">
+                                    {{ configuration()!.inputFormat | uppercase }} →
+                                    {{ configuration()!.outputFormat | uppercase }}
+                                </span>
+                                <span class="bd-pill bd-pill-capitalize">
+                                    {{ configuration()?.mergeStrategy?.replace('-', ' ') }}
+                                </span>
+                                <span class="bd-pill" *ngIf="configuration()!.country">
+                                    {{ configuration()!.country }}
+                                </span>
+                                <span
+                                    class="bd-pill bd-pill-danger"
+                                    *ngIf="configuration()?.isActive === false"
+                                >
+                                    {{ 'smartBatchLanding.inactive' | transloco }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <button
-                    mat-flat-button
-                    color="primary"
-                    type="button"
-                    (click)="createBatch()"
-                    class="shrink-0 rounded-xl !px-6 !py-2"
-                >
-                    <mat-icon class="mr-2 icon-size-5">add</mat-icon>
-                    {{ 'batchDashboard.createBatch' | transloco }}
-                </button>
+                <div class="flex shrink-0 flex-wrap items-center gap-2">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        (click)="editConfiguration()"
+                        class="rounded-xl"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">edit</mat-icon>
+                        {{ 'batchDashboard.editConfiguration' | transloco }}
+                    </button>
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        (click)="createBatch()"
+                        class="rounded-xl !px-6 !py-2"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">add</mat-icon>
+                        {{ 'batchDashboard.createBatch' | transloco }}
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -277,35 +314,38 @@
                         <mat-icon>close</mat-icon>
                     </button>
                 </div>
-                <div class="space-y-3">
+                <div class="bd-timeline">
                     <div
-                        *ngFor="let step of stepsDetails(); let idx = index"
-                        class="flex items-center gap-4 rounded-xl bg-stone-50 p-3 dark:bg-gray-800/50"
+                        *ngFor="let step of stepsDetails(); let idx = index; let last = last"
+                        class="bd-timeline-item"
+                        [class.bd-timeline-item-last]="last"
                     >
-                        <div
-                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400"
-                        >
+                        <div class="bd-timeline-node">
                             {{ step.sequence }}
                         </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="font-medium text-stone-900 dark:text-white">{{ step.name }}</p>
-                            <p
-                                *ngIf="step.url"
-                                class="font-mono text-sm text-stone-500 dark:text-stone-400"
-                            >
-                                {{ step.url }}
-                            </p>
+                        <div class="min-w-0 flex-1 rounded-xl bg-stone-50 p-3 dark:bg-gray-800/50">
+                            <div class="flex items-center gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-medium text-stone-900 dark:text-white">{{ step.name }}</p>
+                                    <p
+                                        *ngIf="step.url"
+                                        class="font-mono text-sm text-stone-500 dark:text-stone-400"
+                                    >
+                                        {{ step.url }}
+                                    </p>
+                                </div>
+                                <div class="shrink-0 text-right">
+                                    <span class="text-sm font-medium text-green-600 dark:text-green-400"
+                                        >${{ step.price.toFixed(2) }}</span
+                                    >
+                                </div>
+                                <span
+                                    *ngIf="!step.enabled"
+                                    class="shrink-0 rounded bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                    >{{ 'batchDashboard.disabled' | transloco }}</span
+                                >
+                            </div>
                         </div>
-                        <div class="shrink-0 text-right">
-                            <span class="text-sm font-medium text-green-600 dark:text-green-400"
-                                >${{ step.price.toFixed(2) }}</span
-                            >
-                        </div>
-                        <span
-                            *ngIf="!step.enabled"
-                            class="shrink-0 rounded bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                            >{{ 'batchDashboard.disabled' | transloco }}</span
-                        >
                     </div>
                 </div>
             </div>

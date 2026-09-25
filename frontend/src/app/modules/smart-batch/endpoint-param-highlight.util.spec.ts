@@ -84,6 +84,7 @@ describe('matchesParamHighlight', () => {
         const feature = {
             code: 'colombia_api_rues',
             name: 'RUES empresa',
+            baseCategory: 'business',
             dependencies: [
                 { field: 'documentType', required: true },
                 { field: 'documentNumber', required: true },

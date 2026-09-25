@@ -3,7 +3,12 @@ import { firstValueFrom } from 'rxjs';
 import { featureGroup } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { defaultSystemKey, GuideEntity, GUIDE_COUNTRIES } from './visita-guide.catalog';
+import {
+    countryNameForIso,
+    defaultSystemKey,
+    GuideBatchSettings,
+    GuideEntity,
+} from './visita-guide.catalog';
 
 export interface GuidePipelineResult {
     configId: string;
@@ -41,11 +46,31 @@ export class VisitaGuidePipelineService {
     async resolve(
         entities: GuideEntity[],
         iso: string,
-        name: string,
-        selectedFeatures: AppFeature[] = []
+        settings: GuideBatchSettings,
+        selectedFeatures: AppFeature[] = [],
+        existing?: { configId: string; template: SmartReportTemplate | null }
     ): Promise<GuidePipelineResult> {
         const unique = [...new Set(entities)];
         if (unique.length === 0) throw new Error('no entities');
+
+        if (existing?.configId) {
+            const populated = await firstValueFrom(this._batch.getConfiguration(existing.configId));
+            const applied = await this._applySelection(
+                {
+                    configId: existing.configId,
+                    configuration: populated.data,
+                    template: existing.template,
+                },
+                selectedFeatures,
+                unique
+            );
+            return this._withSettings(applied, settings);
+        }
+
+        // System presets only exist for Colombia. Other countries use the endpoints the user picked.
+        if (iso.trim().toLowerCase() !== 'co') {
+            return this._createFromSelection(unique, iso, settings, selectedFeatures);
+        }
 
         if (unique.length === 1) {
             const cloned = await firstValueFrom(
@@ -54,14 +79,17 @@ export class VisitaGuidePipelineService {
             const configId = cloned.data.batchConfiguration._id ?? cloned.data.batchConfiguration.id;
             if (!configId) throw new Error('missing config');
             const populated = await firstValueFrom(this._batch.getConfiguration(configId));
-            return this._applySelection(
-                {
-                    configId,
-                    configuration: populated.data,
-                    template: cloned.data.template,
-                },
-                selectedFeatures,
-                unique
+            return this._withSettings(
+                await this._applySelection(
+                    {
+                        configId,
+                        configuration: populated.data,
+                        template: cloned.data.template,
+                    },
+                    selectedFeatures,
+                    unique
+                ),
+                settings
             );
         }
 
@@ -78,7 +106,6 @@ export class VisitaGuidePipelineService {
 
         const mixed = unique.includes('citizen') && unique.includes('company');
         const hasCitizen = unique.includes('citizen');
-        const hasCompany = unique.includes('company');
         const seen = new Set<string>();
         const steps: BatchStep[] = [];
         const mergedSections: ReportSection[] = [];
@@ -95,7 +122,7 @@ export class VisitaGuidePipelineService {
                 seen.add(id);
                 const sequence = steps.length + 1;
                 seqMap.set(step.sequence, sequence);
-                const mapping = this._mappingFor(clone.entity, mixed, hasCitizen, hasCompany);
+                const mapping = this._mappingFor(clone.entity, mixed, hasCitizen);
                 steps.push({
                     appFeature: id,
                     sequence,
@@ -118,19 +145,9 @@ export class VisitaGuidePipelineService {
             mergedSections.push(...remapSections(clone.template?.sections, seqMap));
         }
 
-        const country = GUIDE_COUNTRIES.find((item) => item.iso === iso)?.name ?? 'Colombia';
+        const country = countryNameForIso(iso);
         const created = await firstValueFrom(
-            this._batch.createConfiguration({
-                name,
-                description: unique.join('+'),
-                country,
-                steps,
-                inputFormat: 'csv',
-                outputFormat: 'xlsx',
-                mergeStrategy: 'sequential',
-                executor: clones[0]?.configuration.executor ?? 'queue',
-                isActive: true,
-            })
+            this._batch.createConfiguration(this._configurationBody(settings, country, steps))
         );
         const configId = created.data._id ?? created.data.id;
         if (!configId) throw new Error('missing mixed config');
@@ -141,7 +158,7 @@ export class VisitaGuidePipelineService {
             const base = clones.find((item) => item.template)?.template;
             template = await firstValueFrom(
                 this._reports.createTemplate({
-                    name,
+                    name: settings.name.trim(),
                     type: 'client',
                     country,
                     batchConfiguration: configId,
@@ -165,7 +182,104 @@ export class VisitaGuidePipelineService {
             configuration: populated.data,
             template,
         };
-        return this._applySelection(mixedResult, selectedFeatures, unique);
+        return this._withSettings(
+            await this._applySelection(mixedResult, selectedFeatures, unique),
+            settings
+        );
+    }
+
+    private async _createFromSelection(
+        entities: GuideEntity[],
+        iso: string,
+        settings: GuideBatchSettings,
+        selectedFeatures: AppFeature[]
+    ): Promise<GuidePipelineResult> {
+        if (!selectedFeatures.length) throw new Error('no endpoints');
+
+        const mixed = entities.includes('citizen') && entities.includes('company');
+        const hasCitizen = entities.includes('citizen');
+        const steps: BatchStep[] = selectedFeatures.map((feature, index) => {
+            const entity = this._entityForFeature(feature, entities);
+            const mapping = this._mappingFor(entity, mixed, hasCitizen);
+            return {
+                appFeature: feature._id,
+                sequence: index + 1,
+                enabled: true,
+                parameterDefaults: mapping.parameterDefaults,
+                inputFieldMapping: mapping.inputFieldMapping,
+                outputFieldsToKeep: [],
+                maxRetries: 3,
+                retryDelayBaseSeconds: 4,
+                timeoutSeconds: 30,
+            };
+        });
+
+        const country = countryNameForIso(iso);
+        const created = await firstValueFrom(
+            this._batch.createConfiguration(this._configurationBody(settings, country, steps))
+        );
+        const configId = created.data._id ?? created.data.id;
+        if (!configId) throw new Error('missing config');
+        const populated = await firstValueFrom(this._batch.getConfiguration(configId));
+
+        return {
+            configId,
+            configuration: populated.data,
+            template: null,
+        };
+    }
+
+    private _settingsPayload(settings: GuideBatchSettings): Partial<BatchConfiguration> {
+        return {
+            name: settings.name.trim(),
+            description: settings.description.trim(),
+            inputFormat: settings.inputFormat,
+            outputFormat: settings.outputFormat,
+            mergeStrategy: settings.mergeStrategy,
+            executor: settings.executor,
+            notification: {
+                webhookUrl: settings.webhookUrl.trim(),
+                emailOnCompletion: settings.emailOnCompletion,
+            },
+            isActive: true,
+        };
+    }
+
+    private _configurationBody(
+        settings: GuideBatchSettings,
+        country: string,
+        steps: BatchStep[]
+    ): BatchConfiguration {
+        return {
+            name: settings.name.trim(),
+            description: settings.description.trim(),
+            country,
+            steps,
+            inputFormat: settings.inputFormat,
+            outputFormat: settings.outputFormat,
+            mergeStrategy: settings.mergeStrategy,
+            executor: settings.executor,
+            notification: {
+                webhookUrl: settings.webhookUrl.trim(),
+                emailOnCompletion: settings.emailOnCompletion,
+            },
+            isActive: true,
+        };
+    }
+
+    private async _withSettings(
+        result: GuidePipelineResult,
+        settings: GuideBatchSettings
+    ): Promise<GuidePipelineResult> {
+        await firstValueFrom(
+            this._batch.updateConfiguration(result.configId, this._settingsPayload(settings))
+        );
+        const populated = await firstValueFrom(this._batch.getConfiguration(result.configId));
+        return {
+            configId: result.configId,
+            configuration: populated.data,
+            template: result.template,
+        };
     }
 
     private async _applySelection(
@@ -177,7 +291,6 @@ export class VisitaGuidePipelineService {
 
         const mixed = entities.includes('citizen') && entities.includes('company');
         const hasCitizen = entities.includes('citizen');
-        const hasCompany = entities.includes('company');
         const previousById = new Map<string, BatchStep>();
         for (const step of result.configuration.steps ?? []) {
             const id = featureId(step.appFeature);
@@ -190,7 +303,7 @@ export class VisitaGuidePipelineService {
             const sequence = index + 1;
             if (previous) seqMap.set(previous.sequence, sequence);
             const entity = this._entityForFeature(feature, entities);
-            const mapping = this._mappingFor(entity, mixed, hasCitizen, hasCompany);
+            const mapping = this._mappingFor(entity, mixed, hasCitizen);
             return {
                 appFeature: feature._id,
                 sequence,
@@ -234,8 +347,7 @@ export class VisitaGuidePipelineService {
     private _mappingFor(
         entity: GuideEntity,
         mixedCitizenCompany: boolean,
-        hasCitizen: boolean,
-        hasCompany: boolean
+        hasCitizen: boolean
     ): { parameterDefaults: Record<string, string>; inputFieldMapping: Record<string, string> } {
         if (!mixedCitizenCompany) {
             return { parameterDefaults: {}, inputFieldMapping: {} };
@@ -243,7 +355,7 @@ export class VisitaGuidePipelineService {
 
         if (entity === 'citizen') {
             return {
-                parameterDefaults: { documentType: 'CC' },
+                parameterDefaults: {},
                 inputFieldMapping: {
                     citizenDocumentNumber: 'documentNumber',
                     citizenDocumentType: 'documentType',
@@ -252,7 +364,7 @@ export class VisitaGuidePipelineService {
         }
         if (entity === 'company') {
             return {
-                parameterDefaults: { documentType: 'NIT' },
+                parameterDefaults: {},
                 inputFieldMapping: {
                     companyDocumentNumber: 'documentNumber',
                     companyDocumentType: 'documentType',
@@ -262,7 +374,7 @@ export class VisitaGuidePipelineService {
 
         const ownerFromCitizen = hasCitizen;
         return {
-            parameterDefaults: { documentType: ownerFromCitizen ? 'CC' : hasCompany ? 'NIT' : 'CC' },
+            parameterDefaults: {},
             inputFieldMapping: {
                 plate: 'plate',
                 ...(ownerFromCitizen

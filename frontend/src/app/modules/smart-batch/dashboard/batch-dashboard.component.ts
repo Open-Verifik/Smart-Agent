@@ -39,6 +39,7 @@ import { inferBatchCategory, SmartBatchInputModeService } from '../smart-batch-i
         BatchExecutorControlComponent,
     ],
     templateUrl: './batch-dashboard.component.html',
+    styleUrls: ['./batch-dashboard.component.scss'],
     encapsulation: ViewEncapsulation.None,
 })
 export class BatchDashboardComponent implements OnInit {
@@ -258,6 +259,14 @@ export class BatchDashboardComponent implements OnInit {
                 );
             },
         });
+    }
+
+    editConfiguration() {
+        const configId = this.configId();
+        if (!configId) {
+            return;
+        }
+        this._router.navigate(['/smart-batch/edit', configId]);
     }
 
     createBatch() {

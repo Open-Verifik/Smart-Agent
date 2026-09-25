@@ -9,6 +9,8 @@ export interface FeatureParamShape {
     name?: string;
     url?: string;
     description?: string;
+    baseCategory?: string;
+    checkListDomains?: unknown;
     requiredParams?: string[];
     dependencies?: {
         field?: string;

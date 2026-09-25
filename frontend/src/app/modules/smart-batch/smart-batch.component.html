@@ -1,7 +1,7 @@
 <ng-container *transloco="let t">
-    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+    <div class="sb-root flex min-h-screen min-w-0 flex-auto flex-col dark:bg-gray-950">
         <header
-            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-5 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-6"
         >
             <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
                 <div
@@ -38,10 +38,12 @@
                             <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
                                 {{ t('smartBatchLanding.title') }}
                             </h1>
+                            <mat-icon
+                                class="icon-size-4 text-stone-400"
+                                [matTooltip]="t('smartBatchLanding.subtitle')"
+                                >info</mat-icon
+                            >
                         </div>
-                        <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base">
-                            {{ t('smartBatchLanding.subtitle') }}
-                        </p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
@@ -110,18 +112,134 @@
         <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
             <div class="mx-auto flex w-full max-w-7xl flex-col gap-8">
                 @if (activeTab() === 'configurations') {
+                    <div class="sb-stat-strip">
+                        <div class="sb-stat-strip-item">
+                            <div class="sb-stat-value">{{ statsTotal() }}</div>
+                            <div class="sb-stat-label">{{ t('smartBatchLanding.statsTotal') }}</div>
+                        </div>
+                        <div class="sb-stat-strip-item">
+                            <div class="sb-stat-value">{{ statsActive() }}</div>
+                            <div class="sb-stat-label">{{ t('smartBatchLanding.statsActive') }}</div>
+                        </div>
+                        <div class="sb-stat-strip-item">
+                            <div class="sb-stat-value">{{ statsCountries() }}</div>
+                            <div class="sb-stat-label">{{ t('smartBatchLanding.statsCountries') }}</div>
+                        </div>
+                        <div class="sb-stat-strip-item">
+                            <div class="sb-stat-value">{{ clientTemplates().length }}</div>
+                            <div class="sb-stat-label">{{ t('smartBatchLanding.statsTemplates') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <div class="relative">
+                            <mat-icon
+                                class="icon-size-5 pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400"
+                                >search</mat-icon
+                            >
+                            <input
+                                type="search"
+                                class="w-full rounded-xl border border-stone-200 bg-white py-2.5 pl-11 pr-4 text-sm text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                [placeholder]="t('smartBatchLanding.searchPlaceholder')"
+                                [attr.aria-label]="t('smartBatchLanding.searchPlaceholder')"
+                                [value]="searchQuery()"
+                                (input)="searchQuery.set($any($event.target).value)"
+                            />
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                class="sb-filter-chip"
+                                [class.sb-filter-chip-active]="countryFilter() === 'all'"
+                                (click)="countryFilter.set('all')"
+                            >
+                                {{ t('smartBatchLanding.filterAll') }}
+                            </button>
+                            @for (country of countryOptions(); track country) {
+                                <button
+                                    type="button"
+                                    class="sb-filter-chip"
+                                    [class.sb-filter-chip-active]="countryFilter() === country"
+                                    (click)="countryFilter.set(country)"
+                                >
+                                    {{ getCountryFlag(country) }} {{ country }}
+                                </button>
+                            }
+                            <span class="mx-1 hidden h-5 w-px bg-stone-200 dark:bg-gray-700 sm:inline-block"></span>
+                            <button
+                                type="button"
+                                class="sb-filter-chip"
+                                [class.sb-filter-chip-active]="executorFilter() === 'queue'"
+                                (click)="executorFilter.set(executorFilter() === 'queue' ? 'all' : 'queue')"
+                            >
+                                {{ t('createBatchConfig.runModeAsync') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="sb-filter-chip"
+                                [class.sb-filter-chip-active]="executorFilter() === 'browser'"
+                                (click)="executorFilter.set(executorFilter() === 'browser' ? 'all' : 'browser')"
+                            >
+                                {{ t('createBatchConfig.runModeSync') }}
+                            </button>
+                            @if (hasActiveFilters()) {
+                                <button
+                                    type="button"
+                                    class="sb-filter-clear"
+                                    (click)="clearFilters()"
+                                >
+                                    {{ t('smartBatchLanding.clearFilters') }}
+                                </button>
+                            }
+                        </div>
+                    </div>
                     @if (isLoading()) {
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+                            @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+                                <div class="sb-skeleton-card p-0">
+                                    <div class="flex items-start gap-3 p-5 pb-4">
+                                        <div class="sb-shimmer h-11 w-11 shrink-0 rounded-2xl"></div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="sb-shimmer h-4 w-2/3 rounded"></div>
+                                            <div class="sb-shimmer mt-2 h-3 w-1/2 rounded"></div>
+                                        </div>
+                                    </div>
+                                    <div class="sb-shimmer mx-5 h-3 w-2/5 rounded"></div>
+                                    <div
+                                        class="mt-4 flex items-center justify-between gap-3 border-t border-stone-200/80 px-5 py-3.5 dark:border-gray-800"
+                                    >
+                                        <div class="sb-shimmer h-4 w-1/3 rounded"></div>
+                                        <div class="sb-shimmer h-4 w-16 rounded-full"></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    } @else if (hasActiveFilters() && filteredConfigurations().length === 0) {
                         <div
-                            class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 py-20 dark:border-gray-800"
+                            class="flex flex-col items-center justify-center rounded-2xl border border-stone-200 bg-white px-5 py-16 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
                         >
-                            <mat-spinner diameter="40"></mat-spinner>
-                            <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">
-                                {{ t('smartBatchLanding.loadingConfigurations') }}
+                            <div
+                                class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300"
+                            >
+                                <mat-icon>search_off</mat-icon>
+                            </div>
+                            <h3 class="mt-4 text-base font-semibold text-stone-950 dark:text-white">
+                                {{ t('smartBatchLanding.noFilterResults') }}
+                            </h3>
+                            <p class="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('smartBatchLanding.noFilterResultsDesc') }}
                             </p>
+                            <button
+                                type="button"
+                                class="mt-5 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                (click)="clearFilters()"
+                            >
+                                {{ t('smartBatchLanding.clearFilters') }}
+                            </button>
                         </div>
                     } @else if (configurations().length === 0) {
                         <div
-                            class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 px-5 py-16 text-center dark:border-gray-800"
+                            class="flex flex-col items-center justify-center rounded-2xl border border-stone-200 bg-white px-5 py-16 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
                         >
                             <div
                                 class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300"
@@ -144,13 +262,13 @@
                         </div>
                     } @else {
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            @for (config of configurations(); track config._id ?? config.id) {
+                            @for (config of filteredConfigurations(); track config._id ?? config.id) {
                                 <article
                                     (click)="openDashboard(config._id ?? config.id ?? '')"
-                                    class="group relative cursor-pointer rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition hover:border-stone-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-gray-700"
+                                    class="sb-config-card group relative cursor-pointer overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-0 shadow-sm transition hover:shadow-md dark:border-gray-800 dark:bg-gray-900/70"
                                 >
                                     <div
-                                        class="absolute right-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100"
+                                        class="absolute right-2.5 top-2.5 z-10 flex gap-0.5 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100"
                                     >
                                         <button
                                             type="button"
@@ -171,71 +289,77 @@
                                         </button>
                                     </div>
 
-                                    <div class="flex items-start gap-3">
-                                        <div
-                                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-xl dark:border-gray-800 dark:bg-gray-950"
-                                        >
-                                            {{ getCountryFlag(config.country) }}
-                                        </div>
-                                        <div class="min-w-0 pr-16">
-                                            <h3
-                                                class="line-clamp-1 text-base font-semibold text-stone-950 dark:text-white"
-                                            >
-                                                {{ config.name }}
-                                            </h3>
-                                            <div class="mt-2 flex flex-wrap gap-2">
-                                                <span
-                                                    class="inline-flex rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
-                                                >
-                                                    {{ config.inputFormat | uppercase }} →
-                                                    {{ config.outputFormat | uppercase }}
-                                                </span>
-                                                @if (!config.isActive) {
-                                                    <span
-                                                        class="inline-flex rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[11px] font-medium text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+                                    <div class="p-5 pb-4">
+                                        <div class="flex items-start gap-3">
+                                            <div class="sb-flag" aria-hidden="true">
+                                                {{ getCountryFlag(config.country) }}
+                                            </div>
+                                            <div class="min-w-0 flex-1 pr-14">
+                                                <div class="flex min-w-0 items-center gap-2">
+                                                    <h3
+                                                        class="line-clamp-1 min-w-0 flex-1 text-[15px] font-semibold tracking-tight text-stone-950 dark:text-white"
                                                     >
-                                                        {{ t('smartBatchLanding.inactive') }}
-                                                    </span>
-                                                }
-                                                <span
-                                                    class="inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide"
-                                                    [class]="executorBadgeClasses(config.executor)"
-                                                >
-                                                    {{ t(executorBadgeKey(config.executor)) }}
-                                                </span>
+                                                        {{ config.name }}
+                                                    </h3>
+                                                    <span
+                                                        class="sb-status"
+                                                        [class.sb-status-off]="config.isActive === false"
+                                                        [matTooltip]="
+                                                            config.isActive === false
+                                                                ? t('smartBatchLanding.inactive')
+                                                                : ''
+                                                        "
+                                                    ></span>
+                                                </div>
+                                                <p class="sb-eyebrow">
+                                                    <span class="truncate">{{ config.country }}</span>
+                                                    <span aria-hidden="true">·</span>
+                                                    <span class="shrink-0"
+                                                        >{{ config.inputFormat | uppercase }} →
+                                                        {{ config.outputFormat | uppercase }}</span
+                                                    >
+                                                    <span aria-hidden="true">·</span>
+                                                    <span
+                                                        class="sb-exec"
+                                                        [class.sb-exec-sync]="
+                                                            (config.executor ?? 'queue') !== 'queue'
+                                                        "
+                                                        ><i></i>{{ t(executorBadgeKey(config.executor)) }}</span
+                                                    >
+                                                    @if (config.isActive === false) {
+                                                        <span aria-hidden="true">·</span>
+                                                        <span class="sb-off">{{
+                                                            t('smartBatchLanding.inactive')
+                                                        }}</span>
+                                                    }
+                                                </p>
                                             </div>
                                         </div>
+
+                                        <p
+                                            class="mt-3 line-clamp-1 min-h-[1.5rem] text-sm capitalize leading-relaxed text-stone-500 dark:text-stone-400"
+                                        >
+                                            {{ config.description || t('smartBatchLanding.noDescription') }}
+                                        </p>
                                     </div>
 
-                                    <p
-                                        class="mt-4 line-clamp-2 min-h-[2.5rem] text-sm leading-relaxed text-stone-500 dark:text-stone-400"
-                                    >
-                                        {{ config.description || t('smartBatchLanding.noDescription') }}
-                                    </p>
-
-                                    <div
-                                        class="mt-5 grid grid-cols-2 gap-3 border-t border-stone-200/80 pt-4 dark:border-gray-800"
-                                    >
-                                        <div class="rounded-xl border border-stone-200 p-3 dark:border-gray-800">
-                                            <span
-                                                class="text-xs font-medium uppercase tracking-[0.14em] text-stone-400 dark:text-stone-500"
-                                                >{{ t('smartBatchLanding.steps') }}</span
-                                            >
-                                            <p class="mt-1 text-lg font-semibold text-stone-950 dark:text-white">
-                                                {{ config.steps.length }}
-                                            </p>
-                                        </div>
-                                        <div class="rounded-xl border border-stone-200 p-3 dark:border-gray-800">
-                                            <span
-                                                class="text-xs font-medium uppercase tracking-[0.14em] text-stone-400 dark:text-stone-500"
-                                                >{{ t('smartBatchLanding.strategy') }}</span
-                                            >
-                                            <p
-                                                class="mt-1 truncate text-sm font-medium capitalize text-stone-950 dark:text-white"
-                                            >
+                                    <div class="sb-card-foot">
+                                        <div class="sb-foot-meta">
+                                            <span class="sb-meta">
+                                                <mat-icon class="!h-4 !w-4 !text-base">layers</mat-icon>
+                                                <b>{{ config.steps.length }}</b>
+                                                {{ t('smartBatchLanding.steps') }}
+                                            </span>
+                                            <span class="sb-sep" aria-hidden="true"></span>
+                                            <span class="sb-meta sb-meta-strategy">
+                                                <mat-icon class="!h-4 !w-4 !text-base">account_tree</mat-icon>
                                                 {{ config.mergeStrategy.replace('-', ' ') }}
-                                            </p>
+                                            </span>
                                         </div>
+                                        <span class="sb-open">
+                                            {{ t('smartBatchLanding.openWorkspace') }}
+                                            <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                                        </span>
                                     </div>
                                 </article>
                             }

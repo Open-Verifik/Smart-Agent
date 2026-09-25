@@ -2,11 +2,15 @@ import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch } from '../smart-batch.service';
 import { ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import {
-    availableCountries,
     buildInputRow,
+    GuideBatchSettings,
+    GuideConfigOrigin,
     GuideEntity,
+    GuideFileFormat,
     GuideIntent,
+    GuideMergeStrategy,
     GuideMode,
+    GuideRunMode,
     GuideStepId,
     inputFieldsFor,
     intentEntity,
@@ -32,6 +36,18 @@ export class VisitaGuideStateService {
     endpointSearchQuery = signal('');
     requiredParamFilters = signal<string[]>([]);
     wantsReport = signal(false);
+
+    libraryCreate = signal(false);
+    reusingSaved = signal(false);
+    configOrigin = signal<GuideConfigOrigin | null>(null);
+    setupName = signal('');
+    setupDescription = signal('');
+    setupInputFormat = signal<GuideFileFormat>('csv');
+    setupOutputFormat = signal<GuideFileFormat>('xlsx');
+    setupMergeStrategy = signal<GuideMergeStrategy>('sequential');
+    setupExecutor = signal<GuideRunMode>('queue');
+    setupWebhookUrl = signal('');
+    setupEmails = signal<string[]>([]);
 
     configId = signal<string | null>(null);
     batchId = signal<string | null>(null);
@@ -73,18 +89,39 @@ export class VisitaGuideStateService {
     editingSavedLayout = signal(false);
 
     inputFields = computed(() =>
-        inputFieldsFor(this.entities(), this.countryIso() ?? 'co', this.selectedFeatures())
+        inputFieldsFor(this.entities(), this.countryIso() ?? '', this.selectedFeatures())
     );
 
     isMixed = computed(() => this.entities().length > 1);
 
+    batchSettings(): GuideBatchSettings {
+        return {
+            name: this.setupName().trim(),
+            description: this.setupDescription().trim(),
+            inputFormat: this.setupInputFormat(),
+            outputFormat: this.setupOutputFormat(),
+            mergeStrategy: this.setupMergeStrategy(),
+            executor: this.setupExecutor(),
+            webhookUrl: this.setupWebhookUrl().trim(),
+            emailOnCompletion: this.setupEmails(),
+        };
+    }
+
     visibleSteps = computed((): GuideStepId[] => {
         if (this.editingSavedLayout()) return ['layout', 'generate'];
+        if (this.libraryCreate()) {
+            const librarySteps: GuideStepId[] = ['country', 'endpoints'];
+            if (!this.reusingSaved()) librarySteps.push('setup');
+            return librarySteps;
+        }
         const intent = this.intent();
         const steps: GuideStepId[] = ['intent'];
         if (intent === 'report' || intent === 'template') steps.push('entity');
-        if (this.entities().length && availableCountries().length > 1) steps.push('country');
-        if (this.entities().length) steps.push('endpoints', 'mode');
+        if (this.entities().length) {
+            steps.push('country', 'endpoints');
+            if (!this.reusingSaved()) steps.push('setup');
+            steps.push('mode');
+        }
         if (this.mode() === 'single' && this.entities().length) {
             steps.push('input', 'consult', 'results');
             if (intent === 'report' || intent === 'template' || this.wantsReport()) {
@@ -104,11 +141,6 @@ export class VisitaGuideStateService {
         const fromIntent = intentEntity(this.intent());
         if (fromIntent && (this.entities().length !== 1 || this.entities()[0] !== fromIntent)) {
             this.entities.set([fromIntent]);
-        }
-
-        const countries = availableCountries();
-        if (!this.countryIso() && countries.length === 1) {
-            this.countryIso.set(countries[0].iso);
         }
     }
 
@@ -132,7 +164,7 @@ export class VisitaGuideStateService {
     buildRow(): Record<string, string> {
         return buildInputRow(
             this.entities(),
-            this.countryIso() ?? 'co',
+            this.countryIso() ?? '',
             this.inputValues(),
             this.selectedFeatures()
         );
@@ -148,6 +180,17 @@ export class VisitaGuideStateService {
         this.endpointSearchQuery.set('');
         this.requiredParamFilters.set([]);
         this.wantsReport.set(false);
+        this.libraryCreate.set(false);
+        this.reusingSaved.set(false);
+        this.configOrigin.set(null);
+        this.setupName.set('');
+        this.setupDescription.set('');
+        this.setupInputFormat.set('csv');
+        this.setupOutputFormat.set('xlsx');
+        this.setupMergeStrategy.set('sequential');
+        this.setupExecutor.set('queue');
+        this.setupWebhookUrl.set('');
+        this.setupEmails.set([]);
         this.configId.set(null);
         this.batchId.set(null);
         this.configuration.set(null);

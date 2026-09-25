@@ -17,7 +17,7 @@ import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.
 import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
-import { filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
+import { compareFeaturesForSelectedCountry, countriesMatch, filterFeaturesForCountry, getCountryFlag } from '../smart-batch-country.util';
 import {
     collectRequiredParamFields,
     featureParamChips,
@@ -28,8 +28,15 @@ import {
     paramFieldLabelKey,
     requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
-import { featureGroup, FeatureGroupId } from '../feature-group.util';
-import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
+import { featureGroup, FeatureGroupId, isSmartBatchCatalogFeature } from '../feature-group.util';
+import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
+import {
+    AppFeature,
+    BatchConfiguration,
+    SmartBatch,
+    SmartBatchExecutor,
+    SmartBatchService,
+} from '../smart-batch.service';
 import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
@@ -62,18 +69,25 @@ import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.ut
 import { visitaEndpointTooltipDetails } from './visita-guide-endpoint-tooltip.util';
 import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-state.service';
 import {
-    availableCountries,
+    countryNameForIso,
+    guideCountriesFromFeatures,
     GUIDE_ENTITIES,
     GUIDE_INTENTS,
     GuideEntity,
+    GuideFileFormat,
     GuideIntent,
     GuideMode,
+    GuideRunMode,
     GuideStepId,
     pipelineName,
     STEP_TITLE_KEYS,
 } from './visita-guide.catalog';
 
 const POLL_MS = 2500;
+const EMAIL_TOKEN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const WEBHOOK_URL = /^https?:\/\/.+/i;
+const SMART_BATCH_TEST_TYPE = 'smart_batch_batch_completed';
+const SAVED_CONFIG_PAGE_SIZE = 100;
 const LAYOUT_HISTORY_LIMIT = 40;
 const LAYOUT_HISTORY_DEBOUNCE_MS = 400;
 
@@ -152,6 +166,7 @@ type GuideResultCard = {
 export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _state = inject(VisitaGuideStateService);
     private _batch = inject(SmartBatchService);
+    private _webhooks = inject(WebhooksService);
     private _reports = inject(SmartReportService);
     private _pipeline = inject(VisitaGuidePipelineService);
     private _router = inject(Router);
@@ -168,10 +183,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @ViewChild('layoutEditorPanel') private _layoutEditorPanel?: ElementRef<HTMLElement>;
     @ViewChild('layoutEditorScroll') private _layoutEditorScroll?: ElementRef<HTMLElement>;
     @ViewChild('layoutContextMenuEl') private _layoutContextMenuEl?: ElementRef<HTMLElement>;
+    @ViewChild('countrySearchInput') private _countrySearchInput?: ElementRef<HTMLInputElement>;
 
     readonly intents = GUIDE_INTENTS;
     readonly entityOptions = GUIDE_ENTITIES;
-    readonly countries = availableCountries();
 
     step = this._state.step;
     isWorking = signal(false);
@@ -221,12 +236,27 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     visibleSteps = this._state.visibleSteps;
     isMixed = this._state.isMixed;
     selectedFeatures = this._state.selectedFeatures;
+    libraryCreate = this._state.libraryCreate;
+    setupName = this._state.setupName;
+    setupDescription = this._state.setupDescription;
+    setupInputFormat = this._state.setupInputFormat;
+    setupOutputFormat = this._state.setupOutputFormat;
+    setupMergeStrategy = this._state.setupMergeStrategy;
+    setupExecutor = this._state.setupExecutor;
+    setupWebhookUrl = this._state.setupWebhookUrl;
+    setupEmails = this._state.setupEmails;
     endpointSearchQuery = this._state.endpointSearchQuery;
     requiredParamFilters = this._state.requiredParamFilters;
 
     availableFeatures = signal<AppFeature[]>([]);
     isLoadingFeatures = signal(false);
     featuresError = signal<string | null>(null);
+    notificationsOpen = signal(false);
+    emailDraft = signal('');
+    emailDraftError = signal(false);
+    testingWebhook = signal(false);
+    webhookTestResult = signal<{ status?: string; statusCode?: number; message?: string } | null>(null);
+    verifiedWebhookUrl = signal<string | null>(null);
     selectedLayoutSectionId = signal<string | null>(null);
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
@@ -248,6 +278,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _pendingContentPoint: { x: number; y: number; page: number } | null = null;
     isSavingLayout = signal(false);
     templateSearchQuery = signal('');
+    countrySearchQuery = signal('');
     canUndoLayout = signal(false);
     canRedoLayout = signal(false);
     private _layoutHistory: string[] = [];
@@ -291,24 +322,75 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     canGoBack = computed(
         () =>
             this._state.editingSavedLayout() ||
+            (this.libraryCreate() && this.step() === 'country') ||
             (this.step() !== 'intent' && this.step() !== 'consult')
     );
-    countryFlag = computed(() => getCountryFlag(this.countryIso() ?? 'Colombia'));
+    countryLabel = computed(() => countryNameForIso(this.countryIso()));
+    countryFlag = computed(() => getCountryFlag(this.countryLabel() || this.countryIso() || ''));
 
     countryFilteredFeatures = computed(() => {
-        const iso = this.countryIso() ?? 'co';
-        const countryName = iso.toLowerCase() === 'co' ? 'Colombia' : iso;
-        return filterFeaturesForCountry(this.availableFeatures(), countryName);
+        const countryName = this.countryLabel();
+        if (!countryName) return [];
+        return filterFeaturesForCountry(this.availableFeatures(), countryName).filter(isSmartBatchCatalogFeature);
+    });
+
+    countryTiles = computed(() => {
+        const query = this.countrySearchQuery().trim().toLowerCase();
+        const failed = Boolean(this.featuresError()) && this.availableFeatures().length === 0;
+        const countsReady = !failed && (!this.isLoadingFeatures() || this.availableFeatures().length > 0);
+        const tiles = guideCountriesFromFeatures(this.availableFeatures())
+            .filter((country) => !query || country.name.toLowerCase().includes(query))
+            .map((country) => ({
+                ...country,
+                count: countsReady ? this._sourceCountForCountry(country.iso) : null,
+            }));
+        return tiles.sort((left, right) => {
+            const rank = (count: number | null): number => (count === null ? 1 : count > 0 ? 0 : 2);
+            const bySources = rank(left.count) - rank(right.count);
+            if (bySources !== 0) return bySources;
+            return left.name.localeCompare(right.name);
+        });
+    });
+
+    private readonly _prepareCountryStep = effect(() => {
+        if (this.step() !== 'country') return;
+        untracked(() => {
+            this.ensureFeaturesLoaded();
+            setTimeout(() => this._countrySearchInput?.nativeElement.focus(), 0);
+        });
+    });
+
+    private readonly _prepareEndpoints = effect(() => {
+        if (this.step() !== 'endpoints') return;
+        untracked(() => {
+            this._batch.getConfigurations({ page: 1, perPage: SAVED_CONFIG_PAGE_SIZE }).subscribe({
+                error: () => undefined,
+            });
+        });
+    });
+
+    private readonly _prepareSetup = effect(() => {
+        if (this.step() !== 'setup') return;
+        untracked(() => this._prefillSetupName());
+    });
+
+    savedConfigsForCountry = computed(() => {
+        const countryName = this.countryLabel();
+        if (!countryName) return [];
+        return this._batch.configurations().filter(
+            (config) => config.isActive !== false && countriesMatch(config.country, countryName)
+        );
     });
 
     visibleEndpointFeatures = computed(() => {
         const selected = new Set(this.entities());
+        const showAll = this.libraryCreate() && selected.size === 0;
         const query = this.endpointSearchQuery().trim().toLowerCase();
         const paramFilters = this.requiredParamFilters();
         return this.countryFilteredFeatures().filter((feature) => {
             const group = featureGroup(feature);
-            if (group !== 'other' && !selected.has(group)) return false;
-            if (group === 'other' && selected.size) return false;
+            if (!showAll && group !== 'other' && !selected.has(group)) return false;
+            if (!showAll && group === 'other' && selected.size) return false;
             if (!matchesRequiredParamFilters(feature, paramFilters)) return false;
             if (!query) return true;
             const blob = `${feature.name ?? ''} ${feature.code ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
@@ -318,10 +400,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     availableRequiredParamFilters = computed(() => {
         const selected = new Set(this.entities());
+        const showAll = this.libraryCreate() && selected.size === 0;
         const catalog = this.countryFilteredFeatures().filter((feature) => {
             const group = featureGroup(feature);
-            if (group !== 'other' && !selected.has(group)) return false;
-            if (group === 'other' && selected.size) return false;
+            if (!showAll && group !== 'other' && !selected.has(group)) return false;
+            if (!showAll && group === 'other' && selected.size) return false;
             return true;
         });
         return collectRequiredParamFields(catalog);
@@ -337,6 +420,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         for (const feature of this.visibleEndpointFeatures()) {
             const group = buckets.find((item) => item.id === featureGroup(feature));
             group?.items.push(feature);
+        }
+        for (const bucket of buckets) {
+            bucket.items.sort(compareFeaturesForSelectedCountry);
         }
         return buckets.filter((bucket) => bucket.items.length > 0);
     });
@@ -398,7 +484,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const base = template ?? {
             name: this.reportTitle() || pipelineName(this.entities()),
             type: 'client' as const,
-            country: this.countryIso() === 'co' ? 'Colombia' : 'Colombia',
+            country: this.countryLabel(),
             sections: [],
             primaryColor: this.primaryColor(),
             logo: this.logoDataUrl(),
@@ -633,8 +719,47 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectCountry(iso: string): void {
+        if (this._state.countryIso() !== iso) {
+            this._state.selectedFeatures.set([]);
+            this._state.requiredParamFilters.set([]);
+            this._state.endpointSearchQuery.set('');
+            this._clearSavedConfiguration();
+            this._state.setupName.set('');
+        }
         this._state.countryIso.set(iso);
+        this.countrySearchQuery.set('');
         this.goNext();
+    }
+
+    openCountryStep(): void {
+        if (!this.visibleSteps().includes('country')) return;
+        this.countrySearchQuery.set('');
+        this.step.set('country');
+    }
+
+    onCountrySearchKeydown(event: KeyboardEvent): void {
+        if (event.key !== 'Enter') return;
+        const first = this.countryTiles()[0];
+        if (!first) return;
+        event.preventDefault();
+        this.selectCountry(first.iso);
+    }
+
+    lookupKey(): string {
+        const entity = this.entities()[0];
+        if (entity === 'vehicle') return 'visitaGuide.lookupVehicle';
+        if (entity === 'company') return 'visitaGuide.lookupCompany';
+        return 'visitaGuide.lookupPerson';
+    }
+
+    countryTileClass(iso: string, count: number | null): string {
+        if (this.countryIso() === iso) {
+            return 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400 dark:border-emerald-400 dark:bg-emerald-950 dark:ring-emerald-500';
+        }
+        if (count === 0) {
+            return 'border-stone-200 bg-white opacity-60 hover:border-stone-400 hover:opacity-100 dark:border-gray-800 dark:bg-gray-900/70';
+        }
+        return 'border-stone-200 bg-white hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-white';
     }
 
     selectMode(mode: GuideMode): void {
@@ -656,7 +781,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (next === 'endpoints') void this.ensureFeaturesLoaded();
+        if (next === 'country' || next === 'endpoints') void this.ensureFeaturesLoaded();
 
         if (this.step() === 'endpoints' && !this.selectedFeatures().length) {
             this._snack.open(this._transloco.translate('visitaGuide.pickEndpoints'), undefined, {
@@ -699,6 +824,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     goBack(): void {
         if (!this.canGoBack()) return;
+        if (this.libraryCreate() && this.step() === 'country') {
+            void this._router.navigate(['/smart-batch', 'workspace']);
+            return;
+        }
         if (this._state.editingSavedLayout() && this.step() === 'layout') {
             this._state.editingSavedLayout.set(false);
             void this._router.navigate(['/smart-batch', 'workspace'], {
@@ -2575,6 +2704,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return getCountryFlag(iso);
     }
 
+    private _sourceCountForCountry(iso: string): number {
+        const selected = new Set(this.entities());
+        const showAll = this.libraryCreate() && selected.size === 0;
+        return filterFeaturesForCountry(this.availableFeatures(), countryNameForIso(iso))
+            .filter(isSmartBatchCatalogFeature)
+            .filter((feature) => {
+                const group = featureGroup(feature);
+                if (!showAll && group !== 'other' && !selected.has(group)) return false;
+                if (!showAll && group === 'other' && selected.size) return false;
+                return true;
+            }).length;
+    }
+
     resultStatusKey(status: 'ok' | 'failed' | 'skipped' | 'empty'): string {
         const keys = {
             ok: 'visitaGuide.resultStatusOk',
@@ -2609,6 +2751,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     toggleFeature(feature: AppFeature): void {
+        if (this._state.configOrigin() === 'reused') this._clearSavedConfiguration();
         const current = this.selectedFeatures();
         if (current.some((item) => item._id === feature._id)) {
             this._state.selectedFeatures.set(current.filter((item) => item._id !== feature._id));
@@ -2618,10 +2761,216 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     removeFeatureFromCart(feature: AppFeature): void {
+        if (this._state.configOrigin() === 'reused') this._clearSavedConfiguration();
         this._state.selectedFeatures.set(this.selectedFeatures().filter((item) => item._id !== feature._id));
     }
 
+    useSavedConfiguration(config: BatchConfiguration): void {
+        const id = config._id ?? config.id;
+        if (!id || this.isWorking()) return;
+        this.isWorking.set(true);
+        this._batch.getConfiguration(id).subscribe({
+            next: (res) => {
+                this.isWorking.set(false);
+                if (!this._alive) return;
+                const saved = res.data;
+                const features = this._featuresFromConfiguration(saved);
+                if (features.length) this._state.selectedFeatures.set(features);
+                this._rememberConfiguration(id, saved, this._state.clonedTemplate(), 'reused');
+                this._state.reusingSaved.set(true);
+                if (this.libraryCreate()) {
+                    void this._router.navigate(['/smart-batch', id]);
+                    return;
+                }
+                this.step.set('mode');
+            },
+            error: () => {
+                this.isWorking.set(false);
+                this._snack.open(this._transloco.translate('visitaGuide.setupFailed'), undefined, {
+                    duration: 3000,
+                });
+            },
+        });
+    }
+
+    confirmSetup(): void {
+        this._commitEmailDraft();
+        if (!this.setupName().trim()) {
+            this._snack.open(this._transloco.translate('visitaGuide.nameRequired'), undefined, {
+                duration: 2500,
+            });
+            return;
+        }
+        if (!this.selectedFeatures().length) {
+            this._snack.open(this._transloco.translate('visitaGuide.pickEndpoints'), undefined, {
+                duration: 2500,
+            });
+            return;
+        }
+        if (!this.isWebhookReady() || this.emailDraftError() || this.isWorking()) return;
+        void this._saveSetup();
+    }
+
+    selectRunMode(mode: GuideRunMode): void {
+        this._state.setupExecutor.set(mode);
+    }
+
+    isAsyncSelected(): boolean {
+        return this.setupExecutor() === 'queue';
+    }
+
+    runModeCardClass(selected: boolean): string {
+        const base =
+            'flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition';
+        if (selected) {
+            return `${base} border-stone-950 bg-stone-950 text-white dark:border-white dark:bg-white dark:text-gray-950`;
+        }
+        return `${base} border-stone-200 bg-white text-stone-950 hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70 dark:text-white dark:hover:border-white`;
+    }
+
+    runModeHintClass(selected: boolean): string {
+        if (selected) return 'mt-1 block text-sm text-stone-300 dark:text-stone-600';
+        return 'mt-1 block text-sm text-stone-500 dark:text-stone-400';
+    }
+
+    toggleNotifications(): void {
+        this.notificationsOpen.update((open) => !open);
+    }
+
+    onWebhookInput(value: string): void {
+        this._state.setupWebhookUrl.set(value);
+        this.webhookTestResult.set(null);
+        if (this.verifiedWebhookUrl() !== value.trim()) this.verifiedWebhookUrl.set(null);
+    }
+
+    canTestWebhook(): boolean {
+        const url = this.setupWebhookUrl().trim();
+        return Boolean(url) && WEBHOOK_URL.test(url) && !this.testingWebhook();
+    }
+
+    isWebhookReady(): boolean {
+        const url = this.setupWebhookUrl().trim();
+        if (!url) return true;
+        if (!WEBHOOK_URL.test(url) || this.testingWebhook()) return false;
+        if (this.webhookTestResult()?.status === 'fail') return false;
+        if (this.verifiedWebhookUrl() === url) return true;
+        return url === (this._state.configuration()?.notification?.webhookUrl || '').trim();
+    }
+
+    testWebhook(): void {
+        const url = this.setupWebhookUrl().trim();
+        if (!this.canTestWebhook()) return;
+        this.testingWebhook.set(true);
+        this.webhookTestResult.set(null);
+        this.verifiedWebhookUrl.set(null);
+        this._webhooks.test(url, SMART_BATCH_TEST_TYPE).subscribe({
+            next: (response) => {
+                this.testingWebhook.set(false);
+                const result = response?.data || null;
+                this.webhookTestResult.set(result);
+                if (result?.status === 'success') this.verifiedWebhookUrl.set(url);
+            },
+            error: (error) => {
+                this.testingWebhook.set(false);
+                this.webhookTestResult.set({
+                    status: 'fail',
+                    message: error?.error?.message || this._transloco.translate('createBatchConfig.testFailed'),
+                });
+            },
+        });
+    }
+
+    addEmailChip(raw: string): void {
+        const emails = raw
+            .split(/[,;\n]+/)
+            .map((token) => token.trim())
+            .filter(Boolean);
+        if (!emails.length) return;
+        if (emails.some((email) => !EMAIL_TOKEN.test(email))) {
+            this.emailDraftError.set(true);
+            return;
+        }
+        this._state.setupEmails.update((current) => {
+            const seen = new Set(current.map((email) => email.toLowerCase()));
+            const next = [...current];
+            for (const email of emails) {
+                const key = email.toLowerCase();
+                if (seen.has(key)) continue;
+                seen.add(key);
+                next.push(email);
+            }
+            return next;
+        });
+        this.emailDraft.set('');
+        this.emailDraftError.set(false);
+    }
+
+    removeEmailChip(email: string): void {
+        this._state.setupEmails.update((current) => current.filter((item) => item !== email));
+    }
+
+    onEmailKeydown(event: KeyboardEvent): void {
+        const draft = this.emailDraft().trim();
+        if (event.key === 'Enter' || event.key === ',') {
+            event.preventDefault();
+            this.addEmailChip(draft);
+            return;
+        }
+        if (event.key === 'Backspace' && !draft && this.setupEmails().length) {
+            this._state.setupEmails.update((current) => current.slice(0, -1));
+        }
+    }
+
+    onEmailInput(value: string): void {
+        this.emailDraftError.set(false);
+        if (value.includes(',') || value.includes(';')) {
+            this.addEmailChip(value);
+            return;
+        }
+        this.emailDraft.set(value);
+    }
+
+    onEmailBlur(): void {
+        this._commitEmailDraft();
+    }
+
+    formatLabel(format: GuideFileFormat): string {
+        if (format === 'xlsx') return 'Excel (XLSX)';
+        if (format === 'jsonl') return 'JSONL';
+        return 'CSV';
+    }
+
+    mergeStrategyLabelKey(): string {
+        const value = this.setupMergeStrategy();
+        if (value === 'parallel-independent') return 'createBatchConfig.parallelIndependent';
+        if (value === 'parallel-with-fallback') return 'createBatchConfig.parallelWithFallback';
+        return 'createBatchConfig.sequential';
+    }
+
+    executorBadgeKey(executor?: SmartBatchExecutor): string {
+        return executor === 'queue' ? 'createBatchConfig.runModeAsync' : 'createBatchConfig.runModeSync';
+    }
+
+    setInputFormat(value: string): void {
+        if (value === 'csv' || value === 'xlsx' || value === 'jsonl') this._state.setupInputFormat.set(value);
+    }
+
+    setOutputFormat(value: string): void {
+        if (value === 'csv' || value === 'xlsx' || value === 'jsonl') this._state.setupOutputFormat.set(value);
+    }
+
+    setMergeStrategy(value: string): void {
+        if (
+            value === 'sequential' ||
+            value === 'parallel-independent' ||
+            value === 'parallel-with-fallback'
+        ) {
+            this._state.setupMergeStrategy.set(value);
+        }
+    }
+
     dropEndpointOnCart(event: CdkDragDrop<AppFeature[]>): void {
+        if (this._state.configOrigin() === 'reused') this._clearSavedConfiguration();
         if (event.previousContainer === event.container) {
             const list = [...this.selectedFeatures()];
             moveItemInArray(list, event.previousIndex, event.currentIndex);
@@ -2901,7 +3250,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._reports.createTemplate({
                 ...payload,
                 type: 'client',
-                country: this.countryIso() === 'co' ? 'Colombia' : draft.country,
+                country: this.countryLabel() || draft.country,
                 pageSize: draft.pageSize ?? 'A4',
                 orientation: draft.orientation ?? 'portrait',
                 pdfEngine: draft.pdfEngine ?? 'puppeteer',
@@ -3089,12 +3438,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.consultError.set(null);
 
         try {
-            const resolved = await this._pipeline.resolve(
-                this.entities(),
-                this.countryIso() ?? 'co',
-                pipelineName(this.entities()),
-                this.selectedFeatures()
-            );
+            const resolved = await this._resolvedConfiguration();
             if (!this._alive) return;
 
             this._state.configId.set(resolved.configId);
@@ -3185,8 +3529,129 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._pollSub = null;
     }
 
+    private async _saveSetup(): Promise<void> {
+        this.isWorking.set(true);
+        try {
+            const entities = this._entitiesForResolve();
+            if (!this.entities().length) this._state.entities.set(entities);
+            const existing =
+                this._state.configOrigin() === 'created' && this._state.configId()
+                    ? { configId: this._state.configId()!, template: this._state.clonedTemplate() }
+                    : undefined;
+            const resolved = await this._pipeline.resolve(
+                entities,
+                this.countryIso() ?? '',
+                this._state.batchSettings(),
+                this.selectedFeatures(),
+                existing
+            );
+            if (!this._alive) return;
+            this._rememberConfiguration(resolved.configId, resolved.configuration, resolved.template, 'created');
+            this.isWorking.set(false);
+            if (this.libraryCreate()) {
+                void this._router.navigate(['/smart-batch', resolved.configId]);
+                return;
+            }
+            this.goNext();
+        } catch {
+            if (!this._alive) return;
+            this.isWorking.set(false);
+            this._snack.open(this._transloco.translate('visitaGuide.setupFailed'), undefined, {
+                duration: 3000,
+            });
+        }
+    }
+
+    private async _resolvedConfiguration() {
+        const configId = this._state.configId();
+        const configuration = this._state.configuration();
+        if (configId && configuration) {
+            return {
+                configId,
+                configuration,
+                template: this._state.clonedTemplate(),
+            };
+        }
+        const entities = this._entitiesForResolve();
+        if (!this.entities().length) this._state.entities.set(entities);
+        return this._pipeline.resolve(
+            entities,
+            this.countryIso() ?? '',
+            this._state.batchSettings(),
+            this.selectedFeatures()
+        );
+    }
+
+    private _entitiesForResolve(): GuideEntity[] {
+        if (this.entities().length) return this.entities();
+        const found = new Set<GuideEntity>();
+        for (const feature of this.selectedFeatures()) {
+            const group = featureGroup(feature);
+            if (group === 'citizen' || group === 'vehicle' || group === 'company') found.add(group);
+        }
+        return found.size ? [...found] : ['citizen'];
+    }
+
+    private _featuresFromConfiguration(config: BatchConfiguration): AppFeature[] {
+        const features: AppFeature[] = [];
+        for (const step of config.steps ?? []) {
+            if (step.enabled === false) continue;
+            if (typeof step.appFeature === 'object' && step.appFeature?._id) {
+                features.push(step.appFeature);
+            }
+        }
+        return features;
+    }
+
+    private _rememberConfiguration(
+        configId: string,
+        configuration: BatchConfiguration,
+        template: SmartReportTemplate | null,
+        origin: 'created' | 'reused'
+    ): void {
+        this._state.configId.set(configId);
+        this._state.configuration.set(configuration);
+        this._state.configOrigin.set(origin);
+        this._state.reusingSaved.set(origin === 'reused');
+        if (origin === 'created') {
+            this._state.clonedTemplate.set(template);
+            this._state.selectedTemplate.set(template);
+        }
+    }
+
+    private _clearSavedConfiguration(): void {
+        this._state.configId.set(null);
+        this._state.configuration.set(null);
+        this._state.configOrigin.set(null);
+        this._state.reusingSaved.set(false);
+        this._state.clonedTemplate.set(null);
+    }
+
+    private _prefillSetupName(): void {
+        if (!this.setupName().trim()) {
+            const country = this.countryLabel();
+            const base = this.entities().length ? pipelineName(this.entities()) : 'VISITA';
+            this._state.setupName.set(country ? `${base} — ${country}` : base);
+        }
+        if (this.setupWebhookUrl().trim() || this.setupEmails().length) {
+            this.notificationsOpen.set(true);
+        }
+    }
+
+    private _commitEmailDraft(): void {
+        const draft = this.emailDraft().trim();
+        if (draft) this.addEmailChip(draft);
+    }
+
     private _resumeFromDesigner(): void {
         const start = this._route.snapshot.queryParamMap.get('start');
+        if (start === 'country') {
+            this._state.resetAll();
+            this._state.libraryCreate.set(true);
+            this._state.step.set('country');
+            void this._router.navigate(['/smart-batch'], { replaceUrl: true });
+            return;
+        }
         if (start === 'report' && !this._state.intent()) {
             this.selectIntent('report');
             return;

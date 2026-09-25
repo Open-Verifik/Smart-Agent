@@ -1,0 +1,130 @@
+/* Configuration dashboard: hero band, pills, medallion, steps timeline. */
+
+batch-dashboard .bd-root {
+    background:
+        radial-gradient(1200px 480px at 8% -10%, rgba(37, 99, 235, 0.09), transparent 55%),
+        radial-gradient(900px 420px at 96% 8%, rgba(14, 165, 233, 0.07), transparent 50%),
+        linear-gradient(180deg, rgb(248, 250, 252) 0%, rgb(241, 245, 249) 100%);
+}
+
+.dark batch-dashboard .bd-root {
+    background:
+        radial-gradient(1200px 480px at 8% -10%, rgba(59, 130, 246, 0.14), transparent 55%),
+        radial-gradient(900px 420px at 96% 8%, rgba(56, 189, 248, 0.08), transparent 50%),
+        linear-gradient(180deg, rgb(15, 23, 42) 0%, rgb(2, 6, 23) 100%);
+}
+
+batch-dashboard .bd-hero {
+    background:
+        radial-gradient(700px 220px at 12% -40%, rgba(79, 70, 229, 0.1), transparent 60%),
+        rgba(255, 255, 255, 0.9);
+}
+
+.dark batch-dashboard .bd-hero {
+    background:
+        radial-gradient(700px 220px at 12% -40%, rgba(129, 140, 248, 0.14), transparent 60%),
+        rgba(2, 6, 23, 0.9);
+}
+
+batch-dashboard .bd-flag-medallion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgb(255, 255, 255);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.dark batch-dashboard .bd-flag-medallion {
+    background: rgb(30, 41, 59);
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
+batch-dashboard .bd-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgb(255, 255, 255);
+    padding: 0.25rem 0.75rem;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(71, 85, 105);
+}
+
+.dark batch-dashboard .bd-pill {
+    background: rgb(30, 41, 59);
+    border-color: rgba(148, 163, 184, 0.25);
+    color: rgb(203, 213, 225);
+}
+
+batch-dashboard .bd-pill-capitalize {
+    text-transform: capitalize;
+    letter-spacing: normal;
+}
+
+batch-dashboard .bd-pill-danger {
+    border-color: rgb(252, 165, 165);
+    background: rgb(254, 242, 242);
+    color: rgb(185, 28, 28);
+}
+
+.dark batch-dashboard .bd-pill-danger {
+    border-color: rgba(248, 113, 113, 0.4);
+    background: rgba(127, 29, 29, 0.3);
+    color: rgb(252, 165, 165);
+}
+
+/* Steps timeline. */
+batch-dashboard .bd-timeline {
+    display: flex;
+    flex-direction: column;
+}
+
+batch-dashboard .bd-timeline-item {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+}
+
+batch-dashboard .bd-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 2.5rem;
+    bottom: 0;
+    width: 2px;
+    border-radius: 999px;
+    background: rgba(129, 140, 248, 0.35);
+}
+
+batch-dashboard .bd-timeline-item-last {
+    padding-bottom: 0;
+}
+
+batch-dashboard .bd-timeline-item-last::before {
+    display: none;
+}
+
+batch-dashboard .bd-timeline-node {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    height: 2rem;
+    width: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgb(79, 70, 229);
+    color: rgb(255, 255, 255);
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.18);
+}

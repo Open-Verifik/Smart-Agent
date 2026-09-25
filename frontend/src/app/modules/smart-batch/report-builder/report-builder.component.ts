@@ -5,6 +5,7 @@ import {
     computed,
     DestroyRef,
     effect,
+    ElementRef,
     inject,
     OnDestroy,
     OnInit,
@@ -26,7 +27,17 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
+import {
+    catchError,
+    combineLatest,
+    debounceTime,
+    distinctUntilChanged,
+    forkJoin,
+    map,
+    of,
+    Subject,
+    switchMap,
+} from 'rxjs';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import {
@@ -40,11 +51,18 @@ import {
 } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
 import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
-import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
+import {
+    BatchConfiguration,
+    BatchStep,
+    SmartBatch,
+    SmartBatchRow,
+    SmartBatchService,
+} from '../smart-batch.service';
 import {
     DataNode,
     ReportConditionOperator,
     ReportSection,
+    ReportSectionFrame,
     ReportSectionType,
     ReportShapeKind,
     REPORT_SHAPE_KINDS,
@@ -54,6 +72,7 @@ import {
     SmartReportService,
     SmartReportTemplate,
 } from '../smart-report.service';
+import { buildRowDataForResolution } from '../template-match.util';
 import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.component';
 import { SignaturePadDialogComponent } from './signature-pad-dialog/signature-pad-dialog.component';
 
@@ -69,6 +88,125 @@ import { SignaturePadDialogComponent } from './signature-pad-dialog/signature-pa
  */
 const OVERLAY_MIN_X = 52;
 const OVERLAY_MIN_Y = 52;
+
+const DATA_PALETTE_WIDTH_KEY = 'smartReport.dataPaletteWidth';
+const DATA_PALETTE_MIN_WIDTH = 200;
+const DATA_PALETTE_MAX_WIDTH = 480;
+
+/** Keep the field list wide enough to grab, and narrow enough to leave the paper. */
+const clampDataPaletteWidth = (width: number): number =>
+    Math.min(DATA_PALETTE_MAX_WIDTH, Math.max(DATA_PALETTE_MIN_WIDTH, Math.round(width)));
+
+/** Last width the user dragged the field list to, or the default. */
+const readDataPaletteWidth = (): number => {
+    try {
+        const stored = Number(localStorage.getItem(DATA_PALETTE_WIDTH_KEY));
+        if (!Number.isFinite(stored)) return DATA_PALETTE_MIN_WIDTH;
+
+        return clampDataPaletteWidth(stored);
+    } catch {
+        return DATA_PALETTE_MIN_WIDTH;
+    }
+};
+
+/** Remember the field-list width for the next visit. */
+const writeDataPaletteWidth = (width: number): void => {
+    try {
+        localStorage.setItem(DATA_PALETTE_WIDTH_KEY, String(clampDataPaletteWidth(width)));
+    } catch {
+        // Private mode can reject storage; the width still applies for this visit.
+    }
+};
+
+/** Document number and name baked into the builder's old Colombia placeholder. */
+const FIXTURE_DOCUMENT_NUMBER = '1032386359';
+const FIXTURE_FULL_NAME = 'JOHN DOE SMITH';
+
+/**
+ * The placeholder sample that used to ship with a new template.
+ * A saved template can still carry it; it must not hide a real batch row.
+ */
+const isColombiaFixtureSample = (
+    data: SampleReportData | Record<string, any> | null | undefined
+): boolean => {
+    if (!data) return false;
+
+    const input = (data.inputData ?? {}) as Record<string, unknown>;
+    const results = (data.results ?? {}) as Record<string, Record<string, unknown> | undefined>;
+    const first = results['1'] ?? {};
+    const documentNumber = String(input['documentNumber'] ?? first['documentNumber'] ?? '');
+    const fullName = String(input['fullName'] ?? first['fullName'] ?? '');
+
+    return documentNumber === FIXTURE_DOCUMENT_NUMBER && fullName === FIXTURE_FULL_NAME;
+};
+
+/** True when the payload has something the palette can list. */
+const sampleHasValues = (data: SampleReportData | Record<string, any>): boolean => {
+    const inputSize = data.inputData ? Object.keys(data.inputData).length : 0;
+    const resultSize = data.results ? Object.keys(data.results).length : 0;
+
+    return inputSize > 0 || resultSize > 0;
+};
+
+/** Normalize a handed-off or saved sample into the preview signal shape. */
+const previewFromSample = (data: SampleReportData): Record<string, any> => ({
+    batchName: data.batchName ?? '',
+    rowIndex: data.rowIndex ?? 0,
+    inputData: data.inputData ?? {},
+    results: data.results ?? {},
+    errors: data.errors ?? [],
+    report: data.report,
+});
+
+/** Prefer the requested row, otherwise the first row that already has step results. */
+const rowForPreview = (rows: SmartBatchRow[], rowIndex: number | null): SmartBatchRow | null => {
+    if (rowIndex != null) {
+        return rows.find((row) => row.rowIndex === rowIndex) ?? null;
+    }
+
+    return (
+        rows.find((row) => row.results && Object.keys(row.results).length > 0) ?? rows[0] ?? null
+    );
+};
+
+/** Build the preview object the paper and the field list both read. */
+const previewFromRow = (
+    row: SmartBatchRow,
+    batchName: string | undefined,
+    steps: BatchStep[]
+): Record<string, any> => {
+    const resolved = buildRowDataForResolution(row, {
+        steps,
+        batchName,
+        errors: row.errors,
+    });
+
+    return previewFromSample({
+        batchName,
+        rowIndex: row.rowIndex,
+        inputData: resolved['inputData'],
+        results: resolved['results'],
+        errors: row.errors,
+        report: resolved['report'],
+    });
+};
+
+/** First query value, when the router hands a string or a list. */
+const queryText = (value: string | string[] | undefined): string | null => {
+    const text = Array.isArray(value) ? value[0] : value;
+
+    return text ? text : null;
+};
+
+/** `rowIndex` query param, or null when it is missing or not a number. */
+const queryRowIndex = (value: string | string[] | undefined): number | null => {
+    const text = queryText(value);
+    if (text == null) return null;
+
+    const parsed = Number.parseInt(text, 10);
+
+    return Number.isNaN(parsed) ? null : parsed;
+};
 
 @Component({
     selector: 'report-builder',
@@ -106,6 +244,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     private _sanitizer = inject(DomSanitizer);
     private _destroyRef = inject(DestroyRef);
     @ViewChild('samplePreview') private _samplePreview?: ReportPreviewComponent;
+    @ViewChild('templateNameInput') private _templateNameInput?: ElementRef<HTMLInputElement>;
 
     configId = signal<string | null>(null);
     templateId = signal<string | null>(null);
@@ -128,16 +267,45 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     showPassword = false;
 
     /**
-     * Left rail tab.
-     *
-     * `data` leads because binding a real data node is the primary action: the
-     * palette knows the paths, so nobody has to remember that step 1 was the cédula
-     * lookup. `blocks` adds unbound layout, `layers` reorders what exists.
+     * Page, block, or overlay inspector. Null leaves the paper clear.
+     * Document settings and the block form both live in this one panel.
      */
-    railTab = signal<'data' | 'blocks' | 'layers'>('data');
+    inspectorKind = signal<'page' | 'block' | 'overlay' | null>(null);
 
-    /** Document settings live in a drawer; only name and colour stay inline. */
-    showSettingsDrawer = signal(false);
+    /** Layer order stays available, but it is not on screen until asked for. */
+    showLayers = signal(false);
+
+    /** The AI prompt sits behind one row so the paper is the first thing on Prepare. */
+    showAi = signal(false);
+
+    /** Page size, engine, and security stay in the inspector, closed until asked. */
+    showAdvancedDocument = signal(false);
+
+    /** Right-click or the Add button. Coordinates are viewport pixels. */
+    insertMenu = signal<{ x: number; y: number } | null>(null);
+
+    readonly quickInsertTypes: ReportSectionType[] = ['text', 'field', 'image', 'divider'];
+
+    readonly moreInsertTypes: ReportSectionType[] = [
+        'header',
+        'badge',
+        'keyValueGrid',
+        'dataTable',
+        'repeater',
+        'reportBlocks',
+        'card',
+        'spacer',
+    ];
+
+    readonly shapeTools: { kind: ReportShapeKind; icon: string; width: number; height: number }[] = [
+        { kind: 'rectangle', icon: 'rectangle', width: 180, height: 96 },
+        { kind: 'square', icon: 'square', width: 96, height: 96 },
+        { kind: 'circle', icon: 'circle', width: 96, height: 96 },
+        { kind: 'star', icon: 'star', width: 96, height: 96 },
+        { kind: 'triangle', icon: 'change_history', width: 96, height: 96 },
+        { kind: 'diamond', icon: 'diamond', width: 88, height: 96 },
+        { kind: 'bullet', icon: 'fiber_manual_record', width: 16, height: 16 },
+    ];
 
     /**
      * Where the author is in the document's life: build it, check it, send it.
@@ -165,8 +333,13 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     /** Paths of expanded palette branches. Roots start open. */
     expandedPaths = signal<Set<string>>(new Set(['results', 'inputData']));
 
+    /** Width of the field list. Drag the right edge; the last width is kept. */
+    dataPaletteWidth = signal(readDataPaletteWidth());
+
     /** Drop list id the canvas exposes, so palette drags can target it. */
     readonly canvasDropListId = 'report-canvas-drop';
+    readonly dataDropListId = 'report-data-drop';
+    readonly insertDropListId = 'report-insert-drop';
 
     /**
      * Whether the raw dataPath input is shown for the selected block.
@@ -320,36 +493,15 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         'reportBlocks',
     ];
 
-    /** Mock data used to render the live preview. */
+    /**
+     * Payload painted on the paper and listed under Tus datos.
+     * Starts empty so a real batch row can replace it without flashing the old sample.
+     */
     previewData = signal<Record<string, any>>({
-        batchName: 'Background Check - Batch #47',
+        batchName: '',
         rowIndex: 0,
-        inputData: {
-            documentNumber: '1032386359',
-            documentType: 'CC',
-            fullName: 'JOHN DOE SMITH',
-        },
-        results: {
-            1: {
-                fullName: 'JOHN DOE SMITH',
-                firstName: 'JOHN',
-                lastName: 'DOE SMITH',
-                documentNumber: '1032386359',
-                documentType: 'CC',
-                birthDate: '1990-05-15',
-                gender: 'Male',
-                nationality: 'Colombian',
-                email: 'john.doe@example.com',
-                phone: '+57 300 123 4567',
-                address: 'Calle 100 #15-20, Bogota',
-            },
-            2: {
-                isValid: true,
-                score: 0.95,
-                status: 'VERIFIED',
-                verifiedAt: '2026-02-10T14:30:00Z',
-            },
-        },
+        inputData: {},
+        results: {},
     });
 
     constructor() {
@@ -418,32 +570,77 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this._applyPreviewDataFromRouterState();
-        this._batchService.getConfigurations().subscribe();
+        this._batchService
+            .getConfigurations()
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._prefillTemplateName());
         this._watchExactPreview();
 
-        this._route.params.subscribe((params) => {
-            const routeConfigId = params['configId'] ?? null;
+        combineLatest([this._route.params, this._route.queryParams])
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(([params, query]) => {
+                const routeConfigId = params['configId'] ?? null;
 
-            this.configId.set(routeConfigId);
+                this.configId.set(routeConfigId);
+                this.templateId.set(params['templateId'] ?? null);
 
-            this.templateId.set(params['templateId'] ?? null);
+                if (routeConfigId) {
+                    this.linkedConfigId.set(routeConfigId);
+                    this._loadRecordPreview(
+                        routeConfigId,
+                        queryText(query['batchId']),
+                        queryRowIndex(query['rowIndex'])
+                    );
+                }
 
-            if (routeConfigId) {
-                this.linkedConfigId.set(routeConfigId);
-            }
+                if (this.templateId()) {
+                    this._loadTemplate();
 
-            if (this.templateId()) {
-                this._loadTemplate();
+                    return;
+                }
 
-                return;
-            }
-
-            this._initDefaultSections();
-        });
+                this._initDefaultSections();
+                this._prefillTemplateName();
+            });
     }
 
     ngOnDestroy(): void {
         this._releaseExactPreviewUrl();
+    }
+
+    /**
+     * Drag the field list's right edge. Wider reveals the full name and sample.
+     */
+    startPaletteResize(event: PointerEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const handle = event.currentTarget;
+        if (handle instanceof HTMLElement) handle.setPointerCapture(event.pointerId);
+
+        this._paletteResize = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startWidth: this.dataPaletteWidth(),
+        };
+    }
+
+    /** Follow the pointer while the edge is held. */
+    onPaletteResizeMove(event: PointerEvent): void {
+        const resize = this._paletteResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+
+        const next = resize.startWidth + (event.clientX - resize.startX);
+        this.dataPaletteWidth.set(clampDataPaletteWidth(next));
+    }
+
+    /** Store the width once the drag ends. */
+    onPaletteResizeEnd(event: PointerEvent): void {
+        const resize = this._paletteResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+
+        this._paletteResize = null;
+        writeDataPaletteWidth(this.dataPaletteWidth());
     }
 
     // ============================================
@@ -458,15 +655,28 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
      * guaranteed to resolve when the document is rendered.
      */
     private _loadIntrospection(): void {
+        const sample = this.previewData();
+        const token = ++this._introspectionToken;
+
+        if (!sampleHasValues(sample)) {
+            this.dataNodes.set([]);
+            this.batchNodes.set([]);
+            this.isIntrospecting.set(false);
+
+            return;
+        }
+
         this.isIntrospecting.set(true);
 
         this._reportService
-            .introspect(this.previewData())
+            .introspect(sample)
             .pipe(
                 catchError(() => of(null)),
                 takeUntilDestroyed(this._destroyRef)
             )
             .subscribe((introspection) => {
+                if (token !== this._introspectionToken) return;
+
                 this.isIntrospecting.set(false);
 
                 if (!introspection) return;
@@ -503,7 +713,6 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
      */
     addNodeSection(node: DataNode, index?: number): void {
         this.addSuggestedSection(node.suggestion, index);
-        this.railTab.set('layers');
     }
 
     // ============================================
@@ -667,33 +876,151 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this._exactPreviewObjectUrl = null;
     }
 
-    /** True when we got preview data from report viewer navigation (don't overwrite with template.sampleData) */
+    /**
+     * True once a real row is on the paper.
+     * Template sample data must not replace it.
+     */
     private _hasPreviewDataFromNavigation = false;
 
+    /** Drops a late introspection response after a newer sample was requested. */
+    private _introspectionToken = 0;
+
+    /** Drops a late batch response after a newer config or row was requested. */
+    private _recordPreviewRequest = 0;
+
+    /** Active drag of the field-list edge, if one is in progress. */
+    private _paletteResize: { pointerId: number; startX: number; startWidth: number } | null = null;
+
+    /** Title last written automatically, so a later batch name can replace it. */
+    private _autoTemplateName: string | null = null;
+
     /**
-     * When navigating from report viewer with batch data, use it as preview.
-     * Uses service first (reliable), then router state as fallback.
+     * Use the row handed off with navigation.
+     * The in-memory bridge is checked first, then the current navigation, then
+     * `history.state`, which is still there after `getCurrentNavigation()` is null.
      */
     private _applyPreviewDataFromRouterState(): void {
-        let data = this._previewDataService.consumePendingPreviewData();
-        if (!data) {
-            const state = this._router.getCurrentNavigation()?.extras?.state as
-                | {
-                      previewData?: SampleReportData;
-                  }
-                | undefined;
-            data = state?.previewData ?? undefined;
-        }
-        if (data && (data.inputData || data.results)) {
-            const preview: Record<string, any> = {
-                batchName: data.batchName ?? 'Batch',
-                rowIndex: data.rowIndex ?? 0,
-                inputData: data.inputData ?? {},
-                results: data.results ?? {},
-            };
-            this.previewData.set(preview);
-            this._hasPreviewDataFromNavigation = true;
-        }
+        const data = this._previewDataFromNavigation();
+        if (!data || !sampleHasValues(data)) return;
+
+        this.previewData.set(previewFromSample(data));
+        this._hasPreviewDataFromNavigation = true;
+        this._prefillTemplateName();
+    }
+
+    /**
+     * Record payload carried into this screen, if one was.
+     */
+    private _previewDataFromNavigation(): SampleReportData | null {
+        const pending = this._previewDataService.consumePendingPreviewData();
+        if (pending) return pending;
+
+        const navigation = this._router.getCurrentNavigation() ?? this._router.lastSuccessfulNavigation;
+        const navigationState = navigation?.extras?.state as
+            | { previewData?: SampleReportData }
+            | undefined;
+        if (navigationState?.previewData) return navigationState.previewData;
+
+        const historyState = history.state as { previewData?: SampleReportData } | null;
+
+        return historyState?.previewData ?? null;
+    }
+
+    /**
+     * When navigation did not carry a row, load the batch this screen was opened for.
+     * `batchId` picks that batch; otherwise the newest batch of the configuration is used.
+     */
+    private _loadRecordPreview(
+        configId: string,
+        batchId: string | null,
+        rowIndex: number | null
+    ): void {
+        if (this._hasPreviewDataFromNavigation) return;
+
+        const request = ++this._recordPreviewRequest;
+        const batch$ = batchId
+            ? this._batchService.getSmartBatch(batchId).pipe(map((res) => res.data))
+            : this._batchService.getSmartBatches(configId, { page: 1, perPage: 1 }).pipe(
+                  switchMap((list) => {
+                      const latestId = list.data?.[0]?._id;
+                      if (!latestId) return of(null);
+
+                      return this._batchService.getSmartBatch(latestId).pipe(map((res) => res.data));
+                  })
+              );
+
+        forkJoin({
+            batch: batch$,
+            configuration: this._batchService.getConfiguration(configId).pipe(
+                map((res) => res.data),
+                catchError(() => of(null))
+            ),
+        })
+            .pipe(
+                catchError(() => of(null)),
+                takeUntilDestroyed(this._destroyRef)
+            )
+            .subscribe((result) => {
+                if (request !== this._recordPreviewRequest) return;
+                if (!this._hasPreviewDataFromNavigation && result?.batch) {
+                    this._applyBatchRow(result.batch, result.configuration?.steps ?? [], rowIndex);
+                }
+
+                this._prefillTemplateName(result?.configuration?.name);
+            });
+    }
+
+    /**
+     * Paint one batch row and keep a saved sample from replacing it.
+     */
+    private _applyBatchRow(batch: SmartBatch, steps: BatchStep[], rowIndex: number | null): void {
+        const row = rowForPreview(batch.rows ?? [], rowIndex);
+        if (!row) return;
+
+        const preview = previewFromRow(row, batch.name, steps);
+        if (!sampleHasValues(preview)) return;
+
+        this.previewData.set(preview);
+        this._hasPreviewDataFromNavigation = true;
+        this._prefillTemplateName(batch.name);
+    }
+
+    /**
+     * A new template can be saved as soon as it has a name.
+     * Use the batch name, then the configuration name, and only while the title is still empty.
+     */
+    private _prefillTemplateName(configName?: string): void {
+        if (this.templateId()) return;
+
+        const control = this.templateForm.get('name');
+        if (!control || control.dirty) return;
+
+        const current = String(control.value ?? '').trim();
+        if (current && current !== this._autoTemplateName) return;
+
+        const batchName = String(this.previewData()?.['batchName'] ?? '').trim();
+        const suggested = batchName || configName?.trim() || this._linkedConfigurationName();
+        if (!suggested || suggested === current) return;
+
+        this._autoTemplateName = suggested;
+        control.setValue(suggested);
+    }
+
+    /** Name of the batch configuration this builder was opened from. */
+    private _linkedConfigurationName(): string {
+        const linkedId = this.linkedConfigId();
+        if (!linkedId) return '';
+
+        const match = this.configurations().find((item) => (item._id || item.id) === linkedId);
+
+        return match?.name?.trim() ?? '';
+    }
+
+    /** True once save was attempted and the title is still empty. */
+    nameMissing(): boolean {
+        const control = this.templateForm.get('name');
+
+        return Boolean(control?.invalid && control.touched);
     }
 
     // ============================================
@@ -734,16 +1061,10 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 if (
                     !this._hasPreviewDataFromNavigation &&
                     template.sampleData &&
-                    (template.sampleData.inputData || template.sampleData.results)
+                    !isColombiaFixtureSample(template.sampleData) &&
+                    sampleHasValues(template.sampleData)
                 ) {
-                    this.previewData.set({
-                        batchName: template.sampleData.batchName ?? 'Batch',
-                        rowIndex: template.sampleData.rowIndex ?? 0,
-                        inputData: template.sampleData.inputData ?? {},
-                        results: template.sampleData.results ?? {},
-                        errors: template.sampleData.errors ?? [],
-                        report: template.sampleData.report,
-                    });
+                    this.previewData.set(previewFromSample(template.sampleData));
                 }
                 this.templateForm.patchValue({
                     name: template.name,
@@ -860,25 +1181,72 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this.sections.set(current);
     }
 
-    /** A node dropped on the page itself lands at the end of the document. */
+    /** A node or pill dropped on the page itself lands at the end of the document. */
     onCanvasDrop(event: CdkDragDrop<unknown>): void {
         if (event.previousContainer === event.container) return;
 
         this._bindDroppedItem(event.item.data);
     }
 
-    /**
-     * @param item Drag payload: a `DataNode` from the palette, or a section type
-     * from the block palette.
-     */
-    private _bindDroppedItem(item: DataNode | ReportSectionType, index?: number): void {
-        if (typeof item === 'string') {
-            this.addSection(item, index);
+    /** Drag a block to a new place in the stack. */
+    onSectionReorder(event: { fromId: string; toIndex: number }): void {
+        const list = [...this.sections()];
+        const from = list.findIndex((section) => section.id === event.fromId);
+        if (from < 0 || from === event.toIndex) return;
+        if (event.toIndex < 0 || event.toIndex >= list.length) return;
+        moveItemInArray(list, from, event.toIndex);
+        this.sections.set(list.map((section, order) => ({ ...section, order })));
+        const moved = this.sections().find((section) => section.id === event.fromId);
+        if (moved) this.selectSection(moved);
+    }
 
+    /** Free-position drag on the paper. The preview emits one frame per moved block. */
+    onSectionFrames(updates: { id: string; frame: ReportSectionFrame }[]): void {
+        const next = new Map(updates.map((item) => [item.id, item.frame]));
+        this.sections.update((list) =>
+            list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section))
+        );
+    }
+
+    onSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
+        this.sections.update((list) =>
+            list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
+        );
+    }
+
+    onSectionRotation(event: { id: string; rotation: number }): void {
+        this.sections.update((list) =>
+            list.map((section) =>
+                section.id === event.id
+                    ? { ...section, style: { ...(section.style ?? {}), rotation: event.rotation } }
+                    : section
+            )
+        );
+    }
+
+    /**
+     * @param item Drag payload: a `DataNode` from the field list, a section type
+     * from the pill row, or a shape tool.
+     */
+    private _bindDroppedItem(item: unknown, index?: number): void {
+        if (this._isShapeDrop(item)) {
+            this.addShape(item.shape);
             return;
         }
 
-        if (item?.suggestion) this.addSuggestedSection(item.suggestion, index);
+        if (typeof item === 'string') {
+            this.addSection(item as ReportSectionType, index);
+            return;
+        }
+
+        const node = item as DataNode | null;
+        if (node?.suggestion) this.addSuggestedSection(node.suggestion, index);
+    }
+
+    private _isShapeDrop(item: unknown): item is { type: 'shape'; shape: ReportShapeKind } {
+        if (!item || typeof item !== 'object') return false;
+        const drop = item as { type?: string; shape?: string };
+        return drop.type === 'shape' && this.shapeTools.some((tool) => tool.kind === drop.shape);
     }
 
     // ============================================
@@ -977,6 +1345,76 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     /** Starting properties for a freshly added block of each type. */
+    private _collectDataNodes(skipUsed: boolean): DataNode[] {
+        const used = new Set(
+            this.sections()
+                .map((section) => section.dataPath)
+                .filter((path): path is string => !!path)
+        );
+        const nodes: DataNode[] = [];
+        const walk = (list: DataNode[]): void => {
+            list.forEach((node) => {
+                const children = node.children ?? [];
+                if (node.shape === 'nested' && children.length) {
+                    walk(children);
+                    return;
+                }
+                if (node.shape === 'empty' || !node.suggestion || !node.path) return;
+                const path = node.suggestion.dataPath ?? node.path;
+                const alreadyUsed = used.has(path) || used.has(node.path);
+                if (!skipUsed || !alreadyUsed) nodes.push(node);
+                if (
+                    children.length &&
+                    node.shape !== 'flatObject' &&
+                    node.shape !== 'objectList' &&
+                    node.shape !== 'blocks'
+                ) {
+                    walk(children);
+                }
+            });
+        };
+        walk(this.dataNodes());
+        walk(this.batchNodes());
+        return nodes;
+    }
+
+    private _findDataNode(path: string): DataNode | null {
+        const walk = (list: DataNode[]): DataNode | null => {
+            for (const node of list) {
+                if (node.path === path) return node;
+                if (node.children?.length) {
+                    const found = walk(node.children);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+        return walk(this.dataNodes()) ?? walk(this.batchNodes());
+    }
+
+    private _styleSnapshot(section: ReportSection): NonNullable<ReportSection['style']> {
+        const style = section.style ?? {};
+        return {
+            fontSize: style.fontSize,
+            fontWeight: style.fontWeight,
+            fontStyle: style.fontStyle,
+            fontFamily: style.fontFamily,
+            textAlign: style.textAlign,
+            color: style.color,
+            labelColor: style.labelColor,
+            valueColor: style.valueColor,
+            titleStyle: style.titleStyle ? { ...style.titleStyle } : undefined,
+            labelStyle: style.labelStyle ? { ...style.labelStyle } : undefined,
+            valueStyle: style.valueStyle ? { ...style.valueStyle } : undefined,
+            backgroundColor: style.backgroundColor,
+            padding: style.padding,
+            borderWidth: style.borderWidth,
+            borderColor: style.borderColor,
+            borderRadius: style.borderRadius,
+            rotation: style.rotation,
+        };
+    }
+
     private _sectionDefaults(type: ReportSectionType): Partial<ReportSection> {
         const defaults: Partial<Record<ReportSectionType, Partial<ReportSection>>> = {
             header: {
@@ -1020,12 +1458,18 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
      * @param index Optional drop position; appended when omitted.
      */
     addSuggestedSection(suggestion: Partial<ReportSection>, index?: number): void {
+        const type = (suggestion.type ?? 'field') as ReportSectionType;
         const newSection: ReportSection = {
             ...suggestion,
             id: this._generateId(),
-            type: (suggestion.type ?? 'field') as ReportSectionType,
+            type,
             order: 0,
         };
+
+        if (!newSection.frame && type !== 'shape' && type !== 'image') {
+            const placed = this._samplePreview?.frameBelowContent(type);
+            if (placed) newSection.frame = placed;
+        }
 
         this.sections.update((list) => {
             const next = [...list];
@@ -1208,23 +1652,196 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     selectSection(section: ReportSection): void {
         this.selectedOverlay.set(null);
         this.selectedSection.set({ ...section });
+        this.inspectorKind.set('block');
         this.showAdvancedPath.set(false);
     }
 
     onPreviewOverlaySelect(id: ReportOverlayId): void {
         this.selectedSection.set(null);
         this.selectedOverlay.set(id);
+        this.inspectorKind.set('overlay');
+        this.closeInsertMenu();
     }
 
-    clearPreviewSelection(): void {
+    /** Clicking empty paper opens page setup. Closing the panel is a separate action. */
+    onPreviewBackgroundClick(): void {
+        this.selectedSection.set(null);
+        this.selectedOverlay.set(null);
+        this.inspectorKind.set('page');
+        this.closeInsertMenu();
+    }
+
+    openPageInspector(): void {
+        this.selectedSection.set(null);
+        this.selectedOverlay.set(null);
+        this.inspectorKind.set('page');
+    }
+
+    closeInspector(): void {
+        this.inspectorKind.set(null);
         this.selectedSection.set(null);
         this.selectedOverlay.set(null);
     }
 
+    /**
+     * Page mode shows every document control. An overlay shows only its own
+     * controls, so clicking the logo does not reopen the whole settings form.
+     */
+    showsDocumentGroup(group: 'page' | 'logo' | 'watermark' | 'signature'): boolean {
+        const kind = this.inspectorKind();
+        if (kind === 'page') return true;
+        if (kind !== 'overlay') return false;
+        const overlay = this.selectedOverlay();
+        if (overlay === 'logo' || overlay === 'watermark' || overlay === 'signature') {
+            return group === overlay;
+        }
+        return group === 'page';
+    }
+
+    inspectorTitleKey(): string {
+        if (this.inspectorKind() !== 'overlay') return 'smartReport.documentSettings';
+        const overlay = this.selectedOverlay();
+        if (overlay === 'logo') return 'smartReport.workspaceLogo';
+        if (overlay === 'watermark') return 'smartReport.watermark';
+        if (overlay === 'signature') return 'smartReport.signature';
+        return 'smartReport.documentSettings';
+    }
+
+    openInsertMenu(origin?: { x: number; y: number }): void {
+        const width = 256;
+        const x = Math.max(8, Math.min(origin?.x ?? 32, window.innerWidth - width - 8));
+        const y = Math.max(8, Math.min(origin?.y ?? 88, window.innerHeight - 160));
+        this.insertMenu.set({ x, y });
+    }
+
+    openInsertMenuFromClick(event: MouseEvent): void {
+        const rect = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect();
+        this.openInsertMenu(rect ? { x: rect.left, y: rect.bottom + 8 } : undefined);
+    }
+
+    closeInsertMenu(): void {
+        this.insertMenu.set(null);
+    }
+
+    onPaperContextMenu(event: { x: number; y: number }): void {
+        this.openInsertMenu(event);
+    }
+
+    onSectionContextMenu(event: { section: ReportSection; x: number; y: number }): void {
+        this.selectSection(event.section);
+        this.openInsertMenu({ x: event.x, y: event.y });
+    }
+
+    insertSection(type: ReportSectionType): void {
+        this.addSection(type);
+        this.closeInsertMenu();
+    }
+
+    addShape(kind: ReportShapeKind): void {
+        const tool = this.shapeTools.find((item) => item.kind === kind);
+        this.addSuggestedSection({
+            type: 'shape',
+            shape: kind,
+            staticContent: kind,
+            frame: {
+                x: 64,
+                y: 64,
+                width: tool?.width ?? 96,
+                height: tool?.height ?? 96,
+            },
+            style: { color: this.templateForm.get('primaryColor')?.value || '#4F46E5' },
+        });
+        this.closeInsertMenu();
+    }
+
+    /**
+     * Separate blocks that sit on top of each other, so the printed report shows
+     * every field instead of one covering another.
+     */
+    fixOverlaps(): void {
+        const moved = this._samplePreview?.resolveOverlaps() ?? 0;
+        const key = moved ? 'smartReport.overlapsFixed' : 'smartReport.noOverlaps';
+
+        this._snack.open(this._transloco.translate(key, { count: moved }), undefined, { duration: 2500 });
+    }
+
+    /**
+     * One section per sample or batch path that is not already on the page.
+     * Nested groups are walked; a table or grid stands in for its own children.
+     */
+    addFieldsFromSample(): void {
+        const nodes = this.insertableNodes();
+        if (!nodes.length) {
+            this._snack.open(this._transloco.translate('smartReport.noNewFields'), undefined, { duration: 2500 });
+            return;
+        }
+
+        let lastId = '';
+        this.sections.update((list) => {
+            const next = [...list];
+            nodes.forEach((node) => {
+                lastId = this._generateId();
+                next.push({
+                    ...node.suggestion,
+                    id: lastId,
+                    type: (node.suggestion.type ?? 'field') as ReportSectionType,
+                    order: 0,
+                });
+            });
+            return next.map((section, position) => ({ ...section, order: position }));
+        });
+
+        const added = this.sections().find((section) => section.id === lastId);
+        if (added) this.selectSection(added);
+        this.closeInsertMenu();
+    }
+
+    bindSectionToPath(sectionId: string, path: string): void {
+        if (!path) return;
+        const node = this._findDataNode(path);
+        if (!node) {
+            this.updateSection(sectionId, { dataPath: path });
+            return;
+        }
+        this.updateSection(sectionId, {
+            dataPath: node.suggestion.dataPath ?? node.path,
+            label: node.label,
+            columns: node.suggestion.columns,
+            columnsPerRow: node.suggestion.columnsPerRow,
+        });
+    }
+
+    canApplyStyleToSimilar(): boolean {
+        const selected = this.currentSelectedSection();
+        if (!selected) return false;
+        return this.sections().some((section) => section.id !== selected.id && section.type === selected.type);
+    }
+
+    /** Copy typography, color, padding, and border onto other blocks of the same type. */
+    applyStyleToSimilar(): void {
+        const source = this.currentSelectedSection();
+        if (!source) return;
+        const snapshot = this._styleSnapshot(source);
+        this.sections.update((list) =>
+            list.map((section) => {
+                if (section.id === source.id || section.type !== source.type) return section;
+                const style = { ...(section.style ?? {}) };
+                (Object.keys(snapshot) as (keyof typeof snapshot)[]).forEach((key) => {
+                    const value = snapshot[key];
+                    if (value === undefined) delete style[key];
+                    else (style as Record<string, unknown>)[key] = value;
+                });
+                return { ...section, style };
+            })
+        );
+        this._snack.open(this._transloco.translate('smartReport.styleApplied'), undefined, { duration: 2500 });
+    }
+
     onCanvasBlankClick(event: MouseEvent): void {
         const target = event.target as HTMLElement | null;
-        if (target?.closest('report-preview')) return;
-        this.clearPreviewSelection();
+        if (target?.closest('report-preview, .report-inspector, .report-insert-menu')) return;
+        this.closeInspector();
+        this.closeInsertMenu();
     }
 
     /**
@@ -1285,7 +1902,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             return filtered;
         });
         if (this.selectedSection()?.id === id) {
-            this.selectedSection.set(null);
+            this.closeInspector();
         }
     }
 
@@ -1442,7 +2059,13 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     save(onSuccess?: () => void): void {
         if (this.templateForm.invalid) {
-            this._snack.open('Please fill in all required fields', 'Close', { duration: 3000 });
+            this.templateForm.markAllAsTouched();
+            this._templateNameInput?.nativeElement.focus();
+            this._snack.open(
+                this._transloco.translate('smartReport.nameTheTemplate'),
+                this._transloco.translate('smartReport.close'),
+                { duration: 3000 }
+            );
             return;
         }
 
@@ -1792,6 +2415,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     /** Flattened data paths for the helper panel (only leaf paths for fields) */
     helperDataPaths = computed(() => buildHelperDataPaths(this.previewData()));
+
+    /** Sample and batch paths that are not already placed on the page. */
+    insertableNodes = computed(() => this._collectDataNodes(true));
+
+    /** Every bindable path, including ones already used by another block. */
+    bindableNodes = computed(() => this._collectDataNodes(false));
 
     /**
      * Effective content top padding shown next to the slider readout.

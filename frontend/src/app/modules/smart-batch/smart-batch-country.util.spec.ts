@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	compareFeaturesForSelectedCountry,
 	countriesMatch,
 	filterFeaturesForCountry,
 	getCountryFlag,
@@ -61,6 +62,24 @@ describe('resolveDropdownCountry', () => {
 		expect(resolveDropdownCountry('CO', DROPDOWN_CODES)).toBe('Colombia');
 		expect(resolveDropdownCountry('COLOMBIA', DROPDOWN_CODES)).toBe('Colombia');
 		expect(resolveDropdownCountry('Colombia', DROPDOWN_CODES)).toBe('Colombia');
+	});
+});
+
+describe('compareFeaturesForSelectedCountry', () => {
+	it('lists a Panama endpoint before a world background check', () => {
+		const features = [
+			{ name: 'Global - ONU Background Check', country: 'world' },
+			{ name: 'Panama - Panamanian Citizen', country: 'Panama' },
+			{ name: 'Global - DEA Background Check', country: 'world' },
+		];
+
+		const sorted = [...features].sort(compareFeaturesForSelectedCountry);
+
+		expect(sorted.map((feature) => feature.name)).toEqual([
+			'Panama - Panamanian Citizen',
+			'Global - DEA Background Check',
+			'Global - ONU Background Check',
+		]);
 	});
 });
 

@@ -1172,45 +1172,71 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Open report builder.
+     * Row the report is showing, used as the builder's sample.
+     */
+    private _selectedBatchRow() {
+        const rows = this.batch()?.rows ?? [];
+        const rowIndex = this.selectedRowIndex();
+        if (rowIndex != null) return rows.find((row) => row.rowIndex === rowIndex) ?? null;
+
+        return rows[0] ?? null;
+    }
+
+    /**
+     * Preview payload for the builder, from the row on screen.
+     */
+    private _previewDataForBuilder() {
+        const row = this._selectedBatchRow();
+        if (!row) return null;
+
+        const batch = this.batch();
+
+        return {
+            batchName: batch?.name ?? this._defaultBatchLabel(),
+            rowIndex: row.rowIndex,
+            ...buildRowDataForResolution(row, {
+                steps: this.configuration()?.steps ?? [],
+                batchName: batch?.name,
+                errors: row.errors,
+            }),
+        };
+    }
+
+    /**
+     * Identifiers the builder can use to reload this row if the in-memory bridge is empty.
+     */
+    private _builderQueryParams(): Record<string, string> {
+        const params: Record<string, string> = {};
+        const batchId = this.batch()?._id;
+        if (batchId) params['batchId'] = batchId;
+
+        const rowIndex = this._selectedBatchRow()?.rowIndex ?? this.selectedRowIndex();
+        if (rowIndex != null) params['rowIndex'] = String(rowIndex);
+
+        return params;
+    }
+
+    /**
+     * Open report builder on this record.
      * @param createNew - If true, always create a new template. If false, edit the selected template (if any).
      */
     openReportBuilder(createNew = false): void {
         const configId = this.configId();
         if (!configId) return;
 
-        const b = this.batch();
-        const rows = b?.rows ?? [];
-        const rowIndex = this.selectedRowIndex();
-        const row = rowIndex != null ? rows.find((r) => r.rowIndex === rowIndex) : rows[0];
-
-        const previewData = row
-            ? {
-                  batchName: b?.name ?? this._defaultBatchLabel(),
-                  rowIndex: row.rowIndex,
-                  ...buildRowDataForResolution(row, {
-                      steps: this.configuration()?.steps ?? [],
-                      batchName: b?.name,
-                      errors: row.errors,
-                  }),
-              }
-            : null;
-
+        const previewData = this._previewDataForBuilder();
         if (previewData) {
             this._previewDataService.setPendingPreviewData(previewData);
         }
 
-        const navigationExtras = previewData ? { state: { previewData } } : {};
-
         const templateId = createNew ? null : this.selectedTemplate()?._id;
-        if (templateId) {
-            this._router.navigate(['/smart-batch'], {
-                queryParams: { templateId, resume: 'layout', configId },
-                ...navigationExtras,
-            });
-            return;
-        }
+        const commands = templateId
+            ? ['/smart-batch', configId, 'report-builder', templateId]
+            : ['/smart-batch', configId, 'report-builder'];
 
-        this._router.navigate(['/smart-batch', configId, 'report-builder'], navigationExtras);
+        void this._router.navigate(commands, {
+            queryParams: this._builderQueryParams(),
+            ...(previewData ? { state: { previewData } } : {}),
+        });
     }
 }

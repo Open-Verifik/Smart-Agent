@@ -36,6 +36,53 @@ export type ReportInlineTextChange = {
 const MM_TO_PX = 3.7795275591;
 /** Tailwind `mb-3` between blocks. Margin is not included in getBoundingClientRect. */
 const SECTION_GAP_PX = 12;
+/** How close an edge must be, in screen pixels, before it snaps and shows a guide. */
+const ALIGN_SNAP_SCREEN_PX = 6;
+/** Where a block starts when it spills onto the next page. */
+const PAGE_INSET_PX = 32;
+/**
+ * Block types meant to sit behind or over other blocks, so the overlap sweep
+ * leaves them where the author put them. Mirrors the renderer.
+ */
+const OVERLAP_EXEMPT_TYPES = new Set<string>(['shape', 'image']);
+
+/** A guide drawn on the page while a block is snapped to an edge. */
+interface AlignmentGuides {
+    page: number;
+    /** View-pixel offset of a vertical line. Null when nothing is snapped on X. */
+    vertical: number | null;
+    /** View-pixel offset of a horizontal line. Null when nothing is snapped on Y. */
+    horizontal: number | null;
+}
+
+/**
+ * Move `origin` so one edge of a box (left, center, or right) lands on the nearest target.
+ * Width is unchanged: only the origin shifts.
+ */
+const snapToTargets = (
+    origin: number,
+    size: number,
+    targets: number[],
+    threshold: number
+): { origin: number; guide: number | null } => {
+    let bestDistance = threshold + 1;
+    let delta = 0;
+    let guide: number | null = null;
+    const edges = [0, size / 2, size];
+
+    for (const edge of edges) {
+        for (const target of targets) {
+            const distance = Math.abs(target - (origin + edge));
+            if (distance > threshold || distance >= bestDistance) continue;
+
+            bestDistance = distance;
+            delta = target - (origin + edge);
+            guide = target;
+        }
+    }
+
+    return { origin: origin + delta, guide };
+};
 
 /**
  * Shared report preview component - renders a template with data, paginating
@@ -196,6 +243,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _measureFrameId: number | null = null;
     private _autoPinFrameId: number | null = null;
     private _autoPinAttempts = 0;
+    private _overlapSweepId: number | null = null;
+    private _paperResize: ResizeObserver | null = null;
     private readonly _host = inject(ElementRef<HTMLElement>);
     private _sectionDrag: {
         id: string;
@@ -235,6 +284,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     readonly inlineDraft = signal('');
     private _suppressInlineBlur = false;
     readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
+    /** Guides for the block currently being dragged. Cleared when the pointer is released. */
+    readonly alignmentGuides = signal<AlignmentGuides | null>(null);
 
     constructor() {
         // Single effect that tracks every input that influences pagination.
@@ -269,8 +320,22 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         // Re-measure whenever the off-screen section list re-renders so we
         // pick up height changes from edits (text length, table rows, ...)
         this._measureSections.changes.subscribe(() => this._scheduleMeasurement());
-        this._reportPages.changes.subscribe(() => this._scheduleMeasurement());
+        this._reportPages.changes.subscribe(() => {
+            this._observePapers();
+            this._scheduleMeasurement();
+        });
+        this._paperResize = new ResizeObserver(() => this._fitPaperBoxes());
+        this._observePapers();
         this._scheduleMeasurement();
+    }
+
+    private _observePapers(): void {
+        const observer = this._paperResize;
+        if (!observer) return;
+
+        for (const ref of this._reportPages?.toArray() ?? []) {
+            observer.observe(ref.nativeElement);
+        }
     }
 
     /** First paper card; used as the canonical scale + drag/resize anchor. */
@@ -327,6 +392,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     private _performMeasurement(): void {
+        this._fitPaperBoxes();
         const sections = this.template().sections || [];
         if (sections.length === 0) {
             this._setPagesIfDifferent([[]]);
@@ -336,6 +402,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (this.hasFreeLayout()) {
             this._setPagesIfDifferent(this._pagesFromFrames(sections));
             this._scheduleAutoPinMissingFrames();
+            this._scheduleOverlapSweep();
             return;
         }
 
@@ -358,14 +425,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
 
-        const heights = new Map<string, number>();
-        for (const ref of els) {
-            const el = ref.nativeElement;
-            const id = el.dataset['sectionId'];
-            if (!id) continue;
-            heights.set(id, el.getBoundingClientRect().height);
-        }
-
+        const heights = this._measuredHeights();
         const pageHeightDom = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
         const innerPaddingTopBottom = this._getInnerPaddingTopBottom();
         const legendHeight = this._getLegendHeight();
@@ -403,6 +463,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
         this._setPagesIfDifferent(newPages);
         this._scheduleAutoPinMissingFrames();
+    }
+
+    /**
+     * Natural height of every section, taken from the off-screen list that
+     * renders at full A4 width, so the values are already canonical pixels.
+     */
+    private _measuredHeights(): Map<string, number> {
+        const heights = new Map<string, number>();
+
+        for (const ref of this._measureSections?.toArray() ?? []) {
+            const el = ref.nativeElement;
+            const id = el.dataset['sectionId'];
+            if (!id) continue;
+
+            heights.set(id, el.getBoundingClientRect().height);
+        }
+
+        return heights;
     }
 
     private _setPagesIfDifferent(newPages: ReportSection[][]): void {
@@ -449,21 +527,38 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const ref = this.reportPage;
         if (!ref) return { x: 1, y: 1 };
 
-        const rect = ref.nativeElement.getBoundingClientRect();
-        const currentWidth = rect.width;
-        const currentHeight = rect.height;
+        const width = ref.nativeElement.getBoundingClientRect().width;
+        if (!width) return { x: 1, y: 1 };
 
-        if (!currentWidth || !currentHeight) {
-            return { x: 1, y: 1 };
-        }
-
+        // One scale for both axes. Width and height used to be divided separately,
+        // which stretched the gaps between cards relative to the exact preview.
         const canonicalWidth = (this.orientation() === 'landscape' ? 297 : 210) * MM_TO_PX;
-        const canonicalHeight = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
+        const scale = canonicalWidth / width;
 
-        return {
-            x: canonicalWidth / currentWidth,
-            y: canonicalHeight / currentHeight,
-        };
+        return { x: scale, y: scale };
+    }
+
+    /**
+     * Lock every sheet to the A4 ratio of its width so the box matches the scale above.
+     * A flex parent would otherwise give the paper a taller height than the page.
+     */
+    private _fitPaperBoxes(): void {
+        const ratio = this.orientation() === 'landscape' ? 210 / 297 : 297 / 210;
+
+        for (const ref of this._reportPages?.toArray() ?? []) {
+            const el = ref.nativeElement;
+            const width = el.clientWidth;
+            if (!width) continue;
+
+            const height = Math.round(width * ratio);
+            const next = `${height}px`;
+            if (el.style.height === next && Math.abs(el.clientHeight - height) <= 1) continue;
+
+            // max-height stops the flex column from stretching the sheet past A4.
+            // Content that does not fit moves to the next page instead.
+            el.style.height = next;
+            el.style.maxHeight = next;
+        }
     }
 
     // Transforming Input (Canonical) -> View (Screen)
@@ -930,7 +1025,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 this._clearSectionDrag();
                 return;
             }
-            drag.startFrame = start;
+            drag.startFrame = { ...start, height: this._dragHeight(drag.id, start) };
             drag.active = true;
             this._sectionDragMoved = true;
             if (this.editingText()) this.commitInlineEdit();
@@ -953,13 +1048,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._stopSectionDragListeners();
         this._sectionDrag = null;
         this.draggingSectionId.set(null);
+        this.alignmentGuides.set(null);
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
         if (!wasActive) {
             this.liveFrames.set({});
             return;
         }
-        this.sectionFramesChange.emit(this._framesForEmit(updates));
+        const packed = this.resolveOverlaps();
+        if (!packed) this.sectionFramesChange.emit(this._framesForEmit(updates));
         this.liveFrames.set({});
     }
 
@@ -1016,13 +1113,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!Number.isFinite(x) || !Number.isFinite(y)) return {};
         const scales = this._scaleFactors;
         const width = Number(frame.width) > 0 ? Number(frame.width) / scales.x : 0;
-        const height = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
+        const frameHeight = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
+        const ink = this._visibleInkHeight(section.id) / scales.y;
+        const height = ink > 0 && frameHeight > ink ? ink : frameHeight;
         const rotation = this.sectionRotation(section);
+        const spansPage = section.type === 'divider';
         const style: Record<string, string> = {
             position: 'absolute',
-            left: `${x / scales.x}px`,
+            left: spansPage ? '0px' : `${x / scales.x}px`,
             top: `${y / scales.y}px`,
-            width: width ? `${width}px` : '100%',
+            width: spansPage || !width ? '100%' : `${width}px`,
             marginBottom: '0px',
             zIndex:
                 this.draggingSectionId() === section.id
@@ -1058,26 +1158,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     ): void {
         const scales = this._scaleFactors;
         const width = drag.startFrame.width || 240;
-        const height = drag.startFrame.height || 80;
+        const height = this._dragHeight(drag.id, drag.startFrame);
         const fromPage = drag.startFrame.page ?? 0;
-        const toPage = this._pageIndexAtPoint(clientX, clientY, fromPage);
+        const toPage = this._pageForDrag(clientX, clientY, fromPage);
+        const creating = toPage > fromPage && toPage >= (this._reportPages?.length ?? 0);
         let x = drag.startFrame.x + (clientX - drag.startClientX) * scales.x;
-        let y = drag.startFrame.y + (clientY - drag.startClientY) * scales.y;
+        let y = creating ? PAGE_INSET_PX : drag.startFrame.y + (clientY - drag.startClientY) * scales.y;
         const fromInner = this._pageInner(fromPage);
         const toInner = this._pageInner(toPage);
-        if (fromInner && toInner && fromInner !== toInner) {
+        if (!creating && fromInner && toInner && fromInner !== toInner) {
             const fromOrigin = this._innerOrigin(fromInner);
             const toOrigin = this._innerOrigin(toInner);
             x += (fromOrigin.left - toOrigin.left) * scales.x;
             y += (fromOrigin.top - toOrigin.top) * scales.y;
         }
-        const clampInner = toInner ?? fromInner;
-        if (clampInner) {
-            const maxX = Math.max(0, clampInner.clientWidth * scales.x - width);
-            const maxY = Math.max(0, clampInner.clientHeight * scales.y - Math.min(height, 24));
-            x = Math.min(Math.max(0, x), maxX);
-            y = Math.min(Math.max(0, y), maxY);
-        }
+        const placed = this._constrainDraggedFrame(drag.id, toPage, x, y, width, height, toInner);
+        x = placed.x;
+        y = placed.y;
         const next: ReportSectionFrame = {
             ...drag.startFrame,
             page: toPage,
@@ -1105,22 +1202,241 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     private _pageInner(pageIndex: number): HTMLElement | null {
-        const pages = this._reportPages?.toArray() ?? [];
-        const ref = pages[pageIndex] ?? pages[0];
-        return (ref?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? null;
+        const ref = this._reportPages?.toArray()[pageIndex];
+        if (!ref) return null;
+        return (ref.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? null;
     }
 
-    /** Paper under the pointer; stays on the current sheet until the cursor actually enters another. */
+    /** Paper under the pointer. Stays on `fallback` until the cursor enters a sheet. */
     private _pageIndexAtPoint(clientX: number, clientY: number, fallback: number): number {
+        const hit = this._sheetIndexAtPoint(clientX, clientY);
+        return hit == null ? fallback : hit;
+    }
+
+    /**
+     * Sheet the pointer is on, or one past the last sheet when it has gone below
+     * the page. That extra index is what opens the next A4 page.
+     */
+    private _pageForDrag(clientX: number, clientY: number, fallback: number): number {
         const pages = this._reportPages?.toArray() ?? [];
-        if (pages.length <= 1) return 0;
+        const hit = this._sheetIndexAtPoint(clientX, clientY);
+        if (hit != null) return hit;
+        if (!pages.length) return fallback;
+
+        const last = pages[pages.length - 1].nativeElement.getBoundingClientRect();
+        const below =
+            clientY > last.bottom && clientX >= last.left && clientX <= last.right;
+        return below ? pages.length : fallback;
+    }
+
+    private _sheetIndexAtPoint(clientX: number, clientY: number): number | null {
+        const pages = this._reportPages?.toArray() ?? [];
         for (let index = 0; index < pages.length; index++) {
             const rect = pages[index].nativeElement.getBoundingClientRect();
             if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
                 return index;
             }
         }
-        return fallback;
+        return null;
+    }
+
+    /** Height of the card on the sheet. The saved frame can be taller than that card. */
+    private _dragHeight(sectionId: string, frame: ReportSectionFrame): number {
+        const ink = this._visibleInkHeight(sectionId);
+        if (ink > 0) return ink;
+        return Number(frame.height) > 0 ? Number(frame.height) : 80;
+    }
+
+    /**
+     * Settle the sheet into the layout the renderer prints.
+     *
+     * The PDF pushes covered blocks apart, so the canvas has to do the same or
+     * the two stop matching. It runs once the pointer is released, never during a
+     * drag, and stops as soon as a sweep finds nothing left to move.
+     */
+    private _scheduleOverlapSweep(): void {
+        if (!this.reorderable() || this.thumbnailMode()) return;
+        if (this._sectionDrag || this._sectionResize || this._sectionRotate) return;
+        if (this._overlapSweepId !== null) cancelAnimationFrame(this._overlapSweepId);
+
+        this._overlapSweepId = requestAnimationFrame(() => {
+            this._overlapSweepId = null;
+            if (this._sectionDrag || this._sectionResize || this._sectionRotate) return;
+
+            this.resolveOverlaps();
+        });
+    }
+
+    /**
+     * Push blocks that cover each other down their page until nothing overlaps.
+     *
+     * Free placement may stack boxes on purpose, so only blocks whose ink
+     * actually intersects are moved, and decorative shapes are left alone.
+     * @returns How many blocks moved.
+     */
+    resolveOverlaps(): number {
+        const boxes = this._overlapBoxes();
+        const limit = this._pageHeightPx() - PAGE_INSET_PX;
+        const placed: { page: number; left: number; right: number; top: number; bottom: number }[] = [];
+        const updates: { id: string; frame: ReportSectionFrame }[] = [];
+
+        for (const box of boxes) {
+            const spot = this._spotBelowBlockers(placed, box, limit);
+
+            placed.push({
+                page: spot.page,
+                left: box.left,
+                right: box.right,
+                top: spot.top,
+                bottom: spot.top + box.height,
+            });
+
+            if (Math.round(spot.top) === Math.round(box.top) && spot.page === box.page) continue;
+
+            updates.push({
+                id: box.id,
+                frame: { ...box.frame, y: spot.top, page: spot.page },
+            });
+        }
+
+        if (!updates.length) return 0;
+
+        this.sectionFramesChange.emit(this._framesForEmit(updates));
+
+        return updates.length;
+    }
+
+    /**
+     * Where a new content block goes: under the lowest block already on the sheet.
+     * The height is the tallest block of the same type, so a second card starts
+     * below the first card's ink instead of on top of it.
+     */
+    frameBelowContent(type?: string): ReportSectionFrame | null {
+        const boxes = this._overlapBoxes();
+        if (!boxes.length) return null;
+
+        const pageHeight = this._pageHeightPx();
+        const lowest = boxes.reduce((best, box) =>
+            box.page * pageHeight + box.top + box.height > best.page * pageHeight + best.top + best.height ? box : best
+        );
+        const sameType = type ? boxes.filter((box) => box.type === type) : [];
+        const height = sameType.length ? Math.max(...sameType.map((box) => box.height)) : lowest.height || 80;
+        let y = lowest.top + lowest.height + SECTION_GAP_PX;
+        let page = lowest.page;
+
+        if (y + height > pageHeight - PAGE_INSET_PX) {
+            page += 1;
+            y = PAGE_INSET_PX;
+        }
+
+        return {
+            x: lowest.left,
+            y,
+            width: Math.max(0, lowest.right - lowest.left),
+            height,
+            page,
+        };
+    }
+
+    /** First free top for a box. A box that does not fit moves to the next page. */
+    private _spotBelowBlockers(
+        placed: { page: number; left: number; right: number; top: number; bottom: number }[],
+        box: { page: number; left: number; right: number; top: number; height: number },
+        limit: number
+    ): { top: number; page: number } {
+        let top = box.top;
+        let page = box.page;
+
+        if (box.height > 0 && box.height < limit && top + box.height > limit) {
+            page += 1;
+            top = PAGE_INSET_PX;
+        }
+
+        for (let pass = 0; pass <= placed.length + 1; pass++) {
+            const blocker = placed.find(
+                (rect) =>
+                    rect.page === page &&
+                    rect.right > box.left &&
+                    rect.left < box.right &&
+                    rect.bottom > top &&
+                    rect.top < top + box.height
+            );
+            if (!blocker) break;
+
+            const below = blocker.bottom + SECTION_GAP_PX;
+
+            if (box.height < limit && below + box.height > limit) {
+                page += 1;
+                top = PAGE_INSET_PX;
+                continue;
+            }
+
+            top = below;
+        }
+
+        return { top, page };
+    }
+
+    /** Placed blocks as canonical rectangles, topmost first. A frame with no width prints full bleed. */
+    private _overlapBoxes(): {
+        id: string;
+        type: string;
+        frame: ReportSectionFrame;
+        page: number;
+        left: number;
+        right: number;
+        top: number;
+        height: number;
+    }[] {
+        const pageWidth = (this.orientation() === 'landscape' ? 297 : 210) * MM_TO_PX;
+
+        return (this.template().sections ?? [])
+            .filter((section) => !OVERLAP_EXEMPT_TYPES.has(section.type))
+            .map((section) => ({ section, frame: this.displayFrame(section) }))
+            .filter((item): item is { section: ReportSection; frame: ReportSectionFrame } => Boolean(item.frame))
+            .map(({ section, frame }) => {
+                const stored = Number(frame.height) > 0 ? Number(frame.height) : 0;
+                const ink = this._visibleInkHeight(section.id);
+
+                return {
+                    id: section.id,
+                    type: section.type,
+                    frame,
+                    page: frame.page ?? 0,
+                    left: frame.x,
+                    right: frame.x + (Number(frame.width) > 0 ? Number(frame.width) : pageWidth),
+                    top: frame.y,
+                    height: ink > 0 ? ink : stored,
+                };
+            })
+            .sort((a, b) => a.page - b.page || a.top - b.top || a.left - b.left);
+    }
+
+    /**
+     * Canonical height of the card you can see on the sheet.
+     *
+     * The saved frame can be taller than that card. Packing against the frame
+     * is what leaves a gap the preview does not have, and then refuses to let
+     * the next card move up into it.
+     */
+    private _visibleInkHeight(sectionId: string): number {
+        const selector = `[data-report-section][data-section-id="${CSS.escape(sectionId)}"]`;
+        let host: HTMLElement | null = null;
+        for (const ref of this._reportPages?.toArray() ?? []) {
+            host = ref.nativeElement.querySelector(selector) as HTMLElement | null;
+            if (host) break;
+        }
+        if (!host) return 0;
+
+        let bottom = 0;
+        for (const node of Array.from(host.children)) {
+            const child = node as HTMLElement;
+            if (child.hasAttribute('data-print-hide') || child.hasAttribute('data-section-handle')) continue;
+            bottom = Math.max(bottom, child.offsetTop + child.offsetHeight);
+        }
+
+        if (!bottom) return 0;
+        return bottom * this._scaleFactors.y;
     }
 
     /** Drop trailing / leading empty sheets and persist 0-based page indexes. */
@@ -1237,16 +1553,62 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         const byId = new Map(pinned.map((item) => [item.id, item.frame]));
-        const updates = sections
-            .filter((section) => !this.displayFrame(section) && byId.has(section.id))
-            .map((section) => ({ id: section.id, frame: byId.get(section.id)! }));
-        if (!updates.length) {
+        const missing = sections.filter((section) => !this.displayFrame(section) && byId.has(section.id));
+        if (!missing.length) {
             this._autoPinAttempts += 1;
             this._scheduleAutoPinMissingFrames();
             return;
         }
         this._autoPinAttempts = 0;
-        this.sectionFramesChange.emit(this._framesForEmit(updates));
+        this.sectionFramesChange.emit(this._framesForEmit(this._framesBelowPlacedContent(missing, byId)));
+    }
+
+    /**
+     * A block added to a page that already uses frames is the only one left in
+     * normal flow, so it measures its position as if the framed blocks were not
+     * there and lands on top of them. Stack it under the placed content instead.
+     * @param missing Sections that still need a frame, in document order.
+     * @param measured Flow-measured frames, keyed by section id.
+     */
+    private _framesBelowPlacedContent(
+        missing: ReportSection[],
+        measured: Map<string, ReportSectionFrame>
+    ): { id: string; frame: ReportSectionFrame }[] {
+        const anchors = (this.template().sections ?? [])
+            .map((section) => this.displayFrame(section))
+            .filter((frame): frame is ReportSectionFrame => Boolean(frame));
+
+        if (!anchors.length) {
+            return missing.map((section) => ({ id: section.id, frame: measured.get(section.id)! }));
+        }
+
+        const boxes = this._overlapBoxes();
+        if (!boxes.length) {
+            return missing.map((section) => ({ id: section.id, frame: measured.get(section.id)! }));
+        }
+
+        const page = Math.max(...boxes.map((box) => box.page));
+        const onPage = boxes.filter((box) => box.page === page);
+        const left = Math.min(...onPage.map((box) => box.left));
+        const inset = Math.min(...onPage.map((box) => box.top));
+        const pageHeight = this._pageHeightPx();
+        let cursor = Math.max(...onPage.map((box) => box.top + box.height));
+        let cursorPage = page;
+
+        return missing.map((section) => {
+            const base = measured.get(section.id)!;
+            const height = base.height || 0;
+            let y = cursor + SECTION_GAP_PX;
+
+            if (y + height > pageHeight - inset) {
+                cursorPage += 1;
+                y = inset;
+            }
+
+            cursor = y + height;
+
+            return { id: section.id, frame: { ...base, page: cursorPage, x: left, y, height } };
+        });
     }
 
     /**
@@ -1291,7 +1653,144 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         document.body.style.cursor = '';
         this._sectionDrag = null;
         this.draggingSectionId.set(null);
+        this.alignmentGuides.set(null);
         this.liveFrames.set({});
+    }
+
+    /**
+     * Snap a moving block to nearby edges, then keep it on the page.
+     * A guide is kept only when the snap survives the page clamp.
+     */
+    private _constrainDraggedFrame(
+        dragId: string,
+        page: number,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        inner: HTMLElement | null
+    ): { x: number; y: number } {
+        const scales = this._scaleFactors;
+        const snappedX = snapToTargets(
+            x,
+            width,
+            this._alignmentTargets('x', dragId, page, inner, scales.x),
+            ALIGN_SNAP_SCREEN_PX * scales.x
+        );
+        const snappedY = snapToTargets(
+            y,
+            height,
+            this._alignmentTargets('y', dragId, page, inner, scales.y),
+            ALIGN_SNAP_SCREEN_PX * scales.y
+        );
+        let nextX = snappedX.origin;
+        let nextY = snappedY.origin;
+        let vertical = snappedX.guide == null ? null : snappedX.guide / scales.x;
+        let horizontal = snappedY.guide == null ? null : snappedY.guide / scales.y;
+
+        if (inner) {
+            const maxX = Math.max(0, inner.clientWidth * scales.x - width);
+            const clampedX = Math.min(Math.max(0, nextX), maxX);
+            if (clampedX !== nextX) vertical = null;
+            nextX = clampedX;
+        }
+
+        const maxY = Math.max(0, this._pageHeightPx() - Math.min(height, 24));
+        const clampedY = Math.min(Math.max(0, nextY), maxY);
+        if (clampedY !== nextY) horizontal = null;
+        nextY = clampedY;
+
+        const freed = this._freeOfContent(dragId, page, nextX, nextY, width, height);
+        if (freed.y !== nextY) horizontal = null;
+        nextY = freed.y;
+
+        this.alignmentGuides.set({ page, vertical, horizontal });
+
+        return { x: nextX, y: nextY };
+    }
+
+    /**
+     * Keep a dragged block on the side of another card that the pointer asked for.
+     * It stops at that edge instead of jumping to the opposite side of the box.
+     */
+    private _freeOfContent(
+        dragId: string,
+        page: number,
+        x: number,
+        y: number,
+        width: number,
+        height: number
+    ): { y: number } {
+        const limit = this._pageHeightPx() - PAGE_INSET_PX;
+        const others = this._overlapBoxes().filter((box) => box.id !== dragId && box.page === page);
+        let top = y;
+
+        for (let pass = 0; pass <= others.length; pass++) {
+            const blocker = others.find(
+                (rect) =>
+                    rect.right > x &&
+                    rect.left < x + width &&
+                    rect.top + rect.height > top &&
+                    rect.top < top + height
+            );
+            if (!blocker) break;
+
+            const edge = this._edgeAgainstBlocker(y, height, blocker, limit);
+            if (edge == null || edge === top) break;
+            top = edge;
+        }
+
+        return { y: top };
+    }
+
+    /** The free edge on the side of the blocker the pointer is aiming at. */
+    private _edgeAgainstBlocker(
+        desired: number,
+        height: number,
+        blocker: { top: number; height: number },
+        limit: number
+    ): number | null {
+        const above = blocker.top - height - SECTION_GAP_PX;
+        const below = blocker.top + blocker.height + SECTION_GAP_PX;
+        const wantBelow = desired + height / 2 >= blocker.top + blocker.height / 2;
+
+        if (wantBelow && below + height <= limit) return below;
+        if (above >= 0) return above;
+        return null;
+    }
+
+    private _pageHeightPx(): number {
+        return (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
+    }
+
+    /**
+     * Edges a dragged block can lock to: the page sides, plus each other block's
+     * start, center, and end on this page.
+     */
+    private _alignmentTargets(
+        axis: 'x' | 'y',
+        dragId: string,
+        page: number,
+        inner: HTMLElement | null,
+        scale: number
+    ): number[] {
+        const targets = [0];
+        if (inner) {
+            const size = axis === 'x' ? inner.clientWidth : inner.clientHeight;
+            targets.push(size * scale);
+        }
+
+        for (const section of this.template().sections ?? []) {
+            if (section.id === dragId) continue;
+            const frame = this.liveFrames()[section.id] ?? section.frame;
+            if (!frame || (frame.page ?? 0) !== page) continue;
+
+            const start = axis === 'x' ? frame.x : frame.y;
+            const size = axis === 'x' ? frame.width || 0 : frame.height || 0;
+            targets.push(start, start + size / 2, start + size);
+        }
+
+        return targets;
     }
 
     onSectionContextMenu(section: ReportSection, event: MouseEvent): void {
@@ -1587,6 +2086,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             cancelAnimationFrame(this._autoPinFrameId);
             this._autoPinFrameId = null;
         }
+        if (this._overlapSweepId !== null) {
+            cancelAnimationFrame(this._overlapSweepId);
+            this._overlapSweepId = null;
+        }
+        this._paperResize?.disconnect();
+        this._paperResize = null;
     };
 
     resolveDataPath(path: string | undefined): string {
