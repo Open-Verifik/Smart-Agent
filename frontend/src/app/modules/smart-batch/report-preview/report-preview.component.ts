@@ -46,14 +46,32 @@ const PAGE_INSET_PX = 32;
 export type ReportPageSizeName = 'A4' | 'Letter' | 'Legal';
 
 /** Portrait paper in millimeters. Matches Chromium `format` / 96 DPI preview. */
-const PAGE_SIZE_MM: Record<ReportPageSizeName, { width: number; height: number }> = {
+export const REPORT_PAGE_SIZE_MM: Record<ReportPageSizeName, { width: number; height: number }> = {
     A4: { width: 210, height: 297 },
     Letter: { width: 215.9, height: 279.4 },
     Legal: { width: 215.9, height: 355.6 },
 };
 
-function resolvePageSizeName(value: string | null | undefined): ReportPageSizeName {
+export function resolvePageSizeName(value: string | null | undefined): ReportPageSizeName {
     return value === 'Letter' || value === 'Legal' ? value : 'A4';
+}
+
+export function reportPaperSizeMm(
+    pageSize: string | null | undefined,
+    orientation: 'portrait' | 'landscape' = 'portrait'
+): { width: number; height: number } {
+    const base = REPORT_PAGE_SIZE_MM[resolvePageSizeName(pageSize)];
+    return orientation === 'landscape'
+        ? { width: base.height, height: base.width }
+        : { width: base.width, height: base.height };
+}
+
+export function reportPaperSizePx(
+    pageSize: string | null | undefined,
+    orientation: 'portrait' | 'landscape' = 'portrait'
+): { width: number; height: number } {
+    const mm = reportPaperSizeMm(pageSize, orientation);
+    return { width: mm.width * MM_TO_PX, height: mm.height * MM_TO_PX };
 }
 
 /**
@@ -90,6 +108,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     orientation = input<'portrait' | 'landscape'>('portrait');
     /** Paper format. Falls back to the template when omitted. */
     pageSize = input<ReportPageSizeName | null>(null);
+    /** Visual scale of the sheet. Layout coordinates stay canonical. */
+    viewZoom = input<number>(1);
     /** Whether sections are clickable (for builder edit mode) */
     clickable = input<boolean>(false);
     /** Currently selected section ID (for builder highlight) */
@@ -202,6 +222,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }>();
     @Output() inlineTextChange = new EventEmitter<ReportInlineTextChange>();
     @Output() addPage = new EventEmitter<void>();
+    @Output() removePage = new EventEmitter<void>();
+    @Output() sheetDragChange = new EventEmitter<boolean>();
 
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
@@ -258,6 +280,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!drag || event.pointerId !== drag.pointerId) return;
         if (Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) < 8) return;
         this._cellDragMoved = true;
+        this._setSheetDragging(true);
         document.body.style.cursor = 'grabbing';
         document.body.style.userSelect = 'none';
     };
@@ -270,6 +293,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
         this._cellDrag = null;
+        this._setSheetDragging(false);
         if (!this._cellDragMoved) return;
         this.cellPlace.emit({
             section: drag.section,
@@ -285,6 +309,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _pinnedIdsThisDrag = new Set<string>();
     private _sectionDragRaf: number | null = null;
     readonly draggingSectionId = signal<string | null>(null);
+    private _sheetDragging = false;
+
+    private _setSheetDragging(active: boolean): void {
+        if (this._sheetDragging === active) return;
+        this._sheetDragging = active;
+        this.sheetDragChange.emit(active);
+    }
     readonly liveRotations = signal<Record<string, number>>({});
     private _sectionResize: {
         id: string;
@@ -539,24 +570,28 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
     }
 
+    /** Canonical px per layout px. Ignores visual zoom so boxes keep their ratio. */
     private get _scaleFactors(): { x: number; y: number } {
-        const ref = this.reportPage;
-        if (!ref) return { x: 1, y: 1 };
-
-        const rect = ref.nativeElement.getBoundingClientRect();
-        const currentWidth = rect.width;
-        const currentHeight = rect.height;
-
-        if (!currentWidth || !currentHeight) {
-            return { x: 1, y: 1 };
-        }
-
-        const canonicalWidth = this.pageWidthPx();
-        const canonicalHeight = this.pageHeightPx();
-
+        const el = this.reportPage?.nativeElement;
+        if (!el) return { x: 1, y: 1 };
+        const currentWidth = el.offsetWidth;
+        const currentHeight = el.offsetHeight;
+        if (!currentWidth || !currentHeight) return { x: 1, y: 1 };
         return {
-            x: canonicalWidth / currentWidth,
-            y: canonicalHeight / currentHeight,
+            x: this.pageWidthPx() / currentWidth,
+            y: this.pageHeightPx() / currentHeight,
+        };
+    }
+
+    /** Canonical px per screen px. Use this for pointer drag / drop. */
+    private get _pointerScaleFactors(): { x: number; y: number } {
+        const el = this.reportPage?.nativeElement;
+        if (!el) return { x: 1, y: 1 };
+        const rect = el.getBoundingClientRect();
+        if (!rect.width || !rect.height) return { x: 1, y: 1 };
+        return {
+            x: this.pageWidthPx() / rect.width,
+            y: this.pageHeightPx() / rect.height,
         };
     }
 
@@ -701,7 +736,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const inner = this._pageInner(page);
         if (!inner) return { x: 48, y: 48, page };
         const origin = this._innerOrigin(inner);
-        const scales = this._scaleFactors;
+        const scales = this._pointerScaleFactors;
         return {
             page,
             x: Math.max(0, (clientX - origin.left) * scales.x),
@@ -887,6 +922,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             keepRatio: this.shapeKeepRatio(section),
             rotation: this.sectionRotation(section),
         };
+        this._setSheetDragging(true);
         document.body.style.userSelect = 'none';
         document.body.style.cursor =
             handle === 'ne' || handle === 'sw' ? 'nesw-resize' : 'nwse-resize';
@@ -911,6 +947,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             startAngle: Math.atan2(event.clientY - (rect.top + rect.height / 2), event.clientX - (rect.left + rect.width / 2)),
             startRotation: this.sectionRotation(section),
         };
+        this._setSheetDragging(true);
         document.body.style.userSelect = 'none';
         document.body.style.cursor = 'grabbing';
         window.addEventListener('pointermove', this._onWindowSectionRotateMove);
@@ -922,7 +959,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const resize = this._sectionResize;
         if (!resize || event.pointerId !== resize.pointerId) return;
         event.preventDefault();
-        const scales = this._scaleFactors;
+        const scales = this._pointerScaleFactors;
         const start = resize.startFrame;
         const startW = start.width || 48;
         const startH = start.height || 48;
@@ -974,6 +1011,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         document.body.style.cursor = '';
         if (frame) this.sectionFrameChange.emit({ id: resize.id, frame });
         this.liveFrames.set({});
+        this._setSheetDragging(false);
     };
 
     private _onWindowSectionRotateMove = (event: PointerEvent): void => {
@@ -999,6 +1037,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         document.body.style.cursor = '';
         this.sectionRotationChange.emit({ id: rotate.id, rotation });
         this.liveRotations.set({});
+        this._setSheetDragging(false);
     };
 
     private _onWindowSectionMove = (event: PointerEvent): void => {
@@ -1030,6 +1069,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._sectionDragMoved = true;
             if (this.editingText()) this.commitInlineEdit();
             this.draggingSectionId.set(drag.id);
+            this._setSheetDragging(true);
             document.body.style.userSelect = 'none';
             document.body.style.cursor = 'grabbing';
         }
@@ -1056,6 +1096,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._sectionDrag = null;
         this._pinnedIdsThisDrag.clear();
         this.draggingSectionId.set(null);
+        this._setSheetDragging(false);
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
         if (!wasActive) {
@@ -1106,6 +1147,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.addPage.emit();
     }
 
+    emitRemovePage(event: Event): void {
+        event.stopPropagation();
+        this.removePage.emit();
+    }
+
+    pageHasBlocks(pageSections: ReportSection[]): boolean {
+        return pageSections.some((section) => !this.isPageAnchor(section));
+    }
+
+    canRemoveLastPage(): boolean {
+        const pages = this.visiblePages();
+        if (pages.length < 2) return false;
+        const lastIndex = pages.length - 1;
+        if (this.pageHasBlocks(pages[lastIndex] ?? [])) return false;
+        return !this.sheetImages().some((image) => (image.page ?? 0) === lastIndex);
+    }
+
     pageHost(pageIndex: number): HTMLElement | null {
         return this._reportPages?.toArray()[pageIndex]?.nativeElement ?? null;
     }
@@ -1128,10 +1186,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     paperSizeMm(): { width: number; height: number } {
-        const base = PAGE_SIZE_MM[this.paperName()];
-        return this.orientation() === 'landscape'
-            ? { width: base.height, height: base.width }
-            : { width: base.width, height: base.height };
+        return reportPaperSizeMm(this.paperName(), this.orientation());
     }
 
     pageWidthCss(): string {
@@ -1140,6 +1195,30 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     pageHeightCss(): string {
         return `${this.paperSizeMm().height}mm`;
+    }
+
+    measureWidthCss(): string {
+        return `${this.paperSizeMm().width}mm`;
+    }
+
+    zoomInnerTransform(): string {
+        const zoom = this._viewZoom();
+        return zoom === 1 ? 'none' : `scale(${zoom})`;
+    }
+
+    zoomedStackWidthPx(): number {
+        return this.pageWidthPx() * this._viewZoom();
+    }
+
+    zoomedStackHeightPx(): number {
+        const pages = Math.max(1, this.visiblePages().length);
+        const gap = 16;
+        return (this.pageHeightPx() * pages + gap * Math.max(0, pages - 1)) * this._viewZoom();
+    }
+
+    private _viewZoom(): number {
+        const zoom = Number(this.viewZoom());
+        return Number.isFinite(zoom) && zoom > 0 ? zoom : 1;
     }
 
     pageWidthPx(): number {
@@ -1243,7 +1322,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         clientX: number,
         clientY: number
     ): void {
-        const scales = this._scaleFactors;
+        const scales = this._pointerScaleFactors;
         const width = drag.startFrame.width || 240;
         const height = drag.startFrame.height || 80;
         const fromPage = drag.startFrame.page ?? 0;
@@ -1592,6 +1671,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
         this.overlaySelect.emit(target);
         this.isMoving = true;
+        this._setSheetDragging(true);
         this.moveTarget = target;
         this.startX = event.clientX;
         this.startY = event.clientY;
@@ -1616,7 +1696,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     private onMove = (event: PointerEvent) => {
         if (!this.isMoving) return;
-        const scales = this._scaleFactors;
+        const scales = this._pointerScaleFactors;
         this.pendingMove = {
             x: Math.max(0, Math.round(this.startMoveX + (event.clientX - this.startX) * scales.x)),
             y: Math.max(0, Math.round(this.startMoveY + (event.clientY - this.startY) * scales.y)),
@@ -1659,30 +1739,31 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._emitMove(payload);
         }
         this.moveTarget = null;
+        this._setSheetDragging(false);
         this._releasePointer(this.onMove, this.stopMove);
     };
 
     startResize(event: PointerEvent, target: ReportOverlayId = 'signature') {
         if (event.button !== 0) return;
         this.isResizing = true;
+        this._setSheetDragging(true);
         this.resizeTarget = target;
         this.startX = event.clientX;
         this.startY = event.clientY;
 
         const extra = this._sheetImage(this._sheetImageId(target));
         if (target === 'logo') {
-            this.startWidth = this.viewLogoWidth;
-            this.startHeight = this.viewLogoHeight;
+            this.startWidth = this.logoWidth();
+            this.startHeight = this.logoHeight();
         } else if (target === 'watermark') {
-            this.startWidth = this.viewWatermarkWidth;
-            this.startHeight = this.viewWatermarkHeight;
+            this.startWidth = this.watermarkWidth();
+            this.startHeight = this.watermarkHeight();
         } else if (extra) {
-            const view = this.sheetImageView(extra);
-            this.startWidth = view.width;
-            this.startHeight = view.height;
+            this.startWidth = extra.width;
+            this.startHeight = extra.height;
         } else {
-            this.startWidth = this.viewSignatureWidth;
-            this.startHeight = this.viewSignatureHeight;
+            this.startWidth = this.signatureWidth();
+            this.startHeight = this.signatureHeight();
         }
 
         this._capturePointer(event, this.onResize, this.stopResize);
@@ -1695,6 +1776,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
         const rect = box.getBoundingClientRect();
         this.isRotating = true;
+        this._setSheetDragging(true);
         this.rotateTarget = target;
         this.rotateCenterX = rect.left + rect.width / 2;
         this.rotateCenterY = rect.top + rect.height / 2;
@@ -1718,14 +1800,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const dx = event.clientX - this.startX;
         const dy = event.clientY - this.startY;
 
-        const scales = this._scaleFactors;
-
-        const newDomWidth = Math.max(24, this.startWidth + dx);
-        const newDomHeight = Math.max(16, this.startHeight + dy);
+        const scales = this._pointerScaleFactors;
 
         this.pendingResize = {
-            width: Math.round(newDomWidth * scales.x),
-            height: Math.round(newDomHeight * scales.y),
+            width: Math.max(24, Math.round(this.startWidth + dx * scales.x)),
+            height: Math.max(16, Math.round(this.startHeight + dy * scales.y)),
         };
 
         if (this.resizeFrameId !== null) return;
@@ -1765,6 +1844,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._emitResize(payload);
         }
         this.resizeTarget = null;
+        this._setSheetDragging(false);
         this._releasePointer(this.onResize, this.stopResize);
     };
 
@@ -1788,6 +1868,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private stopRotate = () => {
         this.isRotating = false;
         this.rotateTarget = null;
+        this._setSheetDragging(false);
         this._releasePointer(this.onRotate, this.stopRotate);
     };
 
@@ -2232,23 +2313,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const { width: pageWidthMm, height: pageHeightMm } = this.paperSizeMm();
         const sheets = papers
             .map((paper) => this._printSheetMarkup(paper, pageWidthMm, pageHeightMm))
-            .filter(Boolean)
-            .join('');
+            .filter(Boolean);
 
-        if (!sheets) return null;
+        if (!sheets.length) return null;
 
-        return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>
+        const pageCount = sheets.length;
+        return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/><style>
 @page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
-html,body{margin:0;padding:0;background:#fff}
-.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;overflow:hidden;position:relative;page-break-after:always}
-.print-sheet:last-child{page-break-after:auto}
+html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
+.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
+.print-sheet + .print-sheet{break-before:page;page-break-before:always}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-</style></head><body>${sheets}</body></html>`;
+</style></head><body>${sheets.join('')}</body></html>`;
     }
 
     private _printSheetMarkup(paper: HTMLElement, pageWidthMm: number, pageHeightMm: number): string {
-        const rect = paper.getBoundingClientRect();
-        if (!rect.width || !rect.height) return '';
+        const width = paper.offsetWidth || paper.getBoundingClientRect().width;
+        const height = paper.offsetHeight || paper.getBoundingClientRect().height;
+        if (!width || !height) return '';
         const clone = paper.cloneNode(true) as HTMLElement;
         clone.querySelectorAll('[data-print-hide],[data-overlay-handle]').forEach((node) => node.remove());
         this._inlineComputedStyles(paper, clone);
@@ -2256,14 +2338,24 @@ html,body{margin:0;padding:0;background:#fff}
             (node as HTMLElement).style.boxShadow = 'none';
         });
         clone.style.boxShadow = 'none';
+        clone.style.border = 'none';
         clone.style.borderRadius = '0';
         clone.style.margin = '0';
         clone.style.maxWidth = 'none';
-        clone.style.width = `${rect.width}px`;
-        clone.style.height = `${rect.height}px`;
-        const scale = (pageWidthMm * MM_TO_PX) / rect.width;
+        clone.style.boxSizing = 'border-box';
+        clone.style.overflow = 'hidden';
+        clone.style.position = 'relative';
+        clone.style.left = 'auto';
+        clone.style.top = 'auto';
+        clone.style.width = `${pageWidthMm}mm`;
+        clone.style.height = `${pageHeightMm}mm`;
+        clone.style.minWidth = `${pageWidthMm}mm`;
+        clone.style.minHeight = `${pageHeightMm}mm`;
+        clone.style.maxWidth = `${pageWidthMm}mm`;
+        clone.style.maxHeight = `${pageHeightMm}mm`;
+        clone.style.zoom = '1';
+        clone.style.transform = 'none';
         this._pinPrintedLayout(paper, clone);
-        clone.style.zoom = String(scale);
         return `<div class="print-sheet">${clone.outerHTML}</div>`;
     }
 
@@ -2276,8 +2368,9 @@ html,body{margin:0;padding:0;background:#fff}
             (clone.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? clone;
         cloneInner.style.position = 'relative';
         cloneInner.style.height = '100%';
-        cloneInner.style.minHeight = '100%';
-        cloneInner.style.overflow = 'visible';
+        cloneInner.style.minHeight = '0';
+        cloneInner.style.maxHeight = '100%';
+        cloneInner.style.overflow = 'hidden';
 
         const srcSections = source.querySelectorAll('[data-report-section]');
         const dstSections = clone.querySelectorAll('[data-report-section]');

@@ -1,4 +1,4 @@
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChild, ViewChildren } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -16,7 +16,7 @@ import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
-import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
@@ -202,6 +202,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _previewBridge = inject(ReportBuilderPreviewDataService);
     private _dialog = inject(MatDialog);
     private _destroyRef = inject(DestroyRef);
+    private _host = inject(ElementRef<HTMLElement>);
     @ViewChildren(ReportPreviewComponent) private _previews!: QueryList<ReportPreviewComponent>;
     @ViewChild('layoutEditorPreview') private _layoutEditorPreview?: ReportPreviewComponent;
     @ViewChild('layoutInsertImageInput') private _layoutInsertImageInput?: ElementRef<HTMLInputElement>;
@@ -218,6 +219,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isWorking = signal(false);
     isGenerating = signal(false);
     retryingSequences = signal<number[]>([]);
+    isRetryingAnyResult = computed(() => this.retryingSequences().length > 0);
     templates = this._reports.templates;
 
     private _pollSub: Subscription | null = null;
@@ -321,6 +323,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
     readonly layoutShapeTools = LAYOUT_SHAPE_TOOLS;
     layoutEditorFocused = signal(false);
+    layoutEditorDrag = signal({ x: 0, y: 0 });
+    layoutEditorSuppressed = signal(false);
+    private _layoutEditorHideCount = 0;
+    documentZoom = signal(1);
+    documentHover = signal<'paper' | 'page' | null>(null);
+    private _documentViewportAbort: AbortController | null = null;
+    private readonly _documentViewportEffect = effect(() => {
+        this.step();
+        untracked(() => queueMicrotask(() => this._bindDocumentViewports()));
+    });
     private _layoutFocusTimer: ReturnType<typeof setTimeout> | null = null;
     layoutContextMenu = signal<{
         x: number;
@@ -742,6 +754,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
         if (this._layoutHistoryTimer) clearTimeout(this._layoutHistoryTimer);
         if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
+        this._documentViewportAbort?.abort();
         this._stopPoll();
         this._browserRunner.stop();
     }
@@ -869,6 +882,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     goNext(): void {
+        if (this.isRetryingAnyResult() && (this.step() === 'results' || this.step() === 'include')) {
+            return;
+        }
         this._state.applyDeductions();
         const steps = this.visibleSteps();
         const current = steps.indexOf(this.step());
@@ -948,6 +964,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     continueToReport(): void {
+        if (this.isRetryingAnyResult()) return;
         this._state.wantsReport.set(true);
         this._state.applyDeductions();
         this._refreshTemplates();
@@ -980,9 +997,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @HostListener('document:keydown', ['$event'])
     onLayoutHistoryKey(event: KeyboardEvent): void {
         if (this.step() !== 'layout') return;
-        if (!(event.ctrlKey || event.metaKey)) return;
         const target = event.target as HTMLElement | null;
         if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+        if (this.layoutEditorSuppressed()) return;
+        if (event.key === 'Delete') {
+            event.preventDefault();
+            this.deleteSelectedLayoutTarget();
+            return;
+        }
+        if (!(event.ctrlKey || event.metaKey)) return;
         const key = event.key.toLowerCase();
         if (key === 'z' && !event.shiftKey) {
             event.preventDefault();
@@ -1219,6 +1242,34 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutEditorFocused.set(false);
     }
 
+    onLayoutEditorDragEnded(event: CdkDragEnd): void {
+        const { x, y } = event.source.getFreeDragPosition();
+        this.layoutEditorDrag.set({ x, y });
+    }
+
+    onSheetDragChange(active: boolean): void {
+        this._setLayoutEditorSuppressed(active);
+    }
+
+    onLayoutPaletteDragStart(): void {
+        this._setLayoutEditorSuppressed(true);
+    }
+
+    onLayoutPaletteDragEnd(): void {
+        this._setLayoutEditorSuppressed(false);
+    }
+
+    private _setLayoutEditorSuppressed(hidden: boolean): void {
+        if (hidden) {
+            this._layoutEditorHideCount += 1;
+            this.layoutEditorSuppressed.set(true);
+            this.closeLayoutContextMenu();
+            return;
+        }
+        this._layoutEditorHideCount = Math.max(0, this._layoutEditorHideCount - 1);
+        if (!this._layoutEditorHideCount) this.layoutEditorSuppressed.set(false);
+    }
+
     private _revealLayoutControls(control: 'page' | 'block' | 'cell' | 'overlay'): void {
         this.layoutEditorFocused.set(true);
         if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
@@ -1226,11 +1277,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         queueMicrotask(() => {
             requestAnimationFrame(() => {
                 const root = this._layoutEditorPanel?.nativeElement;
-                if (!root) return;
-                const target =
-                    (root.querySelector(`[data-layout-control="${control}"]`) as HTMLElement | null) ?? root;
-                target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                const field = target.querySelector<HTMLElement>(
+                const scroller = this._layoutEditorScroll?.nativeElement;
+                if (!root || !scroller) return;
+                const target = root.querySelector(`[data-layout-control="${control}"]`) as HTMLElement | null;
+                if (target && scroller.contains(target)) {
+                    const top = target.offsetTop - scroller.offsetTop - 8;
+                    scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+                }
+                const field = (target ?? root).querySelector<HTMLElement>(
                     'input:not([type="file"]):not([type="checkbox"]):not([type="range"]), textarea, select'
                 );
                 field?.focus({ preventScroll: true });
@@ -1520,6 +1574,36 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     closeLayoutContextMenu(): void {
         this.layoutContextMenu.set(null);
+    }
+
+    deleteSelectedLayoutTarget(): void {
+        const overlay = this.selectedLayoutOverlay();
+        if (overlay === 'logo') {
+            this.clearLogo();
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
+            return;
+        }
+        if (overlay === 'watermark') {
+            this.setWatermarkEnabled(false);
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
+            return;
+        }
+        if (overlay === 'signature') {
+            this.clearSignature();
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
+            return;
+        }
+        if (overlay?.startsWith('img:')) {
+            this.clearSheetImage(overlay.slice(4));
+            this.layoutEditorKind.set(null);
+            return;
+        }
+        if (this.selectedLayoutSection()) {
+            this.removeSelectedLayoutSection();
+        }
     }
 
     deleteLayoutContextTarget(): void {
@@ -1939,11 +2023,68 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     setPageSize(value: string): void {
-        if (value === 'A4' || value === 'Letter' || value === 'Legal') this._state.pageSize.set(value);
+        if (value !== 'A4' && value !== 'Letter' && value !== 'Legal') return;
+        const previous = { pageSize: this.pageSize(), orientation: this.orientation() };
+        this._state.pageSize.set(value);
+        this._scaleLayoutToPaper(previous, { pageSize: value, orientation: this.orientation() });
     }
 
     setOrientation(value: 'portrait' | 'landscape'): void {
+        const previous = { pageSize: this.pageSize(), orientation: this.orientation() };
         this._state.orientation.set(value);
+        this._scaleLayoutToPaper(previous, { pageSize: this.pageSize(), orientation: value });
+    }
+
+    /** Keep blocks and overlays in the same relative place when paper changes. */
+    private _scaleLayoutToPaper(
+        from: { pageSize: string; orientation: 'portrait' | 'landscape' },
+        to: { pageSize: string; orientation: 'portrait' | 'landscape' }
+    ): void {
+        const previous = reportPaperSizePx(from.pageSize, from.orientation);
+        const next = reportPaperSizePx(to.pageSize, to.orientation);
+        if (!previous.width || !previous.height || !next.width || !next.height) return;
+        const scaleX = next.width / previous.width;
+        const scaleY = next.height / previous.height;
+        if (Math.abs(scaleX - 1) < 0.0001 && Math.abs(scaleY - 1) < 0.0001) return;
+
+        const scale = (value: number, factor: number) => Math.round(value * factor);
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.frame
+                    ? {
+                          ...section,
+                          frame: {
+                              ...section.frame,
+                              x: scale(section.frame.x ?? 0, scaleX),
+                              y: scale(section.frame.y ?? 0, scaleY),
+                              width: scale(section.frame.width ?? 0, scaleX),
+                              height: scale(section.frame.height ?? 0, scaleY),
+                          },
+                      }
+                    : section
+            )
+        );
+        this._state.logoX.set(scale(this.logoX(), scaleX));
+        this._state.logoY.set(scale(this.logoY(), scaleY));
+        this._state.logoWidth.set(scale(this.logoWidth(), scaleX));
+        this._state.logoHeight.set(scale(this.logoHeight(), scaleY));
+        this._state.watermarkX.set(scale(this.watermarkX(), scaleX));
+        this._state.watermarkY.set(scale(this.watermarkY(), scaleY));
+        this._state.watermarkWidth.set(scale(this.watermarkWidth(), scaleX));
+        this._state.watermarkHeight.set(scale(this.watermarkHeight(), scaleY));
+        this._state.signatureX.set(scale(this.signatureX(), scaleX));
+        this._state.signatureY.set(scale(this.signatureY(), scaleY));
+        this._state.signatureWidth.set(scale(this.signatureWidth(), scaleX));
+        this._state.signatureHeight.set(scale(this.signatureHeight(), scaleY));
+        this._state.sheetImages.set(
+            this.sheetImages().map((image) => ({
+                ...image,
+                x: scale(image.x ?? 0, scaleX),
+                y: scale(image.y ?? 0, scaleY),
+                width: scale(image.width ?? 0, scaleX),
+                height: scale(image.height ?? 0, scaleY),
+            }))
+        );
     }
 
     setPdfEngine(value: string): void {
@@ -2023,6 +2164,68 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoDataUrl.set(null);
     }
 
+    documentExploreHintKey(): string {
+        if (this.documentHover() === 'paper') return 'visitaGuide.layoutExplorePaper';
+        if (this.documentHover() === 'page') return 'visitaGuide.layoutExplorePage';
+        return 'visitaGuide.layoutExploreHint';
+    }
+
+    documentZoomLabel(): string {
+        return `${Math.round(this.documentZoom() * 100)}%`;
+    }
+
+    nudgeDocumentZoom(delta: number): void {
+        this.documentZoom.set(Math.min(2, Math.max(0.5, Math.round((this.documentZoom() + delta) * 10) / 10)));
+    }
+
+    resetDocumentZoom(): void {
+        this.documentZoom.set(1);
+    }
+
+    onDocumentViewportMove(event: MouseEvent): void {
+        this.documentHover.set(this._eventOverPaper(event) ? 'paper' : 'page');
+    }
+
+    onDocumentViewportLeave(): void {
+        this.documentHover.set(null);
+    }
+
+    onDocumentViewportWheel(event: WheelEvent): void {
+        if (!this._eventOverPaper(event)) {
+            this.documentHover.set('page');
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        this.documentHover.set('paper');
+        if (event.ctrlKey || event.metaKey) {
+            this.nudgeDocumentZoom(event.deltaY > 0 ? -0.1 : 0.1);
+            return;
+        }
+        const viewport = event.currentTarget as HTMLElement | null;
+        if (!viewport) return;
+        viewport.scrollTop += event.deltaY;
+        viewport.scrollLeft += event.deltaX;
+    }
+
+    private _eventOverPaper(event: Event): boolean {
+        const target = event.target;
+        return target instanceof Element && Boolean(target.closest('[data-report-page]'));
+    }
+
+    private _bindDocumentViewports(): void {
+        this._documentViewportAbort?.abort();
+        const abort = new AbortController();
+        this._documentViewportAbort = abort;
+        const root = this._host.nativeElement as HTMLElement;
+        root.querySelectorAll('[data-document-viewport]').forEach((node) => {
+            node.addEventListener('wheel', (event) => this.onDocumentViewportWheel(event as WheelEvent), {
+                passive: false,
+                signal: abort.signal,
+            });
+        });
+    }
+
     addPageSheet(afterPage?: number): void {
         const lastPage = this._layoutPageCount() - 1;
         const insertAt = afterPage == null ? lastPage + 1 : afterPage + 1;
@@ -2056,6 +2259,35 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const page = this._pointFromContextMenu()?.page;
         this.closeLayoutContextMenu();
         this.addPageSheet(page);
+    }
+
+    canRemoveLastPageSheet(): boolean {
+        const last = this._layoutPageCount() - 1;
+        return last > 0 && !this._pageHasLayoutContent(last);
+    }
+
+    removeLastPageSheet(): void {
+        if (!this.canRemoveLastPageSheet()) return;
+        const last = this._layoutPageCount() - 1;
+        this.layoutSections.update((list) =>
+            list
+                .filter((section) => (section.frame?.page ?? 0) !== last)
+                .map((section, order) => ({ ...section, order }))
+        );
+        this._state.sheetImages.update((list) => list.filter((image) => (image.page ?? 0) !== last));
+        if (this._pendingContentPoint?.page === last) this._pendingContentPoint = null;
+        if (this._pendingSheetImagePoint?.page === last) this._pendingSheetImagePoint = null;
+        this.clearLayoutSelection();
+        this.layoutEditorKind.set('page');
+        this.closeLayoutContextMenu();
+    }
+
+    private _pageHasLayoutContent(pageIndex: number): boolean {
+        const hasBlock = this.layoutSections().some(
+            (section) => !isReportPageAnchor(section) && (section.frame?.page ?? 0) === pageIndex
+        );
+        if (hasBlock) return true;
+        return this.sheetImages().some((image) => (image.page ?? 0) === pageIndex);
     }
 
     private _layoutPageCount(): number {
@@ -2861,6 +3093,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     toggleInclude(sequence: number): void {
+        if (this.isRetryingAnyResult()) return;
         this._state.includeItems.update((items) =>
             items.map((item) =>
                 item.sequence === sequence ? { ...item, included: !item.included } : item
@@ -2869,6 +3102,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     dropInclude(event: CdkDragDrop<unknown>): void {
+        if (this.isRetryingAnyResult()) return;
         const items = [...this.includeItems()];
         moveItemInArray(items, event.previousIndex, event.currentIndex);
         this._state.includeItems.set(items);
@@ -2973,6 +3207,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     openFullReport(): void {
+        if (this.isRetryingAnyResult()) return;
         const configId = this._state.configId();
         const batchId = this._state.batchId();
         if (!configId || !batchId) return;
@@ -3122,13 +3357,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _editorPrintHtml(): string | null {
         const previews = this._previews?.toArray() ?? [];
-        const printSource = previews.find((item) => item.printCapture());
-        if (printSource) return printSource.exportPrintHtml();
-        const preview =
+        const visible =
             this.step() === 'generate'
-                ? previews.find((item) => !item.reorderable()) ?? previews[previews.length - 1]
-                : previews.find((item) => item.reorderable()) ?? previews[previews.length - 1];
-        return preview?.exportPrintHtml() ?? null;
+                ? previews.find((item) => !item.printCapture() && !item.reorderable()) ??
+                  previews.find((item) => !item.printCapture())
+                : previews.find((item) => item.reorderable());
+        return (
+            visible?.exportPrintHtml() ??
+            previews.find((item) => item.printCapture())?.exportPrintHtml() ??
+            previews[previews.length - 1]?.exportPrintHtml() ??
+            null
+        );
     }
 
     downloadJson(): void {

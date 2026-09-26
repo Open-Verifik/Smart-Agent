@@ -4,7 +4,19 @@
     overlays and the optional content top spacer; every page renders the
     legend at the bottom (mirrors Puppeteer's footerTemplate).
 -->
-<div class="flex flex-col items-center gap-4" (click)="onPaperClick($event)" (contextmenu)="onPaperContextMenu($event)">
+<div
+    class="relative mx-auto"
+    [style.width.px]="zoomedStackWidthPx()"
+    [style.height.px]="zoomedStackHeightPx()"
+>
+<div
+    class="absolute left-0 top-0 flex flex-col items-center gap-4"
+    [style.width]="pageWidthCss()"
+    [style.transform]="zoomInnerTransform()"
+    [style.transform-origin]="'top left'"
+    (click)="onPaperClick($event)"
+    (contextmenu)="onPaperContextMenu($event)"
+>
     @for (
         pageSections of visiblePages();
         track $index;
@@ -12,9 +24,12 @@
     ) {
         <div
             #reportPage
-            class="mx-auto flex w-full flex-col relative overflow-hidden rounded-lg"
+            data-report-page
+            class="mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-lg"
             [class.shadow-lg]="!thumbnailMode()"
+            [style.width]="pageWidthCss()"
             [style.max-width]="pageWidthCss()"
+            [style.min-width]="pageWidthCss()"
             [style.min-height]="pageHeightCss()"
             [style.height]="pageHeightCss()"
             [style.background-color]="pageBackgroundColor() || '#ffffff'"
@@ -455,17 +470,30 @@
             </div>
         </div>
     }
-    @if (reorderable() && !printCapture() && !thumbnailMode()) {
-        <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-full border border-stone-300 bg-white px-3 py-1.5 text-[11px] font-medium text-stone-700 shadow-sm hover:border-stone-400 hover:bg-stone-50 dark:border-gray-600 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
-            (click)="emitAddPage($event)"
-        >
-            <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">note_add</mat-icon>
-            {{ 'visitaGuide.layoutAddPage' | transloco }}
-        </button>
-    }
 </div>
+</div>
+    @if (reorderable() && !printCapture() && !thumbnailMode()) {
+        <div class="mx-auto mt-4 flex flex-wrap items-center justify-center gap-2">
+            @if (canRemoveLastPage()) {
+                <button
+                    type="button"
+                    class="flex items-center gap-1.5 rounded-full border border-rose-300 bg-rose-50 px-3 py-1.5 text-[11px] font-medium text-rose-800 shadow-sm hover:border-rose-400 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300 dark:hover:bg-rose-950"
+                    (click)="emitRemovePage($event)"
+                >
+                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">delete</mat-icon>
+                    {{ 'visitaGuide.layoutRemovePage' | transloco }}
+                </button>
+            }
+            <button
+                type="button"
+                class="flex items-center gap-1.5 rounded-full border border-stone-300 bg-white px-3 py-1.5 text-[11px] font-medium text-stone-700 shadow-sm hover:border-stone-400 hover:bg-stone-50 dark:border-gray-600 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="emitAddPage($event)"
+            >
+                <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">note_add</mat-icon>
+                {{ 'visitaGuide.layoutAddPage' | transloco }}
+            </button>
+        </div>
+    }
 
 <!--
     Off-screen measurement container.
@@ -485,7 +513,7 @@
         visibility: hidden;
         pointer-events: none;
     "
-    [style.width]="pageWidthCss()"
+    [style.width]="measureWidthCss()"
 >
     @for (section of template().sections || []; track section.id) {
         <div
