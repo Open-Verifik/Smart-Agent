@@ -9,6 +9,7 @@ import {
     OnDestroy,
     OnInit,
     signal,
+    untracked,
     ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,6 +30,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
+import { clearBuilderSectionsDraft, readBuilderSectionsDraft, writeBuilderSectionsDraft } from './report-builder-draft';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
@@ -191,6 +193,8 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     private readonly _exactPreviewRequest$ = new Subject<void>();
 
     sections = signal<ReportSection[]>([]);
+    /** Avoid writing an empty canvas over the session draft before the template loads. */
+    private _persistBuilderSections = false;
     selectedSection = signal<ReportSection | null>(null);
     selectedOverlay = signal<ReportOverlayId | null>(null);
     readonly reportFonts = REPORT_FONT_STACKS;
@@ -363,6 +367,15 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             if (this.previewMode() === 'exact') this._exactPreviewRequest$.next();
         });
 
+        effect(() => {
+            const sections = this.sections();
+            const templateId = this.templateId() ?? 'new';
+            untracked(() => {
+                if (!this._persistBuilderSections) return;
+                writeBuilderSectionsDraft(templateId, sections);
+            });
+        });
+
         // The palette describes whatever sample payload is loaded, so it has to be
         // rebuilt when a template's own sample data replaces the placeholder.
         effect(() => {
@@ -425,6 +438,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this._watchExactPreview();
 
         this._route.params.subscribe((params) => {
+            this._persistBuilderSections = false;
             const routeConfigId = params['configId'] ?? null;
 
             this.configId.set(routeConfigId);
@@ -727,7 +741,9 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 }
 
                 this.template.set(template);
-                this.sections.set(template.sections || []);
+                const stored = readBuilderSectionsDraft(template._id || id);
+                this.sections.set(stored ?? template.sections ?? []);
+                this._persistBuilderSections = true;
                 if (!this.linkedConfigId() && template.batchConfiguration) {
                     const linkedId = this._resolveBatchConfigId(template.batchConfiguration);
                     if (linkedId) {
@@ -811,6 +827,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     private _initDefaultSections(): void {
+        const stored = readBuilderSectionsDraft('new');
+        if (stored) {
+            this.sections.set(stored);
+            this._persistBuilderSections = true;
+            return;
+        }
         this.sections.set([
             {
                 id: this._generateId(),
@@ -841,6 +863,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 dataPath: 'results.1.fullName',
             },
         ]);
+        this._persistBuilderSections = true;
     }
 
     // ============================================
@@ -1476,6 +1499,8 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 next: (created) => {
                     this._snack.open('Template created!', 'Close', { duration: 3000 });
                     this.isSaving.set(false);
+                    this._persistBuilderSections = false;
+                    clearBuilderSectionsDraft();
                     if (onSuccess) onSuccess();
                     const linkedId = this.linkedConfigId();
                     const fromGuide = this._route.snapshot.queryParamMap.get('from') === 'guide';

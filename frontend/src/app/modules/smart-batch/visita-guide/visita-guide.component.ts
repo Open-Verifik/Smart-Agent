@@ -64,7 +64,13 @@ import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
 import { visitaEndpointTooltipDetails } from './visita-guide-endpoint-tooltip.util';
 import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-state.service';
-import { clearScratchDraft, readScratchDraft, writeScratchDraft } from './visita-guide-scratch-draft';
+import {
+    clearScratchDraft,
+    draftIsScratch,
+    draftMatchesTemplate,
+    readScratchDraft,
+    writeScratchDraft,
+} from './visita-guide-scratch-draft';
 import { parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
 import {
     availableCountries,
@@ -364,7 +370,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 return;
             }
             this._queueLayoutHistory(snapshot);
-            if (this.templateChoice() === 'scratch') writeScratchDraft(snapshot);
+            const choice = this.templateChoice();
+            const templateId = choice === 'scratch' ? null : this.selectedTemplate()?._id ?? null;
+            if (choice === 'scratch' || templateId) {
+                writeScratchDraft({ ...snapshot, templateId, templateChoice: choice });
+            }
         });
     });
     hoveredEndpoint = signal<AppFeature | null>(null);
@@ -1100,17 +1110,48 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const mapped = list.map((section) =>
                 next.has(section.id) ? { ...section, frame: next.get(section.id) } : section
             );
-            return updates.length === 1 ? this._bringSectionsToFront(mapped, [updates[0].id]) : mapped;
+            const raised = updates.length === 1 ? this._bringSectionsToFront(mapped, [updates[0].id]) : mapped;
+            return this._orderSectionsBySheet(raised);
         });
     }
 
     onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
         this.layoutSections.update((list) =>
-            this._bringSectionsToFront(
-                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section)),
-                [event.id]
+            this._orderSectionsBySheet(
+                this._bringSectionsToFront(
+                    list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section)),
+                    [event.id]
+                )
             )
         );
+    }
+
+    /** Reading order: page, then top to bottom, then left to right on the same row. */
+    private _orderSectionsBySheet(list: ReportSection[]): ReportSection[] {
+        const ranked = list.map((section, index) => ({ section, index }));
+        ranked.sort((left, right) => this._sheetOrderRank(left, right));
+        const next = ranked.map((item, order) =>
+            item.section.order === order ? item.section : { ...item.section, order }
+        );
+        return next.every((section, index) => section === list[index]) ? list : next;
+    }
+
+    private _sheetOrderRank(
+        left: { section: ReportSection; index: number },
+        right: { section: ReportSection; index: number }
+    ): number {
+        const leftPage = left.section.frame?.page ?? 0;
+        const rightPage = right.section.frame?.page ?? 0;
+        if (leftPage !== rightPage) return leftPage - rightPage;
+        const leftAnchor = isReportPageAnchor(left.section);
+        const rightAnchor = isReportPageAnchor(right.section);
+        if (leftAnchor !== rightAnchor) return leftAnchor ? -1 : 1;
+        if (leftAnchor && rightAnchor) return left.index - right.index;
+        const y = (left.section.frame?.y ?? 0) - (right.section.frame?.y ?? 0);
+        if (Math.abs(y) > 12) return y;
+        const x = (left.section.frame?.x ?? 0) - (right.section.frame?.x ?? 0);
+        if (Math.abs(x) > 12) return x;
+        return left.index - right.index;
     }
 
     private _bringSectionsToFront(list: ReportSection[], ids: string[]): ReportSection[] {
@@ -4220,7 +4261,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.templateChoice.set('scratch');
         this._state.selectedTemplate.set(null);
         const draft = readScratchDraft();
-        if (draft?.sections?.length) {
+        if (draftIsScratch(draft)) {
             this._applyLayoutSnapshot(JSON.stringify(draft));
         } else {
             this._resetLayoutBranding();
@@ -4282,9 +4323,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 }
 
                 this.hydrateCustomize(template, true);
-                this.layoutSections.set(
-                    (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
-                );
+                const draft = readScratchDraft();
+                if (template._id && draftMatchesTemplate(draft, template._id)) {
+                    this._applyLayoutSnapshot(JSON.stringify(draft));
+                } else {
+                    this.layoutSections.set(
+                        (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
+                    );
+                }
                 this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
                 this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
                 this.enterLayout();

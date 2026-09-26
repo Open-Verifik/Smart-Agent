@@ -263,6 +263,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         startClientX: number;
         startClientY: number;
         startFrame: ReportSectionFrame;
+        scrollTopAtStart: number;
         active: boolean;
     } | null = null;
     private _sectionDragMoved = false;
@@ -894,6 +895,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             startClientX: event.clientX,
             startClientY: event.clientY,
             startFrame: this.displayFrame(section) ?? { page: 0, x: 0, y: 0, width: 0 },
+            scrollTopAtStart: this._dragViewport()?.scrollTop ?? 0,
             active: false,
         };
         window.addEventListener('pointermove', this._onWindowSectionMove);
@@ -1065,6 +1067,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 return;
             }
             drag.startFrame = start;
+            drag.scrollTopAtStart = this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart;
             drag.active = true;
             this._sectionDragMoved = true;
             if (this.editingText()) this.commitInlineEdit();
@@ -1292,8 +1295,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                     ? '1000'
                     : String(
                           Math.max(
-                              Number(section.style?.zIndex) || 1,
-                              this.selectedSectionId() === section.id ? 25 : 1
+                              Number(section.style?.zIndex) || 0,
+                              this.selectedSectionId() === section.id ? 25 : 21
                           )
                       ),
         };
@@ -1318,7 +1321,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     private _applySectionDrag(
-        drag: { id: string; startClientX: number; startClientY: number; startFrame: ReportSectionFrame },
+        drag: {
+            id: string;
+            startClientX: number;
+            startClientY: number;
+            startFrame: ReportSectionFrame;
+            scrollTopAtStart: number;
+        },
         clientX: number,
         clientY: number
     ): void {
@@ -1326,10 +1335,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const width = drag.startFrame.width || 240;
         const height = drag.startFrame.height || 80;
         const fromPage = drag.startFrame.page ?? 0;
-        const toPage = this._pageForDrag(clientX, clientY, fromPage);
+        let toPage = this._pageForDrag(clientX, clientY, fromPage);
         const creating = toPage > fromPage && toPage >= (this._reportPages?.length ?? 0);
+        const scrollDelta = (this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart) - drag.scrollTopAtStart;
         let x = drag.startFrame.x + (clientX - drag.startClientX) * scales.x;
-        let y = creating ? PAGE_INSET_PX : drag.startFrame.y + (clientY - drag.startClientY) * scales.y;
+        let y = creating
+            ? PAGE_INSET_PX
+            : drag.startFrame.y + (clientY - drag.startClientY + scrollDelta) * scales.y;
         const fromInner = this._pageInner(fromPage);
         const toInner = this._pageInner(toPage);
         if (!creating && fromInner && toInner && fromInner !== toInner) {
@@ -1338,14 +1350,26 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             x += (fromOrigin.left - toOrigin.left) * scales.x;
             y += (fromOrigin.top - toOrigin.top) * scales.y;
         }
-        const clampInner = creating ? null : (toInner ?? fromInner);
+        if (!creating) {
+            let guard = 0;
+            while (y < -24 && toPage > 0 && guard < 6) {
+                const previous = this._pageInner(toPage - 1);
+                if (!previous) break;
+                y += previous.getBoundingClientRect().height * scales.y;
+                toPage -= 1;
+                guard += 1;
+            }
+        }
+        const clampInner = creating ? null : (this._pageInner(toPage) ?? fromInner);
         if (clampInner) {
-            const innerW = clampInner.clientWidth * scales.x;
-            const innerH = clampInner.clientHeight * scales.y;
+            const box = clampInner.getBoundingClientRect();
+            const innerW = box.width * scales.x;
+            const innerH = box.height * scales.y;
             const keep = 48;
             x = Math.min(Math.max(keep - width, x), Math.max(0, innerW - keep));
-            y = Math.min(Math.max(keep - height, y), Math.max(0, innerH - keep));
+            y = Math.min(Math.max(0, y), Math.max(0, innerH - Math.min(height, keep)));
         }
+        this._scrollDragViewport(clientX, clientY);
         const next: ReportSectionFrame = {
             ...drag.startFrame,
             page: toPage,
@@ -1360,6 +1384,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             drag.startFrame = next;
             drag.startClientX = clientX;
             drag.startClientY = clientY;
+            drag.scrollTopAtStart = this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart;
         }
     }
 
@@ -1386,7 +1411,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /**
      * Sheet the pointer is on, or one past the last sheet when it has gone below
-     * the page. That extra index is what opens the next A4 page.
+     * the page. That extra index is what opens the next A4 page. The gap above a
+     * sheet counts as the sheet above, so the block does not stick at the top edge.
      */
     private _pageForDrag(clientX: number, clientY: number, fallback: number): number {
         const pages = this._reportPages?.toArray() ?? [];
@@ -1395,8 +1421,61 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!pages.length) return fallback;
 
         const last = pages[pages.length - 1].nativeElement.getBoundingClientRect();
-        const below = clientY > last.bottom && clientX >= last.left && clientX <= last.right;
-        return below ? pages.length : fallback;
+        if (clientY > last.bottom && clientX >= last.left - 24 && clientX <= last.right + 24) {
+            return pages.length;
+        }
+
+        for (let index = 0; index < pages.length; index++) {
+            const rect = pages[index].nativeElement.getBoundingClientRect();
+            const horizontallyNear = clientX >= rect.left - 24 && clientX <= rect.right + 24;
+            if (!horizontallyNear || clientY >= rect.top) continue;
+            const previousBottom =
+                index === 0 ? Number.NEGATIVE_INFINITY : pages[index - 1].nativeElement.getBoundingClientRect().bottom;
+            if (clientY >= previousBottom) return index === 0 ? 0 : index - 1;
+        }
+        return fallback;
+    }
+
+    /** Scrollable sheet list. The visita layout marks it; other editors use the nearest scroller. */
+    private _dragViewport(): HTMLElement | null {
+        const page = this._reportPages?.first?.nativeElement;
+        if (!page) return null;
+        const marked = page.closest('[data-document-viewport]') as HTMLElement | null;
+        if (marked) return marked;
+        let node = page.parentElement;
+        while (node) {
+            const style = getComputedStyle(node);
+            const scrolls = /(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 4;
+            if (scrolls) return node;
+            node = node.parentElement;
+        }
+        return null;
+    }
+
+    /**
+     * The paper is taller than the editor viewport. Holding the pointer on the
+     * edge scrolls the sheet and the next frame keeps the block under the cursor.
+     */
+    private _scrollDragViewport(clientX: number, clientY: number): void {
+        const host = this._dragViewport();
+        const drag = this._sectionDrag;
+        if (!host || !drag?.active) return;
+        const edge = 56;
+        const step = 18;
+        const rect = host.getBoundingClientRect();
+        let next = host.scrollTop;
+        if (clientY < rect.top + edge) next -= step;
+        else if (clientY > rect.bottom - edge) next += step;
+        const max = Math.max(0, host.scrollHeight - host.clientHeight);
+        next = Math.min(max, Math.max(0, next));
+        if (next === host.scrollTop || this._sectionDragRaf !== null) return;
+        host.scrollTop = next;
+        this._sectionDragRaf = requestAnimationFrame(() => {
+            this._sectionDragRaf = null;
+            const current = this._sectionDrag;
+            if (!current?.active || current !== drag) return;
+            this._applySectionDrag(current, clientX, clientY);
+        });
     }
 
     private _sheetIndexAtPoint(clientX: number, clientY: number): number | null {

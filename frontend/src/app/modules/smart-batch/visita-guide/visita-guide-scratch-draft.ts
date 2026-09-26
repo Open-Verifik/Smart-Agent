@@ -1,4 +1,5 @@
 import { ReportSection, ReportSheetImage } from '../smart-report.service';
+import { GuideTemplateChoice } from './visita-guide-state.service';
 
 const STORAGE_KEY = 'smart-batch.visita-guide.scratch-draft';
 
@@ -48,7 +49,23 @@ export type ScratchLayoutDraft = {
     signatureY?: number;
     signatureWidth?: number;
     signatureHeight?: number;
+    /** Saved template this draft belongs to. Absent on a from-scratch layout. */
+    templateId?: string | null;
+    templateChoice?: GuideTemplateChoice | null;
 };
+
+/** Unsaved layout for one saved template, including shapes added since the last save. */
+export const draftMatchesTemplate = (draft: ScratchLayoutDraft | null, templateId: string): boolean =>
+    Boolean(draft?.templateId && draft.templateId === templateId && Array.isArray(draft.sections));
+
+/** From-scratch layout, including drafts written before they were tagged with a choice. */
+export const draftIsScratch = (draft: ScratchLayoutDraft | null): boolean =>
+    Boolean(
+        draft?.sections.length &&
+            !draft.templateId &&
+            draft.templateChoice !== 'mine' &&
+            draft.templateChoice !== 'visita'
+    );
 
 const isDraft = (value: unknown): value is ScratchLayoutDraft =>
     Boolean(value && typeof value === 'object' && Array.isArray((value as ScratchLayoutDraft).sections));
