@@ -298,8 +298,12 @@
                 <div
                     data-report-top-chrome
                     class="px-8 pt-4 text-[10px] text-gray-400"
-                    [style.position]="hasFreeLayout() ? 'relative' : null"
-                    [style.z-index]="hasFreeLayout() ? '30' : null"
+                    [style.position]="hasFreeLayout() ? 'absolute' : null"
+                    [style.top.px]="hasFreeLayout() ? 0 : null"
+                    [style.left.px]="hasFreeLayout() ? 0 : null"
+                    [style.right.px]="hasFreeLayout() ? 0 : null"
+                    [style.z-index]="hasFreeLayout() ? '15' : null"
+                    [style.pointer-events]="hasFreeLayout() ? 'none' : null"
                     [style.text-align]="
                         pageNumberPosition() === 'top-left'
                             ? 'left'
@@ -314,7 +318,13 @@
 
             <div
                 data-report-page-inner
-                class="relative flex-1 flex flex-col min-h-0"
+                class="min-h-0"
+                [class.relative]="!hasFreeLayout()"
+                [class.flex]="!hasFreeLayout()"
+                [class.flex-1]="!hasFreeLayout()"
+                [class.flex-col]="!hasFreeLayout()"
+                [class.absolute]="hasFreeLayout()"
+                [class.inset-0]="hasFreeLayout()"
                 [class.p-8]="!hasFreeLayout()"
                 [class.overflow-hidden]="!hasFreeLayout()"
                 [class.overflow-visible]="hasFreeLayout()"
@@ -338,7 +348,10 @@
                     <div
                         data-report-section
                         [attr.data-section-id]="section.id"
-                        class="relative"
+                        [class.relative]="!hasFreeLayout()"
+                        [class.absolute]="hasFreeLayout()"
+                        [style.pointer-events]="draggingSectionId() && draggingSectionId() !== section.id ? 'none' : null"
+                        [style.touch-action]="reorderable() ? 'none' : null"
                         [class.mb-3]="!hasFreeLayout()"
                         [class.cursor-pointer]="clickable() && !reorderable()"
                         [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
@@ -417,9 +430,9 @@
                     }
                 }
 
-                <!-- Footer (every page). In free layout it is pinned to the
-                     sheet bottom so absolutely positioned blocks cannot cover
-                     it, and the PDF clone can copy that same box. -->
+                <!-- Footer (every page). In free layout it stays at the bottom
+                     of the sheet and sits behind the blocks, so a block can
+                     move over it. The PDF clone copies this same box. -->
                 @if (hasBottomChrome()) {
                     <div
                         data-report-footer
@@ -431,7 +444,8 @@
                         [style.left.px]="hasFreeLayout() ? 0 : null"
                         [style.right.px]="hasFreeLayout() ? 0 : null"
                         [style.bottom.px]="hasFreeLayout() ? 0 : null"
-                        [style.z-index]="hasFreeLayout() ? '30' : null"
+                        [style.z-index]="hasFreeLayout() ? '15' : null"
+                        [style.pointer-events]="hasFreeLayout() && draggingSectionId() ? 'none' : null"
                         [style.padding-left.px]="hasFreeLayout() ? 32 : null"
                         [style.padding-right.px]="hasFreeLayout() ? 32 : null"
                         [style.padding-bottom.px]="hasFreeLayout() ? 24 : null"

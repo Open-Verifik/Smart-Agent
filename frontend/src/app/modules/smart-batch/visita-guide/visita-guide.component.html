@@ -1570,6 +1570,37 @@
                                     </button>
                                 </div>
                                 <div #layoutEditorScroll class="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
+                                @if (layoutStack().length) {
+                                <section class="rounded-2xl border border-teal-300 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/40">
+                                <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300">
+                                    {{ t('visitaGuide.layoutLayers') }}
+                                </p>
+                                <div
+                                    class="mt-2 flex flex-col gap-1"
+                                    cdkDropList
+                                    [cdkDropListData]="layoutStack()"
+                                    (cdkDropListDropped)="onLayoutStackDrop($event)"
+                                >
+                                    @for (section of layoutStack(); track section.id) {
+                                        <button
+                                            type="button"
+                                            cdkDrag
+                                            [cdkDragData]="section"
+                                            class="rounded-lg border bg-white px-3 py-2 text-left text-xs dark:bg-gray-900"
+                                            [class.border-indigo-500]="selectedLayoutSectionId() === section.id"
+                                            [class.bg-indigo-100]="selectedLayoutSectionId() === section.id"
+                                            [class.border-teal-200]="selectedLayoutSectionId() !== section.id"
+                                            [class.dark:border-indigo-400]="selectedLayoutSectionId() === section.id"
+                                            [class.dark:border-teal-800]="selectedLayoutSectionId() !== section.id"
+                                            (click)="onLayoutSectionClick(section)"
+                                            (contextmenu)="onLayoutLayerContextMenu(section, $event)"
+                                        >
+                                            {{ section.label || section.type }}
+                                        </button>
+                                    }
+                                </div>
+                                </section>
+                                }
                                 @if (layoutEditorKind() === 'page') {
                                 <section data-layout-control="page" class="rounded-2xl border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/40">
                                     <p class="text-[11px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
@@ -2653,32 +2684,6 @@
                                     </div>
                                 }
 
-                                @if (layoutEditorKind() === 'page') {
-                                <section class="rounded-2xl border border-teal-300 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/40">
-                                <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300">
-                                    {{ t('visitaGuide.layoutLayers') }}
-                                </p>
-                                <div class="mt-2 flex flex-col gap-1">
-                                    @for (section of layoutSections(); track section.id) {
-                                        @if (!isLayoutPageAnchor(section)) {
-                                        <button
-                                            type="button"
-                                            class="rounded-lg border bg-white px-3 py-2 text-left text-xs dark:bg-gray-900"
-                                            [class.border-indigo-500]="selectedLayoutSectionId() === section.id"
-                                            [class.bg-indigo-100]="selectedLayoutSectionId() === section.id"
-                                            [class.border-teal-200]="selectedLayoutSectionId() !== section.id"
-                                            [class.dark:border-indigo-400]="selectedLayoutSectionId() === section.id"
-                                            [class.dark:border-teal-800]="selectedLayoutSectionId() !== section.id"
-                                            (click)="onLayoutSectionClick(section)"
-                                            (contextmenu)="onLayoutLayerContextMenu(section, $event)"
-                                        >
-                                            {{ section.label || section.type }}
-                                        </button>
-                                        }
-                                    }
-                                </div>
-                                </section>
-                                }
                                 </div>
                             </div>
                         }

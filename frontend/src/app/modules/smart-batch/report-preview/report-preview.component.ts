@@ -887,8 +887,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
         if (origin?.closest('[data-section-handle]')) return;
         if (origin?.closest('[data-inline-edit]')) return;
-        if (origin?.closest('[data-report-cell]')) return;
+        event.preventDefault();
+        const host = event.currentTarget as HTMLElement | null;
+        try {
+            host?.setPointerCapture(event.pointerId);
+        } catch {
+            /* The window listeners still follow the pointer if capture is unavailable. */
+        }
         this._sectionDragMoved = false;
+        this.draggingSectionId.set(section.id);
         this._sectionDrag = {
             id: section.id,
             pointerId: event.pointerId,
@@ -1232,18 +1239,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.paperSizeMm().height * MM_TO_PX;
     }
 
-    /** Last usable Y before the footer / bottom margin. A box past this opens the next sheet. */
+    /** Last usable Y before the footer / bottom margin. */
     contentBottomLimitPx(): number {
         const legend = this._getLegendHeight() * this._scaleFactors.y;
         return Math.max(PAGE_INSET_PX + 80, this.pageHeightPx() - PAGE_INSET_PX - legend);
     }
 
+    /** Keep a new block on its sheet. A later block must stay reachable above an earlier one. */
     fitFrameOnSheet(frame: ReportSectionFrame): ReportSectionFrame {
         const height = Number(frame.height) || 0;
         const y = Number(frame.y) || 0;
         const limit = this.contentBottomLimitPx();
         if (height > 0 && y + height > limit) {
-            return { ...frame, page: (frame.page ?? 0) + 1, y: PAGE_INSET_PX };
+            return { ...frame, y: Math.max(0, limit - height) };
         }
         return frame;
     }
@@ -1290,23 +1298,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             top: `${y / scales.y}px`,
             width: width ? `${width}px` : '100%',
             marginBottom: '0px',
-            zIndex:
-                this.draggingSectionId() === section.id
-                    ? '1000'
-                    : String(
-                          Math.max(
-                              Number(section.style?.zIndex) || 0,
-                              this.selectedSectionId() === section.id ? 25 : 21
-                          )
-                      ),
+            zIndex: this.draggingSectionId() === section.id ? '1000' : String(this._sectionZIndex(section)),
+            pointerEvents:
+                this.draggingSectionId() && this.draggingSectionId() !== section.id ? 'none' : 'auto',
         };
         if (height) style['height'] = `${height}px`;
         if (section.type === 'shape') style['overflow'] = 'visible';
+        else if (height) style['overflow'] = 'hidden';
         if (section.type !== 'shape' && rotation) {
             style['transform'] = `rotate(${rotation}deg)`;
             style['transform-origin'] = 'center center';
         }
         return style;
+    }
+
+    private _sectionZIndex(section: ReportSection): number {
+        const stored = Number(section.style?.zIndex);
+        if (Number.isFinite(stored) && stored > 0) return Math.round(stored);
+        return 40;
     }
 
     sectionRotation(section: ReportSection): number {
@@ -1360,14 +1369,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 guard += 1;
             }
         }
-        const clampInner = creating ? null : (this._pageInner(toPage) ?? fromInner);
-        if (clampInner) {
-            const box = clampInner.getBoundingClientRect();
-            const innerW = box.width * scales.x;
-            const innerH = box.height * scales.y;
+        if (!creating) {
             const keep = 48;
-            x = Math.min(Math.max(keep - width, x), Math.max(0, innerW - keep));
-            y = Math.min(Math.max(0, y), Math.max(0, innerH - Math.min(height, keep)));
+            const pageW = this.pageWidthPx();
+            const pageH = this.pageHeightPx();
+            x = Math.min(Math.max(0, x), Math.max(0, pageW - Math.min(width, keep)));
+            y = Math.min(Math.max(0, y), Math.max(0, pageH - Math.min(height, keep)));
         }
         this._scrollDragViewport(clientX, clientY);
         const next: ReportSectionFrame = {
@@ -1612,45 +1619,14 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     /**
-     * A block added to a page that already uses frames is the only one left in
-     * normal flow, so it measures its position as if the framed blocks were not
-     * there and lands on top of them. Stack it under the placed content instead.
+     * A block added beside framed ones used to be pushed under the previous
+     * block. Keep the measured spot so a later block is not locked below an earlier one.
      */
     private _framesBelowPlacedContent(
         missing: ReportSection[],
         measured: Map<string, ReportSectionFrame>
     ): { id: string; frame: ReportSectionFrame }[] {
-        const anchors = (this.template().sections ?? [])
-            .filter((section) => !isReportPageAnchor(section))
-            .map((section) => this.displayFrame(section))
-            .filter((frame): frame is ReportSectionFrame => Boolean(frame));
-
-        if (!anchors.length) {
-            return missing.map((section) => ({ id: section.id, frame: measured.get(section.id)! }));
-        }
-
-        const page = Math.max(...anchors.map((frame) => frame.page ?? 0));
-        const onPage = anchors.filter((frame) => (frame.page ?? 0) === page);
-        const left = Math.min(...onPage.map((frame) => frame.x ?? 0));
-        const inset = Math.min(PAGE_INSET_PX, ...onPage.map((frame) => frame.y ?? PAGE_INSET_PX));
-        const limit = this.contentBottomLimitPx();
-        let cursor = Math.max(...onPage.map((frame) => (frame.y ?? 0) + (frame.height ?? 0)));
-        let cursorPage = page;
-
-        return missing.map((section) => {
-            const base = measured.get(section.id)!;
-            const height = base.height || 0;
-            let y = cursor + SECTION_GAP_PX;
-
-            if (y + height > limit) {
-                cursorPage += 1;
-                y = inset;
-            }
-
-            cursor = y + height;
-
-            return { id: section.id, frame: { ...base, page: cursorPage, x: left, y, height } };
-        });
+        return missing.map((section) => ({ id: section.id, frame: measured.get(section.id)! }));
     }
 
     /**
@@ -2130,6 +2106,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     onCellPointerDown(section: ReportSection, key: string, event: PointerEvent): void {
         if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
         if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
+        if (!event.altKey && !event.shiftKey) return;
         event.stopPropagation();
         this._clearSectionDrag();
         this._cellDragMoved = false;

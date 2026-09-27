@@ -1048,6 +1048,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
+        this.layoutSections.update((list) => this._bringSectionsToFront(list, [section.id]));
         this._revealLayoutControls('block');
     };
 
@@ -1110,54 +1111,65 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const mapped = list.map((section) =>
                 next.has(section.id) ? { ...section, frame: next.get(section.id) } : section
             );
-            const raised = updates.length === 1 ? this._bringSectionsToFront(mapped, [updates[0].id]) : mapped;
-            return this._orderSectionsBySheet(raised);
+            return updates.length === 1 ? this._bringSectionsToFront(mapped, [updates[0].id]) : mapped;
         });
     }
 
     onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
         this.layoutSections.update((list) =>
-            this._orderSectionsBySheet(
-                this._bringSectionsToFront(
-                    list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section)),
-                    [event.id]
-                )
+            this._bringSectionsToFront(
+                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section)),
+                [event.id]
             )
         );
     }
 
-    /** Reading order: page, then top to bottom, then left to right on the same row. */
-    private _orderSectionsBySheet(list: ReportSection[]): ReportSection[] {
-        const ranked = list.map((section, index) => ({ section, index }));
-        ranked.sort((left, right) => this._sheetOrderRank(left, right));
-        const next = ranked.map((item, order) =>
-            item.section.order === order ? item.section : { ...item.section, order }
+    /** Reordering the list changes who is in front. The block stays at its coordinate. */
+    onLayoutStackDrop(event: CdkDragDrop<ReportSection[]>): void {
+        if (event.previousIndex === event.currentIndex) return;
+        const stack = this.layoutStack();
+        const reordered = [...stack];
+        moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+        const zById = new Map(reordered.map((section, index) => [section.id, 40 + reordered.length - index]));
+        this.layoutSections.update((list) =>
+            list.map((section) => {
+                const zIndex = zById.get(section.id);
+                return zIndex == null ? section : { ...section, style: { ...(section.style ?? {}), zIndex } };
+            })
         );
-        return next.every((section, index) => section === list[index]) ? list : next;
     }
 
-    private _sheetOrderRank(
-        left: { section: ReportSection; index: number },
-        right: { section: ReportSection; index: number }
-    ): number {
-        const leftPage = left.section.frame?.page ?? 0;
-        const rightPage = right.section.frame?.page ?? 0;
-        if (leftPage !== rightPage) return leftPage - rightPage;
-        const leftAnchor = isReportPageAnchor(left.section);
-        const rightAnchor = isReportPageAnchor(right.section);
-        if (leftAnchor !== rightAnchor) return leftAnchor ? -1 : 1;
-        if (leftAnchor && rightAnchor) return left.index - right.index;
-        const y = (left.section.frame?.y ?? 0) - (right.section.frame?.y ?? 0);
-        if (Math.abs(y) > 12) return y;
-        const x = (left.section.frame?.x ?? 0) - (right.section.frame?.x ?? 0);
-        if (Math.abs(x) > 12) return x;
-        return left.index - right.index;
+    /** Front of the pile first. Position stays on each block's own x/y. */
+    layoutStack(): ReportSection[] {
+        return this.layoutSections()
+            .filter((section) => !isReportPageAnchor(section))
+            .slice()
+            .sort(
+                (left, right) =>
+                    this._stackZ(right) - this._stackZ(left) || (left.order ?? 0) - (right.order ?? 0)
+            );
+    }
+
+    private _stackZ(section: ReportSection): number {
+        const stored = Number(section.style?.zIndex);
+        if (Number.isFinite(stored) && stored > 0) return stored;
+        return 40;
+    }
+
+    /** Append a block in front of the pile. Coordinates stay on the frame. */
+    private _placeLayoutSection(section: ReportSection): void {
+        this.layoutSections.update((list) =>
+            this._bringSectionsToFront(
+                [...list.filter((item) => item.id !== section.id), { ...section, order: list.length }],
+                [section.id]
+            )
+        );
     }
 
     private _bringSectionsToFront(list: ReportSection[], ids: string[]): ReportSection[] {
         if (!ids.length) return list;
         const moved = new Set(ids);
-        const maxZ = list.reduce((highest, section) => Math.max(highest, Number(section.style?.zIndex) || 0), 0);
+        const maxZ = list.reduce((highest, section) => Math.max(highest, this._stackZ(section)), 0);
         return list.map((section) =>
             moved.has(section.id)
                 ? {
@@ -1173,75 +1185,49 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return list;
     }
 
-    private _nextLayoutFrame(width = 620, height = 200): ReportSectionFrame {
-        const below = this._layoutEditorPreview?.frameBelowContent({ width, height });
-        if (below) return below;
-        const framed = this.layoutSections().filter((section) => section.frame && !isReportPageAnchor(section));
-        if (!framed.length) return { page: 0, x: 24, y: 24, width, height };
-        const last = framed.reduce((current, section) => {
-            const currentRank = (current.frame?.page ?? 0) * 10000 + (current.frame?.y ?? 0);
-            const nextRank = (section.frame?.page ?? 0) * 10000 + (section.frame?.y ?? 0);
-            return nextRank >= currentRank ? section : current;
-        });
-        return this._fitFrameOnSheet({
-            page: last.frame?.page ?? 0,
-            x: last.frame?.x ?? 24,
-            y: (last.frame?.y ?? 0) + Math.min(last.frame?.height ?? height, 220) + 16,
+    /** New consulta blocks land in the middle of the current sheet. */
+    private _centerFrame(width: number, height: number, page = 0): ReportSectionFrame {
+        const preview = this._layoutEditorPreview;
+        const pageWidth = preview?.pageWidthPx() ?? (this.orientation() === 'landscape' ? 297 : 210) * 3.7795275591;
+        const pageHeight = preview?.pageHeightPx() ?? (this.orientation() === 'landscape' ? 210 : 297) * 3.7795275591;
+        return {
+            page,
+            x: Math.max(0, Math.round((pageWidth - width) / 2)),
+            y: Math.max(0, Math.round((pageHeight - height) / 2)),
             width,
             height,
+        };
+    }
+
+    private _showFrameOnSheet(frame: ReportSectionFrame): void {
+        const page = frame.page ?? 0;
+        queueMicrotask(() => {
+            requestAnimationFrame(() => {
+                this._layoutEditorPreview?.pageHost(page)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            });
         });
     }
 
-    private _frameForNewEndpoint(
-        point?: { x: number; y: number; page: number } | null
-    ): ReportSectionFrame {
-        const width = 620;
-        const height = 200;
-        if (!point) return this._nextLayoutFrame(width, height);
-        return this._fitFrameOnSheet({
-            page: point.page,
-            x: Math.max(0, point.x),
-            y: Math.max(0, point.y),
-            width,
-            height,
-        });
-    }
-
-    /** If a new block would sit on the footer, open the next sheet. */
+    /** Keep a new block on the sheet it was placed on, above the footer. */
     private _fitFrameOnSheet(frame: ReportSectionFrame): ReportSectionFrame {
         if (this._layoutEditorPreview) {
             return this._layoutEditorPreview.fitFrameOnSheet(frame);
         }
         const pageHeight =
-            this._layoutEditorPreview?.pageHeightPx() ??
             (this.orientation() === 'landscape' ? 210 : 297) * 3.7795275591;
         const limit = pageHeight - 32 - 80;
         const height = Number(frame.height) || 0;
         const y = Number(frame.y) || 0;
         if (height > 0 && y + height > limit) {
-            return { ...frame, page: (frame.page ?? 0) + 1, y: 32 };
+            return { ...frame, y: Math.max(0, limit - height) };
         }
         return frame;
     }
 
-    /**
-     * Title / text / divider drop next to the current selection (or last
-     * inserted content block), not below a tall endpoint card.
-     */
+    /** New blocks open in the middle of the sheet, not under the previous one. */
     private _nextNearbyFrame(height: number, width = 700): ReportSectionFrame {
-        const selected = this.selectedLayoutSection()?.frame;
-        const lastContent = [...this.layoutSections()]
-            .reverse()
-            .find((section) => section.frame && ['header', 'text', 'divider', 'shape', 'field'].includes(section.type))
-            ?.frame;
-        const origin = selected ?? lastContent ?? this.layoutSections().find((section) => section.frame)?.frame;
-        return this._fitFrameOnSheet({
-            page: origin?.page ?? 0,
-            x: origin?.x ?? 0,
-            y: (origin?.y ?? 32) + 24,
-            width: width || origin?.width || 700,
-            height,
-        });
+        const page = this.selectedLayoutSection()?.frame?.page ?? 0;
+        return this._centerFrame(width, height, page);
     }
 
     private _consumePendingContentFrame(height: number, width = 700): ReportSectionFrame {
@@ -1892,31 +1878,46 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const payload = event.item.data as GuideResultCard | ReportSection | undefined;
         if (!payload) return;
         if ('sequence' in payload && typeof payload.sequence === 'number' && 'status' in payload) {
-            const drop = event.dropPoint;
-            const point = drop
-                ? this._layoutEditorPreview?.canonicalPointAt(drop.x, drop.y) ?? null
-                : null;
-            this.addCardToLayout(payload, point);
+            this.addCardToLayout(payload);
         }
     }
 
-    addCardToLayout(card: GuideResultCard, point?: { x: number; y: number; page: number } | null): void {
-        const section = { ...this._sectionFromCard(card), order: 0, frame: this._frameForNewEndpoint(point) };
-        this.layoutSections.update((list) => [...list, { ...section, order: list.length }]);
+    addCardToLayout(card: GuideResultCard): void {
+        const section: ReportSection = {
+            ...this._sectionFromCard(card),
+            order: this.layoutSections().length,
+            frame: this._centerFrame(620, 420),
+        };
+        this.layoutSections.update((list) => this._bringSectionsToFront([...list, section], [section.id]));
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
         this._revealLayoutControls('block');
+        if (section.frame) this._showFrameOnSheet(section.frame);
     }
 
     addAllCardsToLayout(): void {
+        const fresh: ReportSection[] = [];
         for (const card of this.layoutSourceCards()) {
             const path = `results.${card.sequence}`;
             if (this.layoutSections().some((section) => section.dataPath === path)) continue;
-            this.layoutSections.update((list) => [
-                ...list,
-                { ...this._sectionFromCard(card), order: list.length, frame: this._nextLayoutFrame() },
-            ]);
+            fresh.push({
+                ...this._sectionFromCard(card),
+                order: this.layoutSections().length + fresh.length,
+                frame: this._centerFrame(620, 420),
+            });
         }
+        if (!fresh.length) return;
+        this.layoutSections.update((list) =>
+            this._bringSectionsToFront(
+                [...list, ...fresh],
+                fresh.map((section) => section.id)
+            )
+        );
+        const top = fresh[fresh.length - 1];
+        this.selectedLayoutSectionId.set(top.id);
+        this.layoutEditorKind.set('block');
+        this._revealLayoutControls('block');
+        if (top.frame) this._showFrameOnSheet(top.frame);
     }
 
     /** New reports start with a single endpoint; the rest are dragged in by hand. */
@@ -2350,10 +2351,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             style: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', color: this.primaryColor() },
             frame: this._consumePendingContentFrame(48),
         };
-        this.layoutSections.update((list) => [
-            section,
-            ...list.map((item, index) => ({ ...item, order: index + 1 })),
-        ]);
+        this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
         this._revealLayoutControls('block');
@@ -2369,7 +2367,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             style: { fontSize: 12, textAlign: 'left' },
             frame: this._consumePendingContentFrame(72),
         };
-        this.layoutSections.update((list) => [...list, section]);
+        this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
         this._revealLayoutControls('block');
@@ -2383,7 +2381,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             style: { color: this.primaryColor() },
             frame: this._consumePendingContentFrame(16),
         };
-        this.layoutSections.update((list) => [...list, section]);
+        this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
         this._revealLayoutControls('block');
@@ -2401,7 +2399,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             style: { color: this.primaryColor() },
             frame: this._consumePendingContentFrame(tool.height, tool.width),
         };
-        this.layoutSections.update((list) => [...list, section]);
+        this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
         this._revealLayoutControls('block');
