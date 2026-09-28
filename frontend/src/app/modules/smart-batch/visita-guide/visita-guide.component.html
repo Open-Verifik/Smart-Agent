@@ -1591,7 +1591,7 @@
                                         (addPage)="addPageSheet()"
                                         (removePage)="removeLastPageSheet()"
                                         (sheetDragChange)="onSheetDragChange($event)"
-                                        (backgroundClick)="openLayoutPageEditor()"
+                                        (backgroundClick)="dismissLayoutSurfaceEditor()"
                                         (logoPositionChange)="onLayoutLogoPositionChange($event)"
                                         (logoSizeChange)="onLayoutLogoSizeChange($event)"
                                         (logoRotationChange)="onLayoutLogoRotationChange($event)"
@@ -1608,28 +1608,54 @@
                         </div>
 
                         @if (layoutEditorKind() && !layoutEditorSuppressed()) {
+                            @if (layoutEditorKind() === 'page') {
+                                <div
+                                    #layoutDocumentBackdrop
+                                    class="visita-document-backdrop fixed inset-0 bg-stone-900/25 dark:bg-black/50"
+                                    style="z-index: 999980"
+                                    (click)="closeLayoutEditor()"
+                                ></div>
+                            }
                             <div
                                 #layoutEditorPanel
                                 cdkDrag
+                                [cdkDragDisabled]="layoutEditorKind() === 'page'"
                                 [cdkDragFreeDragPosition]="layoutEditorDrag()"
                                 (cdkDragEnded)="onLayoutEditorDragEnded($event)"
-                                class="visita-layout-editor fixed right-4 top-24 z-[999990] flex max-h-[78vh] w-80 flex-col rounded-xl border bg-white shadow-2xl ring-offset-2 dark:bg-gray-900"
+                                class="visita-layout-editor z-[999990] flex flex-col bg-white dark:bg-gray-900"
                                 style="z-index: 999990"
-                                [class.border-indigo-400]="layoutEditorFocused()"
-                                [class.ring-2]="layoutEditorFocused()"
-                                [class.ring-indigo-400]="layoutEditorFocused()"
-                                [class.border-indigo-200]="!layoutEditorFocused()"
-                                [class.dark:border-indigo-500]="layoutEditorFocused()"
-                                [class.dark:border-indigo-800]="!layoutEditorFocused()"
+                                [ngClass]="
+                                    layoutEditorKind() === 'page'
+                                        ? 'fixed right-0 top-0 h-screen w-full max-w-md border-l border-stone-200 dark:border-gray-800'
+                                        : 'fixed right-4 top-24 max-h-[78vh] w-80 rounded-xl border shadow-2xl'
+                                "
+                                [class.border-indigo-400]="layoutEditorKind() !== 'page' && layoutEditorFocused()"
+                                [class.ring-2]="layoutEditorKind() !== 'page' && layoutEditorFocused()"
+                                [class.ring-indigo-400]="layoutEditorKind() !== 'page' && layoutEditorFocused()"
+                                [class.border-indigo-200]="layoutEditorKind() !== 'page' && !layoutEditorFocused()"
+                                [class.dark:border-indigo-500]="layoutEditorKind() !== 'page' && layoutEditorFocused()"
+                                [class.dark:border-indigo-800]="layoutEditorKind() !== 'page' && !layoutEditorFocused()"
                                 (click)="$event.stopPropagation()"
                             >
                                 <div
                                     cdkDragHandle
-                                    class="flex cursor-grab select-none items-center justify-between rounded-t-xl border-b border-stone-100 bg-stone-50 px-3 py-2 active:cursor-grabbing dark:border-gray-800 dark:bg-gray-950/50"
+                                    class="flex shrink-0 select-none items-center justify-between border-b border-stone-100 dark:border-gray-800"
+                                    [class.px-5]="layoutEditorKind() === 'page'"
+                                    [class.py-3]="layoutEditorKind() === 'page'"
+                                    [class.px-3]="layoutEditorKind() !== 'page'"
+                                    [class.py-2]="layoutEditorKind() !== 'page'"
+                                    [class.bg-stone-50]="layoutEditorKind() !== 'page'"
+                                    [class.dark:bg-gray-950]="layoutEditorKind() !== 'page'"
+                                    [class.cursor-default]="layoutEditorKind() === 'page'"
+                                    [class.rounded-t-xl]="layoutEditorKind() !== 'page'"
+                                    [class.cursor-grab]="layoutEditorKind() !== 'page'"
+                                    [class.active:cursor-grabbing]="layoutEditorKind() !== 'page'"
                                     style="touch-action: none"
                                 >
                                     <div class="flex min-w-0 items-center gap-2">
-                                        <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-400">drag_indicator</mat-icon>
+                                        @if (layoutEditorKind() !== 'page') {
+                                            <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-400">drag_indicator</mat-icon>
+                                        }
                                         <h3 class="truncate text-sm font-semibold text-stone-950 dark:text-white">
                                             {{ t(layoutEditorTitleKey()) }}
                                         </h3>
@@ -1643,8 +1669,15 @@
                                         <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
                                     </button>
                                 </div>
-                                <div #layoutEditorScroll class="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
-                                @if (layoutStack().length) {
+                                <div
+                                    #layoutEditorScroll
+                                    class="flex min-h-0 flex-1 flex-col overflow-y-auto"
+                                    [class.gap-4]="layoutEditorKind() === 'page'"
+                                    [class.p-5]="layoutEditorKind() === 'page'"
+                                    [class.gap-3]="layoutEditorKind() !== 'page'"
+                                    [class.p-3]="layoutEditorKind() !== 'page'"
+                                >
+                                @if (layoutStack().length && layoutEditorKind() !== 'page') {
                                 <section class="rounded-2xl border border-teal-300 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/40">
                                 <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-800 dark:text-teal-300">
                                     {{ t('visitaGuide.layoutLayers') }}
@@ -1676,8 +1709,8 @@
                                 </section>
                                 }
                                 @if (layoutEditorKind() === 'page') {
-                                <section data-layout-control="page" class="rounded-2xl border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/40">
-                                    <p class="text-[11px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                                <section data-layout-control="page" class="space-y-3 rounded-xl border border-stone-100 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/50">
+                                    <p class="text-sm font-medium text-stone-700 dark:text-stone-300">
                                         {{ t('visitaGuide.layoutPanelPage') }}
                                     </p>
                                     <button
@@ -1720,11 +1753,11 @@
                                             [ariaLabel]="t('visitaGuide.layoutAccentColor')"
                                         />
                                     </div>
-                                    <label class="mt-3 block text-xs text-stone-600 dark:text-stone-300">{{
-                                        t('smartReport.pageSize')
-                                    }}</label>
+                                    <div class="grid grid-cols-2 gap-3">
+                                    <label class="block text-xs text-stone-600 dark:text-stone-300">
+                                        {{ t('smartReport.pageSize') }}
                                     <select
-                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-2 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                         [ngModel]="pageSize()"
                                         (ngModelChange)="setPageSize($event)"
                                     >
@@ -1732,49 +1765,67 @@
                                         <option value="Letter">Letter</option>
                                         <option value="Legal">Legal</option>
                                     </select>
-                                    <label class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
-                                        t('smartReport.orientation')
-                                    }}</label>
-                                    <div class="mt-1 flex gap-1">
-                                        <button
-                                            type="button"
-                                            class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                            [class.border-stone-950]="orientation() === 'portrait'"
-                                            [class.bg-white]="orientation() === 'portrait'"
-                                            [class.border-stone-200]="orientation() !== 'portrait'"
-                                            (click)="setOrientation('portrait')"
-                                        >
-                                            {{ t('smartReport.portrait') }}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                            [class.border-stone-950]="orientation() === 'landscape'"
-                                            [class.bg-white]="orientation() === 'landscape'"
-                                            [class.border-stone-200]="orientation() !== 'landscape'"
-                                            (click)="setOrientation('landscape')"
-                                        >
-                                            {{ t('smartReport.landscape') }}
-                                        </button>
-                                    </div>
-                                    <label class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
-                                        t('smartReport.pdfEngine')
-                                    }}</label>
+                                    </label>
+                                    <label class="block text-xs text-stone-600 dark:text-stone-300">
+                                        {{ t('smartReport.pdfEngine') }}
                                     <select
-                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-2 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                         [ngModel]="pdfEngine()"
                                         (ngModelChange)="setPdfEngine($event)"
                                     >
                                         <option value="puppeteer">{{ t('smartReport.pdfEngineHtml') }}</option>
                                         <option value="pdfkit">{{ t('smartReport.pdfEngineClassic') }}</option>
                                     </select>
-                                    <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
-                                        <input
-                                            type="checkbox"
-                                            [ngModel]="securityEnabled()"
-                                            (ngModelChange)="setSecurityEnabled($event)"
-                                        />
-                                        {{ t('smartReport.securityTitle') }}
+                                    </label>
+                                    </div>
+                                    <span class="mt-3 block text-xs text-stone-600 dark:text-stone-300">{{
+                                        t('smartReport.orientation')
+                                    }}</span>
+                                    <div class="mt-1 flex rounded-full bg-stone-200 p-1" role="group">
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-full px-3 py-1.5 text-xs font-medium"
+                                            [class.bg-stone-950]="orientation() === 'portrait'"
+                                            [class.text-white]="orientation() === 'portrait'"
+                                            [class.text-stone-600]="orientation() !== 'portrait'"
+                                            [attr.aria-pressed]="orientation() === 'portrait'"
+                                            (click)="setOrientation('portrait')"
+                                        >
+                                            {{ t('smartReport.portrait') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="flex-1 rounded-full px-3 py-1.5 text-xs font-medium"
+                                            [class.bg-stone-950]="orientation() === 'landscape'"
+                                            [class.text-white]="orientation() === 'landscape'"
+                                            [class.text-stone-600]="orientation() !== 'landscape'"
+                                            [attr.aria-pressed]="orientation() === 'landscape'"
+                                            (click)="setOrientation('landscape')"
+                                        >
+                                            {{ t('smartReport.landscape') }}
+                                        </button>
+                                    </div>
+                                </section>
+                                <section class="space-y-3 rounded-xl border border-stone-100 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/50">
+                                    <p class="text-sm font-medium text-stone-700 dark:text-stone-300">
+                                        {{ t('visitaGuide.layoutSecurity') }}
+                                    </p>
+                                    <label class="flex items-center justify-between gap-3 text-xs text-stone-700 dark:text-stone-200">
+                                        <span>{{ t('smartReport.securityTitle') }}</span>
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            class="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                                            [class.bg-stone-950]="securityEnabled()"
+                                            [class.bg-stone-300]="!securityEnabled()"
+                                            [attr.aria-checked]="securityEnabled()"
+                                            (click)="setSecurityEnabled(!securityEnabled())"
+                                        >
+                                            <span
+                                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform"
+                                                [class.translate-x-5]="securityEnabled()"
+                                            ></span>
+                                        </button>
                                     </label>
                                     @if (securityEnabled()) {
                                         <div class="relative mt-1">
@@ -1799,13 +1850,22 @@
                                             {{ t('smartReport.securityPasswordHint') }}
                                         </p>
                                     }
-                                    <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
-                                        <input
-                                            type="checkbox"
-                                            [ngModel]="signatureEnabled()"
-                                            (ngModelChange)="setSignatureEnabled($event)"
-                                        />
-                                        {{ t('smartReport.signature') }}
+                                    <label class="mt-3 flex items-center justify-between gap-3 text-xs text-stone-700 dark:text-stone-200">
+                                        <span>{{ t('smartReport.signature') }}</span>
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            class="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                                            [class.bg-stone-950]="signatureEnabled()"
+                                            [class.bg-stone-300]="!signatureEnabled()"
+                                            [attr.aria-checked]="signatureEnabled()"
+                                            (click)="setSignatureEnabled(!signatureEnabled())"
+                                        >
+                                            <span
+                                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform"
+                                                [class.translate-x-5]="signatureEnabled()"
+                                            ></span>
+                                        </button>
                                     </label>
                                     @if (signatureEnabled()) {
                                         @if (signatureImage()) {
@@ -1865,8 +1925,8 @@
                                 }
 
                                 @if (layoutEditorKind() === 'page' || layoutEditorKind() === 'overlay') {
-                                <section data-layout-control="overlay" class="rounded-2xl border border-violet-300 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/40">
-                                <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-800 dark:text-violet-300">
+                                <section data-layout-control="overlay" class="space-y-3 rounded-xl border border-stone-100 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/50">
+                                <p class="text-sm font-medium text-stone-700 dark:text-stone-300">
                                     {{ t('visitaGuide.layoutBrand') }}
                                 </p>
                                 <label class="text-xs font-medium text-stone-600 dark:text-stone-300">{{
@@ -1946,13 +2006,22 @@
                                     />
                                 }
 
-                                <label class="flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
-                                    <input
-                                        type="checkbox"
-                                        [ngModel]="watermarkEnabled()"
-                                        (ngModelChange)="setWatermarkEnabled($event)"
-                                    />
-                                    {{ t('visitaGuide.layoutWatermark') }}
+                                <label class="flex items-center justify-between gap-3 text-xs text-stone-700 dark:text-stone-200">
+                                    <span>{{ t('visitaGuide.layoutWatermark') }}</span>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        class="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                                        [class.bg-stone-950]="watermarkEnabled()"
+                                        [class.bg-stone-300]="!watermarkEnabled()"
+                                        [attr.aria-checked]="watermarkEnabled()"
+                                        (click)="setWatermarkEnabled(!watermarkEnabled())"
+                                    >
+                                        <span
+                                            class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform"
+                                            [class.translate-x-5]="watermarkEnabled()"
+                                        ></span>
+                                    </button>
                                 </label>
                                 @if (watermarkEnabled()) {
                                     <p class="text-[11px] text-stone-500">
@@ -1967,41 +2036,49 @@
                                             (ngModelChange)="setWatermarkText($event)"
                                         />
                                     }
-                                    <div class="flex gap-2">
+                                    <div class="flex rounded-full bg-stone-200 p-1" role="group">
                                         <button
                                             type="button"
-                                            class="rounded-full border px-2 py-1 text-[11px]"
-                                            [class.border-stone-950]="watermarkType() === 'text'"
-                                            [class.border-stone-200]="watermarkType() !== 'text'"
+                                            class="flex-1 rounded-full px-2 py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="watermarkType() === 'text'"
+                                            [class.text-white]="watermarkType() === 'text'"
+                                            [class.text-stone-600]="watermarkType() !== 'text'"
+                                            [attr.aria-pressed]="watermarkType() === 'text'"
                                             (click)="setWatermarkType('text')"
                                         >
                                             {{ t('visitaGuide.layoutWatermarkText') }}
                                         </button>
                                         <button
                                             type="button"
-                                            class="rounded-full border px-2 py-1 text-[11px]"
-                                            [class.border-stone-950]="watermarkType() === 'logo'"
-                                            [class.border-stone-200]="watermarkType() !== 'logo'"
+                                            class="flex-1 rounded-full px-2 py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="watermarkType() === 'logo'"
+                                            [class.text-white]="watermarkType() === 'logo'"
+                                            [class.text-stone-600]="watermarkType() !== 'logo'"
+                                            [attr.aria-pressed]="watermarkType() === 'logo'"
                                             (click)="setWatermarkType('logo')"
                                         >
                                             {{ t('visitaGuide.layoutWatermarkLogo') }}
                                         </button>
                                     </div>
-                                    <div class="flex gap-2">
+                                    <div class="flex rounded-full bg-stone-200 p-1" role="group">
                                         <button
                                             type="button"
-                                            class="rounded-full border px-2 py-1 text-[11px]"
-                                            [class.border-stone-950]="watermarkPattern() === 'single'"
-                                            [class.border-stone-200]="watermarkPattern() !== 'single'"
+                                            class="flex-1 rounded-full px-2 py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="watermarkPattern() === 'single'"
+                                            [class.text-white]="watermarkPattern() === 'single'"
+                                            [class.text-stone-600]="watermarkPattern() !== 'single'"
+                                            [attr.aria-pressed]="watermarkPattern() === 'single'"
                                             (click)="setWatermarkPattern('single')"
                                         >
                                             {{ t('visitaGuide.layoutWatermarkOnce') }}
                                         </button>
                                         <button
                                             type="button"
-                                            class="rounded-full border px-2 py-1 text-[11px]"
-                                            [class.border-stone-950]="watermarkPattern() === 'repeated'"
-                                            [class.border-stone-200]="watermarkPattern() !== 'repeated'"
+                                            class="flex-1 rounded-full px-2 py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="watermarkPattern() === 'repeated'"
+                                            [class.text-white]="watermarkPattern() === 'repeated'"
+                                            [class.text-stone-600]="watermarkPattern() !== 'repeated'"
+                                            [attr.aria-pressed]="watermarkPattern() === 'repeated'"
                                             (click)="setWatermarkPattern('repeated')"
                                         >
                                             {{ t('visitaGuide.layoutWatermarkRepeat') }}
@@ -2040,14 +2117,15 @@
                                     [ngModel]="legend()"
                                     (ngModelChange)="setLegend($event)"
                                 ></textarea>
-                                <div class="flex gap-1">
+                                <div class="flex rounded-full bg-stone-200 p-1" role="group">
                                     @for (align of footerAligns; track align) {
                                         <button
                                             type="button"
-                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
-                                            [class.border-stone-950]="legendPosition() === align"
-                                            [class.bg-white]="legendPosition() === align"
-                                            [class.border-stone-200]="legendPosition() !== align"
+                                            class="flex-1 rounded-full py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="legendPosition() === align"
+                                            [class.text-white]="legendPosition() === align"
+                                            [class.text-stone-600]="legendPosition() !== align"
+                                            [attr.aria-pressed]="legendPosition() === align"
                                             (click)="setLegendPosition(align)"
                                         >
                                             {{ t(footerAlignKey(align)) }}
@@ -2064,59 +2142,72 @@
                                     [ngModel]="termsAndConditions()"
                                     (ngModelChange)="setTermsAndConditions($event)"
                                 ></textarea>
-                                <div class="flex gap-1">
+                                <div class="flex rounded-full bg-stone-200 p-1" role="group">
                                     @for (align of footerAligns; track align) {
                                         <button
                                             type="button"
-                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
-                                            [class.border-stone-950]="termsPosition() === align"
-                                            [class.bg-white]="termsPosition() === align"
-                                            [class.border-stone-200]="termsPosition() !== align"
+                                            class="flex-1 rounded-full py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="termsPosition() === align"
+                                            [class.text-white]="termsPosition() === align"
+                                            [class.text-stone-600]="termsPosition() !== align"
+                                            [attr.aria-pressed]="termsPosition() === align"
                                             (click)="setTermsPosition(align)"
                                         >
                                             {{ t(footerAlignKey(align)) }}
                                         </button>
                                     }
                                 </div>
-                                <label class="mt-2 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
-                                    <input
-                                        type="checkbox"
-                                        [ngModel]="showPageNumbers()"
-                                        (ngModelChange)="setShowPageNumbers($event)"
-                                    />
-                                    {{ t('visitaGuide.layoutPageNumbers') }}
+                                <label class="mt-2 flex items-center justify-between gap-3 text-xs text-stone-700 dark:text-stone-200">
+                                    <span>{{ t('visitaGuide.layoutPageNumbers') }}</span>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        class="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                                        [class.bg-stone-950]="showPageNumbers()"
+                                        [class.bg-stone-300]="!showPageNumbers()"
+                                        [attr.aria-checked]="showPageNumbers()"
+                                        (click)="setShowPageNumbers(!showPageNumbers())"
+                                    >
+                                        <span
+                                            class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform"
+                                            [class.translate-x-5]="showPageNumbers()"
+                                        ></span>
+                                    </button>
                                 </label>
                                 @if (showPageNumbers()) {
-                                    <div class="flex gap-1">
+                                    <div class="flex rounded-full bg-stone-200 p-1" role="group">
                                         <button
                                             type="button"
-                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
-                                            [class.border-stone-950]="pageNumberBand() === 'bottom'"
-                                            [class.bg-white]="pageNumberBand() === 'bottom'"
-                                            [class.border-stone-200]="pageNumberBand() !== 'bottom'"
+                                            class="flex-1 rounded-full py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="pageNumberBand() === 'bottom'"
+                                            [class.text-white]="pageNumberBand() === 'bottom'"
+                                            [class.text-stone-600]="pageNumberBand() !== 'bottom'"
+                                            [attr.aria-pressed]="pageNumberBand() === 'bottom'"
                                             (click)="setPageNumberBand('bottom')"
                                         >
                                             {{ t('visitaGuide.layoutPageNumberBottom') }}
                                         </button>
                                         <button
                                             type="button"
-                                            class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
-                                            [class.border-stone-950]="pageNumberBand() === 'top'"
-                                            [class.bg-white]="pageNumberBand() === 'top'"
-                                            [class.border-stone-200]="pageNumberBand() !== 'top'"
+                                            class="flex-1 rounded-full py-1.5 text-[11px] font-medium"
+                                            [class.bg-stone-950]="pageNumberBand() === 'top'"
+                                            [class.text-white]="pageNumberBand() === 'top'"
+                                            [class.text-stone-600]="pageNumberBand() !== 'top'"
+                                            [attr.aria-pressed]="pageNumberBand() === 'top'"
                                             (click)="setPageNumberBand('top')"
                                         >
                                             {{ t('visitaGuide.layoutPageNumberTop') }}
                                         </button>
                                     </div>
-                                    <div class="flex gap-1">
+                                    <div class="flex rounded-full bg-stone-200 p-1" role="group">
                                         @for (align of footerAligns; track align) {
                                             <button
                                                 type="button"
-                                                class="flex-1 rounded-lg border py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
-                                                [class.border-stone-950]="pageNumberAlign() === align"
-                                                [class.bg-white]="pageNumberAlign() === align"
-                                                [class.border-stone-200]="pageNumberAlign() !== align"
+                                                class="flex-1 rounded-full py-1.5 text-[11px] font-medium"
+                                                [class.bg-stone-950]="pageNumberAlign() === align"
+                                                [class.text-white]="pageNumberAlign() === align"
+                                                [class.text-stone-600]="pageNumberAlign() !== align"
+                                                [attr.aria-pressed]="pageNumberAlign() === align"
                                                 (click)="setPageNumberAlign(align)"
                                             >
                                                 {{ t(footerAlignKey(align)) }}

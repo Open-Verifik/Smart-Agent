@@ -38,7 +38,7 @@
             <!-- Watermark overlay (every page, matches PDF behaviour) -->
             @if (watermarkEnabled()) {
                 @if (watermarkPattern() === 'single') {
-                    <div class="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+                    <div class="pointer-events-none absolute inset-0 z-[900] overflow-hidden">
                         <div
                             data-overlay-box
                             class="absolute flex items-center justify-center"
@@ -57,8 +57,9 @@
                         >
                             @if (watermarkType() === 'text') {
                                 <span
-                                    class="pointer-events-none select-none whitespace-nowrap text-center font-bold text-gray-500"
-                                    [style.opacity]="watermarkOpacity()"
+                                    class="pointer-events-none select-none whitespace-nowrap text-center font-bold text-gray-700"
+                                    style="text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 1px 1px rgba(0, 0, 0, 0.55)"
+                                    [style.opacity]="watermarkPaintOpacity()"
                                     [style.font-size.px]="viewWatermarkFontSize"
                                     [style.transform]="watermarkRotateStyle"
                                     [style.letter-spacing.px]="6"
@@ -69,7 +70,8 @@
                                     [src]="logoUrl()"
                                     alt="Watermark"
                                     class="h-full w-full object-contain pointer-events-none select-none"
-                                    [style.opacity]="watermarkOpacity()"
+                                    style="filter: drop-shadow(0 0 1px #fff) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55))"
+                                    [style.opacity]="watermarkPaintOpacity()"
                                     [style.transform]="watermarkRotateStyle"
                                     draggable="false"
                                 />
@@ -102,7 +104,7 @@
                     </div>
                 } @else {
                     <div
-                        class="absolute inset-0 pointer-events-none z-10 overflow-hidden"
+                        class="pointer-events-none absolute inset-0 z-[900] overflow-hidden"
                         style="
                             display: grid;
                             grid-template-columns: repeat(3, 1fr);
@@ -114,10 +116,10 @@
                             <div class="flex items-center justify-center">
                                 @if (watermarkType() === 'text') {
                                     <span
-                                        class="select-none whitespace-nowrap font-bold text-gray-500"
-                                        [style.opacity]="watermarkOpacity()"
+                                        class="select-none whitespace-nowrap font-bold text-gray-700"
+                                        [style.opacity]="watermarkPaintOpacity()"
                                         [style.transform]="watermarkRotateStyle"
-                                        style="font-size: 18px; letter-spacing: 3px"
+                                        style="font-size: 18px; letter-spacing: 3px; text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 1px 1px rgba(0, 0, 0, 0.55)"
                                         >{{ watermarkText() }}</span
                                     >
                                 } @else if (watermarkType() === 'logo' && logoUrl()) {
@@ -125,7 +127,8 @@
                                         [src]="logoUrl()"
                                         alt=""
                                         class="h-16 w-16 select-none object-contain"
-                                        [style.opacity]="watermarkOpacity()"
+                                        style="filter: drop-shadow(0 0 1px #fff) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55))"
+                                        [style.opacity]="watermarkPaintOpacity()"
                                         [style.transform]="watermarkRotateStyle"
                                     />
                                 }

@@ -217,6 +217,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @ViewChild('layoutEditorPreview') private _layoutEditorPreview?: ReportPreviewComponent;
     @ViewChild('layoutInsertImageInput') private _layoutInsertImageInput?: ElementRef<HTMLInputElement>;
     @ViewChild('layoutEditorPanel') private _layoutEditorPanel?: ElementRef<HTMLElement>;
+    @ViewChild('layoutDocumentBackdrop') private _layoutDocumentBackdrop?: ElementRef<HTMLElement>;
     @ViewChild('layoutEditorScroll') private _layoutEditorScroll?: ElementRef<HTMLElement>;
     @ViewChild('layoutContextMenuEl') private _layoutContextMenuEl?: ElementRef<HTMLElement>;
     @ViewChild('countrySearchInput') private _countrySearchInput?: ElementRef<HTMLInputElement>;
@@ -1334,6 +1335,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     openLayoutPageEditor(event?: Event): void {
         event?.stopPropagation();
         this.clearLayoutSelection();
+        this.layoutEditorDrag.set({ x: 0, y: 0 });
         this.layoutEditorKind.set('page');
         this._revealLayoutControls('page');
     }
@@ -1348,6 +1350,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this.step() !== 'layout') {
             this._syncLayoutEditorPortal(false);
             return;
+        }
+        const backdrop = this._layoutDocumentBackdrop?.nativeElement;
+        if (this.layoutEditorKind() === 'page') {
+            if (backdrop && backdrop.parentElement !== document.body) document.body.appendChild(backdrop);
+        } else {
+            backdrop?.remove();
+            document.querySelectorAll('body > .visita-document-backdrop').forEach((node) => node.remove());
         }
         const el = this._layoutEditorPanel?.nativeElement;
         if (el && el.parentElement !== document.body) {
@@ -1365,8 +1374,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._liftLayoutEditorPanel();
             return;
         }
+        this._layoutDocumentBackdrop?.nativeElement.remove();
         this._layoutEditorPanel?.nativeElement.remove();
-        document.querySelectorAll('body > .visita-layout-editor').forEach((node) => node.remove());
+        document.querySelectorAll('body > .visita-document-backdrop, body > .visita-layout-editor').forEach((node) => node.remove());
         if (this.step() === 'layout') return;
         this._layoutContextMenuEl?.nativeElement.remove();
         document.querySelectorAll('body > .visita-layout-context-menu').forEach((node) => node.remove());
@@ -1457,7 +1467,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutPaperContextMenu(event: { x: number; y: number }): void {
-        this.openLayoutPageEditor();
         this._openLayoutContextMenu(event.x, event.y, {});
     }
 
@@ -1465,7 +1474,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const target = event.target as HTMLElement | null;
         if (target?.closest('report-preview') || target?.closest('.visita-layout-context-menu')) return;
         event.preventDefault();
-        this.openLayoutPageEditor();
         this._openLayoutContextMenu(event.clientX, event.clientY, {});
     }
 
@@ -1989,14 +1997,21 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const kind = this.layoutEditorKind();
         if (kind === 'block') return 'visitaGuide.layoutPanelBlock';
         if (kind === 'overlay') return 'visitaGuide.layoutBrand';
-        return 'visitaGuide.layoutEditorPage';
+        return 'smartReport.documentSettings';
     }
 
     onLayoutBlankClick(event: MouseEvent): void {
         const target = event.target as HTMLElement | null;
         if (target?.closest('report-preview')) return;
         if (target?.closest('.visita-layout-editor')) return;
-        this.openLayoutPageEditor();
+        this.dismissLayoutSurfaceEditor();
+    }
+
+    /** The document menu opens only from Hoja y marca. A blank click just leaves the block. */
+    dismissLayoutSurfaceEditor(): void {
+        if (this.layoutEditorKind() === 'page') return;
+        this.clearLayoutSelection();
+        this.closeLayoutEditor();
     }
 
     onLayoutCanvasDrop(event: CdkDragDrop<unknown>): void {

@@ -708,6 +708,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return `rotate(${this.watermarkRotation()}deg)`;
     }
 
+    /** Keeps the stamp readable on any block color. The slider still lightens or darkens it. */
+    watermarkPaintOpacity(): number {
+        const value = Number(this.watermarkOpacity());
+        const opacity = Number.isFinite(value) ? value : 0.22;
+        return Math.min(0.55, Math.max(0.22, opacity));
+    }
+
     get logoOverlayBorder(): string {
         return this.isOverlaySelected('logo') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
     }
@@ -1339,7 +1346,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             top: `${y / scales.y}px`,
             width: width ? `${width}px` : '100%',
             marginBottom: '0px',
-            zIndex: this.draggingSectionId() === section.id ? '1000' : String(this._sectionZIndex(section)),
+            zIndex:
+                this.draggingSectionId() === section.id
+                    ? '1000'
+                    : String(Math.min(this._sectionZIndex(section), 800)),
             pointerEvents:
                 this.draggingSectionId() && this.draggingSectionId() !== section.id ? 'none' : 'auto',
         };
