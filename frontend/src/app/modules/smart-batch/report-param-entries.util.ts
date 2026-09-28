@@ -70,14 +70,18 @@ export const collectLayoutSheetItems = (
     const fields: LayoutSheetItem[] = collectScalarParams(value, {
         hiddenKeys,
         skipObjectArrays: true,
-        maxItems: 250,
+        maxDepth: 8,
+        maxItems: 400,
     }).map((entry) => ({
         kind: 'field',
         key: entry.key,
         label: entry.label,
         entry,
     }));
-    const tables: LayoutSheetItem[] = collectObjectTables(value, { hiddenKeys }).map((table) => ({
+    const tables: LayoutSheetItem[] = collectObjectTables(value, {
+        hiddenKeys,
+        keyOrder: options?.keyOrder,
+    }).map((table) => ({
         kind: 'table',
         key: table.key,
         label: table.label,
@@ -278,29 +282,50 @@ export const collectScalarParams = (
     return rows;
 };
 
+export const tableColumnPath = (tableKey: string, column: string): string =>
+    !tableKey || tableKey === ROOT_TABLE_KEY ? column : `${tableKey}.${column}`;
+
+const orderColumnKeys = (columnKeys: string[], tableKey: string, keyOrder?: string[]): string[] => {
+    if (!keyOrder?.length || columnKeys.length < 2) return columnKeys;
+    const rank = new Map(keyOrder.map((key, index) => [key, index]));
+    return columnKeys
+        .map((column, index) => ({ column, index }))
+        .sort((left, right) => {
+            const leftRank =
+                rank.get(tableColumnPath(tableKey, left.column)) ??
+                rank.get(left.column) ??
+                keyOrder.length + left.index;
+            const rightRank =
+                rank.get(tableColumnPath(tableKey, right.column)) ??
+                rank.get(right.column) ??
+                keyOrder.length + right.index;
+            return leftRank - rightRank || left.index - right.index;
+        })
+        .map((entry) => entry.column);
+};
+
 const tableFromRecords = (
     records: Record<string, unknown>[],
     key: string,
-    hiddenKeys?: string[]
+    keyOrder?: string[]
 ): NestedObjectTable | null => {
-    if (isHiddenParamKey(key || ROOT_TABLE_KEY, hiddenKeys)) return null;
+    const tableKey = key || ROOT_TABLE_KEY;
     const columnKeys: string[] = [];
     for (const record of records) {
         for (const column of Object.keys(record)) {
             if (BLOB_KEY_PATTERN.test(column)) continue;
-            const columnKey = key ? `${key}.${column}` : column;
-            if (isHiddenParamKey(columnKey, hiddenKeys) || isHiddenParamKey(column, hiddenKeys)) continue;
             if (!columnKeys.includes(column)) columnKeys.push(column);
         }
     }
-    if (!columnKeys.length) return null;
+    const ordered = orderColumnKeys(columnKeys, tableKey, keyOrder);
+    if (!ordered.length) return null;
     return {
-        key: key || ROOT_TABLE_KEY,
-        label: humanizeParamKey(key || ROOT_TABLE_KEY),
-        columns: columnKeys.map((column) => ({ key: column, label: humanizeParamKey(column) })),
+        key: tableKey,
+        label: humanizeParamKey(tableKey),
+        columns: ordered.map((column) => ({ key: column, label: humanizeParamKey(column) })),
         rows: records.map((record) => {
             const row: Record<string, string> = {};
-            for (const column of columnKeys) {
+            for (const column of ordered) {
                 row[column] = cellText(record[column]);
             }
             return row;
@@ -308,15 +333,66 @@ const tableFromRecords = (
     };
 };
 
-/** Arrays of objects become tables on the sheet instead of a pile of cells. */
+const withVisibleColumns = (table: NestedObjectTable, hiddenKeys?: string[]): NestedObjectTable | null => {
+    if (isHiddenParamKey(table.key, hiddenKeys)) return null;
+    const columns = table.columns.filter(
+        (column) => !isHiddenParamKey(tableColumnPath(table.key, column.key), hiddenKeys)
+    );
+    if (!columns.length) return null;
+    const keys = columns.map((column) => column.key);
+    return {
+        ...table,
+        columns,
+        rows: table.rows.map((row) => {
+            const next: Record<string, string> = {};
+            for (const key of keys) next[key] = row[key] ?? '—';
+            return next;
+        }),
+    };
+};
+
+/** Arrays of objects become tables. Nested arrays become their own tables and grow with the data. */
 export const collectObjectTables = (
     value: unknown,
-    options?: { hiddenKeys?: string[]; maxTables?: number }
+    options?: { hiddenKeys?: string[]; maxTables?: number; keyOrder?: string[]; hideColumns?: boolean }
 ): NestedObjectTable[] => {
     const hidden = options?.hiddenKeys ?? [];
     const maxTables = options?.maxTables ?? 12;
+    const hideColumns = options?.hideColumns !== false;
+    const keyOrder = options?.keyOrder;
     const tables: NestedObjectTable[] = [];
     const seen = new WeakSet<object>();
+
+    const absorb = (records: Record<string, unknown>[], key: string, depth: number): void => {
+        if (tables.length >= maxTables || depth > 8) return;
+        const nestedColumns: string[] = [];
+        for (const record of records) {
+            for (const [column, entry] of Object.entries(record)) {
+                if (isObjectRecordArray(entry) && !nestedColumns.includes(column)) nestedColumns.push(column);
+            }
+        }
+        const flatRecords = records.map((record) => {
+            if (!nestedColumns.length) return record;
+            const copy: Record<string, unknown> = { ...record };
+            for (const column of nestedColumns) delete copy[column];
+            return copy;
+        });
+        const table = tableFromRecords(flatRecords, key, keyOrder);
+        const visible = table ? (hideColumns ? withVisibleColumns(table, hidden) : table) : null;
+        if (visible && !isHiddenParamKey(visible.key, hidden)) tables.push(visible);
+        for (const column of nestedColumns) {
+            if (tables.length >= maxTables) return;
+            const childKey = key ? `${key}.${column}` : column;
+            if (isHiddenParamKey(childKey, hidden)) continue;
+            const merged: Record<string, unknown>[] = [];
+            records.forEach((record, index) => {
+                const child = record[column];
+                if (!isObjectRecordArray(child)) return;
+                for (const item of child) merged.push({ row: index + 1, ...item });
+            });
+            if (merged.length) absorb(merged, childKey, depth + 1);
+        }
+    };
 
     const walk = (node: unknown, prefix: string, depth: number): void => {
         if (tables.length >= maxTables || node == null || typeof node !== 'object') return;
@@ -325,8 +401,7 @@ export const collectObjectTables = (
         if (depth > 8) return;
 
         if (isObjectRecordArray(node)) {
-            const table = tableFromRecords(node, prefix, hidden);
-            if (table) tables.push(table);
+            absorb(node, prefix, depth);
             return;
         }
 
@@ -344,15 +419,9 @@ export const collectObjectTables = (
     return tables;
 };
 
-const formatTableForPdf = (table: NestedObjectTable): string => {
-    const header = table.columns.map((column) => column.label).join(' · ');
-    const lines = table.rows.map((row) => table.columns.map((column) => row[column.key] || '—').join(' · '));
-    return [table.label, header, ...lines].filter(Boolean).join('\n');
-};
-
 /**
- * Same fields the canvas shows: nested objects as dotted cells, object arrays as
- * compact tables — never exploded row.0.field keys that stretch the last page.
+ * Scalar fields the canvas shows beside tables. Arrays of objects stay out of
+ * this map so the PDF can draw them as tables from the original payload.
  */
 export const flattenPayloadToScalarMap = (
     value: unknown,
@@ -363,13 +432,10 @@ export const flattenPayloadToScalarMap = (
     for (const entry of collectScalarParams(value, {
         hiddenKeys,
         maxDepth: 8,
-        maxItems: 250,
+        maxItems: 400,
         skipObjectArrays: true,
     })) {
         map[entry.key] = entry.value;
-    }
-    for (const table of collectObjectTables(value, { hiddenKeys })) {
-        map[table.key] = formatTableForPdf(table);
     }
     return orderRecordKeys(map, keyOrder);
 };
@@ -396,20 +462,22 @@ export const setHiddenParamKey = (
 };
 
 export const layoutParamGroups = (value: unknown, hiddenKeys?: string[]): LayoutParamGroup[] => {
-    const tables = collectObjectTables(value, { hiddenKeys: [] });
-    const tableKeys = new Set(tables.map((table) => table.key));
-    const scalars = collectScalarParams(value, { skipObjectArrays: true, maxItems: 250 });
-    const groups: LayoutParamGroup[] = tables.map((table) => ({
+    const groups: LayoutParamGroup[] = collectObjectTables(value, { hiddenKeys }).map((table) => ({
         key: table.key,
         label: table.label,
-        kind: 'table',
+        kind: 'table' as const,
         keys: [table.key],
     }));
+    const scalars = collectScalarParams(value, {
+        hiddenKeys,
+        skipObjectArrays: true,
+        maxDepth: 8,
+        maxItems: 400,
+    });
 
     const byPrefix = new Map<string, ScalarParamEntry[]>();
     for (const entry of scalars) {
         const prefix = entry.key.includes('.') ? entry.key.split('.')[0] : entry.key;
-        if (tableKeys.has(prefix) || tableKeys.has(entry.key)) continue;
         byPrefix.set(prefix, [...(byPrefix.get(prefix) ?? []), entry]);
     }
 

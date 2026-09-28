@@ -37,7 +37,8 @@ import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, R
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
-    collectScalarParams,
+    collectObjectTables,
+    tableColumnPath,
     isHiddenParamKey,
     layoutParamGroups,
     setHiddenParamKey,
@@ -1575,33 +1576,42 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!dataPath) return;
         const override = source.keyOverrides?.[key];
         const label = override?.label || this._layoutItemLabel(source, key);
+        const isTable =
+            collectLayoutSheetItems(valueAtDataPath(this.previewData(), source.dataPath), { hiddenKeys: [] }).find(
+                (item) => item.key === key
+            )?.kind === 'table';
         const origin = source.frame;
         const point = options.point;
         const lastField = [...this.layoutSections()]
             .reverse()
             .find((section) => section.type === 'field' && section.frame)?.frame;
+        const itemWidth = isTable ? Math.max(360, origin?.width ?? 420) : 220;
+        const itemHeight = isTable ? 180 : 56;
         const stacked = lastField
             ? {
                   page: lastField.page ?? origin?.page ?? 0,
                   x: lastField.x ?? (origin?.x ?? 32) + Math.min(240, (origin?.width ?? 200) * 0.45),
                   y: (lastField.y ?? 0) + (lastField.height ?? 56) + 12,
-                  width: 220,
-                  height: 56,
+                  width: itemWidth,
+                  height: itemHeight,
               }
             : {
                   page: origin?.page ?? 0,
                   x: (origin?.x ?? 32) + Math.min(240, (origin?.width ?? 200) * 0.45),
                   y: (origin?.y ?? 32) + 28,
-                  width: 220,
-                  height: 56,
+                  width: itemWidth,
+                  height: itemHeight,
               };
         const frame: ReportSectionFrame = this._fitFrameOnSheet(
-            point ? { page: point.page, x: point.x, y: point.y, width: 220, height: 56 } : stacked
+            point
+                ? { page: point.page, x: point.x, y: point.y, width: itemWidth, height: itemHeight }
+                : stacked
         );
         const topZ = Math.max(0, ...this.layoutSections().map((section) => Number(section.style?.zIndex) || 0));
         const field: ReportSection = {
             id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-            type: 'field',
+            type: isTable ? 'keyValueGrid' : 'field',
+            ...(isTable ? { columnsPerRow: 1 } : {}),
             order: this.layoutSections().length,
             label,
             dataPath,
@@ -2617,10 +2627,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     layoutRoleTitleKey(role: ReportTextRole): string {
+        if (this._selectionIsTableText()) {
+            if (role === 'label') return 'visitaGuide.layoutTableHeaders';
+            if (role === 'value') return 'visitaGuide.layoutTableItems';
+        }
         if (role === 'label') return 'visitaGuide.layoutTextLabels';
         if (role === 'value') return 'visitaGuide.layoutTextValues';
         const type = this.selectedLayoutSection()?.type;
         return type === 'text' ? 'visitaGuide.layoutTextBody' : 'visitaGuide.layoutTextTitle';
+    }
+
+    private _selectionIsTableText(): boolean {
+        const key = this.selectedLayoutCellKey();
+        if (!key) return false;
+        return collectObjectTables(this.layoutSourceValue(), { hideColumns: false }).some(
+            (table) =>
+                table.key === key ||
+                table.columns.some((column) => tableColumnPath(table.key, column.key) === key)
+        );
     }
 
     layoutRolePanelClass(role: ReportTextRole): string {
@@ -2753,7 +2777,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!key) return '';
         const override = this.selectedLayoutSection()?.keyOverrides?.[key]?.label;
         const option = this.layoutParamOptions().find((item) => item.key === key);
-        return override || option?.label || key;
+        return override || option?.label || humanizeParamKey(key);
     }
 
     setSelectedLayoutCellLabel(value: string): void {
@@ -2762,6 +2786,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     setSelectedLayoutCellBackground(value: string): void {
         this._patchSelectedKeyOverride({ backgroundColor: value });
+    }
+
+    selectedLayoutCellIsTable(): boolean {
+        const key = this.selectedLayoutCellKey();
+        if (!key) return false;
+        return this.selectedLayoutTableColumns().length > 0;
+    }
+
+    selectedLayoutCellColor(): string {
+        const custom = this.selectedLayoutCellOverride()?.backgroundColor;
+        if (custom) return custom;
+        return this.selectedLayoutCellIsTable() ? '#fffbeb' : '#fafaf9';
+    }
+
+    selectedLayoutTableBadge(): boolean {
+        return this.selectedLayoutCellOverride()?.showTableBadge !== false;
+    }
+
+    setSelectedLayoutTableBadge(visible: boolean): void {
+        if (visible) {
+            this._patchSelectedKeyOverride({}, ['showTableBadge']);
+            return;
+        }
+        this._patchSelectedKeyOverride({ showTableBadge: false });
     }
 
     selectedLayoutCellHasBorder(): boolean {
@@ -3055,17 +3103,47 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    selectedLayoutTableColumns(): { key: string; label: string; visible: boolean }[] {
+        const tableKey = this.selectedLayoutCellKey();
+        if (!tableKey) return [];
+        const section = this.selectedLayoutSection();
+        const table = collectObjectTables(this.layoutSourceValue(), {
+            keyOrder: section?.keyOrder,
+            hideColumns: false,
+        }).find((item) => item.key === tableKey);
+        if (!table) return [];
+        return table.columns.map((column) => {
+            const key = tableColumnPath(table.key, column.key);
+            return { key, label: column.label, visible: this.isLayoutParamVisible(key) };
+        });
+    }
+
+    moveSelectedLayoutTableColumn(columnKey: string, delta: -1 | 1): void {
+        const columns = this.selectedLayoutTableColumns();
+        const from = columns.findIndex((column) => column.key === columnKey);
+        const to = from + delta;
+        if (from < 0 || to < 0 || to >= columns.length) return;
+        const order = columns.map((column) => column.key);
+        const [moved] = order.splice(from, 1);
+        order.splice(to, 0, moved);
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        const current = section.keyOrder?.length
+            ? [...section.keyOrder]
+            : collectLayoutSheetItems(this.layoutSourceValue(), { hiddenKeys: [] }).map((item) => item.key);
+        const columnSet = new Set(columns.map((column) => column.key));
+        const without = current.filter((key) => !columnSet.has(key));
+        const tableAt = without.indexOf(this.selectedLayoutCellKey() || '');
+        without.splice(tableAt >= 0 ? tableAt + 1 : without.length, 0, ...order);
+        this._patchSelectedLayout({ keyOrder: without });
+    }
+
     layoutParamOptions(): { key: string; label: string }[] {
         const value = this.layoutSourceValue();
-        const groups = layoutParamGroups(value);
-        const scalars = collectScalarParams(value, { skipObjectArrays: true, maxItems: 250 }).map((entry) => ({
-            key: entry.key,
-            label: entry.label,
+        return collectLayoutSheetItems(value).map((item) => ({
+            key: item.key,
+            label: item.label,
         }));
-        const tables = groups
-            .filter((group) => group.kind === 'table')
-            .map((group) => ({ key: group.key, label: group.label }));
-        return [...tables, ...scalars];
     }
 
     isLayoutParamVisible(key: string): boolean {

@@ -81,7 +81,10 @@ describe('collectObjectTables', () => {
 describe('layoutParamGroups', () => {
     it('groups tables separately from scalar fields', () => {
         const groups = layoutParamGroups(nestedPayload);
-        expect(groups.find((group) => group.key === 'owners')).toMatchObject({ kind: 'table' });
+        expect(groups.find((group) => group.key === 'owners')).toMatchObject({
+            kind: 'table',
+            keys: ['owners'],
+        });
         expect(groups.find((group) => group.key === 'data')).toMatchObject({
             kind: 'fields',
             keys: ['data.plate', 'data.owner.name'],
@@ -95,6 +98,21 @@ describe('collectLayoutSheetItems', () => {
             keyOrder: ['owners', 'data.owner.name', 'data.plate'],
         });
         expect(items.map((item) => item.key)).toEqual(['owners', 'data.owner.name', 'data.plate']);
+        expect(items[0]).toMatchObject({ kind: 'table' });
+    });
+
+    it('lifts a nested array into its own table that grows with more rows', () => {
+        const items = collectLayoutSheetItems({
+            owners: [
+                { name: 'Ana', cars: [{ plate: 'A' }] },
+                { name: 'Luis', cars: [{ plate: 'B' }, { plate: 'C' }] },
+            ],
+        });
+        const cars = items.find((item) => item.key === 'owners.cars');
+        expect(cars?.kind).toBe('table');
+        if (cars?.kind !== 'table') return;
+        expect(cars.table.rows.map((row) => row.plate)).toEqual(['A', 'B', 'C']);
+        expect(items.find((item) => item.key === 'owners' && item.kind === 'table')).toBeTruthy();
     });
 });
 
@@ -126,7 +144,7 @@ describe('flattenSampleResultsForPdf', () => {
         expect(sample.results?.['1']).toEqual({ 'data.plate': 'XYZ99' });
     });
 
-    it('keeps array-of-object fields as one table block so the last page does not grow', () => {
+    it('leaves arrays of objects out of the scalar map so they render as tables', () => {
         const sample = flattenSampleResultsForPdf(
             { results: { 1: nestedPayload } },
             [{ id: 's1', type: 'keyValueGrid', order: 0, dataPath: 'results.1' }]
@@ -135,8 +153,7 @@ describe('flattenSampleResultsForPdf', () => {
         expect(result['data.plate']).toBe('ABC123');
         expect(result['data.owner.name']).toBe('Ana');
         expect(result['owners.0.name']).toBeUndefined();
-        expect(result.owners).toContain('Ana');
-        expect(result.owners).toContain('Luis');
+        expect(result.owners).toBeUndefined();
     });
 
     it('applies section keyOrder to the PDF scalar map', () => {
@@ -148,10 +165,10 @@ describe('flattenSampleResultsForPdf', () => {
                     type: 'keyValueGrid',
                     order: 0,
                     dataPath: 'results.1',
-                    keyOrder: ['owners', 'data.plate', 'data.owner.name'],
+                    keyOrder: ['data.owner.name', 'data.plate'],
                 },
             ]
         );
-        expect(Object.keys(sample.results?.['1'] as object)).toEqual(['owners', 'data.plate', 'data.owner.name']);
+        expect(Object.keys(sample.results?.['1'] as object)).toEqual(['data.owner.name', 'data.plate']);
     });
 });

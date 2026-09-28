@@ -18,7 +18,7 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ReportCellPart, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
-import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk } from '../report-param-entries.util';
+import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, tableColumnPath } from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
 
@@ -2438,6 +2438,59 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     entryLabel(section: ReportSection, entry: { key: string; label: string }): string {
         return section.keyOverrides?.[entry.key]?.label || entry.label;
+    }
+
+    tableLabel(section: ReportSection, table: { key: string; label: string }): string {
+        return section.keyOverrides?.[table.key]?.label || table.label;
+    }
+
+    tableFill(section: ReportSection, key: string): string {
+        return section.keyOverrides?.[key]?.backgroundColor || '#fffbeb';
+    }
+
+    tableEdge(section: ReportSection, key: string): string {
+        return `color-mix(in srgb, ${this.tableFill(section, key)} 62%, #000000)`;
+    }
+
+    tableHeaderFill(section: ReportSection, key: string): string {
+        return `color-mix(in srgb, ${this.tableFill(section, key)} 82%, #000000)`;
+    }
+
+    tableShowsBadge(section: ReportSection, key: string): boolean {
+        return section.keyOverrides?.[key]?.showTableBadge !== false;
+    }
+
+    tableColumnKey(tableKey: string, column: string): string {
+        return tableColumnPath(tableKey, column);
+    }
+
+    tableText(
+        section: ReportSection,
+        role: 'label' | 'value',
+        tableKey: string,
+        column?: string
+    ): { fontFamily: string; fontSize: number; fontWeight: string; fontStyle: string; textAlign: string; color: string } {
+        const base = resolveTextRole(section, role, this.primaryColor(), tableKey);
+        if (!column) return base;
+        const columnKey = tableColumnPath(tableKey, column);
+        const nested =
+            role === 'label'
+                ? section.keyOverrides?.[columnKey]?.labelStyle
+                : section.keyOverrides?.[columnKey]?.valueStyle;
+        if (!nested) return base;
+        const size = Number(nested.fontSize);
+        const align = nested.textAlign;
+        return {
+            fontFamily: nested.fontFamily || base.fontFamily,
+            fontSize: Number.isFinite(size) && size > 0 ? size : base.fontSize,
+            fontWeight: nested.fontWeight || base.fontWeight,
+            fontStyle: nested.fontStyle || base.fontStyle,
+            textAlign:
+                align === 'left' || align === 'center' || align === 'right' || align === 'justify'
+                    ? align
+                    : base.textAlign,
+            color: nested.color || base.color,
+        };
     }
 
     shapeKind(section: ReportSection): ReportShapeKind {

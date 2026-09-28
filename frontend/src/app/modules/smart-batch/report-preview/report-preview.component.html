@@ -1015,25 +1015,61 @@
                             }
                         </div>
                     } @else {
-                        <div class="mt-3 overflow-x-auto">
-                            <p
-                                class="mb-1 tracking-wide"
-                                [style.font-family]="roleFontFamily(section, 'label')"
-                                [style.font-size.px]="roleFontSize(section, 'label')"
-                                [style.font-weight]="roleFontWeight(section, 'label')"
-                                [style.color]="roleColor(section, 'label')"
-                            >
-                                {{ chunk.table.label }}
-                            </p>
-                            <table class="w-full">
+                        <div
+                            data-report-cell
+                            [attr.data-cell-key]="chunk.table.key"
+                            class="mt-3 overflow-x-auto rounded-lg border px-2 py-2"
+                            [class.ring-2]="isCellSelected(section, chunk.table.key)"
+                            [class.ring-indigo-400]="isCellSelected(section, chunk.table.key)"
+                            [class.cursor-pointer]="clickable()"
+                            [style.background-color]="tableFill(section, chunk.table.key)"
+                            [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
+                            [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
+                            (click)="onCellActivate(section, chunk.table.key, 'cell', $event)"
+                            (pointerdown)="onCellPointerDown(section, chunk.table.key, $event)"
+                            (contextmenu)="onCellContextMenu(section, chunk.table.key, $event)"
+                        >
+                            <div class="mb-1.5 flex items-center gap-2">
+                                @if (tableShowsBadge(section, chunk.table.key)) {
+                                    <span
+                                        class="rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-950"
+                                        [style.background-color]="tableHeaderFill(section, chunk.table.key)"
+                                    >
+                                        {{ 'smartReport.sheetTable' | transloco }}
+                                    </span>
+                                }
+                                @if (chunk.table.key !== '__list') {
+                                    <p
+                                        class="min-w-0 flex-1 truncate tracking-wide"
+                                        [style.font-family]="roleFontFamily(section, 'label')"
+                                        [style.font-size.px]="roleFontSize(section, 'label')"
+                                        [style.font-weight]="roleFontWeight(section, 'label')"
+                                        [style.color]="roleColor(section, 'label')"
+                                    >
+                                        {{ tableLabel(section, chunk.table) }}
+                                    </p>
+                                }
+                                <span class="shrink-0 text-[10px] text-stone-600">
+                                    {{ 'smartReport.structuralRows' | transloco: { count: chunk.table.rows.length } }}
+                                </span>
+                            </div>
+                            <table class="w-full border-collapse">
                                 <thead>
-                                    <tr [ngStyle]="rowLineBg(section)">
+                                    <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="py-1 pr-2 text-left"
-                                                [style.font-family]="roleFontFamily(section, 'label')"
-                                                [style.font-size.px]="roleFontSize(section, 'label')"
-                                                [style.color]="roleColor(section, 'label')"
+                                                class="cursor-pointer border-b py-1 pr-2 text-left"
+                                                [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [style.border-color]="tableEdge(section, chunk.table.key)"
+                                                [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
+                                                [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
+                                                [style.font-weight]="tableText(section, 'label', chunk.table.key, column.key).fontWeight"
+                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle"
+                                                [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
+                                                [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
+                                                (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
+                                                (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                             >
                                                 {{ column.label }}
                                             </th>
@@ -1042,13 +1078,20 @@
                                 </thead>
                                 <tbody>
                                     @for (row of chunk.table.rows; track $index; let last = $last) {
-                                        <tr [ngStyle]="!last ? rowLineBg(section) : null">
+                                        <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
-                                                    class="py-1 pr-2"
-                                                    [style.font-family]="roleFontFamily(section, 'value')"
-                                                    [style.font-size.px]="roleFontSize(section, 'value')"
-                                                    [style.color]="roleColor(section, 'value')"
+                                                    class="cursor-pointer py-1 pr-2 align-top"
+                                                    [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
+                                                    [style.font-size.px]="tableText(section, 'value', chunk.table.key, column.key).fontSize"
+                                                    [style.font-weight]="tableText(section, 'value', chunk.table.key, column.key).fontWeight"
+                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle"
+                                                    [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
+                                                    [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
+                                                    (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
+                                                    (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                                 >
                                                     {{ row[column.key] }}
                                                 </td>
@@ -1197,25 +1240,61 @@
                             }
                         </div>
                     } @else {
-                        <div class="mt-3 overflow-x-auto">
-                            <p
-                                class="mb-1 tracking-wide"
-                                [style.font-family]="roleFontFamily(section, 'label')"
-                                [style.font-size.px]="roleFontSize(section, 'label')"
-                                [style.font-weight]="roleFontWeight(section, 'label')"
-                                [style.color]="roleColor(section, 'label')"
-                            >
-                                {{ chunk.table.label }}
-                            </p>
-                            <table class="w-full">
+                        <div
+                            data-report-cell
+                            [attr.data-cell-key]="chunk.table.key"
+                            class="mt-3 overflow-x-auto rounded-lg border px-2 py-2"
+                            [class.ring-2]="isCellSelected(section, chunk.table.key)"
+                            [class.ring-indigo-400]="isCellSelected(section, chunk.table.key)"
+                            [class.cursor-pointer]="clickable()"
+                            [style.background-color]="tableFill(section, chunk.table.key)"
+                            [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
+                            [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
+                            (click)="onCellActivate(section, chunk.table.key, 'cell', $event)"
+                            (pointerdown)="onCellPointerDown(section, chunk.table.key, $event)"
+                            (contextmenu)="onCellContextMenu(section, chunk.table.key, $event)"
+                        >
+                            <div class="mb-1.5 flex items-center gap-2">
+                                @if (tableShowsBadge(section, chunk.table.key)) {
+                                    <span
+                                        class="rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-950"
+                                        [style.background-color]="tableHeaderFill(section, chunk.table.key)"
+                                    >
+                                        {{ 'smartReport.sheetTable' | transloco }}
+                                    </span>
+                                }
+                                @if (chunk.table.key !== '__list') {
+                                    <p
+                                        class="min-w-0 flex-1 truncate tracking-wide"
+                                        [style.font-family]="roleFontFamily(section, 'label')"
+                                        [style.font-size.px]="roleFontSize(section, 'label')"
+                                        [style.font-weight]="roleFontWeight(section, 'label')"
+                                        [style.color]="roleColor(section, 'label')"
+                                    >
+                                        {{ tableLabel(section, chunk.table) }}
+                                    </p>
+                                }
+                                <span class="shrink-0 text-[10px] text-stone-600">
+                                    {{ 'smartReport.structuralRows' | transloco: { count: chunk.table.rows.length } }}
+                                </span>
+                            </div>
+                            <table class="w-full border-collapse">
                                 <thead>
-                                    <tr [ngStyle]="rowLineBg(section)">
+                                    <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="py-1 pr-2 text-left"
-                                                [style.font-family]="roleFontFamily(section, 'label')"
-                                                [style.font-size.px]="roleFontSize(section, 'label')"
-                                                [style.color]="roleColor(section, 'label')"
+                                                class="cursor-pointer border-b py-1 pr-2 text-left"
+                                                [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [style.border-color]="tableEdge(section, chunk.table.key)"
+                                                [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
+                                                [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
+                                                [style.font-weight]="tableText(section, 'label', chunk.table.key, column.key).fontWeight"
+                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle"
+                                                [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
+                                                [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
+                                                (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
+                                                (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                             >
                                                 {{ column.label }}
                                             </th>
@@ -1224,13 +1303,20 @@
                                 </thead>
                                 <tbody>
                                     @for (row of chunk.table.rows; track $index; let last = $last) {
-                                        <tr [ngStyle]="!last ? rowLineBg(section) : null">
+                                        <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
-                                                    class="py-1 pr-2"
-                                                    [style.font-family]="roleFontFamily(section, 'value')"
-                                                    [style.font-size.px]="roleFontSize(section, 'value')"
-                                                    [style.color]="roleColor(section, 'value')"
+                                                    class="cursor-pointer py-1 pr-2 align-top"
+                                                    [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
+                                                    [style.font-size.px]="tableText(section, 'value', chunk.table.key, column.key).fontSize"
+                                                    [style.font-weight]="tableText(section, 'value', chunk.table.key, column.key).fontWeight"
+                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle"
+                                                    [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
+                                                    [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
+                                                    (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
+                                                    (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                                 >
                                                     {{ row[column.key] }}
                                                 </td>

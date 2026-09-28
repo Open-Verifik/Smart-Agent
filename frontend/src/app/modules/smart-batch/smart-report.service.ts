@@ -83,6 +83,8 @@ export interface ReportTextRoleStyle {
 export interface ReportKeyOverride {
     label?: string;
     backgroundColor?: string;
+    /** Table chip. Omitted means visible. */
+    showTableBadge?: boolean;
     borderWidth?: number;
     borderColor?: string;
     borderRadius?: number;
