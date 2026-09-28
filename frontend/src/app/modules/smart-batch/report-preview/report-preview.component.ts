@@ -717,9 +717,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     get signatureOverlayBorder(): string {
-        return this.isOverlaySelected('signature')
-            ? '2px dashed rgba(99, 102, 241, 0.95)'
-            : '1px dashed rgba(99, 102, 241, 0.55)';
+        return this.isOverlaySelected('signature') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
     }
 
     isOverlaySelected(id: ReportOverlayId): boolean {

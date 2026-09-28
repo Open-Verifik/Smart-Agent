@@ -2278,8 +2278,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.signaturePage.set(Math.max(0, page));
         this._state.signatureX.set(Math.max(24, Math.round((paper.width - width) / 2)));
         this._state.signatureY.set(Math.max(24, Math.round((paper.height - height) / 2)));
-        this.selectedLayoutSectionId.set(null);
-        this.selectedLayoutOverlay.set('signature');
         this._scrollSignatureIntoView();
     }
 
