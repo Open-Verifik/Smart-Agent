@@ -266,8 +266,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         startFrame: ReportSectionFrame;
         scrollTopAtStart: number;
         active: boolean;
+        cellKey: string | null;
+        host: HTMLElement | null;
     } | null = null;
     private _sectionDragMoved = false;
+    /** A click on a field already selected it; the section click must not clear that ring. */
+    private _keepCellSelection = false;
     private _cellDrag: {
         section: ReportSection;
         key: string;
@@ -765,6 +769,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
         if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
         if (!this.clickable() || !this.sectionClick()) return;
+        if (this._keepCellSelection) {
+            this._keepCellSelection = false;
+            this.sectionClick()!(section);
+            return;
+        }
         const cell = (event.target as HTMLElement | null)?.closest('[data-report-cell]');
         if (!cell) {
             this.cellSelect.emit({ section, key: null, part: 'cell' });
@@ -899,15 +908,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
         if (origin?.closest('[data-section-handle]')) return;
         if (origin?.closest('[data-inline-edit]')) return;
-        event.preventDefault();
-        const host = event.currentTarget as HTMLElement | null;
-        try {
-            host?.setPointerCapture(event.pointerId);
-        } catch {
-            /* The window listeners still follow the pointer if capture is unavailable. */
-        }
+        const cellKey = origin?.closest('[data-report-cell]')?.getAttribute('data-cell-key') ?? null;
         this._sectionDragMoved = false;
-        this.draggingSectionId.set(section.id);
         this._sectionDrag = {
             id: section.id,
             pointerId: event.pointerId,
@@ -916,6 +918,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             startFrame: this.displayFrame(section) ?? { page: 0, x: 0, y: 0, width: 0 },
             scrollTopAtStart: this._dragViewport()?.scrollTop ?? 0,
             active: false,
+            cellKey,
+            host: event.currentTarget as HTMLElement | null,
         };
         window.addEventListener('pointermove', this._onWindowSectionMove);
         window.addEventListener('pointerup', this._onWindowSectionUp, true);
@@ -1089,6 +1093,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             drag.scrollTopAtStart = this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart;
             drag.active = true;
             this._sectionDragMoved = true;
+            event.preventDefault();
+            try {
+                drag.host?.setPointerCapture(event.pointerId);
+            } catch {
+                /* Window listeners still follow the pointer if capture is unavailable. */
+            }
             if (this.editingText()) this.commitInlineEdit();
             this.draggingSectionId.set(drag.id);
             this._setSheetDragging(true);
@@ -1123,6 +1133,14 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         document.body.style.cursor = '';
         if (!wasActive) {
             this.liveFrames.set({});
+            const section = this.template().sections?.find((item) => item.id === drag.id);
+            if (section && drag.cellKey) {
+                this._keepCellSelection = true;
+                this.cellSelect.emit({ section, key: drag.cellKey, part: 'cell' });
+                queueMicrotask(() => {
+                    this._keepCellSelection = false;
+                });
+            }
             return;
         }
         this.sectionFramesChange.emit(updates);

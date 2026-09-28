@@ -2757,6 +2757,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    selectLayoutSheetItem(key: string): void {
+        this.selectedLayoutCellKey.set(key);
+        this.selectedLayoutCellPart.set('cell');
+        this.layoutEditorKind.set('block');
+        this._revealLayoutControls('cell');
+    }
+
     clearSelectedLayoutCell(): void {
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutCellPart.set('cell');

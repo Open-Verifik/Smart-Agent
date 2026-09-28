@@ -944,6 +944,7 @@
                             @for (entry of chunk.entries; track entry.key; let last = $last) {
                                 <div
                                     data-report-cell
+                                    [attr.data-cell-key]="entry.key"
                                     class="min-w-0 px-2 py-1.5"
                                     [class.overflow-hidden]="cellRadius(section, entry.key) > 0"
                                     [class.ring-2]="isCellSelected(section, entry.key)"
@@ -1128,6 +1129,7 @@
                             @for (entry of chunk.entries; track entry.key; let last = $last) {
                                 <div
                                     data-report-cell
+                                    [attr.data-cell-key]="entry.key"
                                     class="flex gap-2 px-2 py-1"
                                     [class.overflow-hidden]="cellRadius(section, entry.key) > 0"
                                     [class.ring-2]="isCellSelected(section, entry.key)"

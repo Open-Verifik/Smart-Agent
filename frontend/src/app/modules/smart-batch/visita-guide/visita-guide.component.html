@@ -2217,7 +2217,13 @@
                                                     @for (item of layoutOrderedItems(); track item.key) {
                                                         <div
                                                             cdkDrag
-                                                            class="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                                            class="flex cursor-pointer items-center gap-2 rounded-lg border bg-white px-2 py-1.5 text-xs text-stone-700 dark:bg-gray-950 dark:text-stone-200"
+                                                            [class.border-indigo-400]="selectedLayoutCellKey() === item.key"
+                                                            [class.ring-2]="selectedLayoutCellKey() === item.key"
+                                                            [class.ring-indigo-400]="selectedLayoutCellKey() === item.key"
+                                                            [class.border-stone-200]="selectedLayoutCellKey() !== item.key"
+                                                            [class.dark:border-gray-700]="selectedLayoutCellKey() !== item.key"
+                                                            (click)="selectLayoutSheetItem(item.key)"
                                                         >
                                                             <mat-icon
                                                                 cdkDragHandle
