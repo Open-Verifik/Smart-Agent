@@ -491,6 +491,7 @@
         "layoutAddBullet": "Viñeta",
         "layoutShapeKind": "Forma",
         "layoutShapeFill": "Color de relleno",
+        "layoutColorTransparency": "Transparencia",
         "layoutShapeStroke": "Color del borde",
         "layoutTextBlock": "Texto",
         "layoutTextPlaceholder": "Escribe aquí el texto de la empresa o del reporte.",
