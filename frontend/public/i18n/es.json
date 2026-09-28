@@ -513,6 +513,7 @@
         "layoutColorTransparency": "Transparencia",
         "layoutShapeStroke": "Color del borde",
         "layoutTextBlock": "Texto",
+        "layoutFormatMore": "Más opciones",
         "layoutTextPlaceholder": "Escribe aquí el texto de la empresa o del reporte.",
         "layoutRemoveLogo": "Quitar logo",
         "layoutCompanyLogos": "Logos de empresa",

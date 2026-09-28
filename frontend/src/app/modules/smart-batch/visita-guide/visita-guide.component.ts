@@ -1,6 +1,6 @@
 import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, NgZone, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChild, ViewChildren } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -223,6 +223,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @ViewChild('layoutDocumentBackdrop') private _layoutDocumentBackdrop?: ElementRef<HTMLElement>;
     @ViewChild('layoutEditorScroll') private _layoutEditorScroll?: ElementRef<HTMLElement>;
     @ViewChild('layoutContextMenuEl') private _layoutContextMenuEl?: ElementRef<HTMLElement>;
+    @ViewChild('layoutFormatBarEl') private _layoutFormatBarEl?: ElementRef<HTMLElement>;
     @ViewChild('countrySearchInput') private _countrySearchInput?: ElementRef<HTMLInputElement>;
 
     readonly intents = GUIDE_INTENTS;
@@ -361,6 +362,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     countrySearchQuery = signal('');
     countrySort = signal<'sources' | 'alpha'>('sources');
     selectedLayoutSectionId = signal<string | null>(null);
+    /** Compact format bar, fixed to the viewport just under the selection. */
+    layoutFormatAnchor = signal<{ x: number; y: number } | null>(null);
+    readonly layoutFormatAligns: ReportTextAlign[] = ['left', 'center', 'right'];
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
     selectedLayoutCellPart = signal<ReportCellPart>('cell');
@@ -390,6 +394,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         untracked(() => queueMicrotask(() => this._bindDocumentViewports()));
     });
     private _layoutFocusTimer: ReturnType<typeof setTimeout> | null = null;
+    private readonly _zone = inject(NgZone);
+    private _formatBarFrame: number | null = null;
+    private _formatBarLoopOn = false;
+    private readonly _formatBarWatch = effect(() => {
+        const active =
+            this.step() === 'layout' &&
+            Boolean(this.selectedLayoutSectionId()) &&
+            this.selectedLayoutShowsTypography();
+        untracked(() => {
+            if (active) this._ensureFormatBarLoop();
+            else this._stopFormatBarLoop();
+        });
+    });
     private _layoutRevealToken = 0;
     private _followCellPart = false;
     private _followCellPartTimer: ReturnType<typeof setTimeout> | null = null;
@@ -808,6 +825,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this._layoutHistoryTimer) clearTimeout(this._layoutHistoryTimer);
         if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
         this._documentViewportAbort?.abort();
+        this._stopFormatBarLoop();
         this._stopPoll();
         this._browserRunner.stop();
         this._syncLayoutEditorPortal(false);
@@ -1103,18 +1121,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (isReportPageAnchor(section)) return;
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
-        this.layoutEditorKind.set('block');
         this.layoutSections.update((list) => this._bringSectionsToFront(list, [section.id]));
         const part = this.selectedLayoutCellPart();
-        if (
-            this._followCellPart &&
-            this.selectedLayoutCellKey() &&
-            (part === 'label' || part === 'value')
-        ) {
-            this._revealLayoutControls(part);
-            return;
-        }
-        this._revealLayoutControls('block');
+        const control =
+            this._followCellPart && this.selectedLayoutCellKey() && (part === 'label' || part === 'value')
+                ? part
+                : 'block';
+        this._focusLayoutEditor(section, control);
     };
 
     onLayoutInlineText = (event: ReportInlineTextChange): void => {
@@ -1125,20 +1138,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (event.kind === 'cellLabel' && event.key) {
             this.selectedLayoutCellKey.set(event.key);
             this.selectedLayoutCellPart.set('label');
-            this.layoutEditorKind.set('block');
             this.setSelectedLayoutCellLabel(event.value);
-            this._revealLayoutControls('label');
+            this._focusLayoutEditor(section, 'label');
             return;
         }
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutCellPart.set('cell');
-        this.layoutEditorKind.set('block');
         if (event.kind === 'body') {
             this.setSelectedLayoutBody(event.value);
         } else {
             this.setSelectedLayoutLabel(event.value);
         }
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(section, 'block');
     };
 
     onLayoutCellSelect = (event: {
@@ -1150,14 +1161,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(event.section.id);
         this.selectedLayoutCellKey.set(event.key);
         this.selectedLayoutCellPart.set(event.part);
-        this.layoutEditorKind.set('block');
         this.layoutSections.update((list) => this._bringSectionsToFront(list, [event.section.id]));
         this._followCellPart = event.part === 'label' || event.part === 'value';
         if (this._followCellPartTimer) clearTimeout(this._followCellPartTimer);
         this._followCellPartTimer = setTimeout(() => {
             this._followCellPart = false;
         }, 0);
-        this._revealLayoutControls(
+        this._focusLayoutEditor(
+            event.section,
             event.part === 'label' || event.part === 'value' ? event.part : event.key ? 'cell' : 'block'
         );
     };
@@ -1377,7 +1388,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         document.querySelectorAll('body > .visita-document-backdrop, body > .visita-layout-editor').forEach((node) => node.remove());
         if (this.step() === 'layout') return;
         this._layoutContextMenuEl?.nativeElement.remove();
-        document.querySelectorAll('body > .visita-layout-context-menu').forEach((node) => node.remove());
+        this._layoutFormatBarEl?.nativeElement.remove();
+        document.querySelectorAll('body > .visita-layout-context-menu, body > .visita-layout-format-bar').forEach((node) => node.remove());
     }
 
     private _raiseAppOverlay(): void {
@@ -1413,6 +1425,132 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!this._layoutEditorHideCount) this.layoutEditorSuppressed.set(false);
     }
 
+    /** Text selections stay on the compact bar. Shapes and the rest open the full panel. */
+    private _focusLayoutEditor(section: ReportSection, control: 'block' | 'cell' | 'label' | 'value'): void {
+        if (this.layoutEditorKind() === 'block') {
+            this._revealLayoutControls(control);
+            return;
+        }
+        if (this._sectionUsesFormatBar(section)) {
+            this.layoutEditorKind.set(null);
+            return;
+        }
+        this.layoutEditorKind.set('block');
+        this._revealLayoutControls(control);
+    }
+
+    private _sectionUsesFormatBar(section: ReportSection): boolean {
+        const type = section.type;
+        return type !== 'spacer' && type !== 'image' && type !== 'divider' && type !== 'shape';
+    }
+
+    /** Entering the sheet selects a block without opening the full color panel. */
+    private _preferCompactFormatBar(): void {
+        const id = this.selectedLayoutSectionId();
+        const section = this.layoutSections().find((item) => item.id === id) ?? null;
+        if (!section) {
+            this.layoutEditorKind.set(this.layoutSections().some((item) => !isReportPageAnchor(item)) ? null : 'page');
+            return;
+        }
+        this.layoutEditorKind.set(this._sectionUsesFormatBar(section) ? null : 'block');
+    }
+
+    private _formatRoles(): ReportTextRole[] {
+        const roles = this.selectedLayoutTextRoles();
+        return roles.length ? roles : ['title'];
+    }
+
+    layoutFormatAlign(): ReportTextAlign {
+        return this.layoutRoleAlign(this._formatRoles()[0]);
+    }
+
+    setLayoutFormatAlign(align: ReportTextAlign): void {
+        for (const role of this._formatRoles()) this.setLayoutRoleAlign(role, align);
+    }
+
+    layoutFormatBold(): boolean {
+        return this._formatRoles().every((role) => this.layoutRoleIsBold(role));
+    }
+
+    toggleLayoutFormatBold(): void {
+        const next = !this.layoutFormatBold();
+        for (const role of this._formatRoles()) this.setLayoutRoleBold(role, next);
+    }
+
+    layoutFormatSize(): number {
+        return this.layoutRoleFontSize(this._formatRoles()[0]);
+    }
+
+    nudgeLayoutFormatSize(delta: number): void {
+        for (const role of this._formatRoles()) {
+            this.setLayoutRoleFontSize(role, this.layoutRoleFontSize(role) + delta);
+        }
+    }
+
+    openLayoutFormatMore(): void {
+        this.layoutEditorKind.set('block');
+        const part = this.selectedLayoutCellPart();
+        this._revealLayoutControls(part === 'label' || part === 'value' ? part : 'block');
+    }
+
+    onLayoutFormatPointerDown(event: PointerEvent): void {
+        event.stopPropagation();
+        this.closeLayoutContextMenu();
+    }
+
+    private _ensureFormatBarLoop(): void {
+        if (this._formatBarLoopOn) return;
+        this._formatBarLoopOn = true;
+        this._zone.runOutsideAngular(() => {
+            const tick = (): void => {
+                if (!this._formatBarLoopOn) return;
+                this._formatBarFrame = requestAnimationFrame(tick);
+                const next = this._measureFormatAnchor();
+                const prev = this.layoutFormatAnchor();
+                const same =
+                    (!next && !prev) ||
+                    Boolean(next && prev && Math.abs(next.x - prev.x) < 0.5 && Math.abs(next.y - prev.y) < 0.5);
+                if (same) return;
+                this._zone.run(() => {
+                    if (!next) this._detachFormatBar();
+                    this.layoutFormatAnchor.set(next);
+                });
+            };
+            this._formatBarFrame = requestAnimationFrame(tick);
+        });
+    }
+
+    private _stopFormatBarLoop(): void {
+        this._formatBarLoopOn = false;
+        if (this._formatBarFrame != null) cancelAnimationFrame(this._formatBarFrame);
+        this._formatBarFrame = null;
+        this._detachFormatBar();
+        if (this.layoutFormatAnchor() !== null) this.layoutFormatAnchor.set(null);
+    }
+
+    private _detachFormatBar(): void {
+        this._layoutFormatBarEl?.nativeElement.remove();
+        document.querySelectorAll('body > .visita-layout-format-bar').forEach((node) => node.remove());
+    }
+
+    private _measureFormatAnchor(): { x: number; y: number } | null {
+        const preview = this._layoutEditorPreview;
+        const section = this.selectedLayoutSection();
+        if (!preview || !section || this.step() !== 'layout' || !this.selectedLayoutShowsTypography()) return null;
+        if (preview.draggingSectionId()) return null;
+        const rect = preview.anchorRect(section.id, this.selectedLayoutCellKey());
+        if (!rect || rect.width < 2 || rect.height < 2) return null;
+        const el = this._layoutFormatBarEl?.nativeElement;
+        if (el && el.parentElement !== document.body) document.body.appendChild(el);
+        const barWidth = el?.offsetWidth || 300;
+        const barHeight = el?.offsetHeight || 40;
+        let x = rect.left + rect.width / 2 - barWidth / 2;
+        x = Math.min(Math.max(8, x), Math.max(8, window.innerWidth - barWidth - 8));
+        let y = rect.bottom + 8;
+        if (y + barHeight > window.innerHeight - 8) y = Math.max(8, rect.top - barHeight - 8);
+        return { x, y };
+    }
+
     private _revealLayoutControls(control: 'page' | 'block' | 'cell' | 'overlay' | 'label' | 'value'): void {
         this.layoutEditorFocused.set(true);
         if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
@@ -1445,7 +1583,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(event.section.id);
         this.selectedLayoutCellKey.set(event.key);
         this.selectedLayoutCellPart.set('cell');
-        this.layoutEditorKind.set('block');
+        this._focusLayoutEditor(event.section, 'cell');
         this._openLayoutContextMenu(event.x, event.y, { sectionId: event.section.id, cellKey: event.key });
     }
 
@@ -1658,8 +1796,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(field.id);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutCellPart.set('cell');
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(field, 'block');
     }
 
     private _layoutItemLabel(source: ReportSection, key: string): string {
@@ -1707,8 +1844,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return next.map((section, order) => ({ ...section, order }));
         });
         this.selectedLayoutSectionId.set(copy.id);
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(copy, 'block');
     }
 
     private _layoutContextSection(): ReportSection | null {
@@ -2036,8 +2172,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this.layoutSections.update((list) => this._bringSectionsToFront([...list, section], [section.id]));
         this.selectedLayoutSectionId.set(section.id);
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(section, 'block');
         if (section.frame) this._showFrameOnSheet(section.frame);
     }
 
@@ -2061,8 +2196,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
         const top = fresh[fresh.length - 1];
         this.selectedLayoutSectionId.set(top.id);
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(top, 'block');
         if (top.frame) this._showFrameOnSheet(top.frame);
     }
 
@@ -2083,7 +2217,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.set(sections.map((section, index) => ({ ...section, order: index })));
         this._state.templateChoice.set('visita');
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
-        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+        this._preferCompactFormatBar();
     }
 
     isCardOnLayout(sequence: number): boolean {
@@ -2547,8 +2681,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(section, 'block');
     }
 
     addTextBlock(): void {
@@ -2563,8 +2696,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(section, 'block');
     }
 
     addDividerBlock(): void {
@@ -2979,8 +3111,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectLayoutSheetItem(key: string): void {
         this.selectedLayoutCellKey.set(key);
         this.selectedLayoutCellPart.set('cell');
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('cell');
+        const section = this.selectedLayoutSection();
+        if (section) this._focusLayoutEditor(section, 'cell');
     }
 
     clearSelectedLayoutCell(): void {
@@ -3449,7 +3581,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.set([]);
         this.seedDefaultLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
-        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+        this._preferCompactFormatBar();
         writeScratchDraft(this._layoutDesignSnapshot());
         this.enterLayout();
         this.step.set('layout');
@@ -4237,7 +4369,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         );
         this.seedDefaultLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
-        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+        this._preferCompactFormatBar();
         this.enterLayout();
     }
 
@@ -4662,7 +4794,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.seedDefaultLayout();
         }
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
-        this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+        this._preferCompactFormatBar();
         this.enterLayout();
     }
 
@@ -4725,7 +4857,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     );
                 }
                 this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
-                this.layoutEditorKind.set(this.layoutSections()[0] ? 'block' : 'page');
+                this._preferCompactFormatBar();
                 this.enterLayout();
                 this._state.step.set('layout');
             },

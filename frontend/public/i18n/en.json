@@ -517,6 +517,7 @@
         "layoutColorTransparency": "Transparency",
         "layoutShapeStroke": "Border color",
         "layoutTextBlock": "Text",
+        "layoutFormatMore": "More options",
         "layoutTextPlaceholder": "Write company or report copy here.",
         "layoutRemoveLogo": "Remove logo",
         "layoutCompanyLogos": "Company logos",

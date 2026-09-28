@@ -1310,6 +1310,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this._reportPages?.toArray()[pageIndex]?.nativeElement ?? null;
     }
 
+    /** Screen box of the selected block, or of one cell inside it. */
+    anchorRect(sectionId: string, cellKey?: string | null): DOMRect | null {
+        const root = this._host.nativeElement as HTMLElement;
+        if (!sectionId) return null;
+        const section = root.querySelector(`[data-section-id="${CSS.escape(sectionId)}"]`);
+        if (!(section instanceof HTMLElement)) return null;
+        if (cellKey) {
+            const cell = section.querySelector(`[data-cell-key="${CSS.escape(cellKey)}"]`);
+            if (cell instanceof HTMLElement) return cell.getBoundingClientRect();
+        }
+        return section.getBoundingClientRect();
+    }
+
     private _usesPinnedFrames(): boolean {
         return (this.template().sections ?? []).some((section) => Boolean(section.frame));
     }

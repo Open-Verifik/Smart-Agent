@@ -3155,6 +3155,80 @@
             </div>
         </main>
     </div>
+    @if (step() === 'layout' && selectedLayoutShowsTypography() && layoutFormatAnchor(); as anchor) {
+        <div
+            #layoutFormatBarEl
+            class="visita-layout-format-bar fixed z-[999995] flex items-center gap-0.5 rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
+            style="z-index: 999995"
+            [style.left.px]="anchor.x"
+            [style.top.px]="anchor.y"
+            (pointerdown)="onLayoutFormatPointerDown($event)"
+            (click)="$event.stopPropagation()"
+        >
+            @for (align of layoutFormatAligns; track align) {
+                <button
+                    type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg"
+                    [ngClass]="
+                        layoutFormatAlign() === align
+                            ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                            : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                    "
+                    [attr.aria-label]="align"
+                    [matTooltip]="t('smartReport.textAlign')"
+                    (click)="setLayoutFormatAlign(align)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">{{ 'format_align_' + align }}</mat-icon>
+                </button>
+            }
+            <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+            <button
+                type="button"
+                class="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold"
+                [ngClass]="
+                    layoutFormatBold()
+                        ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                        : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                "
+                [attr.aria-label]="t('smartReport.bold')"
+                [matTooltip]="t('smartReport.bold')"
+                (click)="toggleLayoutFormatBold()"
+            >
+                B
+            </button>
+            <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+            <button
+                type="button"
+                class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                [attr.aria-label]="t('smartReport.fontSize')"
+                [matTooltip]="t('smartReport.fontSize')"
+                (click)="nudgeLayoutFormatSize(-1)"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base">remove</mat-icon>
+            </button>
+            <span class="min-w-[1.75rem] text-center text-xs font-medium tabular-nums text-stone-800 dark:text-stone-100">{{
+                layoutFormatSize()
+            }}</span>
+            <button
+                type="button"
+                class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                [attr.aria-label]="t('smartReport.fontSize')"
+                [matTooltip]="t('smartReport.fontSize')"
+                (click)="nudgeLayoutFormatSize(1)"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
+            </button>
+            <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+            <button
+                type="button"
+                class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                [matTooltip]="t('visitaGuide.layoutFormatMore')"
+                (click)="openLayoutFormatMore()"
+            >
+                {{ t('visitaGuide.layoutFormatMore') }}
+            </button>
+        </div>
+    }
     @if (layoutContextMenu(); as menu) {
         <div
             #layoutContextMenuEl
