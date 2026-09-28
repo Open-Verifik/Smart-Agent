@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
-import { tap } from 'rxjs';
+import { catchError, map, of, tap } from 'rxjs';
 import type { SmartReportTemplate } from './smart-report.service';
 
 export interface CloneSystemPresetResult {
@@ -168,6 +168,18 @@ export class SmartBatchService {
         return this._httpClient
             .get<{ data: any[] }>(`${environment.apiUrl}/v2/app-features/my-list`, { params })
             .pipe(tap((res) => console.log('Features loaded', res)));
+    }
+
+    /** Full feature, including `docs`, which the catalog list omits. */
+    getFeatureDetail(codeOrId: string) {
+        const encoded = encodeURIComponent(codeOrId);
+        const read = (url: string) =>
+            this._httpClient.get<{ data?: unknown }>(url).pipe(map((response) => response?.data ?? null));
+        return read(`${environment.apiUrl}/v2/public/app-features/${encoded}`).pipe(
+            catchError(() =>
+                read(`${environment.apiUrl}/v2/app-features/${encoded}`).pipe(catchError(() => of(null)))
+            )
+        );
     }
 
     createConfiguration(config: BatchConfiguration) {

@@ -18,6 +18,7 @@ import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
 import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
+import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
@@ -189,6 +190,7 @@ type GuideResultCard = {
         TranslocoModule,
         ReportPreviewComponent,
         ColorHexFieldComponent,
+        EndpointChainBoardComponent,
     ],
     templateUrl: './visita-guide.component.html',
 })
@@ -3637,8 +3639,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    advancedEndpointSelection = signal(false);
+
     confirmEndpoints(): void {
         this.goNext();
+    }
+
+    setEndpointChain(chain: AppFeature[]): void {
+        this._state.selectedFeatures.set(chain);
     }
 
     selectedEndpointsLabel(): string {
