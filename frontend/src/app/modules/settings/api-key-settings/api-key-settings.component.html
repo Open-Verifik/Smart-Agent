@@ -94,156 +94,225 @@
             </div>
 
             <section
-                class="api-key-credential-card overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                *ngIf="savedTokens.length"
+                class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
             >
-                <div
-                    class="h-1 w-full"
-                    [ngClass]="{
-                        'bg-emerald-500': currentTokenStatus === 'active',
-                        'bg-amber-500': currentTokenStatus === 'expiring',
-                        'bg-red-500': currentTokenStatus === 'expired',
-                        'bg-stone-300 dark:bg-gray-700': currentTokenStatus === 'unknown',
-                    }"
-                ></div>
-                <div
-                    class="flex flex-col gap-4 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6"
-                >
-                    <div class="flex items-start gap-3">
-                        <div
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
-                        >
-                            <mat-icon>vpn_key</mat-icon>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-base font-semibold text-stone-950 dark:text-white">
-                                    {{ t('settings.api_key.current_token') }}
-                                </h2>
-                                <button
-                                    type="button"
-                                    class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
-                                    (click)="openHelp('token')"
-                                    [matTooltip]="t('settings.api_key.help_label')"
-                                    [attr.aria-label]="t('settings.api_key.help_label')"
-                                >
-                                    <mat-icon class="!h-3.5 !w-3.5 !text-sm">help_outline</mat-icon>
-                                </button>
-                            </div>
-                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                                {{ t('settings.api_key.bearer_token_info') }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <div
-                            class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold"
-                            [ngClass]="{
-                                'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300':
-                                    currentTokenStatus === 'active',
-                                'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-300':
-                                    currentTokenStatus === 'expiring',
-                                'border-red-200 bg-red-50 text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300':
-                                    currentTokenStatus === 'expired',
-                                'border-stone-200 bg-stone-50 text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300':
-                                    currentTokenStatus === 'unknown',
-                            }"
-                        >
-                            <span
-                                class="h-1.5 w-1.5 rounded-full"
-                                [ngClass]="{
-                                    'bg-emerald-500': currentTokenStatus === 'active',
-                                    'bg-amber-500': currentTokenStatus === 'expiring',
-                                    'bg-red-500': currentTokenStatus === 'expired',
-                                    'bg-stone-400': currentTokenStatus === 'unknown',
-                                }"
-                            ></span>
-                            {{ t('settings.api_key.status_' + currentTokenStatus) }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-5 md:p-6">
-                    <div
-                        class="mb-5 grid gap-3 rounded-xl border border-stone-200 bg-stone-50/80 p-4 dark:border-gray-800 dark:bg-gray-950/70 sm:grid-cols-2"
-                    >
-                        <div>
-                            <p
-                                class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
-                            >
-                                {{ t('settings.api_key.expires_label') }}
-                            </p>
-                            <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
-                                {{
-                                    currentTokenExpiration
-                                        ? formatDate(currentTokenExpiration)
-                                        : t('settings.api_key.expiry_unavailable')
-                                }}
-                            </p>
-                        </div>
-                        <div *ngIf="currentTokenRemainingDays !== null">
-                            <p
-                                class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
-                            >
-                                {{ t('settings.api_key.time_remaining_label') }}
-                            </p>
-                            <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
-                                {{
-                                    currentTokenStatus === 'expired'
-                                        ? t('settings.api_key.expired')
-                                        : t('settings.api_key.days_remaining', {
-                                              count: currentTokenRemainingDays,
-                                          })
-                                }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-                        <button
-                            type="button"
-                            class="min-w-0 flex-1 rounded-xl border border-stone-800 bg-stone-950 px-4 py-4 text-left transition hover:bg-stone-900 dark:border-gray-700 dark:bg-gray-950 dark:hover:bg-gray-900"
-                            (click)="copyToken()"
-                        >
-                            <code
-                                class="block break-all font-mono text-xs leading-relaxed text-stone-200 sm:text-sm"
-                            >
-                                {{ hidePassword ? getMaskedToken() : accessToken }}
-                            </code>
-                        </button>
-                        <div class="flex gap-2 sm:flex-col">
-                            <button
-                                type="button"
-                                class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800 sm:flex-none"
-                                (click)="hidePassword = !hidePassword"
-                                [matTooltip]="
-                                    hidePassword
-                                        ? t('settings.api_key.show_token')
-                                        : t('settings.api_key.hide_token')
-                                "
-                            >
-                                <mat-icon>{{
-                                    hidePassword ? 'visibility' : 'visibility_off'
-                                }}</mat-icon>
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800 sm:flex-none"
-                                (click)="copyToken()"
-                                [matTooltip]="t('settings.api_key.copy_token')"
-                            >
-                                <mat-icon>content_copy</mat-icon>
-                            </button>
-                        </div>
-                    </div>
-
+                <div class="border-b border-stone-200/80 p-5 dark:border-gray-800 md:p-6">
+                    <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                        {{ t('settings.api_key.saved_tokens_title') }}
+                    </h2>
+                    <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                        {{ t('settings.api_key.saved_tokens_subtitle') }}
+                    </p>
                     <p
-                        class="mt-4 flex items-start gap-2 rounded-xl border border-dashed border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-500 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-400"
+                        class="mt-3 flex items-start gap-2 text-sm leading-6 text-stone-500 dark:text-stone-400"
                     >
                         <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-stone-400"
                             >info</mat-icon
                         >
                         <span>{{ t('settings.api_key.usage_hint') }}</span>
                     </p>
+                    <div
+                        *ngIf="showNewListNote"
+                        class="new-list-note relative mt-4 overflow-hidden rounded-2xl border border-indigo-100/80 shadow-sm dark:border-indigo-900/40"
+                    >
+                        <div class="new-list-note__blob new-list-note__blob--tr" aria-hidden="true"></div>
+                        <div class="new-list-note__blob new-list-note__blob--bl" aria-hidden="true"></div>
+                        <div class="relative z-10 flex items-start gap-3 p-4">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-xl text-white">auto_awesome</mat-icon>
+                            </div>
+                            <div class="min-w-0">
+                                <span
+                                    class="inline-flex items-center rounded-full border border-indigo-500/25 bg-indigo-500/[0.08] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-indigo-600 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300"
+                                >
+                                    {{ t('settings.api_key.new_list_badge') }}
+                                </span>
+                                <p class="mt-1 text-sm leading-relaxed text-gray-600 dark:text-slate-400">
+                                    {{ t('settings.api_key.new_list_legend') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="divide-y divide-stone-200/80 dark:divide-gray-800">
+                    <li *ngFor="let row of savedTokens" class="p-5 md:p-6">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <ng-container *ngIf="editingAliasId !== row._id; else aliasEditor">
+                                        <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                            {{ row.alias }}
+                                        </h3>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
+                                            (click)="startAliasEdit(row)"
+                                            [attr.aria-label]="t('settings.api_key.edit_alias')"
+                                            [matTooltip]="t('settings.api_key.edit_alias')"
+                                        >
+                                            <mat-icon class="!h-3.5 !w-3.5 !text-sm">edit</mat-icon>
+                                        </button>
+                                    </ng-container>
+                                    <ng-template #aliasEditor>
+                                        <input
+                                            class="min-h-9 min-w-0 flex-1 rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [value]="aliasDraft"
+                                            maxlength="120"
+                                            (input)="onAliasDraftInput($event)"
+                                            (keydown.enter)="saveAlias(row)"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="inline-flex min-h-9 items-center justify-center rounded-xl bg-stone-950 px-3 text-xs font-semibold text-white dark:bg-white dark:text-gray-950"
+                                            (click)="saveAlias(row)"
+                                            [disabled]="savingAliasId === row._id"
+                                        >
+                                            {{ t('settings.api_key.save_alias') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-9 w-9 items-center justify-center rounded-xl text-stone-500"
+                                            (click)="cancelAliasEdit()"
+                                        >
+                                            <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                                        </button>
+                                    </ng-template>
+                                    <span
+                                        *ngIf="tokenMatchesBrowser(row) && !row.revokedAt"
+                                        class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300"
+                                    >
+                                        {{ t('settings.api_key.in_this_browser') }}
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                                        [ngClass]="{
+                                            'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300':
+                                                savedTokenLabel(row) === 'active',
+                                            'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-300':
+                                                savedTokenLabel(row) === 'expiring',
+                                            'border-red-200 bg-red-50 text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300':
+                                                savedTokenLabel(row) === 'expired' ||
+                                                savedTokenLabel(row) === 'revoked',
+                                            'border-stone-200 bg-stone-50 text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300':
+                                                savedTokenLabel(row) === 'unknown',
+                                        }"
+                                    >
+                                        {{ t('settings.api_key.status_' + savedTokenLabel(row)) }}
+                                    </span>
+                                </div>
+                                <p
+                                    *ngIf="row.staff?.name"
+                                    class="mt-1 text-xs text-stone-500 dark:text-stone-400"
+                                >
+                                    {{ t('settings.api_key.issued_by', { name: row.staff.name }) }}
+                                </p>
+                                <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                                    <code
+                                        class="block min-w-0 flex-1 break-all rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 font-mono text-xs leading-relaxed text-stone-200"
+                                    >
+                                        {{
+                                            tokenMatchesBrowser(row) && !row.revokedAt && !hidePassword
+                                                ? accessToken
+                                                : maskSavedToken(row)
+                                        }}
+                                    </code>
+                                    <div
+                                        *ngIf="tokenMatchesBrowser(row) && !row.revokedAt"
+                                        class="flex gap-2 sm:flex-col"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800 sm:flex-none"
+                                            (click)="hidePassword = !hidePassword"
+                                            [matTooltip]="
+                                                hidePassword
+                                                    ? t('settings.api_key.show_token')
+                                                    : t('settings.api_key.hide_token')
+                                            "
+                                        >
+                                            <mat-icon>{{
+                                                hidePassword ? 'visibility' : 'visibility_off'
+                                            }}</mat-icon>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800 sm:flex-none"
+                                            (click)="copySavedToken(row)"
+                                            [matTooltip]="t('settings.api_key.copy_token')"
+                                        >
+                                            <mat-icon>content_copy</mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p
+                                    *ngIf="!tokenMatchesBrowser(row) || row.revokedAt"
+                                    class="mt-2 text-xs leading-5 text-stone-500 dark:text-stone-400"
+                                >
+                                    {{ t('settings.api_key.copy_unavailable') }}
+                                </p>
+                            </div>
+                            <div class="grid shrink-0 gap-3 sm:grid-cols-2 md:w-64 md:grid-cols-1">
+                                <div>
+                                    <p
+                                        class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
+                                    >
+                                        {{ t('settings.api_key.created_label') }}
+                                    </p>
+                                    <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                                        {{ row.createdAt ? formatDate(row.createdAt) : '' }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
+                                    >
+                                        {{ t('settings.api_key.expires_label') }}
+                                    </p>
+                                    <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                                        {{ formatDate(row.expiresAt) }}
+                                    </p>
+                                    <p
+                                        *ngIf="savedTokenRemainingDays(row) !== null"
+                                        class="mt-0.5 text-xs text-stone-500 dark:text-stone-400"
+                                    >
+                                        {{
+                                            savedTokenLabel(row) === 'expired' ||
+                                            savedTokenLabel(row) === 'revoked'
+                                                ? t('settings.api_key.status_' + savedTokenLabel(row))
+                                                : t('settings.api_key.days_remaining', {
+                                                      count: savedTokenRemainingDays(row),
+                                                  })
+                                        }}
+                                    </p>
+                                </div>
+                                <button
+                                    *ngIf="tokenMatchesBrowser(row) && !row.revokedAt"
+                                    type="button"
+                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                    (click)="copySavedToken(row)"
+                                >
+                                    <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                                    {{ t('settings.api_key.copy_token') }}
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div
+                    *ngIf="hasMoreSavedTokens"
+                    class="border-t border-stone-200/80 p-5 dark:border-gray-800 md:p-6"
+                >
+                    <button
+                        type="button"
+                        class="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-800 transition hover:bg-stone-50 disabled:cursor-wait disabled:opacity-60 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:hover:bg-gray-800"
+                        (click)="loadMoreSavedTokens()"
+                        [disabled]="loadingMoreTokens"
+                    >
+                        {{ t('settings.api_key.load_more_tokens') }}
+                    </button>
                 </div>
             </section>
 
@@ -312,6 +381,20 @@
                             >
                             <span>{{ t('settings.api_key.extend_new_token_notice') }}</span>
                         </p>
+                        <label
+                            for="renew-token-alias"
+                            class="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400"
+                        >
+                            {{ t('settings.api_key.alias_label') }}
+                        </label>
+                        <input
+                            id="renew-token-alias"
+                            class="mb-5 min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            [value]="newTokenAlias"
+                            maxlength="120"
+                            [attr.placeholder]="t('settings.api_key.alias_placeholder')"
+                            (input)="onAliasInput($event)"
+                        />
                         <fieldset
                             role="radiogroup"
                             [attr.aria-label]="t('settings.api_key.select_expiration')"
@@ -429,7 +512,7 @@
                                 type="button"
                                 class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
                                 (click)="renewToken()"
-                                [disabled]="isRenewing"
+                                [disabled]="isRenewing || !aliasReady"
                             >
                                 <mat-spinner *ngIf="isRenewing" diameter="18"></mat-spinner>
                                 <span>
@@ -553,6 +636,20 @@
                                             {{ t('settings.api_key.revoke_step_new_desc') }}
                                         </p>
                                         <label
+                                            for="revoke-token-alias"
+                                            class="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400"
+                                        >
+                                            {{ t('settings.api_key.alias_label') }}
+                                        </label>
+                                        <input
+                                            id="revoke-token-alias"
+                                            class="mt-2 min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                            [value]="newTokenAlias"
+                                            maxlength="120"
+                                            [attr.placeholder]="t('settings.api_key.alias_placeholder')"
+                                            (input)="onAliasInput($event)"
+                                        />
+                                        <label
                                             for="revoke-token-expiration"
                                             class="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400"
                                         >
@@ -613,7 +710,7 @@
                                 type="button"
                                 class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                                 (click)="revokeAndGenerateNew()"
-                                [disabled]="isRevoking"
+                                [disabled]="isRevoking || !aliasReady"
                             >
                                 <mat-spinner *ngIf="isRevoking" diameter="18"></mat-spinner>
                                 <span>

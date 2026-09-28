@@ -1033,7 +1033,7 @@ export class AuthModalComponent implements OnDestroy {
 
         if (realToken) {
           this._authService.accessToken = realToken;
-          localStorage.setItem('accessToken', realToken);
+          AuthUtils.storeAccessToken(realToken);
 
           this._authApiService.getSession().subscribe({
             next: (sessionRes: any) => {
@@ -1065,7 +1065,7 @@ export class AuthModalComponent implements OnDestroy {
 
   private _completeSessionWithToken(token: string): void {
     this._authService.accessToken = token;
-    localStorage.setItem('accessToken', token);
+    AuthUtils.storeAccessToken(token);
 
     this._authApiService.getSession().subscribe({
       next: (sessionRes: any) => {
@@ -1245,7 +1245,7 @@ export class AuthModalComponent implements OnDestroy {
   }
 
   private async _registerPasskey(token: string, contact: string): Promise<void> {
-    localStorage.setItem('accessToken', token);
+    AuthUtils.storeAccessToken(token);
     this._authService.accessToken = token;
 
     let tokenForVault = token;
@@ -1255,7 +1255,7 @@ export class AuthModalComponent implements OnDestroy {
       if (refreshed) {
         tokenForVault = refreshed;
         this._authService.accessToken = refreshed;
-        localStorage.setItem('accessToken', refreshed);
+        AuthUtils.storeAccessToken(refreshed);
         this.pendingPasskeyToken.set(refreshed);
       }
     } catch (e) {

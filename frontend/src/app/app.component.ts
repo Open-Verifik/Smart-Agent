@@ -3,6 +3,7 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { AuthService } from 'app/core/auth/auth.service';
+import { AuthUtils } from 'app/core/auth/auth.utils';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
@@ -88,7 +89,7 @@ export class AppComponent implements OnInit {
         }
 
         console.log('[AppComponent] Provisioning session from URL token');
-        localStorage.setItem('accessToken', tokenFromUrl);
+        AuthUtils.storeAccessToken(tokenFromUrl);
         this._authService.accessToken = tokenFromUrl;
 
         // If user profile data was also provided, hydrate the local state

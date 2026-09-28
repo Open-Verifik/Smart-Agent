@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { AuthUtils } from 'app/core/auth/auth.utils';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
 import { User } from 'app/core/user/user.types';
 import { environment } from 'environments/environment';
@@ -50,7 +51,10 @@ export class UserService {
         const accessToken = payload.data?.accessToken ?? payload.accessToken;
 
         if (accessToken) {
-            localStorage.setItem('accessToken', accessToken);
+            const existing = localStorage.getItem('accessToken') || '';
+            const keepExisting = Boolean(existing) && existing !== accessToken && AuthUtils.accessTokenStillValid(existing);
+
+            AuthUtils.storeAccessToken(keepExisting ? existing : accessToken);
         }
 
         const user = payload.data?.user ?? payload.user ?? null;

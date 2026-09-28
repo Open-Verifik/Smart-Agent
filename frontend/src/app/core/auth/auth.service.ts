@@ -21,7 +21,7 @@ export class AuthService {
     }
 
     set accessToken(token: string) {
-        localStorage.setItem('accessToken', token);
+        AuthUtils.storeAccessToken(token);
     }
 
     get accessToken(): string {
@@ -67,7 +67,7 @@ export class AuthService {
                     return;
                 }
 
-                localStorage.setItem('accessToken', response.data.accessToken);
+                AuthUtils.storeAccessToken(response.data.accessToken);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
 
                 this._authenticated = true;
@@ -164,6 +164,7 @@ export class AuthService {
 
         // Clear Web2 credentials from localStorage
         localStorage.removeItem('accessToken');
+        localStorage.removeItem(AuthUtils.ACCESS_TOKEN_EXPIRES_AT_KEY);
         localStorage.removeItem('verifik_account');
         localStorage.removeItem('user');
 
@@ -224,6 +225,7 @@ export class AuthService {
         if (AuthUtils.isTokenExpired(this.accessToken)) {
             // Clear expired token
             localStorage.removeItem('accessToken');
+            localStorage.removeItem(AuthUtils.ACCESS_TOKEN_EXPIRES_AT_KEY);
             localStorage.removeItem('user');
             this._authenticated = false;
             return of(false);

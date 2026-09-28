@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { AuthService } from 'app/core/auth/auth.service';
+import { AuthUtils } from 'app/core/auth/auth.utils';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
@@ -241,7 +242,7 @@ export class BridgeComponent implements OnInit {
         await firstValueFrom(this._authService.signOut(true).pipe(take(1)));
 
         if (projectTypeRaw === 'admin-login') {
-            localStorage.setItem('accessToken', exchangeToken);
+            AuthUtils.storeAccessToken(exchangeToken);
             this._authService.accessToken = exchangeToken;
             await firstValueFrom(this._authService.signInUsingToken().pipe(take(1)));
         } else {
@@ -253,7 +254,7 @@ export class BridgeComponent implements OnInit {
             if (!newAccess || typeof newAccess !== 'string') {
                 throw new Error('Exchange failed: no access token returned');
             }
-            localStorage.setItem('accessToken', newAccess);
+            AuthUtils.storeAccessToken(newAccess);
             this._authService.accessToken = newAccess;
         }
 
@@ -295,7 +296,7 @@ export class BridgeComponent implements OnInit {
             await firstValueFrom(this._authService.signOut(true).pipe(take(1)));
         }
 
-        localStorage.setItem('accessToken', token);
+        AuthUtils.storeAccessToken(token);
         this._authService.accessToken = token;
 
         const userDataParam = this._route.snapshot.queryParamMap.get('user');

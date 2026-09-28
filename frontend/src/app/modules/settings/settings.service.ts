@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { AuthUtils } from 'app/core/auth/auth.utils';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
 import { environment } from 'environments/environment';
 import { Observable, throwError } from 'rxjs';
@@ -11,6 +12,26 @@ export interface TokenRenewalResponse {
 
 export interface TokenRevokeResponse {
     token: string;
+}
+
+export interface SavedJsonWebToken {
+    _id: string;
+    alias: string;
+    tokenPrefix: string;
+    tokenSuffix: string;
+    client: string;
+    staff?: { _id: string; name: string } | null;
+    expiresAt: string;
+    revokedAt?: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface SavedJsonWebTokenPage {
+    data: SavedJsonWebToken[];
+    total: number;
+    page: number;
+    pages: number;
 }
 
 export interface ProfileData {
@@ -155,7 +176,7 @@ export class SettingsService {
      * Set the access token in localStorage
      */
     set accessToken(token: string) {
-        localStorage.setItem('accessToken', token);
+        AuthUtils.storeAccessToken(token);
     }
 
     /**
@@ -205,14 +226,14 @@ export class SettingsService {
      * API: POST /v2/auth/renew-and-revoke
      * Docs: https://docs.verifik.co/authentication/create-new-token-and-revoke-previous-tokens
      */
-    revokeAndGenerateNew(expiresIn: number): Observable<TokenRevokeResponse> {
+    revokeAndGenerateNew(expiresIn: number, alias?: string): Observable<TokenRevokeResponse> {
         if (!this.accessToken) {
             return throwError(() => new Error('No access token available'));
         }
 
         const url = `${this.apiUrl}/v2/auth/renew-and-revoke`;
 
-        return this._httpWrapper.sendRequest('post', url, { expiresIn }).pipe(
+        return this._httpWrapper.sendRequest('post', url, { expiresIn, alias }).pipe(
             map((response: TokenRevokeResponse) => {
                 // The response can have either 'token' or 'accessToken'
                 const newToken = response?.token || (response as any)?.accessToken;
@@ -226,6 +247,56 @@ export class SettingsService {
                 console.error('[SettingsService] Token revocation failed:', error);
                 return throwError(() => error);
             })
+        );
+    }
+
+    /**
+     * One page of saved masks for this client. The full JWT is never returned.
+     * @param page - 1-based page. The server returns 25 rows per page.
+     */
+    listJsonWebTokens(page = 1): Observable<SavedJsonWebTokenPage> {
+        const url = `${this.apiUrl}/v2/json-web-tokens`;
+
+        return this._httpWrapper.sendRequest('get', url, { page }).pipe(
+            map((response: { data?: SavedJsonWebToken[]; total?: number; page?: number; pages?: number }) => {
+                const data = response?.data || [];
+                const pages = Number(response?.pages);
+
+                return {
+                    data,
+                    total: Number(response?.total) || data.length,
+                    page: Number(response?.page) || page,
+                    pages: Number.isFinite(pages) && pages > 0 ? pages : 1,
+                };
+            }),
+            catchError((error) => throwError(() => error))
+        );
+    }
+
+    /**
+     * Stores the current localStorage JWT as a mask. Same suffix is kept once.
+     * @param alias
+     */
+    registerJsonWebToken(alias: string): Observable<SavedJsonWebToken> {
+        const url = `${this.apiUrl}/v2/json-web-tokens`;
+
+        return this._httpWrapper.sendRequest('post', url, { alias }).pipe(
+            map((response: { data: SavedJsonWebToken }) => response?.data),
+            catchError((error) => throwError(() => error))
+        );
+    }
+
+    /**
+     * Renames a saved token. Does not change the secret.
+     * @param id
+     * @param alias
+     */
+    updateJsonWebTokenAlias(id: string, alias: string): Observable<SavedJsonWebToken> {
+        const url = `${this.apiUrl}/v2/json-web-tokens/${id}`;
+
+        return this._httpWrapper.sendRequest('put', url, { alias }).pipe(
+            map((response: { data: SavedJsonWebToken }) => response?.data),
+            catchError((error) => throwError(() => error))
         );
     }
 

@@ -23,6 +23,7 @@ import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { AuthService } from 'app/core/auth/auth.service';
+import { AuthUtils } from 'app/core/auth/auth.utils';
 import { SessionService } from 'app/core/services/session.service';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 import { UserService } from 'app/core/user/user.service';
@@ -365,6 +366,7 @@ export class UserComponent implements OnInit, OnDestroy {
     signOutWeb2(): void {
         // Clear only Web2-related localStorage items
         localStorage.removeItem('accessToken');
+        localStorage.removeItem(AuthUtils.ACCESS_TOKEN_EXPIRES_AT_KEY);
         localStorage.removeItem('verifik_account');
         this.accountMenu.reset();
         // Note: We don't set accessToken via setter as it would store "null" string

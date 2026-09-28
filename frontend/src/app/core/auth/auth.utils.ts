@@ -10,6 +10,8 @@ export class AuthUtils {
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
+    static readonly ACCESS_TOKEN_EXPIRES_AT_KEY = 'accessTokenExpiresAt';
+
     /**
      * Parsed JWT payload, or null if the string is not a decodable JWT.
      */
@@ -22,6 +24,49 @@ export class AuthUtils {
         } catch {
             return null;
         }
+    }
+
+    /**
+     * Expiration from the Verifik expiresAt claim, then the standard exp claim.
+     */
+    static getTokenExpirationDate(token: string): Date | null {
+        if (!token || token.trim() === '' || token.split('.').length !== 3) {
+            return null;
+        }
+
+        try {
+            return this._getTokenExpirationDate(token);
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Writes the session JWT and the expiry date beside it.
+     */
+    static storeAccessToken(token: string): void {
+        localStorage.setItem('accessToken', token);
+
+        const expiresAt = this.getTokenExpirationDate(token);
+
+        if (!expiresAt) {
+            localStorage.removeItem(this.ACCESS_TOKEN_EXPIRES_AT_KEY);
+            return;
+        }
+
+        localStorage.setItem(this.ACCESS_TOKEN_EXPIRES_AT_KEY, expiresAt.toISOString());
+    }
+
+    /**
+     * True when the stored expiry date is still ahead of now.
+     * A token with no readable date is kept, so a refresh does not replace it.
+     */
+    static accessTokenStillValid(token: string): boolean {
+        const expiresAt = this.getTokenExpirationDate(token);
+
+        if (!expiresAt) return true;
+
+        return expiresAt.getTime() > Date.now();
     }
 
     /**
@@ -190,18 +235,22 @@ export class AuthUtils {
      * @private
      */
     private static _getTokenExpirationDate(token: string): Date | null {
-        // Get the decoded token
         const decodedToken = this._decodeToken(token);
+        const rawExpiration = decodedToken?.expiresAt ?? decodedToken?.exp;
 
-        // Return if the decodedToken doesn't have an 'exp' field
-        if (!decodedToken.hasOwnProperty('exp')) {
+        if (rawExpiration === undefined || rawExpiration === null || rawExpiration === '') {
             return null;
         }
 
-        // Convert the expiration date
-        const date = new Date(0);
-        date.setUTCSeconds(decodedToken.exp);
+        const expiration = Number(rawExpiration);
 
-        return date;
+        if (!Number.isFinite(expiration) || expiration <= 0) {
+            return null;
+        }
+
+        const milliseconds = expiration > 1_000_000_000_000 ? expiration : expiration * 1000;
+        const date = new Date(milliseconds);
+
+        return Number.isNaN(date.getTime()) ? null : date;
     }
 }

@@ -47,11 +47,11 @@ export class SessionService {
         if (!token || token.trim() === '') {
             return false;
         }
-        const isValid = !AuthUtils.isTokenExpired(token);
-        if (!isValid) {
+        if (AuthUtils.isTokenExpired(token) || this._storedExpiryHasPassed()) {
             console.warn('[SessionService] Token check failed: Token appears expired');
+            return false;
         }
-        return isValid;
+        return true;
     }
 
     /**
@@ -133,6 +133,7 @@ export class SessionService {
      */
     private _clearWeb2Credentials(): void {
         localStorage.removeItem('accessToken');
+        localStorage.removeItem(AuthUtils.ACCESS_TOKEN_EXPIRES_AT_KEY);
         localStorage.removeItem('verifik_account');
         localStorage.removeItem('user');
         localStorage.removeItem('currentConversationId');
@@ -286,27 +287,36 @@ export class SessionService {
             return -1;
         }
 
-        try {
-            const parts = token.split('.');
-            if (parts.length !== 3) {
-                return -1;
-            }
+        const expiresAt = AuthUtils.getTokenExpirationDate(token) || this._readStoredExpiry();
 
-            const payload = JSON.parse(atob(parts[1]));
-            if (!payload.exp) {
-                return -1;
-            }
+        if (!expiresAt) return -1;
 
-            const expirationMs = payload.exp * 1000;
-            const now = Date.now();
+        const remaining = expiresAt.getTime() - Date.now();
 
-            if (expirationMs <= now) {
-                return -1; // Already expired
-            }
+        return remaining > 0 ? remaining : -1;
+    }
 
-            return expirationMs - now;
-        } catch (error) {
-            return -1;
-        }
+    /**
+     * The date stored beside the session token, when the JWT itself has no claim.
+     */
+    private _readStoredExpiry(): Date | null {
+        const stored = localStorage.getItem(AuthUtils.ACCESS_TOKEN_EXPIRES_AT_KEY);
+
+        if (!stored) return null;
+
+        const expiresAt = new Date(stored);
+
+        return Number.isNaN(expiresAt.getTime()) ? null : expiresAt;
+    }
+
+    /**
+     * True when accessTokenExpiresAt is present and already in the past.
+     */
+    private _storedExpiryHasPassed(): boolean {
+        const expiresAt = this._readStoredExpiry();
+
+        if (!expiresAt) return false;
+
+        return expiresAt.getTime() <= Date.now();
     }
 }
