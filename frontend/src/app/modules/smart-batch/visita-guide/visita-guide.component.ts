@@ -331,6 +331,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     readonly layoutShapeTools = LAYOUT_SHAPE_TOOLS;
     layoutEditorFocused = signal(false);
     layoutEditorDrag = signal({ x: 0, y: 0 });
+    private readonly _liftEditorEffect = effect(() => {
+        const visible = Boolean(this.layoutEditorKind()) && !this.layoutEditorSuppressed();
+        if (!visible) return;
+        queueMicrotask(() => requestAnimationFrame(() => this._liftLayoutEditorPanel()));
+    });
     layoutEditorSuppressed = signal(false);
     private _layoutEditorHideCount = 0;
     documentZoom = signal(1);
@@ -1282,6 +1287,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutEditorFocused.set(false);
     }
 
+    /** Keep the color and text panel above the sheet, the sidebar, and the header. */
+    private _liftLayoutEditorPanel(): void {
+        const el = this._layoutEditorPanel?.nativeElement;
+        if (el && el.parentElement !== document.body) {
+            document.body.appendChild(el);
+        }
+        this._raiseAppOverlay();
+    }
+
+    private _raiseAppOverlay(): void {
+        const overlay = document.querySelector('.cdk-overlay-container') as HTMLElement | null;
+        if (overlay) overlay.style.zIndex = '1000002';
+    }
+
     onLayoutEditorDragEnded(event: CdkDragEnd): void {
         const { x, y } = event.source.getFreeDragPosition();
         this.layoutEditorDrag.set({ x, y });
@@ -2195,12 +2214,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     openSignatureDialog(): void {
-        this._dialog
-            .open(SignaturePadDialogComponent, {
-                width: '640px',
-                disableClose: true,
-                autoFocus: false,
-            })
+        this._raiseAppOverlay();
+        const dialogRef = this._dialog.open(SignaturePadDialogComponent, {
+            width: '640px',
+            disableClose: true,
+            autoFocus: false,
+        });
+        this._raiseAppOverlay();
+        dialogRef
             .afterClosed()
             .subscribe((result) => {
                 if (!result) {

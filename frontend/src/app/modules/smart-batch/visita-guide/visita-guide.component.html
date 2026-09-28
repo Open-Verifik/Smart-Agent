@@ -1581,7 +1581,8 @@
                                 cdkDrag
                                 [cdkDragFreeDragPosition]="layoutEditorDrag()"
                                 (cdkDragEnded)="onLayoutEditorDragEnded($event)"
-                                class="visita-layout-editor fixed right-4 top-24 z-[70] flex max-h-[78vh] w-80 flex-col rounded-xl border bg-white shadow-2xl ring-offset-2 dark:bg-gray-900"
+                                class="visita-layout-editor fixed right-4 top-24 z-[999990] flex max-h-[78vh] w-80 flex-col rounded-xl border bg-white shadow-2xl ring-offset-2 dark:bg-gray-900"
+                                style="z-index: 999990"
                                 [class.border-indigo-400]="layoutEditorFocused()"
                                 [class.ring-2]="layoutEditorFocused()"
                                 [class.ring-indigo-400]="layoutEditorFocused()"
