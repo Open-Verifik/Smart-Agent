@@ -256,6 +256,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _measureFrameId: number | null = null;
     private _autoPinFrameId: number | null = null;
     private _autoPinAttempts = 0;
+    private _contentFitFrameId: number | null = null;
     private readonly _host = inject(ElementRef<HTMLElement>);
     private _sectionDrag: {
         id: string;
@@ -445,6 +446,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (this.hasFreeLayout()) {
             this._setPagesIfDifferent(this._pagesFromFrames(sections));
             this._scheduleAutoPinMissingFrames();
+            this._scheduleContentFit();
             return;
         }
 
@@ -1312,9 +1314,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             pointerEvents:
                 this.draggingSectionId() && this.draggingSectionId() !== section.id ? 'none' : 'auto',
         };
-        if (height) style['height'] = `${height}px`;
-        if (section.type === 'shape') style['overflow'] = 'visible';
-        else if (height) style['overflow'] = 'hidden';
+        if (this._locksFrameHeight(section)) {
+            if (height) style['height'] = `${height}px`;
+            if (section.type === 'shape') style['overflow'] = 'visible';
+        } else {
+            // Data blocks hug their rows. A fixed frame (consulta cards start at
+            // 420px) left the selection ring around empty space when the payload
+            // was short.
+            style['height'] = 'auto';
+            style['overflow'] = 'visible';
+        }
         if (section.type !== 'shape' && rotation) {
             style['transform'] = `rotate(${rotation}deg)`;
             style['transform-origin'] = 'center center';
@@ -1579,6 +1588,61 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             });
         });
         return result;
+    }
+
+    /** Shapes, rules and spacers keep the size the user drew. Data blocks do not. */
+    private _locksFrameHeight(section: ReportSection): boolean {
+        return section.type === 'shape' || section.type === 'divider' || section.type === 'spacer';
+    }
+
+    /**
+     * After the sheet paints, store the content height so the selection ring,
+     * drag box and PDF use the same size as the data on the block.
+     */
+    private _scheduleContentFit(): void {
+        if (!this.reorderable() || this.thumbnailMode() || this.printCapture() || this._sectionDrag) return;
+        if (this._contentFitFrameId !== null) cancelAnimationFrame(this._contentFitFrameId);
+        this._contentFitFrameId = requestAnimationFrame(() => {
+            this._contentFitFrameId = requestAnimationFrame(() => {
+                this._contentFitFrameId = null;
+                this._fitContentBoxHeights();
+            });
+        });
+    }
+
+    private _fitContentBoxHeights(): void {
+        if (this._sectionDrag || !this.hasFreeLayout() || !this.reorderable() || this.thumbnailMode()) return;
+        const scales = this._scaleFactors;
+        const sections = new Map((this.template().sections ?? []).map((section) => [section.id, section]));
+        const updates: { id: string; frame: ReportSectionFrame }[] = [];
+        const pages = this._reportPages?.toArray() ?? [];
+        for (const pageRef of pages) {
+            pageRef.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
+                const el = node as HTMLElement;
+                const id = el.dataset['sectionId'];
+                if (!id) return;
+                const section = sections.get(id);
+                if (!section || this._locksFrameHeight(section)) return;
+                const frame = this.displayFrame(section);
+                if (!frame) return;
+                const natural = el.offsetHeight;
+                if (!natural) return;
+                const height = Math.max(24, Math.ceil(natural * scales.y));
+                if (Math.abs(height - (Number(frame.height) || 0)) <= 4) return;
+                updates.push({ id, frame: { ...frame, height } });
+            });
+        }
+        if (!updates.length) return;
+        // A one-item frame update raises that block. Height fitting is not a
+        // selection, so pair it with another frame and leave the stack alone.
+        if (updates.length === 1) {
+            const other = (this.template().sections ?? []).find(
+                (section) => section.id !== updates[0].id && this.displayFrame(section)
+            );
+            const otherFrame = other ? this.displayFrame(other) : null;
+            if (other && otherFrame) updates.push({ id: other.id, frame: { ...otherFrame } });
+        }
+        this.sectionFramesChange.emit(updates);
     }
 
     /**
@@ -1980,6 +2044,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (this._autoPinFrameId !== null) {
             cancelAnimationFrame(this._autoPinFrameId);
             this._autoPinFrameId = null;
+        }
+        if (this._contentFitFrameId !== null) {
+            cancelAnimationFrame(this._contentFitFrameId);
+            this._contentFitFrameId = null;
         }
     };
 
