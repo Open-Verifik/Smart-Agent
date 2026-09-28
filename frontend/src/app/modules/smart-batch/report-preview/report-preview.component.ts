@@ -315,6 +315,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _pinnedIdsThisDrag = new Set<string>();
     private _sectionDragRaf: number | null = null;
     readonly draggingSectionId = signal<string | null>(null);
+    /** Lines shown while dragging, when an edge or the center lines up with another block. */
+    readonly alignmentGuides = signal<{ page: number; axis: 'x' | 'y'; at: number }[]>([]);
     private _sheetDragging = false;
 
     private _setSheetDragging(active: boolean): void {
@@ -1128,6 +1130,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._sectionDrag = null;
         this._pinnedIdsThisDrag.clear();
         this.draggingSectionId.set(null);
+        this.alignmentGuides.set([]);
         this._setSheetDragging(false);
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
@@ -1410,8 +1413,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const keep = 48;
             const pageW = this.pageWidthPx();
             const pageH = this.pageHeightPx();
-            x = Math.min(Math.max(0, x), Math.max(0, pageW - Math.min(width, keep)));
-            y = Math.min(Math.max(0, y), Math.max(0, pageH - Math.min(height, keep)));
+            const clamp = (nextX: number, nextY: number): { x: number; y: number } => ({
+                x: Math.min(Math.max(0, nextX), Math.max(0, pageW - Math.min(width, keep))),
+                y: Math.min(Math.max(0, nextY), Math.max(0, pageH - Math.min(height, keep))),
+            });
+            const bounded = clamp(x, y);
+            const snapped = this._alignDragBox(drag.id, toPage, bounded.x, bounded.y, width, height);
+            const placed = clamp(snapped.x, snapped.y);
+            x = placed.x;
+            y = placed.y;
+        } else {
+            this.alignmentGuides.set([]);
         }
         this._scrollDragViewport(clientX, clientY);
         const next: ReportSectionFrame = {
@@ -1430,6 +1442,104 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             drag.startClientY = clientY;
             drag.scrollTopAtStart = this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart;
         }
+    }
+
+    /**
+     * While a block is moving, pull it onto a nearby edge or center of another
+     * element and draw that line. The magnet is a few screen pixels, so the
+     * block still sits wherever it is dropped once it leaves the line.
+     */
+    private _alignDragBox(
+        dragId: string,
+        page: number,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        ignoreOverlay?: ReportOverlayId
+    ): { x: number; y: number } {
+        const scales = this._pointerScaleFactors;
+        const threshold = 6 * Math.max(scales.x, scales.y);
+        const xTargets = this._alignmentTargets(dragId, page, 'x', ignoreOverlay);
+        const yTargets = this._alignmentTargets(dragId, page, 'y', ignoreOverlay);
+        const snap = (origin: number, size: number, targets: number[]): number => {
+            const edges = [origin, origin + size / 2, origin + size];
+            let best = threshold + 1;
+            let delta = 0;
+            for (const edge of edges) {
+                for (const target of targets) {
+                    const diff = target - edge;
+                    if (Math.abs(diff) < best) {
+                        best = Math.abs(diff);
+                        delta = diff;
+                    }
+                }
+            }
+            return best <= threshold ? origin + delta : origin;
+        };
+        const nextX = snap(x, width, xTargets);
+        const nextY = snap(y, height, yTargets);
+        const view = this._scaleFactors;
+        const guides: { page: number; axis: 'x' | 'y'; at: number }[] = [];
+        const collect = (origin: number, size: number, targets: number[], axis: 'x' | 'y', scale: number) => {
+            const edges = [origin, origin + size / 2, origin + size];
+            const seen = new Set<number>();
+            for (const edge of edges) {
+                for (const target of targets) {
+                    if (Math.abs(target - edge) > 1) continue;
+                    const key = Math.round(target);
+                    if (seen.has(key)) continue;
+                    seen.add(key);
+                    guides.push({ page, axis, at: target / scale });
+                }
+            }
+        };
+        collect(nextX, width, xTargets, 'x', view.x || 1);
+        collect(nextY, height, yTargets, 'y', view.y || 1);
+        this.alignmentGuides.set(guides);
+        return { x: nextX, y: nextY };
+    }
+
+    /** Edges and centers of the other blocks on this sheet, plus the sheet center. */
+    private _alignmentTargets(
+        dragId: string,
+        page: number,
+        axis: 'x' | 'y',
+        ignoreOverlay?: ReportOverlayId
+    ): number[] {
+        const targets: number[] = [];
+        const pushBox = (left: number, top: number, width: number, height: number) => {
+            if (axis === 'x') {
+                targets.push(left, left + width / 2, left + width);
+            } else {
+                targets.push(top, top + height / 2, top + height);
+            }
+        };
+        for (const section of this.template().sections ?? []) {
+            if (section.id === dragId || isReportPageAnchor(section)) continue;
+            const frame = this.liveFrames()[section.id] ?? section.frame;
+            if (!frame || (frame.page ?? 0) !== page) continue;
+            const boxWidth = Number(frame.width) || 0;
+            const boxHeight = Number(frame.height) || 0;
+            if (boxWidth <= 0 && boxHeight <= 0) continue;
+            pushBox(Number(frame.x) || 0, Number(frame.y) || 0, boxWidth, boxHeight);
+        }
+        if (ignoreOverlay !== 'logo' && page === 0 && this.logoEnabled() && this.logoUrl()) {
+            pushBox(this.logoX(), this.logoY(), this.logoWidth(), this.logoHeight());
+        }
+        if (ignoreOverlay !== 'signature' && page === 0 && this.signatureEnabled() && this.signatureImage()) {
+            pushBox(this.signatureX(), this.signatureY(), this.signatureWidth(), this.signatureHeight());
+        }
+        if (ignoreOverlay !== 'watermark' && this.watermarkEnabled()) {
+            pushBox(this.watermarkX(), this.watermarkY(), this.watermarkWidth(), this.watermarkHeight());
+        }
+        for (const image of this.sheetImages()) {
+            if (ignoreOverlay === this.sheetOverlayId(image.id)) continue;
+            if ((image.page ?? 0) !== page) continue;
+            pushBox(image.x, image.y, image.width, image.height);
+        }
+        targets.push(axis === 'x' ? this.pageWidthPx() / 2 : this.pageHeightPx() / 2);
+        return targets;
     }
 
     private _innerOrigin(inner: HTMLElement): { left: number; top: number } {
@@ -1765,6 +1875,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._sectionDrag = null;
         this._pinnedIdsThisDrag.clear();
         this.draggingSectionId.set(null);
+        this.alignmentGuides.set([]);
         this.liveFrames.set({});
     }
 
@@ -1820,6 +1931,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.isMoving = true;
         this._setSheetDragging(true);
         this.moveTarget = target;
+        this._movePage = this._pageIndexAtPoint(event.clientX, event.clientY, 0);
         this.startX = event.clientX;
         this.startY = event.clientY;
 
@@ -1860,7 +1972,32 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._emitMove(payload);
     };
 
+    private _movePage = 0;
+
+    private _overlayBox(target: ReportOverlayId): { width: number; height: number } | null {
+        if (target === 'logo') return { width: this.logoWidth(), height: this.logoHeight() };
+        if (target === 'watermark') return { width: this.watermarkWidth(), height: this.watermarkHeight() };
+        if (target === 'signature') return { width: this.signatureWidth(), height: this.signatureHeight() };
+        const image = this._sheetImage(this._sheetImageId(target));
+        if (!image) return null;
+        return { width: image.width, height: image.height };
+    }
+
     private _emitMove(payload: { x: number; y: number }) {
+        const moving = this.moveTarget;
+        const box = moving ? this._overlayBox(moving) : null;
+        if (moving && box) {
+            const snapped = this._alignDragBox(
+                '',
+                this._movePage,
+                payload.x,
+                payload.y,
+                box.width,
+                box.height,
+                moving
+            );
+            payload = { x: Math.round(snapped.x), y: Math.round(snapped.y) };
+        }
         const extraId = this._sheetImageId(this.moveTarget);
         const extra = this._sheetImage(extraId);
         if (this.moveTarget === 'logo') {
@@ -1886,6 +2023,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._emitMove(payload);
         }
         this.moveTarget = null;
+        this.alignmentGuides.set([]);
         this._setSheetDragging(false);
         this._releasePointer(this.onMove, this.stopMove);
     };

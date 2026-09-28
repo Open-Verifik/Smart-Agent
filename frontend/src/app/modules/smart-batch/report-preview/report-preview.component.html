@@ -430,6 +430,23 @@
                     }
                 }
 
+                @if (alignmentGuides().length) {
+                    @for (guide of alignmentGuides(); track guide.axis + ':' + guide.page + ':' + guide.at) {
+                        @if (guide.page === pageIndex) {
+                            <div
+                                data-print-hide
+                                class="pointer-events-none absolute z-[1200]"
+                                [style.left.px]="guide.axis === 'x' ? guide.at : 0"
+                                [style.top.px]="guide.axis === 'y' ? guide.at : 0"
+                                [style.width]="guide.axis === 'y' ? '100%' : '0px'"
+                                [style.height]="guide.axis === 'x' ? '100%' : '0px'"
+                                [style.border-left]="guide.axis === 'x' ? '1px dashed #e11d48' : null"
+                                [style.border-top]="guide.axis === 'y' ? '1px dashed #e11d48' : null"
+                            ></div>
+                        }
+                    }
+                }
+
                 <!-- Footer (every page). In free layout it stays at the bottom
                      of the sheet and sits behind the blocks, so a block can
                      move over it. The PDF clone copies this same box. -->
