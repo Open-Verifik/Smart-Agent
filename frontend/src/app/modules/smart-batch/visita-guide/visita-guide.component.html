@@ -332,6 +332,47 @@
                         }
                     }
                     @case ('mode') {
+                        <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
+                            {{ t('createBatchConfig.runMode') }}
+                        </p>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <button
+                                type="button"
+                                [class]="guideExecutorCardClass(executor() === 'queue')"
+                                (click)="selectGuideExecutor('queue')"
+                            >
+                                <div>
+                                    <span class="block text-sm font-semibold">{{
+                                        t('createBatchConfig.runModeAsync')
+                                    }}</span>
+                                    <span
+                                        class="mt-1 block text-sm"
+                                        [class.text-stone-300]="executor() === 'queue'"
+                                        [class.text-stone-500]="executor() !== 'queue'"
+                                        [class.dark:text-stone-400]="executor() !== 'queue'"
+                                        >{{ t('createBatchConfig.runModeAsyncHint') }}</span
+                                    >
+                                </div>
+                            </button>
+                            <button
+                                type="button"
+                                [class]="guideExecutorCardClass(executor() === 'browser')"
+                                (click)="selectGuideExecutor('browser')"
+                            >
+                                <div>
+                                    <span class="block text-sm font-semibold">{{
+                                        t('createBatchConfig.runModeSync')
+                                    }}</span>
+                                    <span
+                                        class="mt-1 block text-sm"
+                                        [class.text-stone-300]="executor() === 'browser'"
+                                        [class.text-stone-500]="executor() !== 'browser'"
+                                        [class.dark:text-stone-400]="executor() !== 'browser'"
+                                        >{{ t('createBatchConfig.runModeSyncHint') }}</span
+                                    >
+                                </div>
+                            </button>
+                        </div>
                         <button
                             type="button"
                             class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"

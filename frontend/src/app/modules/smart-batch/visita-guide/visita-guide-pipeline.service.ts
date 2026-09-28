@@ -1,7 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { featureGroup } from '../feature-group.util';
-import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
+import {
+    AppFeature,
+    BatchConfiguration,
+    BatchStep,
+    SmartBatchExecutor,
+    SmartBatchService,
+} from '../smart-batch.service';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import { defaultSystemKey, GuideEntity, GUIDE_COUNTRIES } from './visita-guide.catalog';
 
@@ -42,7 +48,8 @@ export class VisitaGuidePipelineService {
         entities: GuideEntity[],
         iso: string,
         name: string,
-        selectedFeatures: AppFeature[] = []
+        selectedFeatures: AppFeature[] = [],
+        executor: SmartBatchExecutor = 'queue'
     ): Promise<GuidePipelineResult> {
         const unique = [...new Set(entities)];
         if (unique.length === 0) throw new Error('no entities');
@@ -53,11 +60,12 @@ export class VisitaGuidePipelineService {
             );
             const configId = cloned.data.batchConfiguration._id ?? cloned.data.batchConfiguration.id;
             if (!configId) throw new Error('missing config');
+            await firstValueFrom(this._batch.updateConfiguration(configId, { executor }));
             const populated = await firstValueFrom(this._batch.getConfiguration(configId));
             return this._applySelection(
                 {
                     configId,
-                    configuration: populated.data,
+                    configuration: { ...populated.data, executor },
                     template: cloned.data.template,
                 },
                 selectedFeatures,
@@ -128,7 +136,7 @@ export class VisitaGuidePipelineService {
                 inputFormat: 'csv',
                 outputFormat: 'xlsx',
                 mergeStrategy: 'sequential',
-                executor: clones[0]?.configuration.executor ?? 'queue',
+                executor,
                 isActive: true,
             })
         );

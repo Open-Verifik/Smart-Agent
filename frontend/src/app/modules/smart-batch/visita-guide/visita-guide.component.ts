@@ -261,6 +261,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     entities = this._state.entities;
     countryIsos = this._state.countryIsos;
     mode = this._state.mode;
+    executor = this._state.executor;
     inputValues = this._state.inputValues;
     inputFields = this._state.inputFields;
     wantsReport = this._state.wantsReport;
@@ -889,6 +890,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectMode(mode: GuideMode): void {
         this._state.mode.set(mode);
         this.goNext();
+    }
+
+    selectGuideExecutor(executor: 'queue' | 'browser'): void {
+        this._state.executor.set(executor);
+    }
+
+    guideExecutorCardClass(selected: boolean): string {
+        const base = 'flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition';
+        if (selected) {
+            return `${base} border-stone-950 bg-stone-950 text-white dark:border-white dark:bg-white/10`;
+        }
+        return `${base} border-stone-200 bg-white text-stone-950 hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70 dark:text-white dark:hover:border-white`;
     }
 
     goNext(): void {
@@ -4111,7 +4124,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this.entities(),
                 this.countryIsos()[0] ?? 'co',
                 pipelineName(this.entities()),
-                this.selectedFeatures()
+                this.selectedFeatures(),
+                this.executor() === 'browser' ? 'browser' : 'queue'
             );
             if (!this._alive) return;
 

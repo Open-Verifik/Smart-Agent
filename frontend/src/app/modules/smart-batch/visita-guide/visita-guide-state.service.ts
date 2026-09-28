@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { AppFeature, BatchConfiguration, SmartBatch } from '../smart-batch.service';
+import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '../smart-batch.service';
 import { ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import {
     buildInputRow,
@@ -26,6 +26,8 @@ export class VisitaGuideStateService {
     entities = signal<GuideEntity[]>([]);
     countryIsos = signal<string[]>([]);
     mode = signal<GuideMode | null>(null);
+    /** queue = Async (background). browser = Sync (this tab). */
+    executor = signal<SmartBatchExecutor>('queue');
     inputValues = signal<Record<string, string>>({});
     selectedFeatures = signal<AppFeature[]>([]);
     endpointSearchQuery = signal('');
@@ -157,6 +159,7 @@ export class VisitaGuideStateService {
         this.entities.set([]);
         this.countryIsos.set([]);
         this.mode.set(null);
+        this.executor.set('queue');
         this.inputValues.set({});
         this.selectedFeatures.set([]);
         this.endpointSearchQuery.set('');
