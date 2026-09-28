@@ -266,6 +266,8 @@ export interface SmartReportTemplate {
         y: number;
         width: number;
         height: number;
+        /** 0-based sheet. Omitted signatures stay on the first page. */
+        page?: number;
     };
 
     // Workspace logo position & size (drag & drop overlay, parallel to signature)

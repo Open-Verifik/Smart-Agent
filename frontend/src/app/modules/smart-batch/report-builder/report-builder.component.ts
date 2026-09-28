@@ -417,6 +417,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             signatureY: [0],
             signatureWidth: [100],
             signatureHeight: [50],
+            signaturePage: [0],
             // Workspace logo (drag & resize overlay)
             // Visibility is implicit: a logo image (logoUrl) is the only switch.
             // Default position is clamped to the safe printable-area inset so
@@ -800,6 +801,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     signatureY: Math.max(OVERLAY_MIN_Y, template.signature?.y || 0),
                     signatureWidth: template.signature?.width || 100,
                     signatureHeight: template.signature?.height || 50,
+                    signaturePage: template.signature?.page ?? 0,
                     // Workspace logo overlay (visibility derived from logoUrl).
                     // Same clamp as signature for WYSIWYG with the PDF.
                     logoX: template.logoSettings?.x ?? 32,
@@ -1422,6 +1424,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                 y: formVal.signatureY || 0,
                 width: formVal.signatureWidth || 100,
                 height: formVal.signatureHeight || 50,
+                page: formVal.signaturePage ?? 0,
             },
             logoSettings: {
                 // Visibility tracks whether a logo image is present.
@@ -1456,6 +1459,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             'signatureY',
             'signatureWidth',
             'signatureHeight',
+            'signaturePage',
             'logoX',
             'logoY',
             'logoWidth',
@@ -1939,12 +1943,13 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     // SIGNATURE METHODS
     // ============================================
 
-    onSignaturePositionChange(pos: { x: number; y: number }): void {
+    onSignaturePositionChange(pos: { x: number; y: number; page?: number }): void {
         // Clamp to the same safe printable-area inset used for the logo so
         // the preview matches the generated PDF exactly.
         this.templateForm.patchValue({
             signatureX: Math.max(OVERLAY_MIN_X, Math.round(pos.x)),
             signatureY: Math.max(OVERLAY_MIN_Y, Math.round(pos.y)),
+            ...(pos.page != null && Number.isFinite(pos.page) ? { signaturePage: Math.max(0, Math.round(pos.page)) } : {}),
         });
         this.templateForm.markAsDirty();
     }

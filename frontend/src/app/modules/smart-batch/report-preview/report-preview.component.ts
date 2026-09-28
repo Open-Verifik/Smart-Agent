@@ -164,6 +164,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     signatureY = input<number>(0);
     signatureWidth = input<number>(100);
     signatureHeight = input<number>(50);
+    /** 0-based sheet the signature sits on. */
+    signaturePage = input<number>(0);
 
     // Workspace logo (drag & drop overlay)
     logoEnabled = input<boolean>(false);
@@ -184,7 +186,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     thumbnailMode = input<boolean>(false);
 
     // Output
-    @Output() signaturePositionChange = new EventEmitter<{ x: number; y: number }>();
+    @Output() signaturePositionChange = new EventEmitter<{ x: number; y: number; page?: number }>();
     @Output() signatureSizeChange = new EventEmitter<{ width: number; height: number }>();
     @Output() logoPositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() logoSizeChange = new EventEmitter<{ width: number; height: number }>();
@@ -246,7 +248,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private startAngle = 0;
     private startRotation = 0;
     private pendingResize: { width: number; height: number } | null = null;
-    private pendingMove: { x: number; y: number } | null = null;
+    private pendingMove: { x: number; y: number; page?: number } | null = null;
+    /** Pointer offset inside the signature, so a page change does not jump the grab point. */
+    private _overlayGrab: { dx: number; dy: number } | null = null;
     private resizeFrameId: number | null = null;
     private moveFrameId: number | null = null;
     private gestureEl: HTMLElement | null = null;
@@ -713,7 +717,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     get signatureOverlayBorder(): string {
-        return this.isOverlaySelected('signature') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+        return this.isOverlaySelected('signature')
+            ? '2px dashed rgba(99, 102, 241, 0.95)'
+            : '1px dashed rgba(99, 102, 241, 0.55)';
     }
 
     isOverlaySelected(id: ReportOverlayId): boolean {
@@ -1531,7 +1537,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (ignoreOverlay !== 'logo' && page === 0 && this.logoEnabled() && this.logoUrl()) {
             pushBox(this.logoX(), this.logoY(), this.logoWidth(), this.logoHeight());
         }
-        if (ignoreOverlay !== 'signature' && page === 0 && this.signatureEnabled() && this.signatureImage()) {
+        if (ignoreOverlay !== 'signature' && page === (this.signaturePage() || 0) && this.signatureEnabled() && this.signatureImage()) {
             pushBox(this.signatureX(), this.signatureY(), this.signatureWidth(), this.signatureHeight());
         }
         if (ignoreOverlay !== 'watermark' && this.watermarkEnabled()) {
@@ -1940,6 +1946,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.startY = event.clientY;
 
         const extra = this._sheetImage(this._sheetImageId(target));
+        if (target === 'signature') {
+            const page = Math.max(0, this.signaturePage() || 0);
+            this._movePage = page;
+            const local = this._sheetLocalPoint(event.clientX, event.clientY, page);
+            this._overlayGrab = local
+                ? { dx: local.x - this.signatureX(), dy: local.y - this.signatureY() }
+                : { dx: this.signatureWidth() / 2, dy: this.signatureHeight() / 2 };
+            this.startMoveX = this.signatureX();
+            this.startMoveY = this.signatureY();
+            this._capturePointer(event, this.onMove, this.stopMove, false);
+            return;
+        }
+        this._overlayGrab = null;
         if (target === 'logo') {
             this.startMoveX = this.logoX();
             this.startMoveY = this.logoY();
@@ -1959,11 +1978,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     private onMove = (event: PointerEvent) => {
         if (!this.isMoving) return;
-        const scales = this._pointerScaleFactors;
-        this.pendingMove = {
-            x: Math.max(0, Math.round(this.startMoveX + (event.clientX - this.startX) * scales.x)),
-            y: Math.max(0, Math.round(this.startMoveY + (event.clientY - this.startY) * scales.y)),
-        };
+        if (this.moveTarget === 'signature' && this._overlayGrab) {
+            this.pendingMove = this._signatureMoveAt(event.clientX, event.clientY);
+        } else {
+            const scales = this._pointerScaleFactors;
+            this.pendingMove = {
+                x: Math.max(0, Math.round(this.startMoveX + (event.clientX - this.startX) * scales.x)),
+                y: Math.max(0, Math.round(this.startMoveY + (event.clientY - this.startY) * scales.y)),
+            };
+        }
         if (this.moveFrameId !== null) return;
         this.moveFrameId = requestAnimationFrame(this._flushMove);
     };
@@ -1987,7 +2010,43 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return { width: image.width, height: image.height };
     }
 
-    private _emitMove(payload: { x: number; y: number }) {
+    private _signatureMoveAt(clientX: number, clientY: number): { x: number; y: number; page: number } {
+        const pages = this._reportPages?.toArray() ?? [];
+        const last = Math.max(0, pages.length - 1);
+        const hit = this._sheetIndexAtPoint(clientX, clientY);
+        const page = Math.max(0, Math.min(last, hit == null ? this._movePage : hit));
+        const local = this._sheetLocalPoint(clientX, clientY, page);
+        const grab = this._overlayGrab ?? { dx: 0, dy: 0 };
+        let x = local ? local.x - grab.dx : this.startMoveX;
+        let y = local ? local.y - grab.dy : this.startMoveY;
+        const clamped = this._clampOverlay(x, y, this.signatureWidth(), this.signatureHeight());
+        this._movePage = page;
+        return { x: clamped.x, y: clamped.y, page };
+    }
+
+    private _sheetLocalPoint(clientX: number, clientY: number, pageIndex: number): { x: number; y: number } | null {
+        const el = this._reportPages?.toArray()[pageIndex]?.nativeElement;
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        if (!rect.width || !rect.height) return null;
+        const scales = this._pointerScaleFactors;
+        return {
+            x: (clientX - rect.left) * scales.x,
+            y: (clientY - rect.top) * scales.y,
+        };
+    }
+
+    private _clampOverlay(x: number, y: number, width: number, height: number): { x: number; y: number } {
+        const keep = 48;
+        const pageW = this.pageWidthPx();
+        const pageH = this.pageHeightPx();
+        return {
+            x: Math.round(Math.min(Math.max(0, x), Math.max(0, pageW - Math.min(width, keep)))),
+            y: Math.round(Math.min(Math.max(0, y), Math.max(0, pageH - Math.min(height, keep)))),
+        };
+    }
+
+    private _emitMove(payload: { x: number; y: number; page?: number }) {
         const moving = this.moveTarget;
         const box = moving ? this._overlayBox(moving) : null;
         if (moving && box) {
@@ -2000,7 +2059,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 box.height,
                 moving
             );
-            payload = { x: Math.round(snapped.x), y: Math.round(snapped.y) };
+            const clamped =
+                moving === 'signature'
+                    ? this._clampOverlay(snapped.x, snapped.y, box.width, box.height)
+                    : { x: Math.round(snapped.x), y: Math.round(snapped.y) };
+            payload = {
+                x: clamped.x,
+                y: clamped.y,
+                page: moving === 'signature' ? (payload.page ?? this._movePage) : undefined,
+            };
         }
         const extraId = this._sheetImageId(this.moveTarget);
         const extra = this._sheetImage(extraId);
@@ -2027,6 +2094,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._emitMove(payload);
         }
         this.moveTarget = null;
+        this._overlayGrab = null;
         this.alignmentGuides.set([]);
         this._setSheetDragging(false);
         this._releasePointer(this.onMove, this.stopMove);
@@ -2164,17 +2232,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _capturePointer(
         event: PointerEvent,
         move: (event: PointerEvent) => void,
-        stop: () => void
+        stop: () => void,
+        captureElement = true
     ): void {
         event.preventDefault();
         event.stopPropagation();
         const el = event.currentTarget as HTMLElement | null;
-        this.gestureEl = el;
-        this.gesturePointerId = event.pointerId;
-        try {
-            el?.setPointerCapture(event.pointerId);
-        } catch {
-            /* element may not support capture */
+        this.gestureEl = captureElement ? el : null;
+        this.gesturePointerId = captureElement ? event.pointerId : null;
+        if (captureElement) {
+            try {
+                el?.setPointerCapture(event.pointerId);
+            } catch {
+                /* element may not support capture */
+            }
         }
         window.addEventListener('pointermove', move);
         window.addEventListener('pointerup', stop, true);

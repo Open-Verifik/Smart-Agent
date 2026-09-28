@@ -152,6 +152,7 @@ type LayoutDesignSnapshot = {
     signatureY: number;
     signatureWidth: number;
     signatureHeight: number;
+    signaturePage?: number;
 };
 
 const isEmptyResultPayload = (payload: unknown): boolean => {
@@ -310,6 +311,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     signatureY = this._state.signatureY;
     signatureWidth = this._state.signatureWidth;
     signatureHeight = this._state.signatureHeight;
+    signaturePage = this._state.signaturePage;
+    /** A signature still parked at the old default (bottom of page 1) gets centered once. */
+    private _signatureAnchored = false;
+    private readonly _revealSignatureEffect = effect(() => {
+        const image = this.signatureImage();
+        const enabled = this.signatureEnabled();
+        const x = this.signatureX();
+        const y = this.signatureY();
+        const pageSize = this.pageSize();
+        const orientation = this.orientation();
+        if (this._signatureAnchored || !enabled || !image) return;
+        const paper = reportPaperSizePx(pageSize, orientation);
+        const offSheet = y < 0 || x < 0 || y + 8 >= paper.height || x + 8 >= paper.width;
+        const parkedAtDefault = x === 48 && y === 720;
+        if (!offSheet && !parkedAtDefault) {
+            this._signatureAnchored = true;
+            untracked(() => this._scrollSignatureIntoView());
+            return;
+        }
+        untracked(() => {
+            this._signatureAnchored = true;
+            this._centerSignatureOnSheet(0);
+        });
+    });
     showPdfPassword = signal(false);
     consultError = this._state.consultError;
     visibleSteps = this._state.visibleSteps;
@@ -1773,6 +1798,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             signatureY: this.signatureY(),
             signatureWidth: this.signatureWidth(),
             signatureHeight: this.signatureHeight(),
+            signaturePage: this.signaturePage(),
         };
     }
 
@@ -1872,6 +1898,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.signatureY.set(snapshot.signatureY ?? 720);
         this._state.signatureWidth.set(snapshot.signatureWidth ?? 160);
         this._state.signatureHeight.set(snapshot.signatureHeight ?? 64);
+        this._state.signaturePage.set(snapshot.signaturePage ?? 0);
+        this._signatureAnchored = true;
         queueMicrotask(() => {
             this._layoutHistoryApplying = false;
         });
@@ -2219,9 +2247,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.signatureHeight.set(Math.max(16, Math.round(height)));
     }
 
-    onLayoutSignaturePositionChange(pos: { x: number; y: number }): void {
+    onLayoutSignaturePositionChange(pos: { x: number; y: number; page?: number }): void {
+        this._signatureAnchored = true;
         this._state.signatureX.set(Math.max(0, Math.round(pos.x)));
         this._state.signatureY.set(Math.max(0, Math.round(pos.y)));
+        if (pos.page != null && Number.isFinite(pos.page)) {
+            this._state.signaturePage.set(Math.max(0, Math.round(pos.page)));
+        }
     }
 
     onLayoutSignatureSizeChange(size: { width: number; height: number }): void {
@@ -2230,9 +2262,35 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     clearSignature(): void {
+        this._signatureAnchored = false;
         this._state.signatureImage.set(null);
         this._state.signatureEnabled.set(false);
+        this._state.signaturePage.set(0);
         this.selectedLayoutOverlay.set(null);
+    }
+
+    /** Puts a new signature in the middle of the sheet so it is visible immediately. */
+    private _centerSignatureOnSheet(page = 0): void {
+        const paper = reportPaperSizePx(this.pageSize(), this.orientation());
+        const width = this.signatureWidth();
+        const height = this.signatureHeight();
+        this._signatureAnchored = true;
+        this._state.signaturePage.set(Math.max(0, page));
+        this._state.signatureX.set(Math.max(24, Math.round((paper.width - width) / 2)));
+        this._state.signatureY.set(Math.max(24, Math.round((paper.height - height) / 2)));
+        this.selectedLayoutSectionId.set(null);
+        this.selectedLayoutOverlay.set('signature');
+        this._scrollSignatureIntoView();
+    }
+
+    private _scrollSignatureIntoView(): void {
+        requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+                const host = this._layoutEditorPreview?.pageHost(this.signaturePage());
+                const box = host?.querySelector('[data-overlay-id="signature"]') as HTMLElement | null;
+                box?.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+            })
+        );
     }
 
     openSignatureDialog(): void {
@@ -2252,6 +2310,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 }
                 this._state.signatureImage.set(String(result));
                 this._state.signatureEnabled.set(true);
+                this._centerSignatureOnSheet(0);
             });
     }
 
@@ -4031,6 +4090,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.signatureY.set(720);
         this._state.signatureWidth.set(160);
         this._state.signatureHeight.set(64);
+        this._state.signaturePage.set(0);
+        this._signatureAnchored = false;
     }
 
     private _securityPayload(): NonNullable<SmartReportTemplate['security']> {
@@ -4049,6 +4110,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             y: this.signatureY(),
             width: this.signatureWidth(),
             height: this.signatureHeight(),
+            page: Math.max(0, this.signaturePage()),
         };
     }
 
@@ -4101,6 +4163,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._state.signatureY.set(template.signature?.y ?? 720);
             this._state.signatureWidth.set(template.signature?.width ?? 160);
             this._state.signatureHeight.set(template.signature?.height ?? 64);
+            this._state.signaturePage.set(template.signature?.page ?? 0);
+            this._signatureAnchored = true;
         }
         if (force && !template.signature) {
             this._state.signatureEnabled.set(false);

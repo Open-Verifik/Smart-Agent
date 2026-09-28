@@ -135,15 +135,15 @@
                 }
             }
 
-            <!--
-                Logo + Signature overlays: page 1 only, mirroring the PDF
-                where they're absolutely positioned inside the .report-page
-                row (so they only appear on the first physical page).
-            -->
-            @if (isFirst && signatureEnabled() && signatureImage()) {
-                <div class="absolute inset-0 pointer-events-none z-20">
+            <!-- Logo stays on the first sheet. The signature follows signaturePage. -->
+            @if (signatureEnabled() && signatureImage() && pageIndex === (signaturePage() || 0)) {
+                <div
+                    class="absolute inset-0 pointer-events-none"
+                    [style.z-index]="isOverlaySelected('signature') ? 1000 : 120"
+                >
                     <div
                         data-overlay-box
+                        data-overlay-id="signature"
                         class="absolute"
                         [class.cursor-move]="isOverlaySelected('signature')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('signature')"

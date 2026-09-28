@@ -84,6 +84,8 @@ export class VisitaGuideStateService {
     signatureY = signal(720);
     signatureWidth = signal(160);
     signatureHeight = signal(64);
+    /** 0-based sheet the signature is drawn on. */
+    signaturePage = signal(0);
 
     consultError = signal<string | null>(null);
     pdfDataUrl = signal<string | null>(null);
@@ -212,6 +214,7 @@ export class VisitaGuideStateService {
         this.signatureY.set(720);
         this.signatureWidth.set(160);
         this.signatureHeight.set(64);
+        this.signaturePage.set(0);
         this.consultError.set(null);
         this.pdfDataUrl.set(null);
         this.step.set('intent');
