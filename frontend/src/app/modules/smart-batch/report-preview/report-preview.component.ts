@@ -1437,16 +1437,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             pointerEvents:
                 this.draggingSectionId() && this.draggingSectionId() !== section.id ? 'none' : 'auto',
         };
-        if (this._locksFrameHeight(section)) {
-            if (height) style['height'] = `${height}px`;
-            if (section.type === 'shape') style['overflow'] = 'visible';
-        } else {
-            // Data blocks hug their rows. A fixed frame (consulta cards start at
-            // 420px) left the selection ring around empty space when the payload
-            // was short.
-            style['height'] = 'auto';
-            style['overflow'] = 'visible';
-        }
+        if (height) style['height'] = `${height}px`;
+        style['overflow'] = section.type === 'shape' ? 'visible' : 'hidden';
         if (section.type !== 'shape' && rotation) {
             style['transform'] = `rotate(${rotation}deg)`;
             style['transform-origin'] = 'center center';
@@ -1858,7 +1850,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 const natural = el.offsetHeight;
                 if (!natural) return;
                 const height = Math.max(24, Math.ceil(natural * scales.y));
-                if (Math.abs(height - (Number(frame.height) || 0)) <= 4) return;
+                const current = Number(frame.height) || 0;
+                // A saved box stays put. Growing it to fit a later consult
+                // covers the page number and the blocks placed around it.
+                if (current && height + 4 >= current) return;
+                if (Math.abs(height - current) <= 4) return;
                 updates.push({ id, frame: { ...frame, height } });
             });
         }
