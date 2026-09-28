@@ -391,40 +391,37 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     /**
-     * Keep `pages` in sync with the latest section references. The builder's
-     * `updateSection` replaces a section with a fresh `{ ...s, ...updates }`
-     * object that keeps the same id, so an id-only equality check would
-     * silently swallow inline edits (label, dataPath, style, ...). We instead:
-     *
-     * - Reseed `pages` to a single bucket when the *set* of section ids
-     *   changes (added / removed / reordered). Measurement re-paginates.
-     * - Otherwise refresh section references in-place so the visible cards
-     *   pick up the new content while preserving the existing page layout.
+     * Keep `pages` in sync with the latest section references. Pagination
+     * groups blocks by sheet, so the flat page order is not the template
+     * order. Comparing those lists by index used to collapse every sheet
+     * back onto page 1 and jump the viewport there.
      */
     private _seedPagesIfNeeded(): void {
         const sections = this.template().sections || [];
         const current = this.pages();
         const flatCurrent = current.flat();
+        const incomingIds = new Set(sections.map((section) => section.id));
         const sameSet =
             flatCurrent.length === sections.length &&
-            flatCurrent.every((s, i) => s?.id === sections[i]?.id);
+            flatCurrent.every((section) => incomingIds.has(section.id));
 
         if (!sameSet) {
-            this.pages.set(sections.length > 0 ? [sections.slice()] : [[]]);
+            const next = sections.length > 0 ? [sections.slice()] : [[]];
+            this._replacePages(this._usesPinnedFrames() ? this._pagesFromFrames(sections) : next);
             return;
         }
 
-        const byId = new Map(sections.map((s) => [s.id, s]));
+        const byId = new Map(sections.map((section) => [section.id, section]));
         let referencesChanged = false;
         const refreshed = current.map((page) =>
-            page.map((s) => {
-                const fresh = byId.get(s.id);
-                if (fresh && fresh !== s) referencesChanged = true;
-                return fresh ?? s;
+            page.map((section) => {
+                const fresh = byId.get(section.id);
+                if (fresh && fresh !== section) referencesChanged = true;
+                return fresh ?? section;
             })
         );
 
-        if (referencesChanged) this.pages.set(refreshed);
+        if (referencesChanged) this._replacePages(refreshed);
     }
 
     private _scheduleMeasurement(): void {
@@ -530,7 +527,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                     p.every((s, j) => s.id === current[i][j].id && s === current[i][j])
             );
         if (same) return;
-        this.pages.set(newPages);
+        this._replacePages(newPages);
+    }
+
+    /** Swap the sheet list without sending the viewport back to page 1. */
+    private _replacePages(next: ReportSection[][]): void {
+        const host = this._dragViewport();
+        const top = host?.scrollTop ?? 0;
+        this.pages.set(next);
+        if (!host) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (host.isConnected) host.scrollTop = top;
+            });
+        });
     }
 
     hasBottomChrome(): boolean {
