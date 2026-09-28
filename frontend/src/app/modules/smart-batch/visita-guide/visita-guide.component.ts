@@ -1855,6 +1855,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const menu = this.layoutContextMenu();
         const el = this._layoutContextMenuEl?.nativeElement;
         if (!menu || !el) return;
+        if (el.parentElement !== document.body) {
+            document.body.appendChild(el);
+        }
         const pad = 8;
         const vw = window.innerWidth;
         const vh = window.innerHeight;

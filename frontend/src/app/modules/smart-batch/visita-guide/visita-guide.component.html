@@ -2881,7 +2881,8 @@
     @if (layoutContextMenu(); as menu) {
         <div
             #layoutContextMenuEl
-            class="visita-layout-context-menu fixed z-[80] min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            class="visita-layout-context-menu fixed z-[1000000] min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            style="z-index: 1000000"
             [style.left.px]="menu.x"
             [style.top.px]="menu.y"
             [style.max-height.px]="menu.maxHeight"
