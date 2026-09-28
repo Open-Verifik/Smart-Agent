@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '../smart-batch.service';
-import { ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
+import { ReportHeaderLogo, ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import {
     buildInputRow,
     GuideEntity,
@@ -55,12 +55,15 @@ export class VisitaGuideStateService {
     logoHeight = signal(60);
     logoRotation = signal(0);
     sheetImages = signal<ReportSheetImage[]>([]);
+    headerLogos = signal<ReportHeaderLogo[]>([]);
     legend = signal('');
     legendPosition = signal<'left' | 'center' | 'right'>('left');
     termsAndConditions = signal('');
     termsPosition = signal<'left' | 'center' | 'right'>('left');
     watermarkEnabled = signal(false);
     watermarkType = signal<'text' | 'logo'>('text');
+    /** Image stamped as the watermark. Independent of header and footer logos. */
+    watermarkLogo = signal<string | null>(null);
     watermarkText = signal('');
     watermarkOpacity = signal(0.08);
     watermarkPattern = signal<'single' | 'repeated'>('single');
@@ -187,12 +190,14 @@ export class VisitaGuideStateService {
         this.logoHeight.set(60);
         this.logoRotation.set(0);
         this.sheetImages.set([]);
+        this.headerLogos.set([]);
         this.legend.set('');
         this.legendPosition.set('left');
         this.termsAndConditions.set('');
         this.termsPosition.set('left');
         this.watermarkEnabled.set(false);
         this.watermarkType.set('text');
+        this.watermarkLogo.set(null);
         this.watermarkText.set('');
         this.watermarkOpacity.set(0.08);
         this.watermarkPattern.set('single');

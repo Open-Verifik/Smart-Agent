@@ -1,4 +1,4 @@
-import { ReportSection, ReportSheetImage } from '../smart-report.service';
+import { ReportHeaderLogo, ReportSection, ReportSheetImage } from '../smart-report.service';
 import { GuideTemplateChoice } from './visita-guide-state.service';
 
 const STORAGE_KEY = 'smart-batch.visita-guide.scratch-draft';
@@ -16,12 +16,14 @@ export type ScratchLayoutDraft = {
     logoHeight: number;
     logoRotation: number;
     sheetImages: ReportSheetImage[];
+    headerLogos?: ReportHeaderLogo[];
     legend: string;
     legendPosition?: 'left' | 'center' | 'right';
     termsAndConditions?: string;
     termsPosition?: 'left' | 'center' | 'right';
     watermarkEnabled: boolean;
     watermarkType: 'text' | 'logo';
+    watermarkLogo?: string | null;
     watermarkText: string;
     watermarkOpacity: number;
     watermarkPattern: 'single' | 'repeated';

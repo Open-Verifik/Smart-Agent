@@ -9,6 +9,7 @@ import {
     QueryList,
     ViewChild,
     ViewChildren,
+    computed,
     effect,
     inject,
     input,
@@ -17,12 +18,13 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportCellPart, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportHeaderLogo, ReportLogoBand, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogoSize, headerLogoAlignAt, headerLogoBandHeight, placeCompanyLogos, PlacedHeaderLogo } from '../header-logos.util';
 import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, tableColumnPath } from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
 
-export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}`;
+export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
 
 export type ReportInlineTextKind = 'title' | 'body' | 'cellLabel';
 
@@ -145,6 +147,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     watermarkEnabled = input<boolean>(false);
     /** Watermark type (text or logo) */
     watermarkType = input<string>('text');
+    /**
+     * Image for a logo watermark.
+     * Unset keeps the workspace logo. Null means the watermark has its own empty slot.
+     */
+    watermarkLogoUrl = input<string | null | undefined>(undefined);
+    /** Logo watermark image. A dedicated upload wins; otherwise the workspace logo is used. */
+    watermarkStampSrc = computed(() => {
+        const dedicated = this.watermarkLogoUrl();
+        if (dedicated !== undefined) return dedicated || null;
+        return this.logoUrl();
+    });
     /** Watermark text */
     watermarkText = input<string>('CONFIDENTIAL');
     /** Watermark opacity (0.01–0.5) */
@@ -194,6 +207,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() watermarkPositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() watermarkSizeChange = new EventEmitter<{ width: number; height: number }>();
     @Output() watermarkRotationChange = new EventEmitter<number>();
+    @Output() headerLogoAlignChange = new EventEmitter<{
+        id: string;
+        align: ReportHeaderLogo['align'];
+        band: ReportLogoBand;
+    }>();
+    @Output() headerLogoSizeChange = new EventEmitter<{ id: string; width: number; height: number }>();
     @Output() sheetImageChange = new EventEmitter<ReportSheetImage>();
     @Output() overlaySelect = new EventEmitter<ReportOverlayId>();
     @Output() backgroundClick = new EventEmitter<void>();
@@ -651,6 +670,71 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     get viewLogoHeight(): number {
         return this.logoHeight() / this._scaleFactors.y;
+    }
+
+    /** Company logos packed into the header or the footer. A drag stays inside that band. */
+    headerLogoViews(): Array<PlacedHeaderLogo & { viewX: number; viewY: number; viewWidth: number; viewHeight: number }> {
+        const scale = this._scaleFactors;
+        const drag = this.headerLogoDragX();
+        return placeCompanyLogos(this._headerLogosForView(), this.pageWidthPx(), this.pageHeightPx()).map((logo) => {
+            const x = drag?.id === logo.id ? drag.x : logo.x;
+            return {
+                ...logo,
+                x,
+                viewX: x / scale.x,
+                viewY: logo.y / scale.y,
+                viewWidth: logo.width / scale.x,
+                viewHeight: logo.height / scale.y,
+            };
+        });
+    }
+
+    headerBandTopView(): number {
+        return HEADER_LOGO_BAND_TOP / this._scaleFactors.y;
+    }
+
+    headerBandHeightView(): number {
+        return headerLogoBandHeight(this._logosInBand('header')) / this._scaleFactors.y;
+    }
+
+    footerBandHeightView(): number {
+        return headerLogoBandHeight(this._logosInBand('footer')) / this._scaleFactors.y;
+    }
+
+    footerBandTopView(): number {
+        const band = headerLogoBandHeight(this._logosInBand('footer'));
+        return (this.pageHeightPx() - HEADER_LOGO_BAND_TOP - band) / this._scaleFactors.y;
+    }
+
+    hasHeaderLogos(): boolean {
+        return this._logosInBand('header').length > 0;
+    }
+
+    hasFooterLogos(): boolean {
+        return this._logosInBand('footer').length > 0;
+    }
+
+    headerLogoBorder(id: string): string {
+        return this.isOverlaySelected(this.headerOverlayId(id)) ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    headerOverlayId(id: string): ReportOverlayId {
+        return `hdr:${id}`;
+    }
+
+    private _headerLogosForView(): ReportHeaderLogo[] {
+        const resize = this.headerLogoResize();
+        const drag = this.headerLogoDragX();
+        return (this.template()?.headerLogos ?? []).map((logo) => {
+            let next = logo;
+            if (resize?.id === logo.id) next = { ...next, width: resize.width, height: resize.height };
+            if (drag?.id === logo.id) next = { ...next, band: drag.band };
+            return next;
+        });
+    }
+
+    private _logosInBand(band: ReportLogoBand): ReportHeaderLogo[] {
+        return this._headerLogosForView().filter((logo) => companyLogoBand(logo) === band);
     }
 
     get viewWatermarkX(): number {
@@ -1938,6 +2022,114 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Same as `effectiveContentPaddingTop` but scaled down to the on-screen preview. */
     get viewContentPaddingTop(): number {
         return this.effectiveContentPaddingTop / this._scaleFactors.y;
+    }
+
+    private _headerDrag: {
+        id: string;
+        pointerId: number;
+        startClientX: number;
+        originX: number;
+        width: number;
+        band: ReportLogoBand;
+    } | null = null;
+    headerLogoDragX = signal<{ id: string; x: number; band: ReportLogoBand } | null>(null);
+    headerLogoResize = signal<{ id: string; width: number; height: number } | null>(null);
+    private _headerResize: {
+        id: string;
+        pointerId: number;
+        startClientY: number;
+        width: number;
+        height: number;
+    } | null = null;
+
+    startHeaderLogoMove(event: PointerEvent, id: string): void {
+        if (!this.clickable() || event.button !== 0) return;
+        if ((event.target as HTMLElement | null)?.closest('[data-overlay-handle]')) return;
+        event.stopPropagation();
+        const placed = placeCompanyLogos(
+            this.template()?.headerLogos ?? [],
+            this.pageWidthPx(),
+            this.pageHeightPx()
+        ).find((logo) => logo.id === id);
+        if (!placed) return;
+        this.selectOverlay(`hdr:${id}`, event);
+        const source = (this.template()?.headerLogos ?? []).find((logo) => logo.id === id);
+        this._headerDrag = {
+            id,
+            pointerId: event.pointerId,
+            startClientX: event.clientX,
+            originX: placed.x,
+            width: placed.width,
+            band: companyLogoBand(source),
+        };
+        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    }
+
+    onHeaderLogoMove(event: PointerEvent): void {
+        const drag = this._headerDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const page = (event.currentTarget as HTMLElement).closest('[data-report-page]') as HTMLElement | null;
+        const rect = page?.getBoundingClientRect();
+        const scale = rect?.width ? this.pageWidthPx() / rect.width : 1;
+        const next = drag.originX + (event.clientX - drag.startClientX) * scale;
+        const min = HEADER_LOGO_INSET;
+        const max = Math.max(min, this.pageWidthPx() - HEADER_LOGO_INSET - drag.width);
+        this.headerLogoDragX.set({
+            id: drag.id,
+            x: Math.min(max, Math.max(min, next)),
+            band: drag.band,
+        });
+    }
+
+    stopHeaderLogoMove(event: PointerEvent): void {
+        const drag = this._headerDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const live = this.headerLogoDragX();
+        const x = live?.id === drag.id ? live.x : drag.originX;
+        const align = headerLogoAlignAt(x + drag.width / 2, this.pageWidthPx());
+        this._headerDrag = null;
+        this.headerLogoDragX.set(null);
+        this.headerLogoAlignChange.emit({ id: drag.id, align, band: drag.band });
+    }
+
+    startHeaderLogoResize(event: PointerEvent, id: string): void {
+        if (!this.clickable() || event.button !== 0) return;
+        event.stopPropagation();
+        event.preventDefault();
+        const logo = (this.template()?.headerLogos ?? []).find((item) => item.id === id);
+        if (!logo) return;
+        this.selectOverlay(`hdr:${id}`, event);
+        this._headerResize = {
+            id,
+            pointerId: event.pointerId,
+            startClientY: event.clientY,
+            width: logo.width,
+            height: logo.height,
+        };
+        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    }
+
+    onHeaderLogoResize(event: PointerEvent): void {
+        const drag = this._headerResize;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const page = (event.currentTarget as HTMLElement).closest('[data-report-page]') as HTMLElement | null;
+        const rect = page?.getBoundingClientRect();
+        const scale = rect?.height ? this.pageHeightPx() / rect.height : 1;
+        const next = fitHeaderLogoSize(drag.width, drag.height, drag.height + (event.clientY - drag.startClientY) * scale);
+        this.headerLogoResize.set({ id: drag.id, width: next.width, height: next.height });
+    }
+
+    stopHeaderLogoResize(event: PointerEvent): void {
+        const drag = this._headerResize;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const live = this.headerLogoResize();
+        const size =
+            live?.id === drag.id
+                ? { width: live.width, height: live.height }
+                : fitHeaderLogoSize(drag.width, drag.height);
+        this._headerResize = null;
+        this.headerLogoResize.set(null);
+        this.headerLogoSizeChange.emit({ id: drag.id, width: size.width, height: size.height });
     }
 
     startMove(event: PointerEvent, target: ReportOverlayId) {

@@ -70,6 +70,20 @@ export interface ReportSheetImage {
     page?: number;
 }
 
+/** Company logo repeated in the header or footer of every page. */
+export type ReportHeaderLogoAlign = 'left' | 'center' | 'right';
+export type ReportLogoBand = 'header' | 'footer';
+
+export interface ReportHeaderLogo {
+    id: string;
+    src: string;
+    align: ReportHeaderLogoAlign;
+    /** Omitted logos stay in the header. */
+    band?: ReportLogoBand;
+    width: number;
+    height: number;
+}
+
 export interface ReportTextRoleStyle {
     fontSize?: number;
     fontWeight?: 'normal' | 'bold';
@@ -244,6 +258,8 @@ export interface SmartReportTemplate {
     watermark?: {
         enabled: boolean;
         type: 'logo' | 'text';
+        /** Image used only as the watermark. Independent of header and footer logos. */
+        logo?: string;
         text?: string;
         opacity?: number;
         pattern?: 'single' | 'repeated';
@@ -286,6 +302,9 @@ export interface SmartReportTemplate {
 
     /** Extra logos/images placed freely on the sheet (canonical 96 DPI px). */
     sheetImages?: ReportSheetImage[];
+
+    /** Company logos locked to the header band and repeated on every page. */
+    headerLogos?: ReportHeaderLogo[];
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding?: number;

@@ -2517,6 +2517,7 @@
                             sections: sections(),
                             primaryColor: templateForm.get('primaryColor')?.value,
                             pageSize: templateForm.get('pageSize')?.value || 'A4',
+                            headerLogos: template()?.headerLogos,
                         }"
                         [previewData]="previewData()"
                         [primaryColor]="templateForm.get('primaryColor')?.value || '#4F46E5'"
@@ -2542,6 +2543,7 @@
                         "
                         [watermarkEnabled]="templateForm.get('watermarkEnabled')?.value || false"
                         [watermarkType]="templateForm.get('watermarkType')?.value || 'text'"
+                        [watermarkLogoUrl]="template()?.watermark?.logo || undefined"
                         [watermarkText]="templateForm.get('watermarkText')?.value || 'CONFIDENTIAL'"
                         [watermarkOpacity]="templateForm.get('watermarkOpacity')?.value ?? 0.08"
                         [watermarkPattern]="templateForm.get('watermarkPattern')?.value || 'single'"

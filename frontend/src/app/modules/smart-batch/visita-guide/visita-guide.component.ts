@@ -16,6 +16,7 @@ import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
+import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
 import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
@@ -33,7 +34,7 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, featureGroupIcon, FeatureGroupId, isSmartBatchCatalogFeature } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
@@ -121,12 +122,14 @@ type LayoutDesignSnapshot = {
     logoHeight: number;
     logoRotation: number;
     sheetImages: ReportSheetImage[];
+    headerLogos: ReportHeaderLogo[];
     legend: string;
     legendPosition: 'left' | 'center' | 'right';
     termsAndConditions: string;
     termsPosition: 'left' | 'center' | 'right';
     watermarkEnabled: boolean;
     watermarkType: 'text' | 'logo';
+    watermarkLogo: string | null;
     watermarkText: string;
     watermarkOpacity: number;
     watermarkPattern: 'single' | 'repeated';
@@ -288,12 +291,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     logoHeight = this._state.logoHeight;
     logoRotation = this._state.logoRotation;
     sheetImages = this._state.sheetImages;
+    headerLogos = this._state.headerLogos;
+    readonly headerLogoAligns: ReportHeaderLogo['align'][] = ['left', 'center', 'right'];
+    readonly headerLogoMinHeight = HEADER_LOGO_MIN_HEIGHT;
+    readonly headerLogoMaxHeight = HEADER_LOGO_MAX_HEIGHT;
     legend = this._state.legend;
     legendPosition = this._state.legendPosition;
     termsAndConditions = this._state.termsAndConditions;
     termsPosition = this._state.termsPosition;
     watermarkEnabled = this._state.watermarkEnabled;
     watermarkType = this._state.watermarkType;
+    watermarkLogo = this._state.watermarkLogo;
     watermarkText = this._state.watermarkText;
     watermarkOpacity = this._state.watermarkOpacity;
     watermarkPattern = this._state.watermarkPattern;
@@ -636,20 +644,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             termsPosition: this.termsPosition(),
             showPageNumbers: this.showPageNumbers(),
             pageNumberPosition: this.pageNumberPosition(),
-            watermark: {
-                enabled: this.watermarkEnabled(),
-                type: this.watermarkType(),
-                text: this.watermarkText() || this.reportTitle() || 'CONFIDENTIAL',
-                opacity: this.watermarkOpacity(),
-                pattern: this.watermarkPattern(),
-                x: this.watermarkX(),
-                y: this.watermarkY(),
-                width: this.watermarkWidth(),
-                height: this.watermarkHeight(),
-                rotation: this.watermarkRotation(),
-            },
+            watermark: this._watermarkPayload(),
             logoSettings: {
-                enabled: Boolean(this.logoDataUrl()),
+                enabled: this.headerLogos().length ? false : Boolean(this.logoDataUrl()),
                 x: this.logoX(),
                 y: this.logoY(),
                 width: this.logoWidth(),
@@ -658,6 +655,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 autoFitContent: true,
             },
             sheetImages: this.sheetImages(),
+            headerLogos: this.headerLogos(),
             sections: useLayout ? layout : this._sectionsForPreview(base),
         };
     });
@@ -1778,6 +1776,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.clearSignature();
             this.selectedLayoutOverlay.set(null);
             this.layoutEditorKind.set(null);
+        } else if (menu.overlay?.startsWith('hdr:')) {
+            this.removeHeaderLogo(menu.overlay.slice(4));
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
         } else if (menu.overlay?.startsWith('img:')) {
             this.clearSheetImage(menu.overlay.slice(4));
             this.layoutEditorKind.set(null);
@@ -1819,12 +1821,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             logoHeight: this.logoHeight(),
             logoRotation: this.logoRotation(),
             sheetImages: this.sheetImages(),
+            headerLogos: this.headerLogos(),
             legend: this.legend(),
             legendPosition: this.legendPosition(),
             termsAndConditions: this.termsAndConditions(),
             termsPosition: this.termsPosition(),
             watermarkEnabled: this.watermarkEnabled(),
             watermarkType: this.watermarkType(),
+            watermarkLogo: this.watermarkLogo(),
             watermarkText: this.watermarkText(),
             watermarkOpacity: this.watermarkOpacity(),
             watermarkPattern: this.watermarkPattern(),
@@ -1919,12 +1923,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoHeight.set(snapshot.logoHeight);
         this._state.logoRotation.set(snapshot.logoRotation);
         this._state.sheetImages.set(snapshot.sheetImages ?? []);
+        this._state.headerLogos.set(snapshot.headerLogos ?? []);
         this._state.legend.set(snapshot.legend);
         this._state.legendPosition.set(snapshot.legendPosition ?? 'left');
         this._state.termsAndConditions.set(snapshot.termsAndConditions ?? '');
         this._state.termsPosition.set(snapshot.termsPosition ?? 'left');
         this._state.watermarkEnabled.set(snapshot.watermarkEnabled);
         this._state.watermarkType.set(snapshot.watermarkType);
+        this._state.watermarkLogo.set(snapshot.watermarkLogo ?? null);
         this._state.watermarkText.set(snapshot.watermarkText);
         this._state.watermarkOpacity.set(snapshot.watermarkOpacity);
         this._state.watermarkPattern.set(snapshot.watermarkPattern);
@@ -2132,6 +2138,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (type === 'logo') {
             this._state.watermarkPattern.set('single');
         }
+    }
+
+    onWatermarkLogoSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        input.value = '';
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            const src = String(reader.result ?? '');
+            if (src) this._state.watermarkLogo.set(src);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    clearWatermarkLogo(): void {
+        this._state.watermarkLogo.set(null);
     }
 
     setWatermarkPattern(pattern: 'single' | 'repeated'): void {
@@ -2374,7 +2397,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     clearLogo(): void {
-        this._state.logoDataUrl.set(null);
+        this._setHeaderLogos([]);
     }
 
     documentExploreHintKey(): string {
@@ -3563,11 +3586,105 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLogoSelected(event: Event): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => this._state.logoDataUrl.set(String(reader.result ?? ''));
-        reader.readAsDataURL(file);
+        this.onCompanyLogosSelected(event, 'header');
+    }
+
+    headerBandLogos(): ReportHeaderLogo[] {
+        return this.headerLogos().filter((logo) => logo.band !== 'footer');
+    }
+
+    footerBandLogos(): ReportHeaderLogo[] {
+        return this.headerLogos().filter((logo) => logo.band === 'footer');
+    }
+
+    onCompanyLogosSelected(event: Event, band: 'header' | 'footer'): void {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input.files ?? []);
+        input.value = '';
+        const inBand = band === 'footer' ? this.footerBandLogos() : this.headerBandLogos();
+        const room = Math.max(0, 8 - inBand.length);
+        files.slice(0, room).forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const src = String(reader.result ?? '');
+                if (!src) return;
+                const siblings = band === 'footer' ? this.footerBandLogos() : this.headerBandLogos();
+                const align = (['left', 'center', 'right'] as const)[siblings.length % 3];
+                this._setHeaderLogos([
+                    ...this.headerLogos(),
+                    {
+                        id: `hdr-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                        src,
+                        align,
+                        band,
+                        width: HEADER_LOGO_DEFAULT_WIDTH,
+                        height: HEADER_LOGO_DEFAULT_HEIGHT,
+                    },
+                ]);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    setHeaderLogoAlign(id: string, align: ReportHeaderLogo['align']): void {
+        this._setHeaderLogos(this.headerLogos().map((logo) => (logo.id === id ? { ...logo, align } : logo)));
+    }
+
+    setHeaderLogoHeight(id: string, value: string | number): void {
+        const logo = this.headerLogos().find((item) => item.id === id);
+        if (!logo) return;
+        const size = fitHeaderLogoSize(logo.width, logo.height, Number(value));
+        this._setHeaderLogos(this.headerLogos().map((item) => (item.id === id ? { ...item, ...size } : item)));
+    }
+
+    setHeaderLogoSize(size: { id: string; width: number; height: number }): void {
+        const fitted = fitHeaderLogoSize(size.width, size.height);
+        this._setHeaderLogos(
+            this.headerLogos().map((item) => (item.id === size.id ? { ...item, width: fitted.width, height: fitted.height } : item))
+        );
+    }
+
+    headerLogoAlignKey(align: ReportHeaderLogo['align']): string {
+        if (align === 'center') return 'visitaGuide.layoutHeaderCenter';
+        if (align === 'right') return 'visitaGuide.layoutHeaderRight';
+        return 'visitaGuide.layoutHeaderLeft';
+    }
+
+    removeHeaderLogo(id: string): void {
+        this._setHeaderLogos(this.headerLogos().filter((logo) => logo.id !== id));
+        if (this.selectedLayoutOverlay() === `hdr:${id}`) {
+            this.selectedLayoutOverlay.set(null);
+            this.layoutEditorKind.set(null);
+        }
+    }
+
+    private _setHeaderLogos(list: ReportHeaderLogo[]): void {
+        this._state.headerLogos.set(list);
+    }
+
+    private _headerLogosFromTemplate(template: SmartReportTemplate): ReportHeaderLogo[] {
+        const stored = Array.isArray(template.headerLogos) ? template.headerLogos.filter((logo) => logo?.src) : [];
+        if (stored.length) {
+            return stored.map((logo) => ({
+                id: logo.id || `hdr-${Math.random().toString(36).slice(2, 7)}`,
+                src: logo.src,
+                align: logo.align === 'center' || logo.align === 'right' ? logo.align : 'left',
+                band: logo.band === 'footer' ? 'footer' : 'header',
+                width: logo.width || HEADER_LOGO_DEFAULT_WIDTH,
+                height: logo.height || HEADER_LOGO_DEFAULT_HEIGHT,
+            }));
+        }
+        if (!template.logo) return [];
+        return [
+            {
+                id: 'company-logo',
+                src: template.logo,
+                align: 'left',
+                band: 'header',
+                width: Math.min(220, template.logoSettings?.width || HEADER_LOGO_DEFAULT_WIDTH),
+                height: Math.min(56, template.logoSettings?.height || HEADER_LOGO_DEFAULT_HEIGHT),
+            },
+        ];
     }
 
     setFieldValue(key: string, value: string): void {
@@ -4045,20 +4162,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             termsPosition: this.termsPosition(),
             showPageNumbers: this.showPageNumbers(),
             pageNumberPosition: this.pageNumberPosition(),
-            watermark: {
-                enabled: this.watermarkEnabled(),
-                type: this.watermarkType(),
-                text: this.watermarkText() || this.reportTitle() || 'CONFIDENTIAL',
-                opacity: this.watermarkOpacity(),
-                pattern: this.watermarkPattern(),
-                x: this.watermarkX(),
-                y: this.watermarkY(),
-                width: this.watermarkWidth(),
-                height: this.watermarkHeight(),
-                rotation: this.watermarkRotation(),
-            },
+            watermark: this._watermarkPayload(),
             logoSettings: {
-                enabled: Boolean(this.logoDataUrl()),
+                enabled: this.headerLogos().length ? false : Boolean(this.logoDataUrl()),
                 x: this.logoX(),
                 y: this.logoY(),
                 width: this.logoWidth(),
@@ -4067,6 +4173,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 autoFitContent: true,
             },
             sheetImages: this.sheetImages(),
+            headerLogos: this.headerLogos(),
             sections: JSON.parse(JSON.stringify(this.layoutSections())),
             pageSize: this.pageSize(),
             orientation: this.orientation(),
@@ -4190,12 +4297,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoHeight.set(60);
         this._state.logoRotation.set(0);
         this._state.sheetImages.set([]);
+        this._state.headerLogos.set([]);
         this._state.legend.set('');
         this._state.legendPosition.set('left');
         this._state.termsAndConditions.set('');
         this._state.termsPosition.set('left');
         this._state.watermarkEnabled.set(false);
         this._state.watermarkType.set('text');
+        this._state.watermarkLogo.set(null);
         this._state.watermarkText.set('');
         this._state.watermarkOpacity.set(0.08);
         this._state.watermarkPattern.set('single');
@@ -4229,6 +4338,22 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
     }
 
+    private _watermarkPayload(): NonNullable<SmartReportTemplate['watermark']> {
+        return {
+            enabled: this.watermarkEnabled(),
+            type: this.watermarkType(),
+            logo: this.watermarkLogo() || '',
+            text: this.watermarkText() || this.reportTitle() || 'CONFIDENTIAL',
+            opacity: this.watermarkOpacity(),
+            pattern: this.watermarkPattern(),
+            x: this.watermarkX(),
+            y: this.watermarkY(),
+            width: this.watermarkWidth(),
+            height: this.watermarkHeight(),
+            rotation: this.watermarkRotation(),
+        };
+    }
+
     private _signaturePayload(): NonNullable<SmartReportTemplate['signature']> {
         return {
             enabled: this.signatureEnabled() && Boolean(this.signatureImage()),
@@ -4249,6 +4374,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._state.pageBackgroundColor.set(template.pageBackgroundColor || '#ffffff');
         }
         if (force || template.logo) this._state.logoDataUrl.set(template.logo || null);
+        const headerLogos = this._headerLogosFromTemplate(template);
+        this._state.headerLogos.set(headerLogos);
         this._state.sheetImages.set(Array.isArray(template.sheetImages) ? template.sheetImages : []);
         if (force || template.legend) this._state.legend.set(template.legend || '');
         if (force || template.legendPosition) {
@@ -4300,6 +4427,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (template.watermark) {
             this._state.watermarkEnabled.set(Boolean(template.watermark.enabled));
             this._state.watermarkType.set(template.watermark.type === 'logo' ? 'logo' : 'text');
+            const headerSrcs = new Set(headerLogos.map((logo) => logo.src));
+            const dedicated = template.watermark.logo?.trim() || '';
+            const workspaceLogo = template.logo && !headerSrcs.has(template.logo) ? template.logo : '';
+            this._state.watermarkLogo.set(dedicated || (template.watermark.type === 'logo' ? workspaceLogo : '') || null);
             this._state.watermarkText.set(template.watermark.text || '');
             this._state.watermarkOpacity.set(template.watermark.opacity ?? 0.08);
             this._state.watermarkPattern.set(
@@ -4319,6 +4450,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
         if (force && !template.watermark) {
             this._state.watermarkEnabled.set(false);
+            this._state.watermarkLogo.set(null);
         }
         if (template.logoSettings) {
             if (typeof template.logoSettings.x === 'number') this._state.logoX.set(template.logoSettings.x);

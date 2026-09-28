@@ -1404,6 +1404,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             watermark: {
                 enabled: formVal.watermarkEnabled ?? false,
                 type: formVal.watermarkType || 'text',
+                logo: this.template()?.watermark?.logo || '',
                 text: formVal.watermarkText || 'CONFIDENTIAL',
                 opacity: formVal.watermarkOpacity ?? 0.08,
                 pattern: formVal.watermarkPattern || 'single',

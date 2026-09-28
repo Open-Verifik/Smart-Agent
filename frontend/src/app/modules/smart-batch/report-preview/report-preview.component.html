@@ -65,9 +65,9 @@
                                     [style.letter-spacing.px]="6"
                                     >{{ watermarkText() }}</span
                                 >
-                            } @else if (watermarkType() === 'logo' && logoUrl()) {
+                            } @else if (watermarkType() === 'logo' && watermarkStampSrc()) {
                                 <img
-                                    [src]="logoUrl()"
+                                    [src]="watermarkStampSrc()"
                                     alt="Watermark"
                                     class="h-full w-full object-contain pointer-events-none select-none"
                                     style="filter: drop-shadow(0 0 1px #fff) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55))"
@@ -122,9 +122,9 @@
                                         style="font-size: 18px; letter-spacing: 3px; text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 1px 1px rgba(0, 0, 0, 0.55)"
                                         >{{ watermarkText() }}</span
                                     >
-                                } @else if (watermarkType() === 'logo' && logoUrl()) {
+                                } @else if (watermarkType() === 'logo' && watermarkStampSrc()) {
                                     <img
-                                        [src]="logoUrl()"
+                                        [src]="watermarkStampSrc()"
                                         alt=""
                                         class="h-16 w-16 select-none object-contain"
                                         style="filter: drop-shadow(0 0 1px #fff) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55))"
@@ -182,7 +182,69 @@
                 </div>
             }
 
-            @if (isFirst && logoEnabled() && logoUrl()) {
+            <!-- Logo stays on the first sheet. Company logos repeat in the header of every page. -->
+            @if (hasHeaderLogos() && clickable() && !thumbnailMode()) {
+                <div
+                    class="pointer-events-none absolute left-0 right-0 z-[840] border-b border-dashed border-stone-300"
+                    [style.top.px]="headerBandTopView()"
+                    [style.height.px]="headerBandHeightView()"
+                ></div>
+            }
+            @if (headerLogoViews().length) {
+                @for (logo of headerLogoViews(); track logo.id) {
+                    <div class="pointer-events-none absolute inset-0 z-[850]">
+                        <div
+                            data-overlay-box
+                            class="absolute"
+                            [class.cursor-ew-resize]="clickable()"
+                            [class.pointer-events-auto]="clickable()"
+                            [style.left.px]="logo.viewX"
+                            [style.top.px]="logo.viewY"
+                            [style.width.px]="logo.viewWidth"
+                            [style.height.px]="logo.viewHeight"
+                            [style.border]="headerLogoBorder(logo.id)"
+                            (pointerdown)="startHeaderLogoMove($event, logo.id)"
+                            (pointermove)="onHeaderLogoMove($event)"
+                            (pointerup)="stopHeaderLogoMove($event)"
+                            (pointercancel)="stopHeaderLogoMove($event)"
+                            (click)="selectOverlay(headerOverlayId(logo.id), $event)"
+                            (contextmenu)="onOverlayContextMenu(headerOverlayId(logo.id), $event)"
+                        >
+                            <img
+                                [src]="logo.src"
+                                alt=""
+                                class="h-full w-full object-contain pointer-events-none select-none"
+                                draggable="false"
+                            />
+                            @if (clickable() && isOverlaySelected(headerOverlayId(logo.id))) {
+                                <div
+                                    data-overlay-handle
+                                    class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                    (pointerdown)="startHeaderLogoResize($event, logo.id)"
+                                    (pointermove)="onHeaderLogoResize($event)"
+                                    (pointerup)="stopHeaderLogoResize($event)"
+                                    (pointercancel)="stopHeaderLogoResize($event)"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                        style="pointer-events: none"
+                                        >open_in_full</mat-icon
+                                    >
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            @if (hasFooterLogos() && clickable() && !thumbnailMode()) {
+                <div
+                    class="pointer-events-none absolute left-0 right-0 z-[840] border-t border-dashed border-stone-300"
+                    [style.top.px]="footerBandTopView()"
+                    [style.height.px]="footerBandHeightView()"
+                ></div>
+            }
+
+            @if (isFirst && logoEnabled() && logoUrl() && !headerLogoViews().length) {
                 <div
                     class="absolute inset-0 pointer-events-none"
                     [class.z-40]="isOverlaySelected('logo')"

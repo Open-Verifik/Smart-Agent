@@ -704,6 +704,7 @@
                                         selectedTemplate()!.watermark?.enabled || false
                                     "
                                     [watermarkType]="selectedTemplate()!.watermark?.type || 'text'"
+                                    [watermarkLogoUrl]="selectedTemplate()!.watermark?.logo || undefined"
                                     [watermarkText]="
                                         selectedTemplate()!.watermark?.text ||
                                         ('smartReport.watermarkTextPlaceholder' | transloco)

@@ -42,6 +42,7 @@ const MM_TO_PX = 3.7795275591;
                             [pageNumberPosition]="template().pageNumberPosition || 'bottom-center'"
                             [watermarkEnabled]="template().watermark?.enabled || false"
                             [watermarkType]="template().watermark?.type || 'text'"
+                            [watermarkLogoUrl]="template().watermark?.logo || undefined"
                             [watermarkText]="template().watermark?.text || template().name || 'CONFIDENTIAL'"
                             [watermarkOpacity]="template().watermark?.opacity ?? 0.08"
                             [watermarkPattern]="template().watermark?.pattern || 'single'"
