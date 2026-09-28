@@ -359,9 +359,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     layoutEditorFocused = signal(false);
     layoutEditorDrag = signal({ x: 0, y: 0 });
     private readonly _liftEditorEffect = effect(() => {
-        const visible = Boolean(this.layoutEditorKind()) && !this.layoutEditorSuppressed();
-        if (!visible) return;
-        queueMicrotask(() => requestAnimationFrame(() => this._liftLayoutEditorPanel()));
+        const onLayout = this.step() === 'layout';
+        const visible = onLayout && Boolean(this.layoutEditorKind()) && !this.layoutEditorSuppressed();
+        if (!onLayout) {
+            untracked(() => {
+                if (this.layoutEditorKind()) this.layoutEditorKind.set(null);
+                this.layoutEditorFocused.set(false);
+                if (this.layoutContextMenu()) this.layoutContextMenu.set(null);
+            });
+        }
+        queueMicrotask(() => this._syncLayoutEditorPortal(visible));
     });
     layoutEditorSuppressed = signal(false);
     private _layoutEditorHideCount = 0;
@@ -803,6 +810,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._documentViewportAbort?.abort();
         this._stopPoll();
         this._browserRunner.stop();
+        this._syncLayoutEditorPortal(false);
     }
 
     selectIntent(intent: GuideIntent): void {
@@ -1336,11 +1344,31 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     /** Keep the color and text panel above the sheet, the sidebar, and the header. */
     private _liftLayoutEditorPanel(): void {
+        if (this.step() !== 'layout') {
+            this._syncLayoutEditorPortal(false);
+            return;
+        }
         const el = this._layoutEditorPanel?.nativeElement;
         if (el && el.parentElement !== document.body) {
             document.body.appendChild(el);
         }
         this._raiseAppOverlay();
+    }
+
+    /**
+     * The panel is moved onto document.body. Leaving the layout step destroys
+     * its view from the original parent, so the node would stay on screen.
+     */
+    private _syncLayoutEditorPortal(visible: boolean): void {
+        if (visible) {
+            this._liftLayoutEditorPanel();
+            return;
+        }
+        this._layoutEditorPanel?.nativeElement.remove();
+        document.querySelectorAll('body > .visita-layout-editor').forEach((node) => node.remove());
+        if (this.step() === 'layout') return;
+        this._layoutContextMenuEl?.nativeElement.remove();
+        document.querySelectorAll('body > .visita-layout-context-menu').forEach((node) => node.remove());
     }
 
     private _raiseAppOverlay(): void {
