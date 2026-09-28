@@ -977,6 +977,7 @@
                                     (contextmenu)="onCellContextMenu(section, entry.key, $event)"
                                 >
                                     <div
+                                        data-cell-part="label"
                                         class="tracking-wide"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'label')"
                                         [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
@@ -995,6 +996,7 @@
                                         ></ng-container>
                                     </div>
                                     <div
+                                        data-cell-part="value"
                                         class="truncate"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'value')"
                                         [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
@@ -1162,6 +1164,7 @@
                                     (contextmenu)="onCellContextMenu(section, entry.key, $event)"
                                 >
                                     <span
+                                        data-cell-part="label"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'label')"
                                         [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
                                         [style.font-family]="roleFontFamily(section, 'label', entry.key)"
@@ -1178,6 +1181,7 @@
                                         ></ng-container>
                                     </span>
                                     <span
+                                        data-cell-part="value"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'value')"
                                         [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
                                         [style.font-family]="roleFontFamily(section, 'value', entry.key)"

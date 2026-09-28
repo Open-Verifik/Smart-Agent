@@ -346,6 +346,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         untracked(() => queueMicrotask(() => this._bindDocumentViewports()));
     });
     private _layoutFocusTimer: ReturnType<typeof setTimeout> | null = null;
+    private _layoutRevealToken = 0;
+    private _followCellPart = false;
+    private _followCellPartTimer: ReturnType<typeof setTimeout> | null = null;
     layoutContextMenu = signal<{
         x: number;
         y: number;
@@ -1067,6 +1070,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(section.id);
         this.layoutEditorKind.set('block');
         this.layoutSections.update((list) => this._bringSectionsToFront(list, [section.id]));
+        const part = this.selectedLayoutCellPart();
+        if (
+            this._followCellPart &&
+            this.selectedLayoutCellKey() &&
+            (part === 'label' || part === 'value')
+        ) {
+            this._revealLayoutControls(part);
+            return;
+        }
         this._revealLayoutControls('block');
     };
 
@@ -1080,7 +1092,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.selectedLayoutCellPart.set('label');
             this.layoutEditorKind.set('block');
             this.setSelectedLayoutCellLabel(event.value);
-            this._revealLayoutControls('cell');
+            this._revealLayoutControls('label');
             return;
         }
         this.selectedLayoutCellKey.set(null);
@@ -1104,7 +1116,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutCellKey.set(event.key);
         this.selectedLayoutCellPart.set(event.part);
         this.layoutEditorKind.set('block');
-        this._revealLayoutControls(event.key ? 'cell' : 'block');
+        this.layoutSections.update((list) => this._bringSectionsToFront(list, [event.section.id]));
+        this._followCellPart = event.part === 'label' || event.part === 'value';
+        if (this._followCellPartTimer) clearTimeout(this._followCellPartTimer);
+        this._followCellPartTimer = setTimeout(() => {
+            this._followCellPart = false;
+        }, 0);
+        this._revealLayoutControls(
+            event.part === 'label' || event.part === 'value' ? event.part : event.key ? 'cell' : 'block'
+        );
     };
 
     onLayoutSectionRotation(event: { id: string; rotation: number }): void {
@@ -1329,26 +1349,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!this._layoutEditorHideCount) this.layoutEditorSuppressed.set(false);
     }
 
-    private _revealLayoutControls(control: 'page' | 'block' | 'cell' | 'overlay'): void {
+    private _revealLayoutControls(control: 'page' | 'block' | 'cell' | 'overlay' | 'label' | 'value'): void {
         this.layoutEditorFocused.set(true);
         if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
         this._layoutFocusTimer = setTimeout(() => this.layoutEditorFocused.set(false), 1200);
-        queueMicrotask(() => {
-            requestAnimationFrame(() => {
-                const root = this._layoutEditorPanel?.nativeElement;
-                const scroller = this._layoutEditorScroll?.nativeElement;
-                if (!root || !scroller) return;
-                const target = root.querySelector(`[data-layout-control="${control}"]`) as HTMLElement | null;
-                if (target && scroller.contains(target)) {
-                    const top = target.offsetTop - scroller.offsetTop - 8;
-                    scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-                }
-                const field = (target ?? root).querySelector<HTMLElement>(
-                    'input:not([type="file"]):not([type="checkbox"]):not([type="range"]), textarea, select'
-                );
-                field?.focus({ preventScroll: true });
-            });
-        });
+        const token = ++this._layoutRevealToken;
+        const place = (attempt: number) => {
+            if (token !== this._layoutRevealToken) return;
+            const root = this._layoutEditorPanel?.nativeElement;
+            const scroller = this._layoutEditorScroll?.nativeElement;
+            if (!root || !scroller) return;
+            const target = root.querySelector(`[data-layout-control="${control}"]`) as HTMLElement | null;
+            if (!target || !scroller.contains(target)) {
+                if (attempt < 4) requestAnimationFrame(() => place(attempt + 1));
+                return;
+            }
+            const next =
+                scroller.scrollTop + target.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 8;
+            scroller.scrollTop = Math.max(0, next);
+            target.setAttribute('tabindex', '-1');
+            target.focus({ preventScroll: true });
+        };
+        queueMicrotask(() => requestAnimationFrame(() => place(0)));
     }
 
     onLayoutSectionContextMenu(event: { section: ReportSection; x: number; y: number }): void {

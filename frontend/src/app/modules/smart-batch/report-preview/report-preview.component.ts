@@ -267,6 +267,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         scrollTopAtStart: number;
         active: boolean;
         cellKey: string | null;
+        cellPart: ReportCellPart;
         host: HTMLElement | null;
     } | null = null;
     private _sectionDragMoved = false;
@@ -911,6 +912,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (origin?.closest('[data-section-handle]')) return;
         if (origin?.closest('[data-inline-edit]')) return;
         const cellKey = origin?.closest('[data-report-cell]')?.getAttribute('data-cell-key') ?? null;
+        const rawPart = origin?.closest('[data-cell-part]')?.getAttribute('data-cell-part');
+        const cellPart: ReportCellPart = rawPart === 'label' || rawPart === 'value' ? rawPart : 'cell';
         this._sectionDragMoved = false;
         this._sectionDrag = {
             id: section.id,
@@ -921,6 +924,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             scrollTopAtStart: this._dragViewport()?.scrollTop ?? 0,
             active: false,
             cellKey,
+            cellPart,
             host: event.currentTarget as HTMLElement | null,
         };
         window.addEventListener('pointermove', this._onWindowSectionMove);
@@ -1139,7 +1143,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const section = this.template().sections?.find((item) => item.id === drag.id);
             if (section && drag.cellKey) {
                 this._keepCellSelection = true;
-                this.cellSelect.emit({ section, key: drag.cellKey, part: 'cell' });
+                this.cellSelect.emit({ section, key: drag.cellKey, part: drag.cellPart });
                 queueMicrotask(() => {
                     this._keepCellSelection = false;
                 });
@@ -2324,7 +2328,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     ): void {
         event.stopPropagation();
         if (!this.clickable() || this._sectionDragMoved || this._cellDragMoved) return;
-        this.sectionClick()?.(section);
         this.cellSelect.emit({ section, key, part });
     }
 

@@ -2558,7 +2558,7 @@
                                             ></textarea>
                                         }
                                         @for (role of selectedLayoutTextRoles(); track role) {
-                                            <div [class]="layoutRolePanelClass(role)">
+                                            <div [attr.data-layout-control]="role" [class]="layoutRolePanelClass(role)">
                                                 <p [class]="layoutRoleHeadingClass(role)">
                                                     {{ t(layoutRoleTitleKey(role)) }}
                                                 </p>
