@@ -26,7 +26,7 @@ import { resolveTextRole } from '../report-text-role.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
 
-export type ReportInlineTextKind = 'title' | 'body' | 'cellLabel';
+export type ReportInlineTextKind = 'title' | 'body' | 'cellLabel' | 'cellValue' | 'itemTitle' | 'itemTemplate';
 
 export type ReportInlineTextChange = {
     sectionId: string;
@@ -938,8 +938,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._flushInlineEdit();
         this._suppressInlineBlur = true;
         this.sectionClick()?.(section);
-        if (editKind === 'cellLabel' && key) {
-            this.cellSelect.emit({ section, key, part: 'label' });
+        if ((editKind === 'cellLabel' || editKind === 'cellValue') && key) {
+            this.cellSelect.emit({
+                section,
+                key: key.split('#')[0],
+                part: editKind === 'cellLabel' ? 'label' : 'value',
+            });
         } else {
             this.cellSelect.emit({ section, key: null, part: 'cell' });
         }
@@ -991,8 +995,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         fallback = ''
     ): string {
         if (kind === 'body') return section.staticContent || '';
+        if (kind === 'itemTitle') return section.itemTitle || fallback || '';
+        if (kind === 'itemTemplate') return section.itemTemplate || fallback || '';
         if (kind === 'cellLabel' && key) {
             return this.entryLabel(section, { key, label: fallback || key });
+        }
+        if (kind === 'cellValue' && key) {
+            const custom = section.keyOverrides?.[key]?.value;
+            if (typeof custom === 'string') return custom;
+            return fallback ?? '';
         }
         if (section.type === 'header') return section.staticContent || section.label || '';
         return section.label || '';
@@ -1005,7 +1016,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             | null;
         if (!el) return;
         el.focus();
-        el.select();
+        const end = el.value.length;
+        el.setSelectionRange(end, end);
     }
 
     onSectionPointerDown(section: ReportSection, event: PointerEvent): void {
@@ -1013,7 +1025,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
         if (origin?.closest('[data-section-handle]')) return;
-        if (origin?.closest('[data-inline-edit]')) return;
+        if (origin?.closest('[data-inline-edit]') || origin?.closest('[data-sheet-text]')) return;
         const cellKey = origin?.closest('[data-report-cell]')?.getAttribute('data-cell-key') ?? null;
         const rawPart = origin?.closest('[data-cell-part]')?.getAttribute('data-cell-part');
         const cellPart: ReportCellPart = rawPart === 'label' || rawPart === 'value' ? rawPart : 'cell';
@@ -2513,11 +2525,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return String(current);
     }
 
-    resolveTableData(section: ReportSection): { key: string; value: string }[] {
-        return this.structuralEntries(section).map((entry) => ({
-            key: entry.label,
-            value: entry.value,
-        }));
+    resolveTableData(section: ReportSection): { key: string; label: string; value: string }[] {
+        return this.structuralEntries(section);
+    }
+
+    /** Text stored on the sheet, or the consulted value when it has not been rewritten. */
+    boundValue(section: ReportSection, key: string, fallback: unknown): string {
+        const custom = section.keyOverrides?.[key]?.value;
+        if (typeof custom === 'string') return custom;
+        if (fallback == null) return '';
+        return String(fallback);
+    }
+
+    cellStoreKey(base: string, rowIndex: number): string {
+        return `${base}#${rowIndex}`;
     }
 
     private _humanize(key: string): string {

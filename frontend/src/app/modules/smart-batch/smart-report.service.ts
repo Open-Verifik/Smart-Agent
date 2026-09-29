@@ -97,6 +97,8 @@ export interface ReportTextRoleStyle {
 /** Per-parameter cell inside a keyValueGrid / card / table. */
 export interface ReportKeyOverride {
     label?: string;
+    /** Shown instead of the consulted value when the sheet text was rewritten. */
+    value?: string;
     backgroundColor?: string;
     /** Table chip. Omitted means visible. */
     showTableBadge?: boolean;

@@ -1150,11 +1150,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!section) return;
         this.selectedLayoutSectionId.set(event.sectionId);
         this.selectedLayoutOverlay.set(null);
-        if (event.kind === 'cellLabel' && event.key) {
-            this.selectedLayoutCellKey.set(event.key);
-            this.selectedLayoutCellPart.set('label');
-            this.setSelectedLayoutCellLabel(event.value);
-            this._focusLayoutEditor(section, 'label');
+        if ((event.kind === 'cellLabel' || event.kind === 'cellValue') && event.key) {
+            this.selectedLayoutCellKey.set(event.key.split('#')[0]);
+            this.selectedLayoutCellPart.set(event.kind === 'cellLabel' ? 'label' : 'value');
+            this._writeLayoutKeyOverride(
+                event.key,
+                event.kind === 'cellLabel' ? { label: event.value } : { value: event.value }
+            );
+            this._focusLayoutEditor(section, event.kind === 'cellLabel' ? 'label' : 'value');
+            return;
+        }
+        if (event.kind === 'itemTitle') {
+            this._patchSelectedLayout({ itemTitle: event.value });
+            this._focusLayoutEditor(section, 'block');
+            return;
+        }
+        if (event.kind === 'itemTemplate') {
+            this._patchSelectedLayout({ itemTemplate: event.value });
+            this._focusLayoutEditor(section, 'block');
             return;
         }
         this.selectedLayoutCellKey.set(null);
@@ -2956,6 +2969,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                       : { valueColor: patch.color }
                   : {};
         this._patchSelectedLayoutStyle({ [key]: next, ...mirrored });
+    }
+
+    private _writeLayoutKeyOverride(key: string, patch: Partial<ReportKeyOverride>): void {
+        const section = this.selectedLayoutSection();
+        if (!section || !key) return;
+        const current = section.keyOverrides?.[key] ?? {};
+        this._patchSelectedLayout({
+            keyOverrides: {
+                ...(section.keyOverrides ?? {}),
+                [key]: { ...current, ...patch },
+            },
+        });
     }
 
     private _patchSelectedKeyOverride(patch: Partial<ReportKeyOverride>, unset: (keyof ReportKeyOverride)[] = []): void {

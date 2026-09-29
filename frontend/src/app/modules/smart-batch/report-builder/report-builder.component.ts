@@ -1803,16 +1803,24 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         const section = this.sections().find((item) => item.id === event.sectionId);
         if (!section) return;
         this.selectSection(section);
-        if (event.kind === 'cellLabel' && event.key) {
+        if ((event.kind === 'cellLabel' || event.kind === 'cellValue') && event.key) {
             this.updateSection(section.id, {
                 keyOverrides: {
                     ...(section.keyOverrides ?? {}),
                     [event.key]: {
                         ...(section.keyOverrides?.[event.key] ?? {}),
-                        label: event.value,
+                        ...(event.kind === 'cellLabel' ? { label: event.value } : { value: event.value }),
                     },
                 },
             });
+            return;
+        }
+        if (event.kind === 'itemTitle') {
+            this.updateSection(section.id, { itemTitle: event.value });
+            return;
+        }
+        if (event.kind === 'itemTemplate') {
+            this.updateSection(section.id, { itemTemplate: event.value });
             return;
         }
         if (event.kind === 'body') {

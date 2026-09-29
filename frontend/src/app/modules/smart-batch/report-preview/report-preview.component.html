@@ -743,7 +743,10 @@
                 [style.text-align]="roleTextAlign(section, 'value')"
                 [style.color]="roleColor(section, 'value')"
             >
-                {{ resolveDataPath(section.dataPath) || '—' }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, '__value', resolveDataPath(section.dataPath) || '—'), measure, false, '__value', resolveDataPath(section.dataPath) || '')"
+                ></ng-container>
             </div>
         </div>
     }
@@ -779,7 +782,10 @@
                                 [style.text-align]="roleTextAlign(section, 'label')"
                                 [style.color]="roleColor(section, 'label')"
                             >
-                                {{ row.key }}
+                                <ng-container
+                                    [ngTemplateOutlet]="sheetText"
+                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, row), measure, false, row.key, row.label)"
+                                ></ng-container>
                             </td>
                             <td
                                 class="py-2"
@@ -790,7 +796,10 @@
                                 [style.text-align]="roleTextAlign(section, 'value')"
                                 [style.color]="roleColor(section, 'value')"
                             >
-                                {{ row.value }}
+                                <ng-container
+                                    [ngTemplateOutlet]="sheetText"
+                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, row.key, row.value), measure, false, row.key, row.value)"
+                                ></ng-container>
                             </td>
                         </tr>
                     }
@@ -953,15 +962,18 @@
                                     [style.text-align]="roleTextAlign(section, 'label')"
                                     [style.color]="roleColor(section, 'label')"
                                 >
-                                    {{ column.label }}
+                                    <ng-container
+                                        [ngTemplateOutlet]="sheetText"
+                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, column), measure, false, column.key, column.label)"
+                                    ></ng-container>
                                 </th>
                             }
                         </tr>
                     </thead>
                     <tbody>
-                        @for (row of structuralSampleRows(section); track $index) {
+                        @for (row of structuralSampleRows(section); track $index; let rowIndex = $index) {
                             <tr [ngStyle]="rowLineBg(section)">
-                                @for (cell of row; track $index) {
+                                @for (cell of row; track $index; let colIndex = $index) {
                                     <td
                                         class="py-1.5 pr-3"
                                         [style.font-family]="roleFontFamily(section, 'value')"
@@ -971,7 +983,10 @@
                                         [style.text-align]="roleTextAlign(section, 'value')"
                                         [style.color]="roleColor(section, 'value')"
                                     >
-                                        {{ cell }}
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, cellStoreKey(structuralColumns(section)[colIndex].key, rowIndex), cell), measure, false, cellStoreKey(structuralColumns(section)[colIndex].key, rowIndex), cell)"
+                                        ></ng-container>
                                     </td>
                                 }
                             </tr>
@@ -1074,7 +1089,10 @@
                                         [style.color]="roleColor(section, 'value', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'value', $event)"
                                     >
-                                        {{ entry.value }}
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, entry.key, entry.value), measure, false, entry.key, entry.value)"
+                                        ></ng-container>
                                     </div>
                                 </div>
                             }
@@ -1136,13 +1154,16 @@
                                                 (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
                                                 (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                             >
-                                                {{ column.label }}
+                                                <ng-container
+                                                    [ngTemplateOutlet]="sheetText"
+                                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
+                                                ></ng-container>
                                             </th>
                                         }
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @for (row of chunk.table.rows; track $index; let last = $last) {
+                                    @for (row of chunk.table.rows; track $index; let last = $last; let rowIndex = $index) {
                                         <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
@@ -1158,7 +1179,10 @@
                                                     (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
                                                     (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                                 >
-                                                    {{ row[column.key] }}
+                                                    <ng-container
+                                                        [ngTemplateOutlet]="sheetText"
+                                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key]), measure, false, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key])"
+                                                    ></ng-container>
                                                 </td>
                                             }
                                         </tr>
@@ -1206,7 +1230,10 @@
                 [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                 [ngClass]="variantClasses(section)"
             >
-                {{ resolveDataPath(section.dataPath) || '—' }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, '__value', resolveDataPath(section.dataPath) || '—'), measure, false, '__value', resolveDataPath(section.dataPath) || '')"
+                ></ng-container>
             </span>
         </div>
     }
@@ -1299,7 +1326,10 @@
                                         [style.text-align]="roleTextAlign(section, 'value', entry.key)"
                                         [style.color]="roleColor(section, 'value', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'value', $event)"
-                                        >{{ entry.value }}</span
+                                        ><ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, entry.key, entry.value), measure, false, entry.key, entry.value)"
+                                        ></ng-container></span
                                     >
                                 </div>
                             }
@@ -1361,13 +1391,16 @@
                                                 (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
                                                 (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                             >
-                                                {{ column.label }}
+                                                <ng-container
+                                                    [ngTemplateOutlet]="sheetText"
+                                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
+                                                ></ng-container>
                                             </th>
                                         }
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @for (row of chunk.table.rows; track $index; let last = $last) {
+                                    @for (row of chunk.table.rows; track $index; let last = $last; let rowIndex = $index) {
                                         <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
@@ -1383,7 +1416,10 @@
                                                     (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
                                                     (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                                 >
-                                                    {{ row[column.key] }}
+                                                    <ng-container
+                                                        [ngTemplateOutlet]="sheetText"
+                                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key]), measure, false, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key])"
+                                                    ></ng-container>
                                                 </td>
                                             }
                                         </tr>
@@ -1418,11 +1454,17 @@
                 @for (record of structuralRecords(section).slice(0, 2); track $index) {
                     <div class="mb-1.5 rounded-lg border border-gray-200 px-3 py-2">
                         <div class="text-xs font-semibold text-gray-700">
-                            {{ section.itemTitle || ('smartReport.sectionNumber' | transloco: { num: $index + 1 }) }}
+                            <ng-container
+                                [ngTemplateOutlet]="sheetText"
+                                [ngTemplateOutletContext]="sheetTextContext(section, 'itemTitle', section.itemTitle || ('smartReport.sectionNumber' | transloco: { num: $index + 1 }), measure, false, undefined, section.itemTitle || ('smartReport.sectionNumber' | transloco: { num: $index + 1 }))"
+                            ></ng-container>
                         </div>
-                        @if (section.itemTemplate) {
+                        @if (section.itemTemplate || canInlineEdit(measure)) {
                             <p class="mt-0.5 whitespace-pre-wrap text-[11px] text-gray-500">
-                                {{ section.itemTemplate }}
+                                <ng-container
+                                    [ngTemplateOutlet]="sheetText"
+                                    [ngTemplateOutletContext]="sheetTextContext(section, 'itemTemplate', section.itemTemplate || '', measure, true, undefined, section.itemTemplate || '')"
+                                ></ng-container>
                             </p>
                         }
                     </div>
@@ -1478,7 +1520,7 @@
             <textarea
                 data-inline-edit
                 rows="3"
-                class="m-0 w-full resize-y bg-transparent p-0 leading-[inherit] outline-none ring-1 ring-indigo-400 rounded-sm"
+                class="m-0 min-w-[4rem] w-full resize-y bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit outline-none ring-1 ring-indigo-400 rounded-sm"
                 [value]="inlineDraft()"
                 (input)="onInlineDraftInput($event)"
                 (blur)="commitInlineEdit()"
@@ -1491,7 +1533,7 @@
             <input
                 data-inline-edit
                 type="text"
-                class="m-0 w-full bg-transparent p-0 leading-[inherit] outline-none ring-1 ring-indigo-400 rounded-sm"
+                class="m-0 min-w-[4rem] w-full bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit outline-none ring-1 ring-indigo-400 rounded-sm"
                 [value]="inlineDraft()"
                 (input)="onInlineDraftInput($event)"
                 (blur)="commitInlineEdit()"
@@ -1503,9 +1545,12 @@
         }
     } @else {
         <span
+            data-sheet-text
+            class="inline-block min-h-[1em] min-w-[1ch]"
             [class.cursor-text]="canInlineEdit(measure)"
-            (dblclick)="startInlineEdit(section, kind, $event, key, fallback)"
-            >{{ text }}</span
+            (pointerdown)="$event.stopPropagation()"
+            (click)="startInlineEdit(section, kind, $event, key, fallback)"
+            >{{ text || '\u00a0' }}</span
         >
     }
 </ng-template>
