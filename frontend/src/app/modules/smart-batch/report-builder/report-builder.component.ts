@@ -1966,7 +1966,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     openSignatureDialog(): void {
         this._dialog
             .open(SignaturePadDialogComponent, {
-                width: '640px',
+                width: '520px',
                 disableClose: true,
                 autoFocus: false,
             })

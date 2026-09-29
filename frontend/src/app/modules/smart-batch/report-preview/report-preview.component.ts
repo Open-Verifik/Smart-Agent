@@ -867,15 +867,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
         if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
         if (!this.clickable() || !this.sectionClick()) return;
+        const host = event.target as HTMLElement | null;
+        const cell = host?.closest('[data-report-cell]');
+        const cellKey = cell?.getAttribute('data-cell-key');
+        if (cellKey) {
+            this._keepCellSelection = false;
+            const rawPart = host?.closest('[data-cell-part]')?.getAttribute('data-cell-part');
+            const part: ReportCellPart = rawPart === 'label' || rawPart === 'value' ? rawPart : 'cell';
+            this.cellSelect.emit({ section, key: cellKey, part });
+            this.sectionClick()!(section);
+            return;
+        }
         if (this._keepCellSelection) {
             this._keepCellSelection = false;
             this.sectionClick()!(section);
             return;
         }
-        const cell = (event.target as HTMLElement | null)?.closest('[data-report-cell]');
-        if (!cell) {
-            this.cellSelect.emit({ section, key: null, part: 'cell' });
-        }
+        this.cellSelect.emit({ section, key: null, part: 'cell' });
         this.sectionClick()!(section);
     }
 
@@ -2680,7 +2688,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         role: 'label' | 'value',
         tableKey: string,
         column?: string
-    ): { fontFamily: string; fontSize: number; fontWeight: string; fontStyle: string; textAlign: string; color: string } {
+    ): { fontFamily: string; fontSize: number; fontWeight: string; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
         const base = resolveTextRole(section, role, this.primaryColor(), tableKey);
         if (!column) return base;
         const columnKey = tableColumnPath(tableKey, column);
@@ -2696,6 +2704,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             fontSize: Number.isFinite(size) && size > 0 ? size : base.fontSize,
             fontWeight: nested.fontWeight || base.fontWeight,
             fontStyle: nested.fontStyle || base.fontStyle,
+            textDecoration: nested.textDecoration || base.textDecoration,
             textAlign:
                 align === 'left' || align === 'center' || align === 'right' || align === 'justify'
                     ? align
@@ -2875,6 +2884,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     roleFontStyle(section: ReportSection, role: ReportTextRole, key?: string): 'normal' | 'italic' {
         return resolveTextRole(section, role, this.primaryColor(), key).fontStyle;
+    }
+
+    roleTextDecoration(section: ReportSection, role: ReportTextRole, key?: string): 'none' | 'underline' {
+        return resolveTextRole(section, role, this.primaryColor(), key).textDecoration;
     }
 
     roleTextAlign(section: ReportSection, role: ReportTextRole, key?: string): string {
@@ -3082,6 +3095,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             'font-size',
             'font-weight',
             'font-style',
+            'text-decoration',
             'line-height',
             'letter-spacing',
             'text-align',

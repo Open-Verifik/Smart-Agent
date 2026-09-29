@@ -364,6 +364,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutSectionId = signal<string | null>(null);
     /** Compact format bar, fixed to the viewport just under the selection. */
     layoutFormatAnchor = signal<{ x: number; y: number } | null>(null);
+    layoutFormatExpanded = signal(false);
     readonly layoutFormatAligns: ReportTextAlign[] = ['left', 'center', 'right'];
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
@@ -405,6 +406,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         untracked(() => {
             if (active) this._ensureFormatBarLoop();
             else this._stopFormatBarLoop();
+        });
+    });
+    private _formatSelectionToken = '';
+    private readonly _collapseFormatMenu = effect(() => {
+        const token = [
+            this.selectedLayoutSectionId() ?? '',
+            this.selectedLayoutCellKey() ?? '',
+            this.selectedLayoutCellPart(),
+        ].join('|');
+        untracked(() => {
+            if (token === this._formatSelectionToken) return;
+            const hadSelection = this._formatSelectionToken.length > 0;
+            this._formatSelectionToken = token;
+            if (hadSelection) this.layoutFormatExpanded.set(false);
         });
     });
     private _layoutRevealToken = 0;
@@ -1427,12 +1442,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     /** Text selections stay on the compact bar. Shapes and the rest open the full panel. */
     private _focusLayoutEditor(section: ReportSection, control: 'block' | 'cell' | 'label' | 'value'): void {
-        if (this.layoutEditorKind() === 'block') {
-            this._revealLayoutControls(control);
-            return;
-        }
         if (this._sectionUsesFormatBar(section)) {
-            this.layoutEditorKind.set(null);
+            if (this.layoutEditorKind() === 'block') this.layoutEditorKind.set(null);
             return;
         }
         this.layoutEditorKind.set('block');
@@ -1477,6 +1488,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         for (const role of this._formatRoles()) this.setLayoutRoleBold(role, next);
     }
 
+    layoutFormatItalic(): boolean {
+        return this._formatRoles().every((role) => this.layoutRoleIsItalic(role));
+    }
+
+    toggleLayoutFormatItalic(): void {
+        const next = !this.layoutFormatItalic();
+        for (const role of this._formatRoles()) this.setLayoutRoleItalic(role, next);
+    }
+
+    layoutFormatUnderline(): boolean {
+        return this._formatRoles().every((role) => this.layoutRoleIsUnderline(role));
+    }
+
+    toggleLayoutFormatUnderline(): void {
+        const next = !this.layoutFormatUnderline();
+        for (const role of this._formatRoles()) this.setLayoutRoleUnderline(role, next);
+    }
+
     layoutFormatSize(): number {
         return this.layoutRoleFontSize(this._formatRoles()[0]);
     }
@@ -1487,10 +1516,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
-    openLayoutFormatMore(): void {
-        this.layoutEditorKind.set('block');
-        const part = this.selectedLayoutCellPart();
-        this._revealLayoutControls(part === 'label' || part === 'value' ? part : 'block');
+    toggleLayoutFormatMore(): void {
+        this.layoutFormatExpanded.update((open) => !open);
     }
 
     onLayoutFormatPointerDown(event: PointerEvent): void {
@@ -1525,6 +1552,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this._formatBarFrame != null) cancelAnimationFrame(this._formatBarFrame);
         this._formatBarFrame = null;
         this._detachFormatBar();
+        if (this.layoutFormatExpanded()) this.layoutFormatExpanded.set(false);
         if (this.layoutFormatAnchor() !== null) this.layoutFormatAnchor.set(null);
     }
 
@@ -2506,7 +2534,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     openSignatureDialog(): void {
         this._raiseAppOverlay();
         const dialogRef = this._dialog.open(SignaturePadDialogComponent, {
-            width: '640px',
+            width: '520px',
             disableClose: true,
             autoFocus: false,
         });
@@ -2867,6 +2895,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this._layoutRole(role).fontStyle === 'italic';
     }
 
+    layoutRoleIsUnderline(role: ReportTextRole): boolean {
+        return this._layoutRole(role).textDecoration === 'underline';
+    }
+
     layoutRoleColor(role: ReportTextRole): string {
         return this._layoutRole(role).color;
     }
@@ -2893,6 +2925,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._patchSelectedLayoutRole(role, { fontStyle: enabled ? 'italic' : 'normal' });
     }
 
+    setLayoutRoleUnderline(role: ReportTextRole, enabled: boolean): void {
+        this._patchSelectedLayoutRole(role, { textDecoration: enabled ? 'underline' : 'none' });
+    }
+
     setLayoutRoleColor(role: ReportTextRole, value: string): void {
         this._patchSelectedLayoutRole(role, { color: value });
     }
@@ -2901,7 +2937,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const section = this.selectedLayoutSection();
         if (!section) return;
         const cellKey = this.selectedLayoutCellKey();
-        if (cellKey && role !== 'title') {
+        if (cellKey) {
+            if (role === 'title') return;
             const styleKey = role === 'label' ? 'labelStyle' : 'valueStyle';
             const current = section.keyOverrides?.[cellKey]?.[styleKey] ?? {};
             this._patchSelectedKeyOverride({ [styleKey]: { ...current, ...patch } });
@@ -3418,6 +3455,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             fontSize: style.fontSize,
             fontWeight: style.fontWeight,
             fontStyle: style.fontStyle,
+            textDecoration: style.textDecoration,
             fontFamily: style.fontFamily,
             textAlign: style.textAlign,
             color: style.color,

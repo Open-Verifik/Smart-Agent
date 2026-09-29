@@ -88,6 +88,7 @@ export interface ReportTextRoleStyle {
     fontSize?: number;
     fontWeight?: 'normal' | 'bold';
     fontStyle?: 'normal' | 'italic';
+    textDecoration?: 'none' | 'underline';
     fontFamily?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
     color?: string;
@@ -172,6 +173,7 @@ export interface ReportSection {
         fontSize?: number;
         fontWeight?: 'normal' | 'bold';
         fontStyle?: 'normal' | 'italic';
+        textDecoration?: 'none' | 'underline';
         fontFamily?: string;
         textAlign?: 'left' | 'center' | 'right' | 'justify';
         color?: string;

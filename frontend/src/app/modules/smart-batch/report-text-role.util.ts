@@ -6,6 +6,7 @@ export type ResolvedTextRoleStyle = {
     fontSize: number;
     fontWeight: 'normal' | 'bold';
     fontStyle: 'normal' | 'italic';
+    textDecoration: 'none' | 'underline';
     textAlign: ReportTextAlign;
     color: string;
 };
@@ -67,6 +68,10 @@ export const resolveTextRole = (
             nested?.fontStyle ||
             (role === 'title' ? style?.fontStyle : undefined) ||
             'normal',
+        textDecoration:
+            (nested?.textDecoration ?? (role === 'title' ? style?.textDecoration : undefined)) === 'underline'
+                ? 'underline'
+                : 'none',
         textAlign:
             align === 'left' || align === 'center' || align === 'right' || align === 'justify'
                 ? align

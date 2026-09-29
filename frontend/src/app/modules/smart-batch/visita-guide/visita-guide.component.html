@@ -2917,6 +2917,7 @@
                                         <p class="text-[11px] font-semibold uppercase tracking-wider text-rose-800 dark:text-rose-300">
                                             {{ t('visitaGuide.layoutBlockLook') }}
                                         </p>
+                                        @if (!selectedLayoutCellKey()) {
                                         <div class="mt-2">
                                             <span class="text-xs text-stone-600 dark:text-stone-300">{{
                                                 t('visitaGuide.layoutBlockBg')
@@ -2928,6 +2929,7 @@
                                                 [ariaLabel]="t('visitaGuide.layoutBlockBg')"
                                             />
                                         </div>
+                                        }
                                         <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
                                             <input
                                                 type="checkbox"
@@ -3158,13 +3160,14 @@
     @if (step() === 'layout' && selectedLayoutShowsTypography() && layoutFormatAnchor(); as anchor) {
         <div
             #layoutFormatBarEl
-            class="visita-layout-format-bar fixed z-[999995] flex items-center gap-0.5 rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
+            class="visita-layout-format-bar fixed z-[999995] flex w-max flex-col rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
             style="z-index: 999995"
             [style.left.px]="anchor.x"
             [style.top.px]="anchor.y"
             (pointerdown)="onLayoutFormatPointerDown($event)"
             (click)="$event.stopPropagation()"
         >
+            <div class="flex items-center gap-0.5">
             @for (align of layoutFormatAligns; track align) {
                 <button
                     type="button"
@@ -3196,6 +3199,34 @@
             >
                 B
             </button>
+            <button
+                type="button"
+                class="flex h-8 w-8 items-center justify-center rounded-lg text-sm italic"
+                [ngClass]="
+                    layoutFormatItalic()
+                        ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                        : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                "
+                [attr.aria-label]="t('smartReport.italic')"
+                [matTooltip]="t('smartReport.italic')"
+                (click)="toggleLayoutFormatItalic()"
+            >
+                I
+            </button>
+            <button
+                type="button"
+                class="flex h-8 w-8 items-center justify-center rounded-lg text-sm underline"
+                [ngClass]="
+                    layoutFormatUnderline()
+                        ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                        : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                "
+                [attr.aria-label]="t('smartReport.underline')"
+                [matTooltip]="t('smartReport.underline')"
+                (click)="toggleLayoutFormatUnderline()"
+            >
+                U
+            </button>
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -3221,12 +3252,212 @@
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
-                class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                class="flex h-8 items-center gap-0.5 rounded-lg px-2 text-xs font-medium"
+                [ngClass]="
+                    layoutFormatExpanded()
+                        ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                        : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                "
                 [matTooltip]="t('visitaGuide.layoutFormatMore')"
-                (click)="openLayoutFormatMore()"
+                (click)="toggleLayoutFormatMore()"
             >
                 {{ t('visitaGuide.layoutFormatMore') }}
+                <mat-icon class="!h-4 !w-4 !text-base">{{
+                    layoutFormatExpanded() ? 'expand_less' : 'expand_more'
+                }}</mat-icon>
             </button>
+            </div>
+            @if (layoutFormatExpanded()) {
+                <div class="mt-1 max-h-[min(22rem,calc(100vh-6rem))] w-full min-w-[18rem] overflow-y-auto border-t border-stone-200 px-1.5 py-2 dark:border-gray-700">
+                    @if (selectedLayoutSection(); as selected) {
+                        @if ((selected.type === 'text' || selected.type === 'header') && !selectedLayoutCellKey()) {
+                            <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutBlockBody') }}</label>
+                            <textarea
+                                rows="2"
+                                class="mt-1 w-full rounded-lg border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                [ngModel]="selected.staticContent"
+                                (ngModelChange)="setSelectedLayoutBody($event)"
+                            ></textarea>
+                        }
+                        @if (selectedLayoutCellKey() && selectedLayoutCellPart() === 'label') {
+                            <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutCellLabelText') }}</label>
+                            <input
+                                type="text"
+                                class="mt-1 w-full rounded-lg border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                [ngModel]="selectedLayoutCellOverride()?.label || selectedLayoutCellTitle()"
+                                (ngModelChange)="setSelectedLayoutCellLabel($event)"
+                            />
+                        }
+                    }
+                    @for (role of selectedLayoutTextRoles(); track role) {
+                        <p class="mt-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                            {{ t(layoutRoleTitleKey(role)) }}
+                        </p>
+                        <label class="mt-1 block text-[11px] text-stone-500">{{ t('smartReport.fontFamily') }}</label>
+                        <select
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [ngModel]="layoutRoleFontFamily(role)"
+                            (ngModelChange)="setLayoutRoleFontFamily(role, $event)"
+                        >
+                            @for (font of reportFonts; track font.value) {
+                                <option [ngValue]="font.value">{{ t(font.labelKey) }}</option>
+                            }
+                        </select>
+                        <span class="mt-1.5 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutBlockColor') }}</span>
+                        <color-hex-field
+                            class="mt-1 block"
+                            [ngModel]="layoutRoleColor(role)"
+                            (ngModelChange)="setLayoutRoleColor(role, $event)"
+                            [ariaLabel]="t(layoutRoleTitleKey(role))"
+                        />
+                    }
+                    @if (selectedLayoutCellKey()) {
+                        <p class="mt-3 truncate text-[11px] font-semibold uppercase tracking-wider text-violet-700">
+                            {{ selectedLayoutCellTitle() }}
+                        </p>
+                        <span class="mt-2 block text-[11px] text-stone-500">{{
+                            t(selectedLayoutCellIsTable() ? 'visitaGuide.layoutTableColor' : 'visitaGuide.layoutCellBg')
+                        }}</span>
+                        <color-hex-field
+                            class="mt-1 block"
+                            [ngModel]="selectedLayoutCellColor()"
+                            (ngModelChange)="setSelectedLayoutCellBackground($event)"
+                            [ariaLabel]="t(selectedLayoutCellIsTable() ? 'visitaGuide.layoutTableColor' : 'visitaGuide.layoutCellBg')"
+                        />
+                        <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                            <input
+                                type="checkbox"
+                                [ngModel]="selectedLayoutCellHasBorder()"
+                                (ngModelChange)="setSelectedLayoutCellBorderEnabled($event)"
+                            />
+                            {{ t('visitaGuide.layoutCellBorder') }}
+                        </label>
+                        @if (selectedLayoutCellHasBorder()) {
+                            <color-hex-field
+                                class="mt-2 block"
+                                [ngModel]="selectedLayoutCellOverride()?.borderColor || '#d6d3d1'"
+                                (ngModelChange)="setSelectedLayoutCellBorderColor($event)"
+                                [ariaLabel]="t('visitaGuide.layoutCellBorder')"
+                            />
+                            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                <span>{{ t('visitaGuide.layoutBlockBorderWidth') }}</span>
+                                <span>{{ selectedLayoutCellOverride()?.borderWidth || 1 }} px</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="1"
+                                max="8"
+                                step="1"
+                                class="mt-1 w-full"
+                                [ngModel]="selectedLayoutCellOverride()?.borderWidth || 1"
+                                (ngModelChange)="setSelectedLayoutCellBorderWidth($event)"
+                            />
+                            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
+                                <span>{{ selectedLayoutCellBorderRadius() }} px</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="0"
+                                max="32"
+                                step="1"
+                                class="mt-1 w-full"
+                                [ngModel]="selectedLayoutCellBorderRadius()"
+                                (ngModelChange)="setSelectedLayoutCellBorderRadius($event)"
+                            />
+                        }
+                        <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                            {{ t('visitaGuide.layoutCellRowLine') }}
+                        </p>
+                        <div class="mt-1 flex flex-wrap gap-1">
+                            <button
+                                type="button"
+                                class="rounded-lg border px-2 py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                [class.border-stone-950]="selectedLayoutCellRowLineMode() === 'inherit'"
+                                [class.bg-white]="selectedLayoutCellRowLineMode() === 'inherit'"
+                                [class.border-stone-200]="selectedLayoutCellRowLineMode() !== 'inherit'"
+                                (click)="setSelectedLayoutCellRowLineMode('inherit')"
+                            >
+                                {{ t('visitaGuide.layoutCellRowLineInherit') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded-lg border px-2 py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                [class.border-stone-950]="selectedLayoutCellRowLineMode() === 'none'"
+                                [class.bg-white]="selectedLayoutCellRowLineMode() === 'none'"
+                                [class.border-stone-200]="selectedLayoutCellRowLineMode() !== 'none'"
+                                (click)="setSelectedLayoutCellRowLineMode('none')"
+                            >
+                                {{ t('visitaGuide.layoutRowLineNone') }}
+                            </button>
+                            @for (style of layoutRowLineStyles; track style) {
+                                <button
+                                    type="button"
+                                    class="rounded-lg border px-2 py-1.5 text-[11px] text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutCellRowLineMode() === style"
+                                    [class.bg-white]="selectedLayoutCellRowLineMode() === style"
+                                    [class.border-stone-200]="selectedLayoutCellRowLineMode() !== style"
+                                    (click)="setSelectedLayoutCellRowLineMode(style)"
+                                >
+                                    {{ t(layoutRowLineStyleKey(style)) }}
+                                </button>
+                            }
+                        </div>
+                    } @else if (selectedLayoutSection()) {
+                        @if (selectedLayoutSection(); as selected) {
+                        <span class="mt-2 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutBlockBg') }}</span>
+                        <color-hex-field
+                            class="mt-1 block"
+                            [ngModel]="selected.style?.backgroundColor || '#ffffff'"
+                            (ngModelChange)="setSelectedLayoutBackground($event)"
+                            [ariaLabel]="t('visitaGuide.layoutBlockBg')"
+                        />
+                        <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                            <input
+                                type="checkbox"
+                                [ngModel]="selectedLayoutHasBorder()"
+                                (ngModelChange)="setSelectedLayoutBorderEnabled($event)"
+                            />
+                            {{ t('visitaGuide.layoutBlockBorder') }}
+                        </label>
+                        @if (selectedLayoutHasBorder()) {
+                            <color-hex-field
+                                class="mt-2 block"
+                                [ngModel]="selected.style?.borderColor || '#d6d3d1'"
+                                (ngModelChange)="setSelectedLayoutBorderColor($event)"
+                                [ariaLabel]="t('visitaGuide.layoutBlockBorderColor')"
+                            />
+                            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                <span>{{ t('visitaGuide.layoutBlockBorderWidth') }}</span>
+                                <span>{{ selected.style?.borderWidth || 1 }} px</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="1"
+                                max="12"
+                                step="1"
+                                class="mt-1 w-full"
+                                [ngModel]="selected.style?.borderWidth || 1"
+                                (ngModelChange)="setSelectedLayoutBorderWidth($event)"
+                            />
+                            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                                <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
+                                <span>{{ selected.style?.borderRadius || 0 }} px</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="0"
+                                max="32"
+                                step="1"
+                                class="mt-1 w-full"
+                                [ngModel]="selected.style?.borderRadius || 0"
+                                (ngModelChange)="setSelectedLayoutBorderRadius($event)"
+                            />
+                        }
+                        }
+                    }
+                </div>
+            }
         </div>
     }
     @if (layoutContextMenu(); as menu) {

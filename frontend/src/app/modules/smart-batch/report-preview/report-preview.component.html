@@ -422,9 +422,9 @@
                         [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
                         [class.cursor-grabbing]="draggingSectionId() === section.id"
                         [class.opacity-90]="draggingSectionId() === section.id"
-                        [class.ring-2]="clickable() && selectedSectionId() === section.id && !isShapeSection(section)"
-                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id && !isShapeSection(section)"
-                        [class.rounded-md]="clickable() && selectedSectionId() === section.id && !isShapeSection(section)"
+                        [class.ring-2]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && !isShapeSection(section)"
+                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && !isShapeSection(section)"
+                        [class.rounded-md]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && !isShapeSection(section)"
                         [style.background-color]="isShapeSection(section) ? null : sectionFrameBackground(section)"
                         [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"
                         [style.border-radius.px]="isShapeSection(section) ? 0 : sectionFrameRadius(section)"
@@ -680,7 +680,7 @@
             <h2
                 [style.font-size.px]="roleFontSize(section, 'title')"
                 [style.font-weight]="roleFontWeight(section, 'title')"
-                [style.font-style]="roleFontStyle(section, 'title')"
+                [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                 [style.font-family]="roleFontFamily(section, 'title')"
                 [style.color]="roleColor(section, 'title')"
                 class="leading-tight"
@@ -698,7 +698,7 @@
             <p
                 [style.font-size.px]="roleFontSize(section, 'title')"
                 [style.font-weight]="roleFontWeight(section, 'title')"
-                [style.font-style]="roleFontStyle(section, 'title')"
+                [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                 [style.font-family]="roleFontFamily(section, 'title')"
                 [style.text-align]="roleTextAlign(section, 'title')"
                 [style.color]="roleColor(section, 'title')"
@@ -724,7 +724,7 @@
                 class="tracking-wide"
                 [style.font-size.px]="roleFontSize(section, 'label')"
                 [style.font-weight]="roleFontWeight(section, 'label')"
-                [style.font-style]="roleFontStyle(section, 'label')"
+                [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                 [style.font-family]="roleFontFamily(section, 'label')"
                 [style.text-align]="roleTextAlign(section, 'label')"
                 [style.color]="roleColor(section, 'label')"
@@ -738,7 +738,7 @@
                 class="truncate"
                 [style.font-size.px]="roleFontSize(section, 'value')"
                 [style.font-weight]="roleFontWeight(section, 'value')"
-                [style.font-style]="roleFontStyle(section, 'value')"
+                [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                 [style.font-family]="roleFontFamily(section, 'value')"
                 [style.text-align]="roleTextAlign(section, 'value')"
                 [style.color]="roleColor(section, 'value')"
@@ -755,7 +755,7 @@
                     class="tracking-wide mb-2"
                     [style.font-size.px]="roleFontSize(section, 'title')"
                     [style.font-weight]="roleFontWeight(section, 'title')"
-                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
                     <ng-container
@@ -775,7 +775,7 @@
                                 [style.font-family]="roleFontFamily(section, 'label')"
                                 [style.font-size.px]="roleFontSize(section, 'label')"
                                 [style.font-weight]="roleFontWeight(section, 'label')"
-                                [style.font-style]="roleFontStyle(section, 'label')"
+                                [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                                 [style.text-align]="roleTextAlign(section, 'label')"
                                 [style.color]="roleColor(section, 'label')"
                             >
@@ -786,7 +786,7 @@
                                 [style.font-family]="roleFontFamily(section, 'value')"
                                 [style.font-size.px]="roleFontSize(section, 'value')"
                                 [style.font-weight]="roleFontWeight(section, 'value')"
-                                [style.font-style]="roleFontStyle(section, 'value')"
+                                [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                                 [style.text-align]="roleTextAlign(section, 'value')"
                                 [style.color]="roleColor(section, 'value')"
                             >
@@ -930,7 +930,7 @@
                     class="tracking-wide mb-2"
                     [style.font-size.px]="roleFontSize(section, 'title')"
                     [style.font-weight]="roleFontWeight(section, 'title')"
-                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
                     <ng-container
@@ -949,7 +949,7 @@
                                     [style.font-family]="roleFontFamily(section, 'label')"
                                     [style.font-size.px]="roleFontSize(section, 'label')"
                                     [style.font-weight]="roleFontWeight(section, 'label')"
-                                    [style.font-style]="roleFontStyle(section, 'label')"
+                                    [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                                     [style.text-align]="roleTextAlign(section, 'label')"
                                     [style.color]="roleColor(section, 'label')"
                                 >
@@ -967,7 +967,7 @@
                                         [style.font-family]="roleFontFamily(section, 'value')"
                                         [style.font-size.px]="roleFontSize(section, 'value')"
                                         [style.font-weight]="roleFontWeight(section, 'value')"
-                                        [style.font-style]="roleFontStyle(section, 'value')"
+                                        [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                                         [style.text-align]="roleTextAlign(section, 'value')"
                                         [style.color]="roleColor(section, 'value')"
                                     >
@@ -1005,7 +1005,7 @@
                     class="tracking-wide mb-2"
                     [style.font-size.px]="roleFontSize(section, 'title')"
                     [style.font-weight]="roleFontWeight(section, 'title')"
-                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
                     <ng-container
@@ -1050,7 +1050,7 @@
                                         [style.font-family]="roleFontFamily(section, 'label', entry.key)"
                                         [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
                                         [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
-                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'label', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'label', entry.key)"
                                         [style.color]="roleColor(section, 'label', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'label', $event)"
@@ -1069,7 +1069,7 @@
                                         [style.font-family]="roleFontFamily(section, 'value', entry.key)"
                                         [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
                                         [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
-                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'value', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'value', entry.key)"
                                         [style.color]="roleColor(section, 'value', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'value', $event)"
@@ -1130,7 +1130,7 @@
                                                 [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
                                                 [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
                                                 [style.font-weight]="tableText(section, 'label', chunk.table.key, column.key).fontWeight"
-                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle"
+                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'label', chunk.table.key, column.key).textDecoration"
                                                 [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
                                                 [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
                                                 (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
@@ -1152,7 +1152,7 @@
                                                     [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
                                                     [style.font-size.px]="tableText(section, 'value', chunk.table.key, column.key).fontSize"
                                                     [style.font-weight]="tableText(section, 'value', chunk.table.key, column.key).fontWeight"
-                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle"
+                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'value', chunk.table.key, column.key).textDecoration"
                                                     [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
                                                     [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
                                                     (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
@@ -1190,7 +1190,7 @@
                     class="tracking-wide"
                     [style.font-size.px]="roleFontSize(section, 'label')"
                     [style.font-weight]="roleFontWeight(section, 'label')"
-                    [style.font-style]="roleFontStyle(section, 'label')"
+                    [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                     [style.color]="roleColor(section, 'label')"
                 >
                     <ng-container
@@ -1203,7 +1203,7 @@
                 class="inline-flex items-center rounded-full border px-2.5 py-0.5"
                 [style.font-size.px]="roleFontSize(section, 'value')"
                 [style.font-weight]="roleFontWeight(section, 'value')"
-                [style.font-style]="roleFontStyle(section, 'value')"
+                [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                 [ngClass]="variantClasses(section)"
             >
                 {{ resolveDataPath(section.dataPath) || '—' }}
@@ -1224,7 +1224,7 @@
                     class="mb-1"
                     [style.font-size.px]="roleFontSize(section, 'title')"
                     [style.font-weight]="roleFontWeight(section, 'title')"
-                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
                     <ng-container
@@ -1239,7 +1239,7 @@
                     [style.font-family]="roleFontFamily(section, 'value')"
                     [style.font-size.px]="roleFontSize(section, 'value')"
                     [style.font-weight]="roleFontWeight(section, 'value')"
-                    [style.font-style]="roleFontStyle(section, 'value')"
+                    [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                     [style.text-align]="roleTextAlign(section, 'value')"
                     [style.color]="roleColor(section, 'value')"
                 >
@@ -1278,7 +1278,7 @@
                                         [style.font-family]="roleFontFamily(section, 'label', entry.key)"
                                         [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
                                         [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
-                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'label', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'label', entry.key)"
                                         [style.color]="roleColor(section, 'label', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'label', $event)"
@@ -1295,7 +1295,7 @@
                                         [style.font-family]="roleFontFamily(section, 'value', entry.key)"
                                         [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
                                         [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
-                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'value', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'value', entry.key)"
                                         [style.color]="roleColor(section, 'value', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'value', $event)"
@@ -1355,7 +1355,7 @@
                                                 [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
                                                 [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
                                                 [style.font-weight]="tableText(section, 'label', chunk.table.key, column.key).fontWeight"
-                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle"
+                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'label', chunk.table.key, column.key).textDecoration"
                                                 [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
                                                 [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
                                                 (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
@@ -1377,7 +1377,7 @@
                                                     [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
                                                     [style.font-size.px]="tableText(section, 'value', chunk.table.key, column.key).fontSize"
                                                     [style.font-weight]="tableText(section, 'value', chunk.table.key, column.key).fontWeight"
-                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle"
+                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'value', chunk.table.key, column.key).textDecoration"
                                                     [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
                                                     [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
                                                     (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
@@ -1405,7 +1405,7 @@
                     class="tracking-wide mb-2"
                     [style.font-size.px]="roleFontSize(section, 'title')"
                     [style.font-weight]="roleFontWeight(section, 'title')"
-                    [style.font-style]="roleFontStyle(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 >
                     <ng-container
