@@ -365,6 +365,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     /** Compact format bar, fixed to the viewport just under the selection. */
     layoutFormatAnchor = signal<{ x: number; y: number } | null>(null);
     layoutFormatExpanded = signal(false);
+    layoutShapesOpen = signal(false);
+
+    toggleLayoutShapesMenu(event: Event): void {
+        event.stopPropagation();
+        this.layoutShapesOpen.update((open) => !open);
+    }
     readonly layoutFormatAligns: ReportTextAlign[] = ['left', 'center', 'right'];
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
@@ -402,7 +408,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const active =
             this.step() === 'layout' &&
             Boolean(this.selectedLayoutSectionId()) &&
-            this.selectedLayoutShowsTypography();
+            this.selectedLayoutShowsFormatBar();
         untracked(() => {
             if (active) this._ensureFormatBarLoop();
             else this._stopFormatBarLoop();
@@ -1465,7 +1471,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _sectionUsesFormatBar(section: ReportSection): boolean {
         const type = section.type;
-        return type !== 'spacer' && type !== 'image' && type !== 'divider' && type !== 'shape';
+        return type !== 'spacer' && type !== 'image' && type !== 'divider';
     }
 
     /** Entering the sheet selects a block without opening the full color panel. */
@@ -1577,7 +1583,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _measureFormatAnchor(): { x: number; y: number } | null {
         const preview = this._layoutEditorPreview;
         const section = this.selectedLayoutSection();
-        if (!preview || !section || this.step() !== 'layout' || !this.selectedLayoutShowsTypography()) return null;
+        if (!preview || !section || this.step() !== 'layout' || !this.selectedLayoutShowsFormatBar()) return null;
         if (preview.draggingSectionId()) return null;
         const rect = preview.anchorRect(section.id, this.selectedLayoutCellKey());
         if (!rect || rect.width < 2 || rect.height < 2) return null;
@@ -2768,8 +2774,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(section, 'block');
     }
 
     setSelectedLayoutShape(kind: ReportShapeKind): void {
@@ -2822,6 +2827,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutShowsTypography(): boolean {
         const type = this.selectedLayoutSection()?.type;
         return Boolean(type) && type !== 'spacer' && type !== 'image' && type !== 'divider' && type !== 'shape';
+    }
+
+    selectedLayoutShowsFormatBar(): boolean {
+        return this.selectedLayoutShowsTypography() || this.selectedLayoutSection()?.type === 'shape';
+    }
+
+    layoutShapePickerHex(): string {
+        const color = this.selectedLayoutSection()?.style?.color || this.primaryColor();
+        const hex = color.startsWith('#') ? color : `#${color}`;
+        return hex.length >= 7 ? hex.slice(0, 7) : '#111827';
+    }
+
+    onLayoutShapeFillPicker(event: Event): void {
+        this.setSelectedLayoutColor((event.target as HTMLInputElement).value);
+    }
+
+    nudgeSelectedLayoutRotation(delta: number): void {
+        const current = Number(this.selectedLayoutSection()?.style?.rotation) || 0;
+        this.setSelectedLayoutRotation(current + delta);
     }
 
     selectedLayoutTextRoles(): ReportTextRole[] {
