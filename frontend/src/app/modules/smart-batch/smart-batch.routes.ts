@@ -5,6 +5,13 @@ import { SmartBatchComponent } from './smart-batch.component';
 export default [
     {
         path: '',
+        loadComponent: () =>
+            import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
+                (m) => m.VisitaGuideComponent
+            ),
+    },
+    {
+        path: 'workspace',
         component: SmartBatchComponent,
     },
     {

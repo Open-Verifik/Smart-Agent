@@ -660,20 +660,26 @@
                             </p>
                         </div>
 
-                        <div class="min-h-[600px] overflow-auto p-6 dark:bg-gray-950/30">
+                        <div class="relative min-h-[600px] overflow-auto p-6 dark:bg-gray-950/30">
                             @if (isGenerating()) {
                                 <div
-                                    class="flex h-64 flex-col items-center justify-center text-stone-400 dark:text-stone-500"
+                                    class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 text-stone-400 dark:bg-gray-950/80 dark:text-stone-500"
                                 >
                                     <mat-spinner diameter="48" class="mb-4"></mat-spinner>
                                     <p>{{ 'smartReport.generatingPdf' | transloco }}</p>
                                 </div>
-                            } @else if (selectedTemplate() && batch()?.rows?.length) {
+                            }
+                            @if (selectedTemplate() && batch()?.rows?.length) {
+                                <div class="mx-auto w-[210mm] max-w-none">
                                 <report-preview
+                                    #livePreview
                                     [template]="selectedTemplate()!"
                                     [previewData]="previewDataForCurrentPage()"
                                     [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
-                                    [orientation]="'portrait'"
+                                    [pageBackgroundColor]="
+                                        selectedTemplate()!.pageBackgroundColor || '#ffffff'
+                                    "
+                                    [orientation]="selectedTemplate()!.orientation || 'portrait'"
                                     [clickable]="false"
                                     [logoUrl]="selectedTemplate()!.logo || null"
                                     [logoEnabled]="!!selectedTemplate()!.logo"
@@ -681,9 +687,13 @@
                                     [logoY]="selectedTemplate()!.logoSettings?.y ?? 32"
                                     [logoWidth]="selectedTemplate()!.logoSettings?.width ?? 160"
                                     [logoHeight]="selectedTemplate()!.logoSettings?.height ?? 60"
+                                    [logoRotation]="
+                                        selectedTemplate()!.logoSettings?.rotation ?? 0
+                                    "
                                     [logoAutoFitContent]="
                                         selectedTemplate()!.logoSettings?.autoFitContent ?? false
                                     "
+                                    [sheetImages]="selectedTemplate()!.sheetImages ?? []"
                                     [bodyTopPadding]="selectedTemplate()!.bodyTopPadding ?? 0"
                                     [legend]="selectedTemplate()!.legend || ''"
                                     [showPageNumbers]="selectedTemplate()!.showPageNumbers || false"
@@ -704,7 +714,15 @@
                                     [watermarkPattern]="
                                         selectedTemplate()!.watermark?.pattern || 'single'
                                     "
+                                    [watermarkX]="selectedTemplate()!.watermark?.x ?? 250"
+                                    [watermarkY]="selectedTemplate()!.watermark?.y ?? 420"
+                                    [watermarkWidth]="selectedTemplate()!.watermark?.width ?? 280"
+                                    [watermarkHeight]="selectedTemplate()!.watermark?.height ?? 160"
+                                    [watermarkRotation]="
+                                        selectedTemplate()!.watermark?.rotation ?? -15
+                                    "
                                 />
+                                </div>
                                 @if (previewDataForAllRows().length > 1) {
                                     <div
                                         class="mt-6 flex items-center justify-center gap-4 border-t border-stone-200 pt-4 dark:border-gray-800"

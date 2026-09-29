@@ -13,10 +13,24 @@
                         >Verifik</a
                     >
                     <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a
+                        routerLink="/smart-batch"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >{{ t('visitaGuide.brand') }}</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
                     <span class="cursor-default text-stone-600 dark:text-stone-300">{{
-                        t('smartBatchLanding.title')
+                        t('smartBatchLanding.workspaceTitle')
                     }}</span>
                 </div>
+
+                <a
+                    routerLink="/smart-batch"
+                    class="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                >
+                    <mat-icon class="icon-size-4">arrow_back</mat-icon>
+                    {{ t('smartBatchLanding.backToGuide') }}
+                </a>
 
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div class="max-w-2xl">
@@ -289,29 +303,20 @@
                             </p>
                         </div>
                     } @else {
-                        <!--
-                            A card's thumbnail is a render of page one, so two templates
-                            over the same batch are told apart by what they produce rather
-                            than by a shared icon. Cropped to the top of the sheet: the
-                            masthead is the recognisable part, and a full page shrunk into
-                            a card is unreadable anyway.
-                        -->
                         <ng-template #templateThumb let-template="template" let-icon="icon">
-                            <div
-                                class="mb-4 flex h-36 items-center justify-center overflow-hidden rounded-xl border border-stone-200 bg-stone-100 dark:border-gray-800 dark:bg-gray-950"
-                            >
-                                @if (template.thumbnail?.image) {
-                                    <img
-                                        [src]="template.thumbnail.image"
-                                        [alt]="template.name"
-                                        loading="lazy"
-                                        class="h-full w-full object-cover object-top"
-                                    />
-                                } @else {
-                                    <mat-icon class="!h-8 !w-8 !text-3xl text-stone-300 dark:text-gray-700">{{
-                                        icon
-                                    }}</mat-icon>
-                                }
+                            <div class="relative mb-4">
+                                <report-template-thumb [template]="template" [icon]="icon">
+                                    <div
+                                        class="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-stone-950/70 to-transparent pb-3 opacity-0 transition group-hover:opacity-100"
+                                    >
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-stone-900"
+                                        >
+                                            <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">visibility</mat-icon>
+                                            {{ t('smartBatchLanding.templatePreviewOpen') }}
+                                        </span>
+                                    </div>
+                                </report-template-thumb>
                             </div>
                         </ng-template>
 
@@ -345,7 +350,8 @@
                                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                                         @for (template of systemTemplates(); track template._id) {
                                             <article
-                                                class="flex h-full flex-col rounded-2xl border border-stone-200 bg-stone-50/50 p-5 transition hover:border-stone-300 hover:bg-white dark:border-gray-800 dark:bg-gray-950/40 dark:hover:border-gray-700 dark:hover:bg-gray-900/70"
+                                                class="group flex h-full cursor-pointer flex-col rounded-2xl border border-stone-200 bg-stone-50/50 p-5 transition hover:border-stone-300 hover:bg-white dark:border-gray-800 dark:bg-gray-950/40 dark:hover:border-gray-700 dark:hover:bg-gray-900/70"
+                                                (click)="openTemplatePreview(template)"
                                             >
                                                 <ng-container
                                                     [ngTemplateOutlet]="templateThumb"
@@ -489,11 +495,10 @@
                                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                                         @for (template of clientTemplates(); track template._id) {
                                             <article
-                                                class="group relative flex h-full flex-col rounded-2xl border border-stone-200 bg-white p-5 transition hover:border-stone-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-950/40 dark:hover:border-gray-700"
+                                                class="group relative flex h-full cursor-pointer flex-col rounded-2xl border border-stone-200 bg-white p-5 transition hover:border-stone-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-950/40 dark:hover:border-gray-700"
+                                                (click)="openTemplatePreview(template)"
                                             >
-                                                <div
-                                                    class="absolute right-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100"
-                                                >
+                                                <div class="mb-3 flex items-center justify-end gap-1">
                                                     <button
                                                         type="button"
                                                         mat-icon-button
@@ -522,7 +527,7 @@
                                                 ></ng-container>
 
                                                 <h3
-                                                    class="line-clamp-1 pr-16 text-base font-semibold text-stone-950 dark:text-white"
+                                                    class="line-clamp-1 text-base font-semibold text-stone-950 dark:text-white"
                                                 >
                                                     {{ template.name }}
                                                 </h3>
@@ -584,4 +589,77 @@
             </div>
         </main>
     </div>
+
+    @if (previewTemplate(); as preview) {
+        <div
+            class="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 p-4"
+            (click)="closeTemplatePreview()"
+        >
+            <div
+                class="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
+                (click)="$event.stopPropagation()"
+            >
+                <div
+                    class="flex items-start justify-between gap-4 border-b border-stone-200 px-5 py-4 dark:border-gray-800"
+                >
+                    <div class="min-w-0">
+                        <p class="text-xs font-medium uppercase tracking-wide text-stone-400">
+                            {{ t('smartBatchLanding.templatePreviewHint') }}
+                        </p>
+                        <h2 class="mt-1 truncate text-lg font-semibold text-stone-950 dark:text-white">
+                            {{ templateTitle(preview) }}
+                        </h2>
+                    </div>
+                    <button
+                        type="button"
+                        mat-icon-button
+                        (click)="closeTemplatePreview()"
+                        [attr.aria-label]="t('smartBatchLanding.templatePreviewClose')"
+                    >
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+                <div class="min-h-[50vh] flex-1 overflow-auto bg-stone-100 p-4 dark:bg-gray-900 sm:p-6">
+                    @if (previewLoading()) {
+                        <div class="flex min-h-[50vh] flex-col items-center justify-center gap-3">
+                            <mat-spinner diameter="36"></mat-spinner>
+                            <p class="text-sm text-stone-500">{{ t('smartBatchLanding.templatePreviewLoading') }}</p>
+                        </div>
+                    } @else {
+                        <report-preview
+                            [template]="preview"
+                            [previewData]="previewData()"
+                            [primaryColor]="preview.primaryColor || '#4F46E5'"
+                            [pageBackgroundColor]="preview.pageBackgroundColor || '#ffffff'"
+                            [orientation]="preview.orientation || 'portrait'"
+                            [clickable]="false"
+                            [logoUrl]="preview.logo || null"
+                            [logoEnabled]="!!preview.logo"
+                            [logoX]="preview.logoSettings?.x ?? 32"
+                            [logoY]="preview.logoSettings?.y ?? 32"
+                            [logoWidth]="preview.logoSettings?.width ?? 160"
+                            [logoHeight]="preview.logoSettings?.height ?? 60"
+                            [logoRotation]="preview.logoSettings?.rotation ?? 0"
+                            [logoAutoFitContent]="preview.logoSettings?.autoFitContent ?? false"
+                            [sheetImages]="preview.sheetImages ?? []"
+                            [bodyTopPadding]="preview.bodyTopPadding ?? 0"
+                            [legend]="preview.legend || ''"
+                            [showPageNumbers]="preview.showPageNumbers || false"
+                            [pageNumberPosition]="preview.pageNumberPosition || 'bottom-center'"
+                            [watermarkEnabled]="preview.watermark?.enabled || false"
+                            [watermarkType]="preview.watermark?.type || 'text'"
+                            [watermarkText]="preview.watermark?.text || preview.name || 'CONFIDENTIAL'"
+                            [watermarkOpacity]="preview.watermark?.opacity ?? 0.08"
+                            [watermarkPattern]="preview.watermark?.pattern || 'single'"
+                            [watermarkX]="preview.watermark?.x ?? 250"
+                            [watermarkY]="preview.watermark?.y ?? 420"
+                            [watermarkWidth]="preview.watermark?.width ?? 280"
+                            [watermarkHeight]="preview.watermark?.height ?? 160"
+                            [watermarkRotation]="preview.watermark?.rotation ?? -15"
+                        ></report-preview>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </ng-container>
