@@ -868,6 +868,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
         if (!this.clickable() || !this.sectionClick()) return;
         const host = event.target as HTMLElement | null;
+        if (host?.closest('[data-sheet-role="title"]')) {
+            this._keepCellSelection = false;
+            this.cellSelect.emit({ section, key: null, part: 'title' });
+            this.sectionClick()!(section);
+            return;
+        }
         const cell = host?.closest('[data-report-cell]');
         const cellKey = cell?.getAttribute('data-cell-key');
         if (cellKey) {
@@ -938,12 +944,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._flushInlineEdit();
         this._suppressInlineBlur = true;
         this.sectionClick()?.(section);
+        const onTitle = Boolean((event.target as HTMLElement | null)?.closest('[data-sheet-role="title"]'));
         if ((editKind === 'cellLabel' || editKind === 'cellValue') && key) {
             this.cellSelect.emit({
                 section,
                 key: key.split('#')[0],
                 part: editKind === 'cellLabel' ? 'label' : 'value',
             });
+        } else if (onTitle) {
+            this.cellSelect.emit({ section, key: null, part: 'title' });
         } else {
             this.cellSelect.emit({ section, key: null, part: 'cell' });
         }
@@ -1330,17 +1339,38 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this._reportPages?.toArray()[pageIndex]?.nativeElement ?? null;
     }
 
-    /** Screen box of the selected block, or of one cell inside it. */
-    anchorRect(sectionId: string, cellKey?: string | null): DOMRect | null {
+    /** Screen box of the selected block, its title, or one cell inside it. */
+    anchorRect(sectionId: string, cellKey?: string | null, part?: ReportCellPart | null): DOMRect | null {
         const root = this._host.nativeElement as HTMLElement;
         if (!sectionId) return null;
         const section = root.querySelector(`[data-section-id="${CSS.escape(sectionId)}"]`);
         if (!(section instanceof HTMLElement)) return null;
+        if (!cellKey && part === 'title') {
+            const title = section.querySelector('[data-sheet-role="title"]');
+            if (title instanceof HTMLElement) return title.getBoundingClientRect();
+        }
         if (cellKey) {
             const cell = section.querySelector(`[data-cell-key="${CSS.escape(cellKey)}"]`);
             if (cell instanceof HTMLElement) return cell.getBoundingClientRect();
         }
         return section.getBoundingClientRect();
+    }
+
+    isTitleSelected(section: ReportSection): boolean {
+        return (
+            this.clickable() &&
+            this.selectedSectionId() === section.id &&
+            !this.selectedCellKey() &&
+            this.selectedCellPart() === 'title'
+        );
+    }
+
+    onTitleContextMenu(section: ReportSection, event: MouseEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.clickable()) return;
+        this.cellSelect.emit({ section, key: null, part: 'title' });
+        this.sectionClick()?.(section);
     }
 
     private _usesPinnedFrames(): boolean {
@@ -1851,6 +1881,32 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     /**
+     * Border-box height of the data inside the block.
+     * The host's offsetHeight is the saved frame, so a short block still
+     * reports the tall box and the selection ring never tightens.
+     */
+    private _contentBoxHeight(el: HTMLElement): number {
+        let bottom = 0;
+        let found = false;
+        for (const node of Array.from(el.children)) {
+            const child = node as HTMLElement;
+            if (child.dataset['printHide'] != null || child.dataset['sectionHandle'] != null) continue;
+            const position = getComputedStyle(child).position;
+            if (position === 'absolute' || position === 'fixed') continue;
+            found = true;
+            bottom = Math.max(bottom, child.offsetTop + child.offsetHeight);
+        }
+        if (!found) return el.offsetHeight;
+        const style = getComputedStyle(el);
+        return (
+            bottom +
+            (parseFloat(style.paddingBottom) || 0) +
+            (parseFloat(style.borderTopWidth) || 0) +
+            (parseFloat(style.borderBottomWidth) || 0)
+        );
+    }
+
+    /**
      * After the sheet paints, store the content height so the selection ring,
      * drag box and PDF use the same size as the data on the block.
      */
@@ -1868,37 +1924,68 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _fitContentBoxHeights(): void {
         if (this._sectionDrag || !this.hasFreeLayout() || !this.reorderable() || this.thumbnailMode()) return;
         const scales = this._scaleFactors;
-        const sections = new Map((this.template().sections ?? []).map((section) => [section.id, section]));
-        const updates: { id: string; frame: ReportSectionFrame }[] = [];
+        const sections = (this.template().sections ?? []).filter((section) => !isReportPageAnchor(section));
+        const byId = new Map(sections.map((section) => [section.id, section]));
+        const frames = new Map<string, ReportSectionFrame>();
+        for (const section of sections) {
+            const frame = this.displayFrame(section);
+            if (frame) frames.set(section.id, { ...frame });
+        }
+        const desired = new Map<string, number>();
         const pages = this._reportPages?.toArray() ?? [];
         for (const pageRef of pages) {
             pageRef.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
                 const el = node as HTMLElement;
                 const id = el.dataset['sectionId'];
                 if (!id) return;
-                const section = sections.get(id);
-                if (!section || this._locksFrameHeight(section)) return;
-                const frame = this.displayFrame(section);
-                if (!frame) return;
-                const natural = el.offsetHeight;
+                const section = byId.get(id);
+                if (!section || this._locksFrameHeight(section) || !frames.has(id)) return;
+                const natural = this._contentBoxHeight(el);
                 if (!natural) return;
-                const height = Math.max(24, Math.ceil(natural * scales.y));
-                const current = Number(frame.height) || 0;
-                // A saved box stays put. Growing it to fit a later consult
-                // covers the page number and the blocks placed around it.
-                if (current && height + 4 >= current) return;
-                if (Math.abs(height - current) <= 4) return;
-                updates.push({ id, frame: { ...frame, height } });
+                desired.set(id, Math.max(24, Math.ceil(natural * scales.y)));
             });
+        }
+        const growing = [...desired.entries()]
+            .flatMap(([id, height]) => {
+                const frame = frames.get(id);
+                if (!frame) return [];
+                const current = Number(frame.height) || 0;
+                if (Math.abs(height - current) <= 4) return [];
+                return [{ id, height, current, page: frame.page ?? 0, y: frame.y ?? 0 }];
+            })
+            .sort((left, right) => left.page - right.page || left.y - right.y);
+        if (!growing.length) return;
+        for (const item of growing) {
+            const frame = frames.get(item.id);
+            if (!frame) continue;
+            const oldBottom = (frame.y ?? 0) + item.current;
+            const delta = item.height - item.current;
+            frame.height = item.height;
+            if (delta <= 4) continue;
+            const page = frame.page ?? 0;
+            for (const [otherId, other] of frames) {
+                if (otherId === item.id || (other.page ?? 0) !== page) continue;
+                if ((other.y ?? 0) + 8 < oldBottom) continue;
+                other.y = (other.y ?? 0) + delta;
+            }
+        }
+        const updates: { id: string; frame: ReportSectionFrame }[] = [];
+        for (const [id, frame] of frames) {
+            const section = byId.get(id);
+            const prev = section ? this.displayFrame(section) : null;
+            if (!prev) continue;
+            const changed =
+                Math.abs((Number(prev.height) || 0) - (Number(frame.height) || 0)) > 4 ||
+                Math.abs((prev.y ?? 0) - (frame.y ?? 0)) > 1 ||
+                (prev.page ?? 0) !== (frame.page ?? 0);
+            if (changed) updates.push({ id, frame });
         }
         if (!updates.length) return;
         // A one-item frame update raises that block. Height fitting is not a
         // selection, so pair it with another frame and leave the stack alone.
         if (updates.length === 1) {
-            const other = (this.template().sections ?? []).find(
-                (section) => section.id !== updates[0].id && this.displayFrame(section)
-            );
-            const otherFrame = other ? this.displayFrame(other) : null;
+            const other = sections.find((section) => section.id !== updates[0].id && frames.has(section.id));
+            const otherFrame = other ? frames.get(other.id) : null;
             if (other && otherFrame) updates.push({ id: other.id, frame: { ...otherFrame } });
         }
         this.sectionFramesChange.emit(updates);

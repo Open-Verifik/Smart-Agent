@@ -393,8 +393,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     countrySearchQuery = signal('');
     countrySort = signal<'sources' | 'alpha'>('sources');
     selectedLayoutSectionId = signal<string | null>(null);
-    /** Compact format bar, fixed to the viewport just under the selection. */
-    layoutFormatAnchor = signal<{ x: number; y: number } | null>(null);
+    /** Compact format bar, fixed beside the selection. `opensUp` grows Más opciones above it. */
+    layoutFormatAnchor = signal<{ x: number; y: number; opensUp: boolean; room: number } | null>(null);
     layoutFormatExpanded = signal(false);
     layoutShapesOpen = signal(false);
 
@@ -435,6 +435,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private readonly _zone = inject(NgZone);
     private _formatBarFrame: number | null = null;
     private _formatBarLoopOn = false;
+    private _formatBarOffset = { x: 0, y: 0 };
+    private _formatBarDrag: {
+        pointerId: number;
+        originX: number;
+        originY: number;
+        offsetX: number;
+        offsetY: number;
+    } | null = null;
     private readonly _formatBarWatch = effect(() => {
         const active =
             this.step() === 'layout' &&
@@ -447,16 +455,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     });
     private _formatSelectionToken = '';
     private readonly _collapseFormatMenu = effect(() => {
-        const token = [
-            this.selectedLayoutSectionId() ?? '',
-            this.selectedLayoutCellKey() ?? '',
-            this.selectedLayoutCellPart(),
-        ].join('|');
+        // Label and value of the same item share the dragged spot. A different item starts over.
+        const titleFocus =
+            !this.selectedLayoutCellKey() && this.selectedLayoutCellPart() === 'title' ? 'title' : '';
+        const token = [this.selectedLayoutSectionId() ?? '', this.selectedLayoutCellKey() ?? '', titleFocus].join('|');
         untracked(() => {
             if (token === this._formatSelectionToken) return;
             const hadSelection = this._formatSelectionToken.length > 0;
             this._formatSelectionToken = token;
-            if (hadSelection) this.layoutFormatExpanded.set(false);
+            if (hadSelection) {
+                this.layoutFormatExpanded.set(false);
+                this._formatBarOffset = { x: 0, y: 0 };
+            }
         });
     });
     private _layoutRevealToken = 0;
@@ -1154,6 +1164,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         if (key === 'd') {
+            if (!this.selectedLayoutCellKey() && this.selectedLayoutCellPart() === 'title') return;
             if (this.selectedLayoutCellKey()) {
                 event.preventDefault();
                 this.copySelectedLayoutItem();
@@ -1396,9 +1407,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
+        if (id.startsWith('hdr:') || id === 'logo' || id === 'signature' || id === 'watermark') {
+            this.layoutEditorDrag.set({ x: 0, y: 0 });
+            this.layoutEditorKind.set('page');
+            const control = id === 'logo' ? 'overlay' : id;
+            this._revealLayoutControls(control);
+            return;
+        }
         this.layoutEditorKind.set('overlay');
         this._revealLayoutControls('overlay');
-    };
+    }
 
     clearLayoutSelection(): void {
         this.selectedLayoutSectionId.set(null);
@@ -1568,6 +1586,35 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     toggleLayoutFormatMore(): void {
         this.layoutFormatExpanded.update((open) => !open);
+        if (!this.layoutFormatExpanded()) this._formatBarOffset = { x: 0, y: 0 };
+    }
+
+    onFormatBarDragStart(event: PointerEvent): void {
+        if (!this.layoutFormatExpanded()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this._formatBarDrag = {
+            pointerId: event.pointerId,
+            originX: event.clientX,
+            originY: event.clientY,
+            offsetX: this._formatBarOffset.x,
+            offsetY: this._formatBarOffset.y,
+        };
+        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    }
+
+    onFormatBarDragMove(event: PointerEvent): void {
+        const drag = this._formatBarDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        this._formatBarOffset = {
+            x: drag.offsetX + event.clientX - drag.originX,
+            y: drag.offsetY + event.clientY - drag.originY,
+        };
+    }
+
+    onFormatBarDragEnd(event: PointerEvent): void {
+        if (!this._formatBarDrag || event.pointerId !== this._formatBarDrag.pointerId) return;
+        this._formatBarDrag = null;
     }
 
     onLayoutFormatPointerDown(event: PointerEvent): void {
@@ -1586,7 +1633,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 const prev = this.layoutFormatAnchor();
                 const same =
                     (!next && !prev) ||
-                    Boolean(next && prev && Math.abs(next.x - prev.x) < 0.5 && Math.abs(next.y - prev.y) < 0.5);
+                    Boolean(
+                        next &&
+                            prev &&
+                            next.opensUp === prev.opensUp &&
+                            Math.abs(next.room - prev.room) < 1 &&
+                            Math.abs(next.x - prev.x) < 0.5 &&
+                            Math.abs(next.y - prev.y) < 0.5
+                    );
                 if (same) return;
                 this._zone.run(() => {
                     if (!next) this._detachFormatBar();
@@ -1603,6 +1657,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._formatBarFrame = null;
         this._detachFormatBar();
         if (this.layoutFormatExpanded()) this.layoutFormatExpanded.set(false);
+        this._formatBarOffset = { x: 0, y: 0 };
+        this._formatBarDrag = null;
         if (this.layoutFormatAnchor() !== null) this.layoutFormatAnchor.set(null);
     }
 
@@ -1611,25 +1667,43 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         document.querySelectorAll('body > .visita-layout-format-bar').forEach((node) => node.remove());
     }
 
-    private _measureFormatAnchor(): { x: number; y: number } | null {
+    private _measureFormatAnchor(): { x: number; y: number; opensUp: boolean; room: number } | null {
         const preview = this._layoutEditorPreview;
         const section = this.selectedLayoutSection();
         if (!preview || !section || this.step() !== 'layout' || !this.selectedLayoutShowsFormatBar()) return null;
         if (preview.draggingSectionId()) return null;
-        const rect = preview.anchorRect(section.id, this.selectedLayoutCellKey());
+        const rect = preview.anchorRect(section.id, this.selectedLayoutCellKey(), this.selectedLayoutCellPart());
         if (!rect || rect.width < 2 || rect.height < 2) return null;
         const el = this._layoutFormatBarEl?.nativeElement;
         if (el && el.parentElement !== document.body) document.body.appendChild(el);
-        const barWidth = el?.offsetWidth || 300;
-        const barHeight = el?.offsetHeight || 40;
-        let x = rect.left + rect.width / 2 - barWidth / 2;
+        const row = el?.querySelector('[data-format-toolbar]') as HTMLElement | null;
+        const toolbarWidth = row?.offsetWidth || el?.offsetWidth || 300;
+        const toolbarHeight = row?.offsetHeight || 40;
+        const barWidth = Math.max(toolbarWidth, el?.offsetWidth || 0);
+        let x = rect.left + rect.width / 2 - toolbarWidth / 2;
         x = Math.min(Math.max(8, x), Math.max(8, window.innerWidth - barWidth - 8));
-        let y = rect.bottom + 8;
-        if (y + barHeight > window.innerHeight - 8) y = Math.max(8, rect.top - barHeight - 8);
-        return { x, y };
+        const margin = 8;
+        let toolbarY = rect.bottom + margin;
+        if (toolbarY + toolbarHeight > window.innerHeight - margin) {
+            toolbarY = Math.max(margin, rect.top - toolbarHeight - margin);
+        }
+        const roomBelow = Math.max(0, window.innerHeight - margin - (toolbarY + toolbarHeight));
+        const roomAbove = Math.max(0, toolbarY - margin);
+        const panel = el?.querySelector('[data-format-more-body]') as HTMLElement | null;
+        const panelHeight = panel?.scrollHeight || panel?.offsetHeight || 0;
+        const opensUp = panelHeight > roomBelow + 12 && roomAbove > roomBelow;
+        const room = Math.min(352, Math.max(96, Math.floor((opensUp ? roomAbove : roomBelow) - 12)));
+        const fullHeight = el?.offsetHeight || toolbarHeight;
+        const fullWidth = el?.offsetWidth || barWidth;
+        let y = opensUp ? Math.max(margin, toolbarY - Math.max(0, fullHeight - toolbarHeight)) : toolbarY;
+        x += this._formatBarOffset.x;
+        y += this._formatBarOffset.y;
+        x = Math.min(Math.max(margin, x), Math.max(margin, window.innerWidth - fullWidth - margin));
+        y = Math.min(Math.max(margin, y), Math.max(margin, window.innerHeight - fullHeight - margin));
+        return { x, y, opensUp, room };
     }
 
-    private _revealLayoutControls(control: 'page' | 'block' | 'cell' | 'overlay' | 'label' | 'value'): void {
+    private _revealLayoutControls(control: string): void {
         this.layoutEditorFocused.set(true);
         if (this._layoutFocusTimer) clearTimeout(this._layoutFocusTimer);
         this._layoutFocusTimer = setTimeout(() => this.layoutEditorFocused.set(false), 1200);
@@ -1968,6 +2042,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.selectedLayoutSection()) {
+            if (!this.selectedLayoutCellKey() && this.selectedLayoutCellPart() === 'title') return;
             this.removeSelectedLayoutSection();
         }
     }
@@ -1975,7 +2050,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     deleteLayoutContextTarget(): void {
         const menu = this.layoutContextMenu();
         if (!menu) return;
-        if (menu.sectionId) {
+        if (menu.cellKey && menu.sectionId) {
+            this.selectedLayoutSectionId.set(menu.sectionId);
+            this.selectedLayoutCellKey.set(menu.cellKey);
+            this.setLayoutParamVisible(menu.cellKey, false);
+        } else if (menu.sectionId) {
             this.selectedLayoutSectionId.set(menu.sectionId);
             this.removeSelectedLayoutSection();
         } else if (menu.overlay === 'logo') {
@@ -2882,6 +2961,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutTextRoles(): ReportTextRole[] {
         if (!this.selectedLayoutShowsTypography()) return [];
         const cellKey = this.selectedLayoutCellKey();
+        if (!cellKey && this.selectedLayoutCellPart() === 'title') return ['title'];
         if (cellKey) {
             const part = this.selectedLayoutCellPart();
             if (part === 'label') return ['label'];

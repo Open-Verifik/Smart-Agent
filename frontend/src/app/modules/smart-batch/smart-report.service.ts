@@ -48,7 +48,7 @@ export type ReportConditionOperator =
 export type ReportStyleVariant = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'primary';
 
 export type ReportTextRole = 'title' | 'label' | 'value';
-export type ReportCellPart = 'cell' | 'label' | 'value';
+export type ReportCellPart = 'cell' | 'label' | 'value' | 'title';
 export type ReportRowLineStyle = 'solid' | 'dotted' | 'dashed';
 
 export interface ReportSectionFrame {
