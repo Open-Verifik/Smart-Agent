@@ -3196,7 +3196,7 @@
     @if (step() === 'layout' && selectedLayoutShowsFormatBar() && layoutFormatAnchor(); as anchor) {
         <div
             #layoutFormatBarEl
-            class="visita-layout-format-bar fixed z-[999995] flex w-max flex-col rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
+            class="visita-layout-format-bar fixed z-[999995] flex w-max flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
             style="z-index: 999995"
             [style.left.px]="anchor.x"
             [style.top.px]="anchor.y"
@@ -3335,17 +3335,25 @@
                         ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
                         : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
                 "
+                [attr.aria-expanded]="layoutFormatExpanded()"
                 [matTooltip]="t('visitaGuide.layoutFormatMore')"
                 (click)="toggleLayoutFormatMore()"
             >
                 {{ t('visitaGuide.layoutFormatMore') }}
-                <mat-icon class="!h-4 !w-4 !text-base">{{
-                    layoutFormatExpanded() ? 'expand_less' : 'expand_more'
-                }}</mat-icon>
+                <mat-icon
+                    class="!h-4 !w-4 !text-base transition-transform duration-300 ease-out motion-reduce:transition-none"
+                    [class.rotate-180]="layoutFormatExpanded()"
+                    >expand_more</mat-icon
+                >
             </button>
             </div>
-            @if (layoutFormatExpanded()) {
-                <div class="mt-1 max-h-[min(22rem,calc(100vh-6rem))] w-full min-w-[18rem] overflow-y-auto border-t border-stone-200 px-1.5 py-2 dark:border-gray-700">
+            <div class="layout-format-more" [class.is-open]="layoutFormatExpanded()">
+                <div class="layout-format-more-clip">
+                <div
+                    class="mt-1 max-h-[min(22rem,calc(100vh-6rem))] w-full min-w-[18rem] overflow-y-auto border-t border-stone-200 px-1.5 py-2 dark:border-gray-700"
+                    [class.pointer-events-none]="!layoutFormatExpanded()"
+                    [attr.inert]="layoutFormatExpanded() ? null : ''"
+                >
                     @if (selectedLayoutSection()?.type === 'shape') {
                         @if (selectedLayoutSection(); as selected) {
                             <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
@@ -3614,7 +3622,8 @@
                     }
                     }
                 </div>
-            }
+                </div>
+            </div>
         </div>
     }
     @if (layoutContextMenu(); as menu) {

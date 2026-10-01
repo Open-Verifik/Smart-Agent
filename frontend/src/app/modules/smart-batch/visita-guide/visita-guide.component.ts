@@ -197,6 +197,37 @@ type GuideResultCard = {
         EndpointChainBoardComponent,
     ],
     templateUrl: './visita-guide.component.html',
+    styles: [
+        `
+            .layout-format-more {
+                display: grid;
+                grid-template-rows: 0fr;
+                grid-template-columns: 0fr;
+                min-width: 0;
+                transition:
+                    grid-template-rows 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                    grid-template-columns 0s linear 300ms;
+            }
+            .layout-format-more.is-open {
+                grid-template-rows: 1fr;
+                grid-template-columns: 1fr;
+                transition:
+                    grid-template-rows 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                    grid-template-columns 0s linear 0s;
+            }
+            .layout-format-more-clip {
+                min-width: 0;
+                min-height: 0;
+                overflow: hidden;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .layout-format-more,
+                .layout-format-more.is-open {
+                    transition: none;
+                }
+            }
+        `,
+    ],
 })
 export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _state = inject(VisitaGuideStateService);
