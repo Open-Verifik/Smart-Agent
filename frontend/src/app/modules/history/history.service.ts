@@ -13,6 +13,7 @@ export interface ApiRequest {
     method: string;
     status: string;
     statusCode: number;
+    historyStatus?: 'failed' | 'pending' | 'success';
     cost?: number;
     billingAdjustmentType?: string;
     billingStandardCost?: number;
@@ -43,7 +44,7 @@ export interface HistoryListParams {
     where_code?: string;
     whereGTE_createdAt?: string;
     whereLTE_createdAt?: string;
-    where_status?: 'failed' | 'ok';
+    historyBucket?: 'all' | 'failed' | 'pending' | 'success';
 }
 
 export interface HistoryTopSalesRow {
@@ -83,12 +84,15 @@ export class HistoryService {
                 tap((response) => {
                     this.requests.set(response.data || []);
                     this.total.set(response.total || 0);
+                    this.loading.set(false);
                 }),
                 catchError((err) => {
+                    this.requests.set([]);
+                    this.total.set(0);
                     this.error.set('Failed to load history');
+                    this.loading.set(false);
                     return throwError(() => err);
-                }),
-                finalize(() => this.loading.set(false))
+                })
             );
     };
 
@@ -168,7 +172,7 @@ export class HistoryService {
         limit: params.limit ?? 10,
         like_code: params.like_code,
         where_code: params.where_code,
-        where_status: params.where_status,
+        historyBucket: params.historyBucket,
         whereGTE_createdAt: params.whereGTE_createdAt,
         whereLTE_createdAt: params.whereLTE_createdAt,
     });

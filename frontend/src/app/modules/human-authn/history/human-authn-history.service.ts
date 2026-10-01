@@ -13,6 +13,7 @@ export interface HumanAuthnHistoryRow {
     method?: string;
     status?: string;
     statusCode?: number;
+    historyStatus?: 'failed' | 'pending' | 'success';
     cost?: number;
     duration?: number;
     createdAt?: string;
@@ -45,7 +46,7 @@ export interface HumanAuthnHistoryListParams {
     where_code?: string;
     whereGTE_createdAt?: string;
     whereLTE_createdAt?: string;
-    where_status?: 'failed' | 'ok';
+    historyBucket?: 'all' | 'failed' | 'pending' | 'success';
 }
 
 const LIST_COLUMNS = '_id statusCode status code endpoint createdAt cost';

@@ -27,8 +27,8 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
-import { firstValueFrom, Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { EMPTY, firstValueFrom, Subject } from 'rxjs';
+import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import { FACE_RECOGNITION_CODES } from '../biometrics/biometrics.constants';
 import {
@@ -42,7 +42,8 @@ import { createdAtRangeParams } from '../../settings/usage-history/usage-history
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
-export type StatusFilter = 'all' | 'failed' | 'success';
+export type StatusFilter = 'all' | 'failed' | 'pending' | 'success';
+export type HistoryStatus = 'failed' | 'pending' | 'success';
 
 const EXPORT_MAX = 10000;
 const EXPORT_PAGE_SIZE = 200;
@@ -87,6 +88,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     private _transloco = inject(TranslocoService);
     private _snack = inject(MatSnackBar);
     private _searchChange$ = new Subject<string>();
+    private _reload$ = new Subject<void>();
     private _destroy$ = new Subject<void>();
 
     readonly serviceCodes = [...FACE_RECOGNITION_CODES];
@@ -111,6 +113,35 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     detailLoading = signal(false);
 
     ngOnInit(): void {
+        this._reload$
+            .pipe(
+                switchMap(() => {
+                    this.loading.set(true);
+                    const params: UsageHistoryListParams = {
+                        page: this.pageIndex() + 1,
+                        limit: this.pageSize(),
+                        ...this._buildFilterParams(),
+                    };
+
+                    return this._service.listRequests(params).pipe(
+                        catchError(() => {
+                            this.dataSource.data = [];
+                            this.total.set(null);
+                            this.loading.set(false);
+                            this._cdr.markForCheck();
+                            return EMPTY;
+                        })
+                    );
+                }),
+                takeUntil(this._destroy$)
+            )
+            .subscribe((res) => {
+                this.dataSource.data = res.data || [];
+                this.total.set(res.total ?? null);
+                this.loading.set(false);
+                this._cdr.markForCheck();
+            });
+
         this._searchChange$.pipe(debounceTime(350), takeUntil(this._destroy$)).subscribe(() => {
             this.pageIndex.set(0);
             this.loadData();
@@ -153,27 +184,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     }
 
     loadData(): void {
-        this.loading.set(true);
-        const params: UsageHistoryListParams = {
-            page: this.pageIndex() + 1,
-            limit: this.pageSize(),
-            ...this._buildFilterParams(),
-        };
-
-        this._service.listRequests(params).subscribe({
-            next: (res) => {
-                this.dataSource.data = res.data || [];
-                this.total.set(res.total ?? null);
-                this.loading.set(false);
-                this._cdr.markForCheck();
-            },
-            error: () => {
-                this.dataSource.data = [];
-                this.total.set(null);
-                this.loading.set(false);
-                this._cdr.markForCheck();
-            },
-        });
+        this._reload$.next();
     }
 
     onSearchInput(value: string): void {
@@ -270,7 +281,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
         this.drawer?.open();
         this._service.getRequestDetail(row._id).subscribe({
             next: (res) => {
-                this.detail.set(res.data);
+                this.detail.set({ ...row, ...res.data });
                 this.detailLoading.set(false);
                 this._cdr.markForCheck();
             },
@@ -315,11 +326,29 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
         return item.feature?.name || this.formatServiceLabel(item._id);
     }
 
-    getStatusClass(code?: number): string {
-        if (!code) return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
-        if (code >= 200 && code < 300) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
-        if (code >= 400 && code < 500) return 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300';
-        return 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300';
+    resolveHistoryStatus(row?: { historyStatus?: string; status?: string; statusCode?: number } | null): HistoryStatus {
+        if (row?.historyStatus === 'success' || row?.historyStatus === 'failed' || row?.historyStatus === 'pending') {
+            return row.historyStatus;
+        }
+        if (row?.status === 'failed' || row?.status === 'timed-out') return 'failed';
+        if (row?.status === 'queue') return 'pending';
+        if (row?.status === 'ok' && row.statusCode != null && row.statusCode >= 400) return 'failed';
+        if (row?.status === 'ok') return 'success';
+        return 'pending';
+    }
+
+    historyStatusClass(row?: { historyStatus?: string; status?: string; statusCode?: number } | null): string {
+        const status = this.resolveHistoryStatus(row);
+        if (status === 'success') return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
+        if (status === 'failed') return 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300';
+        return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
+    }
+
+    historyStatusLabel(row?: { historyStatus?: string; status?: string; statusCode?: number } | null): string {
+        const status = this.resolveHistoryStatus(row);
+        if (status === 'failed') return this._t('smartEnrollUsageHistory.statusFailed');
+        if (status === 'pending') return this._t('smartEnrollUsageHistory.statusPending');
+        return this._t('smartEnrollUsageHistory.statusSuccess');
     }
 
     datePresetKey(preset: DatePreset): string {
@@ -367,8 +396,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
 
         if (this.searchText) params.like_code = this.searchText.toLowerCase();
         if (this.serviceFilter) params.where_code = this.serviceFilter;
-        if (this.statusFilter === 'success') params.where_status = 'ok';
-        if (this.statusFilter === 'failed') params.where_status = 'failed';
+        params.historyBucket = this.statusFilter;
 
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {

@@ -13,6 +13,7 @@ export interface ApiRequestRow {
     method?: string;
     status?: string;
     statusCode?: number;
+    historyStatus?: 'failed' | 'pending' | 'success';
     cost?: number;
     duration?: number;
     createdAt: string;
@@ -60,7 +61,7 @@ export interface UsageHistoryListParams {
     where_code?: string;
     whereGTE_createdAt?: string;
     whereLTE_createdAt?: string;
-    where_status?: 'failed' | 'ok';
+    historyBucket?: 'all' | 'failed' | 'pending' | 'success';
 }
 
 @Injectable({ providedIn: 'root' })

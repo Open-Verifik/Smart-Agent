@@ -27,8 +27,8 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
-import { firstValueFrom, Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { EMPTY, firstValueFrom, Subject } from 'rxjs';
+import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import { environment } from '../../../environments/environment';
 import { AgentWalletService } from '../chat/services/agent-wallet.service';
@@ -52,7 +52,8 @@ import { createdAtRangeParams } from '../settings/usage-history/usage-history-da
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
-export type StatusFilter = 'all' | 'failed' | 'success';
+export type StatusFilter = 'all' | 'failed' | 'pending' | 'success';
+export type HistoryStatus = 'failed' | 'pending' | 'success';
 
 const EXPORT_MAX = 10000;
 const EXPORT_PAGE_SIZE = 200;
@@ -99,6 +100,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _searchChange$ = new Subject<string>();
+    private _reload$ = new Subject<void>();
     private _destroy$ = new Subject<void>();
 
     readonly datePresets: DatePreset[] = ['all', 'today', 'this_week', 'this_month', 'custom'];
@@ -125,6 +127,22 @@ export class HistoryComponent implements OnInit, OnDestroy {
     pageIndex = this._historyService.pageIndex;
 
     ngOnInit(): void {
+        this._reload$
+            .pipe(
+                switchMap(() =>
+                    this._historyService.getHistory(this._buildFilterParams()).pipe(
+                        catchError(() => {
+                            this.requests.set([]);
+                            this.total.set(0);
+                            this._applyRows([]);
+                            return EMPTY;
+                        })
+                    )
+                ),
+                takeUntil(this._destroy$)
+            )
+            .subscribe(() => this._applyRows());
+
         this._searchChange$.pipe(debounceTime(350), takeUntil(this._destroy$)).subscribe(() => {
             this.pageIndex.set(0);
             this.loadData();
@@ -160,10 +178,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
     loadData = (): void => {
         if (this.mode() === 'credits') {
-            this._historyService.getHistory(this._buildFilterParams()).subscribe({
-                next: () => this._applyRows(),
-                error: () => this._applyRows([]),
-            });
+            this._reload$.next();
             return;
         }
         const wallet = this._walletService.getAddress();
@@ -319,15 +334,29 @@ export class HistoryComponent implements OnInit, OnDestroy {
     endpointDisplayName = (item: HistoryTopSalesRow): string =>
         item.feature?.name || this.formatServiceLabel(item._id);
 
-    getStatusClass = (code?: number): string => {
-        if (!code) return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
-        if (code >= 200 && code < 300) {
-            return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
+    resolveHistoryStatus = (row?: { historyStatus?: string; status?: string; statusCode?: number } | null): HistoryStatus => {
+        if (row?.historyStatus === 'success' || row?.historyStatus === 'failed' || row?.historyStatus === 'pending') {
+            return row.historyStatus;
         }
-        if (code >= 400 && code < 500) {
-            return 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300';
-        }
-        return 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300';
+        if (row?.status === 'failed' || row?.status === 'timed-out') return 'failed';
+        if (row?.status === 'queue') return 'pending';
+        if (row?.status === 'ok' && row.statusCode != null && row.statusCode >= 400) return 'failed';
+        if (row?.status === 'ok') return 'success';
+        return 'pending';
+    };
+
+    historyStatusClass = (row?: { historyStatus?: string; status?: string; statusCode?: number } | null): string => {
+        const status = this.resolveHistoryStatus(row);
+        if (status === 'success') return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
+        if (status === 'failed') return 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300';
+        return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
+    };
+
+    historyStatusLabel = (row?: { historyStatus?: string; status?: string; statusCode?: number } | null): string => {
+        const status = this.resolveHistoryStatus(row);
+        if (status === 'failed') return this._t('history.statusFailed');
+        if (status === 'pending') return this._t('history.statusPending');
+        return this._t('history.statusSuccess');
     };
 
     hasDynamicQueryBilling = (request: ApiRequest): boolean => isDynamicQueryPremiumAdjustment(request);
@@ -424,8 +453,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         };
         if (this.searchText) params.like_code = this.searchText.toLowerCase();
         if (this.serviceFilter) params.where_code = this.serviceFilter;
-        if (this.statusFilter === 'success') params.where_status = 'ok';
-        if (this.statusFilter === 'failed') params.where_status = 'failed';
+        params.historyBucket = this.statusFilter;
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
             Object.assign(params, createdAtRangeParams(range.start, range.end));
