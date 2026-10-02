@@ -3661,6 +3661,20 @@
             "tryAgain": "Intentar de nuevo",
             "emptyTitle": "Aún no hay transacciones",
             "emptySubtitle": "Las compras de créditos y pagos de suscripción aparecerán aquí cuando sean aprobados.",
+            "paymentLinks": {
+                "title": "Links de pago",
+                "subtitle": "Links enviados para cobrar. Copia uno otra vez si se perdió.",
+                "empty": "Aún no hay links de pago.",
+                "copy": "Copiar link",
+                "copied": "Copiado",
+                "statuses": {
+                    "pending": "Pendiente",
+                    "approved": "Pagado",
+                    "failed": "Fallido",
+                    "expired": "Vencido",
+                    "abandoned": "Abandonado"
+                }
+            },
             "date": "Fecha",
             "description": "Descripción",
             "method": "Método",
@@ -4778,6 +4792,32 @@
                 "dismiss": "Cerrar"
             }
         }
+    },
+    "paymentReturn": {
+        "title": "Estado del pago",
+        "badges": {
+            "confirming": "En proceso",
+            "approved": "Confirmado",
+            "pending": "En proceso",
+            "failed": "No completado",
+            "expired": "Vencido",
+            "abandoned": "Sin terminar",
+            "unknown": "No disponible"
+        },
+        "confirming": "Estamos verificando este pago…",
+        "approved": "Pago confirmado. Los créditos ya se agregaron a la cuenta de Verifik.",
+        "pending": "El pago sigue en proceso. Los créditos se agregan solos cuando quede aprobado. Puedes cerrar esta página.",
+        "failed": "Este pago no se completó.",
+        "expired": "Este link de pago venció. Si ya pagaste, los créditos se agregan automáticamente.",
+        "abandoned": "Se abrió el checkout pero no se terminó, así que no hubo cobro.",
+        "unknown": "No pudimos verificar este pago. Si lo completaste, los créditos se agregan automáticamente.",
+        "credited": "Créditos",
+        "charged": "Cobrado",
+        "download": "Descargar factura",
+        "downloading": "Preparando la factura…",
+        "downloadError": "No se pudo descargar la factura. Inténtalo de nuevo en un momento.",
+        "stripeInvoice": "Abrir factura de Stripe",
+        "noAccount": "No necesitas una cuenta de Verifik para este pago. Puedes cerrar esta página."
     },
     "pricing": {
         "2D": "Detección de vida 2D",

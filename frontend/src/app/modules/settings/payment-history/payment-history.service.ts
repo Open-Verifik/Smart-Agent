@@ -14,6 +14,18 @@ export interface StripeInvoice {
     created?: number;
 }
 
+export interface PaymentLinkHistory {
+    id: string;
+    status: 'pending' | 'approved' | 'failed' | 'expired' | 'abandoned';
+    usdAmount: number;
+    chargeAmount: number;
+    chargeCurrency: string;
+    gatewayProvider?: string;
+    createdAt?: string;
+    expiresAt?: string | null;
+    paymentLinkUrl?: string | null;
+}
+
 export interface PaymentTransaction {
     _id: string;
     amount: number;
@@ -47,6 +59,14 @@ export class PaymentHistoryService {
     private readonly apiUrl = environment.apiUrl;
 
     constructor(private _http: HttpClient) {}
+
+    listPaymentLinks(): Observable<PaymentLinkHistory[]> {
+        return this._http
+            .get<{ data: PaymentLinkHistory[] }>(`${this.apiUrl}/v2/credits/payment-links`, {
+                headers: this._authHeaders(),
+            })
+            .pipe(map((response) => response.data || []));
+    }
 
     listTransactions(page = 1, perPage = 10): Observable<TransactionListResponse> {
         const params = new HttpParams()

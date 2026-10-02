@@ -1791,6 +1791,10 @@
         "filterStatusAll": "All",
         "filterStatusSuccess": "Success",
         "filterStatusFailed": "Failed",
+        "filterStatusPending": "No response",
+        "statusSuccess": "Success",
+        "statusFailed": "Failed",
+        "statusPending": "No response",
         "filterService": "Service",
         "filterServiceAll": "All biometrics services",
         "filterDateAll": "All time",
@@ -3661,6 +3665,20 @@
             "tryAgain": "Try again",
             "emptyTitle": "No transactions yet",
             "emptySubtitle": "Credit purchases and subscription payments will appear here once approved.",
+            "paymentLinks": {
+                "title": "Payment links",
+                "subtitle": "Links sent to collect a payment. Copy one again if it was lost.",
+                "empty": "No payment links yet.",
+                "copy": "Copy link",
+                "copied": "Copied",
+                "statuses": {
+                    "pending": "Pending",
+                    "approved": "Paid",
+                    "failed": "Failed",
+                    "expired": "Expired",
+                    "abandoned": "Abandoned"
+                }
+            },
             "date": "Date",
             "description": "Description",
             "method": "Method",
@@ -4561,6 +4579,10 @@
         "filterStatusAll": "All",
         "filterStatusSuccess": "Success",
         "filterStatusFailed": "Failed",
+        "filterStatusPending": "No response",
+        "statusSuccess": "Success",
+        "statusFailed": "Failed",
+        "statusPending": "No response",
         "filterService": "Service",
         "filterServiceAll": "All services",
         "filterDateAll": "All time",
@@ -4774,6 +4796,32 @@
                 "dismiss": "Dismiss"
             }
         }
+    },
+    "paymentReturn": {
+        "title": "Payment status",
+        "badges": {
+            "confirming": "Processing",
+            "approved": "Confirmed",
+            "pending": "Processing",
+            "failed": "Not completed",
+            "expired": "Expired",
+            "abandoned": "Not finished",
+            "unknown": "Unavailable"
+        },
+        "confirming": "Checking this payment…",
+        "approved": "Payment confirmed. The credits have been added to the Verifik account.",
+        "pending": "The payment is still processing. Credits are added automatically once it is approved. You can leave this page.",
+        "failed": "This payment was not completed.",
+        "expired": "This payment link has expired. If you already paid, the credits are still added automatically.",
+        "abandoned": "The checkout was opened but not finished, so nothing was charged.",
+        "unknown": "We could not check this payment. If you completed it, the credits are still added automatically.",
+        "credited": "Credits",
+        "charged": "Charged",
+        "download": "Download invoice",
+        "downloading": "Preparing invoice…",
+        "downloadError": "The invoice could not be downloaded. Try again in a moment.",
+        "stripeInvoice": "Open Stripe invoice",
+        "noAccount": "You do not need a Verifik account for this payment. You can close this page."
     },
     "pricing": {
         "2D": "2D Liveness detection",
@@ -5964,6 +6012,10 @@
         "filterStatusAll": "All",
         "filterStatusSuccess": "Success",
         "filterStatusFailed": "Failed",
+        "filterStatusPending": "No response",
+        "statusSuccess": "Success",
+        "statusFailed": "Failed",
+        "statusPending": "No response",
         "filterService": "Service",
         "filterServiceAll": "All HumanAuthn services",
         "filterDateAll": "All time",

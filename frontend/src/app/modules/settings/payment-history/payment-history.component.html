@@ -38,6 +38,60 @@
 
     <ng-container *ngIf="userClientId">
     <section class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+        <div class="flex items-start gap-3 border-b border-stone-200/80 p-5 dark:border-gray-800 md:p-6">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                <mat-icon>link</mat-icon>
+            </div>
+            <div>
+                <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                    {{ t('settings.paymentHistory.paymentLinks.title') }}
+                </h2>
+                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                    {{ t('settings.paymentHistory.paymentLinks.subtitle') }}
+                </p>
+            </div>
+        </div>
+        <div class="p-5 md:p-6">
+            <div *ngIf="paymentLinksLoading()" class="flex justify-center py-8">
+                <mat-spinner diameter="28"></mat-spinner>
+            </div>
+            <p *ngIf="!paymentLinksLoading() && !paymentLinks().length" class="text-sm text-stone-500 dark:text-stone-400">
+                {{ t('settings.paymentHistory.paymentLinks.empty') }}
+            </p>
+            <div *ngIf="!paymentLinksLoading() && paymentLinks().length" class="flex flex-col gap-3">
+                <article
+                    *ngFor="let link of paymentLinks()"
+                    class="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-stone-50/50 p-4 dark:border-gray-800 dark:bg-gray-950/40 md:flex-row md:items-center md:justify-between"
+                >
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="text-sm font-semibold capitalize text-stone-950 dark:text-white">{{ link.gatewayProvider }}</h3>
+                            <span class="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-600 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-300">
+                                {{ paymentLinkStatus(link.status) }}
+                            </span>
+                        </div>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                            {{ link.createdAt | date: 'medium' }}
+                            ·
+                            {{ link.chargeAmount | currency: link.chargeCurrency : 'symbol' : '1.0-2' }}
+                            ·
+                            {{ link.usdAmount | currency: 'USD' : 'symbol' : '1.2-2' }}
+                        </p>
+                    </div>
+                    <button
+                        *ngIf="link.paymentLinkUrl"
+                        type="button"
+                        (click)="copyPaymentLink(link)"
+                        class="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 dark:hover:bg-gray-800"
+                    >
+                        {{ t(copiedLinkId() === link.id ? 'settings.paymentHistory.paymentLinks.copied' : 'settings.paymentHistory.paymentLinks.copy') }}
+                    </button>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
         <div class="flex flex-col gap-4 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6">
             <div class="flex items-start gap-3">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">

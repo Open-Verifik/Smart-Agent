@@ -3479,6 +3479,20 @@
             "tryAgain": "再試行",
             "emptyTitle": "まだ取引がありません",
             "emptySubtitle": "クレジット購入およびサブスクリプション料金は承認後にここに表示されます。",
+            "paymentLinks": {
+                "title": "支払いリンク",
+                "subtitle": "支払いを受け取るために送ったリンクです。紛失した場合はここから再度コピーできます。",
+                "empty": "支払いリンクはまだありません。",
+                "copy": "リンクをコピー",
+                "copied": "コピーしました",
+                "statuses": {
+                    "pending": "保留中",
+                    "approved": "支払済み",
+                    "failed": "失敗",
+                    "expired": "期限切れ",
+                    "abandoned": "中止"
+                }
+            },
             "date": "日付",
             "description": "内容",
             "method": "方法",
@@ -4684,6 +4698,32 @@
             "title": "Verifik のあらゆるワークフローに使えるクレジット",
             "subtitle": "SmartCheck、SmartEnroll、APIリクエスト、本人確認フローでクレジットを利用できます。"
         }
+    },
+    "paymentReturn": {
+        "title": "お支払い状況",
+        "badges": {
+            "confirming": "処理中",
+            "approved": "確認済み",
+            "pending": "処理中",
+            "failed": "未完了",
+            "expired": "期限切れ",
+            "abandoned": "未完了",
+            "unknown": "確認できません"
+        },
+        "confirming": "このお支払いを確認しています…",
+        "approved": "お支払いを確認しました。クレジットは Verifik アカウントに追加されました。",
+        "pending": "お支払いはまだ処理中です。承認されるとクレジットは自動で追加されます。このページは閉じて構いません。",
+        "failed": "このお支払いは完了しませんでした。",
+        "expired": "この支払いリンクは期限切れです。すでに支払い済みの場合、クレジットは自動で追加されます。",
+        "abandoned": "決済画面は開かれましたが完了していないため、請求は発生していません。",
+        "unknown": "このお支払いを確認できませんでした。完了している場合、クレジットは自動で追加されます。",
+        "credited": "クレジット",
+        "charged": "請求額",
+        "download": "請求書をダウンロード",
+        "downloading": "請求書を準備しています…",
+        "downloadError": "請求書をダウンロードできませんでした。しばらくしてからもう一度お試しください。",
+        "stripeInvoice": "Stripe の請求書を開く",
+        "noAccount": "このお支払いに Verifik アカウントは不要です。このページを閉じて構いません。"
     },
     "pricing": {
         "2D": "2D 生体検出",

@@ -14,6 +14,14 @@ export const appRoutes: Route[] = [
         loadChildren: () => import('app/modules/proposal/proposal.routes').then((m) => m.default),
     },
 
+    {
+        path: 'pay/return',
+        loadComponent: () =>
+            import('app/modules/payment-return/payment-return.component').then(
+                (m) => m.PaymentReturnComponent
+            ),
+    },
+
     // Redirect empty path to '/home'
     { path: '', pathMatch: 'full', redirectTo: 'home' },
 

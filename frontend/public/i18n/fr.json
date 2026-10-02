@@ -3585,6 +3585,20 @@
             "tryAgain": "Réessayer",
             "emptyTitle": "Aucune transaction pour le moment",
             "emptySubtitle": "Les achats de crédits et paiements d'abonnement apparaîtront ici une fois approuvés.",
+            "paymentLinks": {
+                "title": "Liens de paiement",
+                "subtitle": "Liens envoyés pour encaisser un paiement. Copiez-en un à nouveau s'il a été perdu.",
+                "empty": "Aucun lien de paiement pour le moment.",
+                "copy": "Copier le lien",
+                "copied": "Copié",
+                "statuses": {
+                    "pending": "En attente",
+                    "approved": "Payé",
+                    "failed": "Échoué",
+                    "expired": "Expiré",
+                    "abandoned": "Abandonné"
+                }
+            },
             "date": "Date",
             "description": "Description",
             "method": "Méthode",
@@ -4688,6 +4702,32 @@
             "title": "Des crédits pour chaque flux Verifik",
             "subtitle": "Utilisez vos crédits avec SmartCheck, SmartEnroll, les requêtes API et les flux de vérification d'identité sur la plateforme Verifik."
         }
+    },
+    "paymentReturn": {
+        "title": "Statut du paiement",
+        "badges": {
+            "confirming": "En cours",
+            "approved": "Confirmé",
+            "pending": "En cours",
+            "failed": "Non abouti",
+            "expired": "Expiré",
+            "abandoned": "Non terminé",
+            "unknown": "Indisponible"
+        },
+        "confirming": "Vérification de ce paiement…",
+        "approved": "Paiement confirmé. Les crédits ont été ajoutés au compte Verifik.",
+        "pending": "Le paiement est encore en cours. Les crédits sont ajoutés automatiquement dès qu'il est approuvé. Vous pouvez quitter cette page.",
+        "failed": "Ce paiement n'a pas abouti.",
+        "expired": "Ce lien de paiement a expiré. Si vous avez déjà payé, les crédits sont tout de même ajoutés automatiquement.",
+        "abandoned": "Le paiement a été ouvert mais pas terminé, donc rien n'a été débité.",
+        "unknown": "Nous n'avons pas pu vérifier ce paiement. S'il a été finalisé, les crédits sont ajoutés automatiquement.",
+        "credited": "Crédits",
+        "charged": "Montant débité",
+        "download": "Télécharger la facture",
+        "downloading": "Préparation de la facture…",
+        "downloadError": "La facture n'a pas pu être téléchargée. Réessayez dans un instant.",
+        "stripeInvoice": "Ouvrir la facture Stripe",
+        "noAccount": "Un compte Verifik n'est pas nécessaire pour ce paiement. Vous pouvez fermer cette page."
     },
     "pricing": {
         "2D": "Détection de vivacité 2D",

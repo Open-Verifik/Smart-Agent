@@ -24,6 +24,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
     InvoiceBlobResponse,
     PaymentHistoryService,
+    PaymentLinkHistory,
     PaymentTransaction,
 } from './payment-history.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
@@ -47,13 +48,17 @@ const SUPPORTED_INVOICE_LANGUAGES = new Set(['en', 'es', 'zh', 'ja', 'pt', 'ko']
     ],
     templateUrl: './payment-history.component.html',
 })
-export class PaymentHistoryComponent implements OnInit, OnChanges {
+export class PaymentHistoryComponent implements OnInit, OnChanges, OnDestroy {
     @Input() user: unknown;
     @Output() userChange = new EventEmitter<unknown>();
 
     loading = signal(false);
     error = signal<string | null>(null);
     transactions = signal<PaymentTransaction[]>([]);
+    paymentLinks = signal<PaymentLinkHistory[]>([]);
+    paymentLinksLoading = signal(false);
+    copiedLinkId = signal<string | null>(null);
+    private _copiedTimer?: ReturnType<typeof setTimeout>;
     page = signal(1);
     pageSize = 10;
     total = signal(0);
@@ -66,12 +71,18 @@ export class PaymentHistoryComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         this.loadTransactions();
+        this.loadPaymentLinks();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['user']) {
             this.loadTransactions();
+            this.loadPaymentLinks();
         }
+    }
+
+    ngOnDestroy(): void {
+        clearTimeout(this._copiedTimer);
     }
 
     get userClientId(): string | undefined {
@@ -81,6 +92,7 @@ export class PaymentHistoryComponent implements OnInit, OnChanges {
     onBusinessAccountLinked(account: unknown): void {
         this.userChange.emit(account);
         this.loadTransactions();
+        this.loadPaymentLinks();
     }
 
     loadTransactions(page = this.page()): void {
@@ -109,6 +121,44 @@ export class PaymentHistoryComponent implements OnInit, OnChanges {
                 this.loading.set(false);
             },
         });
+    }
+
+    loadPaymentLinks(): void {
+        if (!this.userClientId) {
+            this.paymentLinksLoading.set(false);
+            this.paymentLinks.set([]);
+            return;
+        }
+
+        this.paymentLinksLoading.set(true);
+
+        this._paymentHistoryService.listPaymentLinks().subscribe({
+            next: (links) => {
+                this.paymentLinks.set(links);
+                this.paymentLinksLoading.set(false);
+            },
+            error: () => {
+                this.paymentLinks.set([]);
+                this.paymentLinksLoading.set(false);
+            },
+        });
+    }
+
+    async copyPaymentLink(link: PaymentLinkHistory): Promise<void> {
+        if (!link.paymentLinkUrl) return;
+
+        try {
+            await navigator.clipboard.writeText(link.paymentLinkUrl);
+            this.copiedLinkId.set(link.id);
+            clearTimeout(this._copiedTimer);
+            this._copiedTimer = setTimeout(() => this.copiedLinkId.set(null), 2000);
+        } catch {
+            this.copiedLinkId.set(null);
+        }
+    }
+
+    paymentLinkStatus(status: string): string {
+        return this._translocoService.translate(`settings.paymentHistory.paymentLinks.statuses.${status}`);
     }
 
     openInvoice(transaction: PaymentTransaction): void {
