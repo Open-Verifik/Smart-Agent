@@ -2946,12 +2946,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return section.keyOverrides?.[key]?.backgroundColor || '';
     }
 
-    fieldBoxBorder(section: ReportSection): string | null {
-        const width = Number(section.style?.borderWidth ?? 0);
-        if (!Number.isFinite(width) || width <= 0) return null;
-        return `${Math.round(width)}px solid ${section.style?.borderColor || '#d6d3d1'}`;
-    }
-
     cellHasBox(section: ReportSection, key: string): boolean {
         return Number(section.keyOverrides?.[key]?.borderWidth ?? 0) > 0;
     }
