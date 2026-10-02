@@ -836,36 +836,8 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             this._persistBuilderSections = true;
             return;
         }
-        this.sections.set([
-            {
-                id: this._generateId(),
-                type: 'header',
-                order: 0,
-                label: 'Verification Report',
-                staticContent: 'Verification Report',
-                style: { fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
-            },
-            {
-                id: this._generateId(),
-                type: 'divider',
-                order: 1,
-                style: { color: '#4F46E5' },
-            },
-            {
-                id: this._generateId(),
-                type: 'field',
-                order: 2,
-                label: 'Document Number',
-                dataPath: 'results.1.documentNumber',
-            },
-            {
-                id: this._generateId(),
-                type: 'field',
-                order: 3,
-                label: 'Full Name',
-                dataPath: 'results.1.fullName',
-            },
-        ]);
+        this.sections.set([]);
+        this.addSection('header');
         this._persistBuilderSections = true;
     }
 

@@ -2391,7 +2391,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (top.frame) this._showFrameOnSheet(top.frame);
     }
 
-    /** New reports start with a single endpoint; the rest are dragged in by hand. */
+    /** New reports start with one consult block; the rest are added by hand. */
     seedDefaultLayout(): void {
         if (this.layoutSections().length) return;
         const card = this.layoutSourceCards()[0];
@@ -2402,7 +2402,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     useVisitaLayout(): void {
         const sections = this.clonedTemplate()?.sections ?? [];
         if (!sections.length) {
+            this.layoutSections.set([]);
+            this._state.templateChoice.set('visita');
             this.seedDefaultLayout();
+            this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
+            this._preferCompactFormatBar();
             return;
         }
         this.layoutSections.set(cloneReportValue(sections).map((section, index) => ({ ...section, order: index })));
@@ -2469,7 +2473,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
         input.value = '';
-        if (!file) return;
+        if (!file || !this._acceptLayoutImageFile(file)) return;
         const reader = new FileReader();
         reader.onload = () => {
             const src = String(reader.result ?? '');
@@ -2480,6 +2484,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     clearWatermarkLogo(): void {
         this._state.watermarkLogo.set(null);
+    }
+
+    private _acceptLayoutImageFile(file: File): boolean {
+        if (file.size <= 512_000) return true;
+        this._snack.open(this._transloco.translate('visitaGuide.layoutImageTooLarge'), undefined, {
+            duration: 3500,
+        });
+        return false;
     }
 
     setWatermarkPattern(pattern: 'single' | 'repeated'): void {
@@ -3727,7 +3739,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     async saveLayoutTemplate(): Promise<boolean> {
         this.isSavingLayout.set(true);
         try {
-            if (!this.layoutSections().length) this.seedDefaultLayout();
             const template = await this._persistWorkingTemplate();
             if (!template) throw new Error('template');
             this._snack.open(this._transloco.translate('visitaGuide.layoutSaved'), undefined, {
@@ -3746,7 +3757,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     async saveLayoutAndGenerate(): Promise<void> {
-        if (!this.layoutSections().length) this.seedDefaultLayout();
         const saved = await this.saveLayoutTemplate();
         if (!saved) return;
         if (this.mode() === 'batch') {
@@ -3944,6 +3954,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const origin = this._pendingSheetImagePoint;
         this._pendingSheetImagePoint = null;
         files.slice(0, remaining).forEach((file, index) => {
+            if (!this._acceptLayoutImageFile(file)) return;
             const reader = new FileReader();
             reader.onload = () => {
                 const src = String(reader.result ?? '');
@@ -4010,6 +4021,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const inBand = band === 'footer' ? this.footerBandLogos() : this.headerBandLogos();
         const room = Math.max(0, 8 - inBand.length);
         files.slice(0, room).forEach((file) => {
+            if (!this._acceptLayoutImageFile(file)) return;
             const reader = new FileReader();
             reader.onload = () => {
                 const src = String(reader.result ?? '');
@@ -4105,7 +4117,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.isGenerating.set(true);
         const savedRecord = this.previewRecordIndex();
         try {
-            if (!this.layoutSections().length) this.seedDefaultLayout();
             const printHtml = printHtmlOverride ?? (await this._printHtmlForCurrentRecord());
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
