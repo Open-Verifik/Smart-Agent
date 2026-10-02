@@ -44,6 +44,7 @@ import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
 import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
 import {
+    cloneReportValue,
     DataNode,
     ReportConditionOperator,
     ReportSection,
@@ -743,7 +744,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
                 this.template.set(template);
                 const stored = readBuilderSectionsDraft(template._id || id);
-                this.sections.set(stored ?? template.sections ?? []);
+                this.sections.set(cloneReportValue(stored ?? template.sections ?? []));
                 this._persistBuilderSections = true;
                 if (!this.linkedConfigId() && template.batchConfiguration) {
                     const linkedId = this._resolveBatchConfigId(template.batchConfiguration);
@@ -831,7 +832,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     private _initDefaultSections(): void {
         const stored = readBuilderSectionsDraft('new');
         if (stored) {
-            this.sections.set(stored);
+            this.sections.set(cloneReportValue(stored));
             this._persistBuilderSections = true;
             return;
         }
@@ -1397,10 +1398,13 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
         const templateData: Partial<SmartReportTemplate> = {
             ...formVal,
-            sections: this.sections(),
+            sections: cloneReportValue(this.sections()),
             batchConfiguration: this.linkedConfigId() || undefined,
             sampleData: this.previewData(),
             logo: this.logoUrl() || undefined,
+            headerLogos: cloneReportValue(this.template()?.headerLogos),
+            sheetImages: cloneReportValue(this.template()?.sheetImages),
+            identityColor: this.template()?.identityColor,
             watermark: {
                 enabled: formVal.watermarkEnabled ?? false,
                 type: formVal.watermarkType || 'text',

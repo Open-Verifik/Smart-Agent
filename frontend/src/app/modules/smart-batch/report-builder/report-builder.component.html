@@ -2518,7 +2518,9 @@
                             primaryColor: templateForm.get('primaryColor')?.value,
                             pageSize: templateForm.get('pageSize')?.value || 'A4',
                             headerLogos: template()?.headerLogos,
+                            sheetImages: template()?.sheetImages,
                         }"
+                        [sheetImages]="template()?.sheetImages ?? []"
                         [previewData]="previewData()"
                         [primaryColor]="templateForm.get('primaryColor')?.value || '#4F46E5'"
                         [pageBackgroundColor]="

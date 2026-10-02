@@ -1,6 +1,6 @@
 import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, NgZone, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChild, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, computed, DestroyRef, effect, inject, OnDestroy, OnInit, QueryList, signal, untracked, ViewChild, ViewChildren } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,7 +34,7 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, featureGroupIcon, FeatureGroupId, isSmartBatchCatalogFeature } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate, cloneReportValue } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
@@ -62,6 +62,7 @@ import {
     ROW_LINE_WIDTH_MIN,
 } from '../report-row-line.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
+import { htmlMatchesPrintMarkers, mergePrintHtmlDocuments, uniquePrintMarkers } from '../report-print-html.util';
 import { buildRowDataForResolution } from '../template-match.util';
 import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
@@ -247,6 +248,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _destroyRef = inject(DestroyRef);
     private _host = inject(ElementRef<HTMLElement>);
+    private _cdr = inject(ChangeDetectorRef);
     @ViewChildren(ReportPreviewComponent) private _previews!: QueryList<ReportPreviewComponent>;
     @ViewChild('layoutEditorPreview') private _layoutEditorPreview?: ReportPreviewComponent;
     @ViewChild('layoutInsertImageInput') private _layoutInsertImageInput?: ElementRef<HTMLInputElement>;
@@ -412,7 +414,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     layoutEditorDrag = signal({ x: 0, y: 0 });
     private readonly _liftEditorEffect = effect(() => {
         const onLayout = this.step() === 'layout';
-        const visible = onLayout && Boolean(this.layoutEditorKind()) && !this.layoutEditorSuppressed();
+        const visible = onLayout && this.layoutEditorKind() === 'page' && !this.layoutEditorSuppressed();
         if (!onLayout) {
             untracked(() => {
                 if (this.layoutEditorKind()) this.layoutEditorKind.set(null);
@@ -444,10 +446,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         offsetY: number;
     } | null = null;
     private readonly _formatBarWatch = effect(() => {
-        const active =
-            this.step() === 'layout' &&
-            Boolean(this.selectedLayoutSectionId()) &&
-            this.selectedLayoutShowsFormatBar();
+        const active = this.step() === 'layout' && this.selectedLayoutShowsFormatBar();
         untracked(() => {
             if (active) this._ensureFormatBarLoop();
             else this._stopFormatBarLoop();
@@ -458,7 +457,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         // Label and value of the same item share the dragged spot. A different item starts over.
         const titleFocus =
             !this.selectedLayoutCellKey() && this.selectedLayoutCellPart() === 'title' ? 'title' : '';
-        const token = [this.selectedLayoutSectionId() ?? '', this.selectedLayoutCellKey() ?? '', titleFocus].join('|');
+        const token = [
+            this.selectedLayoutSectionId() ?? '',
+            this.selectedLayoutCellKey() ?? '',
+            titleFocus,
+            this.selectedLayoutOverlay() ?? '',
+        ].join('|');
         untracked(() => {
             if (token === this._formatSelectionToken) return;
             const hadSelection = this._formatSelectionToken.length > 0;
@@ -716,7 +720,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             pdfEngine: this.pdfEngine(),
             security: this._securityPayload(),
             signature: this._signaturePayload(),
-            logo: this.logoDataUrl() || base.logo,
+            logo: this.headerLogos().length ? '' : this.logoDataUrl() || base.logo,
             legend: this.legend(),
             legendPosition: this.legendPosition(),
             termsAndConditions: this.termsAndConditions(),
@@ -739,31 +743,59 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
     });
 
-    previewData = computed(() => {
-        const row = this.batch()?.rows?.[0];
-        if (row) {
-            return buildRowDataForResolution(row, {
-                steps: this.configuration()?.steps,
-                errors: row.errors,
-            });
+    overlayLogoUrl = computed(() => (this.headerLogos().length ? null : this.logoDataUrl()));
+    overlayLogoEnabled = computed(() => !this.headerLogos().length && Boolean(this.logoDataUrl()));
+
+    previewRecordIndex = signal(0);
+
+    previewRecords = computed(() => {
+        const batch = this.batch();
+        const rows = batch?.rows ?? [];
+        const steps = this.configuration()?.steps;
+        const batchName = batch?.name || this.reportTitle() || '';
+        if (rows.length) {
+            return rows.map((row) => ({
+                batchName,
+                rowIndex: row.rowIndex,
+                ...buildRowDataForResolution(row, {
+                    steps,
+                    batchName,
+                    errors: row.errors,
+                }),
+            }));
         }
         const sample = this.selectedTemplate()?.sampleData;
         if (sample) {
-            return {
-                batchName: sample.batchName || this.reportTitle() || '',
-                rowIndex: sample.rowIndex ?? 0,
-                inputData: sample.inputData ?? {},
-                results: sample.results ?? {},
-                errors: sample.errors,
-                report: sample.report,
-            };
+            return [
+                {
+                    batchName: sample.batchName || this.reportTitle() || '',
+                    rowIndex: sample.rowIndex ?? 0,
+                    inputData: sample.inputData ?? {},
+                    results: sample.results ?? {},
+                    errors: sample.errors,
+                    report: sample.report,
+                },
+            ];
         }
-        return { inputData: {}, results: {} };
+        return [{ inputData: {}, results: {}, rowIndex: 0 }];
     });
+
+    previewData = computed(() => {
+        const all = this.previewRecords();
+        const idx = Math.min(Math.max(0, this.previewRecordIndex()), Math.max(0, all.length - 1));
+        return all[idx] ?? { inputData: {}, results: {}, rowIndex: 0 };
+    });
+
+    goToPreviewRecord(index: number): void {
+        const max = this.previewRecords().length - 1;
+        this.previewRecordIndex.set(Math.min(Math.max(0, index), Math.max(0, max)));
+    }
 
     resultCards = computed((): GuideResultCard[] => {
         const config = this.configuration();
-        const row = this.batch()?.rows?.[0];
+        const rows = this.batch()?.rows ?? [];
+        const row =
+            rows.find((item) => item.rowIndex === this.previewData().rowIndex) ?? rows[0];
         if (!config || !row) return [];
         const results = (row.results ?? {}) as Record<string | number, unknown>;
         const skipped = getBatchSkippedStepsFromInput(row.inputData as Record<string, unknown>);
@@ -1407,15 +1439,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
-        if (id.startsWith('hdr:') || id === 'logo' || id === 'signature' || id === 'watermark') {
-            this.layoutEditorDrag.set({ x: 0, y: 0 });
-            this.layoutEditorKind.set('page');
-            const control = id === 'logo' ? 'overlay' : id;
-            this._revealLayoutControls(control);
+        if (this.selectedLayoutUsesCompactOverlayBar()) {
+            if (this.layoutEditorKind() === 'page') this.layoutEditorKind.set(null);
             return;
         }
-        this.layoutEditorKind.set('overlay');
-        this._revealLayoutControls('overlay');
+        this.layoutEditorDrag.set({ x: 0, y: 0 });
+        this.layoutEditorKind.set('page');
+        const control = id === 'watermark' ? 'watermark' : 'overlay';
+        this._revealLayoutControls(control);
     }
 
     clearLayoutSelection(): void {
@@ -1508,19 +1539,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!this._layoutEditorHideCount) this.layoutEditorSuppressed.set(false);
     }
 
-    /** Text selections stay on the compact bar. Shapes and the rest open the full panel. */
-    private _focusLayoutEditor(section: ReportSection, control: 'block' | 'cell' | 'label' | 'value'): void {
-        if (this._sectionUsesFormatBar(section)) {
-            if (this.layoutEditorKind() === 'block') this.layoutEditorKind.set(null);
-            return;
+    /** Text and drawing blocks use the compact bar. The old floating card stays closed. */
+    private _focusLayoutEditor(_section: ReportSection, _control: 'block' | 'cell' | 'label' | 'value'): void {
+        if (this.layoutEditorKind() === 'block' || this.layoutEditorKind() === 'overlay') {
+            this.layoutEditorKind.set(null);
         }
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls(control);
-    }
-
-    private _sectionUsesFormatBar(section: ReportSection): boolean {
-        const type = section.type;
-        return type !== 'spacer' && type !== 'image' && type !== 'divider';
     }
 
     /** Entering the sheet selects a block without opening the full color panel. */
@@ -1528,10 +1551,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const id = this.selectedLayoutSectionId();
         const section = this.layoutSections().find((item) => item.id === id) ?? null;
         if (!section) {
+            if (this.selectedLayoutUsesCompactOverlayBar()) {
+                if (this.layoutEditorKind() === 'page') this.layoutEditorKind.set(null);
+                return;
+            }
             this.layoutEditorKind.set(this.layoutSections().some((item) => !isReportPageAnchor(item)) ? null : 'page');
             return;
         }
-        this.layoutEditorKind.set(this._sectionUsesFormatBar(section) ? null : 'block');
+        if (this.layoutEditorKind() !== 'page') this.layoutEditorKind.set(null);
     }
 
     private _formatRoles(): ReportTextRole[] {
@@ -1669,10 +1696,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _measureFormatAnchor(): { x: number; y: number; opensUp: boolean; room: number } | null {
         const preview = this._layoutEditorPreview;
-        const section = this.selectedLayoutSection();
-        if (!preview || !section || this.step() !== 'layout' || !this.selectedLayoutShowsFormatBar()) return null;
+        if (!preview || this.step() !== 'layout' || !this.selectedLayoutShowsFormatBar()) return null;
         if (preview.draggingSectionId()) return null;
-        const rect = preview.anchorRect(section.id, this.selectedLayoutCellKey(), this.selectedLayoutCellPart());
+        const overlay = this.selectedLayoutOverlay();
+        const rect = this.selectedLayoutUsesCompactOverlayBar()
+            ? preview.overlayAnchorRect(overlay)
+            : (() => {
+                  const section = this.selectedLayoutSection();
+                  return section
+                      ? preview.anchorRect(section.id, this.selectedLayoutCellKey(), this.selectedLayoutCellPart())
+                      : null;
+              })();
         if (!rect || rect.width < 2 || rect.height < 2) return null;
         const el = this._layoutFormatBarEl?.nativeElement;
         if (el && el.parentElement !== document.body) document.body.appendChild(el);
@@ -2102,7 +2136,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _layoutDesignSnapshot(): LayoutDesignSnapshot {
         return {
-            sections: this.layoutSections(),
+            sections: cloneReportValue(this.layoutSections()),
             reportTitle: this.reportTitle(),
             primaryColor: this.primaryColor(),
             identityColor: this.identityColor(),
@@ -2113,8 +2147,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             logoWidth: this.logoWidth(),
             logoHeight: this.logoHeight(),
             logoRotation: this.logoRotation(),
-            sheetImages: this.sheetImages(),
-            headerLogos: this.headerLogos(),
+            sheetImages: cloneReportValue(this.sheetImages()),
+            headerLogos: cloneReportValue(this.headerLogos()),
             legend: this.legend(),
             legendPosition: this.legendPosition(),
             termsAndConditions: this.termsAndConditions(),
@@ -2203,7 +2237,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const snapshot = JSON.parse(json) as LayoutDesignSnapshot;
         this._layoutHistoryApplying = true;
         this.layoutSections.set(
-            (snapshot.sections ?? []).map((section, index) => ({ ...section, order: index }))
+            cloneReportValue(snapshot.sections ?? []).map((section, index) => ({ ...section, order: index }))
         );
         this._state.reportTitle.set(snapshot.reportTitle);
         this._state.primaryColor.set(snapshot.primaryColor);
@@ -2215,8 +2249,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoWidth.set(snapshot.logoWidth);
         this._state.logoHeight.set(snapshot.logoHeight);
         this._state.logoRotation.set(snapshot.logoRotation);
-        this._state.sheetImages.set(snapshot.sheetImages ?? []);
-        this._state.headerLogos.set(snapshot.headerLogos ?? []);
+        this._state.sheetImages.set(cloneReportValue(snapshot.sheetImages ?? []));
+        this._state.headerLogos.set(cloneReportValue(snapshot.headerLogos ?? []));
         this._state.legend.set(snapshot.legend);
         this._state.legendPosition.set(snapshot.legendPosition ?? 'left');
         this._state.termsAndConditions.set(snapshot.termsAndConditions ?? '');
@@ -2371,7 +2405,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.seedDefaultLayout();
             return;
         }
-        this.layoutSections.set(sections.map((section, index) => ({ ...section, order: index })));
+        this.layoutSections.set(cloneReportValue(sections).map((section, index) => ({ ...section, order: index })));
         this._state.templateChoice.set('visita');
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
         this._preferCompactFormatBar();
@@ -2866,8 +2900,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
-        this.layoutEditorKind.set('block');
-        this._revealLayoutControls('block');
+        this._focusLayoutEditor(section, 'block');
     }
 
     addShapeBlock(kind: ReportShapeKind): void {
@@ -2940,7 +2973,37 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectedLayoutShowsFormatBar(): boolean {
-        return this.selectedLayoutShowsTypography() || this.selectedLayoutSection()?.type === 'shape';
+        if (this.selectedLayoutUsesCompactOverlayBar()) return true;
+        const section = this.selectedLayoutSection();
+        return Boolean(section) && !isReportPageAnchor(section);
+    }
+
+    selectedLayoutUsesCompactOverlayBar(): boolean {
+        const id = this.selectedLayoutOverlay();
+        return Boolean(id && (id === 'signature' || id === 'logo' || id.startsWith('hdr:') || id.startsWith('img:')));
+    }
+
+    selectedLayoutHeaderLogo(): ReportHeaderLogo | null {
+        const overlay = this.selectedLayoutOverlay();
+        if (!overlay?.startsWith('hdr:')) return null;
+        return this.headerLogos().find((logo) => logo.id === overlay.slice(4)) ?? null;
+    }
+
+    nudgeSelectedHeaderLogoSize(delta: number): void {
+        const logo = this.selectedLayoutHeaderLogo();
+        if (!logo) return;
+        this.setHeaderLogoHeight(logo.id, logo.height + delta);
+    }
+
+    nudgeSignatureSize(delta: number): void {
+        this.setSignatureWidth(this.signatureWidth() + delta);
+        this.setSignatureHeight(this.signatureHeight() + Math.round(delta * 0.4));
+    }
+
+    nudgeSelectedSheetImageRotation(delta: number): void {
+        const image = this.selectedSheetImage();
+        if (!image) return;
+        this.setSelectedSheetImageRotation((image.rotation || 0) + delta);
     }
 
     layoutShapePickerHex(): string {
@@ -3326,8 +3389,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     addLayoutParam(key: string): void {
         this.setLayoutParamVisible(key, true);
-        this.selectedLayoutCellKey.set(key);
-        this.selectedLayoutCellPart.set('cell');
     }
 
     layoutHiddenParamOptions(): LayoutSheetItem[] {
@@ -3339,6 +3400,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     setSelectedLayoutBackground(value: string): void {
         this._patchSelectedLayoutStyle({ backgroundColor: value });
+    }
+
+    setSelectedLayoutPadding(value: string | number): void {
+        const padding = Number(value);
+        if (!Number.isFinite(padding)) return;
+        this._patchSelectedLayoutStyle({ padding: String(Math.max(4, Math.min(240, Math.round(padding)))) });
     }
 
     setSelectedLayoutBorderEnabled(enabled: boolean): void {
@@ -3383,6 +3450,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutShowsParams(): boolean {
         const type = this.selectedLayoutSection()?.type;
         return type === 'keyValueGrid' || type === 'table' || type === 'card' || type === 'field' || type === 'dataTable';
+    }
+
+    /** Whole-block chrome (not a cell, not the title alone). */
+    selectedLayoutEditsWholeBlock(): boolean {
+        return (
+            Boolean(this.selectedLayoutSection()) &&
+            !this.selectedLayoutCellKey() &&
+            this.selectedLayoutCellPart() !== 'title'
+        );
     }
 
     selectedLayoutShowsRowLines(): boolean {
@@ -3630,7 +3706,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             borderColor: style.borderColor,
             borderRadius: style.borderRadius,
             rotation: style.rotation,
+            zIndex: style.zIndex,
             variant: style.variant,
+            variantRules: style.variantRules ? cloneReportValue(style.variantRules) : undefined,
         };
     }
 
@@ -3849,9 +3927,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const configId = this._state.configId();
         const batchId = this._state.batchId();
         if (!configId || !batchId) return;
-        void this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'report'], {
-            queryParams: { rowIndex: '0' },
-        });
+        void this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'report']);
     }
 
     onLayoutSheetImageChange(image: ReportSheetImage): void {
@@ -4004,7 +4080,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 height: logo.height || HEADER_LOGO_DEFAULT_HEIGHT,
             }));
         }
-        if (!template.logo) return [];
+        if (!template.logo || template.logoSettings?.enabled) return [];
         return [
             {
                 id: 'company-logo',
@@ -4027,14 +4103,39 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     async generatePdf(printHtmlOverride?: string | null): Promise<void> {
         this.isGenerating.set(true);
+        const savedRecord = this.previewRecordIndex();
         try {
             if (!this.layoutSections().length) this.seedDefaultLayout();
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            const records = this.previewRecords();
+            const printHtml = printHtmlOverride ?? (await this._printHtmlForRecords());
+            const batchId = this._state.batchId();
+            if (batchId && records.length > 1) {
+                const report = await firstValueFrom(
+                    this._reports.createReport({
+                        template: template._id,
+                        smartBatch: batchId,
+                        name: this.reportTitle() || template.name,
+                    })
+                );
+                const result = await firstValueFrom(
+                    this._reports.generateReport(report._id!, {
+                        ...(printHtml ? { printHtml } : {}),
+                    })
+                );
+                if (!result.pdf?.buffer) throw new Error('pdf');
+                const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
+                this._state.pdfDataUrl.set(dataUrl);
+                this.downloadDataUrl(dataUrl, `${this.fileBaseName()}.pdf`);
+                this._snack.open(this._transloco.translate('visitaGuide.pdfReady'), undefined, {
+                    duration: 3000,
+                });
+                return;
+            }
             const sample = this.previewData();
-            const printHtml = printHtmlOverride ?? this._editorPrintHtml();
             const blob = await firstValueFrom(
                 this._reports.downloadTemplateSample(template._id, {
                     sampleData: sample,
@@ -4052,7 +4153,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const template = this.selectedTemplate();
             if (batchId && template?._id) {
                 try {
-                    const printHtml = printHtmlOverride ?? this._editorPrintHtml();
+                    const printHtml = printHtmlOverride ?? (await this._printHtmlForRecords());
                     const report = await firstValueFrom(
                         this._reports.createReport({
                             template: template._id,
@@ -4062,7 +4163,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     );
                     const result = await firstValueFrom(
                         this._reports.generateReport(report._id!, {
-                            rowIndex: 0,
                             ...(printHtml ? { printHtml } : {}),
                         })
                     );
@@ -4083,21 +4183,67 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 duration: 4000,
             });
         } finally {
+            this.previewRecordIndex.set(savedRecord);
             this.isGenerating.set(false);
         }
     }
 
-    private _editorPrintHtml(): string | null {
+    private async _printHtmlForRecords(): Promise<string | undefined> {
+        const records = this.previewRecords();
+        if (!records.length) return this._editorPrintHtml() ?? undefined;
+        if (records.length === 1) return this._editorPrintHtml() ?? undefined;
+
+        const documents: string[] = [];
+        for (let index = 0; index < records.length; index++) {
+            this.previewRecordIndex.set(index);
+            this._cdr.detectChanges();
+            const html = await this._waitForRecordPrintHtml(records[index], records);
+            if (html) documents.push(html);
+        }
+        if (documents.length !== records.length) return undefined;
+        return mergePrintHtmlDocuments(documents);
+    }
+
+    private async _waitForRecordPrintHtml(
+        record: Record<string, any>,
+        records: Record<string, any>[]
+    ): Promise<string | undefined> {
+        const others = records.filter((item) => item !== record);
+        const markers = uniquePrintMarkers(record, others);
+        const rowIndex = Number(record['rowIndex']);
+        for (let attempt = 0; attempt < 40; attempt++) {
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            const html = this._capturePrintHtml();
+            if (html && htmlMatchesPrintMarkers(html, markers, Number.isFinite(rowIndex) ? rowIndex : undefined)) {
+                return html;
+            }
+        }
+        return undefined;
+    }
+
+    private _capturePrintHtml(): string | null {
         const previews = this._previews?.toArray() ?? [];
-        const visible =
-            this.step() === 'generate'
-                ? previews.find((item) => !item.printCapture() && !item.reorderable()) ??
-                  previews.find((item) => !item.printCapture())
-                : previews.find((item) => item.reorderable());
+        const printCapture = previews.find((item) => item.printCapture());
+        const visible = this._visiblePreview();
+        return printCapture?.exportPrintHtml() ?? visible?.exportPrintHtml() ?? null;
+    }
+
+    private _visiblePreview(): ReportPreviewComponent | undefined {
+        const previews = this._previews?.toArray() ?? [];
+        if (this.step() === 'generate') {
+            return (
+                previews.find((item) => !item.printCapture() && !item.reorderable()) ??
+                previews.find((item) => !item.printCapture())
+            );
+        }
+        return previews.find((item) => item.reorderable());
+    }
+
+    private _editorPrintHtml(): string | null {
         return (
-            visible?.exportPrintHtml() ??
-            previews.find((item) => item.printCapture())?.exportPrintHtml() ??
-            previews[previews.length - 1]?.exportPrintHtml() ??
+            this._visiblePreview()?.exportPrintHtml() ??
+            this._previews?.toArray().find((item) => item.printCapture())?.exportPrintHtml() ??
+            this._previews?.toArray().at(-1)?.exportPrintHtml() ??
             null
         );
     }
@@ -4434,7 +4580,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                   included: true,
               }));
         const includedSet = new Set(includedItems.map((item) => item.sequence));
-        const sections = (template.sections ?? []).filter((section) => {
+        const sections = cloneReportValue(template.sections ?? []).filter((section) => {
             const path = section.dataPath ?? '';
             const match = path.match(/results\.(\d+)/);
             if (!match) return true;
@@ -4486,7 +4632,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             primaryColor: this.primaryColor() || draft.primaryColor,
             identityColor: this.identityColor() || draft.identityColor || '#000000',
             pageBackgroundColor: this.pageBackgroundColor() || '#ffffff',
-            logo: this.logoDataUrl() || draft.logo,
+            logo: this.headerLogos().length ? '' : this.logoDataUrl() || draft.logo || '',
             header: draft.header,
             footer: draft.footer,
             legend: (this.legend() || '').slice(0, 2000),
@@ -4505,9 +4651,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 rotation: this.logoRotation(),
                 autoFitContent: draft.logoSettings?.autoFitContent ?? true,
             },
-            sheetImages: this.sheetImages(),
-            headerLogos: this.headerLogos(),
-            sections: JSON.parse(JSON.stringify(this.layoutSections())),
+            sheetImages: cloneReportValue(this.sheetImages()),
+            headerLogos: cloneReportValue(this.headerLogos()),
+            sections: cloneReportValue(this.layoutSections()),
             pageSize: this.pageSize(),
             orientation: this.orientation(),
             margins: draft.margins,
@@ -4563,7 +4709,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.hydrateCustomize(template, true);
         if (this.mode() === 'batch') return;
         this.layoutSections.set(
-            (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
+            cloneReportValue(template.sections ?? []).map((section, index) => ({ ...section, order: index }))
         );
         this.seedDefaultLayout();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
@@ -4711,7 +4857,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (force || template.logo) this._state.logoDataUrl.set(template.logo || null);
         const headerLogos = this._headerLogosFromTemplate(template);
         this._state.headerLogos.set(headerLogos);
-        this._state.sheetImages.set(Array.isArray(template.sheetImages) ? template.sheetImages : []);
+        this._state.sheetImages.set(cloneReportValue(Array.isArray(template.sheetImages) ? template.sheetImages : []));
         if (force || template.legend) this._state.legend.set(template.legend || '');
         if (force || template.legendPosition) {
             this._state.legendPosition.set(template.legendPosition ?? 'left');
@@ -4758,47 +4904,63 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (force && !template.signature) {
             this._state.signatureEnabled.set(false);
             this._state.signatureImage.set(null);
+            this._state.signatureX.set(48);
+            this._state.signatureY.set(720);
+            this._state.signatureWidth.set(160);
+            this._state.signatureHeight.set(64);
+            this._state.signaturePage.set(0);
         }
-        if (template.watermark) {
-            this._state.watermarkEnabled.set(Boolean(template.watermark.enabled));
-            this._state.watermarkType.set(template.watermark.type === 'logo' ? 'logo' : 'text');
+        if (force || template.watermark) {
+            this._state.watermarkEnabled.set(Boolean(template.watermark?.enabled));
+            this._state.watermarkType.set(template.watermark?.type === 'logo' ? 'logo' : 'text');
             const headerSrcs = new Set(headerLogos.map((logo) => logo.src));
-            const dedicated = template.watermark.logo?.trim() || '';
+            const dedicated = template.watermark?.logo?.trim() || '';
             const workspaceLogo = template.logo && !headerSrcs.has(template.logo) ? template.logo : '';
-            this._state.watermarkLogo.set(dedicated || (template.watermark.type === 'logo' ? workspaceLogo : '') || null);
-            this._state.watermarkText.set(template.watermark.text || '');
-            this._state.watermarkOpacity.set(template.watermark.opacity ?? 0.08);
-            this._state.watermarkPattern.set(
-                template.watermark.pattern === 'repeated' ? 'repeated' : 'single'
+            this._state.watermarkLogo.set(
+                dedicated || (template.watermark?.type === 'logo' ? workspaceLogo : '') || null
             );
-            if (typeof template.watermark.x === 'number') this._state.watermarkX.set(template.watermark.x);
-            if (typeof template.watermark.y === 'number') this._state.watermarkY.set(template.watermark.y);
-            if (typeof template.watermark.width === 'number') {
-                this._state.watermarkWidth.set(template.watermark.width);
-            }
-            if (typeof template.watermark.height === 'number') {
-                this._state.watermarkHeight.set(template.watermark.height);
-            }
-            if (typeof template.watermark.rotation === 'number') {
-                this._state.watermarkRotation.set(template.watermark.rotation);
-            }
+            this._state.watermarkText.set(template.watermark?.text || '');
+            this._state.watermarkOpacity.set(template.watermark?.opacity ?? 0.08);
+            this._state.watermarkPattern.set(
+                template.watermark?.pattern === 'repeated' ? 'repeated' : 'single'
+            );
+            this._state.watermarkX.set(typeof template.watermark?.x === 'number' ? template.watermark.x : 250);
+            this._state.watermarkY.set(typeof template.watermark?.y === 'number' ? template.watermark.y : 420);
+            this._state.watermarkWidth.set(
+                typeof template.watermark?.width === 'number' ? template.watermark.width : 280
+            );
+            this._state.watermarkHeight.set(
+                typeof template.watermark?.height === 'number' ? template.watermark.height : 160
+            );
+            this._state.watermarkRotation.set(
+                typeof template.watermark?.rotation === 'number' ? template.watermark.rotation : -15
+            );
         }
         if (force && !template.watermark) {
             this._state.watermarkEnabled.set(false);
             this._state.watermarkLogo.set(null);
+            this._state.watermarkType.set('text');
+            this._state.watermarkText.set('');
+            this._state.watermarkOpacity.set(0.08);
+            this._state.watermarkPattern.set('single');
+            this._state.watermarkX.set(250);
+            this._state.watermarkY.set(420);
+            this._state.watermarkWidth.set(280);
+            this._state.watermarkHeight.set(160);
+            this._state.watermarkRotation.set(-15);
         }
-        if (template.logoSettings) {
-            if (typeof template.logoSettings.x === 'number') this._state.logoX.set(template.logoSettings.x);
-            if (typeof template.logoSettings.y === 'number') this._state.logoY.set(template.logoSettings.y);
-            if (typeof template.logoSettings.width === 'number') {
-                this._state.logoWidth.set(template.logoSettings.width);
-            }
-            if (typeof template.logoSettings.height === 'number') {
-                this._state.logoHeight.set(template.logoSettings.height);
-            }
-            if (typeof template.logoSettings.rotation === 'number') {
-                this._state.logoRotation.set(template.logoSettings.rotation);
-            }
+        if (force || template.logoSettings) {
+            this._state.logoX.set(typeof template.logoSettings?.x === 'number' ? template.logoSettings.x : 32);
+            this._state.logoY.set(typeof template.logoSettings?.y === 'number' ? template.logoSettings.y : 32);
+            this._state.logoWidth.set(
+                typeof template.logoSettings?.width === 'number' ? template.logoSettings.width : 160
+            );
+            this._state.logoHeight.set(
+                typeof template.logoSettings?.height === 'number' ? template.logoSettings.height : 60
+            );
+            this._state.logoRotation.set(
+                typeof template.logoSettings?.rotation === 'number' ? template.logoSettings.rotation : 0
+            );
         }
     }
 
@@ -5051,7 +5213,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     this._applyLayoutSnapshot(JSON.stringify(draft));
                 } else {
                     this.layoutSections.set(
-                        (template.sections ?? []).map((section, index) => ({ ...section, order: index }))
+                        cloneReportValue(template.sections ?? []).map((section, index) => ({ ...section, order: index }))
                     );
                 }
                 this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);

@@ -671,10 +671,11 @@
                             }
                             @if (selectedTemplate() && batch()?.rows?.length) {
                                 <div class="mx-auto w-[210mm] max-w-none">
+                                @for (pageData of [previewDataForCurrentPage()]; track pageData.rowIndex ?? previewPageIndex()) {
                                 <report-preview
                                     #livePreview
                                     [template]="selectedTemplate()!"
-                                    [previewData]="previewDataForCurrentPage()"
+                                    [previewData]="pageData"
                                     [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
                                     [pageBackgroundColor]="
                                         selectedTemplate()!.pageBackgroundColor || '#ffffff'
@@ -734,6 +735,7 @@
                                         selectedTemplate()!.watermark?.rotation ?? -15
                                     "
                                 />
+                                }
                                 </div>
                                 @if (previewDataForAllRows().length > 1) {
                                     <div

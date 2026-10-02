@@ -795,8 +795,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Keeps the stamp readable on any block color. The slider still lightens or darkens it. */
     watermarkPaintOpacity(): number {
         const value = Number(this.watermarkOpacity());
-        const opacity = Number.isFinite(value) ? value : 0.22;
-        return Math.min(0.55, Math.max(0.22, opacity));
+        const opacity = Number.isFinite(value) ? value : 0.08;
+        return Math.min(0.4, Math.max(0.04, opacity));
     }
 
     get logoOverlayBorder(): string {
@@ -1354,6 +1354,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (cell instanceof HTMLElement) return cell.getBoundingClientRect();
         }
         return section.getBoundingClientRect();
+    }
+
+    overlayAnchorRect(id: ReportOverlayId | null | undefined): DOMRect | null {
+        if (!id) return null;
+        const root = this._host.nativeElement as HTMLElement;
+        const box = root.querySelector(`[data-overlay-id="${CSS.escape(id)}"]`);
+        return box instanceof HTMLElement ? box.getBoundingClientRect() : null;
     }
 
     isTitleSelected(section: ReportSection): boolean {
@@ -2618,10 +2625,66 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Text stored on the sheet, or the consulted value when it has not been rewritten. */
     boundValue(section: ReportSection, key: string, fallback: unknown): string {
-        const custom = section.keyOverrides?.[key]?.value;
-        if (typeof custom === 'string') return custom;
+        if (this.clickable()) {
+            const custom = section.keyOverrides?.[key]?.value;
+            if (typeof custom === 'string') return custom;
+        }
         if (fallback == null) return '';
         return String(fallback);
+    }
+
+    pagePaintTrack(pageIndex: number): string {
+        return `${pageIndex}:${String(this.previewData()?.['rowIndex'] ?? '')}`;
+    }
+
+    liveSheetText(
+        section: ReportSection,
+        kind: string,
+        key?: string,
+        fallback?: string
+    ): string {
+        this.previewData();
+        if (kind === 'title') return section.staticContent || section.label || fallback || '';
+        if (kind === 'body') return section.staticContent || fallback || '';
+        if (kind === 'itemTitle') return section.itemTitle || fallback || '';
+        if (kind === 'itemTemplate') return section.itemTemplate || fallback || '';
+        if (kind === 'cellLabel' && key) {
+            return this.entryLabel(section, { key, label: fallback || key });
+        }
+        if (kind === 'cellValue') {
+            return this.boundValue(section, key || '__value', this._liveValueForKey(section, key, fallback));
+        }
+        return fallback || '';
+    }
+
+    private _liveValueForKey(section: ReportSection, key?: string, fallback?: string): unknown {
+        if (!key || key === '__value') {
+            return this.resolveDataPath(section.dataPath) || fallback || '—';
+        }
+        const hash = key.lastIndexOf('#');
+        if (hash > 0) {
+            const storeKey = key.slice(0, hash);
+            const rowIndex = Number(key.slice(hash + 1));
+            if (Number.isFinite(rowIndex) && rowIndex >= 0) {
+                const records = this.structuralRecords(section);
+                if (records[rowIndex] && storeKey in records[rowIndex]) {
+                    return records[rowIndex][storeKey];
+                }
+                for (const chunk of this.sheetChunks(section)) {
+                    if (chunk.kind !== 'table') continue;
+                    const column = chunk.table.columns.find(
+                        (item) =>
+                            item.key === storeKey ||
+                            this.tableColumnKey(chunk.table.key, item.key) === storeKey
+                    );
+                    if (!column) continue;
+                    const row = chunk.table.rows[rowIndex];
+                    if (row) return row[column.key];
+                }
+            }
+        }
+        const entry = this.structuralEntries(section).find((item) => item.key === key);
+        return entry?.value ?? fallback;
     }
 
     cellStoreKey(base: string, rowIndex: number): string {
@@ -2654,7 +2717,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         for (const part of path.split('.')) {
             if (current == null || typeof current !== 'object') return null;
 
-            current = current[part];
+            if (Object.prototype.hasOwnProperty.call(current, part)) {
+                current = current[part];
+                continue;
+            }
+            if (/^\d+$/.test(part) && current[Number(part)] !== undefined) {
+                current = current[Number(part)];
+                continue;
+            }
+            return null;
         }
 
         return current ?? null;

@@ -19,12 +19,13 @@
 >
     @for (
         pageSections of visiblePages();
-        track $index;
+        track pagePaintTrack($index);
         let pageIndex = $index, isFirst = $first, count = $count
     ) {
         <div
             #reportPage
             data-report-page
+            [attr.data-report-row]="previewData()?.rowIndex"
             class="mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-lg"
             [class.shadow-lg]="!thumbnailMode()"
             [style.width]="pageWidthCss()"
@@ -195,6 +196,7 @@
                     <div class="pointer-events-none absolute inset-0 z-[850]">
                         <div
                             data-overlay-box
+                            [attr.data-overlay-id]="headerOverlayId(logo.id)"
                             class="absolute"
                             [class.cursor-ew-resize]="clickable()"
                             [class.pointer-events-auto]="clickable()"
@@ -252,6 +254,7 @@
                 >
                     <div
                         data-overlay-box
+                        data-overlay-id="logo"
                         class="absolute"
                         [class.cursor-move]="isOverlaySelected('logo')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('logo')"
@@ -307,6 +310,7 @@
                         <div class="absolute inset-0 pointer-events-none" [class.z-40]="isOverlaySelected(sheetOverlayId(image.id))" [class.z-20]="!isOverlaySelected(sheetOverlayId(image.id))">
                             <div
                                 data-overlay-box
+                                [attr.data-overlay-id]="sheetOverlayId(image.id)"
                                 class="absolute"
                                 [class.cursor-move]="isOverlaySelected(sheetOverlayId(image.id))"
                                 [class.cursor-pointer]="clickable() && !isOverlaySelected(sheetOverlayId(image.id))"
@@ -1592,7 +1596,7 @@
             [class.cursor-text]="canInlineEdit(measure)"
             (pointerdown)="$event.stopPropagation()"
             (click)="startInlineEdit(section, kind, $event, key, fallback)"
-            >{{ text || '\u00a0' }}</span
+            >{{ liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
         >
     }
 </ng-template>

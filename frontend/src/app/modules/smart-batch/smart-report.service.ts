@@ -370,7 +370,9 @@ export const sanitizeTemplateForApi = (
         }
     }
 
-    if (typeof payload.logo !== 'string' || !payload.logo) {
+    if (mode === 'update' && payload.logo === '') {
+        payload.logo = '';
+    } else if (typeof payload.logo !== 'string' || !payload.logo) {
         delete payload.logo;
     }
 
@@ -382,6 +384,8 @@ export const sanitizeTemplateForApi = (
 
     return payload;
 };
+
+export const cloneReportValue = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export interface SmartReport {
     _id?: string;

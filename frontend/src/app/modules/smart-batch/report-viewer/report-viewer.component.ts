@@ -31,6 +31,7 @@ import {
     SmartBatchService,
 } from '../smart-batch.service';
 import { SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { htmlMatchesPrintMarkers, mergePrintHtmlDocuments, uniquePrintMarkers } from '../report-print-html.util';
 import { sortStepExportFieldLabels } from '../step-result-display.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import {
@@ -847,8 +848,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         if (!rows.length) return this._livePreview?.exportPrintHtml() ?? undefined;
 
         if (this.selectedRowIndex() != null || rows.length === 1) {
-            await this._waitForPreviewPaint();
-            return this._livePreview?.exportPrintHtml() ?? undefined;
+            return (await this._waitForRowPrintHtml(rows[0], rows)) ?? this._livePreview?.exportPrintHtml() ?? undefined;
         }
 
         if (rows.length > 40) return undefined;
@@ -856,43 +856,33 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const documents: string[] = [];
         for (let index = 0; index < rows.length; index++) {
             this.previewPageIndex.set(index);
-            await this._waitForPreviewPaint();
-            const html = this._livePreview?.exportPrintHtml();
+            const html = await this._waitForRowPrintHtml(rows[index], rows);
             if (html) documents.push(html);
-            else {
-                await this._waitForPreviewPaint();
-                const retry = this._livePreview?.exportPrintHtml();
-                if (retry) documents.push(retry);
-            }
         }
 
-        return this._mergePrintHtml(documents);
+        if (documents.length !== rows.length) return undefined;
+        return mergePrintHtmlDocuments(documents);
     }
 
-    private async _waitForPreviewPaint(): Promise<void> {
+    private async _waitForRowPrintHtml(
+        row: Record<string, any>,
+        rows: Record<string, any>[]
+    ): Promise<string | undefined> {
         this._cdr.detectChanges();
-        for (let attempt = 0; attempt < 25; attempt++) {
+        const others = rows.filter((item) => item !== row);
+        const markers = uniquePrintMarkers(row, others);
+        const rowIndex = Number(row['rowIndex']);
+        for (let attempt = 0; attempt < 40; attempt++) {
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-            if ((this._livePreview?.printSurfaceWidth() ?? 0) > 200) {
-                await new Promise<void>((resolve) => setTimeout(resolve, 30));
-                return;
+            const html = this._livePreview?.exportPrintHtml();
+            if (
+                html &&
+                htmlMatchesPrintMarkers(html, markers, Number.isFinite(rowIndex) ? rowIndex : undefined)
+            ) {
+                return html;
             }
         }
-        await new Promise<void>((resolve) => setTimeout(resolve, 50));
-    }
-
-    private _mergePrintHtml(documents: string[]): string | undefined {
-        const bodies: string[] = [];
-        let style = '';
-        for (const document of documents) {
-            if (!document.includes('<html')) continue;
-            const styleMatch = document.match(/<style>([\s\S]*?)<\/style>/i);
-            if (styleMatch?.[1] && !style) style = styleMatch[1];
-            const bodyMatch = document.match(/<body>([\s\S]*?)<\/body>/i);
-            if (bodyMatch?.[1]) bodies.push(bodyMatch[1]);
-        }
-        if (!bodies.length) return undefined;
-        return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${style}</style></head><body>${bodies.join('')}</body></html>`;
+        return undefined;
     }
 
     sendEmail(): void {

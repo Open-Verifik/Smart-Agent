@@ -51,6 +51,7 @@ export type ScratchLayoutDraft = {
     signatureY?: number;
     signatureWidth?: number;
     signatureHeight?: number;
+    signaturePage?: number;
     /** Saved template this draft belongs to. Absent on a from-scratch layout. */
     templateId?: string | null;
     templateChoice?: GuideTemplateChoice | null;
