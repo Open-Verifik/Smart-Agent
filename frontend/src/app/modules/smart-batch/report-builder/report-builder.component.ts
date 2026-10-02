@@ -59,6 +59,7 @@ import {
 } from '../smart-report.service';
 import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.component';
 import { SignaturePadDialogComponent } from './signature-pad-dialog/signature-pad-dialog.component';
+import { LayoutTextDialogComponent } from './layout-text-dialog/layout-text-dialog.component';
 
 /**
  * Minimum allowed X / Y (in canonical 96 DPI px) for absolutely-positioned
@@ -1945,6 +1946,50 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             signatureHeight: Math.round(size.height),
         });
         this.templateForm.markAsDirty();
+    }
+
+    openFooterTextDialog(): void {
+        this._dialog
+            .open(LayoutTextDialogComponent, {
+                width: '640px',
+                maxWidth: '95vw',
+                disableClose: true,
+                autoFocus: true,
+                data: {
+                    titleKey: 'visitaGuide.layoutEditFooter',
+                    placeholderKey: 'smartReport.footerLegendPlaceholder',
+                    value: this.templateForm.get('legend')?.value || '',
+                    maxLength: 2000,
+                },
+            })
+            .afterClosed()
+            .subscribe((result) => {
+                if (typeof result !== 'string') return;
+                this.templateForm.patchValue({ legend: result });
+                this.templateForm.markAsDirty();
+            });
+    }
+
+    openTermsTextDialog(): void {
+        this._dialog
+            .open(LayoutTextDialogComponent, {
+                width: '640px',
+                maxWidth: '95vw',
+                disableClose: true,
+                autoFocus: true,
+                data: {
+                    titleKey: 'visitaGuide.layoutEditTerms',
+                    placeholderKey: 'smartReport.termsPlaceholder',
+                    value: this.templateForm.get('termsAndConditions')?.value || '',
+                    maxLength: 4000,
+                },
+            })
+            .afterClosed()
+            .subscribe((result) => {
+                if (typeof result !== 'string') return;
+                this.templateForm.patchValue({ termsAndConditions: result });
+                this.templateForm.markAsDirty();
+            });
     }
 
     openSignatureDialog(): void {

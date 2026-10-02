@@ -16,6 +16,7 @@ import { firstValueFrom, interval, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
+import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
 import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
 import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
@@ -2449,6 +2450,48 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     setTermsPosition(value: 'left' | 'center' | 'right'): void {
         this._state.termsPosition.set(value);
+    }
+
+    openFooterTextDialog(): void {
+        this._openLayoutTextDialog(
+            {
+                titleKey: 'visitaGuide.layoutEditFooter',
+                placeholderKey: 'visitaGuide.layoutCompanyPlaceholder',
+                value: this.legend(),
+                maxLength: 2000,
+            },
+            (value) => this.setLegend(value)
+        );
+    }
+
+    openTermsTextDialog(): void {
+        this._openLayoutTextDialog(
+            {
+                titleKey: 'visitaGuide.layoutEditTerms',
+                placeholderKey: 'visitaGuide.layoutTermsPlaceholder',
+                value: this.termsAndConditions(),
+                maxLength: 4000,
+            },
+            (value) => this.setTermsAndConditions(value)
+        );
+    }
+
+    private _openLayoutTextDialog(
+        data: LayoutTextDialogData,
+        apply: (value: string) => void
+    ): void {
+        this._raiseAppOverlay();
+        const dialogRef = this._dialog.open(LayoutTextDialogComponent, {
+            width: '640px',
+            maxWidth: '95vw',
+            disableClose: true,
+            autoFocus: true,
+            data,
+        });
+        this._raiseAppOverlay();
+        dialogRef.afterClosed().subscribe((result) => {
+            if (typeof result === 'string') apply(result);
+        });
     }
 
     setWatermarkEnabled(enabled: boolean): void {
