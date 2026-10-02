@@ -62,7 +62,7 @@ import {
     ROW_LINE_WIDTH_MIN,
 } from '../report-row-line.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
-import { htmlMatchesPrintMarkers, mergePrintHtmlDocuments, uniquePrintMarkers } from '../report-print-html.util';
+import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
 import { buildRowDataForResolution } from '../template-match.util';
 import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
@@ -4106,14 +4106,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const savedRecord = this.previewRecordIndex();
         try {
             if (!this.layoutSections().length) this.seedDefaultLayout();
+            const printHtml = printHtmlOverride ?? (await this._printHtmlForCurrentRecord());
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-            const records = this.previewRecords();
-            const printHtml = printHtmlOverride ?? (await this._printHtmlForRecords());
             const batchId = this._state.batchId();
-            if (batchId && records.length > 1) {
+            const rowIndex = Number(this.previewData()['rowIndex']);
+            if (batchId) {
                 const report = await firstValueFrom(
                     this._reports.createReport({
                         template: template._id,
@@ -4123,6 +4121,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 );
                 const result = await firstValueFrom(
                     this._reports.generateReport(report._id!, {
+                        ...(Number.isFinite(rowIndex) ? { rowIndex } : {}),
                         ...(printHtml ? { printHtml } : {}),
                     })
                 );
@@ -4153,7 +4152,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const template = this.selectedTemplate();
             if (batchId && template?._id) {
                 try {
-                    const printHtml = printHtmlOverride ?? (await this._printHtmlForRecords());
+                    const printHtml = printHtmlOverride ?? (await this._printHtmlForCurrentRecord());
                     const report = await firstValueFrom(
                         this._reports.createReport({
                             template: template._id,
@@ -4161,8 +4160,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                             name: this.reportTitle() || template.name,
                         })
                     );
+                    const rowIndex = Number(this.previewData()['rowIndex']);
                     const result = await firstValueFrom(
                         this._reports.generateReport(report._id!, {
+                            ...(Number.isFinite(rowIndex) ? { rowIndex } : {}),
                             ...(printHtml ? { printHtml } : {}),
                         })
                     );
@@ -4188,20 +4189,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
-    private async _printHtmlForRecords(): Promise<string | undefined> {
+    private async _printHtmlForCurrentRecord(): Promise<string | undefined> {
         const records = this.previewRecords();
-        if (!records.length) return this._editorPrintHtml() ?? undefined;
-        if (records.length === 1) return this._editorPrintHtml() ?? undefined;
+        if (records.length <= 1) return (await this._waitForEditorPrintHtml()) ?? undefined;
+        const current = this.previewData();
+        return (
+            (await this._waitForRecordPrintHtml(current, records)) ??
+            (await this._waitForEditorPrintHtml()) ??
+            undefined
+        );
+    }
 
-        const documents: string[] = [];
-        for (let index = 0; index < records.length; index++) {
-            this.previewRecordIndex.set(index);
-            this._cdr.detectChanges();
-            const html = await this._waitForRecordPrintHtml(records[index], records);
-            if (html) documents.push(html);
+    private async _waitForEditorPrintHtml(): Promise<string | null> {
+        for (let attempt = 0; attempt < 12; attempt++) {
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            const html = this._editorPrintHtml();
+            if (html?.includes('<html')) return html;
         }
-        if (documents.length !== records.length) return undefined;
-        return mergePrintHtmlDocuments(documents);
+        return this._editorPrintHtml();
     }
 
     private async _waitForRecordPrintHtml(
@@ -4211,8 +4216,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const others = records.filter((item) => item !== record);
         const markers = uniquePrintMarkers(record, others);
         const rowIndex = Number(record['rowIndex']);
-        for (let attempt = 0; attempt < 40; attempt++) {
+        for (let attempt = 0; attempt < 80; attempt++) {
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            this._cdr.detectChanges();
             const html = this._capturePrintHtml();
             if (html && htmlMatchesPrintMarkers(html, markers, Number.isFinite(rowIndex) ? rowIndex : undefined)) {
                 return html;
@@ -4222,10 +4228,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _capturePrintHtml(): string | null {
-        const previews = this._previews?.toArray() ?? [];
-        const printCapture = previews.find((item) => item.printCapture());
         const visible = this._visiblePreview();
-        return printCapture?.exportPrintHtml() ?? visible?.exportPrintHtml() ?? null;
+        const printCapture = this._previews?.toArray().find((item) => item.printCapture());
+        return visible?.exportPrintHtml() ?? printCapture?.exportPrintHtml() ?? null;
     }
 
     private _visiblePreview(): ReportPreviewComponent | undefined {
@@ -4240,9 +4245,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _editorPrintHtml(): string | null {
+        const printCapture = this._previews?.toArray().find((item) => item.printCapture());
         return (
+            printCapture?.exportPrintHtml() ??
             this._visiblePreview()?.exportPrintHtml() ??
-            this._previews?.toArray().find((item) => item.printCapture())?.exportPrintHtml() ??
             this._previews?.toArray().at(-1)?.exportPrintHtml() ??
             null
         );

@@ -314,10 +314,16 @@
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <h3 class="font-semibold text-stone-950 dark:text-white">
-                                        {{ 'smartReport.stepResultsLayout' | transloco }}
+                                        @if (stepResultsViewMode() === 'pdf') {
+                                            {{ 'smartReport.preview' | transloco }}
+                                        } @else {
+                                            {{ 'smartReport.stepResultsLayout' | transloco }}
+                                        }
                                     </h3>
                                     <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-                                        @if (selectedRowIndex() != null) {
+                                        @if (stepResultsViewMode() === 'pdf') {
+                                            {{ 'smartReport.previewSameAsBuilder' | transloco }}
+                                        } @else if (selectedRowIndex() != null) {
                                             {{
                                                 'smartReport.reportForRecord'
                                                     | transloco: { index: selectedRowIndex()! + 1 }
@@ -328,23 +334,27 @@
                                     </p>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    @if (stepResultBlocks().length > 0) {
                                         <mat-button-toggle-group
                                             [value]="stepResultsViewMode()"
-                                            (change)="stepResultsViewMode.set($event.value)"
+                                            (change)="setStepResultsViewMode($event.value)"
                                             class="!rounded-lg"
                                         >
-                                            <mat-button-toggle value="table">
-                                                {{ 'smartReport.viewModeTable' | transloco }}
+                                            <mat-button-toggle value="pdf">
+                                                {{ 'smartReport.viewModePdf' | transloco }}
                                             </mat-button-toggle>
-                                            <mat-button-toggle value="json">
-                                                {{ 'smartReport.viewModeJson' | transloco }}
-                                            </mat-button-toggle>
-                                            <mat-button-toggle value="excel-ag">
-                                                {{ 'smartReport.viewModeExcelAg' | transloco }}
-                                            </mat-button-toggle>
+                                            @if (stepResultBlocks().length > 0) {
+                                                <mat-button-toggle value="table">
+                                                    {{ 'smartReport.viewModeTable' | transloco }}
+                                                </mat-button-toggle>
+                                                <mat-button-toggle value="json">
+                                                    {{ 'smartReport.viewModeJson' | transloco }}
+                                                </mat-button-toggle>
+                                                <mat-button-toggle value="excel-ag">
+                                                    {{ 'smartReport.viewModeExcelAg' | transloco }}
+                                                </mat-button-toggle>
+                                            }
                                         </mat-button-toggle-group>
-                                    }
+                                    @if (stepResultsViewMode() !== 'pdf') {
                                     <button
                                         mat-icon-button
                                         (click)="toggleStepResultsContent()"
@@ -361,12 +371,138 @@
                                                 : 'expand_less'
                                         }}</mat-icon>
                                     </button>
+                                    }
                                 </div>
                             </div>
                         </div>
                         @if (stepResultsContentExpanded()) {
                             <div class="p-6">
-                                @if (stepResultBlocks().length === 0) {
+                                @if (stepResultsViewMode() === 'pdf') {
+                                    <div class="relative min-h-[600px] overflow-auto dark:bg-gray-950/30">
+                                        @if (isGenerating()) {
+                                            <div
+                                                class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 text-stone-400 dark:bg-gray-950/80 dark:text-stone-500"
+                                            >
+                                                <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+                                                <p>{{ 'smartReport.generatingPdf' | transloco }}</p>
+                                            </div>
+                                        }
+                                        @if (selectedTemplate() && batch()?.rows?.length) {
+                                            <div class="mx-auto w-[210mm] max-w-none">
+                                            @for (pageData of [previewDataForCurrentPage()]; track pageData.rowIndex ?? previewPageIndex()) {
+                                            <report-preview
+                                                #livePreview
+                                                [template]="selectedTemplate()!"
+                                                [previewData]="pageData"
+                                                [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
+                                                [pageBackgroundColor]="
+                                                    selectedTemplate()!.pageBackgroundColor || '#ffffff'
+                                                "
+                                                [orientation]="selectedTemplate()!.orientation || 'portrait'"
+                                                [pageSize]="selectedTemplate()!.pageSize || 'A4'"
+                                                [clickable]="false"
+                                                [logoUrl]="selectedTemplate()!.logo || null"
+                                                [logoEnabled]="!!selectedTemplate()!.logo"
+                                                [logoX]="selectedTemplate()!.logoSettings?.x ?? 32"
+                                                [logoY]="selectedTemplate()!.logoSettings?.y ?? 32"
+                                                [logoWidth]="selectedTemplate()!.logoSettings?.width ?? 160"
+                                                [logoHeight]="selectedTemplate()!.logoSettings?.height ?? 60"
+                                                [logoRotation]="
+                                                    selectedTemplate()!.logoSettings?.rotation ?? 0
+                                                "
+                                                [logoAutoFitContent]="
+                                                    selectedTemplate()!.logoSettings?.autoFitContent ?? false
+                                                "
+                                                [sheetImages]="selectedTemplate()!.sheetImages ?? []"
+                                                [bodyTopPadding]="selectedTemplate()!.bodyTopPadding ?? 0"
+                                                [legend]="selectedTemplate()!.legend || ''"
+                                                [legendPosition]="selectedTemplate()!.legendPosition || 'left'"
+                                                [termsAndConditions]="selectedTemplate()!.termsAndConditions || ''"
+                                                [termsPosition]="selectedTemplate()!.termsPosition || 'left'"
+                                                [signatureEnabled]="!!(selectedTemplate()!.signature?.enabled && selectedTemplate()!.signature?.image)"
+                                                [signatureImage]="selectedTemplate()!.signature?.image || null"
+                                                [signatureX]="selectedTemplate()!.signature?.x ?? 48"
+                                                [signatureY]="selectedTemplate()!.signature?.y ?? 720"
+                                                [signatureWidth]="selectedTemplate()!.signature?.width ?? 160"
+                                                [signatureHeight]="selectedTemplate()!.signature?.height ?? 64"
+                                                [signaturePage]="selectedTemplate()!.signature?.page ?? 0"
+                                                [showPageNumbers]="selectedTemplate()!.showPageNumbers || false"
+                                                [pageNumberPosition]="
+                                                    selectedTemplate()!.pageNumberPosition || 'bottom-center'
+                                                "
+                                                [watermarkEnabled]="
+                                                    selectedTemplate()!.watermark?.enabled || false
+                                                "
+                                                [watermarkType]="selectedTemplate()!.watermark?.type || 'text'"
+                                                [watermarkLogoUrl]="selectedTemplate()!.watermark?.logo || undefined"
+                                                [watermarkText]="
+                                                    selectedTemplate()!.watermark?.text ||
+                                                    ('smartReport.watermarkTextPlaceholder' | transloco)
+                                                "
+                                                [watermarkOpacity]="
+                                                    selectedTemplate()!.watermark?.opacity ?? 0.08
+                                                "
+                                                [watermarkPattern]="
+                                                    selectedTemplate()!.watermark?.pattern || 'single'
+                                                "
+                                                [watermarkX]="selectedTemplate()!.watermark?.x ?? 250"
+                                                [watermarkY]="selectedTemplate()!.watermark?.y ?? 420"
+                                                [watermarkWidth]="selectedTemplate()!.watermark?.width ?? 280"
+                                                [watermarkHeight]="selectedTemplate()!.watermark?.height ?? 160"
+                                                [watermarkRotation]="
+                                                    selectedTemplate()!.watermark?.rotation ?? -15
+                                                "
+                                            />
+                                            }
+                                            </div>
+                                            @if (previewDataForAllRows().length > 1) {
+                                                <div
+                                                    class="mt-6 flex items-center justify-center gap-4 border-t border-stone-200 pt-4 dark:border-gray-800"
+                                                >
+                                                    <button
+                                                        mat-icon-button
+                                                        (click)="goToPreviewPage(previewPageIndex() - 1)"
+                                                        [disabled]="previewPageIndex() <= 0"
+                                                        [matTooltip]="'smartReport.previewPrevious' | transloco"
+                                                    >
+                                                        <mat-icon>chevron_left</mat-icon>
+                                                    </button>
+                                                    <span class="text-sm text-stone-600 dark:text-stone-400">
+                                                        {{ 'smartReport.previewPage' | transloco }}
+                                                        {{ previewPageIndex() + 1 }}
+                                                        {{ 'smartReport.previewPageOf' | transloco }}
+                                                        {{ previewDataForAllRows().length }}
+                                                    </span>
+                                                    <button
+                                                        mat-icon-button
+                                                        (click)="goToPreviewPage(previewPageIndex() + 1)"
+                                                        [disabled]="
+                                                            previewPageIndex() >=
+                                                            previewDataForAllRows().length - 1
+                                                        "
+                                                        [matTooltip]="'smartReport.previewNext' | transloco"
+                                                    >
+                                                        <mat-icon>chevron_right</mat-icon>
+                                                    </button>
+                                                </div>
+                                            }
+                                        } @else {
+                                            <div
+                                                class="flex h-64 flex-col items-center justify-center text-stone-400 dark:text-stone-500"
+                                            >
+                                                <mat-icon class="!text-6xl !w-16 !h-16 mb-4"
+                                                    >picture_as_pdf</mat-icon
+                                                >
+                                                <p class="text-lg mb-2">
+                                                    {{ 'smartReport.noPreviewAvailable' | transloco }}
+                                                </p>
+                                                <p class="text-sm">
+                                                    {{ 'smartReport.selectTemplateAndBatch' | transloco }}
+                                                </p>
+                                            </div>
+                                        }
+                                    </div>
+                                } @else if (stepResultBlocks().length === 0) {
                                     <div
                                         class="flex flex-col items-center justify-center py-12 text-stone-400 dark:text-stone-500"
                                     >
@@ -647,143 +783,6 @@
                                 }
                             </div>
                         }
-                    </div>
-
-                    <!-- Report Preview (same as builder) -->
-                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
-                        <div class="border-b border-stone-200 bg-stone-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-950/50">
-                            <h3 class="font-semibold text-stone-950 dark:text-white">
-                                {{ 'smartReport.preview' | transloco }}
-                            </h3>
-                            <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-                                {{ 'smartReport.previewSameAsBuilder' | transloco }}
-                            </p>
-                        </div>
-
-                        <div class="relative min-h-[600px] overflow-auto p-6 dark:bg-gray-950/30">
-                            @if (isGenerating()) {
-                                <div
-                                    class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 text-stone-400 dark:bg-gray-950/80 dark:text-stone-500"
-                                >
-                                    <mat-spinner diameter="48" class="mb-4"></mat-spinner>
-                                    <p>{{ 'smartReport.generatingPdf' | transloco }}</p>
-                                </div>
-                            }
-                            @if (selectedTemplate() && batch()?.rows?.length) {
-                                <div class="mx-auto w-[210mm] max-w-none">
-                                @for (pageData of [previewDataForCurrentPage()]; track pageData.rowIndex ?? previewPageIndex()) {
-                                <report-preview
-                                    #livePreview
-                                    [template]="selectedTemplate()!"
-                                    [previewData]="pageData"
-                                    [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
-                                    [pageBackgroundColor]="
-                                        selectedTemplate()!.pageBackgroundColor || '#ffffff'
-                                    "
-                                    [orientation]="selectedTemplate()!.orientation || 'portrait'"
-                                    [pageSize]="selectedTemplate()!.pageSize || 'A4'"
-                                    [clickable]="false"
-                                    [logoUrl]="selectedTemplate()!.logo || null"
-                                    [logoEnabled]="!!selectedTemplate()!.logo"
-                                    [logoX]="selectedTemplate()!.logoSettings?.x ?? 32"
-                                    [logoY]="selectedTemplate()!.logoSettings?.y ?? 32"
-                                    [logoWidth]="selectedTemplate()!.logoSettings?.width ?? 160"
-                                    [logoHeight]="selectedTemplate()!.logoSettings?.height ?? 60"
-                                    [logoRotation]="
-                                        selectedTemplate()!.logoSettings?.rotation ?? 0
-                                    "
-                                    [logoAutoFitContent]="
-                                        selectedTemplate()!.logoSettings?.autoFitContent ?? false
-                                    "
-                                    [sheetImages]="selectedTemplate()!.sheetImages ?? []"
-                                    [bodyTopPadding]="selectedTemplate()!.bodyTopPadding ?? 0"
-                                    [legend]="selectedTemplate()!.legend || ''"
-                                    [legendPosition]="selectedTemplate()!.legendPosition || 'left'"
-                                    [termsAndConditions]="selectedTemplate()!.termsAndConditions || ''"
-                                    [termsPosition]="selectedTemplate()!.termsPosition || 'left'"
-                                    [signatureEnabled]="!!(selectedTemplate()!.signature?.enabled && selectedTemplate()!.signature?.image)"
-                                    [signatureImage]="selectedTemplate()!.signature?.image || null"
-                                    [signatureX]="selectedTemplate()!.signature?.x ?? 48"
-                                    [signatureY]="selectedTemplate()!.signature?.y ?? 720"
-                                    [signatureWidth]="selectedTemplate()!.signature?.width ?? 160"
-                                    [signatureHeight]="selectedTemplate()!.signature?.height ?? 64"
-                                    [signaturePage]="selectedTemplate()!.signature?.page ?? 0"
-                                    [showPageNumbers]="selectedTemplate()!.showPageNumbers || false"
-                                    [pageNumberPosition]="
-                                        selectedTemplate()!.pageNumberPosition || 'bottom-center'
-                                    "
-                                    [watermarkEnabled]="
-                                        selectedTemplate()!.watermark?.enabled || false
-                                    "
-                                    [watermarkType]="selectedTemplate()!.watermark?.type || 'text'"
-                                    [watermarkLogoUrl]="selectedTemplate()!.watermark?.logo || undefined"
-                                    [watermarkText]="
-                                        selectedTemplate()!.watermark?.text ||
-                                        ('smartReport.watermarkTextPlaceholder' | transloco)
-                                    "
-                                    [watermarkOpacity]="
-                                        selectedTemplate()!.watermark?.opacity ?? 0.08
-                                    "
-                                    [watermarkPattern]="
-                                        selectedTemplate()!.watermark?.pattern || 'single'
-                                    "
-                                    [watermarkX]="selectedTemplate()!.watermark?.x ?? 250"
-                                    [watermarkY]="selectedTemplate()!.watermark?.y ?? 420"
-                                    [watermarkWidth]="selectedTemplate()!.watermark?.width ?? 280"
-                                    [watermarkHeight]="selectedTemplate()!.watermark?.height ?? 160"
-                                    [watermarkRotation]="
-                                        selectedTemplate()!.watermark?.rotation ?? -15
-                                    "
-                                />
-                                }
-                                </div>
-                                @if (previewDataForAllRows().length > 1) {
-                                    <div
-                                        class="mt-6 flex items-center justify-center gap-4 border-t border-stone-200 pt-4 dark:border-gray-800"
-                                    >
-                                        <button
-                                            mat-icon-button
-                                            (click)="goToPreviewPage(previewPageIndex() - 1)"
-                                            [disabled]="previewPageIndex() <= 0"
-                                            [matTooltip]="'smartReport.previewPrevious' | transloco"
-                                        >
-                                            <mat-icon>chevron_left</mat-icon>
-                                        </button>
-                                        <span class="text-sm text-stone-600 dark:text-stone-400">
-                                            {{ 'smartReport.previewPage' | transloco }}
-                                            {{ previewPageIndex() + 1 }}
-                                            {{ 'smartReport.previewPageOf' | transloco }}
-                                            {{ previewDataForAllRows().length }}
-                                        </span>
-                                        <button
-                                            mat-icon-button
-                                            (click)="goToPreviewPage(previewPageIndex() + 1)"
-                                            [disabled]="
-                                                previewPageIndex() >=
-                                                previewDataForAllRows().length - 1
-                                            "
-                                            [matTooltip]="'smartReport.previewNext' | transloco"
-                                        >
-                                            <mat-icon>chevron_right</mat-icon>
-                                        </button>
-                                    </div>
-                                }
-                            } @else {
-                                <div
-                                    class="flex h-64 flex-col items-center justify-center text-stone-400 dark:text-stone-500"
-                                >
-                                    <mat-icon class="!text-6xl !w-16 !h-16 mb-4"
-                                        >description</mat-icon
-                                    >
-                                    <p class="text-lg mb-2">
-                                        {{ 'smartReport.noPreviewAvailable' | transloco }}
-                                    </p>
-                                    <p class="text-sm">
-                                        {{ 'smartReport.selectTemplateAndBatch' | transloco }}
-                                    </p>
-                                </div>
-                            }
-                        </div>
                     </div>
                 </div>
             </div>

@@ -31,7 +31,7 @@ import {
     SmartBatchService,
 } from '../smart-batch.service';
 import { SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { htmlMatchesPrintMarkers, mergePrintHtmlDocuments, uniquePrintMarkers } from '../report-print-html.util';
+import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
 import { sortStepExportFieldLabels } from '../step-result-display.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import {
@@ -146,14 +146,20 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     isGenerating = signal(false);
     isSending = signal(false);
 
-    /** Step results display: table, json, excel-ag (AG Grid) */
-    stepResultsViewMode = signal<'table' | 'json' | 'excel-ag'>('table');
+    /** Results display: PDF preview first, then table / json / excel */
+    stepResultsViewMode = signal<'pdf' | 'table' | 'json' | 'excel-ag'>('pdf');
 
     /** Whether step results content is expanded (collapsible to free space for PDF preview) */
     stepResultsContentExpanded = signal(true);
 
     toggleStepResultsContent(): void {
         this.stepResultsContentExpanded.update((v) => !v);
+    }
+
+    setStepResultsViewMode(mode: 'pdf' | 'table' | 'json' | 'excel-ag'): void {
+        if (!mode) return;
+        this.stepResultsViewMode.set(mode);
+        if (mode === 'pdf') this.stepResultsContentExpanded.set(true);
     }
 
     // Pagination for Table/JSON view
@@ -792,6 +798,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             return;
         }
 
+        this.setStepResultsViewMode('pdf');
+        this._cdr.detectChanges();
         this.isGenerating.set(true);
         void this._generateReport(template._id!, batchId);
     }
@@ -799,8 +807,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private async _generateReport(templateId: string, batchId: string): Promise<void> {
         const savedPreviewPage = this.previewPageIndex();
         try {
-            const printHtml = await this._printHtmlForBatch();
-            const rowIndex = this.selectedRowIndex();
+            const printHtml = await this._printHtmlForCurrentRow();
+            const rowIndex = this._currentPreviewRowIndex();
             const report = await firstValueFrom(
                 this._reportService.createReport({
                     template: templateId,
@@ -843,25 +851,16 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
     }
 
-    private async _printHtmlForBatch(): Promise<string | undefined> {
+    private _currentPreviewRowIndex(): number | undefined {
+        const rowIndex = Number(this.previewDataForCurrentPage()['rowIndex']);
+        return Number.isFinite(rowIndex) ? rowIndex : this.selectedRowIndex() ?? undefined;
+    }
+
+    private async _printHtmlForCurrentRow(): Promise<string | undefined> {
         const rows = this.previewDataForAllRows();
+        const current = this.previewDataForCurrentPage();
         if (!rows.length) return this._livePreview?.exportPrintHtml() ?? undefined;
-
-        if (this.selectedRowIndex() != null || rows.length === 1) {
-            return (await this._waitForRowPrintHtml(rows[0], rows)) ?? this._livePreview?.exportPrintHtml() ?? undefined;
-        }
-
-        if (rows.length > 40) return undefined;
-
-        const documents: string[] = [];
-        for (let index = 0; index < rows.length; index++) {
-            this.previewPageIndex.set(index);
-            const html = await this._waitForRowPrintHtml(rows[index], rows);
-            if (html) documents.push(html);
-        }
-
-        if (documents.length !== rows.length) return undefined;
-        return mergePrintHtmlDocuments(documents);
+        return (await this._waitForRowPrintHtml(current, rows)) ?? this._livePreview?.exportPrintHtml() ?? undefined;
     }
 
     private async _waitForRowPrintHtml(
@@ -872,8 +871,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const others = rows.filter((item) => item !== row);
         const markers = uniquePrintMarkers(row, others);
         const rowIndex = Number(row['rowIndex']);
-        for (let attempt = 0; attempt < 40; attempt++) {
+        for (let attempt = 0; attempt < 80; attempt++) {
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            this._cdr.detectChanges();
             const html = this._livePreview?.exportPrintHtml();
             if (
                 html &&
@@ -896,6 +896,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             return;
         }
 
+        const batchRows = this.previewDataForAllRows();
+        const currentRowIndex = this._currentPreviewRowIndex();
         const defaultSubject = `${this._transloco.translate('smartReport.generateReport')} - ${this.batch()?.name ?? this._defaultBatchLabel()}`;
         const dialogRef = this._dialog.open(SendSampleModalComponent, {
             panelClass: 'send-sample-dialog',
@@ -903,18 +905,38 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             width: '95vw',
             disableClose: false,
             autoFocus: true,
-            data: { defaultSubject, isSample: false },
+            data: {
+                defaultSubject,
+                isSample: false,
+                allowSendAll: batchRows.length > 1 && this.selectedRowIndex() == null,
+                currentRecordNumber: (currentRowIndex ?? 0) + 1,
+                batchRowCount: batchRows.length,
+            },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
             if (!result?.recipients?.length) return;
 
             this.isSending.set(true);
+            void this._sendReportEmail(report._id, result, currentRowIndex);
+        });
+    }
+
+    private async _sendReportEmail(
+        reportId: string,
+        result: { recipients: string[]; subject?: string; sendAll?: boolean },
+        currentRowIndex?: number
+    ): Promise<void> {
+        try {
+            const printHtml = result.sendAll ? undefined : await this._printHtmlForCurrentRow();
             this._reportService
-                .sendReportEmail(report._id, {
+                .sendReportEmail(reportId, {
                     recipients: result.recipients,
                     subject: result.subject,
                     language: 'es',
+                    ...(result.sendAll
+                        ? { sendAll: true }
+                        : { rowIndex: currentRowIndex, ...(printHtml ? { printHtml } : {}) }),
                 })
                 .subscribe({
                     next: (res) => {
@@ -927,12 +949,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                             );
                         } else {
                             this._snack.open(
-                                res.error ||
-                                    this._transloco.translate('smartReport.failedToSendEmail'),
+                                res.error || this._transloco.translate('smartReport.failedToSendEmail'),
                                 this._snackCloseLabel(),
-                                {
-                                    duration: 3000,
-                                }
+                                { duration: 3000 }
                             );
                         }
                     },
@@ -945,7 +964,14 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                         );
                     },
                 });
-        });
+        } catch {
+            this.isSending.set(false);
+            this._snack.open(
+                this._transloco.translate('smartReport.failedToSendEmail'),
+                this._snackCloseLabel(),
+                { duration: 3000 }
+            );
+        }
     }
 
     downloadReport(): void {
@@ -960,7 +986,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
 
         this.isSending.set(true);
-        this._reportService.downloadReport(report._id).subscribe({
+        this._reportService.downloadReport(report._id, this._currentPreviewRowIndex()).subscribe({
             next: async (blob) => {
                 let pdfBlob = blob;
 
@@ -983,7 +1009,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 const url = URL.createObjectURL(pdfBlob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `SmartReport_${report._id}.pdf`;
+                a.download = `SmartReport_${report._id}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`;
                 a.click();
                 URL.revokeObjectURL(url);
                 this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), this._snackCloseLabel(), {

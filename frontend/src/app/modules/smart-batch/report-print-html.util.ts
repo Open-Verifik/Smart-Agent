@@ -1,16 +1,30 @@
 /** Join per-record print documents into one Puppeteer HTML file. */
 export const mergePrintHtmlDocuments = (documents: string[]): string | undefined => {
     const bodies: string[] = [];
-    let style = '';
+    let pageWidthMm = 210;
+    let pageHeightMm = 297;
     for (const document of documents) {
         if (!document.includes('<html')) continue;
-        const styleMatch = document.match(/<style>([\s\S]*?)<\/style>/i);
-        if (styleMatch?.[1] && !style) style = styleMatch[1];
+        const sizeMatch = document.match(/@page\s*\{\s*size:\s*([\d.]+)mm\s+([\d.]+)mm/i);
+        if (sizeMatch) {
+            pageWidthMm = Number(sizeMatch[1]) || pageWidthMm;
+            pageHeightMm = Number(sizeMatch[2]) || pageHeightMm;
+        }
         const bodyMatch = document.match(/<body>([\s\S]*?)<\/body>/i);
         if (bodyMatch?.[1]) bodies.push(bodyMatch[1]);
     }
     if (!bodies.length) return undefined;
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${style}</style></head><body>${bodies.join('')}</body></html>`;
+    const joined = bodies.join('');
+    const sheetCount = (joined.match(/class="print-sheet"/g) || joined.match(/print-sheet/g) || [])
+        .length;
+    const pages = Math.max(1, sheetCount);
+    const totalHeightMm = pages * pageHeightMm;
+    const style = `@page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
+html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${totalHeightMm}mm;overflow:hidden;background:#fff}
+.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
+.print-sheet + .print-sheet{break-before:page;page-break-before:always}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}`;
+    return `<!DOCTYPE html><html data-print-pages="${pages}"><head><meta charset="utf-8"/><style>${style}</style></head><body>${joined}</body></html>`;
 };
 
 const collectPrintTokens = (value: unknown, into: string[] = [], depth = 0): string[] => {
@@ -53,8 +67,8 @@ export const htmlMatchesPrintMarkers = (
     markers: { mustHave: string[]; mustNot: string[] },
     rowIndex?: number
 ): boolean => {
-    if (rowIndex != null && Number.isFinite(rowIndex) && !html.includes(`data-report-row="${rowIndex}"`)) {
-        return false;
+    if (rowIndex != null && Number.isFinite(rowIndex)) {
+        return html.includes(`data-report-row="${rowIndex}"`);
     }
     if (markers.mustHave.length && !markers.mustHave.some((token) => html.includes(token))) {
         return false;

@@ -701,7 +701,14 @@ export class SmartReportService {
 
     sendReportEmail(
         id: string,
-        options: { recipients: string[]; subject?: string; language?: 'en' | 'es' }
+        options: {
+            recipients: string[];
+            subject?: string;
+            language?: 'en' | 'es';
+            rowIndex?: number;
+            sendAll?: boolean;
+            printHtml?: string;
+        }
     ): Observable<{ success: boolean; messageId?: string; error?: string }> {
         return this._httpClient.post<{
             success: boolean;
@@ -718,9 +725,10 @@ export class SmartReportService {
      * Download report PDF as blob (includes auth header).
      * Use this instead of getReportDownloadUrl + window.open for protected endpoints.
      */
-    downloadReport(id: string): Observable<Blob> {
+    downloadReport(id: string, rowIndex?: number): Observable<Blob> {
         return this._httpClient.get(`${environment.apiUrl}/v2/smart-reports/${id}/download`, {
             responseType: 'blob',
+            ...(rowIndex != null ? { params: { rowIndex: String(rowIndex) } } : {}),
         });
     }
 }

@@ -1507,8 +1507,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             pointerEvents:
                 this.draggingSectionId() && this.draggingSectionId() !== section.id ? 'none' : 'auto',
         };
-        if (height) style['height'] = `${height}px`;
-        style['overflow'] = section.type === 'shape' ? 'visible' : 'hidden';
+        const clipToFrame = section.type === 'image';
+        if (height) {
+            if (clipToFrame || section.type === 'shape') style['height'] = `${height}px`;
+            else style['min-height'] = `${height}px`;
+        }
+        style['overflow'] = clipToFrame ? 'hidden' : 'visible';
         if (section.type !== 'shape' && rotation) {
             style['transform'] = `rotate(${rotation}deg)`;
             style['transform-origin'] = 'center center';
@@ -3152,6 +3156,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         const clone = paper.cloneNode(true) as HTMLElement;
         clone.querySelectorAll('[data-print-hide],[data-overlay-handle]').forEach((node) => node.remove());
         this._inlineComputedStyles(paper, clone);
+        this._stripPrintNoise(clone);
         clone.querySelectorAll('[class*="ring-"]').forEach((node) => {
             (node as HTMLElement).style.boxShadow = 'none';
         });
@@ -3194,6 +3199,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         const dstSections = clone.querySelectorAll('[data-report-section]');
         if (this.hasFreeLayout()) {
             this._pinPrintedBoxes(srcSections, dstSections, origin, true);
+            this._unclipPrintedTextSections(dstSections);
         }
         this._pinPrintedBoxes(
             source.querySelectorAll('[data-overlay-box]'),
@@ -3230,7 +3236,15 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
                 dst.style.left = `${Math.round(src.offsetLeft)}px`;
                 dst.style.top = `${Math.round(src.offsetTop)}px`;
                 dst.style.width = `${Math.round(src.offsetWidth)}px`;
-                dst.style.height = `${Math.round(src.offsetHeight)}px`;
+                const type = src.getAttribute('data-section-type');
+                if (type && type !== 'image' && type !== 'shape') {
+                    dst.style.height = 'auto';
+                    dst.style.maxHeight = 'none';
+                    dst.style.minHeight = `${Math.round(src.offsetHeight)}px`;
+                    dst.style.overflow = 'visible';
+                } else {
+                    dst.style.height = `${Math.round(src.offsetHeight)}px`;
+                }
                 continue;
             }
             const box = src.getBoundingClientRect();
@@ -3240,6 +3254,17 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             dst.style.width = `${Math.round(box.width)}px`;
             dst.style.height = `${Math.round(box.height)}px`;
         }
+    }
+
+    private _unclipPrintedTextSections(dstNodes: NodeListOf<Element>): void {
+        dstNodes.forEach((node) => {
+            const dst = node as HTMLElement;
+            const type = dst.getAttribute('data-section-type');
+            if (type === 'image' || type === 'shape') return;
+            dst.style.overflow = 'visible';
+            dst.style.maxHeight = 'none';
+            dst.style.height = 'auto';
+        });
     }
 
     printSurfaceWidth(): number {
@@ -3303,15 +3328,49 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             'border-collapse',
             'vertical-align',
         ];
+        const skip = new Set([
+            '',
+            'none',
+            'normal',
+            'auto',
+            'static',
+            'visible',
+            'stretch',
+            'start',
+            'normal',
+            'rgba(0, 0, 0, 0)',
+            'rgba(0,0,0,0)',
+            'transparent',
+            '0px',
+            '0',
+        ]);
         let css = '';
         for (const key of keys) {
-            const value = computed.getPropertyValue(key);
-            if (value) css += `${key}:${value};`;
+            const value = computed.getPropertyValue(key).trim();
+            if (!value || skip.has(value)) continue;
+            if (key === 'background-image' && !value.includes('url(')) continue;
+            css += `${key}:${value};`;
         }
-        (target as HTMLElement).style.cssText = css;
+        if (css) (target as HTMLElement).style.cssText = css;
         const srcKids = source.children;
         const dstKids = target.children;
         const n = Math.min(srcKids.length, dstKids.length);
         for (let i = 0; i < n; i++) this._inlineComputedStyles(srcKids[i], dstKids[i]);
+    }
+
+    private _stripPrintNoise(root: HTMLElement): void {
+        root.querySelectorAll('*').forEach((node) => {
+            const el = node as HTMLElement;
+            for (let i = el.attributes.length - 1; i >= 0; i--) {
+                const attr = el.attributes.item(i);
+                if (!attr) continue;
+                if (attr.name.startsWith('_ng') || attr.name.startsWith('ng-')) {
+                    el.removeAttribute(attr.name);
+                }
+            }
+            if (el.getAttribute('class') && !el.classList.contains('print-sheet')) {
+                el.removeAttribute('class');
+            }
+        });
     }
 }
