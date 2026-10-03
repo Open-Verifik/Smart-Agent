@@ -1,11 +1,13 @@
-<mat-drawer-container class="history-drawer-container h-full min-h-0 w-full bg-stone-50 dark:bg-gray-950" *transloco="let t">
-    <mat-drawer
-        #detailDrawer
-        mode="over"
-        position="end"
-        class="history-drawer w-full max-w-lg border-l border-stone-200/90 dark:border-gray-800"
-    >
-        <div class="flex h-full flex-col overflow-hidden bg-white dark:bg-gray-900/70">
+<div class="history-drawer-container relative h-full min-h-0 w-full bg-stone-50 dark:bg-gray-950" *transloco="let t">
+    @if (drawerOpen()) {
+        <button
+            type="button"
+            class="fixed inset-0 z-40 bg-black/40"
+            (click)="closeDetail()"
+            [attr.aria-label]="t('history.actions.viewDetails')"
+        ></button>
+        <aside class="history-drawer fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-stone-200/90 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900/70">
+        <div class="flex h-full flex-col overflow-hidden">
             @if (detailLoading()) {
                 <div class="flex flex-1 flex-col items-center justify-center px-6 py-16">
                     <mat-spinner diameter="36"></mat-spinner>
@@ -25,6 +27,11 @@
                             <p class="mt-1 truncate text-sm leading-6 text-stone-500 dark:text-stone-400">
                                 {{ request.endpoint || request.code }}
                             </p>
+                            @if (consultedDocumentLabel(request); as document) {
+                                <p class="mt-1 truncate text-sm font-medium text-stone-700 dark:text-stone-300">
+                                    {{ t('history.table.consultedDocument') }}: {{ document }}
+                                </p>
+                            }
                         </div>
                     </div>
                     <button
@@ -111,10 +118,10 @@
                 }
             }
         </div>
-    </mat-drawer>
+        </aside>
+    }
 
-    <mat-drawer-content>
-        <div class="flex h-full min-h-0 min-w-0 flex-auto flex-col overflow-auto">
+    <div class="flex h-full min-h-0 min-w-0 flex-auto flex-col overflow-auto">
             <header class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8">
                 <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
                     <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
@@ -389,6 +396,11 @@
                                                 <div class="flex flex-col gap-1">
                                                     <span class="font-semibold text-stone-950 dark:text-white">{{ row.code || row.endpoint || row.serviceId }}</span>
                                                     <span class="font-mono text-xs text-stone-500 dark:text-stone-400">{{ row.endpoint || row.project }}</span>
+                                                    @if (consultedDocumentLabel(row); as document) {
+                                                        <span class="text-xs font-medium text-stone-700 dark:text-stone-300">
+                                                            {{ t('history.table.consultedDocument') }}: {{ document }}
+                                                        </span>
+                                                    }
                                                 </div>
                                             </td>
                                         </ng-container>
@@ -534,6 +546,5 @@
                     </div>
                 </div>
             </main>
-        </div>
-    </mat-drawer-content>
-</mat-drawer-container>
+    </div>
+</div>

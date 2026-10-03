@@ -4510,7 +4510,8 @@
             "method": "Méthode",
             "billingAdjustment": "Ajustement de facturation",
             "standardCost": "Coût standard",
-            "standardCode": "Code standard"
+            "standardCode": "Code standard",
+            "consultedDocument": "Document consulté"
         },
         "status": {
             "success": "Succès",

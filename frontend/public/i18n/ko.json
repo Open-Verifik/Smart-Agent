@@ -4506,7 +4506,8 @@
             "method": "메서드",
             "billingAdjustment": "청구 조정",
             "standardCost": "표준 비용",
-            "standardCode": "표준 코드"
+            "standardCode": "표준 코드",
+            "consultedDocument": "조회한 문서"
         },
         "status": {
             "success": "성공",

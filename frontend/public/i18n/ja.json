@@ -4505,7 +4505,8 @@
             "method": "メソッド",
             "billingAdjustment": "請求調整",
             "standardCost": "標準コスト",
-            "standardCode": "標準コード"
+            "standardCode": "標準コード",
+            "consultedDocument": "照会した書類"
         },
         "subtitle": "API 呼び出しを監査し、リクエスト値を確認して、作り直さずに検証を再実行できます。",
         "status": {

@@ -5,7 +5,6 @@ import {
     Component,
     OnDestroy,
     OnInit,
-    ViewChild,
     inject,
     signal,
 } from '@angular/core';
@@ -21,7 +20,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -41,6 +39,7 @@ import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
     PostmanHistoryPrefillPayload,
 } from '../postman/postman-history-prefill';
+import { extractConsultedDocument, normalizeHistoryDetail } from './history-detail.util';
 import {
     ApiRequest,
     ApiRequestResponse,
@@ -76,7 +75,6 @@ const EXPORT_PAGE_SIZE = 200;
         MatPaginatorModule,
         MatProgressSpinnerModule,
         MatSelectModule,
-        MatSidenavModule,
         MatSnackBarModule,
         MatTableModule,
         MatTooltipModule,
@@ -90,8 +88,6 @@ const EXPORT_PAGE_SIZE = 200;
     },
 })
 export class HistoryComponent implements OnInit, OnDestroy {
-    @ViewChild('detailDrawer') detailDrawer?: MatSidenav;
-
     private _historyService = inject(HistoryService);
     private _walletService = inject(AgentWalletService);
     private _router = inject(Router);
@@ -116,6 +112,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     statusFilter: StatusFilter = 'all';
     mode = signal<'credits' | 'x402'>('credits');
     selectedRequest = signal<ApiRequest | null>(null);
+    drawerOpen = signal(false);
     detailLoading = signal(false);
     exporting = signal(false);
     topEndpoints = signal<HistoryTopSalesRow[]>([]);
@@ -282,16 +279,18 @@ export class HistoryComponent implements OnInit, OnDestroy {
     openDetail = (request: ApiRequest, event?: Event): void => {
         if (this.mode() !== 'credits') return;
         event?.stopPropagation();
-        this.selectedRequest.set(request);
+        this.selectedRequest.set(normalizeHistoryDetail(request));
         this.detailLoading.set(true);
-        this.detailDrawer?.open();
+        this.drawerOpen.set(true);
         this._historyService.getRequestDetail(request._id).subscribe({
             next: (res) => {
-                this.selectedRequest.set({ ...request, ...res.data });
+                this.selectedRequest.set(normalizeHistoryDetail(request, res.data));
                 this.detailLoading.set(false);
                 this._cdr.markForCheck();
             },
             error: () => {
+                // Keep list-row params/status when `/data` misses failed_api_requests rows (backend gap).
+                this.selectedRequest.set(normalizeHistoryDetail(request));
                 this.detailLoading.set(false);
                 this._cdr.markForCheck();
             },
@@ -299,9 +298,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
     };
 
     closeDetail = (): void => {
-        this.detailDrawer?.close();
+        this.drawerOpen.set(false);
         this.selectedRequest.set(null);
     };
+
+    consultedDocumentLabel = (request?: ApiRequest | null): string | null =>
+        extractConsultedDocument(request?.params);
 
     copyText = (text: string): void => {
         navigator.clipboard.writeText(text);
@@ -369,17 +371,30 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
     repeatRequest = (request: ApiRequest): void => {
         if (!this.canRepeatRequest(request)) return;
-        const payload: PostmanHistoryPrefillPayload = {
-            v: 1,
-            source: 'history',
-            code: request.code,
-            paramValues: this._buildRepeatParams(request.params),
-            paymentMode: this.mode(),
-            method: request.method,
-            requestId: request._id,
+
+        const navigateWithParams = (row: ApiRequest): void => {
+            const payload: PostmanHistoryPrefillPayload = {
+                v: 1,
+                source: 'history',
+                code: row.code,
+                paramValues: this._buildRepeatParams(row.params),
+                paymentMode: this.mode(),
+                method: row.method,
+                requestId: row._id,
+            };
+            sessionStorage.setItem(POSTMAN_HISTORY_PREFILL_STORAGE_KEY, JSON.stringify(payload));
+            this._router.navigate(['/postman'], { queryParams: { code: row.code } });
         };
-        sessionStorage.setItem(POSTMAN_HISTORY_PREFILL_STORAGE_KEY, JSON.stringify(payload));
-        this._router.navigate(['/postman'], { queryParams: { code: request.code } });
+
+        if (request.params && Object.keys(request.params).length) {
+            navigateWithParams(request);
+            return;
+        }
+
+        this._historyService.getRequestDetail(request._id).subscribe({
+            next: (res) => navigateWithParams(normalizeHistoryDetail(request, res.data)),
+            error: () => navigateWithParams(request),
+        });
     };
 
     datePresetKey = (preset: DatePreset): string => {
