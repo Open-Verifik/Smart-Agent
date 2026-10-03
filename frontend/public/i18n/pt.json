@@ -4506,7 +4506,8 @@
             "method": "Método",
             "billingAdjustment": "Ajuste de cobrança",
             "standardCost": "Custo padrão",
-            "standardCode": "Código padrão"
+            "standardCode": "Código padrão",
+            "consultedDocument": "Documento consultado"
         },
         "status": {
             "success": "Sucesso",

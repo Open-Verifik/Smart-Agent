@@ -56,7 +56,9 @@ export interface HistoryTopSalesRow {
     feature?: { code?: string; name?: string };
 }
 
-const LIST_COLUMNS = '_id statusCode status code endpoint method createdAt cost billingAdjustmentType billingStandardCost billingStandardCode paymentTx paymentAmount';
+/** Include `params` and `historyStatus` so list rows show consulted documents and status without opening the drawer. */
+export const HISTORY_LIST_COLUMNS =
+    '_id statusCode status historyStatus code endpoint method createdAt cost billingAdjustmentType billingStandardCost billingStandardCode paymentTx paymentAmount params';
 
 @Injectable({
     providedIn: 'root',
@@ -164,18 +166,26 @@ export class HistoryService {
             )
             .pipe(map((res) => (Array.isArray(res) ? res : res?.data || [])));
 
-    private _listQuery = (params: HistoryListParams = {}) => ({
-        columns: LIST_COLUMNS,
-        lean: true,
-        sort: '-createdAt',
-        page: params.page ?? 1,
-        limit: params.limit ?? 10,
-        like_code: params.like_code,
-        where_code: params.where_code,
-        historyBucket: params.historyBucket,
-        whereGTE_createdAt: params.whereGTE_createdAt,
-        whereLTE_createdAt: params.whereLTE_createdAt,
-    });
+    private _listQuery = (params: HistoryListParams = {}) => {
+        const query: Record<string, unknown> = {
+            columns: HISTORY_LIST_COLUMNS,
+            lean: true,
+            sort: '-createdAt',
+            page: params.page ?? 1,
+            limit: params.limit ?? 10,
+            like_code: params.like_code,
+            where_code: params.where_code,
+            whereGTE_createdAt: params.whereGTE_createdAt,
+            whereLTE_createdAt: params.whereLTE_createdAt,
+        };
+
+        // Omit `all` so older backends that predate `historyBucket` keep the previous unfiltered list.
+        if (params.historyBucket && params.historyBucket !== 'all') {
+            query['historyBucket'] = params.historyBucket;
+        }
+
+        return query;
+    };
 
     private _authHeaders = (): Record<string, string> => {
         const token = localStorage.getItem('accessToken');

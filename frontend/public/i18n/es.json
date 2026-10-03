@@ -4600,7 +4600,8 @@
             "method": "Método",
             "billingAdjustment": "Ajuste de facturación",
             "standardCost": "Costo estándar",
-            "standardCode": "Código estándar"
+            "standardCode": "Código estándar",
+            "consultedDocument": "Documento consultado"
         },
         "status": {
             "success": "Exitoso",

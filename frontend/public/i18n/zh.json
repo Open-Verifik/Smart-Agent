@@ -4506,7 +4506,8 @@
             "method": "方法",
             "billingAdjustment": "计费调整",
             "standardCost": "标准费用",
-            "standardCode": "标准代码"
+            "standardCode": "标准代码",
+            "consultedDocument": "查询的证件"
         },
         "status": {
             "success": "成功",
