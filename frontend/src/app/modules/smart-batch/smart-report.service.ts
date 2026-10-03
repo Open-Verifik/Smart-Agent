@@ -707,6 +707,7 @@ export class SmartReportService {
             language?: 'en' | 'es';
             rowIndex?: number;
             sendAll?: boolean;
+            engine?: 'pdfkit' | 'puppeteer';
             printHtml?: string;
         }
     ): Observable<{ success: boolean; messageId?: string; error?: string }> {

@@ -333,7 +333,10 @@
                                         }
                                     </p>
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex flex-wrap items-center justify-end gap-2">
+                                        @if (stepResultsViewMode() === 'pdf' && previewDataForAllRows().length > 1) {
+                                            <ng-container *ngTemplateOutlet="batchPreviewPager" />
+                                        }
                                         <mat-button-toggle-group
                                             [value]="stepResultsViewMode()"
                                             (change)="setStepResultsViewMode($event.value)"
@@ -388,31 +391,25 @@
                                             </div>
                                         }
                                         @if (selectedTemplate() && batch()?.rows?.length) {
-                                            <div class="mx-auto w-[210mm] max-w-none">
-                                            @for (pageData of [previewDataForCurrentPage()]; track pageData.rowIndex ?? previewPageIndex()) {
+                                            <div class="mx-auto max-w-none" [style.width.mm]="previewPaperWidthMm()">
                                             <report-preview
                                                 #livePreview
+                                                [printCapture]="false"
                                                 [template]="selectedTemplate()!"
-                                                [previewData]="pageData"
+                                                [previewData]="previewDataForCurrentPage()"
                                                 [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
-                                                [pageBackgroundColor]="
-                                                    selectedTemplate()!.pageBackgroundColor || '#ffffff'
-                                                "
+                                                [pageBackgroundColor]="selectedTemplate()!.pageBackgroundColor || '#ffffff'"
                                                 [orientation]="selectedTemplate()!.orientation || 'portrait'"
                                                 [pageSize]="selectedTemplate()!.pageSize || 'A4'"
                                                 [clickable]="false"
-                                                [logoUrl]="selectedTemplate()!.logo || null"
-                                                [logoEnabled]="!!selectedTemplate()!.logo"
+                                                [logoUrl]="selectedTemplate()!.headerLogos?.length ? null : selectedTemplate()!.logo || null"
+                                                [logoEnabled]="!selectedTemplate()!.headerLogos?.length && !!selectedTemplate()!.logo"
                                                 [logoX]="selectedTemplate()!.logoSettings?.x ?? 32"
                                                 [logoY]="selectedTemplate()!.logoSettings?.y ?? 32"
                                                 [logoWidth]="selectedTemplate()!.logoSettings?.width ?? 160"
                                                 [logoHeight]="selectedTemplate()!.logoSettings?.height ?? 60"
-                                                [logoRotation]="
-                                                    selectedTemplate()!.logoSettings?.rotation ?? 0
-                                                "
-                                                [logoAutoFitContent]="
-                                                    selectedTemplate()!.logoSettings?.autoFitContent ?? false
-                                                "
+                                                [logoRotation]="selectedTemplate()!.logoSettings?.rotation ?? 0"
+                                                [logoAutoFitContent]="selectedTemplate()!.logoSettings?.autoFitContent ?? false"
                                                 [sheetImages]="selectedTemplate()!.sheetImages ?? []"
                                                 [bodyTopPadding]="selectedTemplate()!.bodyTopPadding ?? 0"
                                                 [legend]="selectedTemplate()!.legend || ''"
@@ -427,63 +424,28 @@
                                                 [signatureHeight]="selectedTemplate()!.signature?.height ?? 64"
                                                 [signaturePage]="selectedTemplate()!.signature?.page ?? 0"
                                                 [showPageNumbers]="selectedTemplate()!.showPageNumbers || false"
-                                                [pageNumberPosition]="
-                                                    selectedTemplate()!.pageNumberPosition || 'bottom-center'
-                                                "
-                                                [watermarkEnabled]="
-                                                    selectedTemplate()!.watermark?.enabled || false
-                                                "
+                                                [pageNumberPosition]="selectedTemplate()!.pageNumberPosition || 'bottom-center'"
+                                                [watermarkEnabled]="selectedTemplate()!.watermark?.enabled || false"
                                                 [watermarkType]="selectedTemplate()!.watermark?.type || 'text'"
                                                 [watermarkLogoUrl]="selectedTemplate()!.watermark?.logo || undefined"
                                                 [watermarkText]="
                                                     selectedTemplate()!.watermark?.text ||
                                                     ('smartReport.watermarkTextPlaceholder' | transloco)
                                                 "
-                                                [watermarkOpacity]="
-                                                    selectedTemplate()!.watermark?.opacity ?? 0.08
-                                                "
-                                                [watermarkPattern]="
-                                                    selectedTemplate()!.watermark?.pattern || 'single'
-                                                "
+                                                [watermarkOpacity]="selectedTemplate()!.watermark?.opacity ?? 0.08"
+                                                [watermarkPattern]="selectedTemplate()!.watermark?.pattern || 'single'"
                                                 [watermarkX]="selectedTemplate()!.watermark?.x ?? 250"
                                                 [watermarkY]="selectedTemplate()!.watermark?.y ?? 420"
                                                 [watermarkWidth]="selectedTemplate()!.watermark?.width ?? 280"
                                                 [watermarkHeight]="selectedTemplate()!.watermark?.height ?? 160"
-                                                [watermarkRotation]="
-                                                    selectedTemplate()!.watermark?.rotation ?? -15
-                                                "
+                                                [watermarkRotation]="selectedTemplate()!.watermark?.rotation ?? -15"
                                             />
-                                            }
                                             </div>
                                             @if (previewDataForAllRows().length > 1) {
                                                 <div
                                                     class="mt-6 flex items-center justify-center gap-4 border-t border-stone-200 pt-4 dark:border-gray-800"
                                                 >
-                                                    <button
-                                                        mat-icon-button
-                                                        (click)="goToPreviewPage(previewPageIndex() - 1)"
-                                                        [disabled]="previewPageIndex() <= 0"
-                                                        [matTooltip]="'smartReport.previewPrevious' | transloco"
-                                                    >
-                                                        <mat-icon>chevron_left</mat-icon>
-                                                    </button>
-                                                    <span class="text-sm text-stone-600 dark:text-stone-400">
-                                                        {{ 'smartReport.previewPage' | transloco }}
-                                                        {{ previewPageIndex() + 1 }}
-                                                        {{ 'smartReport.previewPageOf' | transloco }}
-                                                        {{ previewDataForAllRows().length }}
-                                                    </span>
-                                                    <button
-                                                        mat-icon-button
-                                                        (click)="goToPreviewPage(previewPageIndex() + 1)"
-                                                        [disabled]="
-                                                            previewPageIndex() >=
-                                                            previewDataForAllRows().length - 1
-                                                        "
-                                                        [matTooltip]="'smartReport.previewNext' | transloco"
-                                                    >
-                                                        <mat-icon>chevron_right</mat-icon>
-                                                    </button>
+                                                    <ng-container *ngTemplateOutlet="batchPreviewPager" />
                                                 </div>
                                             }
                                         } @else {
@@ -789,3 +751,31 @@
         }
     </div>
 </div>
+
+<ng-template #batchPreviewPager>
+    <div class="flex items-center gap-1">
+        <button
+            mat-icon-button
+            (click)="goToPreviewPage(previewPageIndex() - 1)"
+            [disabled]="previewPageIndex() <= 0"
+            [matTooltip]="'smartReport.previewPrevious' | transloco"
+        >
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="whitespace-nowrap text-sm text-stone-600 dark:text-stone-400">
+            {{ 'smartReport.previewPage' | transloco }}
+            {{ previewPageIndex() + 1 }}
+            {{ 'smartReport.previewPageOf' | transloco }}
+            {{ previewDataForAllRows().length }}
+        </span>
+        <button
+            mat-icon-button
+            (click)="goToPreviewPage(previewPageIndex() + 1)"
+            [disabled]="previewPageIndex() >= previewDataForAllRows().length - 1"
+            [matTooltip]="'smartReport.previewNext' | transloco"
+        >
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
+</ng-template>
+

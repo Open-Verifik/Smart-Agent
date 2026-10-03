@@ -23,15 +23,14 @@ import { ColDef } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
-import { ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { ReportPreviewComponent, reportPaperSizeMm } from '../report-preview/report-preview.component';
 import {
     BatchConfiguration,
     BatchStep,
     SmartBatch,
     SmartBatchService,
 } from '../smart-batch.service';
-import { SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
+import { SampleReportData, SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import { sortStepExportFieldLabels } from '../step-result-display.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import {
@@ -136,6 +135,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     configuration = signal<BatchConfiguration | null>(null);
     templates = signal<SmartReportTemplate[]>([]);
     selectedTemplate = signal<SmartReportTemplate | null>(null);
+    previewPaperWidthMm = computed(() => {
+        const template = this.selectedTemplate();
+        return reportPaperSizeMm(template?.pageSize, template?.orientation || 'portrait').width;
+    });
     report = signal<SmartReport | null>(null);
 
     // Step results layout: ordered list of step blocks (sequence + label)
@@ -800,15 +803,29 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
         this.setStepResultsViewMode('pdf');
         this._cdr.detectChanges();
-        this.isGenerating.set(true);
         void this._generateReport(template._id!, batchId);
     }
 
     private async _generateReport(templateId: string, batchId: string): Promise<void> {
         const savedPreviewPage = this.previewPageIndex();
         try {
-            const printHtml = await this._printHtmlForCurrentRow();
+            const printHtml = await this._printHtmlFromLivePreview();
+            this.isGenerating.set(true);
             const rowIndex = this._currentPreviewRowIndex();
+            const sampleData = this._sampleDataForCurrentRow();
+
+            const blob = await firstValueFrom(
+                this._reportService.downloadTemplateSample(templateId, {
+                    sampleData,
+                    ...(printHtml ? { printHtml } : {}),
+                })
+            );
+            const dataUrl = await this._pdfBlobToDataUrl(blob);
+            if (dataUrl) {
+                this.pdfDataUrl.set(dataUrl);
+                this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl));
+            }
+
             const report = await firstValueFrom(
                 this._reportService.createReport({
                     template: templateId,
@@ -818,18 +835,15 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             );
             this.report.set(report);
 
-            const result = await firstValueFrom(
-                this._reportService.generateReport(report._id!, {
-                    ...(rowIndex != null ? { rowIndex } : {}),
-                    ...(printHtml ? { printHtml } : {}),
-                })
-            );
-            this.report.set(result.data);
-
-            if (result.pdf?.buffer) {
-                const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
-                this.pdfDataUrl.set(dataUrl);
-                this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl));
+            if (printHtml) {
+                const result = await firstValueFrom(
+                    this._reportService.generateReport(report._id!, {
+                        engine: 'puppeteer',
+                        ...(rowIndex != null ? { rowIndex } : {}),
+                        printHtml,
+                    })
+                );
+                this.report.set(result.data);
             }
 
             this._snack.open(
@@ -856,33 +870,52 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         return Number.isFinite(rowIndex) ? rowIndex : this.selectedRowIndex() ?? undefined;
     }
 
-    private async _printHtmlForCurrentRow(): Promise<string | undefined> {
-        const rows = this.previewDataForAllRows();
+    private _sampleDataForCurrentRow(): SampleReportData {
         const current = this.previewDataForCurrentPage();
-        if (!rows.length) return this._livePreview?.exportPrintHtml() ?? undefined;
-        return (await this._waitForRowPrintHtml(current, rows)) ?? this._livePreview?.exportPrintHtml() ?? undefined;
+        const rowIndex = Number(current['rowIndex']);
+        return {
+            batchName: String(current['batchName'] ?? this.batch()?.name ?? ''),
+            rowIndex: Number.isFinite(rowIndex) ? rowIndex : 0,
+            inputData: current['inputData'] ?? {},
+            results: current['results'] ?? {},
+            errors: current['errors'],
+            report: current['report'],
+        };
     }
 
-    private async _waitForRowPrintHtml(
-        row: Record<string, any>,
-        rows: Record<string, any>[]
-    ): Promise<string | undefined> {
+    private async _printHtmlFromLivePreview(): Promise<string | undefined> {
+        this.setStepResultsViewMode('pdf');
         this._cdr.detectChanges();
-        const others = rows.filter((item) => item !== row);
-        const markers = uniquePrintMarkers(row, others);
-        const rowIndex = Number(row['rowIndex']);
-        for (let attempt = 0; attempt < 80; attempt++) {
+        for (let attempt = 0; attempt < 12; attempt++) {
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-            this._cdr.detectChanges();
             const html = this._livePreview?.exportPrintHtml();
-            if (
-                html &&
-                htmlMatchesPrintMarkers(html, markers, Number.isFinite(rowIndex) ? rowIndex : undefined)
-            ) {
-                return html;
-            }
+            if (html?.includes('<html')) return html;
         }
-        return undefined;
+        return this._livePreview?.exportPrintHtml() ?? undefined;
+    }
+
+    private async _pdfBlobToDataUrl(blob: Blob): Promise<string | null> {
+        const header = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
+        if (header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46) {
+            return this._readBlobAsDataUrl(blob);
+        }
+        try {
+            const parsed = JSON.parse(await blob.text()) as { pdf?: { buffer?: string }; buffer?: string };
+            const b64 = parsed.pdf?.buffer || parsed.buffer;
+            if (b64) return `data:application/pdf;base64,${b64}`;
+        } catch {
+            return null;
+        }
+        return null;
+    }
+
+    private _readBlobAsDataUrl(blob: Blob): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+        });
     }
 
     sendEmail(): void {
@@ -928,7 +961,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         currentRowIndex?: number
     ): Promise<void> {
         try {
-            const printHtml = result.sendAll ? undefined : await this._printHtmlForCurrentRow();
+            const printHtml = result.sendAll ? undefined : await this._printHtmlFromLivePreview();
             this._reportService
                 .sendReportEmail(reportId, {
                     recipients: result.recipients,
@@ -936,7 +969,11 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     language: 'es',
                     ...(result.sendAll
                         ? { sendAll: true }
-                        : { rowIndex: currentRowIndex, ...(printHtml ? { printHtml } : {}) }),
+                        : {
+                              rowIndex: currentRowIndex,
+                              engine: 'puppeteer',
+                              ...(printHtml ? { printHtml } : {}),
+                          }),
                 })
                 .subscribe({
                     next: (res) => {

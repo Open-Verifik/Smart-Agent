@@ -26,6 +26,7 @@
             #reportPage
             data-report-page
             [attr.data-report-row]="previewData()?.rowIndex"
+            [attr.data-report-page-index]="pageIndex"
             class="mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-lg"
             [class.shadow-lg]="!thumbnailMode()"
             [style.width]="pageWidthCss()"
@@ -42,6 +43,7 @@
                     <div class="pointer-events-none absolute inset-0 z-[900] overflow-hidden">
                         <div
                             data-overlay-box
+                            data-overlay-id="watermark"
                             class="absolute flex items-center justify-center"
                             [class.cursor-move]="isOverlaySelected('watermark')"
                             [class.cursor-pointer]="clickable() && isFirst && !isOverlaySelected('watermark')"
@@ -304,10 +306,15 @@
                 </div>
             }
 
-            @if (isFirst) {
-                @for (image of sheetImages(); track image.id) {
+            @for (image of sheetImagesForPage(pageIndex); track image.id) {
                     @if (image.src) {
-                        <div class="absolute inset-0 pointer-events-none" [class.z-40]="isOverlaySelected(sheetOverlayId(image.id))" [class.z-20]="!isOverlaySelected(sheetOverlayId(image.id))">
+                        <div
+                            class="absolute inset-0 pointer-events-none"
+                            data-sheet-image
+                            [attr.data-sheet-image-page]="image.page ?? 0"
+                            [class.z-40]="isOverlaySelected(sheetOverlayId(image.id))"
+                            [class.z-20]="!isOverlaySelected(sheetOverlayId(image.id))"
+                        >
                             <div
                                 data-overlay-box
                                 [attr.data-overlay-id]="sheetOverlayId(image.id)"
@@ -360,7 +367,6 @@
                         </div>
                     }
                 }
-            }
 
             <!-- Top page number (every page when configured) -->
             @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {

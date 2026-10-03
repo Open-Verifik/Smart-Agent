@@ -757,6 +757,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return `img:${id}`;
     }
 
+    sheetImagesForPage(pageIndex: number): ReportSheetImage[] {
+        return this.sheetImages().filter((image) => (image.page ?? 0) === pageIndex);
+    }
+
     sheetImageView(image: ReportSheetImage): { x: number; y: number; width: number; height: number } {
         const scales = this._scaleFactors;
         return {
@@ -2273,15 +2277,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.startY = event.clientY;
 
         const extra = this._sheetImage(this._sheetImageId(target));
-        if (target === 'signature') {
-            const page = Math.max(0, this.signaturePage() || 0);
+        if (target === 'signature' || extra) {
+            const page = extra ? Math.max(0, extra.page ?? 0) : Math.max(0, this.signaturePage() || 0);
             this._movePage = page;
             const local = this._sheetLocalPoint(event.clientX, event.clientY, page);
+            const width = extra ? extra.width : this.signatureWidth();
+            const height = extra ? extra.height : this.signatureHeight();
+            const x = extra ? extra.x : this.signatureX();
+            const y = extra ? extra.y : this.signatureY();
             this._overlayGrab = local
-                ? { dx: local.x - this.signatureX(), dy: local.y - this.signatureY() }
-                : { dx: this.signatureWidth() / 2, dy: this.signatureHeight() / 2 };
-            this.startMoveX = this.signatureX();
-            this.startMoveY = this.signatureY();
+                ? { dx: local.x - x, dy: local.y - y }
+                : { dx: width / 2, dy: height / 2 };
+            this.startMoveX = x;
+            this.startMoveY = y;
             this._capturePointer(event, this.onMove, this.stopMove, false);
             return;
         }
@@ -2292,9 +2300,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         } else if (target === 'watermark') {
             this.startMoveX = this.watermarkX();
             this.startMoveY = this.watermarkY();
-        } else if (extra) {
-            this.startMoveX = extra.x;
-            this.startMoveY = extra.y;
         } else {
             this.startMoveX = this.signatureX();
             this.startMoveY = this.signatureY();
@@ -2305,8 +2310,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     private onMove = (event: PointerEvent) => {
         if (!this.isMoving) return;
-        if (this.moveTarget === 'signature' && this._overlayGrab) {
-            this.pendingMove = this._signatureMoveAt(event.clientX, event.clientY);
+        if ((this.moveTarget === 'signature' || this._sheetImageId(this.moveTarget)) && this._overlayGrab) {
+            this.pendingMove = this._pagedOverlayMoveAt(event.clientX, event.clientY);
         } else {
             const scales = this._pointerScaleFactors;
             this.pendingMove = {
@@ -2337,7 +2342,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return { width: image.width, height: image.height };
     }
 
-    private _signatureMoveAt(clientX: number, clientY: number): { x: number; y: number; page: number } {
+    private _pagedOverlayMoveAt(clientX: number, clientY: number): { x: number; y: number; page: number } {
+        const moving = this.moveTarget;
+        const extra = this._sheetImage(this._sheetImageId(moving));
+        const box = this._overlayBox(moving ?? 'signature') ?? { width: 160, height: 64 };
         const pages = this._reportPages?.toArray() ?? [];
         const last = Math.max(0, pages.length - 1);
         const hit = this._sheetIndexAtPoint(clientX, clientY);
@@ -2346,7 +2354,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const grab = this._overlayGrab ?? { dx: 0, dy: 0 };
         let x = local ? local.x - grab.dx : this.startMoveX;
         let y = local ? local.y - grab.dy : this.startMoveY;
-        const clamped = this._clampOverlay(x, y, this.signatureWidth(), this.signatureHeight());
+        const clamped = extra
+            ? this._clampOverlay(x, y, box.width, box.height)
+            : this._clampOverlay(x, y, this.signatureWidth(), this.signatureHeight());
         this._movePage = page;
         return { x: clamped.x, y: clamped.y, page };
     }
@@ -2387,13 +2397,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 moving
             );
             const clamped =
-                moving === 'signature'
+                moving === 'signature' || this._sheetImageId(moving)
                     ? this._clampOverlay(snapped.x, snapped.y, box.width, box.height)
                     : { x: Math.round(snapped.x), y: Math.round(snapped.y) };
             payload = {
                 x: clamped.x,
                 y: clamped.y,
-                page: moving === 'signature' ? (payload.page ?? this._movePage) : undefined,
+                page:
+                    moving === 'signature' || this._sheetImageId(moving)
+                        ? (payload.page ?? this._movePage)
+                        : undefined,
             };
         }
         const extraId = this._sheetImageId(this.moveTarget);
@@ -2403,7 +2416,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         } else if (this.moveTarget === 'watermark') {
             this.watermarkPositionChange.emit(payload);
         } else if (extra) {
-            this.sheetImageChange.emit({ ...extra, x: payload.x, y: payload.y });
+            this.sheetImageChange.emit({
+                ...extra,
+                x: payload.x,
+                y: payload.y,
+                page: payload.page ?? extra.page ?? 0,
+            });
         } else {
             this.signaturePositionChange.emit(payload);
         }
@@ -3138,6 +3156,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 @page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
 html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
 .print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
+.print-sheet [data-report-page-inner]{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;box-sizing:border-box}
+.print-sheet [data-report-footer]{position:absolute;left:0;right:0;bottom:0;width:100%;top:auto}
+.print-sheet [data-report-top-chrome]{position:absolute;left:0;right:0;top:0;width:100%;bottom:auto}
 .print-sheet + .print-sheet{break-before:page;page-break-before:always}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 </style></head><body>${sheets.join('')}</body></html>`;
@@ -3148,8 +3169,8 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         const height = paper.offsetHeight || paper.getBoundingClientRect().height;
         if (!width || !height) return '';
         const clone = paper.cloneNode(true) as HTMLElement;
-        clone.querySelectorAll('[data-print-hide],[data-overlay-handle]').forEach((node) => node.remove());
         this._inlineComputedStyles(paper, clone);
+        clone.querySelectorAll('[data-print-hide],[data-overlay-handle]').forEach((node) => node.remove());
         this._stripPrintNoise(clone);
         clone.querySelectorAll('[class*="ring-"]').forEach((node) => {
             (node as HTMLElement).style.boxShadow = 'none';
@@ -3172,92 +3193,112 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         clone.style.maxHeight = `${pageHeightMm}mm`;
         clone.style.zoom = '1';
         clone.style.transform = 'none';
-        this._pinPrintedLayout(paper, clone);
+        this._pinPrintedLayout(paper, clone, Number(paper.getAttribute('data-report-page-index') || 0));
         return `<div class="print-sheet">${clone.outerHTML}</div>`;
     }
 
-    private _pinPrintedLayout(source: HTMLElement, clone: HTMLElement): void {
-        const paperOrigin = source.getBoundingClientRect();
-        const originEl =
+    private _pinPrintedLayout(source: HTMLElement, clone: HTMLElement, pageIndex = 0): void {
+        const sourceInner =
             (source.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? source;
-        const origin = originEl.getBoundingClientRect();
         const cloneInner =
             (clone.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? clone;
-        cloneInner.style.position = 'relative';
+        cloneInner.style.position = 'absolute';
+        cloneInner.style.left = '0';
+        cloneInner.style.top = '0';
+        cloneInner.style.right = '0';
+        cloneInner.style.bottom = '0';
+        cloneInner.style.width = '100%';
         cloneInner.style.height = '100%';
         cloneInner.style.minHeight = '0';
-        cloneInner.style.maxHeight = '100%';
+        cloneInner.style.maxHeight = 'none';
         cloneInner.style.overflow = 'hidden';
+        cloneInner.style.margin = '0';
 
-        const srcSections = source.querySelectorAll('[data-report-section]');
-        const dstSections = clone.querySelectorAll('[data-report-section]');
+        clone.querySelectorAll('[data-sheet-image]').forEach((node) => {
+            const imagePage = Number((node as HTMLElement).getAttribute('data-sheet-image-page') || 0);
+            if (imagePage !== pageIndex) node.remove();
+        });
+
         if (this.hasFreeLayout()) {
-            this._pinPrintedBoxes(srcSections, dstSections, origin, true);
-            this._unclipPrintedTextSections(dstSections);
+            source.querySelectorAll('[data-report-section]').forEach((node) => {
+                const src = node as HTMLElement;
+                const id = src.getAttribute('data-section-id');
+                const dst = id
+                    ? (clone.querySelector(`[data-section-id="${CSS.escape(id)}"]`) as HTMLElement | null)
+                    : null;
+                if (dst) this._pinPrintedBox(src, dst, sourceInner);
+            });
         }
-        this._pinPrintedBoxes(
-            source.querySelectorAll('[data-overlay-box]'),
-            clone.querySelectorAll('[data-overlay-box]'),
-            paperOrigin
-        );
-        this._pinPrintedBoxes(
-            source.querySelectorAll('[data-report-footer],[data-report-top-chrome]'),
-            clone.querySelectorAll('[data-report-footer],[data-report-top-chrome]'),
-            paperOrigin
-        );
-        clone.querySelectorAll('[data-report-footer],[data-report-top-chrome]').forEach((node) => {
-            (node as HTMLElement).style.zIndex = '30';
+        source.querySelectorAll('[data-overlay-box]').forEach((node) => {
+            const src = node as HTMLElement;
+            const id = src.getAttribute('data-overlay-id');
+            if (!id) return;
+            const dst = clone.querySelector(`[data-overlay-id="${CSS.escape(id)}"]`) as HTMLElement | null;
+            if (dst) this._pinPrintedBox(src, dst, source);
+        });
+        this._stickPrintedChrome(clone);
+    }
+
+    private _pinPrintedBox(src: HTMLElement, dst: HTMLElement, origin: HTMLElement): void {
+        const parent = (src.offsetParent as HTMLElement | null) ?? origin;
+        const parentW = parent.clientWidth || origin.clientWidth || 1;
+        const parentH = parent.clientHeight || origin.clientHeight || 1;
+        if (!src.offsetWidth && !src.offsetHeight) return;
+        dst.style.position = 'absolute';
+        dst.style.margin = '0';
+        dst.style.right = 'auto';
+        dst.style.bottom = 'auto';
+        dst.style.left = `${(src.offsetLeft / parentW) * 100}%`;
+        dst.style.top = `${(src.offsetTop / parentH) * 100}%`;
+        dst.style.width = `${(src.offsetWidth / parentW) * 100}%`;
+        dst.style.height = `${(src.offsetHeight / parentH) * 100}%`;
+        dst.style.transform = src.style.transform || 'none';
+        dst.style.transformOrigin = src.style.transformOrigin || 'center center';
+        const srcImgs = src.querySelectorAll('img');
+        dst.querySelectorAll('img').forEach((node, i) => {
+            const img = node as HTMLElement;
+            const from = srcImgs[i] as HTMLElement | undefined;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.maxWidth = 'none';
+            img.style.maxHeight = 'none';
+            img.style.objectFit = 'contain';
+            img.style.transform = from?.style.transform || 'none';
+            img.style.transformOrigin = from?.style.transformOrigin || 'center center';
+        });
+        const srcSpans = src.querySelectorAll('span');
+        dst.querySelectorAll('span').forEach((node, i) => {
+            const from = srcSpans[i] as HTMLElement | undefined;
+            if (from?.style.transform) (node as HTMLElement).style.transform = from.style.transform;
         });
     }
 
-    private _pinPrintedBoxes(
-        srcNodes: NodeListOf<Element>,
-        dstNodes: NodeListOf<Element>,
-        origin: DOMRect,
-        useLayoutBox = false
-    ): void {
-        const count = Math.min(srcNodes.length, dstNodes.length);
-        for (let i = 0; i < count; i++) {
-            const src = srcNodes[i] as HTMLElement;
-            const dst = dstNodes[i] as HTMLElement;
-            dst.style.position = 'absolute';
-            dst.style.margin = '0';
-            dst.style.right = 'auto';
-            dst.style.bottom = 'auto';
-            dst.style.transform = src.style.transform || 'none';
-            dst.style.transformOrigin = src.style.transformOrigin || 'center center';
-            if (useLayoutBox && src.offsetWidth) {
-                dst.style.left = `${Math.round(src.offsetLeft)}px`;
-                dst.style.top = `${Math.round(src.offsetTop)}px`;
-                dst.style.width = `${Math.round(src.offsetWidth)}px`;
-                const type = src.getAttribute('data-section-type');
-                if (type && type !== 'image' && type !== 'shape') {
-                    dst.style.height = 'auto';
-                    dst.style.maxHeight = 'none';
-                    dst.style.minHeight = `${Math.round(src.offsetHeight)}px`;
-                    dst.style.overflow = 'visible';
-                } else {
-                    dst.style.height = `${Math.round(src.offsetHeight)}px`;
-                }
-                continue;
-            }
-            const box = src.getBoundingClientRect();
-            if (!box.width && !box.height) continue;
-            dst.style.left = `${Math.round(box.left - origin.left)}px`;
-            dst.style.top = `${Math.round(box.top - origin.top)}px`;
-            dst.style.width = `${Math.round(box.width)}px`;
-            dst.style.height = `${Math.round(box.height)}px`;
-        }
-    }
-
-    private _unclipPrintedTextSections(dstNodes: NodeListOf<Element>): void {
-        dstNodes.forEach((node) => {
-            const dst = node as HTMLElement;
-            const type = dst.getAttribute('data-section-type');
-            if (type === 'image' || type === 'shape') return;
-            dst.style.overflow = 'visible';
-            dst.style.maxHeight = 'none';
-            dst.style.height = 'auto';
+    private _stickPrintedChrome(clone: HTMLElement): void {
+        clone.querySelectorAll('[data-report-footer]').forEach((node) => {
+            const el = node as HTMLElement;
+            el.style.position = 'absolute';
+            el.style.left = '0';
+            el.style.right = '0';
+            el.style.bottom = '0';
+            el.style.top = 'auto';
+            el.style.width = '100%';
+            el.style.height = 'auto';
+            el.style.maxHeight = 'none';
+            el.style.margin = '0';
+            el.style.transform = 'none';
+            el.style.zIndex = '30';
+        });
+        clone.querySelectorAll('[data-report-top-chrome]').forEach((node) => {
+            const el = node as HTMLElement;
+            el.style.position = 'absolute';
+            el.style.left = '0';
+            el.style.right = '0';
+            el.style.top = '0';
+            el.style.bottom = 'auto';
+            el.style.width = '100%';
+            el.style.height = 'auto';
+            el.style.margin = '0';
+            el.style.zIndex = '30';
         });
     }
 
@@ -3342,10 +3383,15 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         for (const key of keys) {
             const value = computed.getPropertyValue(key).trim();
             if (!value || skip.has(value)) continue;
+            if (key === 'transform' || key === 'transform-origin') continue;
             if (key === 'background-image' && !value.includes('url(')) continue;
             css += `${key}:${value};`;
         }
-        if (css) (target as HTMLElement).style.cssText = css;
+        const elSrc = source as HTMLElement;
+        const elDst = target as HTMLElement;
+        if (css) elDst.style.cssText = css;
+        if (elSrc.style?.transform) elDst.style.transform = elSrc.style.transform;
+        if (elSrc.style?.transformOrigin) elDst.style.transformOrigin = elSrc.style.transformOrigin;
         const srcKids = source.children;
         const dstKids = target.children;
         const n = Math.min(srcKids.length, dstKids.length);
