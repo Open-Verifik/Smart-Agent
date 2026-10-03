@@ -360,6 +360,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this._clearJsonCopyTimer();
+        this._clearGeneratedPdf();
     }
 
     private _clearJsonCopyTimer(): void {
@@ -764,8 +765,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     selectTemplate(template: SmartReportTemplate): void {
         this.selectedTemplate.set(template);
-        this.pdfDataUrl.set(null);
-        this.pdfSafeUrl.set(null);
+        this._clearGeneratedPdf();
         this.report.set(null);
 
         const configId = this.configId();
@@ -810,21 +810,27 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const savedPreviewPage = this.previewPageIndex();
         try {
             const printHtml = await this._printHtmlFromLivePreview();
+            if (!printHtml?.includes('<html')) {
+                throw new Error('print-html');
+            }
             this.isGenerating.set(true);
-            const rowIndex = this._currentPreviewRowIndex();
             const sampleData = this._sampleDataForCurrentRow();
 
             const blob = await firstValueFrom(
                 this._reportService.downloadTemplateSample(templateId, {
                     sampleData,
-                    ...(printHtml ? { printHtml } : {}),
+                    printHtml,
                 })
             );
-            const dataUrl = await this._pdfBlobToDataUrl(blob);
-            if (dataUrl) {
-                this.pdfDataUrl.set(dataUrl);
-                this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl));
+            const pdfBlob = (await this._isPdfBlob(blob)) ? blob : await this._blobFromJsonBytes(blob);
+            if (!pdfBlob) {
+                throw new Error('pdf');
             }
+            this._keepGeneratedPdf(pdfBlob);
+            this._downloadHref(
+                this.pdfDataUrl()!,
+                `SmartReport_${this.selectedTemplate()?.name || templateId}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
+            );
 
             const report = await firstValueFrom(
                 this._reportService.createReport({
@@ -835,19 +841,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             );
             this.report.set(report);
 
-            if (printHtml) {
-                const result = await firstValueFrom(
-                    this._reportService.generateReport(report._id!, {
-                        engine: 'puppeteer',
-                        ...(rowIndex != null ? { rowIndex } : {}),
-                        printHtml,
-                    })
-                );
-                this.report.set(result.data);
-            }
-
             this._snack.open(
-                this._transloco.translate('smartReport.reportGenerated'),
+                this._transloco.translate('smartReport.pdfDownloaded'),
                 this._snackCloseLabel(),
                 { duration: 3000 }
             );
@@ -886,36 +881,34 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private async _printHtmlFromLivePreview(): Promise<string | undefined> {
         this.setStepResultsViewMode('pdf');
         this._cdr.detectChanges();
-        for (let attempt = 0; attempt < 12; attempt++) {
+        for (let attempt = 0; attempt < 40; attempt++) {
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            if (attempt % 8 === 0) this._cdr.detectChanges();
             const html = this._livePreview?.exportPrintHtml();
             if (html?.includes('<html')) return html;
         }
         return this._livePreview?.exportPrintHtml() ?? undefined;
     }
 
-    private async _pdfBlobToDataUrl(blob: Blob): Promise<string | null> {
-        const header = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
-        if (header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46) {
-            return this._readBlobAsDataUrl(blob);
-        }
-        try {
-            const parsed = JSON.parse(await blob.text()) as { pdf?: { buffer?: string }; buffer?: string };
-            const b64 = parsed.pdf?.buffer || parsed.buffer;
-            if (b64) return `data:application/pdf;base64,${b64}`;
-        } catch {
-            return null;
-        }
-        return null;
+    private _clearGeneratedPdf(): void {
+        const previous = this.pdfDataUrl();
+        if (previous?.startsWith('blob:')) URL.revokeObjectURL(previous);
+        this.pdfDataUrl.set(null);
+        this.pdfSafeUrl.set(null);
     }
 
-    private _readBlobAsDataUrl(blob: Blob): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result || ''));
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(blob);
-        });
+    private _keepGeneratedPdf(blob: Blob): void {
+        this._clearGeneratedPdf();
+        const url = URL.createObjectURL(blob);
+        this.pdfDataUrl.set(url);
+        this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
+    }
+
+    private _downloadHref(href: string, filename: string): void {
+        const a = document.createElement('a');
+        a.href = href;
+        a.download = filename.replace(/[^\w.\-]+/g, '_').slice(0, 80);
+        a.click();
     }
 
     sendEmail(): void {
@@ -1012,58 +1005,18 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     }
 
     downloadReport(): void {
-        const report = this.report();
-        if (!report?._id) {
-            this._snack.open(
-                this._transloco.translate('smartReport.generateReportFirst'),
-                this._snackCloseLabel(),
-                { duration: 3000 }
+        const href = this.pdfDataUrl();
+        if (href) {
+            this._downloadHref(
+                href,
+                `SmartReport_${this.selectedTemplate()?.name || 'report'}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
             );
+            this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), this._snackCloseLabel(), {
+                duration: 2000,
+            });
             return;
         }
-
-        this.isSending.set(true);
-        this._reportService.downloadReport(report._id, this._currentPreviewRowIndex()).subscribe({
-            next: async (blob) => {
-                let pdfBlob = blob;
-
-                const hasPdfMagic = await this._isPdfBlob(blob);
-                if (!hasPdfMagic) {
-                    pdfBlob = await this._blobFromJsonBytes(blob);
-                    if (!pdfBlob) {
-                        const errorMsg = await this._parseBlobError(blob);
-                        this._snack.open(
-                            errorMsg || this._transloco.translate('smartReport.invalidPdfReceived'),
-                            this._snackCloseLabel(),
-                            {
-                                duration: 4000,
-                            }
-                        );
-                        return;
-                    }
-                }
-
-                const url = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `SmartReport_${report._id}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`;
-                a.click();
-                URL.revokeObjectURL(url);
-                this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), this._snackCloseLabel(), {
-                    duration: 2000,
-                });
-            },
-            error: () => {
-                this._snack.open(
-                    this._transloco.translate('smartReport.failedToDownloadPdf'),
-                    this._snackCloseLabel(),
-                    { duration: 3000 }
-                );
-            },
-            complete: () => {
-                this.isSending.set(false);
-            },
-        });
+        void this.generateReport();
     }
 
     /** Escape a cell value for CSV (quote if contains comma, newline, or double quote) */

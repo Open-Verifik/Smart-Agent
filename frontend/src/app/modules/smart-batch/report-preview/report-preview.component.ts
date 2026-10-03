@@ -3384,7 +3384,13 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             const value = computed.getPropertyValue(key).trim();
             if (!value || skip.has(value)) continue;
             if (key === 'transform' || key === 'transform-origin') continue;
-            if (key === 'background-image' && !value.includes('url(')) continue;
+            if (
+                key === 'background-image' &&
+                !value.includes('url(') &&
+                !/gradient/i.test(value)
+            ) {
+                continue;
+            }
             css += `${key}:${value};`;
         }
         const elSrc = source as HTMLElement;
@@ -3392,6 +3398,10 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         if (css) elDst.style.cssText = css;
         if (elSrc.style?.transform) elDst.style.transform = elSrc.style.transform;
         if (elSrc.style?.transformOrigin) elDst.style.transformOrigin = elSrc.style.transformOrigin;
+        if (elSrc.style?.backgroundImage) elDst.style.backgroundImage = elSrc.style.backgroundImage;
+        if (elSrc.style?.backgroundSize) elDst.style.backgroundSize = elSrc.style.backgroundSize;
+        if (elSrc.style?.backgroundPosition) elDst.style.backgroundPosition = elSrc.style.backgroundPosition;
+        if (elSrc.style?.backgroundRepeat) elDst.style.backgroundRepeat = elSrc.style.backgroundRepeat;
         const srcKids = source.children;
         const dstKids = target.children;
         const n = Math.min(srcKids.length, dstKids.length);
