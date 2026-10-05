@@ -4,7 +4,11 @@ import {
     EndpointDocLocale,
     EndpointDocs,
 } from './postman.types';
-import { stripCountryPrefixFromTitle } from './postman-country.util';
+import {
+    getCountryTitlePrefixVariants,
+    normalizeCountryToken,
+    stripCountryPrefixFromTitle,
+} from './postman-country.util';
 
 /** Known generic catalog descriptions — skip when docs copy is available. */
 export const GENERIC_APP_FEATURE_DESCRIPTIONS = new Set([
@@ -218,6 +222,33 @@ export const resolveAboutParamsColumnVisibility = (
 });
 
 /**
+ * True when the title still names the endpoint after the country prefix is removed.
+ * "Bolivia" and "Bolivia - Bolivia" are not descriptive.
+ */
+const isDescriptiveEndpointTitle = (
+    value: string | null | undefined,
+    country: string | null | undefined
+): boolean => {
+    const stripped = stripCountryPrefixFromTitle(value, country);
+    if (!stripped) return false;
+    const countryTokens = getCountryTitlePrefixVariants(country).map(normalizeCountryToken);
+    return !countryTokens.includes(normalizeCountryToken(stripped));
+};
+
+/**
+ * First descriptive candidate, then any non-empty candidate, then the feature code.
+ */
+const pickDescriptiveTitle = (
+    candidates: readonly string[],
+    country: string | null | undefined,
+    fallbackCode: string
+): string => {
+    const descriptive = candidates.find((value) => isDescriptiveEndpointTitle(value, country));
+    if (descriptive) return descriptive;
+    return candidates.find((value) => value.trim()) || fallbackCode;
+};
+
+/**
  * Resolves Postman-visible title and subtitle from docs, custom labels, and i18n catalog.
  */
 export const resolvePostmanEndpointCopy = (
@@ -234,29 +265,26 @@ export const resolvePostmanEndpointCopy = (
     const localizedName =
         activeLocale === 'es' ? sanitizePostmanCopyText(endpoint.nameES) : '';
     const label = sanitizePostmanCopyText(endpoint.label);
-    const preferCatalogTitle = prefersCatalogCopy(activeLocale) && !activeDocTitle;
+    const descriptiveActiveDocTitle = isDescriptiveEndpointTitle(activeDocTitle, endpoint.country)
+        ? activeDocTitle
+        : '';
+    const preferCatalogTitle = prefersCatalogCopy(activeLocale) && !descriptiveActiveDocTitle;
     const preferCatalogOverEnglish = prefersCatalogCopy(activeLocale) && !activeDoc;
 
-    let rawTitle = '';
-    if (customTitle) {
-        rawTitle = customTitle;
-    } else if (activeDocTitle) {
-        rawTitle = activeDocTitle;
-    } else if (preferCatalogTitle && catalog) {
-        rawTitle = catalog;
-    } else if (preferCatalogTitle && localizedName) {
-        rawTitle = localizedName;
-    } else if (enDocTitle) {
-        rawTitle = enDocTitle;
-    } else if (catalog) {
-        rawTitle = catalog;
-    } else if (localizedName) {
-        rawTitle = localizedName;
-    } else if (label) {
-        rawTitle = label;
-    } else {
-        rawTitle = endpoint.code || '';
-    }
+    const rawTitle = customTitle
+        ? customTitle
+        : pickDescriptiveTitle(
+              [
+                  descriptiveActiveDocTitle,
+                  ...(preferCatalogTitle ? [catalog, localizedName] : []),
+                  enDocTitle,
+                  catalog,
+                  localizedName,
+                  label,
+              ],
+              endpoint.country,
+              endpoint.code || ''
+          );
 
     const title = stripCountryPrefixFromTitle(rawTitle, endpoint.country);
 

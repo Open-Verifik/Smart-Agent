@@ -41,9 +41,11 @@ import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
     PostmanHistoryPrefillPayload,
 } from '../postman/postman-history-prefill';
+import { getAppFeatureCatalogCopy } from '../postman/postman-endpoint-copy.util';
 import {
     ApiRequest,
     ApiRequestResponse,
+    HistoryFeatureMeta,
     HistoryListParams,
     HistoryService,
     HistoryTopSalesRow,
@@ -76,6 +78,7 @@ interface HistorySectionCopy {
 }
 
 const EXPORT_MAX = 10000;
+const EXPORT_INPUT_KEYS = ['documentType', 'documentNumber', 'plate', 'vin', 'business', 'fullName'] as const;
 const EXPORT_PAGE_SIZE = 200;
 const DEFAULT_PAGE_SIZE = 10;
 const CREDIT_SECTIONS: HistoryStatus[] = ['success', 'failed', 'pending'];
@@ -199,11 +202,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
     });
     readonly filtersBusy = computed(() => this.visibleSections().some((section) => section.loading));
 
-    displayedColumns: string[] = ['status', 'service', 'date', 'cost', 'actions'];
+    displayedColumns: string[] = ['status', 'service', 'document', 'date', 'cost', 'actions'];
     datePreset: DatePreset = 'all';
     searchText = '';
     serviceFilter = '';
     topEndpoints = signal<HistoryTopSalesRow[]>([]);
+    featureCatalog = signal<Record<string, HistoryFeatureMeta>>({});
 
     ngOnInit(): void {
         CREDIT_SECTIONS.forEach((bucket) => {
@@ -234,8 +238,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
             }
             this._syncColumns();
             this.loadData();
-            if (targetMode === 'credits') this._loadTopSales();
         });
+        this._loadFeatureCatalog();
     }
 
     ngOnDestroy(): void {
@@ -261,6 +265,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
             return;
         }
         CREDIT_SECTIONS.forEach((bucket) => this._reloadSection(bucket));
+        this._loadTopSales();
     };
 
     onSearchInput = (value: string): void => {
@@ -400,6 +405,20 @@ export class HistoryComponent implements OnInit, OnDestroy {
         return formatted === '-' ? '—' : `${formatted} credits`;
     };
 
+    documentLabel = (row?: ApiRequest | null): string => {
+        const params = row?.params;
+        if (!params || typeof params !== 'object') return '—';
+        const preferred = ['documentNumber', 'plate', 'vin', 'business', 'checkId', 'licenseNumber', 'fullName', 'citizenIdentifier'];
+        for (const key of preferred) {
+            const value = params[key];
+            if (value != null && value !== '' && typeof value !== 'object') return String(value);
+        }
+        const first = Object.entries(params).find(
+            ([key, value]) => !key.startsWith('_') && value != null && value !== '' && typeof value !== 'object'
+        );
+        return first ? String(first[1]) : '—';
+    };
+
     formatServiceLabel = (code: string): string =>
         code
             .split(/[-_]/)
@@ -407,8 +426,18 @@ export class HistoryComponent implements OnInit, OnDestroy {
             .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
             .join(' ');
 
-    endpointDisplayName = (item: HistoryTopSalesRow): string =>
-        item.feature?.name || this.formatServiceLabel(item._id);
+    endpointDisplayName = (item: HistoryTopSalesRow): string => this.featureTitle(item._id, item.feature);
+
+    featureTitle = (code?: string | null, feature?: HistoryFeatureMeta | null): string => {
+        if (!code) return '—';
+        const catalogTitle = getAppFeatureCatalogCopy(this._transloco, code).title;
+        if (catalogTitle) return catalogTitle;
+        const meta = feature || this.featureCatalog()[code];
+        const lang = this._transloco.getActiveLang();
+        const fromCatalog = lang === 'es' ? meta?.nameES || meta?.name : meta?.name;
+        if (fromCatalog && fromCatalog !== code) return fromCatalog;
+        return this.formatServiceLabel(code);
+    };
 
     resolveHistoryStatus = (row?: { historyStatus?: string; status?: string; statusCode?: number } | null): HistoryStatus => {
         if (row?.historyStatus === 'success' || row?.historyStatus === 'failed' || row?.historyStatus === 'pending') {
@@ -517,7 +546,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private _syncColumns = (): void => {
         this.displayedColumns =
             this.mode() === 'credits'
-                ? ['status', 'service', 'date', 'cost', 'actions']
+                ? ['status', 'service', 'document', 'date', 'cost', 'actions']
                 : ['service', 'transactionHash', 'amount', 'date', 'actions'];
     };
 
@@ -653,7 +682,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
             );
             return;
         }
-        const sheet = XLSX.utils.json_to_sheet(rows.map((row) => this._mapExportSheetRow(row)));
+        const inputKeys = EXPORT_INPUT_KEYS.filter((key) => rows.some((row) => this._scalarParam(row, key)));
+        const sheet = XLSX.utils.json_to_sheet(rows.map((row) => this._mapExportSheetRow(row, inputKeys)));
         if (format === 'csv') {
             this._downloadBlob(
                 new Blob([`\uFEFF${XLSX.utils.sheet_to_csv(sheet)}`], { type: 'text/csv;charset=utf-8;' }),
@@ -666,35 +696,67 @@ export class HistoryComponent implements OnInit, OnDestroy {
         XLSX.writeFile(workbook, fileName);
     };
 
-    private _mapExportJson = (row: ApiRequest): Record<string, unknown> => ({
-        statusCode: row.statusCode ?? null,
-        status: row.status ?? '',
-        code: row.code ?? '',
-        endpoint: row.endpoint ?? '',
-        method: row.method ?? '',
-        createdAt: row.createdAt ?? '',
-        cost: row.cost ?? null,
-        billingAdjustmentType: row.billingAdjustmentType ?? '',
-        billingStandardCost: row.billingStandardCost ?? null,
-        billingStandardCode: row.billingStandardCode ?? '',
-        paymentTx: row.paymentTx ?? '',
-        paymentAmount: row.paymentAmount ?? '',
-    });
+    private _scalarParam = (row: ApiRequest, key: string): string => {
+        const params = row.params;
+        if (!params || typeof params !== 'object') return '';
+        const value = params[key];
+        if (value == null || value === '' || typeof value === 'object') return '';
+        return String(value);
+    };
 
-    private _mapExportSheetRow = (row: ApiRequest): Record<string, string | number> => ({
-        [this._t('history.table.statusCode')]: row.statusCode ?? '',
-        [this._t('history.table.status')]: row.status ?? '',
-        [this._t('history.table.service')]: row.code ?? '',
-        [this._t('history.table.endpoint')]: row.endpoint ?? '',
-        [this._t('history.table.method')]: row.method ?? '',
-        [this._t('history.table.date')]: this.formatDate(row.createdAt || row.timestamp),
-        [this._t('history.table.cost')]: row.cost ?? '',
-        [this._t('history.table.billingAdjustment')]: row.billingAdjustmentType ?? '',
-        [this._t('history.table.standardCost')]: row.billingStandardCost ?? '',
-        [this._t('history.table.standardCode')]: row.billingStandardCode ?? '',
-        [this._t('history.table.txHash')]: row.paymentTx ?? '',
-        [this._t('history.table.amount')]: row.paymentAmount ?? '',
-    });
+    private _exportDocument = (row: ApiRequest): string => {
+        const label = this.documentLabel(row);
+        return label === '—' ? '' : label;
+    };
+
+    private _exportCost = (row: ApiRequest): string =>
+        this.isNotCharged(row) ? this._t('history.notCharged') : this.formatCost(row.cost);
+
+    private _exportParams = (row: ApiRequest): Record<string, unknown> => {
+        const params = row.params;
+        if (!params || typeof params !== 'object') return {};
+        return Object.entries(params).reduce<Record<string, unknown>>((acc, [key, value]) => {
+            if (!key.startsWith('_')) acc[key] = value;
+            return acc;
+        }, {});
+    };
+
+    private _mapExportJson = (row: ApiRequest): Record<string, unknown> => {
+        const inputs = EXPORT_INPUT_KEYS.reduce<Record<string, string>>((acc, key) => {
+            const value = this._scalarParam(row, key);
+            if (value) acc[key] = value;
+            return acc;
+        }, {});
+        return {
+            status: this.historyStatusLabel(row),
+            statusCode: row.statusCode ?? null,
+            service: this.featureTitle(row.code),
+            code: row.code ?? '',
+            endpoint: row.endpoint ?? '',
+            document: this._exportDocument(row),
+            ...inputs,
+            createdAt: row.createdAt ?? '',
+            cost: this._exportCost(row),
+            params: this._exportParams(row),
+        };
+    };
+
+    private _mapExportSheetRow = (row: ApiRequest, inputKeys: readonly string[]): Record<string, string | number> => {
+        const record: Record<string, string | number> = {
+            [this._t('history.table.status')]: this.historyStatusLabel(row),
+            [this._t('history.table.statusCode')]: row.statusCode ?? '',
+            [this._t('history.table.service')]: this.featureTitle(row.code),
+            [this._t('history.table.code')]: row.code ?? '',
+            [this._t('history.table.endpoint')]: row.endpoint ?? '',
+            [this._t('history.table.document')]: this._exportDocument(row),
+        };
+        inputKeys.forEach((key) => {
+            record[this._t(`history.table.${key}`)] = this._scalarParam(row, key);
+        });
+        record[this._t('history.table.date')] = this.formatDate(row.createdAt || row.timestamp);
+        record[this._t('history.table.cost')] = this._exportCost(row);
+        return record;
+    };
 
     private _exportFileName = (format: HistoryExportFormat, sectionId: HistorySectionId): string => {
         const range = this._dateRangeForPreset(this.datePreset);
@@ -718,8 +780,29 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private _t = (key: string, params?: Record<string, string | number>): string =>
         this._transloco.translate(key, params);
 
+    private _loadFeatureCatalog = (): void => {
+        this._historyService
+            .getFeatureCatalog()
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+                next: (rows) => {
+                    const catalog: Record<string, HistoryFeatureMeta> = {};
+                    rows.forEach((row) => {
+                        if (row?.code) catalog[row.code] = row;
+                    });
+                    this.featureCatalog.set(catalog);
+                    this._cdr.markForCheck();
+                },
+                error: () => this.featureCatalog.set({}),
+            });
+    };
+
     private _loadTopSales = (): void => {
-        this._historyService.getTopSales({ year: DateTime.now().toFormat('yyyy') }).subscribe({
+        if (this.mode() !== 'credits') return;
+        const range = this._dateRangeForPreset(this.datePreset);
+        const params: Record<string, unknown> = { source: 'requests', limit: 5 };
+        if (range) Object.assign(params, createdAtRangeParams(range.start, range.end));
+        this._historyService.getTopSales(params).subscribe({
             next: (rows) => {
                 this.topEndpoints.set(rows.slice(0, 5));
                 this._cdr.markForCheck();

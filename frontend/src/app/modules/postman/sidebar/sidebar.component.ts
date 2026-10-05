@@ -284,7 +284,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                       [tooltipTitle]="endpointDisplayCopy(endpoint).fullTitle"
                       [preformatted]="true"
                       size="sm"
-                      [truncate]="true"
+                      [maxLines]="2"
                     />
                   </a>
                   <postman-endpoint-actions
@@ -365,7 +365,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                   [tooltipTitle]="endpointDisplayCopy(endpoint).fullTitle"
                   [preformatted]="true"
                   size="sm"
-                  [truncate]="true"
+                  [maxLines]="2"
                 />
               </a>
             </div>

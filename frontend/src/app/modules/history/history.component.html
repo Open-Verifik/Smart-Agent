@@ -263,9 +263,18 @@
                                             </th>
                                             <td mat-cell *matCellDef="let row" class="!px-4 !py-4">
                                                 <div class="flex flex-col gap-1">
-                                                    <span class="font-semibold text-stone-950 dark:text-white">{{ row.code || row.endpoint || row.serviceId }}</span>
+                                                    <span class="font-semibold text-stone-950 dark:text-white">{{ featureTitle(row.code) }}</span>
                                                     <span class="font-mono text-xs text-stone-500 dark:text-stone-400">{{ row.endpoint || row.project }}</span>
                                                 </div>
+                                            </td>
+                                        </ng-container>
+
+                                        <ng-container matColumnDef="document">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.document') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4 font-mono text-sm text-stone-800 dark:text-stone-200">
+                                                {{ documentLabel(row) }}
                                             </td>
                                         </ng-container>
 

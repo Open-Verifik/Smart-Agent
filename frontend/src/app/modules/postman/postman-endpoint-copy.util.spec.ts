@@ -248,6 +248,46 @@ describe('postman-endpoint-copy.util', () => {
             expect(result.description).toContain('antecedentes disciplinarios');
         });
 
+        it('skips a country-only Bolivia title and uses the i18n catalog title', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'bolivia_api_business_lookup',
+                    country: 'Bolivia',
+                    label: 'Bolivia - Bolivian Business Verification',
+                    nameES: 'Bolivia - Bolivia',
+                    docs: {
+                        es: {
+                            title: 'Bolivia - Bolivia',
+                            overview: 'Recuperar datos de empresa boliviana por identificador tributario.',
+                        },
+                    },
+                },
+                catalogTitle: 'Verificación Empresarial Boliviana',
+                catalogDescription: 'Valida empresas bolivianas por NIT con la API KYB de Verifik.',
+                locale: 'es',
+            });
+
+            expect(result.title).toBe('Verificación Empresarial Boliviana');
+            expect(result.fullTitle).toBe('Verificación Empresarial Boliviana');
+        });
+
+        it('keeps a short custom display name', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'bolivia_api_business_lookup',
+                    country: 'Bolivia',
+                    label: 'Bolivia - Bolivian Business Verification',
+                    nameES: 'Bolivia - Bolivia',
+                    layoutDisplayName: 'Bolivia',
+                },
+                catalogTitle: 'Verificación Empresarial Boliviana',
+                catalogDescription: 'Valida empresas bolivianas por NIT con la API KYB de Verifik.',
+                locale: 'es',
+            });
+
+            expect(result.title).toBe('Bolivia');
+        });
+
         it('prefers Spanish i18n over English docs when locale is es and docs.es is missing', () => {
             const result = resolvePostmanEndpointCopy({
                 endpoint: {

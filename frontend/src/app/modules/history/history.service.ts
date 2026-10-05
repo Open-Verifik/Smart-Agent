@@ -47,16 +47,22 @@ export interface HistoryListParams {
     historyBucket?: 'all' | 'failed' | 'pending' | 'success';
 }
 
+export interface HistoryFeatureMeta {
+    code: string;
+    name?: string;
+    nameES?: string;
+}
+
 export interface HistoryTopSalesRow {
     _id: string;
     total: number;
     ok: number;
     failed: number;
     credits?: number;
-    feature?: { code?: string; name?: string };
+    feature?: HistoryFeatureMeta;
 }
 
-const LIST_COLUMNS = '_id statusCode status code endpoint method createdAt cost billingAdjustmentType billingStandardCost billingStandardCode paymentTx paymentAmount';
+const LIST_COLUMNS = '_id statusCode status code endpoint method createdAt cost billingAdjustmentType billingStandardCost billingStandardCode paymentTx paymentAmount params';
 
 @Injectable({
     providedIn: 'root',
@@ -152,6 +158,14 @@ export class HistoryService {
         this._httpClient.get<{ data: ApiRequest }>(`${environment.apiUrl}/v2/api-requests/${id}/data`, {
             headers: this._authHeaders(),
         });
+
+    getFeatureCatalog = (): Observable<HistoryFeatureMeta[]> =>
+        this._httpClient
+            .get<HistoryFeatureMeta[] | { data: HistoryFeatureMeta[] }>(`${environment.apiUrl}/v2/app-features`, {
+                headers: this._authHeaders(),
+                params: toHttpParams({ columns: 'code name nameES', lean: true }),
+            })
+            .pipe(map((res) => (Array.isArray(res) ? res : res?.data || [])));
 
     getTopSales = (params: Record<string, unknown> = {}): Observable<HistoryTopSalesRow[]> =>
         this._httpClient

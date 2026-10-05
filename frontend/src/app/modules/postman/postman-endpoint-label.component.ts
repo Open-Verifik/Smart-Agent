@@ -13,9 +13,12 @@ import {
     standalone: true,
     imports: [CommonModule, MatIconModule, MatTooltipModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {
+        class: 'block min-w-0 w-full',
+    },
     template: `
         <span
-            class="inline-flex min-w-0 items-center gap-1.5"
+            class="flex w-full min-w-0 items-center gap-1.5"
             [matTooltip]="tooltipText()"
             [matTooltipDisabled]="!tooltipText()"
         >
@@ -65,8 +68,10 @@ import {
                 }
             }
             <span
-                class="min-w-0"
-                [class.truncate]="truncate()"
+                class="min-w-0 flex-1"
+                [class.truncate]="truncate() && maxLines() < 2"
+                [class.line-clamp-2]="maxLines() >= 2"
+                [class.leading-snug]="maxLines() >= 2"
                 [class.text-xl]="size() === 'md'"
                 [class.font-bold]="size() === 'md'"
             >
@@ -84,6 +89,8 @@ export class PostmanEndpointLabelComponent {
     country = input<string | null | undefined>();
     size = input<'sm' | 'md'>('sm');
     truncate = input(true);
+    /** Sidebar rows wrap to two lines so a long name stays readable. */
+    maxLines = input(1);
     showFlag = input(true);
 
     tooltipText = computed(() => (this.tooltipTitle()?.trim() || this.title()?.trim()) ?? '');

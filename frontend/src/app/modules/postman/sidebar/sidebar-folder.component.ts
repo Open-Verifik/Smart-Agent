@@ -203,7 +203,7 @@ import {
               [tooltipTitle]="endpointDisplayCopy(endpoint).fullTitle"
               [preformatted]="true"
               size="sm"
-              [truncate]="true"
+              [maxLines]="2"
             />
           </a>
           <postman-endpoint-actions
