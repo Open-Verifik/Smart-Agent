@@ -30,8 +30,12 @@ export const FLOW_MERGE_ID = 'flow-merge';
 export const FLOW_RESULT_ID = 'flow-result';
 
 export const FLOW_NODE_WIDTH = 288;
+export const FLOW_COMPACT_WIDTH = 220;
 export const FLOW_HEADER_HEIGHT = 58;
 export const FLOW_PORT_HEIGHT = 32;
+export const FLOW_NODE_FOOTER = 28;
+export const FLOW_COL_GAP = 40;
+export const FLOW_ROW_GAP = 16;
 
 export const emptyFlowGraph = (): FlowGraph => ({
     nodes: [
@@ -269,10 +273,24 @@ export const ensureResultSinks = (graph: FlowGraph): FlowGraph => {
     return next;
 };
 
-export const layoutFlowGraph = (graph: FlowGraph): FlowGraph => {
+export const flowNodeWidth = (node: FlowGraphNode): number =>
+    node.kind === 'endpoint' ? FLOW_NODE_WIDTH : FLOW_COMPACT_WIDTH;
+
+export const flowNodeHeight = (node: FlowGraphNode, rows: number): number => {
+    const extra = node.kind === 'endpoint' ? FLOW_NODE_FOOTER : 16;
+    return FLOW_HEADER_HEIGHT + Math.max(1, rows) * FLOW_PORT_HEIGHT + extra;
+};
+
+export const layoutFlowGraph = (
+    graph: FlowGraph,
+    rowsFor?: (node: FlowGraphNode) => number
+): FlowGraph => {
     const endpoints = endpointNodes(graph);
     const depth = new Map<string, number>();
+    const seen = new Set<string>();
     const walk = (id: string, value: number): void => {
+        if (seen.has(id) && (depth.get(id) ?? 0) >= value) return;
+        seen.add(id);
         depth.set(id, Math.max(depth.get(id) ?? 0, value));
         for (const edge of graph.edges) {
             if (edge.from !== id) continue;
@@ -284,23 +302,80 @@ export const layoutFlowGraph = (graph: FlowGraph): FlowGraph => {
     for (const node of endpoints) {
         if (!depth.has(node.id)) depth.set(node.id, 1);
     }
+    const maxDepth = Math.max(1, ...depth.values());
     const columns = new Map<number, FlowGraphNode[]>();
     for (const node of endpoints) {
         const column = depth.get(node.id) ?? 1;
         columns.set(column, [...(columns.get(column) ?? []), node]);
     }
+    for (const [column, siblings] of columns) {
+        columns.set(
+            column,
+            [...siblings].sort((a, b) => a.y - b.y || a.x - b.x || a.id.localeCompare(b.id))
+        );
+    }
+
+    const rowsOf = (node: FlowGraphNode): number => {
+        if (rowsFor) return Math.max(1, rowsFor(node));
+        if (node.kind === 'result') {
+            return Math.max(1, graph.edges.filter((edge) => edge.to === FLOW_RESULT_ID).length);
+        }
+        if (node.kind === 'start') return 3;
+        return 4;
+    };
+    const heightOf = (node: FlowGraphNode): number => flowNodeHeight(node, rowsOf(node));
+
+    const columnX = (column: number): number => {
+        let x = 40;
+        for (let index = 0; index < column; index += 1) {
+            const width = index === 0 ? FLOW_COMPACT_WIDTH : FLOW_NODE_WIDTH;
+            x += width + FLOW_COL_GAP;
+        }
+        return x;
+    };
+
+    const originY = 48;
+    const placedById = new Map<string, { x: number; y: number }>();
+    let contentTop = originY;
+    let contentBottom = originY;
+
+    for (let column = 1; column <= maxDepth; column += 1) {
+        const siblings = columns.get(column) ?? [];
+        let y = originY;
+        const x = columnX(column);
+        for (const node of siblings) {
+            placedById.set(node.id, { x, y });
+            const bottom = y + heightOf(node);
+            contentTop = Math.min(contentTop, y);
+            contentBottom = Math.max(contentBottom, bottom);
+            y = bottom + FLOW_ROW_GAP;
+        }
+    }
+    if (!endpoints.length) contentBottom = originY + 120;
+
+    const mid = (contentTop + contentBottom) / 2;
+    const placeBand = (node: FlowGraphNode | undefined, column: number): void => {
+        if (!node) return;
+        const h = heightOf(node);
+        placedById.set(node.id, {
+            x: columnX(column),
+            y: Math.max(originY, Math.round(mid - h / 2)),
+        });
+    };
+    placeBand(
+        graph.nodes.find((node) => node.kind === 'start'),
+        0
+    );
+    placeBand(
+        graph.nodes.find((node) => node.kind === 'result'),
+        maxDepth + 1
+    );
+
     const placed = graph.nodes
         .filter((node) => node.kind !== 'merge' && node.id !== FLOW_MERGE_ID)
         .map((node) => {
-            if (node.kind === 'start') return { ...node, x: 40, y: 180 };
-            if (node.kind === 'result') {
-                const maxDepth = Math.max(1, ...depth.values());
-                return { ...node, x: 80 + (maxDepth + 1) * 340, y: 200 };
-            }
-            const column = depth.get(node.id) ?? 1;
-            const siblings = columns.get(column) ?? [];
-            const index = siblings.findIndex((item) => item.id === node.id);
-            return { ...node, x: 80 + column * 340, y: 48 + index * 220 };
+            const spot = placedById.get(node.id);
+            return spot ? { ...node, x: spot.x, y: spot.y } : node;
         });
     return { ...graph, nodes: placed };
 };
@@ -451,7 +526,7 @@ export const portCenter = (
     index: number,
     offsetRows = 0
 ): { x: number; y: number } => {
-    const width = node.kind === 'endpoint' ? FLOW_NODE_WIDTH : 220;
+    const width = flowNodeWidth(node);
     const y = node.y + FLOW_HEADER_HEIGHT + (offsetRows + index) * FLOW_PORT_HEIGHT + FLOW_PORT_HEIGHT / 2;
     const x = side === 'in' ? node.x : node.x + width;
     return { x, y };

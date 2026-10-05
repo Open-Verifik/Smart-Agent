@@ -11,8 +11,12 @@ import {
     FLOW_RESULT_ID,
     FLOW_START_ID,
     flowSeedFields,
+    flowNodeHeight,
+    flowNodeWidth,
     graphFromLinearChain,
     incomingEdge,
+    layoutFlowGraph,
+    FLOW_ROW_GAP,
     outgoingEdges,
     parseFlowGraph,
     sameFlowLayout,
@@ -117,5 +121,30 @@ describe('endpoint-flow-graph', () => {
         expect(sameFlowLayout(restored!, graph)).toBe(true);
         expect(parseFlowGraph(null)).toBeNull();
         expect(parseFlowGraph({ nodes: [], edges: [] })).toBeNull();
+    });
+
+    it('keeps organized blocks aligned without stacking them on top of each other', () => {
+        let graph = addEndpointNode(emptyFlowGraph(), plate as never, 0, 0);
+        graph = addEndpointNode(graph, byVin as never, 12, 12);
+        graph = addEndpointNode(graph, owner as never, 24, 24);
+        graph = layoutFlowGraph(graph);
+        const boxes = graph.nodes.map((node) => ({
+            id: node.id,
+            x: node.x,
+            y: node.y,
+            w: flowNodeWidth(node),
+            h: flowNodeHeight(node, node.kind === 'endpoint' ? 4 : 3),
+        }));
+        for (let left = 0; left < boxes.length; left += 1) {
+            for (let right = left + 1; right < boxes.length; right += 1) {
+                const a = boxes[left];
+                const b = boxes[right];
+                const overlap = a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+                expect(overlap, `${a.id} overlaps ${b.id}`).toBe(false);
+            }
+        }
+        const lookups = graph.nodes.filter((node) => node.kind === 'endpoint').sort((a, b) => a.y - b.y);
+        expect(lookups[1].y - lookups[0].y).toBe(flowNodeHeight(lookups[0], 4) + FLOW_ROW_GAP);
+        expect(lookups[0].x).toBe(lookups[1].x);
     });
 });

@@ -29,12 +29,12 @@ import {
     endpointNodes as listEndpointNodes,
     fieldsLikelyCompatible,
     flattenFlowGraph,
-    FLOW_HEADER_HEIGHT,
-    FLOW_NODE_WIDTH,
     FLOW_RESULT_ID,
     FLOW_START_ID,
     FlowGraph,
     FlowGraphNode,
+    flowNodeHeight,
+    flowNodeWidth,
     incomingEdge,
     outgoingEdges,
     layoutFlowGraph,
@@ -666,7 +666,11 @@ export class EndpointChainBoardComponent {
     }
 
     autoLayout(): void {
-        this.graph.set(layoutFlowGraph(this.graph()));
+        this.graph.set(
+            layoutFlowGraph(this.graph(), (node) =>
+                Math.max(this.inputPorts(node).length, this.outputPorts(node).length, 1)
+            )
+        );
         this._emit();
     }
 
@@ -707,7 +711,7 @@ export class EndpointChainBoardComponent {
     }
 
     nodeWidth(node: FlowGraphNode): number {
-        return node.kind === 'endpoint' ? FLOW_NODE_WIDTH : 220;
+        return flowNodeWidth(node);
     }
 
     inputPorts(node: FlowGraphNode): string[] {
@@ -1027,7 +1031,7 @@ export class EndpointChainBoardComponent {
     private _pointInNode(point: { x: number; y: number }, node: FlowGraphNode): boolean {
         const width = this.nodeWidth(node);
         const rows = Math.max(this.inputPorts(node).length, this.outputPorts(node).length, 1);
-        const height = FLOW_HEADER_HEIGHT + rows * 32 + 44;
+        const height = flowNodeHeight(node, rows);
         return (
             point.x >= node.x - 24 &&
             point.x <= node.x + width + 24 &&
