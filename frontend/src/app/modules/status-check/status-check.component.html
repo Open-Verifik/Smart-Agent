@@ -32,7 +32,38 @@
                         class="h-9 w-9 min-w-[2.25rem] flex items-center justify-center rounded-full border transition-all duration-200 relative group text-lg flex-shrink-0 aspect-square"
                         [matTooltip]="country.name + ' (' + country.count + ')'"
                     >
-                        <span class="leading-none">{{ getCountryFlag(country.name) }}</span>
+                        @let ui = countryFlagUi(country.name);
+                        @switch (ui.k) {
+                            @case ('img') {
+                                <img
+                                    [src]="ui.src"
+                                    alt=""
+                                    width="20"
+                                    height="20"
+                                    decoding="async"
+                                    loading="lazy"
+                                    class="h-5 w-5 rounded-full object-cover"
+                                />
+                            }
+                            @case ('globe') {
+                                <mat-icon
+                                    class="!h-5 !w-5 !text-[20px]"
+                                    [class.text-white]="selectedCountry === country.name"
+                                    [class.text-gray-700]="selectedCountry !== country.name"
+                                >
+                                    public
+                                </mat-icon>
+                            }
+                            @case ('initials') {
+                                <span
+                                    class="text-[10px] font-bold leading-none"
+                                    [class.text-white]="selectedCountry === country.name"
+                                    [class.text-gray-800]="selectedCountry !== country.name"
+                                >
+                                    {{ ui.text }}
+                                </span>
+                            }
+                        }
                     </button>
                     <span
                         *ngIf="countries.length === 0 && !loading"

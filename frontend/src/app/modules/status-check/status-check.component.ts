@@ -22,6 +22,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import ApexCharts from 'apexcharts';
 import { DateTime } from 'luxon';
 import { catchError, forkJoin, Observable, of, Subject, takeUntil } from 'rxjs';
+import { postmanCountryFlagUi, PostmanCountryFlagUi } from '../postman/postman-country.util';
 import { StatusCheckService } from './status-check.service';
 import {
     AWAITING,
@@ -612,36 +613,11 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
         return DateTime.fromISO(dateStr).toLocaleString(DateTime.DATETIME_MED);
     }
 
-    // Copied from PostmanComponent
-    getCountryFlag(country: string): string {
-        const map: Record<string, string> = {
-            Colombia: '🇨🇴',
-            'United States': '🇺🇸',
-            Peru: '🇵🇪',
-            world: '🌐',
-            Mexico: '🇲🇽',
-            Brazil: '🇧🇷',
-            Chile: '🇨🇱',
-            Argentina: '🇦🇷',
-            Ecuador: '🇪🇨',
-            Venezuela: '🇻🇪',
-            Bolivia: '🇧🇴',
-            Uruguay: '🇺🇾',
-            Paraguay: '🇵🇾',
-            Panama: '🇵🇦',
-            'Costa Rica': '🇨🇷',
-            Guatemala: '🇬🇹',
-            Honduras: '🇭🇳',
-            'El Salvador': '🇸🇻',
-            'Dominican Republic': '🇩🇴',
-            'República Dominicana': '🇩🇴',
-            Canada: '🇨🇦',
-            Spain: '🇪🇸',
-        };
-        return map[country] || '🏳️';
+    countryFlagUi(country: string): PostmanCountryFlagUi {
+        return postmanCountryFlagUi(country);
     }
 
-    // Keep strict flag url for image if needed, but we are using emojis for filter
+    // Card thumbnails stay SVG images. The filter chips use flag pictures, not emoji.
     getFlagUrl(countryCode: string): string {
         if (!countryCode || countryCode === 'All') return '';
         return `https://cdn.verifik.co/assets/flags/${countryCode}.svg`;
