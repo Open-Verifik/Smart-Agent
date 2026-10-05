@@ -20,6 +20,8 @@ import {
     outgoingEdges,
     parseFlowGraph,
     sameFlowLayout,
+    FLOW_WIRE_COLORS,
+    wireColorForIndex,
 } from './endpoint-flow-graph.util';
 
 const plate = {
@@ -146,5 +148,15 @@ describe('endpoint-flow-graph', () => {
         const lookups = graph.nodes.filter((node) => node.kind === 'endpoint').sort((a, b) => a.y - b.y);
         expect(lookups[1].y - lookups[0].y).toBe(flowNodeHeight(lookups[0], 4) + FLOW_ROW_GAP);
         expect(lookups[0].x).toBe(lookups[1].x);
+    });
+
+    it('gives each connection a different color until the palette runs out', () => {
+        const seen = new Set<string>();
+        for (let index = 0; index < FLOW_WIRE_COLORS.length; index += 1) {
+            const color = wireColorForIndex(index);
+            expect(seen.has(color)).toBe(false);
+            seen.add(color);
+        }
+        expect(wireColorForIndex(FLOW_WIRE_COLORS.length)).toBe(FLOW_WIRE_COLORS[0]);
     });
 });

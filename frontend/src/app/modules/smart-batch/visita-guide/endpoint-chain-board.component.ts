@@ -50,6 +50,7 @@ import {
     startOutputPorts,
     usedFeatureIds,
     graphFromLinearChain,
+    wireColorForIndex,
 } from '../endpoint-flow-graph.util';
 import { ChainProfile, chainProfileForFeature } from '../endpoint-chain.util';
 import {
@@ -521,6 +522,7 @@ export class EndpointChainBoardComponent {
 
     readonly wires = computed(() => {
         const graph = this.graph();
+        let colorIndex = 0;
         return graph.edges
             .map((edge) => {
                 const from = nodeById(graph, edge.from);
@@ -532,12 +534,14 @@ export class EndpointChainBoardComponent {
                 const toIndex = Math.max(0, toPorts.indexOf(edge.toPort));
                 const start = portCenter(from, 'out', fromIndex, 0);
                 const end = portCenter(to, 'in', toIndex, 0);
+                const color = wireColorForIndex(colorIndex);
+                colorIndex += 1;
                 return {
                     id: edge.id,
                     d: cubicWire(start, end),
                     mx: (start.x + end.x) / 2,
                     my: (start.y + end.y) / 2,
-                    color: fieldsLikelyCompatible(edge.fromPort, edge.toPort) || edge.fromPort === '*' ? '#0ea5e9' : '#f59e0b',
+                    color,
                     locked: edge.to === FLOW_RESULT_ID,
                 };
             })

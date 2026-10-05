@@ -536,3 +536,22 @@ export const cubicWire = (from: { x: number; y: number }, to: { x: number; y: nu
     const dx = Math.max(48, Math.abs(to.x - from.x) / 2);
     return `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
 };
+
+/** Distinct strokes for each connection; wraps only after the palette is exhausted. */
+export const FLOW_WIRE_COLORS = [
+    '#0284c7',
+    '#7c3aed',
+    '#e11d48',
+    '#d97706',
+    '#059669',
+    '#c026d3',
+    '#0d9488',
+    '#ea580c',
+    '#4f46e5',
+    '#65a30d',
+    '#db2777',
+    '#0891b2',
+] as const;
+
+export const wireColorForIndex = (index: number): string =>
+    FLOW_WIRE_COLORS[((index % FLOW_WIRE_COLORS.length) + FLOW_WIRE_COLORS.length) % FLOW_WIRE_COLORS.length];
