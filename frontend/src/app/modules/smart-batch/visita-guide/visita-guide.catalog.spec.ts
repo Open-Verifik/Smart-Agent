@@ -59,6 +59,35 @@ describe('inputFieldsFor', () => {
             )
         ).toEqual({ documentType: 'CE', documentNumber: '123' });
     });
+
+    it('asks only for plate when later lookups are filled from that response', () => {
+        const features = [
+            {
+                code: 'colombia_api_runt_vehicle_by_plate_only',
+                name: 'RUNT vehicle by plate',
+                dependencies: [{ field: 'plate', required: true }],
+            },
+            {
+                code: 'colombia_api_vehicle_complete_by_vin',
+                name: 'Vehicle by VIN',
+                dependencies: [{ field: 'vin', required: true }],
+            },
+            {
+                code: 'colombia_api_identity_lookup',
+                name: 'Consultar cédula',
+                dependencies: [
+                    { field: 'documentType', required: true, enum: ['CC', 'CE'] },
+                    { field: 'documentNumber', required: true },
+                ],
+            },
+        ];
+        expect(inputFieldsFor(['vehicle', 'citizen'], 'co', features).map((field) => field.key)).toEqual([
+            'plate',
+        ]);
+        expect(buildInputRow(['vehicle', 'citizen'], 'co', { plate: 'ABC123', vin: 'WVW' }, features)).toEqual({
+            plate: 'ABC123',
+        });
+    });
 });
 
 describe('countryNameForIso', () => {

@@ -1,6 +1,8 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '../smart-batch.service';
 import { ReportHeaderLogo, ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
+import { chainProfileForFeature } from '../endpoint-chain.util';
+import { emptyFlowGraph, endpointNodes, flowSeedFields, FlowGraph } from '../endpoint-flow-graph.util';
 import {
     buildInputRow,
     GuideEntity,
@@ -30,6 +32,7 @@ export class VisitaGuideStateService {
     executor = signal<SmartBatchExecutor>('queue');
     inputValues = signal<Record<string, string>>({});
     selectedFeatures = signal<AppFeature[]>([]);
+    flowGraph = signal<FlowGraph>(emptyFlowGraph());
     endpointSearchQuery = signal('');
     requiredParamFilters = signal<string[]>([]);
     wantsReport = signal(false);
@@ -96,9 +99,15 @@ export class VisitaGuideStateService {
     /** Opened a saved template in the layout designer from the workspace. */
     editingSavedLayout = signal(false);
 
-    inputFields = computed(() =>
-        inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', this.selectedFeatures())
-    );
+    inputFields = computed(() => {
+        const features = this.selectedFeatures();
+        const graph = this.flowGraph();
+        const profiles = Object.fromEntries(
+            features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
+        );
+        const seed = endpointNodes(graph).length ? flowSeedFields(graph, profiles) : undefined;
+        return inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', features, seed);
+    });
 
     isMixed = computed(() => this.entities().length > 1);
 
@@ -138,11 +147,13 @@ export class VisitaGuideStateService {
         if (current.includes(entity)) {
             this.entities.set(current.filter((item) => item !== entity));
             this.selectedFeatures.set([]);
+            this.flowGraph.set(emptyFlowGraph());
             this.requiredParamFilters.set([]);
             return;
         }
         this.entities.set([...current, entity]);
         this.selectedFeatures.set([]);
+        this.flowGraph.set(emptyFlowGraph());
         this.requiredParamFilters.set([]);
     }
 
@@ -151,11 +162,18 @@ export class VisitaGuideStateService {
     }
 
     buildRow(): Record<string, string> {
+        const features = this.selectedFeatures();
+        const graph = this.flowGraph();
+        const profiles = Object.fromEntries(
+            features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
+        );
+        const seed = endpointNodes(graph).length ? flowSeedFields(graph, profiles) : undefined;
         return buildInputRow(
             this.entities(),
             this.countryIsos()[0] ?? 'co',
             this.inputValues(),
-            this.selectedFeatures()
+            features,
+            seed
         );
     }
 
@@ -167,6 +185,7 @@ export class VisitaGuideStateService {
         this.executor.set('queue');
         this.inputValues.set({});
         this.selectedFeatures.set([]);
+        this.flowGraph.set(emptyFlowGraph());
         this.endpointSearchQuery.set('');
         this.requiredParamFilters.set([]);
         this.wantsReport.set(false);

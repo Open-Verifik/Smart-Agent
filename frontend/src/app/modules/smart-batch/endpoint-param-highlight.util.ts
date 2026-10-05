@@ -86,6 +86,7 @@ const PARAM_FIELD_LABEL_KEYS: Record<string, string> = {
     fechaExpedicion: 'visitaGuide.paramFieldIssueDate',
     expirationDate: 'visitaGuide.paramFieldExpirationDate',
     fullName: 'visitaGuide.paramFieldFullName',
+    vin: 'visitaGuide.paramFieldVin',
 };
 
 /**

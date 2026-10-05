@@ -9,6 +9,7 @@ import {
     SmartBatchService,
 } from '../smart-batch.service';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { chainStepFeedTemplates } from '../endpoint-chain.util';
 import { defaultSystemKey, GuideEntity, GUIDE_COUNTRIES } from './visita-guide.catalog';
 
 export interface GuidePipelineResult {
@@ -204,12 +205,17 @@ export class VisitaGuidePipelineService {
         }
 
         const seqMap = new Map<number, number>();
+        const feedTemplates = chainStepFeedTemplates(selectedFeatures);
         const steps: BatchStep[] = selectedFeatures.map((feature, index) => {
             const previous = previousById.get(feature._id);
             const sequence = index + 1;
             if (previous) seqMap.set(previous.sequence, sequence);
             const entity = this._entityForFeature(feature, entities);
             const mapping = this._mappingFor(entity, mixed, hasCitizen, hasCompany);
+            const chained = feedTemplates[index] ?? {};
+            const chainedMapping = Object.fromEntries(
+                Object.entries(chained).map(([field, template]) => [template, field])
+            );
             return {
                 appFeature: feature._id,
                 sequence,
@@ -217,10 +223,12 @@ export class VisitaGuidePipelineService {
                 parameterDefaults: {
                     ...(previous?.parameterDefaults ?? {}),
                     ...mapping.parameterDefaults,
+                    ...chained,
                 },
                 inputFieldMapping: {
                     ...(previous?.inputFieldMapping ?? {}),
                     ...mapping.inputFieldMapping,
+                    ...chainedMapping,
                 },
                 outputFieldsToKeep: previous?.outputFieldsToKeep ?? [],
                 maxRetries: previous?.maxRetries ?? 3,

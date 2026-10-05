@@ -558,25 +558,6 @@
                             }}</p>
                             <button
                                 type="button"
-                                class="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-semibold"
-                                [class.border-stone-950]="advancedEndpointSelection()"
-                                [class.bg-stone-950]="advancedEndpointSelection()"
-                                [class.text-white]="advancedEndpointSelection()"
-                                [class.dark:border-white]="advancedEndpointSelection()"
-                                [class.dark:bg-white]="advancedEndpointSelection()"
-                                [class.dark:text-gray-950]="advancedEndpointSelection()"
-                                [class.border-stone-200]="!advancedEndpointSelection()"
-                                [class.bg-white]="!advancedEndpointSelection()"
-                                [class.text-stone-700]="!advancedEndpointSelection()"
-                                [class.dark:border-gray-700]="!advancedEndpointSelection()"
-                                [class.dark:bg-gray-950]="!advancedEndpointSelection()"
-                                [class.dark:text-stone-200]="!advancedEndpointSelection()"
-                                (click)="advancedEndpointSelection.set(!advancedEndpointSelection())"
-                            >
-                                {{ t('visitaGuide.advancedSelection') }}
-                            </button>
-                            <button
-                                type="button"
                                 class="shrink-0 text-xs font-medium text-stone-600 underline-offset-4 hover:underline dark:text-stone-300"
                                 (click)="openCountryStep()"
                             >
@@ -623,19 +604,20 @@
                         @if (featuresError()) {
                             <p class="text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
                         }
-                        @if (advancedEndpointSelection()) {
                             <endpoint-chain-board
                                 [features]="visibleEndpointFeatures()"
                                 [chain]="selectedFeatures()"
                                 [query]="endpointSearchQuery()"
+                                [loading]="isLoadingFeatures()"
                                 (queryChange)="endpointSearchQuery.set($event)"
                                 (chainChange)="setEndpointChain($event)"
+                                (graphChange)="setFlowGraph($event)"
                                 (continueChain)="confirmEndpoints()"
+                                (hoverEnter)="onEndpointCardEnter($event.feature, $event.event)"
+                                (hoverMove)="onEndpointCardMove($event.feature, $event.event)"
+                                (hoverLeave)="onEndpointCardLeave()"
                             />
-                        } @else {
-                        <div
-                            class="grid min-h-[28rem] flex-1 gap-3 lg:min-h-0 lg:grid-cols-2"
-                        >
+                        @if (false) {
                             <section
                                 class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70"
                             >
@@ -900,7 +882,6 @@
                                     </button>
                                 </div>
                             </section>
-                        </div>
                         }
                         </div>
                         @if (hoveredEndpointDetails(); as tip) {

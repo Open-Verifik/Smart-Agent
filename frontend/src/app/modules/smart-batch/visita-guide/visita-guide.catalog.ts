@@ -1,4 +1,5 @@
 import { mergeEnumValues } from '../batch-required-fields.util';
+import { canonicalChainField, seedParamFieldsForFeatures } from '../endpoint-chain.util';
 import { isWorldCountry, normalizeCountryName } from '../smart-batch-country.util';
 import {
     canonicalParamFilterId,
@@ -273,24 +274,29 @@ const toGuideInputField = (
 
 const inputFieldsFromFeatures = (
     entities: GuideEntity[],
-    features: FeatureParamShape[]
+    features: FeatureParamShape[],
+    seedOverride?: string[]
 ): GuideInputField[] => {
     const mixedCitizenCompany = entities.includes('citizen') && entities.includes('company');
+    const seedFields = seedOverride?.length ? seedOverride : seedParamFieldsForFeatures(features);
     const byKey = new Map<
         string,
         { canonical: string; required: boolean; options?: string[] }
     >();
 
-    for (const feature of features) {
-        for (const canonical of collectRequiredParamFields([feature])) {
-            const key = rowKeyForParam(canonical, feature, mixedCitizenCompany, entities);
-            const previous = byKey.get(key);
-            byKey.set(key, {
-                canonical,
-                required: true,
-                options: mergeEnumValues(previous?.options, enumsForCanonical(feature, canonical)),
-            });
+    for (const canonical of seedFields) {
+        const owners = features.filter((feature) =>
+            collectRequiredParamFields([feature]).some(
+                (field) => canonicalChainField(field) === canonical
+            )
+        );
+        const feature = owners[0] ?? features[0];
+        const key = rowKeyForParam(canonical, feature, mixedCitizenCompany, entities);
+        let options: string[] | undefined;
+        for (const owner of owners.length ? owners : [feature]) {
+            options = mergeEnumValues(options, enumsForCanonical(owner, canonical));
         }
+        byKey.set(key, { canonical, required: true, options });
     }
 
     const fields = [...byKey.entries()]
@@ -350,10 +356,11 @@ const inputFieldsFromEntities = (entities: GuideEntity[]): GuideInputField[] => 
 export const inputFieldsFor = (
     entities: GuideEntity[],
     iso: string,
-    features: FeatureParamShape[] = []
+    features: FeatureParamShape[] = [],
+    seedOverride?: string[]
 ): GuideInputField[] => {
     if (iso.toLowerCase() !== 'co') return [];
-    if (features.length) return inputFieldsFromFeatures(entities, features);
+    if (features.length) return inputFieldsFromFeatures(entities, features, seedOverride);
     return inputFieldsFromEntities(entities);
 };
 
@@ -361,10 +368,11 @@ export const buildInputRow = (
     entities: GuideEntity[],
     iso: string,
     values: Record<string, string>,
-    features: FeatureParamShape[] = []
+    features: FeatureParamShape[] = [],
+    seedOverride?: string[]
 ): Record<string, string> => {
     const row: Record<string, string> = {};
-    for (const field of inputFieldsFor(entities, iso, features)) {
+    for (const field of inputFieldsFor(entities, iso, features, seedOverride)) {
         const value = (values[field.key] ?? '').trim();
         if (!value) continue;
         row[field.key] = value;

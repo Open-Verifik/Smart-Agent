@@ -21,6 +21,7 @@ import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_
 import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
+import { FlowGraph } from '../endpoint-flow-graph.util';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
@@ -4413,14 +4414,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
-    advancedEndpointSelection = signal(false);
-
     confirmEndpoints(): void {
         this.goNext();
     }
 
     setEndpointChain(chain: AppFeature[]): void {
         this._state.selectedFeatures.set(chain);
+    }
+
+    setFlowGraph(graph: FlowGraph): void {
+        this._state.flowGraph.set(graph);
     }
 
     selectedEndpointsLabel(): string {
