@@ -271,6 +271,43 @@ describe('postman-endpoint-copy.util', () => {
             expect(result.fullTitle).toBe('Verificación Empresarial Boliviana');
         });
 
+        it('skips a country-only United States title and uses the i18n catalog title', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'usa_api_company',
+                    country: 'United States',
+                    label: 'United States - United States Business Verification',
+                    nameES: 'United States - Estados Unidos',
+                },
+                catalogTitle: 'Verificación Empresarial de Estados Unidos',
+                catalogDescription: 'Valida empresas de Estados Unidos por nombre.',
+                locale: 'es',
+            });
+
+            expect(result.title).toBe('Verificación Empresarial de Estados Unidos');
+            expect(result.fullTitle).toBe('Verificación Empresarial de Estados Unidos');
+        });
+
+        it('uses the Spanish docs title instead of the English feature name', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'bolivia_api_business_lookup',
+                    country: 'Bolivia',
+                    label: 'Bolivia - Bolivian Business Verification',
+                    nameES: 'Bolivia - Bolivia',
+                    docs: {
+                        en: { title: 'Bolivian Business Verification' },
+                        es: { title: 'Verificación Empresarial Boliviana' },
+                    },
+                },
+                catalogTitle: '',
+                catalogDescription: '',
+                locale: 'es',
+            });
+
+            expect(result.title).toBe('Verificación Empresarial Boliviana');
+        });
+
         it('keeps a short custom display name', () => {
             const result = resolvePostmanEndpointCopy({
                 endpoint: {

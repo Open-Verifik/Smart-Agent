@@ -69,6 +69,18 @@ export const getAppFeatureCatalogCopy = (
     const appFeatures = translations['appFeatures'] as
         | Record<string, { title?: string; description?: string }>
         | undefined;
+    const flatTitle = translations[`appFeatures.${code}.title`];
+    const flatDescription = translations[`appFeatures.${code}.description`];
+    if (typeof flatTitle === 'string' && flatTitle.trim()) {
+        return {
+            title: flatTitle.trim(),
+            description:
+                typeof flatDescription === 'string' && flatDescription.trim()
+                    ? flatDescription.trim()
+                    : undefined,
+        };
+    }
+
     if (appFeatures && typeof appFeatures === 'object' && !Array.isArray(appFeatures)) {
         const candidates = [
             code,

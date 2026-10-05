@@ -585,6 +585,16 @@ export class PostmanService {
             body: method !== 'GET' && rawDeps.length ? this._bodyFromDependencies(rawDeps) : null,
             ...(feature.docs && typeof feature.docs === 'object' ? { docs: feature.docs } : {}),
         };
+        if (!created.docs && created.code) {
+            const cached = postmanEndpointDetailCache.get(created.code);
+            const cachedDocs =
+                cached && typeof cached === 'object'
+                    ? (cached as { docs?: ApiEndpoint['docs'] }).docs
+                    : undefined;
+            if (cachedDocs && typeof cachedDocs === 'object') {
+                created.docs = cachedDocs;
+            }
+        }
         return mergeParamsFromDocs(created);
     }
 
@@ -897,6 +907,14 @@ export class PostmanService {
                     body: current.body ?? hydrated.body,
                 };
             });
+            if (!hydrated.docs) return;
+            this.endpoints.update((list) =>
+                list.map((endpoint) =>
+                    this._isSameEndpoint(endpoint, hydrated)
+                        ? { ...endpoint, docs: hydrated.docs }
+                        : endpoint
+                )
+            );
         });
     }
 

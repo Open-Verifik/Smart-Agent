@@ -37,7 +37,7 @@ const COUNTRY_TITLE_PREFIX_EXTRAS: Record<string, string[]> = {
     Bolivia: ['玻利维亚'],
     Brazil: ['Brasil', 'Brésil', 'ブラジル', '브라질', '巴西'],
     Ecuador: ['厄瓜多尔'],
-    'United States': ['USA'],
+    'United States': ['USA', 'Estados Unidos'],
     Spain: ['España'],
     Mexico: ['México'],
     Peru: ['Perú'],
