@@ -5,7 +5,7 @@ import {
     Component,
     OnDestroy,
     OnInit,
-    ViewChild,
+    computed,
     inject,
     signal,
 } from '@angular/core';
@@ -20,14 +20,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
-import { EMPTY, firstValueFrom, Subject } from 'rxjs';
+import { firstValueFrom, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import { environment } from '../../../environments/environment';
@@ -49,14 +49,54 @@ import {
     HistoryTopSalesRow,
 } from './history.service';
 import { createdAtRangeParams } from '../settings/usage-history/usage-history-date-params.util';
+import { HistoryRequestDialogComponent, HistoryRequestDialogResult } from './history-request-dialog.component';
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
-export type StatusFilter = 'all' | 'failed' | 'pending' | 'success';
 export type HistoryStatus = 'failed' | 'pending' | 'success';
+export type HistorySectionId = HistoryStatus | 'x402';
+
+interface HistorySectionState {
+    id: HistorySectionId;
+    rows: ApiRequest[];
+    total: number;
+    loading: boolean;
+    exporting: boolean;
+    pageIndex: number;
+    pageSize: number;
+}
+
+interface HistorySectionCopy {
+    title: string;
+    subtitle: string;
+    emptyTitle: string;
+    emptySubtitle: string;
+    icon: string;
+    iconWell: string;
+}
 
 const EXPORT_MAX = 10000;
 const EXPORT_PAGE_SIZE = 200;
+const DEFAULT_PAGE_SIZE = 10;
+const CREDIT_SECTIONS: HistoryStatus[] = ['success', 'failed', 'pending'];
+
+const emptyListResponse = (): ApiRequestResponse => ({
+    data: [],
+    total: 0,
+    limit: DEFAULT_PAGE_SIZE,
+    page: 1,
+    pages: 0,
+});
+
+const createSection = (id: HistorySectionId): HistorySectionState => ({
+    id,
+    rows: [],
+    total: 0,
+    loading: true,
+    exporting: false,
+    pageIndex: 0,
+    pageSize: DEFAULT_PAGE_SIZE,
+});
 
 @Component({
     selector: 'history',
@@ -76,7 +116,6 @@ const EXPORT_PAGE_SIZE = 200;
         MatPaginatorModule,
         MatProgressSpinnerModule,
         MatSelectModule,
-        MatSidenavModule,
         MatSnackBarModule,
         MatTableModule,
         MatTooltipModule,
@@ -90,9 +129,8 @@ const EXPORT_PAGE_SIZE = 200;
     },
 })
 export class HistoryComponent implements OnInit, OnDestroy {
-    @ViewChild('detailDrawer') detailDrawer?: MatSidenav;
-
     private _historyService = inject(HistoryService);
+    private _dialog = inject(MatDialog);
     private _walletService = inject(AgentWalletService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
@@ -100,58 +138,99 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _searchChange$ = new Subject<string>();
-    private _reload$ = new Subject<void>();
+    private _reloadX402$ = new Subject<void>();
+    private _sectionReload$: Record<HistoryStatus, Subject<void>> = {
+        success: new Subject<void>(),
+        failed: new Subject<void>(),
+        pending: new Subject<void>(),
+    };
     private _destroy$ = new Subject<void>();
+    private readonly _sectionCopy: Record<HistorySectionId, HistorySectionCopy> = {
+        success: {
+            title: 'history.logSuccessTitle',
+            subtitle: 'history.logSuccessSubtitle',
+            emptyTitle: 'history.emptySuccessTitle',
+            emptySubtitle: 'history.emptySuccessSubtitle',
+            icon: 'check_circle',
+            iconWell:
+                'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300',
+        },
+        failed: {
+            title: 'history.logFailedTitle',
+            subtitle: 'history.logFailedSubtitle',
+            emptyTitle: 'history.emptyFailedTitle',
+            emptySubtitle: 'history.emptyFailedSubtitle',
+            icon: 'error_outline',
+            iconWell: 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300',
+        },
+        pending: {
+            title: 'history.logPendingTitle',
+            subtitle: 'history.logPendingSubtitle',
+            emptyTitle: 'history.emptyPendingTitle',
+            emptySubtitle: 'history.emptyPendingSubtitle',
+            icon: 'hourglass_empty',
+            iconWell: 'border-stone-200 bg-stone-50 text-stone-600 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-300',
+        },
+        x402: {
+            title: 'history.tableTitle',
+            subtitle: 'history.tableSubtitle',
+            emptyTitle: 'history.emptyTitle',
+            emptySubtitle: 'history.emptySubtitle',
+            icon: 'history',
+            iconWell: 'border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200',
+        },
+    };
 
     readonly datePresets: DatePreset[] = ['all', 'today', 'this_week', 'this_month', 'custom'];
     readonly pageSizeOptions = [10, 25, 50];
-    readonly dataSource = new MatTableDataSource<ApiRequest>([]);
     readonly rangeStart = new FormControl<DateTime | null>(null);
     readonly rangeEnd = new FormControl<DateTime | null>(null);
+    readonly sections = signal<Record<HistorySectionId, HistorySectionState>>({
+        success: createSection('success'),
+        failed: createSection('failed'),
+        pending: createSection('pending'),
+        x402: createSection('x402'),
+    });
+    mode = signal<'credits' | 'x402'>('credits');
+    readonly visibleSections = computed(() => {
+        const sections = this.sections();
+        if (this.mode() === 'x402') return [sections.x402];
+        return CREDIT_SECTIONS.map((id) => sections[id]);
+    });
+    readonly filtersBusy = computed(() => this.visibleSections().some((section) => section.loading));
 
     displayedColumns: string[] = ['status', 'service', 'date', 'cost', 'actions'];
     datePreset: DatePreset = 'all';
     searchText = '';
     serviceFilter = '';
-    statusFilter: StatusFilter = 'all';
-    mode = signal<'credits' | 'x402'>('credits');
-    selectedRequest = signal<ApiRequest | null>(null);
-    detailLoading = signal(false);
-    exporting = signal(false);
     topEndpoints = signal<HistoryTopSalesRow[]>([]);
 
-    requests = this._historyService.requests;
-    total = this._historyService.total;
-    loading = this._historyService.loading;
-    pageSize = this._historyService.pageSize;
-    pageIndex = this._historyService.pageIndex;
-
     ngOnInit(): void {
-        this._reload$
+        CREDIT_SECTIONS.forEach((bucket) => {
+            this._sectionReload$[bucket]
+                .pipe(
+                    switchMap(() => this._fetchCreditSection(bucket)),
+                    takeUntil(this._destroy$)
+                )
+                .subscribe((response) => this._applyFetched(bucket, response));
+        });
+
+        this._reloadX402$
             .pipe(
-                switchMap(() =>
-                    this._historyService.getHistory(this._buildFilterParams()).pipe(
-                        catchError(() => {
-                            this.requests.set([]);
-                            this.total.set(0);
-                            this._applyRows([]);
-                            return EMPTY;
-                        })
-                    )
-                ),
+                switchMap(() => this._fetchX402Section()),
                 takeUntil(this._destroy$)
             )
-            .subscribe(() => this._applyRows());
+            .subscribe((response) => this._applyFetched('x402', response));
 
         this._searchChange$.pipe(debounceTime(350), takeUntil(this._destroy$)).subscribe(() => {
-            this.pageIndex.set(0);
+            this._resetVisiblePages();
             this.loadData();
         });
         this._route.queryParams.pipe(takeUntil(this._destroy$)).subscribe((params) => {
             const targetMode = params['view'] === 'x402' ? 'x402' : 'credits';
             if (this.mode() !== targetMode) {
-                this.pageIndex.set(0);
                 this.mode.set(targetMode);
+                this._resetVisiblePages();
             }
             this._syncColumns();
             this.loadData();
@@ -165,7 +244,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
 
     get disabledClearFilters(): boolean {
-        return !this.searchText && this.statusFilter === 'all' && !this.serviceFilter && this.datePreset === 'all';
+        return !this.searchText && !this.serviceFilter && this.datePreset === 'all';
     }
 
     setMode = (mode: 'credits' | 'x402'): void => {
@@ -177,21 +256,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
     };
 
     loadData = (): void => {
-        if (this.mode() === 'credits') {
-            this._reload$.next();
+        if (this.mode() === 'x402') {
+            this._reloadSection('x402');
             return;
         }
-        const wallet = this._walletService.getAddress();
-        if (!wallet) {
-            this._applyRows([]);
-            return;
-        }
-        this._historyService
-            .getPublicHistory(wallet, this.pageIndex() + 1, this.pageSize())
-            .subscribe({
-                next: () => this._applyRows(),
-                error: () => this._applyRows([]),
-            });
+        CREDIT_SECTIONS.forEach((bucket) => this._reloadSection(bucket));
     };
 
     onSearchInput = (value: string): void => {
@@ -199,24 +268,18 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this._searchChange$.next(this.searchText);
     };
 
-    onStatusFilterChange = (value: StatusFilter): void => {
-        this.statusFilter = value;
-        this.pageIndex.set(0);
-        this.loadData();
-    };
-
     onServiceFilterChange = (value: string): void => {
         this.serviceFilter = value || '';
-        this.pageIndex.set(0);
+        this._resetVisiblePages();
         this.loadData();
     };
 
     onDatePresetChange = (value: DatePreset): void => {
         this.datePreset = value;
-        this.pageIndex.set(0);
         if (value !== 'custom') {
             this.rangeStart.setValue(null, { emitEvent: false });
             this.rangeEnd.setValue(null, { emitEvent: false });
+            this._resetVisiblePages();
             this.loadData();
             return;
         }
@@ -227,13 +290,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
         const start = this.rangeStart.value;
         const end = this.rangeEnd.value;
         if (!start?.isValid || !end?.isValid) return;
-        this.pageIndex.set(0);
+        this._resetVisiblePages();
         this.loadData();
     };
 
     filterByEndpoint = (code: string): void => {
         this.serviceFilter = code;
-        this.pageIndex.set(0);
+        this._resetVisiblePages();
         this.loadData();
         this._cdr.markForCheck();
     };
@@ -256,51 +319,64 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
     clearFilters = (): void => {
         this.searchText = '';
-        this.statusFilter = 'all';
         this.serviceFilter = '';
         this.datePreset = 'all';
         this.rangeStart.setValue(null, { emitEvent: false });
         this.rangeEnd.setValue(null, { emitEvent: false });
-        this.pageIndex.set(0);
+        this._resetVisiblePages();
         this.loadData();
         this._cdr.markForCheck();
     };
 
-    onPaginatorEvent = (event: PageEvent): void => {
-        this.pageIndex.set(event.pageIndex);
-        this.pageSize.set(event.pageSize);
-        this.loadData();
+    onPaginatorEvent = (sectionId: HistorySectionId, event: PageEvent): void => {
+        const section = this.sections()[sectionId];
+        const pageSizeChanged = event.pageSize !== section.pageSize;
+        this._patchSection(sectionId, {
+            pageIndex: pageSizeChanged ? 0 : event.pageIndex,
+            pageSize: event.pageSize,
+        });
+        this._reloadSection(sectionId);
     };
 
-    onPageSizeChange = (pageSize: number): void => {
-        if (!pageSize || pageSize === this.pageSize()) return;
-        this.pageIndex.set(0);
-        this.pageSize.set(pageSize);
-        this.loadData();
+    onPageSizeChange = (sectionId: HistorySectionId, pageSize: number): void => {
+        const section = this.sections()[sectionId];
+        if (!pageSize || pageSize === section.pageSize) return;
+        this._patchSection(sectionId, { pageIndex: 0, pageSize });
+        this._reloadSection(sectionId);
     };
+
+    sectionTitleKey = (id: HistorySectionId): string => this._sectionCopy[id].title;
+
+    sectionSubtitleKey = (id: HistorySectionId): string => this._sectionCopy[id].subtitle;
+
+    sectionEmptyTitleKey = (id: HistorySectionId): string => this._sectionCopy[id].emptyTitle;
+
+    sectionEmptySubtitleKey = (id: HistorySectionId): string => this._sectionCopy[id].emptySubtitle;
+
+    sectionIcon = (id: HistorySectionId): string => this._sectionCopy[id].icon;
+
+    sectionIconWellClass = (id: HistorySectionId): string => this._sectionCopy[id].iconWell;
 
     openDetail = (request: ApiRequest, event?: Event): void => {
         if (this.mode() !== 'credits') return;
         event?.stopPropagation();
-        this.selectedRequest.set(request);
-        this.detailLoading.set(true);
-        this.detailDrawer?.open();
-        this._historyService.getRequestDetail(request._id).subscribe({
-            next: (res) => {
-                this.selectedRequest.set({ ...request, ...res.data });
-                this.detailLoading.set(false);
-                this._cdr.markForCheck();
-            },
-            error: () => {
-                this.detailLoading.set(false);
-                this._cdr.markForCheck();
-            },
-        });
-    };
-
-    closeDetail = (): void => {
-        this.detailDrawer?.close();
-        this.selectedRequest.set(null);
+        this._dialog
+            .open<HistoryRequestDialogComponent, ApiRequest, HistoryRequestDialogResult | undefined>(
+                HistoryRequestDialogComponent,
+                {
+                    data: request,
+                    autoFocus: false,
+                    width: '32rem',
+                    maxWidth: 'calc(100vw - 2rem)',
+                    maxHeight: 'min(40rem, calc(100dvh - 2rem))',
+                    panelClass: 'history-request-dialog',
+                }
+            )
+            .afterClosed()
+            .pipe(takeUntil(this._destroy$))
+            .subscribe((result) => {
+                if (result?.repeat) this.repeatRequest(result.request);
+            });
     };
 
     copyText = (text: string): void => {
@@ -359,6 +435,9 @@ export class HistoryComponent implements OnInit, OnDestroy {
         return this._t('history.statusSuccess');
     };
 
+    isNotCharged = (row?: { historyStatus?: string; status?: string; statusCode?: number } | null): boolean =>
+        this.resolveHistoryStatus(row) === 'pending';
+
     hasDynamicQueryBilling = (request: ApiRequest): boolean => isDynamicQueryPremiumAdjustment(request);
 
     getDynamicQueryTooltipKey = (): string => 'history.dynamicQuery.tooltip';
@@ -394,22 +473,23 @@ export class HistoryComponent implements OnInit, OnDestroy {
     };
 
     /**
-     * Downloads every filtered row (not just the current page) as Excel, CSV, or JSON.
+     * Downloads every row in one log (not just the current page) as Excel, CSV, or JSON.
      */
-    exportList = async (format: HistoryExportFormat): Promise<void> => {
-        if (this.exporting() || this.total() === 0) return;
-        this.exporting.set(true);
-        this._cdr.markForCheck();
+    exportList = async (format: HistoryExportFormat, sectionId: HistorySectionId): Promise<void> => {
+        const section = this.sections()[sectionId];
+        if (section.exporting || section.total === 0) return;
+        this._patchSection(sectionId, { exporting: true });
         try {
-            const { rows, total } = await this._collectExportRows();
-            if (!rows.length) {
+            const { rows, total } = await this._collectExportRows(sectionId);
+            const sorted = this._sortByDateDesc(rows);
+            if (!sorted.length) {
                 this._snack.open(this._t('history.exportEmpty'), undefined, { duration: 3000 });
                 return;
             }
-            this._writeExportFile(format, rows);
-            if (total > rows.length) {
+            this._writeExportFile(format, sorted, sectionId);
+            if (total > sorted.length) {
                 this._snack.open(
-                    this._t('history.exportTruncated', { exported: rows.length, total }),
+                    this._t('history.exportTruncated', { exported: sorted.length, total }),
                     undefined,
                     { duration: 4500 }
                 );
@@ -417,7 +497,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         } catch {
             this._snack.open(this._t('history.exportFailed'), undefined, { duration: 3000 });
         } finally {
-            this.exporting.set(false);
+            this._patchSection(sectionId, { exporting: false });
             this._cdr.markForCheck();
         }
     };
@@ -441,19 +521,57 @@ export class HistoryComponent implements OnInit, OnDestroy {
                 : ['service', 'transactionHash', 'amount', 'date', 'actions'];
     };
 
-    private _applyRows = (rows?: ApiRequest[]): void => {
-        this.dataSource.data = rows ?? this.requests();
+    private _reloadSection = (sectionId: HistorySectionId): void => {
+        this._patchSection(sectionId, { loading: true });
+        if (sectionId === 'x402') {
+            this._reloadX402$.next();
+            return;
+        }
+        this._sectionReload$[sectionId].next();
+    };
+
+    private _patchSection = (id: HistorySectionId, patch: Partial<HistorySectionState>): void => {
+        this.sections.update((current) => ({
+            ...current,
+            [id]: { ...current[id], ...patch },
+        }));
+    };
+
+    private _applyFetched = (id: HistorySectionId, response: ApiRequestResponse): void => {
+        this._patchSection(id, {
+            rows: response.data || [],
+            total: response.total || 0,
+            loading: false,
+        });
         this._cdr.markForCheck();
     };
 
-    private _buildFilterParams = (): HistoryListParams => {
+    private _resetVisiblePages = (): void => {
+        const ids: HistorySectionId[] = this.mode() === 'x402' ? ['x402'] : [...CREDIT_SECTIONS];
+        ids.forEach((id) => this._patchSection(id, { pageIndex: 0 }));
+    };
+
+    private _fetchCreditSection = (bucket: HistoryStatus): Observable<ApiRequestResponse> =>
+        this._historyService.listForExport(this._buildFilterParams(bucket)).pipe(catchError(() => of(emptyListResponse())));
+
+    private _fetchX402Section = (): Observable<ApiRequestResponse> => {
+        const wallet = this._walletService.getAddress();
+        const section = this.sections().x402;
+        if (!wallet) return of(emptyListResponse());
+        return this._historyService
+            .listPublicForExport(wallet, section.pageIndex + 1, section.pageSize)
+            .pipe(catchError(() => of(emptyListResponse())));
+    };
+
+    private _buildFilterParams = (bucket: HistoryStatus): HistoryListParams => {
+        const section = this.sections()[bucket];
         const params: HistoryListParams = {
-            page: this.pageIndex() + 1,
-            limit: this.pageSize(),
+            page: section.pageIndex + 1,
+            limit: section.pageSize,
+            historyBucket: bucket,
         };
         if (this.searchText) params.like_code = this.searchText.toLowerCase();
         if (this.serviceFilter) params.where_code = this.serviceFilter;
-        params.historyBucket = this.statusFilter;
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
             Object.assign(params, createdAtRangeParams(range.start, range.end));
@@ -478,13 +596,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
         return { start: start.startOf('day'), end: end.endOf('day') };
     };
 
-    private _collectExportRows = async (): Promise<{ rows: ApiRequest[]; total: number }> => {
+    private _collectExportRows = async (sectionId: HistorySectionId): Promise<{ rows: ApiRequest[]; total: number }> => {
         const rows: ApiRequest[] = [];
         let page = 1;
         let total = 0;
         let pages = 1;
         while (rows.length < EXPORT_MAX && page <= pages) {
-            const response = await this._fetchExportPage(page);
+            const response = await this._fetchExportPage(sectionId, page);
             total = response.total || 0;
             pages = response.pages || 1;
             rows.push(...(response.data || []));
@@ -494,23 +612,39 @@ export class HistoryComponent implements OnInit, OnDestroy {
         return { rows: rows.slice(0, EXPORT_MAX), total };
     };
 
-    private _fetchExportPage = (page: number): Promise<ApiRequestResponse> => {
-        if (this.mode() === 'credits') {
-            return firstValueFrom(
-                this._historyService.listForExport({
-                    ...this._buildFilterParams(),
-                    page,
-                    limit: EXPORT_PAGE_SIZE,
-                })
-            );
+    private _fetchExportPage = (sectionId: HistorySectionId, page: number): Promise<ApiRequestResponse> => {
+        if (sectionId === 'x402') {
+            const wallet = this._walletService.getAddress();
+            if (!wallet) return Promise.resolve({ data: [], total: 0, limit: EXPORT_PAGE_SIZE, page, pages: 0 });
+            return firstValueFrom(this._historyService.listPublicForExport(wallet, page, EXPORT_PAGE_SIZE));
         }
-        const wallet = this._walletService.getAddress();
-        if (!wallet) return Promise.resolve({ data: [], total: 0, limit: EXPORT_PAGE_SIZE, page, pages: 0 });
-        return firstValueFrom(this._historyService.listPublicForExport(wallet, page, EXPORT_PAGE_SIZE));
+        return firstValueFrom(
+            this._historyService.listForExport({
+                ...this._buildFilterParams(sectionId),
+                page,
+                limit: EXPORT_PAGE_SIZE,
+            })
+        );
     };
 
-    private _writeExportFile = (format: HistoryExportFormat, rows: ApiRequest[]): void => {
-        const fileName = this._exportFileName(format);
+    private _sortByDateDesc = (rows: ApiRequest[]): ApiRequest[] =>
+        [...rows].sort((left, right) => this._rowTime(right) - this._rowTime(left));
+
+    private _rowTime = (row: ApiRequest): number => {
+        if (row.createdAt) {
+            const parsed = DateTime.fromISO(row.createdAt);
+            if (parsed.isValid) return parsed.toMillis();
+        }
+        if (typeof row.timestamp === 'number') return row.timestamp;
+        if (typeof row.timestamp === 'string') {
+            const parsed = DateTime.fromISO(row.timestamp);
+            if (parsed.isValid) return parsed.toMillis();
+        }
+        return 0;
+    };
+
+    private _writeExportFile = (format: HistoryExportFormat, rows: ApiRequest[], sectionId: HistorySectionId): void => {
+        const fileName = this._exportFileName(format, sectionId);
         if (format === 'json') {
             const payload = rows.map((row) => this._mapExportJson(row));
             this._downloadBlob(
@@ -562,12 +696,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
         [this._t('history.table.amount')]: row.paymentAmount ?? '',
     });
 
-    private _exportFileName = (format: HistoryExportFormat): string => {
+    private _exportFileName = (format: HistoryExportFormat, sectionId: HistorySectionId): string => {
         const range = this._dateRangeForPreset(this.datePreset);
         const from = range?.start.toFormat('yyyy-MM-dd') ?? 'all';
         const to = range?.end.toFormat('yyyy-MM-dd') ?? 'all';
         const stamp = DateTime.now().toFormat('yyyy-MM-dd_HHmm');
-        return `smartcheck-history_${from}_${to}_${stamp}.${format}`;
+        return `smartcheck-history_${sectionId}_${from}_${to}_${stamp}.${format}`;
     };
 
     private _downloadBlob = (blob: Blob, fileName: string): void => {

@@ -4,11 +4,6 @@
     min-height: 0;
     min-width: 0;
     width: 100%;
-}
-
-.history-drawer-container {
-    width: 100%;
-    min-height: 0;
 
     mat-icon {
         display: inline-flex;
@@ -19,17 +14,6 @@
     mat-button-toggle-group {
         border-radius: 0.75rem;
         overflow: hidden;
-    }
-
-    .mat-drawer-content {
-        width: 100%;
-        overflow: visible;
-    }
-
-    .history-drawer {
-        .mat-drawer-inner-container {
-            overflow: hidden;
-        }
     }
 
     .history-date-range {

@@ -1,0 +1,17 @@
+.history-request-dialog {
+    .mat-mdc-dialog-container {
+        --mdc-dialog-container-shape: 1rem;
+    }
+
+    .mdc-dialog__surface {
+        border-radius: 1rem;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    mat-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
