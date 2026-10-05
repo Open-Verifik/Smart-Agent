@@ -31,15 +31,14 @@ export const FLOW_RESULT_ID = 'flow-result';
 
 export const FLOW_NODE_WIDTH = 288;
 export const FLOW_HEADER_HEIGHT = 58;
-export const FLOW_PORT_HEIGHT = 28;
+export const FLOW_PORT_HEIGHT = 32;
 
 export const emptyFlowGraph = (): FlowGraph => ({
     nodes: [
         { id: FLOW_START_ID, kind: 'start', x: 48, y: 160 },
-        { id: FLOW_MERGE_ID, kind: 'merge', x: 920, y: 200 },
-        { id: FLOW_RESULT_ID, kind: 'result', x: 1240, y: 200 },
+        { id: FLOW_RESULT_ID, kind: 'result', x: 920, y: 200 },
     ],
-    edges: [{ id: 'e-merge-result', from: FLOW_MERGE_ID, fromPort: '*', to: FLOW_RESULT_ID, toPort: '*' }],
+    edges: [],
     fixed: {},
 });
 
@@ -127,10 +126,10 @@ export const addEndpointNode = (
     y: number
 ): FlowGraph => {
     if (!feature._id || usedFeatureIds(graph).includes(feature._id)) return graph;
-    return {
+    return ensureResultSinks({
         ...graph,
         nodes: [...graph.nodes, { id: feature._id, kind: 'endpoint', feature, x, y }],
-    };
+    });
 };
 
 export const connectPorts = (
@@ -178,7 +177,7 @@ export const autoConnect = (
 };
 
 export const removeFlowNode = (graph: FlowGraph, id: string): FlowGraph => {
-    if (id === FLOW_START_ID || id === FLOW_MERGE_ID || id === FLOW_RESULT_ID) return graph;
+    if (id === FLOW_START_ID || id === FLOW_RESULT_ID) return graph;
     const { [id]: _removed, ...fixed } = graph.fixed;
     return {
         nodes: graph.nodes.filter((node) => node.id !== id),
@@ -248,16 +247,24 @@ export const startOutputPorts = (graph: FlowGraph, profiles: Record<string, Chai
     return [...fields];
 };
 
-export const attachLeafsToMerge = (graph: FlowGraph): FlowGraph => {
-    const endpoints = endpointNodes(graph);
-    const hasOutgoingToEndpoint = new Set(
-        graph.edges.filter((edge) => endpointNodes(graph).some((node) => node.id === edge.to)).map((edge) => edge.from)
-    );
-    const leaves = endpoints.filter((node) => !hasOutgoingToEndpoint.has(node.id));
-    let next = graph;
-    for (const leaf of leaves) {
-        if (outgoingEdges(next, leaf.id, '*').some((edge) => edge.to === FLOW_MERGE_ID)) continue;
-        next = connectPorts(next, leaf.id, '*', FLOW_MERGE_ID, leaf.id);
+/** Every lookup finishes at Resultado final (the report). Drops the old merge block. */
+export const ensureResultSinks = (graph: FlowGraph): FlowGraph => {
+    let next: FlowGraph = {
+        ...graph,
+        nodes: graph.nodes.filter((node) => node.kind !== 'merge' && node.id !== FLOW_MERGE_ID),
+        edges: graph.edges
+            .filter((edge) => edge.from !== FLOW_MERGE_ID && edge.to !== FLOW_MERGE_ID)
+            .map((edge) => edge),
+    };
+    if (!next.nodes.some((node) => node.id === FLOW_RESULT_ID && node.kind === 'result')) {
+        next = {
+            ...next,
+            nodes: [...next.nodes, { id: FLOW_RESULT_ID, kind: 'result', x: 920, y: 200 }],
+        };
+    }
+    for (const node of endpointNodes(next)) {
+        if (outgoingEdges(next, node.id, '*').some((edge) => edge.to === FLOW_RESULT_ID)) continue;
+        next = connectPorts(next, node.id, '*', FLOW_RESULT_ID, node.id);
     }
     return next;
 };
@@ -282,50 +289,160 @@ export const layoutFlowGraph = (graph: FlowGraph): FlowGraph => {
         const column = depth.get(node.id) ?? 1;
         columns.set(column, [...(columns.get(column) ?? []), node]);
     }
-    const placed = graph.nodes.map((node) => {
-        if (node.kind === 'start') return { ...node, x: 40, y: 180 };
-        if (node.kind === 'merge') {
-            const maxDepth = Math.max(1, ...depth.values());
-            return { ...node, x: 80 + (maxDepth + 1) * 340, y: 200 };
-        }
-        if (node.kind === 'result') {
-            const maxDepth = Math.max(1, ...depth.values());
-            return { ...node, x: 80 + (maxDepth + 2) * 340, y: 200 };
-        }
-        const column = depth.get(node.id) ?? 1;
-        const siblings = columns.get(column) ?? [];
-        const index = siblings.findIndex((item) => item.id === node.id);
-        return { ...node, x: 80 + column * 340, y: 48 + index * 220 };
-    });
+    const placed = graph.nodes
+        .filter((node) => node.kind !== 'merge' && node.id !== FLOW_MERGE_ID)
+        .map((node) => {
+            if (node.kind === 'start') return { ...node, x: 40, y: 180 };
+            if (node.kind === 'result') {
+                const maxDepth = Math.max(1, ...depth.values());
+                return { ...node, x: 80 + (maxDepth + 1) * 340, y: 200 };
+            }
+            const column = depth.get(node.id) ?? 1;
+            const siblings = columns.get(column) ?? [];
+            const index = siblings.findIndex((item) => item.id === node.id);
+            return { ...node, x: 80 + column * 340, y: 48 + index * 220 };
+        });
     return { ...graph, nodes: placed };
 };
 
 export const graphFromLinearChain = (
     features: AppFeature[],
-    profiles: Record<string, ChainProfile>
+    _profiles: Record<string, ChainProfile> = {}
 ): FlowGraph => {
     let graph = emptyFlowGraph();
     features.forEach((feature, index) => {
         graph = addEndpointNode(graph, feature, 80 + (index + 1) * 340, 160);
     });
-    const nodes = endpointNodes(graph);
-    if (nodes[0]) graph = autoConnect(graph, FLOW_START_ID, nodes[0].id, profiles);
-    for (let index = 1; index < nodes.length; index += 1) {
-        graph = autoConnect(graph, nodes[index - 1].id, nodes[index].id, profiles);
-        const leftover = (profiles[nodes[index].id]?.inputs ?? []).filter(
-            (field) => !incomingEdge(graph, nodes[index].id, field)
-        );
-        for (const field of leftover) {
-            graph = connectPorts(graph, FLOW_START_ID, field, nodes[index].id, field);
-        }
-    }
-    return layoutFlowGraph(attachLeafsToMerge(graph));
+    return layoutFlowGraph(graph);
 };
 
 export const sameFlowFeatures = (graph: FlowGraph, features: AppFeature[]): boolean => {
     const current = usedFeatureIds(graph);
     const next = features.map((feature) => feature._id).filter(Boolean);
     return current.length === next.length && current.every((id, index) => id === next[index]);
+};
+
+export const sameFlowFeatureSet = (graph: FlowGraph, features: AppFeature[]): boolean => {
+    const current = new Set(usedFeatureIds(graph));
+    const next = features.map((feature) => feature._id).filter(Boolean);
+    return current.size === next.length && next.every((id) => current.has(id));
+};
+
+const layoutSnapshot = (graph: FlowGraph) => ({
+    nodes: graph.nodes.map((node) => ({
+        id: node.id,
+        kind: node.kind,
+        x: node.x,
+        y: node.y,
+        featureId: node.feature?._id ?? null,
+    })),
+    edges: graph.edges.map((edge) => ({
+        from: edge.from,
+        fromPort: edge.fromPort,
+        to: edge.to,
+        toPort: edge.toPort,
+    })),
+    fixed: Object.fromEntries(
+        Object.entries(graph.fixed ?? {}).filter(([, fields]) => Object.keys(fields).length)
+    ),
+});
+
+export const sameFlowLayout = (left: FlowGraph, right: FlowGraph): boolean =>
+    JSON.stringify(layoutSnapshot(left)) === JSON.stringify(layoutSnapshot(right));
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    Boolean(value && typeof value === 'object' && !Array.isArray(value));
+
+export const parseFlowGraph = (value: unknown): FlowGraph | null => {
+    if (!isRecord(value) || !Array.isArray(value['nodes']) || !Array.isArray(value['edges'])) return null;
+    const nodes: FlowGraphNode[] = [];
+    for (const raw of value['nodes']) {
+        if (!isRecord(raw) || typeof raw['id'] !== 'string' || typeof raw['kind'] !== 'string') return null;
+        if (raw['kind'] === 'merge' || raw['id'] === FLOW_MERGE_ID) continue;
+        if (raw['kind'] !== 'start' && raw['kind'] !== 'endpoint' && raw['kind'] !== 'result') {
+            return null;
+        }
+        const x = Number(raw['x']);
+        const y = Number(raw['y']);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+        const feature = raw['feature'];
+        nodes.push({
+            id: raw['id'],
+            kind: raw['kind'],
+            x,
+            y,
+            ...(isRecord(feature) && typeof feature['_id'] === 'string'
+                ? { feature: feature as unknown as AppFeature }
+                : {}),
+        });
+    }
+    if (!nodes.some((node) => node.id === FLOW_START_ID && node.kind === 'start')) return null;
+    const edges: FlowGraphEdge[] = [];
+    for (const raw of value['edges']) {
+        if (!isRecord(raw)) return null;
+        const id = typeof raw['id'] === 'string' ? raw['id'] : nextEdgeId();
+        let from = raw['from'];
+        let fromPort = raw['fromPort'];
+        let to = raw['to'];
+        let toPort = raw['toPort'];
+        if (
+            typeof from !== 'string' ||
+            typeof fromPort !== 'string' ||
+            typeof to !== 'string' ||
+            typeof toPort !== 'string'
+        ) {
+            return null;
+        }
+        if (from === FLOW_MERGE_ID) continue;
+        const dest = to === FLOW_MERGE_ID ? FLOW_RESULT_ID : to;
+        const destPort = to === FLOW_MERGE_ID ? from : toPort;
+        edges.push({ id, from, fromPort, to: dest, toPort: destPort });
+    }
+    const fixed: Record<string, Record<string, string>> = {};
+    if (isRecord(value['fixed'])) {
+        for (const [nodeId, fields] of Object.entries(value['fixed'])) {
+            if (!isRecord(fields)) continue;
+            const next: Record<string, string> = {};
+            for (const [field, item] of Object.entries(fields)) {
+                if (typeof item === 'string') next[field] = item;
+            }
+            if (Object.keys(next).length) fixed[nodeId] = next;
+        }
+    }
+    return ensureResultSinks({ nodes, edges, fixed });
+};
+
+export const hydrateFlowGraph = (graph: FlowGraph, features: AppFeature[]): FlowGraph => {
+    const byId = new Map(features.filter((feature) => feature._id).map((feature) => [feature._id, feature]));
+    return ensureResultSinks({
+        ...graph,
+        nodes: graph.nodes.map((node) => {
+            if (node.kind !== 'endpoint' || !node.feature?._id) return node;
+            const fresh = byId.get(node.feature._id);
+            return fresh ? { ...node, feature: fresh } : node;
+        }),
+    });
+};
+
+/** Feed later steps only from wires the user drew (not from a guessed cascade). */
+export const chainStepFeedTemplatesFromGraph = (
+    graph: FlowGraph,
+    features: AppFeature[]
+): Record<string, string>[] => {
+    const ordered = flattenFlowGraph(graph);
+    const seqById = new Map(ordered.map((feature, index) => [feature._id, index + 1]));
+    const indexById = new Map(features.map((feature, index) => [feature._id, index]));
+    const templates = features.map(() => ({} as Record<string, string>));
+    for (const edge of graph.edges) {
+        if (edge.from === FLOW_START_ID || edge.from === FLOW_MERGE_ID) continue;
+        if (edge.to === FLOW_MERGE_ID || edge.to === FLOW_RESULT_ID) continue;
+        if (edge.toPort === '*' || edge.fromPort === '*') continue;
+        const fromSeq = seqById.get(edge.from);
+        const toIndex = indexById.get(edge.to);
+        if (!fromSeq || toIndex == null) continue;
+        templates[toIndex][edge.toPort] = `{{results.${fromSeq}.${edge.fromPort}}}`;
+    }
+    return templates;
 };
 
 export const portCenter = (

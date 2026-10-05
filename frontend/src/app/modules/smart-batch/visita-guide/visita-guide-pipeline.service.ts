@@ -10,6 +10,7 @@ import {
 } from '../smart-batch.service';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import { chainStepFeedTemplates } from '../endpoint-chain.util';
+import { chainStepFeedTemplatesFromGraph, endpointNodes, FlowGraph } from '../endpoint-flow-graph.util';
 import { defaultSystemKey, GuideEntity, GUIDE_COUNTRIES } from './visita-guide.catalog';
 
 export interface GuidePipelineResult {
@@ -50,7 +51,8 @@ export class VisitaGuidePipelineService {
         iso: string,
         name: string,
         selectedFeatures: AppFeature[] = [],
-        executor: SmartBatchExecutor = 'queue'
+        executor: SmartBatchExecutor = 'queue',
+        graph?: FlowGraph
     ): Promise<GuidePipelineResult> {
         const unique = [...new Set(entities)];
         if (unique.length === 0) throw new Error('no entities');
@@ -70,7 +72,8 @@ export class VisitaGuidePipelineService {
                     template: cloned.data.template,
                 },
                 selectedFeatures,
-                unique
+                unique,
+                graph
             );
         }
 
@@ -185,13 +188,14 @@ export class VisitaGuidePipelineService {
             configuration: populated.data,
             template,
         };
-        return this._applySelection(mixedResult, selectedFeatures, unique);
+        return this._applySelection(mixedResult, selectedFeatures, unique, graph);
     }
 
     private async _applySelection(
         result: GuidePipelineResult,
         selectedFeatures: AppFeature[],
-        entities: GuideEntity[]
+        entities: GuideEntity[],
+        graph?: FlowGraph
     ): Promise<GuidePipelineResult> {
         if (!selectedFeatures.length) return result;
 
@@ -205,7 +209,10 @@ export class VisitaGuidePipelineService {
         }
 
         const seqMap = new Map<number, number>();
-        const feedTemplates = chainStepFeedTemplates(selectedFeatures);
+        const feedTemplates =
+            graph && endpointNodes(graph).length
+                ? chainStepFeedTemplatesFromGraph(graph, selectedFeatures)
+                : chainStepFeedTemplates(selectedFeatures);
         const steps: BatchStep[] = selectedFeatures.map((feature, index) => {
             const previous = previousById.get(feature._id);
             const sequence = index + 1;

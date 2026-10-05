@@ -21,7 +21,7 @@ import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_
 import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
-import { FlowGraph } from '../endpoint-flow-graph.util';
+import { endpointNodes, flattenFlowGraph, FlowGraph, hydrateFlowGraph, usedFeatureIds } from '../endpoint-flow-graph.util';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
@@ -77,6 +77,7 @@ import {
     readScratchDraft,
     writeScratchDraft,
 } from './visita-guide-scratch-draft';
+import { clearFlowDraft, readFlowDraft, writeFlowDraft } from './visita-guide-flow-draft';
 import { parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
 import {
     availableCountries,
@@ -300,6 +301,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             features,
         }));
     });
+    private readonly _flowDraftEffect = effect(() => {
+        const graph = this._state.flowGraph();
+        const inputValues = this._state.inputValues();
+        const features = this._state.selectedFeatures();
+        untracked(() => {
+            if (!this._guideUrlReady) return;
+            if (!endpointNodes(graph).length) {
+                if (!features.length && !this._pendingFeatureIds.length) clearFlowDraft();
+                return;
+            }
+            writeFlowDraft({ graph, inputValues });
+        });
+    });
 
     intent = this._state.intent;
     entities = this._state.entities;
@@ -388,6 +402,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     visibleSteps = this._state.visibleSteps;
     isMixed = this._state.isMixed;
     selectedFeatures = this._state.selectedFeatures;
+    flowGraph = this._state.flowGraph;
     endpointSearchQuery = this._state.endpointSearchQuery;
     requiredParamFilters = this._state.requiredParamFilters;
 
@@ -1140,6 +1155,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._pendingFeatureIds = [];
         this._state.resetAll();
         clearScratchDraft();
+        clearFlowDraft();
         void this._router.navigate(['/smart-batch'], { queryParams: {}, replaceUrl: true });
     }
 
@@ -5061,7 +5077,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this.countryIsos()[0] ?? 'co',
                 pipelineName(this.entities()),
                 this.selectedFeatures(),
-                this.executor() === 'browser' ? 'browser' : 'queue'
+                this.executor() === 'browser' ? 'browser' : 'queue',
+                this._state.flowGraph()
             );
             if (!this._alive) return;
 
@@ -5224,8 +5241,22 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _applyPendingFeatureIds(): void {
         const ids = new Set(this._pendingFeatureIds);
         if (!ids.size || !this.availableFeatures().length) return;
-        const selected = this.availableFeatures().filter((feature) => ids.has(feature._id));
-        if (selected.length) this._state.selectedFeatures.set(selected);
+        const catalog = this.availableFeatures();
+        const draft = readFlowDraft();
+        const draftIds = draft ? usedFeatureIds(draft.graph) : [];
+        const draftMatches =
+            draftIds.length === ids.size && draftIds.every((id) => ids.has(id));
+        if (draft && draftMatches) {
+            const graph = hydrateFlowGraph(draft.graph, catalog);
+            this._state.flowGraph.set(graph);
+            this._state.selectedFeatures.set(flattenFlowGraph(graph));
+            if (draft.inputValues && Object.keys(draft.inputValues).length) {
+                this._state.inputValues.set(draft.inputValues);
+            }
+        } else {
+            const selected = catalog.filter((feature) => ids.has(feature._id));
+            if (selected.length) this._state.selectedFeatures.set(selected);
+        }
         this._pendingFeatureIds = [];
     }
 

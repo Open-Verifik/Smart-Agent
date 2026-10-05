@@ -607,6 +607,7 @@
                             <endpoint-chain-board
                                 [features]="visibleEndpointFeatures()"
                                 [chain]="selectedFeatures()"
+                                [flowGraph]="flowGraph()"
                                 [query]="endpointSearchQuery()"
                                 [loading]="isLoadingFeatures()"
                                 (queryChange)="endpointSearchQuery.set($event)"

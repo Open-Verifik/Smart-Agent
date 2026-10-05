@@ -22,28 +22,30 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
     addEndpointNode,
-    attachLeafsToMerge,
-    autoConnect,
     connectPorts,
     cubicWire,
     emptyFlowGraph,
+    ensureResultSinks,
     endpointNodes as listEndpointNodes,
     fieldsLikelyCompatible,
     flattenFlowGraph,
-    FLOW_MERGE_ID,
+    FLOW_HEADER_HEIGHT,
     FLOW_NODE_WIDTH,
     FLOW_RESULT_ID,
     FLOW_START_ID,
     FlowGraph,
     FlowGraphNode,
     incomingEdge,
+    outgoingEdges,
     layoutFlowGraph,
     moveFlowNode,
     nodeById,
     portCenter,
     removeFlowEdge,
     removeFlowNode,
+    sameFlowFeatureSet,
     sameFlowFeatures,
+    sameFlowLayout,
     setFixedValue,
     startOutputPorts,
     usedFeatureIds,
@@ -141,68 +143,18 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
     ],
     host: { class: 'flex min-h-0 flex-1 flex-col' },
     template: `
-        <div class="grid min-h-0 flex-1 gap-3 xl:grid-cols-[18rem_minmax(0,1fr)_18rem]" cdkDropListGroup>
-            <section class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <div class="shrink-0 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
-                    <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowLibrary' | transloco }}</p>
-                    <input
-                        type="search"
-                        class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-sky-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                        [placeholder]="'visitaGuide.endpointsSearch' | transloco"
-                        [value]="query()"
-                        (input)="queryChange.emit($any($event.target).value)"
-                    />
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        <button type="button" class="inline-flex h-8 items-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700" (click)="clearFlow()">
-                            {{ 'visitaGuide.clearEndpoints' | transloco }}
-                        </button>
-                        <span class="text-[11px] text-slate-400">{{ selectedCountLabel() }}</span>
-                    </div>
-                </div>
-                <div class="min-h-0 flex-1 overflow-y-auto p-2">
-                    @if (loading() && !tray().length) {
-                        <div class="flex flex-col items-center gap-3 py-10">
-                            <mat-spinner diameter="36"></mat-spinner>
-                        </div>
-                    }
-                    @for (group of trayGroups(); track group.id) {
-                        <p class="sticky top-0 z-[1] mb-1 flex items-center gap-1 bg-white px-1 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-gray-900">
-                            <mat-icon class="!h-4 !w-4 !text-base">{{ group.icon }}</mat-icon>
-                            {{ group.labelKey | transloco }}
-                        </p>
-                        <div cdkDropList [cdkDropListData]="group.items" [cdkDropListSortingDisabled]="true" class="mb-3 flex flex-col gap-1.5">
-                            @for (feature of group.items; track feature._id) {
-                                <div
-                                    cdkDrag
-                                    [cdkDragData]="trayDrag(feature)"
-                                    class="cursor-grab rounded-xl border bg-white p-2 dark:bg-gray-950"
-                                    [ngClass]="tone(feature)"
-                                    (dblclick)="attachToSelected(feature)"
-                                >
-                                    <div *cdkDragPlaceholder class="h-2"></div>
-                                    <div class="flex items-start gap-2">
-                                        <mat-icon class="mt-1 !h-4 !w-4 !text-base text-slate-400">drag_indicator</mat-icon>
-                                        <div class="min-w-0 flex-1">
-                                            <p class="truncate text-sm font-medium text-slate-900 dark:text-white">{{ name(feature) }}</p>
-                                            <div class="mt-0.5 flex flex-wrap gap-1">
-                                                @for (chip of paramChips(feature); track chip.field) {
-                                                    <span class="rounded-full border px-1.5 py-px text-[10px] font-medium" [ngClass]="chipClass(chip.required)">{{ fieldLabel(chip.field) }}</span>
-                                                }
-                                            </div>
-                                        </div>
-                                        <button type="button" class="text-slate-400" (mousedown)="$event.stopPropagation()" (click)="attachToSelected(feature); $event.stopPropagation()">
-                                            <mat-icon>add</mat-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-            </section>
-
-            <section class="flow-canvas flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-800">
+        <div class="relative flex min-h-0 flex-1 flex-col" cdkDropListGroup>
+            <section class="flow-canvas relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-800">
                 <div class="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3 py-2 dark:border-gray-800">
+                    <button
+                        type="button"
+                        class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-200"
+                        [matTooltip]="(libraryOpen() ? 'visitaGuide.flowHideLibrary' : 'visitaGuide.flowShowLibrary') | transloco"
+                        (click)="toggleLibrary()"
+                    >
+                        <mat-icon>{{ libraryOpen() ? 'chevron_left' : 'menu' }}</mat-icon>
+                        {{ 'visitaGuide.flowLibrary' | transloco }}
+                    </button>
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowCanvas' | transloco }}</p>
                         <p class="truncate text-[11px] text-slate-500">{{ 'visitaGuide.flowWiresHint' | transloco }}</p>
@@ -210,10 +162,20 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                     <button type="button" mat-icon-button (click)="zoomBy(-0.1)"><mat-icon>remove</mat-icon></button>
                     <button type="button" mat-icon-button (click)="zoomBy(0.1)"><mat-icon>add</mat-icon></button>
                     <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowAutoLayout' | transloco" (click)="autoLayout()"><mat-icon>account_tree</mat-icon></button>
+                    <button
+                        type="button"
+                        class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-200"
+                        [matTooltip]="(configOpen() ? 'visitaGuide.flowHideConfig' : 'visitaGuide.flowShowConfig') | transloco"
+                        (click)="toggleConfig()"
+                    >
+                        {{ 'visitaGuide.flowConfig' | transloco }}
+                        <mat-icon>{{ configOpen() ? 'chevron_right' : 'tune' }}</mat-icon>
+                    </button>
                 </div>
+                <div class="relative min-h-0 flex-1">
                 <div
                     #viewport
-                    class="relative min-h-0 flex-1 overflow-hidden"
+                    class="absolute inset-0 overflow-hidden"
                     cdkDropList
                     cdkDropListId="endpoint-chain-canvas"
                     [cdkDropListData]="dropBucket('endpoint-chain-canvas')"
@@ -228,19 +190,43 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                 <path
                                     [attr.d]="wire.d"
                                     fill="none"
-                                    stroke-width="2.5"
-                                    class="pointer-events-stroke cursor-pointer"
-                                    [attr.stroke]="wire.color"
-                                    (click)="removeEdge(wire.id); $event.stopPropagation()"
+                                    stroke="transparent"
+                                    stroke-width="18"
+                                    class="cursor-pointer"
+                                    [class.pointer-events-stroke]="!wire.locked"
+                                    [class.pointer-events-none]="wire.locked"
+                                    (click)="selectWire(wire.id); $event.stopPropagation()"
+                                    (pointerdown)="$event.stopPropagation()"
+                                />
+                                <path
+                                    [attr.d]="wire.d"
+                                    fill="none"
+                                    [attr.stroke-width]="selectedWireId() === wire.id ? 4 : 2.5"
+                                    class="pointer-events-none"
+                                    [attr.stroke]="selectedWireId() === wire.id ? '#0369a1' : wire.color"
                                 />
                             }
                             @if (previewPath(); as preview) {
                                 <path [attr.d]="preview" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="6 4" />
                             }
                         </svg>
+                        @if (selectedWire(); as wire) {
+                            <button
+                                type="button"
+                                class="absolute z-30 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-200 bg-white text-red-600 shadow-lg hover:bg-red-50 dark:border-red-800 dark:bg-gray-900 dark:text-red-400"
+                                [style.left.px]="wire.mx"
+                                [style.top.px]="wire.my"
+                                [matTooltip]="'visitaGuide.flowDeleteWire' | transloco"
+                                (pointerdown)="$event.stopPropagation()"
+                                (click)="removeEdge(wire.id); $event.stopPropagation()"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-xl">delete</mat-icon>
+                            </button>
+                        }
                         @for (node of graph().nodes; track node.id) {
+                            @if (node.kind !== 'merge') {
                             <div
-                                class="absolute rounded-2xl shadow-sm ring-1"
+                                class="absolute z-10 rounded-2xl shadow-sm ring-1"
                                 [style.left.px]="node.x"
                                 [style.top.px]="node.y"
                                 [style.width.px]="nodeWidth(node)"
@@ -248,7 +234,7 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                 [class.ring-2]="selectedId() === node.id"
                                 [class.ring-sky-500]="selectedId() === node.id"
                                 (pointerdown)="onNodePointerDown($event, node)"
-                                (click)="selectedId.set(node.id)"
+                                (click)="onNodeClick(node)"
                             >
                                 <div class="flex items-center gap-2 px-3 pt-3">
                                     <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-700 dark:bg-gray-900">
@@ -266,45 +252,178 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                         </button>
                                     }
                                 </div>
-                                <div class="mt-2 space-y-0 pb-2">
-                                    @for (port of inputPorts(node); track port; let i = $index) {
-                                        <div class="relative flex h-7 items-center pl-4 pr-3 text-[11px] text-slate-600 dark:text-slate-300">
+                                <div class="mt-2 grid grid-cols-2 gap-x-2 pb-2">
+                                    <div>
+                                    @for (port of inputPorts(node); track port) {
+                                        <div
+                                            data-flow-port
+                                            class="relative flex h-8 items-center pl-5 pr-1 text-[11px] text-slate-600 dark:text-slate-300"
+                                            [class.bg-sky-100]="isHotInput(node, port)"
+                                            [class.dark:bg-sky-950]="isHotInput(node, port)"
+                                            (pointerdown)="onInputPortDown($event, node, port)"
+                                        >
                                             <button
                                                 type="button"
-                                                class="absolute -left-1.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-slate-400 shadow"
+                                                class="absolute -left-2 z-20 h-4 w-4 rounded-full border-2 border-white bg-slate-400 shadow"
                                                 [class.bg-sky-500]="!!boundSource(node.id, port)"
-                                                (pointerdown)="onInputPortDown($event, node, port)"
+                                                [class.ring-2]="isHotInput(node, port)"
+                                                [class.ring-sky-400]="isHotInput(node, port)"
                                             ></button>
-                                            <span class="truncate">{{ fieldLabel(port) }}</span>
-                                            @if (boundSource(node.id, port); as source) {
-                                                <span class="ml-auto truncate pl-2 text-[10px] text-sky-700 dark:text-sky-300">{{ source }}</span>
-                                            }
+                                            <span class="min-w-0 truncate">{{ portLabel(node, port) }}</span>
                                         </div>
                                     }
-                                    @for (port of outputPorts(node); track port; let i = $index) {
-                                        <div class="relative flex h-7 items-center justify-end pl-3 pr-4 text-[11px] font-medium text-slate-700 dark:text-slate-200">
-                                            <span class="truncate">{{ fieldLabel(port) }}</span>
+                                    </div>
+                                    <div>
+                                    @for (port of outputPorts(node); track port) {
+                                        <div
+                                            data-flow-port
+                                            class="relative flex h-8 cursor-crosshair items-center justify-end pl-1 pr-5 text-[11px] font-medium text-slate-700 dark:text-slate-200"
+                                            (pointerdown)="onOutputPortDown($event, node, port)"
+                                        >
+                                            <span class="min-w-0 truncate">{{ fieldLabel(port) }}</span>
                                             <button
                                                 type="button"
-                                                class="absolute -right-1.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500 shadow"
+                                                class="absolute -right-2 z-20 h-4 w-4 rounded-full border-2 border-white bg-emerald-500 shadow"
+                                                [class.ring-2]="hasOutgoing(node.id, port)"
+                                                [class.ring-emerald-300]="hasOutgoing(node.id, port)"
                                                 (pointerdown)="onOutputPortDown($event, node, port)"
                                             ></button>
                                         </div>
                                     }
+                                    </div>
                                 </div>
                                 @if (node.kind === 'endpoint') {
                                     <button
                                         type="button"
                                         class="mb-2 ml-3 inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-800"
                                         (pointerdown)="$event.stopPropagation()"
-                                        (click)="selectedId.set(node.id)"
+                                        (click)="selectNode(node.id)"
                                     >
                                         {{ 'visitaGuide.flowAddBranch' | transloco }}
                                     </button>
                                 }
                             </div>
+                            }
                         }
                     </div>
+                </div>
+
+                    @if (libraryOpen()) {
+                        <aside class="absolute inset-y-2 left-2 z-20 flex w-[min(26rem,46vw)] min-w-[18rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-xl backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
+                            <div class="flex shrink-0 items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
+                                <p class="min-w-0 flex-1 text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowLibrary' | transloco }}</p>
+                                <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideLibrary' | transloco" (click)="libraryOpen.set(false)">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+                            <div class="shrink-0 space-y-2 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
+                                <input
+                                    type="search"
+                                    class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-sky-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                    [placeholder]="'visitaGuide.endpointsSearch' | transloco"
+                                    [value]="query()"
+                                    (input)="queryChange.emit($any($event.target).value)"
+                                />
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <button type="button" class="inline-flex h-8 items-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700" (click)="clearFlow()">
+                                        {{ 'visitaGuide.clearEndpoints' | transloco }}
+                                    </button>
+                                    <span class="text-[11px] text-slate-400">{{ selectedCountLabel() }}</span>
+                                </div>
+                            </div>
+                            <div class="min-h-0 flex-1 overflow-y-auto p-3">
+                                @if (loading() && !tray().length) {
+                                    <div class="flex flex-col items-center gap-3 py-10">
+                                        <mat-spinner diameter="36"></mat-spinner>
+                                    </div>
+                                }
+                                @for (group of trayGroups(); track group.id) {
+                                    <p class="sticky top-0 z-[1] mb-1.5 flex items-center gap-1 bg-white/95 px-1 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-gray-900/95">
+                                        <mat-icon class="!h-4 !w-4 !text-base">{{ group.icon }}</mat-icon>
+                                        {{ group.labelKey | transloco }}
+                                    </p>
+                                    <div cdkDropList [cdkDropListData]="group.items" [cdkDropListSortingDisabled]="true" class="mb-4 flex flex-col gap-2">
+                                        @for (feature of group.items; track feature._id) {
+                                            <div
+                                                cdkDrag
+                                                [cdkDragData]="trayDrag(feature)"
+                                                class="cursor-grab rounded-xl border bg-white p-3 dark:bg-gray-950"
+                                                [ngClass]="tone(feature)"
+                                                (dblclick)="attachToSelected(feature)"
+                                            >
+                                                <div *cdkDragPlaceholder class="h-2"></div>
+                                                <div class="flex items-start gap-2">
+                                                    <mat-icon class="mt-1 !h-4 !w-4 !text-base text-slate-400">drag_indicator</mat-icon>
+                                                    <div class="min-w-0 flex-1">
+                                                        <p class="text-sm font-medium leading-snug text-slate-900 dark:text-white">{{ name(feature) }}</p>
+                                                        <div class="mt-1.5 flex flex-wrap gap-1">
+                                                            @for (chip of paramChips(feature); track chip.field) {
+                                                                <span class="rounded-full border px-1.5 py-px text-[10px] font-medium" [ngClass]="chipClass(chip.required)">{{ fieldLabel(chip.field) }}</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="text-slate-400" (mousedown)="$event.stopPropagation()" (click)="attachToSelected(feature); $event.stopPropagation()">
+                                                        <mat-icon>add</mat-icon>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </aside>
+                    }
+
+                    @if (configOpen()) {
+                        <aside class="absolute inset-y-2 right-2 z-20 flex w-[min(22rem,40vw)] min-w-[16rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-xl backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
+                            <div class="flex shrink-0 items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
+                                <p class="min-w-0 flex-1 text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowConfig' | transloco }}</p>
+                                <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideConfig' | transloco" (click)="configOpen.set(false)">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
+                            <div class="min-h-0 flex-1 overflow-y-auto p-3">
+                                @if (selectedNode(); as node) {
+                                    <p class="text-sm font-medium text-slate-900 dark:text-white">{{ nodeTitle(node) }}</p>
+                                    @if (node.feature) {
+                                        <p class="mt-1 font-mono text-[11px] text-slate-500">{{ requestLabel(node.feature) }}</p>
+                                        <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowInputs' | transloco }}</p>
+                                        @for (port of inputPorts(node); track port) {
+                                            <div class="mt-2 rounded-xl border border-slate-200 p-2 dark:border-gray-800">
+                                                <p class="text-xs font-medium text-slate-800 dark:text-slate-100">{{ fieldLabel(port) }}</p>
+                                                <p class="mt-1 text-[11px] text-sky-700 dark:text-sky-300">{{ boundSource(node.id, port) || ('visitaGuide.flowAskUser' | transloco) }}</p>
+                                                <select
+                                                    class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    (change)="onSourcePick(node, port, $any($event.target).value)"
+                                                >
+                                                    <option value="">{{ 'visitaGuide.flowAskUser' | transloco }}</option>
+                                                    <option value="start">{{ 'visitaGuide.flowFromStart' | transloco }}</option>
+                                                    @for (option of sourceOptions(node.id, port); track option.id) {
+                                                        <option [value]="option.id">{{ option.label }}</option>
+                                                    }
+                                                    @if (enumsFor(node, port).length) {
+                                                        @for (value of enumsFor(node, port); track value) {
+                                                            <option [value]="'fixed:' + value">{{ 'visitaGuide.flowFixedValue' | transloco }} {{ value }}</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        }
+                                        <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowOutputs' | transloco }}</p>
+                                        <div class="mt-2 flex flex-wrap gap-1">
+                                            @for (port of outputPorts(node); track port) {
+                                                <span class="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">{{ fieldLabel(port) }}</span>
+                                            }
+                                        </div>
+                                    } @else {
+                                        <p class="mt-3 text-sm text-slate-500">{{ inspectorHint(node) }}</p>
+                                    }
+                                } @else {
+                                    <p class="text-sm text-slate-500">{{ 'visitaGuide.flowInspectorEmpty' | transloco }}</p>
+                                }
+                            </div>
+                        </aside>
+                    }
                 </div>
                 <div class="shrink-0 border-t border-slate-200 p-2 dark:border-gray-800">
                     <button
@@ -315,52 +434,6 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                     >
                         {{ 'visitaGuide.continue' | transloco }}
                     </button>
-                </div>
-            </section>
-
-            <section class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <div class="border-b border-slate-100 px-3 py-2 dark:border-gray-800">
-                    <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowConfig' | transloco }}</p>
-                </div>
-                <div class="min-h-0 flex-1 overflow-y-auto p-3">
-                    @if (selectedNode(); as node) {
-                        <p class="text-sm font-medium text-slate-900 dark:text-white">{{ nodeTitle(node) }}</p>
-                        @if (node.feature) {
-                            <p class="mt-1 font-mono text-[11px] text-slate-500">{{ requestLabel(node.feature) }}</p>
-                            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowInputs' | transloco }}</p>
-                            @for (port of inputPorts(node); track port) {
-                                <div class="mt-2 rounded-xl border border-slate-200 p-2 dark:border-gray-800">
-                                    <p class="text-xs font-medium text-slate-800 dark:text-slate-100">{{ fieldLabel(port) }}</p>
-                                    <p class="mt-1 text-[11px] text-sky-700 dark:text-sky-300">{{ boundSource(node.id, port) || ('visitaGuide.flowAskUser' | transloco) }}</p>
-                                    <select
-                                        class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                        (change)="onSourcePick(node, port, $any($event.target).value)"
-                                    >
-                                        <option value="">{{ 'visitaGuide.flowAskUser' | transloco }}</option>
-                                        <option value="start">{{ 'visitaGuide.flowFromStart' | transloco }}</option>
-                                        @for (option of sourceOptions(node.id, port); track option.id) {
-                                            <option [value]="option.id">{{ option.label }}</option>
-                                        }
-                                        @if (enumsFor(node, port).length) {
-                                            @for (value of enumsFor(node, port); track value) {
-                                                <option [value]="'fixed:' + value">{{ 'visitaGuide.flowFixedValue' | transloco }} {{ value }}</option>
-                                            }
-                                        }
-                                    </select>
-                                </div>
-                            }
-                            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowOutputs' | transloco }}</p>
-                            <div class="mt-2 flex flex-wrap gap-1">
-                                @for (port of outputPorts(node); track port) {
-                                    <span class="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">{{ fieldLabel(port) }}</span>
-                                }
-                            </div>
-                        } @else {
-                            <p class="mt-3 text-sm text-slate-500">{{ inspectorHint(node) }}</p>
-                        }
-                    } @else {
-                        <p class="text-sm text-slate-500">{{ 'visitaGuide.flowInspectorEmpty' | transloco }}</p>
-                    }
                 </div>
             </section>
         </div>
@@ -389,6 +462,7 @@ export class EndpointChainBoardComponent {
 
     features = input<AppFeature[]>([]);
     chain = input<AppFeature[]>([]);
+    flowGraph = input<FlowGraph | null>(null);
     query = input('');
     loading = input(false);
 
@@ -403,6 +477,9 @@ export class EndpointChainBoardComponent {
     profiles = signal<Record<string, ChainProfile>>({});
     graph = signal<FlowGraph>(emptyFlowGraph());
     selectedId = signal<string | null>(FLOW_START_ID);
+    selectedWireId = signal<string | null>(null);
+    libraryOpen = signal(true);
+    configOpen = signal(false);
     zoom = signal(1);
     panX = signal(0);
     panY = signal(0);
@@ -412,6 +489,8 @@ export class EndpointChainBoardComponent {
     private readonly _dropBuckets = new Map<string, unknown[]>();
     private _panning: { x: number; y: number; panX: number; panY: number } | null = null;
     private _moving: { id: string; dx: number; dy: number } | null = null;
+    private _panelsBeforeMove: { library: boolean; config: boolean } | null = null;
+    private _didMove = false;
 
     dropBucket(id: string): unknown[] {
         let bucket = this._dropBuckets.get(id);
@@ -437,6 +516,7 @@ export class EndpointChainBoardComponent {
 
     readonly endpointNodes = computed(() => listEndpointNodes(this.graph()));
     readonly selectedNode = computed(() => nodeById(this.graph(), this.selectedId() ?? '') ?? null);
+    readonly selectedWire = computed(() => this.wires().find((wire) => wire.id === this.selectedWireId()) ?? null);
     readonly worldTransform = computed(() => `translate(${this.panX()}px, ${this.panY()}px) scale(${this.zoom()})`);
 
     readonly wires = computed(() => {
@@ -445,20 +525,23 @@ export class EndpointChainBoardComponent {
             .map((edge) => {
                 const from = nodeById(graph, edge.from);
                 const to = nodeById(graph, edge.to);
-                if (!from || !to) return null;
+                if (!from || !to || from.kind === 'merge' || to.kind === 'merge') return null;
                 const fromPorts = this.outputPorts(from);
                 const toPorts = this.inputPorts(to);
                 const fromIndex = Math.max(0, fromPorts.indexOf(edge.fromPort));
                 const toIndex = Math.max(0, toPorts.indexOf(edge.toPort));
-                const start = portCenter(from, 'out', fromIndex, this.inputPorts(from).length);
+                const start = portCenter(from, 'out', fromIndex, 0);
                 const end = portCenter(to, 'in', toIndex, 0);
                 return {
                     id: edge.id,
                     d: cubicWire(start, end),
+                    mx: (start.x + end.x) / 2,
+                    my: (start.y + end.y) / 2,
                     color: fieldsLikelyCompatible(edge.fromPort, edge.toPort) || edge.fromPort === '*' ? '#0ea5e9' : '#f59e0b',
+                    locked: edge.to === FLOW_RESULT_ID,
                 };
             })
-            .filter((wire): wire is { id: string; d: string; color: string } => !!wire);
+            .filter((wire): wire is { id: string; d: string; mx: number; my: number; color: string; locked: boolean } => !!wire);
     });
 
     readonly previewPath = computed(() => {
@@ -467,7 +550,7 @@ export class EndpointChainBoardComponent {
         const from = nodeById(this.graph(), link.from);
         if (!from) return '';
         const ports = this.outputPorts(from);
-        const start = portCenter(from, 'out', Math.max(0, ports.indexOf(link.fromPort)), this.inputPorts(from).length);
+        const start = portCenter(from, 'out', Math.max(0, ports.indexOf(link.fromPort)), 0);
         return cubicWire(start, this.cursor());
     });
 
@@ -478,10 +561,19 @@ export class EndpointChainBoardComponent {
 
     private readonly _syncTreeEffect = effect(() => {
         const incoming = this.chain();
+        const saved = this.flowGraph();
         untracked(() => {
+            if (saved && sameFlowFeatureSet(saved, incoming) && listEndpointNodes(saved).length) {
+                const next = ensureResultSinks(saved);
+                if (!sameFlowLayout(this.graph(), next)) {
+                    this.graph.set(next);
+                    this._emit();
+                }
+                return;
+            }
             if (sameFlowFeatures(this.graph(), incoming)) return;
             this.graph.set(graphFromLinearChain(incoming, this.profiles()));
-            this.selectedId.set(incoming[0]?._id ?? FLOW_START_ID);
+            this.selectNode(incoming[0]?._id ?? FLOW_START_ID, false);
         });
     });
 
@@ -494,18 +586,24 @@ export class EndpointChainBoardComponent {
             this.panY.set(this._panning.panY + (event.clientY - this._panning.y));
         }
         if (this._moving) {
+            this._hidePanelsForMove();
             this.graph.set(moveFlowNode(this.graph(), this._moving.id, point.x - this._moving.dx, point.y - this._moving.dy));
         }
     }
 
     @HostListener('document:pointerup', ['$event'])
     onPointerUp(event: PointerEvent): void {
+        const wasMoving = Boolean(this._moving);
         this._panning = null;
         this._moving = null;
+        if (wasMoving) {
+            this._restorePanelsAfterMove();
+            if (this._didMove) this._emit();
+        }
         const link = this.linking();
         if (!link) return;
         this.linking.set(null);
-        const target = this._hitInputPort(this._toWorld(event));
+        const target = this._hitInputPort(this._toWorld(event), link.from);
         if (!target) return;
         this._connect(link.from, link.fromPort, target.nodeId, target.port);
     }
@@ -520,20 +618,36 @@ export class EndpointChainBoardComponent {
         if (event.target !== event.currentTarget && !(event.target as HTMLElement).classList.contains('flow-world')) {
             return;
         }
+        this.configOpen.set(false);
+        this.selectedWireId.set(null);
         this._panning = { x: event.clientX, y: event.clientY, panX: this.panX(), panY: this.panY() };
     }
 
     onNodePointerDown(event: PointerEvent, node: FlowGraphNode): void {
-        if ((event.target as HTMLElement).closest('button')) return;
+        if ((event.target as HTMLElement).closest('button, [data-flow-port]')) return;
         event.stopPropagation();
         const point = this._toWorld(event);
+        this._didMove = false;
         this._moving = { id: node.id, dx: point.x - node.x, dy: point.y - node.y };
+        this.selectedWireId.set(null);
         this.selectedId.set(node.id);
+    }
+
+    onNodeClick(node: FlowGraphNode): void {
+        if (this._didMove) {
+            this._didMove = false;
+            return;
+        }
+        this.selectNode(node.id);
     }
 
     onOutputPortDown(event: PointerEvent, node: FlowGraphNode, port: string): void {
         event.stopPropagation();
         event.preventDefault();
+        this._moving = null;
+        this.libraryOpen.set(false);
+        this.configOpen.set(false);
+        this.selectedWireId.set(null);
         this.linking.set({ from: node.id, fromPort: port });
         this.cursor.set(this._toWorld(event));
     }
@@ -556,16 +670,51 @@ export class EndpointChainBoardComponent {
         this._emit();
     }
 
+    toggleLibrary(): void {
+        const next = !this.libraryOpen();
+        this.libraryOpen.set(next);
+        if (next) this.configOpen.set(false);
+    }
+
+    toggleConfig(): void {
+        const next = !this.configOpen();
+        this.configOpen.set(next);
+        if (next) this.libraryOpen.set(false);
+    }
+
+    private _hidePanelsForMove(): void {
+        if (this._panelsBeforeMove) return;
+        this._didMove = true;
+        this._panelsBeforeMove = { library: this.libraryOpen(), config: this.configOpen() };
+        this.libraryOpen.set(false);
+        this.configOpen.set(false);
+    }
+
+    private _restorePanelsAfterMove(): void {
+        const previous = this._panelsBeforeMove;
+        this._panelsBeforeMove = null;
+        if (!previous) return;
+        this.libraryOpen.set(previous.library);
+        this.configOpen.set(previous.config);
+    }
+
+    selectNode(id: string, revealConfig = true): void {
+        this.selectedId.set(id);
+        if (!revealConfig) return;
+        this.configOpen.set(true);
+        this.libraryOpen.set(false);
+        this.selectedWireId.set(null);
+    }
+
     nodeWidth(node: FlowGraphNode): number {
         return node.kind === 'endpoint' ? FLOW_NODE_WIDTH : 220;
     }
 
     inputPorts(node: FlowGraphNode): string[] {
         if (node.kind === 'start') return [];
-        if (node.kind === 'result') return ['*'];
-        if (node.kind === 'merge') {
+        if (node.kind === 'result') {
             return this.graph()
-                .edges.filter((edge) => edge.to === FLOW_MERGE_ID)
+                .edges.filter((edge) => edge.to === FLOW_RESULT_ID)
                 .map((edge) => edge.toPort);
         }
         return this.profiles()[node.id]?.inputs ?? [];
@@ -573,7 +722,6 @@ export class EndpointChainBoardComponent {
 
     outputPorts(node: FlowGraphNode): string[] {
         if (node.kind === 'start') return startOutputPorts(this.graph(), this.profiles());
-        if (node.kind === 'merge') return ['*'];
         if (node.kind === 'result') return [];
         const outputs = this.profiles()[node.id]?.outputs ?? [];
         return [...outputs.slice(0, 8), '*'];
@@ -587,6 +735,16 @@ export class EndpointChainBoardComponent {
         const from = nodeById(this.graph(), edge.from);
         if (!from) return '';
         return `${this.fieldLabel(edge.fromPort)} · ${this.nodeTitle(from)}`;
+    }
+
+    hasOutgoing(nodeId: string, port: string): boolean {
+        return outgoingEdges(this.graph(), nodeId, port).length > 0;
+    }
+
+    isHotInput(node: FlowGraphNode, port: string): boolean {
+        const link = this.linking();
+        if (!link || link.from === node.id) return false;
+        return fieldsLikelyCompatible(link.fromPort, port) || link.fromPort === '*' || port === '*';
     }
 
     sourceOptions(nodeId: string, port: string): { id: string; label: string }[] {
@@ -631,27 +789,23 @@ export class EndpointChainBoardComponent {
 
     inspectorHint(node: FlowGraphNode): string {
         if (node.kind === 'start') return this._transloco.translate('visitaGuide.flowStartHint');
-        if (node.kind === 'merge') return this._transloco.translate('visitaGuide.flowMergeHint');
         return this._transloco.translate('visitaGuide.flowResultHint');
     }
 
     nodeTitle(node: FlowGraphNode): string {
         if (node.kind === 'start') return this._transloco.translate('visitaGuide.flowStart');
-        if (node.kind === 'merge') return this._transloco.translate('visitaGuide.flowMerge');
         if (node.kind === 'result') return this._transloco.translate('visitaGuide.flowResult');
         return node.feature ? this.name(node.feature) : node.id;
     }
 
     nodeIcon(node: FlowGraphNode): string {
         if (node.kind === 'start') return 'play_arrow';
-        if (node.kind === 'merge') return 'call_merge';
         if (node.kind === 'result') return 'inventory_2';
         return node.feature ? this.icon(node.feature) : 'hub';
     }
 
     nodeTone(node: FlowGraphNode): string {
         if (node.kind === 'start') return 'bg-emerald-50 ring-emerald-200 dark:bg-emerald-950 dark:ring-emerald-800';
-        if (node.kind === 'merge') return 'bg-violet-50 ring-violet-200 dark:bg-violet-950 dark:ring-violet-800';
         if (node.kind === 'result') return 'bg-rose-50 ring-rose-200 dark:bg-rose-950 dark:ring-rose-800';
         return node.feature ? this.tone(node.feature) : 'bg-white';
     }
@@ -660,6 +814,14 @@ export class EndpointChainBoardComponent {
         if (field === '*') return this._transloco.translate('visitaGuide.flowFullResponse');
         const key = paramFieldLabelKey(field);
         return this._transloco.translate(key, { field: humanizeParamField(field) });
+    }
+
+    portLabel(node: FlowGraphNode, port: string): string {
+        if (node.kind === 'result') {
+            const source = nodeById(this.graph(), port);
+            if (source) return this.nodeTitle(source);
+        }
+        return this.fieldLabel(port);
     }
 
     tone(feature: AppFeature): string {
@@ -700,23 +862,36 @@ export class EndpointChainBoardComponent {
         const origin = selected && selected.kind === 'endpoint' ? selected : nodeById(this.graph(), FLOW_START_ID);
         const x = (origin?.x ?? 40) + 340;
         const y = (origin?.y ?? 180) + this.endpointNodes().length * 24;
-        this._place(feature, x, y, origin?.id);
+        this._place(feature, x, y);
     }
 
     clearFlow(): void {
         this.graph.set(emptyFlowGraph());
-        this.selectedId.set(FLOW_START_ID);
+        this.selectNode(FLOW_START_ID, false);
+        this.libraryOpen.set(true);
+        this.configOpen.set(false);
         this._emit();
     }
 
     removeNode(id: string): void {
         this.graph.set(removeFlowNode(this.graph(), id));
-        this.selectedId.set(FLOW_START_ID);
+        this.selectNode(FLOW_START_ID, false);
+        this.configOpen.set(false);
         this._emit();
     }
 
+    selectWire(id: string): void {
+        const edge = this.graph().edges.find((item) => item.id === id);
+        if (edge?.to === FLOW_RESULT_ID) return;
+        this.selectedWireId.set(id);
+        this.configOpen.set(false);
+    }
+
     removeEdge(id: string): void {
+        const edge = this.graph().edges.find((item) => item.id === id);
+        if (edge?.to === FLOW_RESULT_ID) return;
         this.graph.set(removeFlowEdge(this.graph(), id));
+        this.selectedWireId.set(null);
         this._emit();
     }
 
@@ -758,21 +933,11 @@ export class EndpointChainBoardComponent {
         return isWorldCountry(feature.country);
     }
 
-    private _place(feature: AppFeature, x: number, y: number, sourceId?: string): void {
+    private _place(feature: AppFeature, x: number, y: number): void {
         if (!feature._id || usedFeatureIds(this.graph()).includes(feature._id)) return;
         this._hydrate([feature]);
-        let next = addEndpointNode(this.graph(), feature, x, y);
-        const source = sourceId ?? this.selectedId();
-        if (source && source !== feature._id) {
-            next = autoConnect(next, source, feature._id, this.profiles());
-        }
-        const leftover = (this.profiles()[feature._id]?.inputs ?? []).filter((field) => !incomingEdge(next, feature._id, field));
-        for (const field of leftover) {
-            next = connectPorts(next, FLOW_START_ID, field, feature._id, field);
-        }
-        next = attachLeafsToMerge(next);
-        this.graph.set(next);
-        this.selectedId.set(feature._id);
+        this.graph.set(addEndpointNode(this.graph(), feature, x, y));
+        this.selectNode(feature._id, false);
         this._emit();
     }
 
@@ -834,16 +999,40 @@ export class EndpointChainBoardComponent {
         };
     }
 
-    private _hitInputPort(point: { x: number; y: number }): { nodeId: string; port: string } | null {
-        for (const node of this.graph().nodes) {
+    private _hitInputPort(
+        point: { x: number; y: number },
+        excludeNodeId?: string
+    ): { nodeId: string; port: string } | null {
+        const over = this.graph().nodes.filter((node) => {
+            if (node.id === excludeNodeId) return false;
+            return this._pointInNode(point, node);
+        });
+        const candidates = over.length ? over : this.graph().nodes.filter((node) => node.id !== excludeNodeId);
+        let best: { nodeId: string; port: string; distance: number } | null = null;
+        for (const node of candidates) {
             const ports = this.inputPorts(node);
             for (let index = 0; index < ports.length; index += 1) {
                 const center = portCenter(node, 'in', index, 0);
-                if (Math.hypot(center.x - point.x, center.y - point.y) < 18) {
-                    return { nodeId: node.id, port: ports[index] };
-                }
+                const distance = Math.hypot(center.x - point.x, center.y - point.y);
+                const onLeft = point.x >= node.x - 28 && point.x <= node.x + this.nodeWidth(node) / 2 + 8;
+                const onRow = onLeft && Math.abs(center.y - point.y) <= 16;
+                if (!over.length && distance > 40 && !onRow) continue;
+                const score = onRow ? Math.min(distance, 10) : distance;
+                if (!best || score < best.distance) best = { nodeId: node.id, port: ports[index], distance: score };
             }
         }
-        return null;
+        return best ? { nodeId: best.nodeId, port: best.port } : null;
+    }
+
+    private _pointInNode(point: { x: number; y: number }, node: FlowGraphNode): boolean {
+        const width = this.nodeWidth(node);
+        const rows = Math.max(this.inputPorts(node).length, this.outputPorts(node).length, 1);
+        const height = FLOW_HEADER_HEIGHT + rows * 32 + 44;
+        return (
+            point.x >= node.x - 24 &&
+            point.x <= node.x + width + 24 &&
+            point.y >= node.y &&
+            point.y <= node.y + height
+        );
     }
 }

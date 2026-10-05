@@ -12,6 +12,7 @@ import {
     inputFieldsFor,
     intentEntity,
 } from './visita-guide.catalog';
+import { clearFlowDraft } from './visita-guide-flow-draft';
 
 export interface GuideIncludeItem {
     sequence: number;
@@ -243,5 +244,6 @@ export class VisitaGuideStateService {
         this.pdfDataUrl.set(null);
         this.step.set('intent');
         this.editingSavedLayout.set(false);
+        clearFlowDraft();
     }
 }
