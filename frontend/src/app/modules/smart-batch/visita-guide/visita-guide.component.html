@@ -7,8 +7,9 @@
     >
         <header
             class="shrink-0 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90"
-            [class.py-5]="!isLayoutStep() && !isEndpointsStep()"
-            [class.py-3]="isLayoutStep() || isEndpointsStep()"
+            [class.py-2]="isReportStudio()"
+            [class.py-5]="!isReportStudio() && !isEndpointsStep()"
+            [class.py-3]="!isReportStudio() && isEndpointsStep()"
             [class.px-5]="!isEndpointsStep()"
             [class.md:px-8]="!isEndpointsStep()"
             [class.px-3]="isEndpointsStep()"
@@ -16,13 +17,13 @@
         >
             <div
                 class="mx-auto flex w-full flex-col"
-                [class.gap-4]="!isLayoutStep() && !isEndpointsStep()"
-                [class.gap-2]="isLayoutStep() || isEndpointsStep()"
+                [class.gap-4]="!isReportStudio() && !isEndpointsStep()"
+                [class.gap-2]="isReportStudio() || isEndpointsStep()"
                 [class.max-w-3xl]="!isWideStep()"
-                [class.max-w-7xl]="isWideStep() && !isLayoutStep() && !isEndpointsStep()"
-                [class.max-w-none]="isLayoutStep() || isEndpointsStep()"
+                [class.max-w-7xl]="isWideStep() && !isReportStudio() && !isEndpointsStep()"
+                [class.max-w-none]="isReportStudio() || isEndpointsStep()"
             >
-                @if (!isLayoutStep() && !isEndpointsStep()) {
+                @if (!isReportStudio() && !isEndpointsStep()) {
                 <div
                     class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
                 >
@@ -38,31 +39,38 @@
                 </div>
                 }
 
-                <div class="flex flex-wrap items-center gap-3">
+                <div
+                    class="flex items-center gap-2"
+                    [class.flex-wrap]="!isReportStudio()"
+                    [class.gap-3]="!isReportStudio()"
+                >
                     @if (canGoBack()) {
                         <button
                             type="button"
                             (click)="goBack()"
-                            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                            class="inline-flex shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                            [class.h-9]="isReportStudio()"
+                            [class.w-9]="isReportStudio()"
+                            [class.h-10]="!isReportStudio()"
+                            [class.w-10]="!isReportStudio()"
                             [attr.aria-label]="t('visitaGuide.back')"
                         >
                             <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
                         </button>
                     }
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                            {{ t('visitaGuide.progress', { current: stepIndex() + 1, total: stepCount() }) }}
-                        </p>
-                        @if (isLayoutStep()) {
-                            <div class="mt-1 flex min-w-0 flex-wrap items-center gap-2">
-                                <h1 class="shrink-0 text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
-                                    {{ t(currentTitleKey()) }}
-                                </h1>
-                                <label class="flex min-w-0 flex-1 items-center gap-2">
+                    <div class="min-w-0" [class.flex-1]="!isReportStudio()" [class.shrink]="isReportStudio()">
+                        @if (!isReportStudio()) {
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                                {{ t('visitaGuide.progress', { current: stepIndex() + 1, total: stepCount() }) }}
+                            </p>
+                        }
+                        @if (isReportStudio()) {
+                            <div class="flex min-w-0 items-center gap-2">
+                                <label class="flex min-w-0 max-w-[16rem] items-center gap-2">
                                     <span class="sr-only">{{ t('visitaGuide.layoutTemplateName') }}</span>
                                     <input
                                         type="text"
-                                        class="h-9 min-w-[12rem] max-w-sm flex-1 rounded-lg border border-stone-200 bg-white px-3 text-sm font-medium text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-stone-500"
+                                        class="h-9 min-w-0 flex-1 truncate rounded-lg border-0 bg-transparent px-0 text-base font-semibold tracking-tight text-stone-950 outline-none placeholder:text-stone-400 dark:text-white dark:placeholder:text-stone-500"
                                         [ngModel]="reportTitle()"
                                         (ngModelChange)="setLayoutTitle($event)"
                                         [placeholder]="t('visitaGuide.layoutTemplateNamePlaceholder')"
@@ -70,7 +78,7 @@
                                     />
                                     <input
                                         type="color"
-                                        class="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-stone-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-900"
+                                        class="h-9 w-9 shrink-0 cursor-pointer rounded-xl border border-stone-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-900"
                                         [ngModel]="identityColor()"
                                         (ngModelChange)="setLayoutIdentityColor($event)"
                                         [matTooltip]="t('visitaGuide.layoutIdentifyColor')"
@@ -78,6 +86,15 @@
                                     />
                                 </label>
                             </div>
+                            <p class="sr-only">
+                                {{
+                                    t(
+                                        reportStudioTemplateId()
+                                            ? 'smartReport.editReportTemplate'
+                                            : 'smartReport.newReportTemplate'
+                                    )
+                                }}
+                            </p>
                         } @else {
                             <h1
                                 class="font-semibold tracking-tight text-stone-950 dark:text-white"
@@ -95,101 +112,164 @@
                             }
                         }
                     </div>
-                    @if (isLayoutStep()) {
-                        <div class="flex flex-wrap items-center gap-1">
+                    @if (isReportStudio()) {
+                        <div
+                            class="hidden h-9 min-w-0 shrink items-center gap-1 rounded-xl border border-stone-200 bg-stone-50 p-0.5 md:flex dark:border-gray-800 dark:bg-gray-900"
+                        >
+                            @for (studio of reportStudioSteps; track studio.key; let index = $index) {
+                                <button
+                                    type="button"
+                                    (click)="goToReportStudioStep(studio.key)"
+                                    class="inline-flex h-full items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium transition-colors"
+                                    [class.bg-white]="reportStudioStep() === studio.key"
+                                    [class.text-stone-950]="reportStudioStep() === studio.key"
+                                    [class.shadow-sm]="reportStudioStep() === studio.key"
+                                    [class.dark:bg-gray-800]="reportStudioStep() === studio.key"
+                                    [class.dark:text-white]="reportStudioStep() === studio.key"
+                                    [class.text-stone-500]="reportStudioStep() !== studio.key"
+                                    [class.hover:text-stone-800]="reportStudioStep() !== studio.key"
+                                    [class.dark:text-stone-400]="reportStudioStep() !== studio.key"
+                                    [class.dark:hover:text-stone-200]="reportStudioStep() !== studio.key"
+                                >
+                                    <span
+                                        class="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold"
+                                        [class.bg-indigo-600]="reportStudioStep() === studio.key"
+                                        [class.text-white]="reportStudioStep() === studio.key"
+                                        [class.bg-stone-200]="reportStudioStep() !== studio.key"
+                                        [class.text-stone-600]="reportStudioStep() !== studio.key"
+                                        [class.dark:bg-gray-700]="reportStudioStep() !== studio.key"
+                                        [class.dark:text-stone-300]="reportStudioStep() !== studio.key"
+                                        >{{ index + 1 }}</span
+                                    >
+                                    {{ t(studio.labelKey) }}
+                                </button>
+                            }
+                        </div>
+                        <div class="ml-auto flex shrink-0 items-center gap-1">
+                            @if (isLayoutStep()) {
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    [disabled]="!canUndoLayout()"
+                                    [matTooltip]="t('visitaGuide.layoutUndo')"
+                                    [attr.aria-label]="t('visitaGuide.layoutUndo')"
+                                    (click)="undoLayout()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[20px]">undo</mat-icon>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    [disabled]="!canRedoLayout()"
+                                    [matTooltip]="t('visitaGuide.layoutRedo')"
+                                    [attr.aria-label]="t('visitaGuide.layoutRedo')"
+                                    (click)="redoLayout()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[20px]">redo</mat-icon>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    [disabled]="!canCopySelectedLayout()"
+                                    [matTooltip]="t('visitaGuide.layoutCopyBlock')"
+                                    [attr.aria-label]="t('visitaGuide.layoutCopyBlock')"
+                                    (click)="copySelectedLayoutSection()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[20px]">content_copy</mat-icon>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    [matTooltip]="t('visitaGuide.layoutAddAll')"
+                                    [attr.aria-label]="t('visitaGuide.layoutAddAll')"
+                                    (click)="addAllCardsToLayout()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[20px]">playlist_add</mat-icon>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    [matTooltip]="t('visitaGuide.layoutUseVisita')"
+                                    [attr.aria-label]="t('visitaGuide.layoutUseVisita')"
+                                    (click)="useVisitaLayout()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[20px]">dashboard_customize</mat-icon>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    [matTooltip]="t('visitaGuide.openDesigner')"
+                                    [attr.aria-label]="t('visitaGuide.openDesigner')"
+                                    (click)="openMoldEditor()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[20px]">design_services</mat-icon>
+                                </button>
+                            }
                             <button
                                 type="button"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                [disabled]="!canUndoLayout()"
-                                [matTooltip]="t('visitaGuide.layoutUndo')"
-                                [attr.aria-label]="t('visitaGuide.layoutUndo')"
-                                (click)="undoLayout()"
-                            >
-                                <mat-icon class="!h-5 !w-5 !text-[20px]">undo</mat-icon>
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                [disabled]="!canRedoLayout()"
-                                [matTooltip]="t('visitaGuide.layoutRedo')"
-                                [attr.aria-label]="t('visitaGuide.layoutRedo')"
-                                (click)="redoLayout()"
-                            >
-                                <mat-icon class="!h-5 !w-5 !text-[20px]">redo</mat-icon>
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                [disabled]="!canCopySelectedLayout()"
-                                [matTooltip]="t('visitaGuide.layoutCopyBlock')"
-                                [attr.aria-label]="t('visitaGuide.layoutCopyBlock')"
-                                (click)="copySelectedLayoutSection()"
-                            >
-                                <mat-icon class="!h-5 !w-5 !text-[20px]">content_copy</mat-icon>
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                [matTooltip]="t('visitaGuide.layoutAddAll')"
-                                [attr.aria-label]="t('visitaGuide.layoutAddAll')"
-                                (click)="addAllCardsToLayout()"
-                            >
-                                <mat-icon class="!h-5 !w-5 !text-[20px]">playlist_add</mat-icon>
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                [matTooltip]="t('visitaGuide.layoutUseVisita')"
-                                [attr.aria-label]="t('visitaGuide.layoutUseVisita')"
-                                (click)="useVisitaLayout()"
-                            >
-                                <mat-icon class="!h-5 !w-5 !text-[20px]">dashboard_customize</mat-icon>
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                [matTooltip]="t('visitaGuide.openDesigner')"
-                                [attr.aria-label]="t('visitaGuide.openDesigner')"
-                                (click)="openMoldEditor()"
-                            >
-                                <mat-icon class="!h-5 !w-5 !text-[20px]">design_services</mat-icon>
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                [matTooltip]="t('visitaGuide.layoutEditorPage')"
-                                [attr.aria-label]="t('visitaGuide.layoutEditorPage')"
+                                class="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-stone-200 px-3 text-sm font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
                                 (click)="openLayoutPageEditor($event)"
                             >
-                                <mat-icon class="!h-5 !w-5 !text-[20px]">web_asset</mat-icon>
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">tune</mat-icon>
+                                {{ t('smartReport.documentSettings') }}
                             </button>
                             <button
                                 type="button"
-                                class="ml-1 inline-flex h-9 items-center justify-center rounded-lg border border-stone-200 px-3 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-60 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                class="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
                                 [disabled]="isSavingLayout()"
                                 (click)="saveLayoutTemplate()"
                             >
-                                {{ t('visitaGuide.layoutSave') }}
+                                <mat-icon class="!h-5 !w-5 !text-[20px]">save</mat-icon>
+                                {{ t('smartReport.saveTemplate') }}
                             </button>
-                            <button
-                                type="button"
-                                class="inline-flex h-9 items-center justify-center rounded-lg bg-stone-950 px-3 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-gray-950"
-                                [disabled]="isSavingLayout()"
-                                (click)="saveLayoutAndGenerate()"
-                            >
-                                {{
-                                    t(
-                                        mode() === 'batch'
-                                            ? 'visitaGuide.saveAndUploadCsv'
-                                            : 'visitaGuide.saveAndViewReport'
-                                    )
-                                }}
-                            </button>
+                            @if (mode() === 'batch') {
+                                <button
+                                    type="button"
+                                    class="inline-flex h-9 items-center justify-center rounded-xl bg-stone-950 px-3 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-gray-950"
+                                    [disabled]="isSavingLayout()"
+                                    (click)="saveLayoutAndGenerate()"
+                                >
+                                    {{ t('visitaGuide.saveAndUploadCsv') }}
+                                </button>
+                            }
                         </div>
                     }
                 </div>
 
-                @if (entities().length || hasCountries()) {
+                @if (isReportStudio()) {
+                    <div
+                        class="flex items-center gap-1 rounded-xl border border-stone-200 bg-stone-50 p-1 md:hidden dark:border-gray-800 dark:bg-gray-900"
+                    >
+                        @for (studio of reportStudioSteps; track studio.key; let index = $index) {
+                            <button
+                                type="button"
+                                (click)="goToReportStudioStep(studio.key)"
+                                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors"
+                                [class.bg-white]="reportStudioStep() === studio.key"
+                                [class.text-stone-950]="reportStudioStep() === studio.key"
+                                [class.shadow-sm]="reportStudioStep() === studio.key"
+                                [class.dark:bg-gray-800]="reportStudioStep() === studio.key"
+                                [class.dark:text-white]="reportStudioStep() === studio.key"
+                                [class.text-stone-500]="reportStudioStep() !== studio.key"
+                                [class.dark:text-stone-400]="reportStudioStep() !== studio.key"
+                            >
+                                <span
+                                    class="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold"
+                                    [class.bg-indigo-600]="reportStudioStep() === studio.key"
+                                    [class.text-white]="reportStudioStep() === studio.key"
+                                    [class.bg-stone-200]="reportStudioStep() !== studio.key"
+                                    [class.text-stone-600]="reportStudioStep() !== studio.key"
+                                    [class.dark:bg-gray-700]="reportStudioStep() !== studio.key"
+                                    [class.dark:text-stone-300]="reportStudioStep() !== studio.key"
+                                    >{{ index + 1 }}</span
+                                >
+                                {{ t(studio.labelKey) }}
+                            </button>
+                        }
+                    </div>
+                }
+
+                @if ((entities().length || hasCountries()) && !isReportStudio()) {
                     <div
                         class="flex flex-wrap text-xs"
                         [class.gap-2]="!isLayoutStep()"
@@ -242,16 +322,16 @@
             [class.md:px-8]="!isEndpointsStep()"
             [class.px-3]="isEndpointsStep()"
             [class.md:px-4]="isEndpointsStep()"
-            [class.py-8]="!isLayoutStep() && !isFillViewportStep()"
-            [class.md:py-10]="!isLayoutStep() && !isFillViewportStep()"
-            [class.py-3]="isLayoutStep() || isFillViewportStep()"
+            [class.py-8]="!isReportStudio() && !isFillViewportStep()"
+            [class.md:py-10]="!isReportStudio() && !isFillViewportStep()"
+            [class.py-3]="isReportStudio() || isFillViewportStep()"
             [class.min-h-0]="isFillViewportStep()"
         >
             <div
                 class="mx-auto flex w-full flex-col gap-4"
                 [class.max-w-3xl]="!isWideStep()"
-                [class.max-w-7xl]="isWideStep() && !isLayoutStep() && !isEndpointsStep()"
-                [class.max-w-none]="isLayoutStep() || isEndpointsStep()"
+                [class.max-w-7xl]="isWideStep() && !isReportStudio() && !isEndpointsStep()"
+                [class.max-w-none]="isReportStudio() || isEndpointsStep()"
                 [class.min-h-0]="isFillViewportStep()"
                 [class.flex-1]="isFillViewportStep()"
                 [class.gap-2]="isFillViewportStep()"
@@ -564,43 +644,6 @@
                                 {{ t('visitaGuide.changeCountry') }}
                             </button>
                         </div>
-                        @if (availableRequiredParamFilters().length) {
-                            <div class="flex flex-wrap items-center gap-1.5">
-                                <span class="mr-1 text-[11px] font-semibold uppercase tracking-wide text-stone-400">{{
-                                    t('visitaGuide.paramFilterTitle')
-                                }}</span>
-                                @for (field of availableRequiredParamFilters(); track field) {
-                                    <button
-                                        type="button"
-                                        class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition"
-                                        [class.border-stone-950]="isRequiredParamFilterActive(field)"
-                                        [class.bg-stone-950]="isRequiredParamFilterActive(field)"
-                                        [class.text-white]="isRequiredParamFilterActive(field)"
-                                        [class.dark:border-white]="isRequiredParamFilterActive(field)"
-                                        [class.dark:bg-white]="isRequiredParamFilterActive(field)"
-                                        [class.dark:text-gray-950]="isRequiredParamFilterActive(field)"
-                                        [class.border-stone-200]="!isRequiredParamFilterActive(field)"
-                                        [class.bg-white]="!isRequiredParamFilterActive(field)"
-                                        [class.text-stone-700]="!isRequiredParamFilterActive(field)"
-                                        [class.dark:border-gray-700]="!isRequiredParamFilterActive(field)"
-                                        [class.dark:bg-gray-950]="!isRequiredParamFilterActive(field)"
-                                        [class.dark:text-stone-200]="!isRequiredParamFilterActive(field)"
-                                        (click)="toggleRequiredParamFilter(field)"
-                                    >
-                                        {{ t(paramFilterLabelKey(field), paramFilterLabelParams(field)) }}
-                                    </button>
-                                }
-                                @if (requiredParamFilters().length) {
-                                    <button
-                                        type="button"
-                                        class="text-[11px] font-medium text-stone-500 underline-offset-4 hover:underline dark:text-stone-300"
-                                        (click)="clearRequiredParamFilters()"
-                                    >
-                                        {{ t('visitaGuide.paramFilterClear') }}
-                                    </button>
-                                }
-                            </div>
-                        }
                         @if (featuresError()) {
                             <p class="text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
                         }
@@ -610,10 +653,15 @@
                                 [flowGraph]="flowGraph()"
                                 [query]="endpointSearchQuery()"
                                 [loading]="isLoadingFeatures()"
+                                [paramFilterFields]="availableRequiredParamFilters()"
+                                [activeParamFilters]="requiredParamFilters()"
+                                [selectedCountries]="countryNames()"
                                 (queryChange)="endpointSearchQuery.set($event)"
                                 (chainChange)="setEndpointChain($event)"
                                 (graphChange)="setFlowGraph($event)"
                                 (continueChain)="confirmEndpoints()"
+                                (toggleParamFilter)="toggleRequiredParamFilter($event)"
+                                (clearParamFilters)="clearRequiredParamFilters()"
                                 (hoverEnter)="onEndpointCardEnter($event.feature, $event.event)"
                                 (hoverMove)="onEndpointCardMove($event.feature, $event.event)"
                                 (hoverLeave)="onEndpointCardLeave()"
@@ -3197,6 +3245,137 @@
                                 ></report-preview>
                             </div>
                         }
+                        @if (reportStudioStep() === 'deliver') {
+                            <div class="space-y-4">
+                                <div
+                                    class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                                >
+                                    <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('smartReport.deliverTitle') }}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                        {{ t('smartReport.deliverHint') }}
+                                    </p>
+                                    @if (!reportStudioTemplateId()) {
+                                        <p
+                                            class="mt-4 rounded-xl border border-dashed border-stone-200 px-4 py-3 text-sm text-stone-500 dark:border-gray-700 dark:text-stone-400"
+                                        >
+                                            {{ t('smartReport.saveTemplateFirst') }}
+                                        </p>
+                                    }
+                                    <div class="mt-4 flex flex-wrap gap-3">
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-medium text-white disabled:opacity-60"
+                                            [disabled]="
+                                                !reportStudioTemplateId() || isSendingSample() || isGenerating()
+                                            "
+                                            (click)="sendReportSample()"
+                                        >
+                                            @if (isSendingSample()) {
+                                                <mat-icon class="animate-spin !h-5 !w-5 !text-[20px]">refresh</mat-icon>
+                                                {{ t('smartReport.sendingSample') }}
+                                            } @else {
+                                                <mat-icon class="!h-5 !w-5 !text-[20px]">send</mat-icon>
+                                                {{ t('smartReport.sendSample') }}
+                                            }
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 disabled:opacity-60 dark:border-gray-700 dark:text-stone-200"
+                                            [disabled]="
+                                                !reportStudioTemplateId() || isGenerating() || isSendingSample()
+                                            "
+                                            (click)="generatePdf()"
+                                        >
+                                            @if (isGenerating()) {
+                                                <mat-icon class="animate-spin !h-5 !w-5 !text-[20px]">refresh</mat-icon>
+                                                {{ t('smartReport.downloadingSample') }}
+                                            } @else {
+                                                <mat-icon class="!h-5 !w-5 !text-[20px]">file_download</mat-icon>
+                                                {{ t('smartReport.downloadSample') }}
+                                            }
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                                            (click)="downloadJson()"
+                                        >
+                                            <mat-icon class="!h-5 !w-5 !text-[20px]">data_object</mat-icon>
+                                            {{ t('visitaGuide.downloadJson') }}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                                >
+                                    <div
+                                        class="flex items-center justify-between border-b border-stone-100 px-5 py-3 dark:border-gray-800"
+                                    >
+                                        <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                            {{ t('smartReport.deliveryHistory') }}
+                                        </h3>
+                                        @if (isLoadingDeliveries()) {
+                                            <span class="text-xs text-stone-400">{{ t('smartReport.rendering') }}</span>
+                                        }
+                                    </div>
+                                    @if (deliveries().length === 0) {
+                                        <p class="px-5 py-8 text-center text-sm italic text-stone-400 dark:text-stone-500">
+                                            {{ t('smartReport.noDeliveries') }}
+                                        </p>
+                                    } @else {
+                                        <div class="divide-y divide-stone-100 dark:divide-gray-800">
+                                            @for (report of deliveries(); track report._id) {
+                                                <div class="flex items-center gap-3 px-5 py-3">
+                                                    <mat-icon class="!h-5 !w-5 shrink-0 !text-xl text-stone-300">description</mat-icon>
+                                                    <div class="min-w-0 flex-1">
+                                                        <p class="truncate text-sm font-medium text-stone-800 dark:text-stone-200">
+                                                            {{ report.name || t('smartReport.untitledReport') }}
+                                                        </p>
+                                                        <p class="text-xs text-stone-400">
+                                                            {{ (report.emailHistory ?? []).length }}
+                                                            {{ t('smartReport.emailsSent') }}
+                                                        </p>
+                                                    </div>
+                                                    <span
+                                                        class="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide"
+                                                        [ngClass]="deliveryStatusClasses(report.status)"
+                                                        >{{ report.status }}</span
+                                                    >
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    @if (deliveryHistory().length > 0) {
+                                        <div class="border-t border-stone-100 px-5 py-3 dark:border-gray-800">
+                                            @for (entry of deliveryHistory(); track entry.sentAt + entry.subject) {
+                                                <div class="flex items-center gap-3 py-1.5">
+                                                    <span
+                                                        class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                                                        [ngClass]="deliveryStatusClasses(entry.status)"
+                                                        >{{ entry.status }}</span
+                                                    >
+                                                    <span class="min-w-0 flex-1 truncate text-xs text-stone-600 dark:text-stone-300">{{
+                                                        entry.recipients.join(', ')
+                                                    }}</span>
+                                                    <span class="shrink-0 text-xs text-stone-400">{{
+                                                        entry.sentAt | date: 'short'
+                                                    }}</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white dark:bg-white dark:text-gray-950"
+                                    (click)="startOver()"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-[22px]">restart_alt</mat-icon>
+                                    {{ t('visitaGuide.newConsultation') }}
+                                </button>
+                            </div>
+                        } @else {
                         <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
                             <div class="min-w-0 flex-1">
                                 <p class="mb-2 text-[11px] text-stone-400">{{ t(documentExploreHintKey()) }}</p>
@@ -3280,41 +3459,8 @@
                                     <p class="text-sm text-stone-500">{{ t('visitaGuide.needTemplate') }}</p>
                                 }
                             </div>
-                            <div
-                                class="w-full shrink-0 rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/70 lg:w-80"
-                            >
-                            <p class="text-sm text-stone-500">{{ t('visitaGuide.generateHint') }}</p>
-                            <button
-                                type="button"
-                                class="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-gray-950"
-                                [disabled]="isGenerating()"
-                                (click)="generatePdf()"
-                            >
-                                @if (isGenerating()) {
-                                    <mat-spinner diameter="18"></mat-spinner>
-                                } @else {
-                                    <mat-icon>picture_as_pdf</mat-icon>
-                                }
-                                {{ t('visitaGuide.downloadPdf') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium dark:border-gray-700"
-                                (click)="downloadJson()"
-                            >
-                                <mat-icon>data_object</mat-icon>
-                                {{ t('visitaGuide.downloadJson') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-100"
-                                (click)="startOver()"
-                            >
-                                <mat-icon class="!h-5 !w-5 !text-[22px]">restart_alt</mat-icon>
-                                {{ t('visitaGuide.newConsultation') }}
-                            </button>
-                            </div>
                         </div>
+                        }
                     }
                 }
             </div>

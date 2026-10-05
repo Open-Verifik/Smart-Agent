@@ -12,10 +12,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
-import { firstValueFrom, interval, Subscription } from 'rxjs';
+import { catchError, firstValueFrom, interval, of, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
+import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
 import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
 import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
@@ -36,7 +37,7 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, featureGroupIcon, FeatureGroupId, isSmartBatchCatalogFeature } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReportService, SmartReportTemplate, cloneReportValue } from '../smart-report.service';
+import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReport, SmartReportService, SmartReportTemplate, cloneReportValue } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
@@ -698,7 +699,29 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.step() === 'endpoints'
     );
     isLayoutStep = computed(() => this.step() === 'layout');
+    isReportStudio = computed(() => this.step() === 'layout' || this.step() === 'generate');
     isEndpointsStep = computed(() => this.step() === 'endpoints');
+    readonly reportStudioSteps = [
+        { key: 'prepare' as const, labelKey: 'smartReport.stepPrepare' },
+        { key: 'preview' as const, labelKey: 'smartReport.stepPreview' },
+        { key: 'deliver' as const, labelKey: 'smartReport.stepDeliver' },
+    ];
+    reportStudioStep = signal<'prepare' | 'preview' | 'deliver'>('prepare');
+    isSendingSample = signal(false);
+    isLoadingDeliveries = signal(false);
+    deliveries = signal<SmartReport[]>([]);
+    reportStudioTemplateId = computed(() => this.selectedTemplate()?._id ?? null);
+    deliveryHistory = computed(() =>
+        this.deliveries()
+            .flatMap((report) =>
+                (report.emailHistory ?? []).map((entry) => ({
+                    ...entry,
+                    reportName: report.name || '',
+                    reportStatus: report.status,
+                }))
+            )
+            .sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
+    );
     isFillViewportStep = computed(() => this.step() === 'country' || this.step() === 'endpoints');
 
     selectedLayoutSection = computed(() => {
@@ -1132,10 +1155,122 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (next === 'layout') this.enterLayout();
         if (next === 'include') this.ensureIncludeItems();
         this.step.set(next);
+        if (next === 'layout') this.reportStudioStep.set('prepare');
+        if (next === 'generate') this.reportStudioStep.set('preview');
+    }
+
+    goToReportStudioStep(step: 'prepare' | 'preview' | 'deliver'): void {
+        this.reportStudioStep.set(step);
+        if (step === 'prepare') {
+            this.enterLayout();
+            this.step.set('layout');
+            return;
+        }
+        this.step.set('generate');
+        if (step === 'deliver') this._loadReportDeliveries();
+    }
+
+    private _loadReportDeliveries(): void {
+        const id = this.reportStudioTemplateId();
+        if (!id) {
+            this.deliveries.set([]);
+            return;
+        }
+        this.isLoadingDeliveries.set(true);
+        this._reports
+            .getReportsByTemplate(id)
+            .pipe(
+                catchError(() => of([] as SmartReport[])),
+                takeUntilDestroyed(this._destroyRef)
+            )
+            .subscribe((reports) => {
+                this.deliveries.set(reports);
+                this.isLoadingDeliveries.set(false);
+            });
+    }
+
+    deliveryStatusClasses(status: string): string {
+        const palette: Record<string, string> = {
+            sent: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+            delivered: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+            generated: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300',
+            generating: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+            pending: 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300',
+            failed: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+            bounced: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+        };
+        return palette[status] || palette.pending;
+    }
+
+    sendReportSample(): void {
+        if (!this.reportStudioTemplateId()) {
+            this._snack.open(this._transloco.translate('smartReport.saveTemplateFirst'), undefined, {
+                duration: 3500,
+            });
+            return;
+        }
+        const lang = this._transloco.getActiveLang() === 'es' ? 'es' : 'en';
+        const defaultSubject = `Sample Report: ${this.reportTitle() || 'Template Preview'}`;
+        const dialogRef = this._dialog.open(SendSampleModalComponent, {
+            panelClass: 'send-sample-dialog',
+            maxWidth: '560px',
+            width: '95vw',
+            disableClose: false,
+            autoFocus: true,
+            data: { defaultSubject, isSample: true },
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+            if (!result?.recipients?.length) return;
+            const performSend = () => {
+                this.isSendingSample.set(true);
+                const id = this.reportStudioTemplateId();
+                if (!id) {
+                    this.isSendingSample.set(false);
+                    return;
+                }
+                this._reports
+                    .sendTemplateSample(id, {
+                        recipients: result.recipients,
+                        subject: result.subject,
+                        language: lang,
+                        sampleData: this.previewData(),
+                    })
+                    .subscribe({
+                        next: (res) => {
+                            this._snack.open(
+                                this._transloco.translate(
+                                    res.success
+                                        ? 'smartReport.samplePdfSentSuccess'
+                                        : 'smartReport.failedToSendSamplePdf'
+                                ),
+                                undefined,
+                                { duration: 3500 }
+                            );
+                            this.isSendingSample.set(false);
+                            this._loadReportDeliveries();
+                        },
+                        error: () => {
+                            this._snack.open(
+                                this._transloco.translate('smartReport.failedToSendSamplePdf'),
+                                undefined,
+                                { duration: 4000 }
+                            );
+                            this.isSendingSample.set(false);
+                        },
+                    });
+            };
+            void this.saveLayoutTemplate().then((saved) => {
+                if (saved) performSend();
+            });
+        });
     }
 
     goBack(): void {
         if (!this.canGoBack()) return;
+        if (this.isReportStudio() && this.reportStudioStep() !== 'prepare') {
+            this.goToReportStudioStep(this.reportStudioStep() === 'deliver' ? 'preview' : 'prepare');
+            return;
+        }
         if (this._state.editingSavedLayout() && this.step() === 'layout') {
             this._state.editingSavedLayout.set(false);
             void this._router.navigate(['/smart-batch', 'workspace'], {
@@ -1169,6 +1304,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     enterLayout(): void {
         this.ensureIncludeItems();
+        this.reportStudioStep.set('prepare');
         if (!this.reportTitle()) {
             this._state.reportTitle.set(pipelineName(this.entities()));
         }
@@ -1475,10 +1611,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     openLayoutPageEditor(event?: Event): void {
         event?.stopPropagation();
-        this.clearLayoutSelection();
-        this.layoutEditorDrag.set({ x: 0, y: 0 });
-        this.layoutEditorKind.set('page');
-        this._revealLayoutControls('page');
+        const open = () => {
+            this.clearLayoutSelection();
+            this.layoutEditorDrag.set({ x: 0, y: 0 });
+            this.layoutEditorKind.set('page');
+            this._revealLayoutControls('page');
+        };
+        if (this.step() !== 'layout') {
+            this.goToReportStudioStep('prepare');
+            setTimeout(open);
+            return;
+        }
+        open();
     }
 
     closeLayoutEditor(): void {
@@ -3823,6 +3967,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._continueBatchUpload();
             return;
         }
+        this.reportStudioStep.set('preview');
         this.step.set('generate');
     }
 

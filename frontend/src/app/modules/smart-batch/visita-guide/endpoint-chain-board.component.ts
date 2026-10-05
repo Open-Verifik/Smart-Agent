@@ -14,8 +14,10 @@ import {
     viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
@@ -63,7 +65,7 @@ import {
     requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
 import { FEATURE_GROUP_ICONS, featureGroup, FeatureGroupId, featureGroupIcon } from '../feature-group.util';
-import { countryFlagImageUrl, isWorldCountry } from '../smart-batch-country.util';
+import { compareFeaturesForSelectedCountry, countryFlagImageUrl, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import { AppFeature } from '../smart-batch.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
 
@@ -137,8 +139,10 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
         CommonModule,
         DragDropModule,
         MatButtonModule,
+        MatCheckboxModule,
         MatDialogModule,
         MatIconModule,
+        MatMenuModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
         TranslocoModule,
@@ -174,7 +178,7 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                         <mat-icon>{{ configOpen() ? 'chevron_right' : 'tune' }}</mat-icon>
                     </button>
                 </div>
-                <div class="relative min-h-0 flex-1">
+                <div #flowStage class="relative min-h-0 flex-1 overflow-hidden">
                 <div
                     #viewport
                     class="absolute inset-0 overflow-hidden"
@@ -239,8 +243,23 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                 (click)="onNodeClick(node)"
                             >
                                 <div class="flex items-center gap-2 px-3 pt-3">
-                                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-700 dark:bg-gray-900">
+                                    <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-slate-700 dark:bg-gray-900">
                                         <mat-icon>{{ nodeIcon(node) }}</mat-icon>
+                                        @if (node.feature) {
+                                            @if (flag(node.feature); as flagSrc) {
+                                                <img
+                                                    [src]="flagSrc"
+                                                    alt=""
+                                                    class="absolute -bottom-0.5 -right-0.5 h-3.5 w-5 rounded-[2px] object-cover shadow-sm ring-1 ring-white dark:ring-gray-900"
+                                                />
+                                            } @else if (world(node.feature)) {
+                                                <span
+                                                    class="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-5 items-center justify-center rounded-[2px] bg-white text-[9px] shadow-sm ring-1 ring-white dark:bg-gray-900 dark:ring-gray-900"
+                                                    aria-hidden="true"
+                                                    >🌐</span
+                                                >
+                                            }
+                                        }
                                     </span>
                                     <div class="min-w-0 flex-1">
                                         <p class="truncate text-sm font-semibold text-slate-900 dark:text-white">{{ nodeTitle(node) }}</p>
@@ -310,11 +329,27 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                     </div>
                 </div>
 
-                    @if (libraryOpen()) {
-                        <aside class="absolute inset-y-2 left-2 z-20 flex w-[min(26rem,46vw)] min-w-[18rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-xl backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
-                            <div class="flex shrink-0 items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
+                    <aside
+                        #libraryPanel
+                        class="flow-drawer flow-drawer-left absolute z-20 flex w-[min(26rem,46vw)] min-w-[18rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-xl backdrop-blur dark:border-gray-700 dark:bg-gray-900/95"
+                        [class.is-open]="libraryOpen()"
+                        [class.is-home]="libraryAtHome()"
+                        [class.is-dragging]="libraryDragging()"
+                        [attr.aria-hidden]="!libraryOpen()"
+                        [style.left.px]="libraryPos().x"
+                        [style.top.px]="libraryPos().y"
+                        [style.height]="libraryHeight()"
+                    >
+                            <div
+                                class="flex shrink-0 cursor-grab items-center gap-2 border-b border-slate-100 px-3 py-2 select-none active:cursor-grabbing dark:border-gray-800"
+                                (pointerdown)="onLibraryDragStart($event)"
+                                (pointermove)="onLibraryDragMove($event)"
+                                (pointerup)="onLibraryDragEnd()"
+                                (pointercancel)="onLibraryDragEnd()"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base text-slate-400">drag_indicator</mat-icon>
                                 <p class="min-w-0 flex-1 text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowLibrary' | transloco }}</p>
-                                <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideLibrary' | transloco" (click)="libraryOpen.set(false)">
+                                <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideLibrary' | transloco" (click)="libraryOpen.set(false); $event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
                                     <mat-icon>close</mat-icon>
                                 </button>
                             </div>
@@ -326,6 +361,46 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                     [value]="query()"
                                     (input)="queryChange.emit($any($event.target).value)"
                                 />
+                                @if (paramFilterFields().length) {
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-8 w-full items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 dark:border-gray-700 dark:bg-gray-950 dark:text-slate-200"
+                                        [matMenuTriggerFor]="paramFilterMenu"
+                                    >
+                                        <span class="inline-flex min-w-0 items-center gap-1.5">
+                                            <mat-icon class="!h-4 !w-4 !text-base">filter_list</mat-icon>
+                                            <span class="truncate">{{ 'visitaGuide.paramFilterTitle' | transloco }}</span>
+                                        </span>
+                                        @if (activeParamFilters().length) {
+                                            <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-950 px-1.5 text-[10px] font-bold text-white dark:bg-white dark:text-gray-950">{{
+                                                activeParamFilters().length
+                                            }}</span>
+                                        } @else {
+                                            <mat-icon class="!h-4 !w-4 !text-base text-slate-400">expand_more</mat-icon>
+                                        }
+                                    </button>
+                                    <mat-menu #paramFilterMenu="matMenu" class="visita-param-filter-menu">
+                                        @for (field of paramFilterFields(); track field) {
+                                            <button
+                                                type="button"
+                                                mat-menu-item
+                                                (click)="$event.stopPropagation(); toggleParamFilter.emit(field)"
+                                            >
+                                                <mat-checkbox
+                                                    class="pointer-events-none"
+                                                    [checked]="isParamFilterActive(field)"
+                                                >
+                                                    {{ fieldLabel(field) }}
+                                                </mat-checkbox>
+                                            </button>
+                                        }
+                                        @if (activeParamFilters().length) {
+                                            <button type="button" mat-menu-item (click)="clearParamFilters.emit()">
+                                                {{ 'visitaGuide.paramFilterClear' | transloco }}
+                                            </button>
+                                        }
+                                    </mat-menu>
+                                }
                                 <div class="flex flex-wrap items-center gap-2">
                                     <button type="button" class="inline-flex h-8 items-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700" (click)="clearFlow()">
                                         {{ 'visitaGuide.clearEndpoints' | transloco }}
@@ -352,10 +427,34 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                                 class="cursor-grab rounded-xl border bg-white p-3 dark:bg-gray-950"
                                                 [ngClass]="tone(feature)"
                                                 (dblclick)="attachToSelected(feature)"
+                                                (cdkDragStarted)="onTrayDragStart()"
+                                                (cdkDragEnded)="onTrayDragEnd()"
                                             >
                                                 <div *cdkDragPlaceholder class="h-2"></div>
                                                 <div class="flex items-start gap-2">
                                                     <mat-icon class="mt-1 !h-4 !w-4 !text-base text-slate-400">drag_indicator</mat-icon>
+                                                    <span class="relative mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700 dark:bg-gray-800 dark:text-slate-200">
+                                                        <mat-icon class="!h-5 !w-5 !text-[22px]">{{ icon(feature) }}</mat-icon>
+                                                        @if (flag(feature); as flagSrc) {
+                                                            <img
+                                                                [src]="flagSrc"
+                                                                alt=""
+                                                                class="absolute -bottom-0.5 -right-0.5 h-3.5 w-5 rounded-[2px] object-cover shadow-sm ring-1 ring-white dark:ring-gray-900"
+                                                            />
+                                                        } @else if (world(feature)) {
+                                                            <span
+                                                                class="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-5 items-center justify-center rounded-[2px] bg-white text-[9px] shadow-sm ring-1 ring-white dark:bg-gray-900 dark:ring-gray-900"
+                                                                aria-hidden="true"
+                                                                >🌐</span
+                                                            >
+                                                        } @else {
+                                                            <span
+                                                                class="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-5 items-center justify-center rounded-[2px] bg-white text-[10px] leading-none shadow-sm ring-1 ring-white dark:bg-gray-900 dark:ring-gray-900"
+                                                                aria-hidden="true"
+                                                                >{{ countryMark(feature) }}</span
+                                                            >
+                                                        }
+                                                    </span>
                                                     <div class="min-w-0 flex-1">
                                                         <p class="text-sm font-medium leading-snug text-slate-900 dark:text-white">{{ name(feature) }}</p>
                                                         <div class="mt-1.5 flex flex-wrap gap-1">
@@ -374,10 +473,12 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                 }
                             </div>
                         </aside>
-                    }
 
-                    @if (configOpen()) {
-                        <aside class="absolute inset-y-2 right-2 z-20 flex w-[min(22rem,40vw)] min-w-[16rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-xl backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
+                    <aside
+                        class="flow-drawer flow-drawer-right absolute inset-y-2 right-2 z-20 flex w-[min(22rem,40vw)] min-w-[16rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-xl backdrop-blur dark:border-gray-700 dark:bg-gray-900/95"
+                        [class.is-open]="configOpen()"
+                        [attr.aria-hidden]="!configOpen()"
+                    >
                             <div class="flex shrink-0 items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-gray-800">
                                 <p class="min-w-0 flex-1 text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowConfig' | transloco }}</p>
                                 <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowHideConfig' | transloco" (click)="configOpen.set(false)">
@@ -425,7 +526,6 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                 }
                             </div>
                         </aside>
-                    }
                 </div>
                 <div class="shrink-0 border-t border-slate-200 p-2 dark:border-gray-800">
                     <button
@@ -454,6 +554,61 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
             .pointer-events-stroke {
                 pointer-events: stroke;
             }
+            .flow-drawer {
+                pointer-events: none;
+                opacity: 0;
+                visibility: hidden;
+            }
+            .flow-drawer-left.is-home {
+                will-change: transform, opacity;
+                transform: translate3d(calc(-100% - 1rem), 0, 0);
+                transition:
+                    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 220ms ease,
+                    visibility 0s linear 380ms;
+            }
+            .flow-drawer-left.is-home.is-open {
+                pointer-events: auto;
+                opacity: 1;
+                visibility: visible;
+                transform: translate3d(0, 0, 0);
+                transition:
+                    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 180ms ease,
+                    visibility 0s;
+            }
+            .flow-drawer-left:not(.is-home) {
+                transform: none;
+                transition: none;
+            }
+            .flow-drawer-left:not(.is-home).is-open,
+            .flow-drawer-right.is-open {
+                pointer-events: auto;
+                opacity: 1;
+                visibility: visible;
+            }
+            .flow-drawer-right {
+                transform: translate3d(calc(100% + 1rem), 0, 0);
+                transition:
+                    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 220ms ease,
+                    visibility 0s linear 380ms;
+            }
+            .flow-drawer-right.is-open {
+                transform: translate3d(0, 0, 0);
+                transition:
+                    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 180ms ease,
+                    visibility 0s;
+            }
+            .flow-drawer.is-dragging {
+                transition: none;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .flow-drawer {
+                    transition: none;
+                }
+            }
         `,
     ],
 })
@@ -461,17 +616,24 @@ export class EndpointChainBoardComponent {
     private _transloco = inject(TranslocoService);
     private _confirm = inject(FuseConfirmationService);
     private readonly _viewport = viewChild<ElementRef<HTMLElement>>('viewport');
+    private readonly _flowStage = viewChild<ElementRef<HTMLElement>>('flowStage');
+    private readonly _libraryPanel = viewChild<ElementRef<HTMLElement>>('libraryPanel');
 
     features = input<AppFeature[]>([]);
     chain = input<AppFeature[]>([]);
     flowGraph = input<FlowGraph | null>(null);
     query = input('');
     loading = input(false);
+    paramFilterFields = input<string[]>([]);
+    activeParamFilters = input<string[]>([]);
+    selectedCountries = input<string[]>([]);
 
     chainChange = output<AppFeature[]>();
     graphChange = output<FlowGraph>();
     continueChain = output<void>();
     queryChange = output<string>();
+    toggleParamFilter = output<string>();
+    clearParamFilters = output<void>();
     hoverEnter = output<{ feature: AppFeature; event: MouseEvent }>();
     hoverMove = output<{ feature: AppFeature; event: MouseEvent }>();
     hoverLeave = output<void>();
@@ -482,6 +644,13 @@ export class EndpointChainBoardComponent {
     selectedWireId = signal<string | null>(null);
     libraryOpen = signal(true);
     configOpen = signal(false);
+    libraryPos = signal({ x: 8, y: 8 });
+    libraryDragging = signal(false);
+    readonly libraryAtHome = computed(() => {
+        const pos = this.libraryPos();
+        return Math.abs(pos.x - 8) < 2 && Math.abs(pos.y - 8) < 2;
+    });
+    private _libraryDrag: { px: number; py: number; x: number; y: number } | null = null;
     zoom = signal(1);
     panX = signal(0);
     panY = signal(0);
@@ -512,7 +681,9 @@ export class EndpointChainBoardComponent {
         TRAY_GROUPS.map((group) => ({
             ...group,
             icon: FEATURE_GROUP_ICONS[group.id],
-            items: this.tray().filter((feature) => featureGroup(feature) === group.id),
+            items: this.tray()
+                .filter((feature) => featureGroup(feature) === group.id)
+                .sort(compareFeaturesForSelectedCountry),
         })).filter((group) => group.items.length)
     );
 
@@ -601,6 +772,7 @@ export class EndpointChainBoardComponent {
         const wasMoving = Boolean(this._moving);
         this._panning = null;
         this._moving = null;
+        this.onLibraryDragEnd();
         if (wasMoving) {
             this._restorePanelsAfterMove();
             if (this._didMove) this._emit();
@@ -634,6 +806,7 @@ export class EndpointChainBoardComponent {
         const point = this._toWorld(event);
         this._didMove = false;
         this._moving = { id: node.id, dx: point.x - node.x, dy: point.y - node.y };
+        this._hidePanelsForMove();
         this.selectedWireId.set(null);
         this.selectedId.set(node.id);
     }
@@ -685,13 +858,61 @@ export class EndpointChainBoardComponent {
         if (next) this.configOpen.set(false);
     }
 
+    libraryHeight(): string {
+        return `calc(100% - ${this.libraryPos().y + 8}px)`;
+    }
+
+    onLibraryDragStart(event: PointerEvent): void {
+        if (!this.libraryOpen()) return;
+        const target = event.target as HTMLElement;
+        if (target.closest('button, a, input, textarea')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const pos = this.libraryPos();
+        this._libraryDrag = { px: event.clientX, py: event.clientY, x: pos.x, y: pos.y };
+        this.libraryDragging.set(true);
+        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    }
+
+    onLibraryDragMove(event: PointerEvent): void {
+        const drag = this._libraryDrag;
+        if (!drag) return;
+        event.preventDefault();
+        const stage = this._flowStage()?.nativeElement;
+        const panel = this._libraryPanel()?.nativeElement;
+        if (!stage || !panel) return;
+        const bounds = stage.getBoundingClientRect();
+        const nextX = drag.x + (event.clientX - drag.px);
+        const nextY = drag.y + (event.clientY - drag.py);
+        const maxX = Math.max(8, bounds.width - panel.offsetWidth - 8);
+        const maxY = Math.max(8, bounds.height - 120);
+        this.libraryPos.set({
+            x: Math.min(maxX, Math.max(8, nextX)),
+            y: Math.min(maxY, Math.max(8, nextY)),
+        });
+    }
+
+    onLibraryDragEnd(): void {
+        this._libraryDrag = null;
+        this.libraryDragging.set(false);
+    }
+
     toggleConfig(): void {
         const next = !this.configOpen();
         this.configOpen.set(next);
         if (next) this.libraryOpen.set(false);
     }
 
+    onTrayDragStart(): void {
+        this._hidePanelsForMove();
+    }
+
+    onTrayDragEnd(): void {
+        this._restorePanelsAfterMove();
+    }
+
     private _hidePanelsForMove(): void {
+        this.onLibraryDragEnd();
         if (this._panelsBeforeMove) return;
         this._didMove = true;
         this._panelsBeforeMove = { library: this.libraryOpen(), config: this.configOpen() };
@@ -825,6 +1046,10 @@ export class EndpointChainBoardComponent {
         return this._transloco.translate(key, { field: humanizeParamField(field) });
     }
 
+    isParamFilterActive(field: string): boolean {
+        return this.activeParamFilters().includes(field);
+    }
+
     portLabel(node: FlowGraphNode, port: string): string {
         if (node.kind === 'result') {
             const source = nodeById(this.graph(), port);
@@ -936,6 +1161,11 @@ export class EndpointChainBoardComponent {
 
     flag(feature: AppFeature): string | null {
         return countryFlagImageUrl(feature.country);
+    }
+
+    countryMark(feature: AppFeature): string {
+        if (this.world(feature)) return '🌐';
+        return getCountryFlag(feature.country);
     }
 
     world(feature: AppFeature): boolean {
