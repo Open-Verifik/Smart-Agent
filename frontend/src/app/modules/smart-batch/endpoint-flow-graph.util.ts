@@ -90,6 +90,19 @@ export const usedFeatureIds = (graph: FlowGraph): string[] =>
 export const incomingEdge = (graph: FlowGraph, nodeId: string, port: string): FlowGraphEdge | undefined =>
     graph.edges.find((edge) => edge.to === nodeId && edge.toPort === port);
 
+export const incomingEdgeForField = (
+    graph: FlowGraph,
+    nodeId: string,
+    field: string
+): FlowGraphEdge | undefined => {
+    const exact = incomingEdge(graph, nodeId, field);
+    if (exact) return exact;
+    const want = canonicalChainField(field);
+    return graph.edges.find(
+        (edge) => edge.to === nodeId && edge.toPort !== '*' && canonicalChainField(edge.toPort) === want
+    );
+};
+
 export const outgoingEdges = (graph: FlowGraph, nodeId: string, port?: string): FlowGraphEdge[] =>
     graph.edges.filter((edge) => edge.from === nodeId && (port == null || edge.fromPort === port));
 
@@ -215,7 +228,7 @@ export const unboundInputs = (
     const out: { nodeId: string; field: string }[] = [];
     for (const node of endpointNodes(graph)) {
         for (const field of profiles[node.id]?.inputs ?? []) {
-            if (incomingEdge(graph, node.id, field)) continue;
+            if (incomingEdgeForField(graph, node.id, field)) continue;
             if ((graph.fixed[node.id]?.[field] ?? '').trim()) continue;
             out.push({ nodeId: node.id, field });
         }
@@ -226,30 +239,22 @@ export const unboundInputs = (
 export const flowSeedFields = (graph: FlowGraph, profiles: Record<string, ChainProfile>): string[] => {
     const seed: string[] = [];
     const seen = new Set<string>();
-    for (const item of unboundInputs(graph, profiles)) {
-        const field = canonicalChainField(item.field);
-        if (seen.has(field)) continue;
-        seen.add(field);
-        seed.push(field);
-    }
-    for (const edge of graph.edges) {
-        if (edge.from !== FLOW_START_ID) continue;
-        const field = canonicalChainField(edge.fromPort);
-        if (seen.has(field)) continue;
-        seen.add(field);
-        seed.push(field);
+    for (const node of endpointNodes(graph)) {
+        for (const field of profiles[node.id]?.inputs ?? []) {
+            const canonical = canonicalChainField(field);
+            if (seen.has(canonical)) continue;
+            if ((graph.fixed[node.id]?.[field] ?? '').trim()) continue;
+            const edge = incomingEdgeForField(graph, node.id, field);
+            if (edge && edge.from !== FLOW_START_ID) continue;
+            seen.add(canonical);
+            seed.push(canonical);
+        }
     }
     return seed;
 };
 
-export const startOutputPorts = (graph: FlowGraph, profiles: Record<string, ChainProfile>): string[] => {
-    const fields = new Set<string>();
-    for (const field of flowSeedFields(graph, profiles)) fields.add(field);
-    for (const node of endpointNodes(graph)) {
-        for (const field of profiles[node.id]?.inputs ?? []) fields.add(field);
-    }
-    return [...fields];
-};
+export const startOutputPorts = (graph: FlowGraph, profiles: Record<string, ChainProfile>): string[] =>
+    flowSeedFields(graph, profiles);
 
 /** Every lookup finishes at Resultado final (the report). Drops the old merge block. */
 export const ensureResultSinks = (graph: FlowGraph): FlowGraph => {

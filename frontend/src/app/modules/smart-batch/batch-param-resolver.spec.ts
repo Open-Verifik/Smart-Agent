@@ -29,4 +29,16 @@ describe('resolveStepParams', () => {
         expect(params.documentNumber).toBe('123456789');
         expect(params.documentType).toBe('CC');
     });
+
+    it('fills VIN from parameterDefaults chain templates', () => {
+        const params = resolveStepParams({
+            step: { parameterDefaults: { vin: '{{results.1.vin}}' } },
+            dependencies: [{ field: 'vin', required: true }],
+            inputData: { plate: 'ABC123' },
+            results: {
+                1: { vin: 'WVWZZZ1JZXW000001', plate: 'ABC123' },
+            },
+        });
+        expect(params.vin).toBe('WVWZZZ1JZXW000001');
+    });
 });

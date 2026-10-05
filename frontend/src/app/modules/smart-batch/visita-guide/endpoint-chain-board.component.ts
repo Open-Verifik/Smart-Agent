@@ -36,6 +36,7 @@ import {
     flowNodeHeight,
     flowNodeWidth,
     incomingEdge,
+    incomingEdgeForField,
     outgoingEdges,
     layoutFlowGraph,
     moveFlowNode,
@@ -738,7 +739,7 @@ export class EndpointChainBoardComponent {
     boundSource(nodeId: string, port: string): string {
         const fixed = this.graph().fixed[nodeId]?.[port];
         if (fixed) return this._transloco.translate('visitaGuide.flowFixedValue') + ' ' + fixed;
-        const edge = incomingEdge(this.graph(), nodeId, port);
+        const edge = incomingEdgeForField(this.graph(), nodeId, port);
         if (!edge) return '';
         const from = nodeById(this.graph(), edge.from);
         if (!from) return '';

@@ -84,6 +84,11 @@ describe('inputFieldsFor', () => {
         expect(inputFieldsFor(['vehicle', 'citizen'], 'co', features).map((field) => field.key)).toEqual([
             'plate',
         ]);
+        expect(inputFieldsFor(['vehicle'], 'co', features, ['plate']).map((field) => field.key)).toEqual(['plate']);
+        expect(inputFieldsFor(['vehicle'], 'co', features, ['plate', 'vin']).map((field) => field.key)).toEqual([
+            'plate',
+            'vin',
+        ]);
         expect(buildInputRow(['vehicle', 'citizen'], 'co', { plate: 'ABC123', vin: 'WVW' }, features)).toEqual({
             plate: 'ABC123',
         });

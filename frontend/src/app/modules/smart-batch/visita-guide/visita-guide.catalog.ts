@@ -278,7 +278,8 @@ const inputFieldsFromFeatures = (
     seedOverride?: string[]
 ): GuideInputField[] => {
     const mixedCitizenCompany = entities.includes('citizen') && entities.includes('company');
-    const seedFields = seedOverride?.length ? seedOverride : seedParamFieldsForFeatures(features);
+    const usingOverride = seedOverride !== undefined;
+    const seedFields = usingOverride ? seedOverride : seedParamFieldsForFeatures(features);
     const byKey = new Map<
         string,
         { canonical: string; required: boolean; options?: string[] }
@@ -310,7 +311,7 @@ const inputFieldsFromFeatures = (
             return leftRank - rightRank;
         });
 
-    return fields.length ? fields : inputFieldsFromEntities(entities);
+    return fields.length || usingOverride ? fields : inputFieldsFromEntities(entities);
 };
 
 const inputFieldsFromEntities = (entities: GuideEntity[]): GuideInputField[] => {

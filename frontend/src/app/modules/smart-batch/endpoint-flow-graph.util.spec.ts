@@ -11,6 +11,7 @@ import {
     FLOW_RESULT_ID,
     FLOW_START_ID,
     flowSeedFields,
+    startOutputPorts,
     flowNodeHeight,
     flowNodeWidth,
     graphFromLinearChain,
@@ -53,6 +54,7 @@ describe('endpoint-flow-graph', () => {
         graph = autoConnect(graph, FLOW_START_ID, 'p1', profiles);
         graph = autoConnect(graph, 'p1', 'v1', profiles);
         expect(flowSeedFields(graph, profiles)).toEqual(['plate']);
+        expect(startOutputPorts(graph, profiles)).toEqual(['plate']);
         expect(flattenFlowGraph(graph).map((feature) => feature._id)).toEqual(['p1', 'v1']);
     });
 

@@ -22,6 +22,23 @@ export interface GuidePipelineResult {
 const featureId = (appFeature: string | AppFeature): string =>
     typeof appFeature === 'string' ? appFeature : appFeature._id;
 
+/** Mongoose Map keys cannot contain `.` or `$`; chain templates belong in parameterDefaults. */
+const sanitizeInputFieldMapping = (mapping: unknown): Record<string, string> => {
+    const raw =
+        mapping instanceof Map
+            ? Object.fromEntries(mapping.entries())
+            : mapping && typeof mapping === 'object'
+              ? (mapping as Record<string, unknown>)
+              : {};
+    const out: Record<string, string> = {};
+    for (const [key, value] of Object.entries(raw)) {
+        if (typeof value !== 'string' || !key) continue;
+        if (key.includes('.') || key.includes('$') || key.includes('{{')) continue;
+        out[key] = value;
+    }
+    return out;
+};
+
 const featureCode = (appFeature: string | AppFeature): string =>
     typeof appFeature === 'string' ? '' : appFeature.code ?? '';
 
@@ -117,7 +134,7 @@ export class VisitaGuidePipelineService {
                         ...mapping.parameterDefaults,
                     },
                     inputFieldMapping: {
-                        ...(step.inputFieldMapping ?? {}),
+                        ...sanitizeInputFieldMapping(step.inputFieldMapping),
                         ...mapping.inputFieldMapping,
                     },
                     outputFieldsToKeep: step.outputFieldsToKeep ?? [],
@@ -220,9 +237,6 @@ export class VisitaGuidePipelineService {
             const entity = this._entityForFeature(feature, entities);
             const mapping = this._mappingFor(entity, mixed, hasCitizen, hasCompany);
             const chained = feedTemplates[index] ?? {};
-            const chainedMapping = Object.fromEntries(
-                Object.entries(chained).map(([field, template]) => [template, field])
-            );
             return {
                 appFeature: feature._id,
                 sequence,
@@ -233,9 +247,8 @@ export class VisitaGuidePipelineService {
                     ...chained,
                 },
                 inputFieldMapping: {
-                    ...(previous?.inputFieldMapping ?? {}),
+                    ...sanitizeInputFieldMapping(previous?.inputFieldMapping),
                     ...mapping.inputFieldMapping,
-                    ...chainedMapping,
                 },
                 outputFieldsToKeep: previous?.outputFieldsToKeep ?? [],
                 maxRetries: previous?.maxRetries ?? 3,
