@@ -709,6 +709,8 @@ export class SmartReportService {
             sendAll?: boolean;
             engine?: 'pdfkit' | 'puppeteer';
             printHtml?: string;
+            pdfBase64?: string;
+            pdfFiles?: { filename: string; pdfBase64: string }[];
         }
     ): Observable<{ success: boolean; messageId?: string; error?: string }> {
         return this._httpClient.post<{

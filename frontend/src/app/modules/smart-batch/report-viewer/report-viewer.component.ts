@@ -806,31 +806,22 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         void this._generateReport(template._id!, batchId);
     }
 
-    private async _generateReport(templateId: string, batchId: string): Promise<void> {
+    private async _generateReport(
+        templateId: string,
+        batchId: string,
+        options: { download?: boolean } = {}
+    ): Promise<void> {
         const savedPreviewPage = this.previewPageIndex();
         try {
-            const printHtml = await this._printHtmlFromLivePreview();
-            if (!printHtml?.includes('<html')) {
-                throw new Error('print-html');
-            }
             this.isGenerating.set(true);
-            const sampleData = this._sampleDataForCurrentRow();
-
-            const blob = await firstValueFrom(
-                this._reportService.downloadTemplateSample(templateId, {
-                    sampleData,
-                    printHtml,
-                })
-            );
-            const pdfBlob = (await this._isPdfBlob(blob)) ? blob : await this._blobFromJsonBytes(blob);
-            if (!pdfBlob) {
-                throw new Error('pdf');
-            }
+            const pdfBlob = await this._pdfBlobForCurrentRow(templateId);
             this._keepGeneratedPdf(pdfBlob);
-            this._downloadHref(
-                this.pdfDataUrl()!,
-                `SmartReport_${this.selectedTemplate()?.name || templateId}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
-            );
+            if (options.download !== false) {
+                this._downloadHref(
+                    this.pdfDataUrl()!,
+                    `SmartReport_${this.selectedTemplate()?.name || templateId}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
+                );
+            }
 
             const report = await firstValueFrom(
                 this._reportService.createReport({
@@ -904,6 +895,88 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
     }
 
+    private async _pdfBlobForCurrentRow(templateId: string): Promise<Blob> {
+        const printHtml = await this._printHtmlFromLivePreview();
+        if (!printHtml?.includes('<html')) throw new Error('print-html');
+        const blob = await firstValueFrom(
+            this._reportService.downloadTemplateSample(templateId, {
+                sampleData: this._sampleDataForCurrentRow(),
+                printHtml,
+            })
+        );
+        const pdfBlob = (await this._isPdfBlob(blob)) ? blob : await this._blobFromJsonBytes(blob);
+        if (!pdfBlob) throw new Error('pdf');
+        return pdfBlob;
+    }
+
+    private async _pdfFilesForEmail(sendAll: boolean, templateId: string): Promise<{ filename: string; pdfBase64: string }[]> {
+        if (!sendAll) {
+            if (!this.pdfDataUrl()) {
+                this._keepGeneratedPdf(await this._pdfBlobForCurrentRow(templateId));
+            }
+            const pdfBase64 = await this._generatedPdfBase64();
+            return pdfBase64
+                ? [{ filename: `Consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`, pdfBase64 }]
+                : [];
+        }
+        const saved = this.previewPageIndex();
+        const files: { filename: string; pdfBase64: string }[] = [];
+        const rows = this.previewDataForAllRows();
+        try {
+            for (let i = 0; i < rows.length; i++) {
+                this.goToPreviewPage(i);
+                this._cdr.detectChanges();
+                const expectedRow = Number(rows[i]['rowIndex']);
+                for (let wait = 0; wait < 20; wait++) {
+                    if (Number(this.previewDataForCurrentPage()['rowIndex']) === expectedRow) break;
+                    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+                    this._cdr.detectChanges();
+                }
+                const blob = await this._pdfBlobForCurrentRow(templateId);
+                const pdfBase64 = await this._blobToBase64(blob);
+                if (pdfBase64) files.push({ filename: `Consulta_${i + 1}.pdf`, pdfBase64 });
+            }
+        } finally {
+            this.previewPageIndex.set(saved);
+            this._cdr.detectChanges();
+        }
+        return files;
+    }
+
+    private _blobToBase64(blob: Blob): Promise<string | undefined> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const dataUrl = String(reader.result || '');
+                const marker = 'base64,';
+                const at = dataUrl.indexOf(marker);
+                resolve(at >= 0 ? dataUrl.slice(at + marker.length) : undefined);
+            };
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    private async _generatedPdfBase64(): Promise<string | undefined> {
+        const href = this.pdfDataUrl();
+        if (!href) return undefined;
+        if (href.startsWith('data:')) {
+            const marker = 'base64,';
+            const at = href.indexOf(marker);
+            return at >= 0 ? href.slice(at + marker.length) : undefined;
+        }
+        const blob = await fetch(href).then((res) => res.blob());
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+        });
+        const marker = 'base64,';
+        const at = dataUrl.indexOf(marker);
+        return at >= 0 ? dataUrl.slice(at + marker.length) : undefined;
+    }
+
     private _downloadHref(href: string, filename: string): void {
         const a = document.createElement('a');
         a.href = href;
@@ -954,19 +1027,15 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         currentRowIndex?: number
     ): Promise<void> {
         try {
-            const printHtml = result.sendAll ? undefined : await this._printHtmlFromLivePreview();
+            const templateId = this.selectedTemplate()?._id;
+            const pdfFiles = templateId ? await this._pdfFilesForEmail(!!result.sendAll, templateId) : [];
             this._reportService
                 .sendReportEmail(reportId, {
                     recipients: result.recipients,
                     subject: result.subject,
                     language: 'es',
-                    ...(result.sendAll
-                        ? { sendAll: true }
-                        : {
-                              rowIndex: currentRowIndex,
-                              engine: 'puppeteer',
-                              ...(printHtml ? { printHtml } : {}),
-                          }),
+                    ...(result.sendAll ? { sendAll: true } : { rowIndex: currentRowIndex }),
+                    ...(pdfFiles.length ? { pdfFiles } : {}),
                 })
                 .subscribe({
                     next: (res) => {
