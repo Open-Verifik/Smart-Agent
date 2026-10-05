@@ -479,6 +479,7 @@
         "layoutSave": "Save template",
         "layoutSaved": "Template saved. You can reuse it on later reports with different data.",
         "layoutSaveFailed": "The template could not be saved.",
+        "layoutUnsavedLeave": "You have unsaved report changes. Stay on this page or they will be restored from this browser session when you return.",
         "layoutAlreadyAdded": "That lookup is already on the template.",
         "saveAndGenerate": "Save and generate PDF",
         "saveAndViewReport": "Save and view report",

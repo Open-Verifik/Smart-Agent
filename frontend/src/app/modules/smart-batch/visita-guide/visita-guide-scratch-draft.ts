@@ -70,6 +70,23 @@ export const draftIsScratch = (draft: ScratchLayoutDraft | null): boolean =>
             draft.templateChoice !== 'visita'
     );
 
+/** Restore this draft for the current editor session (scratch, system, or saved). */
+export const draftMatchesSession = (
+    draft: ScratchLayoutDraft | null,
+    templateId: string | null,
+    templateChoice: GuideTemplateChoice | null
+): boolean => {
+    if (!draft || !Array.isArray(draft.sections) || !draft.sections.length) return false;
+    if (templateId && draftMatchesTemplate(draft, templateId)) return true;
+    if (templateChoice === 'scratch' && draftIsScratch(draft)) return true;
+    if (templateChoice && draft.templateChoice === templateChoice) {
+        if (!draft.templateId || !templateId) return true;
+        return draft.templateId === templateId;
+    }
+    if (!templateChoice && !templateId) return true;
+    return false;
+};
+
 const isDraft = (value: unknown): value is ScratchLayoutDraft =>
     Boolean(value && typeof value === 'object' && Array.isArray((value as ScratchLayoutDraft).sections));
 

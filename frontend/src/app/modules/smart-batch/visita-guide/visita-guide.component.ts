@@ -74,7 +74,7 @@ import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-sta
 import {
     clearScratchDraft,
     draftIsScratch,
-    draftMatchesTemplate,
+    draftMatchesSession,
     readScratchDraft,
     writeScratchDraft,
 } from './visita-guide-scratch-draft';
@@ -515,20 +515,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _layoutHistoryApplying = false;
     private _layoutHistoryTimer: ReturnType<typeof setTimeout> | null = null;
     private _layoutHistoryPending: string | null = null;
+    private _layoutSavedFingerprint = '';
     private readonly _layoutHistoryEffect = effect(() => {
-        const onLayout = this.step() === 'layout';
-        const snapshot = onLayout ? this._layoutDesignSnapshot() : null;
+        const inStudio = this.step() === 'layout' || this.step() === 'generate';
+        const snapshot = inStudio ? this._layoutDesignSnapshot() : null;
         untracked(() => {
-            if (!onLayout || !snapshot) {
-                this._resetLayoutHistory();
+            if (!inStudio || !snapshot) {
+                if (!inStudio) this._resetLayoutHistory();
                 return;
             }
-            this._queueLayoutHistory(snapshot);
-            const choice = this.templateChoice();
-            const templateId = choice === 'scratch' ? null : this.selectedTemplate()?._id ?? null;
-            if (choice === 'scratch' || templateId) {
-                writeScratchDraft({ ...snapshot, templateId, templateChoice: choice });
-            }
+            if (this.step() === 'layout') this._queueLayoutHistory(snapshot);
+            if (!this._layoutHistoryApplying) this._persistLayoutDraft(snapshot);
         });
     });
     hoveredEndpoint = signal<AppFeature | null>(null);
@@ -2296,6 +2293,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.closeLayoutContextMenu();
     }
 
+    @HostListener('window:beforeunload', ['$event'])
+    onBeforeUnload(event: BeforeUnloadEvent): void {
+        if (!this.isReportStudio()) return;
+        this._persistLayoutDraft(this._layoutDesignSnapshot());
+        if (!this._layoutLooksUnsaved()) return;
+        event.preventDefault();
+        event.returnValue = this._transloco.translate('visitaGuide.layoutUnsavedLeave');
+    }
+
     private _layoutDesignSnapshot(): LayoutDesignSnapshot {
         return {
             sections: cloneReportValue(this.layoutSections()),
@@ -2446,6 +2452,32 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         queueMicrotask(() => {
             this._layoutHistoryApplying = false;
         });
+    }
+
+    private _persistLayoutDraft(snapshot: LayoutDesignSnapshot): void {
+        const choice = this.templateChoice();
+        const templateId = choice === 'scratch' ? null : this.selectedTemplate()?._id ?? null;
+        writeScratchDraft({ ...snapshot, templateId, templateChoice: choice });
+    }
+
+    private _markLayoutClean(): void {
+        this._layoutSavedFingerprint = JSON.stringify(this._layoutDesignSnapshot());
+    }
+
+    private _layoutLooksUnsaved(): boolean {
+        if (!this.layoutSections().length && !this.reportTitle()) return false;
+        const current = JSON.stringify(this._layoutDesignSnapshot());
+        return current !== this._layoutSavedFingerprint;
+    }
+
+    private _restoreLayoutDraftIfAny(): boolean {
+        const draft = readScratchDraft();
+        const templateId = this.selectedTemplate()?._id ?? null;
+        const choice = this.templateChoice();
+        if (!draftMatchesSession(draft, templateId, choice)) return false;
+        this._applyLayoutSnapshot(JSON.stringify(draft));
+        this._markLayoutClean();
+        return true;
     }
 
     private _openLayoutContextMenu(
@@ -3948,6 +3980,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._snack.open(this._transloco.translate('visitaGuide.layoutSaved'), undefined, {
                 duration: 2500,
             });
+            this._markLayoutClean();
+            this._persistLayoutDraft(this._layoutDesignSnapshot());
             this._refreshTemplates();
             return true;
         } catch {
@@ -5323,9 +5357,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (
             parsed.templateChoice !== 'scratch' &&
             parsed.templateId &&
-            (parsed.step === 'layout' || parsed.step === null)
+            (parsed.step === 'layout' || parsed.step === 'generate' || parsed.step === null)
         ) {
-            this._openSavedTemplateInLayout(parsed.templateId, parsed.configId);
+            this._openSavedTemplateInLayout(parsed.templateId, parsed.configId, parsed.step ?? 'layout');
             this._guideUrlReady = true;
             return;
         }
@@ -5361,6 +5395,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (parsed.step === 'include') this.ensureIncludeItems();
             if (parsed.step === 'template') this._refreshTemplates();
             this._state.step.set(parsed.step);
+            if (parsed.step === 'layout' || parsed.step === 'generate') {
+                this._restoreLayoutDraftIfAny();
+                if (parsed.step === 'generate') this.reportStudioStep.set('preview');
+            }
         }
 
         this._applyPendingFeatureIds();
@@ -5373,6 +5411,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const draft = readScratchDraft();
         if (draftIsScratch(draft)) {
             this._applyLayoutSnapshot(JSON.stringify(draft));
+            this._markLayoutClean();
         } else {
             this._resetLayoutBranding();
             this.layoutSections.set([]);
@@ -5416,7 +5455,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
-    private _openSavedTemplateInLayout(templateId: string, configId: string | null): void {
+    private _openSavedTemplateInLayout(
+        templateId: string,
+        configId: string | null,
+        step: 'layout' | 'generate' | 'intent' | string = 'layout'
+    ): void {
         this._reports.getTemplate(templateId).subscribe({
             next: (template) => {
                 this._state.editingSavedLayout.set(true);
@@ -5447,18 +5490,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 }
 
                 this.hydrateCustomize(template, true);
-                const draft = readScratchDraft();
-                if (template._id && draftMatchesTemplate(draft, template._id)) {
-                    this._applyLayoutSnapshot(JSON.stringify(draft));
-                } else {
+                if (!this._restoreLayoutDraftIfAny()) {
                     this.layoutSections.set(
                         cloneReportValue(template.sections ?? []).map((section, index) => ({ ...section, order: index }))
                     );
+                    this._markLayoutClean();
                 }
                 this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
                 this._preferCompactFormatBar();
                 this.enterLayout();
-                this._state.step.set('layout');
+                this._state.step.set(step === 'generate' ? 'generate' : 'layout');
+                if (step === 'generate') this.reportStudioStep.set('preview');
             },
         });
     }
