@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
@@ -67,6 +67,7 @@ export class ScanToolComponent implements OnInit {
     private _scanService = inject(SmartScanService);
     private _cdr = inject(ChangeDetectorRef);
     private _router = inject(Router);
+    private _location = inject(Location);
     private _transloco = inject(TranslocoService);
 
     step: ScanToolStep = 'select';
@@ -132,7 +133,8 @@ export class ScanToolComponent implements OnInit {
 
     getCountryLabel(country: string): string {
         if (!country) return '';
-        const key = `smartScan.countries.${country}`;
+        const normalized = country.trim().toLowerCase().replace(/[\s-]+/g, '_');
+        const key = `smartScan.countries.${normalized}`;
         const translated = this._transloco.translate(key);
         if (translated === key) {
             return country.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -358,6 +360,15 @@ export class ScanToolComponent implements OnInit {
         this.searchQuery = '';
         this.showRawJson = false;
         this._cdr.markForCheck();
+    }
+
+    goBack(): void {
+        const navigationId = window.history.state?.navigationId;
+        if (typeof navigationId === 'number' && navigationId > 1) {
+            this._location.back();
+            return;
+        }
+        this._router.navigate(['/smart-enroll/smart-scan/list']);
     }
 
     goToList() {
