@@ -40,14 +40,20 @@
             <!-- Watermark overlay (every page, matches PDF behaviour) -->
             @if (watermarkEnabled()) {
                 @if (watermarkPattern() === 'single') {
-                    <div class="pointer-events-none absolute inset-0 z-[900] overflow-hidden">
+                    <div
+                        class="pointer-events-none absolute inset-0 overflow-hidden"
+                        [style.z-index]="layerZIndex('watermark', 900)"
+                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
+                    >
                         <div
                             data-overlay-box
                             data-overlay-id="watermark"
                             class="absolute flex items-center justify-center"
                             [class.cursor-move]="isOverlaySelected('watermark')"
                             [class.cursor-pointer]="clickable() && isFirst && !isOverlaySelected('watermark')"
-                            [class.pointer-events-auto]="clickable() && isFirst"
+                            [class.layer-quiet]="isLayerQuiet('watermark')"
+                        [class.pointer-events-auto]="clickable() && isFirst && !isLayerQuiet('watermark')"
+                            [style.pointer-events]="isLayerQuiet('watermark') ? 'none' : null"
                             [class.group]="isOverlaySelected('watermark')"
                             [style.left.px]="viewWatermarkX"
                             [style.top.px]="viewWatermarkY"
@@ -78,7 +84,7 @@
                                     draggable="false"
                                 />
                             }
-                            @if (isOverlaySelected('watermark')) {
+                            @if (isOverlaySelected('watermark') && !isLayerQuiet('watermark')) {
                                 <div
                                     data-overlay-handle
                                     class="absolute left-1/2 top-1 z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
@@ -106,7 +112,9 @@
                     </div>
                 } @else {
                     <div
-                        class="pointer-events-none absolute inset-0 z-[900] overflow-hidden"
+                        class="pointer-events-none absolute inset-0 overflow-hidden"
+                        [style.z-index]="layerZIndex('watermark', 900)"
+                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
                         style="
                             display: grid;
                             grid-template-columns: repeat(3, 1fr);
@@ -144,7 +152,8 @@
             @if (signatureEnabled() && signatureImage() && pageIndex === (signaturePage() || 0)) {
                 <div
                     class="absolute inset-0 pointer-events-none"
-                    [style.z-index]="isOverlaySelected('signature') ? 1000 : 120"
+                    [style.z-index]="layerZIndex('signature', 120)"
+                    [style.visibility]="isLayerHidden('signature') ? 'hidden' : null"
                 >
                     <div
                         data-overlay-box
@@ -152,7 +161,9 @@
                         class="absolute"
                         [class.cursor-move]="isOverlaySelected('signature')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('signature')"
-                        [class.pointer-events-auto]="clickable()"
+                        [class.layer-quiet]="isLayerQuiet('signature')"
+                        [class.pointer-events-auto]="clickable() && !isLayerQuiet('signature')"
+                        [style.pointer-events]="isLayerQuiet('signature') ? 'none' : null"
                         [style.left.px]="viewSignatureX"
                         [style.top.px]="viewSignatureY"
                         [style.width.px]="viewSignatureWidth"
@@ -167,7 +178,7 @@
                             class="w-full h-full object-contain pointer-events-none select-none"
                             draggable="false"
                         />
-                        @if (isOverlaySelected('signature')) {
+                        @if (isOverlaySelected('signature') && !isLayerQuiet('signature')) {
                             <div
                                 data-overlay-handle
                                 class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
@@ -194,13 +205,19 @@
             }
             @if (headerLogoViews().length) {
                 @for (logo of headerLogoViews(); track logo.id) {
-                    <div class="pointer-events-none absolute inset-0 z-[850]">
+                    <div
+                        class="pointer-events-none absolute inset-0"
+                        [style.z-index]="layerZIndex(headerOverlayId(logo.id), 850)"
+                        [style.visibility]="isLayerHidden(headerOverlayId(logo.id)) ? 'hidden' : null"
+                    >
                         <div
                             data-overlay-box
                             [attr.data-overlay-id]="headerOverlayId(logo.id)"
                             class="absolute"
                             [class.cursor-ew-resize]="clickable()"
-                            [class.pointer-events-auto]="clickable()"
+                            [class.layer-quiet]="isLayerQuiet(headerOverlayId(logo.id))"
+                            [class.pointer-events-auto]="clickable() && !isLayerQuiet(headerOverlayId(logo.id))"
+                            [style.pointer-events]="isLayerQuiet(headerOverlayId(logo.id)) ? 'none' : null"
                             [style.left.px]="logo.viewX"
                             [style.top.px]="logo.viewY"
                             [style.width.px]="logo.viewWidth"
@@ -219,7 +236,7 @@
                                 class="h-full w-full object-contain pointer-events-none select-none"
                                 draggable="false"
                             />
-                            @if (clickable() && isOverlaySelected(headerOverlayId(logo.id))) {
+                            @if (clickable() && isOverlaySelected(headerOverlayId(logo.id)) && !isLayerQuiet(headerOverlayId(logo.id))) {
                                 <div
                                     data-overlay-handle
                                     class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
@@ -250,8 +267,8 @@
             @if (isFirst && logoEnabled() && logoUrl() && !headerLogoViews().length) {
                 <div
                     class="absolute inset-0 pointer-events-none"
-                    [class.z-40]="isOverlaySelected('logo')"
-                    [class.z-20]="!isOverlaySelected('logo')"
+                    [style.z-index]="layerZIndex('logo', 80)"
+                    [style.visibility]="isLayerHidden('logo') ? 'hidden' : null"
                 >
                     <div
                         data-overlay-box
@@ -259,7 +276,9 @@
                         class="absolute"
                         [class.cursor-move]="isOverlaySelected('logo')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('logo')"
-                        [class.pointer-events-auto]="clickable()"
+                        [class.layer-quiet]="isLayerQuiet('logo')"
+                        [class.pointer-events-auto]="clickable() && !isLayerQuiet('logo')"
+                        [style.pointer-events]="isLayerQuiet('logo') ? 'none' : null"
                         [class.group]="isOverlaySelected('logo')"
                         [style.left.px]="viewLogoX"
                         [style.top.px]="viewLogoY"
@@ -277,7 +296,7 @@
                             [style.transform]="logoRotateStyle"
                             draggable="false"
                         />
-                        @if (isOverlaySelected('logo')) {
+                        @if (isOverlaySelected('logo') && !isLayerQuiet('logo')) {
                             <div
                                 data-overlay-handle
                                 class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
@@ -311,8 +330,8 @@
                             class="absolute inset-0 pointer-events-none"
                             data-sheet-image
                             [attr.data-sheet-image-page]="image.page ?? 0"
-                            [class.z-40]="isOverlaySelected(sheetOverlayId(image.id))"
-                            [class.z-20]="!isOverlaySelected(sheetOverlayId(image.id))"
+                            [style.z-index]="layerZIndex(sheetOverlayId(image.id), image.zIndex || 48)"
+                            [style.visibility]="isLayerHidden(sheetOverlayId(image.id)) ? 'hidden' : null"
                         >
                             <div
                                 data-overlay-box
@@ -320,7 +339,9 @@
                                 class="absolute"
                                 [class.cursor-move]="isOverlaySelected(sheetOverlayId(image.id))"
                                 [class.cursor-pointer]="clickable() && !isOverlaySelected(sheetOverlayId(image.id))"
-                                [class.pointer-events-auto]="clickable()"
+                                [class.layer-quiet]="isLayerQuiet(sheetOverlayId(image.id))"
+                                [class.pointer-events-auto]="clickable() && !isLayerQuiet(sheetOverlayId(image.id))"
+                                [style.pointer-events]="isLayerQuiet(sheetOverlayId(image.id)) ? 'none' : null"
                                 [class.group]="isOverlaySelected(sheetOverlayId(image.id))"
                                 [style.left.px]="sheetImageView(image).x"
                                 [style.top.px]="sheetImageView(image).y"
@@ -338,7 +359,7 @@
                                     [style.transform]="'rotate(' + (image.rotation || 0) + 'deg)'"
                                     draggable="false"
                                 />
-                                @if (isOverlaySelected(sheetOverlayId(image.id))) {
+                                @if (isOverlaySelected(sheetOverlayId(image.id)) && !isLayerQuiet(sheetOverlayId(image.id))) {
                                     <div
                                         data-overlay-handle
                                         class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
@@ -421,6 +442,7 @@
                     @if (!isPageAnchor(section)) {
                     <div
                         data-report-section
+                        [class.layer-quiet]="isLayerQuiet('sec:' + section.id)"
                         [attr.data-section-id]="section.id"
                         [attr.data-section-type]="section.type"
                         [class.relative]="!hasFreeLayout()"

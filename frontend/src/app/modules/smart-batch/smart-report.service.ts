@@ -68,6 +68,8 @@ export interface ReportSheetImage {
     height: number;
     rotation?: number;
     page?: number;
+    /** Paint order on the sheet. Higher stays in front. */
+    zIndex?: number;
 }
 
 /** Company logo repeated in the header or footer of every page. */

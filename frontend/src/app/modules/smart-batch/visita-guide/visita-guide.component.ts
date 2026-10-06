@@ -185,6 +185,18 @@ type LayoutDesignSnapshot = {
     signatureWidth: number;
     signatureHeight: number;
     signaturePage?: number;
+    layoutOverlayZ?: Record<string, number>;
+    layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean }>;
+};
+
+type LayoutLayerKind = 'section' | 'image' | 'watermark' | 'signature' | 'logo' | 'header';
+
+type LayoutLayerItem = {
+    id: string;
+    kind: LayoutLayerKind;
+    label: string;
+    icon: string;
+    z: number;
 };
 
 const isEmptyResultPayload = (payload: unknown): boolean => {
@@ -448,6 +460,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
     readonly layoutFormatAligns: ReportTextAlign[] = ['left', 'center', 'right'];
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
+    /** Paint order for stamps and logos. Blocks and sheet images keep theirs on the model. */
+    layoutOverlayZ = signal<Record<string, number>>({});
+    /** Hide and lock are editing aids. They are not written into the PDF. */
+    layoutLayerFlags = signal<Record<string, { hidden?: boolean; locked?: boolean }>>({});
     selectedLayoutCellKey = signal<string | null>(null);
     selectedLayoutCellPart = signal<ReportCellPart>('cell');
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
@@ -1414,7 +1430,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (isReportPageAnchor(section)) return;
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
-        this.layoutSections.update((list) => this._bringSectionsToFront(list, [section.id]));
         const part = this.selectedLayoutCellPart();
         const control =
             this._followCellPart && this.selectedLayoutCellKey() && (part === 'label' || part === 'value')
@@ -1467,7 +1482,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(event.section.id);
         this.selectedLayoutCellKey.set(event.key);
         this.selectedLayoutCellPart.set(event.part);
-        this.layoutSections.update((list) => this._bringSectionsToFront(list, [event.section.id]));
         this._followCellPart = event.part === 'label' || event.part === 'value';
         if (this._followCellPartTimer) clearTimeout(this._followCellPartTimer);
         this._followCellPartTimer = setTimeout(() => {
@@ -1497,53 +1511,205 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutSectionFrames(updates: { id: string; frame: ReportSectionFrame }[]): void {
         const next = new Map(updates.map((item) => [item.id, item.frame]));
-        this.layoutSections.update((list) => {
-            const mapped = list.map((section) =>
-                next.has(section.id) ? { ...section, frame: next.get(section.id) } : section
-            );
-            return updates.length === 1 ? this._bringSectionsToFront(mapped, [updates[0].id]) : mapped;
-        });
+        this.layoutSections.update((list) =>
+            list.map((section) => (next.has(section.id) ? { ...section, frame: next.get(section.id) } : section))
+        );
     }
 
     onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
         this.layoutSections.update((list) =>
-            this._bringSectionsToFront(
-                list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section)),
-                [event.id]
-            )
+            list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
         );
     }
 
-    /** Reordering the list changes who is in front. The block stays at its coordinate. */
-    onLayoutStackDrop(event: CdkDragDrop<ReportSection[]>): void {
+    /** Dragging a row in the layer list changes who paints in front. Coordinates stay put. */
+    onLayoutLayerDrop(event: CdkDragDrop<LayoutLayerItem[]>): void {
         if (event.previousIndex === event.currentIndex) return;
-        const stack = this.layoutStack();
-        const reordered = [...stack];
-        moveItemInArray(reordered, event.previousIndex, event.currentIndex);
-        const zById = new Map(reordered.map((section, index) => [section.id, 40 + reordered.length - index]));
-        this.layoutSections.update((list) =>
-            list.map((section) => {
-                const zIndex = zById.get(section.id);
-                return zIndex == null ? section : { ...section, style: { ...(section.style ?? {}), zIndex } };
-            })
-        );
-    }
-
-    /** Front of the pile first. Position stays on each block's own x/y. */
-    layoutStack(): ReportSection[] {
-        return this.layoutSections()
-            .filter((section) => !isReportPageAnchor(section))
-            .slice()
-            .sort(
-                (left, right) =>
-                    this._stackZ(right) - this._stackZ(left) || (left.order ?? 0) - (right.order ?? 0)
-            );
+        const layers = [...this.layoutLayers()];
+        moveItemInArray(layers, event.previousIndex, event.currentIndex);
+        this._writeLayoutLayerOrder(layers);
     }
 
     private _stackZ(section: ReportSection): number {
         const stored = Number(section.style?.zIndex);
         if (Number.isFinite(stored) && stored > 0) return stored;
         return 40;
+    }
+
+    /** Front of the sheet first: the top row covers the ones below it. */
+    layoutLayers(): LayoutLayerItem[] {
+        const layers: LayoutLayerItem[] = [];
+        for (const section of this.layoutSections()) {
+            if (isReportPageAnchor(section)) continue;
+            layers.push({
+                id: `sec:${section.id}`,
+                kind: 'section',
+                label: this._layoutSectionLayerLabel(section),
+                icon: this._layoutSectionLayerIcon(section),
+                z: this._stackZ(section),
+            });
+        }
+        this.sheetImages().forEach((image, index) => {
+            layers.push({
+                id: `img:${image.id}`,
+                kind: 'image',
+                label: `${this._transloco.translate('visitaGuide.layoutLayerImage')} ${index + 1}`,
+                icon: 'image',
+                z: Number(image.zIndex) > 0 ? Number(image.zIndex) : 48 + index,
+            });
+        });
+        if (this.watermarkEnabled()) {
+            layers.push({
+                id: 'watermark',
+                kind: 'watermark',
+                label: this._transloco.translate('visitaGuide.layoutLayerWatermark'),
+                icon: 'branding_watermark',
+                z: this._overlayLayerZ('watermark', 700),
+            });
+        }
+        if (this.signatureEnabled() && this.signatureImage()) {
+            layers.push({
+                id: 'signature',
+                kind: 'signature',
+                label: this._transloco.translate('visitaGuide.layoutLayerSignature'),
+                icon: 'draw',
+                z: this._overlayLayerZ('signature', 180),
+            });
+        }
+        if (this.logoDataUrl() && !this.headerLogos().length) {
+            layers.push({
+                id: 'logo',
+                kind: 'logo',
+                label: this._transloco.translate('visitaGuide.layoutLayerLogo'),
+                icon: 'business',
+                z: this._overlayLayerZ('logo', 90),
+            });
+        }
+        this.headerLogos().forEach((logo, index) => {
+            layers.push({
+                id: `hdr:${logo.id}`,
+                kind: 'header',
+                label: this._transloco.translate(logo.band === 'footer' ? 'visitaGuide.layoutLayerFooterLogo' : 'visitaGuide.layoutLayerHeaderLogo'),
+                icon: 'business',
+                z: this._overlayLayerZ(`hdr:${logo.id}`, 220 + index),
+            });
+        });
+        return layers.sort((left, right) => right.z - left.z || left.label.localeCompare(right.label));
+    }
+
+    layoutLayerZMap(): Record<string, number> {
+        return Object.fromEntries(this.layoutLayers().map((layer) => [layer.id, layer.z]));
+    }
+
+    layoutHiddenLayerIds(): string[] {
+        return Object.entries(this.layoutLayerFlags())
+            .filter(([, flags]) => flags.hidden)
+            .map(([id]) => id);
+    }
+
+    layoutLockedLayerIds(): string[] {
+        return Object.entries(this.layoutLayerFlags())
+            .filter(([, flags]) => flags.locked)
+            .map(([id]) => id);
+    }
+
+    isLayoutLayerHidden(id: string): boolean {
+        return Boolean(this.layoutLayerFlags()[id]?.hidden);
+    }
+
+    isLayoutLayerLocked(id: string): boolean {
+        return Boolean(this.layoutLayerFlags()[id]?.locked);
+    }
+
+    isLayoutLayerSelected(layer: LayoutLayerItem): boolean {
+        if (layer.kind === 'section') return this.selectedLayoutSectionId() === layer.id.slice(4);
+        return this.selectedLayoutOverlay() === layer.id;
+    }
+
+    selectLayoutLayer(layer: LayoutLayerItem): void {
+        if (layer.kind === 'section') {
+            const section = this.layoutSections().find((item) => item.id === layer.id.slice(4));
+            if (!section) return;
+            this.selectedLayoutOverlay.set(null);
+            this.selectedLayoutSectionId.set(section.id);
+            this.selectedLayoutCellKey.set(null);
+            this.selectedLayoutCellPart.set('cell');
+            this._focusLayoutEditor(section, 'block');
+            return;
+        }
+        this.onLayoutOverlaySelect(layer.id as ReportOverlayId);
+    }
+
+    toggleLayoutLayerHidden(id: string, event?: Event): void {
+        event?.stopPropagation();
+        this.layoutLayerFlags.update((flags) => {
+            const current = flags[id] ?? {};
+            return { ...flags, [id]: { ...current, hidden: !current.hidden } };
+        });
+    }
+
+    toggleLayoutLayerLocked(id: string, event?: Event): void {
+        event?.stopPropagation();
+        this.layoutLayerFlags.update((flags) => {
+            const current = flags[id] ?? {};
+            return { ...flags, [id]: { ...current, locked: !current.locked } };
+        });
+    }
+
+    private _overlayLayerZ(id: string, fallback: number): number {
+        const stored = Number(this.layoutOverlayZ()[id]);
+        return Number.isFinite(stored) && stored > 0 ? stored : fallback;
+    }
+
+    private _topLayoutZ(): number {
+        return this.layoutLayers().reduce((highest, layer) => Math.max(highest, layer.z), 40);
+    }
+
+    private _writeLayoutLayerOrder(layers: LayoutLayerItem[]): void {
+        const zAt = (index: number) => 40 + (layers.length - 1 - index) * 10;
+        const sectionZ = new Map<string, number>();
+        const imageZ = new Map<string, number>();
+        const overlayZ: Record<string, number> = { ...this.layoutOverlayZ() };
+        layers.forEach((layer, index) => {
+            const z = zAt(index);
+            if (layer.kind === 'section') sectionZ.set(layer.id.slice(4), z);
+            else if (layer.kind === 'image') imageZ.set(layer.id.slice(4), z);
+            else overlayZ[layer.id] = z;
+        });
+        this.layoutOverlayZ.set(overlayZ);
+        this.layoutSections.update((list) =>
+            list.map((section) => {
+                const zIndex = sectionZ.get(section.id);
+                return zIndex == null ? section : { ...section, style: { ...(section.style ?? {}), zIndex } };
+            })
+        );
+        this._state.sheetImages.update((list) =>
+            list.map((image) => {
+                const zIndex = imageZ.get(image.id);
+                return zIndex == null ? image : { ...image, zIndex };
+            })
+        );
+    }
+
+    private _layoutSectionLayerLabel(section: ReportSection): string {
+        const label = (section.label || section.staticContent || '').trim();
+        if (label) return label.length > 42 ? `${label.slice(0, 42)}…` : label;
+        if (section.type === 'header') return this._transloco.translate('visitaGuide.layoutAddTitle');
+        if (section.type === 'text') return this._transloco.translate('visitaGuide.layoutAddText');
+        if (section.type === 'divider') return this._transloco.translate('visitaGuide.layoutAddDivider');
+        if (section.type === 'shape') return this._transloco.translate('visitaGuide.layoutShapes');
+        if (section.type === 'image') return this._transloco.translate('visitaGuide.layoutLayerImage');
+        return section.type;
+    }
+
+    private _layoutSectionLayerIcon(section: ReportSection): string {
+        if (section.type === 'header') return 'title';
+        if (section.type === 'text') return 'notes';
+        if (section.type === 'divider') return 'horizontal_rule';
+        if (section.type === 'shape') return 'category';
+        if (section.type === 'image') return 'image';
+        if (section.type === 'table' || section.type === 'dataTable') return 'table_chart';
+        return 'dashboard';
     }
 
     /** Append a block in front of the pile. Coordinates stay on the frame. */
@@ -1559,7 +1725,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _bringSectionsToFront(list: ReportSection[], ids: string[]): ReportSection[] {
         if (!ids.length) return list;
         const moved = new Set(ids);
-        const maxZ = list.reduce((highest, section) => Math.max(highest, this._stackZ(section)), 0);
+        const maxZ = Math.max(
+            this._topLayoutZ(),
+            list.reduce((highest, section) => Math.max(highest, this._stackZ(section)), 0)
+        );
         return list.map((section) =>
             moved.has(section.id)
                 ? {
@@ -2160,7 +2329,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ? { page: point.page, x: point.x, y: point.y, width: itemWidth, height: itemHeight }
                 : stacked
         );
-        const topZ = Math.max(0, ...this.layoutSections().map((section) => Number(section.style?.zIndex) || 0));
+        const topZ = this._topLayoutZ();
         const field: ReportSection = {
             id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
             type: isTable ? 'dataTable' : 'field',
@@ -2299,10 +2468,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 y: (copy.frame.y ?? 0) + 16,
             });
         }
-        const topZ = Math.max(
-            0,
-            ...this.layoutSections().map((section) => Number(section.style?.zIndex) || 0)
-        );
+        const topZ = this._topLayoutZ();
         copy.style = { ...(copy.style ?? {}), zIndex: topZ + 1 };
         this.layoutSections.update((list) => {
             const index = list.findIndex((section) => section.id === source.id);
@@ -2468,6 +2634,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             signatureWidth: this.signatureWidth(),
             signatureHeight: this.signatureHeight(),
             signaturePage: this.signaturePage(),
+            layoutOverlayZ: { ...this.layoutOverlayZ() },
+            layoutLayerFlags: cloneReportValue(this.layoutLayerFlags()),
         };
     }
 
@@ -2570,6 +2738,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.signatureWidth.set(snapshot.signatureWidth ?? 160);
         this._state.signatureHeight.set(snapshot.signatureHeight ?? 64);
         this._state.signaturePage.set(snapshot.signaturePage ?? 0);
+        this.layoutOverlayZ.set({ ...(snapshot.layoutOverlayZ ?? {}) });
+        this.layoutLayerFlags.set(cloneReportValue(snapshot.layoutLayerFlags ?? {}));
         this._signatureAnchored = true;
         queueMicrotask(() => {
             this._layoutHistoryApplying = false;
@@ -4424,6 +4594,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         height: 80,
                         rotation: 0,
                         page: origin?.page ?? 0,
+                        zIndex: this._topLayoutZ() + 1 + index,
                     },
                 ]);
             };

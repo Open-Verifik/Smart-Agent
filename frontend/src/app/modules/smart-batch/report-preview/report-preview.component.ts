@@ -87,6 +87,14 @@ export function reportPaperSizePx(
     standalone: true,
     imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './report-preview.component.html',
+    styles: [
+        `
+            .layer-quiet,
+            .layer-quiet * {
+                pointer-events: none !important;
+            }
+        `,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
@@ -193,6 +201,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     logoAutoFitContent = input<boolean>(false);
     /** Extra logos/images placed freely on the sheet. */
     sheetImages = input<ReportSheetImage[]>([]);
+    /** Editor paint order. Missing keys keep the fallback used outside the layout step. */
+    layerZ = input<Record<string, number>>({});
+    /** Editor-only. Hidden layers stay in the file; they just leave the sheet while designing. */
+    hiddenLayerIds = input<string[]>([]);
+    /** Editor-only. A locked layer stays visible and lets clicks reach whatever is behind it. */
+    lockedLayerIds = input<string[]>([]);
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding = input<number>(0);
@@ -861,6 +875,33 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     isOverlaySelected(id: ReportOverlayId): boolean {
         return this.clickable() && this.selectedOverlay() === id;
+    }
+
+    /** Shared paint order for blocks, images, and stamps. */
+    layerZIndex(id: string, fallback: number): number {
+        const value = Number(this.layerZ()[id]);
+        if (Number.isFinite(value) && value > 0) return Math.round(value);
+        const safe = Number.isFinite(fallback) ? fallback : 40;
+        return Math.min(800, Math.max(1, Math.round(safe)));
+    }
+
+    isLayerHidden(id: string): boolean {
+        return this.hiddenLayerIds().includes(id);
+    }
+
+    isLayerLocked(id: string): boolean {
+        return this.lockedLayerIds().includes(id);
+    }
+
+    /** Locked and hidden layers do not take the click, so the block behind them can be edited. */
+    isLayerQuiet(id: string): boolean {
+        return this.isLayerHidden(id) || this.isLayerLocked(id);
+    }
+
+    private _sectionPointer(section: ReportSection): string {
+        if (this.isLayerQuiet(`sec:${section.id}`)) return 'none';
+        if (this.draggingSectionId() && this.draggingSectionId() !== section.id) return 'none';
+        return 'auto';
     }
 
     selectOverlay(id: ReportOverlayId, event?: Event): void {
@@ -1628,10 +1669,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             top: `${y / scales.y}px`,
             width: width ? `${width}px` : '100%',
             marginBottom: '0px',
-            zIndex: dragging ? '1000' : String(Math.min(this._sectionZIndex(section), 800)),
-            pointerEvents:
-                this.draggingSectionId() && this.draggingSectionId() !== section.id ? 'none' : 'auto',
+            zIndex: dragging ? '100000' : String(this.layerZIndex(`sec:${section.id}`, this._sectionZIndex(section))),
+            pointerEvents: this._sectionPointer(section),
         };
+        if (this.isLayerHidden(`sec:${section.id}`)) style['visibility'] = 'hidden';
         if (dragging) style['willChange'] = 'left, top, width, height';
         const clipToFrame = section.type === 'image';
         if (height) {
