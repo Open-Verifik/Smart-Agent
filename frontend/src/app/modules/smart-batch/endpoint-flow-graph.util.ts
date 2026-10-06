@@ -19,10 +19,21 @@ export interface FlowGraphEdge {
     toPort: string;
 }
 
+export type FlowPortSide = 'inputs' | 'outputs';
+
+export interface FlowNodePorts {
+    inputs?: string[];
+    outputs?: string[];
+    hiddenInputs?: string[];
+    hiddenOutputs?: string[];
+}
+
 export interface FlowGraph {
     nodes: FlowGraphNode[];
     edges: FlowGraphEdge[];
     fixed: Record<string, Record<string, string>>;
+    /** Extra input/output ports the user pinned on a block. */
+    ports?: Record<string, FlowNodePorts>;
 }
 
 export const FLOW_START_ID = 'flow-start';
@@ -44,6 +55,7 @@ export const emptyFlowGraph = (): FlowGraph => ({
     ],
     edges: [],
     fixed: {},
+    ports: {},
 });
 
 export const endpointNodes = (graph: FlowGraph): FlowGraphNode[] =>
@@ -212,6 +224,59 @@ export const moveFlowNode = (graph: FlowGraph, id: string, x: number, y: number)
     ...graph,
     nodes: graph.nodes.map((node) => (node.id === id ? { ...node, x, y } : node)),
 });
+
+const hiddenKey = (side: FlowPortSide): 'hiddenInputs' | 'hiddenOutputs' =>
+    side === 'inputs' ? 'hiddenInputs' : 'hiddenOutputs';
+
+export const extraPortsFor = (graph: FlowGraph, nodeId: string, side: FlowPortSide): string[] =>
+    graph.ports?.[nodeId]?.[side] ?? [];
+
+export const hiddenPortsFor = (graph: FlowGraph, nodeId: string, side: FlowPortSide): string[] =>
+    graph.ports?.[nodeId]?.[hiddenKey(side)] ?? [];
+
+const patchNodePorts = (graph: FlowGraph, nodeId: string, patch: FlowNodePorts): FlowGraph => ({
+    ...graph,
+    ports: {
+        ...(graph.ports ?? {}),
+        [nodeId]: {
+            ...(graph.ports?.[nodeId] ?? {}),
+            ...patch,
+        },
+    },
+});
+
+export const addExtraPort = (graph: FlowGraph, nodeId: string, side: FlowPortSide, port: string): FlowGraph => {
+    const current = extraPortsFor(graph, nodeId, side);
+    const hidden = hiddenPortsFor(graph, nodeId, side).filter((item) => item !== port);
+    return patchNodePorts(graph, nodeId, {
+        [side]: current.includes(port) ? current : [...current, port],
+        [hiddenKey(side)]: hidden,
+    });
+};
+
+export const hidePort = (graph: FlowGraph, nodeId: string, side: FlowPortSide, port: string): FlowGraph => {
+    const extras = extraPortsFor(graph, nodeId, side).filter((item) => item !== port);
+    const hidden = hiddenPortsFor(graph, nodeId, side);
+    const next = patchNodePorts(graph, nodeId, {
+        [side]: extras,
+        [hiddenKey(side)]: hidden.includes(port) ? hidden : [...hidden, port],
+    });
+    if (side === 'inputs') {
+        const { [port]: _dropped, ...restFixed } = next.fixed[nodeId] ?? {};
+        return {
+            ...next,
+            edges: next.edges.filter((edge) => !(edge.to === nodeId && edge.toPort === port)),
+            fixed: { ...next.fixed, [nodeId]: restFixed },
+        };
+    }
+    return {
+        ...next,
+        edges: next.edges.filter((edge) => {
+            if (edge.from !== nodeId || edge.fromPort !== port) return true;
+            return port === '*' && edge.to === FLOW_RESULT_ID;
+        }),
+    };
+};
 
 export const setFixedValue = (graph: FlowGraph, nodeId: string, port: string, value: string): FlowGraph => {
     const nextFixed = { ...(graph.fixed[nodeId] ?? {}) };
@@ -425,6 +490,7 @@ const layoutSnapshot = (graph: FlowGraph) => ({
     fixed: Object.fromEntries(
         Object.entries(graph.fixed ?? {}).filter(([, fields]) => Object.keys(fields).length)
     ),
+    ports: graph.ports ?? {},
 });
 
 export const sameFlowLayout = (left: FlowGraph, right: FlowGraph): boolean =>
@@ -489,7 +555,24 @@ export const parseFlowGraph = (value: unknown): FlowGraph | null => {
             if (Object.keys(next).length) fixed[nodeId] = next;
         }
     }
-    return ensureResultSinks({ nodes, edges, fixed });
+    const ports: Record<string, FlowNodePorts> = {};
+    if (isRecord(value['ports'])) {
+        for (const [nodeId, rawPorts] of Object.entries(value['ports'])) {
+            if (!isRecord(rawPorts)) continue;
+            const readList = (key: string): string[] =>
+                Array.isArray(rawPorts[key])
+                    ? rawPorts[key].filter((item): item is string => typeof item === 'string')
+                    : [];
+            const inputs = readList('inputs');
+            const outputs = readList('outputs');
+            const hiddenInputs = readList('hiddenInputs');
+            const hiddenOutputs = readList('hiddenOutputs');
+            if (inputs.length || outputs.length || hiddenInputs.length || hiddenOutputs.length) {
+                ports[nodeId] = { inputs, outputs, hiddenInputs, hiddenOutputs };
+            }
+        }
+    }
+    return ensureResultSinks({ nodes, edges, fixed, ports });
 };
 
 export const hydrateFlowGraph = (graph: FlowGraph, features: AppFeature[]): FlowGraph => {

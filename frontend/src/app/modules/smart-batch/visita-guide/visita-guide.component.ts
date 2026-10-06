@@ -22,7 +22,15 @@ import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_
 import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
-import { endpointNodes, flattenFlowGraph, FlowGraph, hydrateFlowGraph, usedFeatureIds } from '../endpoint-flow-graph.util';
+import {
+    endpointNodes,
+    flattenFlowGraph,
+    FlowGraph,
+    graphFromLinearChain,
+    hydrateFlowGraph,
+    parseFlowGraph,
+    usedFeatureIds,
+} from '../endpoint-flow-graph.util';
 import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
@@ -67,7 +75,12 @@ import {
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
 import { buildRowDataForResolution } from '../template-match.util';
-import { VisitaGuidePipelineService } from './visita-guide-pipeline.service';
+import {
+    featureIdsFromConfiguration,
+    featuresFromConfiguration,
+    serializeVisitaFlow,
+    VisitaGuidePipelineService,
+} from './visita-guide-pipeline.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
 import { visitaEndpointTooltipDetails } from './visita-guide-endpoint-tooltip.util';
 import { GuideTemplateChoice, VisitaGuideStateService } from './visita-guide-state.service';
@@ -78,7 +91,13 @@ import {
     readScratchDraft,
     writeScratchDraft,
 } from './visita-guide-scratch-draft';
-import { clearFlowDraft, readFlowDraft, writeFlowDraft } from './visita-guide-flow-draft';
+import {
+    clearFlowDraft,
+    readFlowDraft,
+    readStoredFlow,
+    writeFlowDraft,
+    writeStoredFlow,
+} from './visita-guide-flow-draft';
 import { parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
 import {
     availableCountries,
@@ -278,6 +297,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _alive = true;
     private _guideUrlReady = false;
     private _pendingFeatureIds: string[] = [];
+    private _pendingVisitaFlow: FlowGraph | null = null;
+    private _flowPersistTail: Promise<void> = Promise.resolve();
     private readonly _guideUrlEffect = effect(() => {
         const step = this.step();
         const intent = this.intent();
@@ -312,7 +333,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 if (!features.length && !this._pendingFeatureIds.length) clearFlowDraft();
                 return;
             }
-            writeFlowDraft({ graph, inputValues });
+            writeFlowDraft({ graph, inputValues, configId: this._state.configId() });
         });
     });
 
@@ -1122,6 +1143,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (this.step() === 'endpoints') {
+            void this._continueAfterEndpoints(next);
+            return;
+        }
+
         if (next === 'consult') {
             this.step.set('consult');
             void this.runConsult();
@@ -1269,7 +1295,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         if (this._state.editingSavedLayout() && this.step() === 'layout') {
+            const configId = this._state.configId();
+            const batchId = this._state.batchId();
             this._state.editingSavedLayout.set(false);
+            if (configId && batchId) {
+                void this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'report']);
+                return;
+            }
             void this._router.navigate(['/smart-batch', 'workspace'], {
                 queryParams: { tab: 'templates' },
             });
@@ -1282,9 +1314,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     startOver(): void {
+        void this._startOver();
+    }
+
+    private async _startOver(): Promise<void> {
+        if (this.isReportStudio()) {
+            await this._persistGuideToSmartBatch();
+        }
         this._stopPoll();
         this._browserRunner.stop();
         this._pendingFeatureIds = [];
+        this._pendingVisitaFlow = null;
         this._state.resetAll();
         clearScratchDraft();
         clearFlowDraft();
@@ -3975,13 +4015,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     async saveLayoutTemplate(): Promise<boolean> {
         this.isSavingLayout.set(true);
         try {
-            const template = await this._persistWorkingTemplate();
-            if (!template) throw new Error('template');
+            const saved = await this._persistGuideToSmartBatch();
+            if (!saved) throw new Error('template');
             this._snack.open(this._transloco.translate('visitaGuide.layoutSaved'), undefined, {
                 duration: 2500,
             });
-            this._markLayoutClean();
-            this._persistLayoutDraft(this._layoutDesignSnapshot());
             this._refreshTemplates();
             return true;
         } catch {
@@ -3992,6 +4030,68 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         } finally {
             this.isSavingLayout.set(false);
         }
+    }
+
+    private async _persistGuideToSmartBatch(): Promise<boolean> {
+        try {
+            await this._ensureLinkedConfiguration();
+            const template = await this._persistWorkingTemplate();
+            if (!template && this.isReportStudio()) return false;
+            await this._syncConfigurationExtras(template?._id ?? null);
+            this._markLayoutClean();
+            this._persistLayoutDraft(this._layoutDesignSnapshot());
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    private async _ensureLinkedConfiguration(): Promise<void> {
+        const features = this.selectedFeatures();
+        const existing = this._state.configId();
+        if (!existing && !features.length) return;
+        const entities = this.entities().length ? this.entities() : (['citizen'] as GuideEntity[]);
+        const resolved = await this._pipeline.resolve(
+            entities,
+            this.countryIsos()[0] ?? 'co',
+            this.reportTitle() || pipelineName(entities),
+            features,
+            this.executor() === 'browser' ? 'browser' : 'queue',
+            this._state.flowGraph(),
+            existing
+        );
+        this._state.configId.set(resolved.configId);
+        this._state.configuration.set(resolved.configuration);
+        if (resolved.configId && endpointNodes(this._state.flowGraph()).length) {
+            writeStoredFlow(resolved.configId, this._state.flowGraph());
+        }
+        if (resolved.template && !this.selectedTemplate()) {
+            this._state.clonedTemplate.set(resolved.template);
+            this._state.selectedTemplate.set(resolved.template);
+        }
+    }
+
+    private async _syncConfigurationExtras(templateId: string | null): Promise<void> {
+        const configId = this._state.configId();
+        if (!configId) return;
+        const graph = this._state.flowGraph();
+        const patch: Partial<BatchConfiguration> = {
+            executor: this.executor() === 'browser' ? 'browser' : 'queue',
+        };
+        if (templateId) patch.preferredReportTemplate = templateId;
+        if (endpointNodes(graph).length) patch.visitaFlow = serializeVisitaFlow(graph);
+        let updated;
+        try {
+            updated = await firstValueFrom(this._batch.updateConfiguration(configId, patch));
+        } catch {
+            const { visitaFlow: _ignored, ...rest } = patch;
+            updated = await firstValueFrom(this._batch.updateConfiguration(configId, rest));
+        }
+        this._state.configuration.set({
+            ...(this._state.configuration() ?? updated.data),
+            ...updated.data,
+        });
+        if (endpointNodes(graph).length) writeStoredFlow(configId, graph);
     }
 
     async saveLayoutAndGenerate(): Promise<void> {
@@ -4118,53 +4218,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     async openDesigner(blank: boolean): Promise<void> {
         this._bridgePreviewData();
-        const configId = this._state.configId();
-        const queryParams = { from: 'guide' };
-
-        if (!blank) {
-            let template = this.selectedTemplate() ?? this.clonedTemplate();
-            if (template?.type === 'System' && template.sections?.length) {
-                template = await firstValueFrom(
-                    this._reports.createTemplate({
-                        name: this.reportTitle() || template.name,
-                        description: template.description,
-                        type: 'client',
-                        country: template.country,
-                        batchConfiguration: configId ?? undefined,
-                        sections: template.sections,
-                        logo: template.logo,
-                        primaryColor: template.primaryColor,
-                        identityColor: this.identityColor() || template.identityColor || '#000000',
-                        header: template.header,
-                        footer: template.footer,
-                        pageSize: template.pageSize ?? 'A4',
-                        orientation: template.orientation ?? 'portrait',
-                        pdfEngine: template.pdfEngine ?? 'puppeteer',
-                    })
-                );
-                this._state.selectedTemplate.set(template);
-                this._state.clonedTemplate.set(template);
-            }
-            const templateId = template?._id;
-            if (configId && templateId && template?.type !== 'System') {
-                void this._router.navigate(['/smart-batch', configId, 'report-builder', templateId], {
-                    queryParams,
-                });
-                return;
-            }
-            if (templateId && template?.type !== 'System') {
-                void this._router.navigate(['/smart-batch', 'report-builder', templateId], {
-                    queryParams,
-                });
-                return;
-            }
-        }
-
-        if (configId) {
-            void this._router.navigate(['/smart-batch', configId, 'report-builder'], { queryParams });
+        if (blank) {
+            this.pickScratch();
             return;
         }
-        void this._router.navigate(['/smart-batch', 'report-builder'], { queryParams });
+        this.enterLayout();
+        this.step.set('layout');
     }
 
     openMoldEditor(): void {
@@ -4621,6 +4680,31 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.flowGraph.set(graph);
     }
 
+    private _persistEndpointFlowToSmartBatch(): Promise<void> {
+        this._flowPersistTail = this._flowPersistTail
+            .catch(() => undefined)
+            .then(() => this._writeEndpointFlowNow());
+        return this._flowPersistTail;
+    }
+
+    private async _writeEndpointFlowNow(): Promise<void> {
+        if (!this.entities().length || !this.selectedFeatures().length) return;
+        if (!endpointNodes(this._state.flowGraph()).length) return;
+        await this._ensureLinkedConfiguration();
+        const id = this._state.configId();
+        const graph = this._state.flowGraph();
+        if (id && endpointNodes(graph).length) writeStoredFlow(id, graph);
+    }
+
+    private async _continueAfterEndpoints(next: GuideStepId): Promise<void> {
+        try {
+            await this._persistEndpointFlowToSmartBatch();
+        } catch {
+            /* consult can still create the configuration */
+        }
+        this.step.set(next);
+    }
+
     selectedEndpointsLabel(): string {
         return this._transloco.translate('visitaGuide.endpointsSelected', {
             count: this.selectedFeatures().length,
@@ -4929,11 +5013,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const updated = await firstValueFrom(this._reports.updateTemplate(draft._id, payload));
             this._state.selectedTemplate.set(updated);
             clearScratchDraft();
-            if (configId && updated._id) {
-                await firstValueFrom(
-                    this._batch.updateConfiguration(configId, { preferredReportTemplate: updated._id })
-                );
-            }
             return updated;
         }
 
@@ -4948,11 +5027,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (created?._id) clearScratchDraft();
         this._state.clonedTemplate.set(created);
         this._state.templateChoice.set('mine');
-        if (configId && created._id) {
-            await firstValueFrom(
-                this._batch.updateConfiguration(configId, { preferredReportTemplate: created._id })
-            );
-        }
         return created;
     }
 
@@ -5251,21 +5325,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.consultError.set(null);
 
         try {
+            await this._persistEndpointFlowToSmartBatch();
             const resolved = await this._pipeline.resolve(
                 this.entities(),
                 this.countryIsos()[0] ?? 'co',
                 pipelineName(this.entities()),
                 this.selectedFeatures(),
                 this.executor() === 'browser' ? 'browser' : 'queue',
-                this._state.flowGraph()
+                this._state.flowGraph(),
+                this._state.configId()
             );
             if (!this._alive) return;
 
             this._state.configId.set(resolved.configId);
             this._state.configuration.set(resolved.configuration);
-            this._state.clonedTemplate.set(resolved.template);
-            this._state.selectedTemplate.set(resolved.template);
-            if (resolved.template) this.hydrateCustomize(resolved.template);
+            if (resolved.template) {
+                this._state.clonedTemplate.set(resolved.template);
+                this._state.selectedTemplate.set(resolved.template);
+                this.hydrateCustomize(resolved.template);
+            }
 
             if (this.mode() === 'batch') {
                 this.isWorking.set(false);
@@ -5376,17 +5454,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (parsed.configId) {
             this._state.configId.set(parsed.configId);
             this._batch.getConfiguration(parsed.configId).subscribe({
-                next: (res) => this._state.configuration.set(res.data),
+                next: (res) => this._hydrateFromConfiguration(res.data),
             });
         }
         if (parsed.batchId) {
             this._state.batchId.set(parsed.batchId);
             this._batch.getSmartBatch(parsed.batchId).subscribe({
-                next: (res) => this._state.batch.set(res.data),
+                next: (res) => {
+                    this._state.batch.set(res.data);
+                    if (this.templateChoice() === 'scratch') {
+                        this.ensureIncludeItems();
+                        this.seedDefaultLayout();
+                    }
+                },
             });
         }
 
         if (parsed.templateChoice === 'scratch') {
+            if (parsed.configId) this._state.editingSavedLayout.set(true);
+            this._state.intent.set('template');
+            this._state.wantsReport.set(true);
             this._resumeScratchTemplate();
         }
 
@@ -5406,6 +5493,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _resumeScratchTemplate(): void {
+        if (this._state.configId()) this._state.editingSavedLayout.set(true);
         this._state.templateChoice.set('scratch');
         this._state.selectedTemplate.set(null);
         const draft = readScratchDraft();
@@ -5426,10 +5514,51 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const ids = new Set(this._pendingFeatureIds);
         if (!ids.size || !this.availableFeatures().length) return;
         const catalog = this.availableFeatures();
+        const selected = catalog.filter((feature) => ids.has(feature._id));
+        if (selected.length) this._state.selectedFeatures.set(selected);
+        this._restoreConsultationFlow(selected.length ? selected : catalog);
+        this._pendingFeatureIds = [];
+    }
+
+    private _hydrateFromConfiguration(config: BatchConfiguration): void {
+        const id = config._id ?? config.id ?? null;
+        if (id) this._state.configId.set(id);
+        this._state.configuration.set(config);
+        if (config.executor === 'browser' || config.executor === 'queue') {
+            this._state.executor.set(config.executor);
+        }
+        const draft = readFlowDraft();
+        const savedFlow =
+            parseFlowGraph(config.visitaFlow) ??
+            readStoredFlow(id) ??
+            (draft?.configId === id ? draft.graph : null);
+        if (savedFlow) this._pendingVisitaFlow = savedFlow;
+        const populated = featuresFromConfiguration(config);
+        const ids = featureIdsFromConfiguration(config);
+        if (populated.length) {
+            this._state.selectedFeatures.set(populated);
+            this._restoreConsultationFlow(populated);
+            return;
+        }
+        if (ids.length) {
+            this._pendingFeatureIds = ids;
+            this._applyPendingFeatureIds();
+        }
+    }
+
+    private _restoreConsultationFlow(features: AppFeature[]): void {
+        const catalog = this.availableFeatures().length ? this.availableFeatures() : features;
+        if (this._pendingVisitaFlow) {
+            this._state.flowGraph.set(hydrateFlowGraph(this._pendingVisitaFlow, catalog));
+            this._pendingVisitaFlow = null;
+            const ordered = flattenFlowGraph(this._state.flowGraph());
+            if (ordered.length) this._state.selectedFeatures.set(ordered);
+            return;
+        }
         const draft = readFlowDraft();
         const draftIds = draft ? usedFeatureIds(draft.graph) : [];
-        const draftMatches =
-            draftIds.length === ids.size && draftIds.every((id) => ids.has(id));
+        const ids = new Set(features.map((feature) => feature._id).filter(Boolean));
+        const draftMatches = draftIds.length === ids.size && draftIds.every((id) => ids.has(id));
         if (draft && draftMatches) {
             const graph = hydrateFlowGraph(draft.graph, catalog);
             this._state.flowGraph.set(graph);
@@ -5437,11 +5566,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (draft.inputValues && Object.keys(draft.inputValues).length) {
                 this._state.inputValues.set(draft.inputValues);
             }
-        } else {
-            const selected = catalog.filter((feature) => ids.has(feature._id));
-            if (selected.length) this._state.selectedFeatures.set(selected);
+            return;
         }
-        this._pendingFeatureIds = [];
+        if (!endpointNodes(this._state.flowGraph()).length && features.length) {
+            this._state.flowGraph.set(graphFromLinearChain(features));
+        }
     }
 
     private _writeGuideUrl(state: ReturnType<typeof parseGuideUrl>): void {
@@ -5485,7 +5614,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 if (linkedConfig) {
                     this._state.configId.set(linkedConfig);
                     this._batch.getConfiguration(linkedConfig).subscribe({
-                        next: (res) => this._state.configuration.set(res.data),
+                        next: (res) => this._hydrateFromConfiguration(res.data),
                     });
                 }
 

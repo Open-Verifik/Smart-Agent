@@ -95,6 +95,8 @@ export interface BatchConfiguration {
     preferredReportTemplate?: string | { _id: string };
     isActive?: boolean;
     executor?: SmartBatchExecutor;
+    /** Visual VISITA chain so the same consultation can be reopened and reused. */
+    visitaFlow?: unknown;
     createdAt?: string;
     updatedAt?: string;
 }

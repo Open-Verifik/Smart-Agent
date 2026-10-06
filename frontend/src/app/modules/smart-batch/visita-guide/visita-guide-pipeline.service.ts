@@ -13,6 +13,41 @@ import { chainStepFeedTemplates } from '../endpoint-chain.util';
 import { chainStepFeedTemplatesFromGraph, endpointNodes, FlowGraph } from '../endpoint-flow-graph.util';
 import { defaultSystemKey, GuideEntity, GUIDE_COUNTRIES } from './visita-guide.catalog';
 
+export const serializeVisitaFlow = (graph: FlowGraph): FlowGraph => ({
+    nodes: graph.nodes.map((node) => ({
+        id: node.id,
+        kind: node.kind,
+        x: node.x,
+        y: node.y,
+        ...(node.feature?._id
+            ? {
+                  feature: {
+                      _id: node.feature._id,
+                      code: node.feature.code,
+                      name: node.feature.name,
+                  } as AppFeature,
+              }
+            : {}),
+    })),
+    edges: graph.edges.map((edge) => ({ ...edge })),
+    fixed: graph.fixed ?? {},
+    ports: graph.ports ?? {},
+});
+
+export const featureIdsFromConfiguration = (config: BatchConfiguration | null | undefined): string[] =>
+    [...(config?.steps ?? [])]
+        .filter((step) => step.enabled !== false)
+        .sort((a, b) => a.sequence - b.sequence)
+        .map((step) => featureId(step.appFeature))
+        .filter(Boolean);
+
+export const featuresFromConfiguration = (config: BatchConfiguration | null | undefined): AppFeature[] =>
+    [...(config?.steps ?? [])]
+        .filter((step) => step.enabled !== false)
+        .sort((a, b) => a.sequence - b.sequence)
+        .map((step) => (typeof step.appFeature === 'object' ? step.appFeature : null))
+        .filter((feature): feature is AppFeature => Boolean(feature?._id));
+
 export interface GuidePipelineResult {
     configId: string;
     configuration: BatchConfiguration;
@@ -69,10 +104,30 @@ export class VisitaGuidePipelineService {
         name: string,
         selectedFeatures: AppFeature[] = [],
         executor: SmartBatchExecutor = 'queue',
-        graph?: FlowGraph
+        graph?: FlowGraph,
+        existingConfigId?: string | null
     ): Promise<GuidePipelineResult> {
         const unique = [...new Set(entities)];
         if (unique.length === 0) throw new Error('no entities');
+
+        if (existingConfigId) {
+            try {
+                const populated = await firstValueFrom(this._batch.getConfiguration(existingConfigId));
+                return this._applySelection(
+                    {
+                        configId: existingConfigId,
+                        configuration: { ...populated.data, executor },
+                        template: null,
+                    },
+                    selectedFeatures,
+                    unique,
+                    graph,
+                    executor
+                );
+            } catch {
+                /* create a new configuration below */
+            }
+        }
 
         if (unique.length === 1) {
             const cloned = await firstValueFrom(
@@ -90,7 +145,8 @@ export class VisitaGuidePipelineService {
                 },
                 selectedFeatures,
                 unique,
-                graph
+                graph,
+                executor
             );
         }
 
@@ -205,16 +261,26 @@ export class VisitaGuidePipelineService {
             configuration: populated.data,
             template,
         };
-        return this._applySelection(mixedResult, selectedFeatures, unique, graph);
+        return this._applySelection(mixedResult, selectedFeatures, unique, graph, executor);
     }
 
     private async _applySelection(
         result: GuidePipelineResult,
         selectedFeatures: AppFeature[],
         entities: GuideEntity[],
-        graph?: FlowGraph
+        graph?: FlowGraph,
+        executor: SmartBatchExecutor = 'queue'
     ): Promise<GuidePipelineResult> {
-        if (!selectedFeatures.length) return result;
+        if (!selectedFeatures.length) {
+            const configuration = await this._updateConfiguration(result.configId, {
+                executor,
+                ...(graph && endpointNodes(graph).length ? { visitaFlow: serializeVisitaFlow(graph) } : {}),
+            });
+            return {
+                ...result,
+                configuration: { ...configuration, executor },
+            };
+        }
 
         const mixed = entities.includes('citizen') && entities.includes('company');
         const hasCitizen = entities.includes('citizen');
@@ -257,8 +323,14 @@ export class VisitaGuidePipelineService {
             };
         });
 
-        await firstValueFrom(this._batch.updateConfiguration(result.configId, { steps }));
-        const populated = await firstValueFrom(this._batch.getConfiguration(result.configId));
+        const saved = await this._updateConfiguration(result.configId, {
+            steps,
+            executor,
+            ...(graph && endpointNodes(graph).length ? { visitaFlow: serializeVisitaFlow(graph) } : {}),
+        });
+        const populated = await firstValueFrom(this._batch.getConfiguration(result.configId)).catch(
+            () => ({ data: saved })
+        );
         const remapped = result.template
             ? { ...result.template, sections: remapSections(result.template.sections, seqMap) }
             : null;
@@ -268,6 +340,19 @@ export class VisitaGuidePipelineService {
             configuration: populated.data,
             template: remapped,
         };
+    }
+
+    private async _updateConfiguration(
+        id: string,
+        patch: Partial<BatchConfiguration>
+    ): Promise<BatchConfiguration> {
+        try {
+            return (await firstValueFrom(this._batch.updateConfiguration(id, patch))).data;
+        } catch (error) {
+            if (patch.visitaFlow === undefined) throw error;
+            const { visitaFlow: _ignored, ...rest } = patch;
+            return (await firstValueFrom(this._batch.updateConfiguration(id, rest))).data;
+        }
     }
 
     private _entityForFeature(feature: AppFeature, entities: GuideEntity[]): GuideEntity {

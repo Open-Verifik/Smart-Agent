@@ -1,10 +1,13 @@
 import { FlowGraph, parseFlowGraph } from '../endpoint-flow-graph.util';
+import { serializeVisitaFlow } from './visita-guide-pipeline.service';
 
 const STORAGE_KEY = 'smart-batch.visita-guide.flow-draft';
+const STORE_PREFIX = 'smart-batch.visita-guide.flow.';
 
 export type GuideFlowDraft = {
     graph: FlowGraph;
     inputValues?: Record<string, string>;
+    configId?: string | null;
 };
 
 const isDraft = (value: unknown): value is GuideFlowDraft => {
@@ -28,7 +31,11 @@ export const readFlowDraft = (): GuideFlowDraft | null => {
                       )
                   )
                 : {};
-        return { graph, inputValues };
+        const configId =
+            typeof (parsed as GuideFlowDraft).configId === 'string'
+                ? (parsed as GuideFlowDraft).configId
+                : null;
+        return { graph, inputValues, configId };
     } catch {
         return null;
     }
@@ -39,6 +46,26 @@ export const writeFlowDraft = (draft: GuideFlowDraft): void => {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
     } catch {
         /* quota / private mode */
+    }
+};
+
+export const writeStoredFlow = (configId: string, graph: FlowGraph): void => {
+    if (!configId || !parseFlowGraph(graph)) return;
+    try {
+        localStorage.setItem(STORE_PREFIX + configId, JSON.stringify(serializeVisitaFlow(graph)));
+    } catch {
+        /* quota / private mode */
+    }
+};
+
+export const readStoredFlow = (configId: string | null | undefined): FlowGraph | null => {
+    if (!configId) return null;
+    try {
+        const raw = localStorage.getItem(STORE_PREFIX + configId);
+        if (!raw) return null;
+        return parseFlowGraph(JSON.parse(raw));
+    } catch {
+        return null;
     }
 };
 

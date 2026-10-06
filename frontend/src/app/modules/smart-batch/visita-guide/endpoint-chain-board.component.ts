@@ -24,6 +24,10 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
     addEndpointNode,
+    addExtraPort,
+    extraPortsFor,
+    hidePort,
+    hiddenPortsFor,
     connectPorts,
     cubicWire,
     emptyFlowGraph,
@@ -55,7 +59,7 @@ import {
     graphFromLinearChain,
     wireColorForIndex,
 } from '../endpoint-flow-graph.util';
-import { ChainProfile, chainProfileForFeature } from '../endpoint-chain.util';
+import { canonicalChainField, ChainProfile, chainProfileForFeature } from '../endpoint-chain.util';
 import {
     featureParamChips,
     FeatureParamChip,
@@ -63,6 +67,7 @@ import {
     paramEnumChipClass,
     paramFieldLabelKey,
     requiredParamChipClass,
+    requiredVisibleFields,
 } from '../endpoint-param-highlight.util';
 import { FEATURE_GROUP_ICONS, featureGroup, FeatureGroupId, featureGroupIcon } from '../feature-group.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
@@ -70,6 +75,15 @@ import { AppFeature } from '../smart-batch.service';
 import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
 
 type FlowDrag = { from: 'tray'; feature: AppFeature };
+
+const DEFAULT_CHAIN_PORTS = new Set([
+    'documentNumber',
+    'documentType',
+    'plate',
+    'vin',
+    'fullName',
+    'processNumber',
+]);
 
 @Component({
     selector: 'endpoint-details-dialog',
@@ -232,7 +246,7 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                         @for (node of graph().nodes; track node.id) {
                             @if (node.kind !== 'merge') {
                             <div
-                                class="absolute z-10 rounded-2xl shadow-sm ring-1"
+                                class="flow-node absolute z-10 cursor-grab rounded-2xl shadow-sm ring-1 select-none active:cursor-grabbing"
                                 [style.left.px]="node.x"
                                 [style.top.px]="node.y"
                                 [style.width.px]="nodeWidth(node)"
@@ -268,6 +282,15 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                         }
                                     </div>
                                     @if (node.kind === 'endpoint') {
+                                        <button
+                                            type="button"
+                                            class="text-slate-400 hover:text-sky-600"
+                                            [matTooltip]="'visitaGuide.flowShowConfig' | transloco"
+                                            (pointerdown)="$event.stopPropagation()"
+                                            (click)="openNodeConfig(node.id); $event.stopPropagation()"
+                                        >
+                                            <mat-icon class="!h-4 !w-4 !text-base">tune</mat-icon>
+                                        </button>
                                         <button type="button" class="text-slate-400 hover:text-red-500" (pointerdown)="$event.stopPropagation()" (click)="removeNode(node.id); $event.stopPropagation()">
                                             <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
                                         </button>
@@ -278,51 +301,122 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                     @for (port of inputPorts(node); track port) {
                                         <div
                                             data-flow-port
-                                            class="relative flex h-8 items-center pl-5 pr-1 text-[11px] text-slate-600 dark:text-slate-300"
+                                            class="relative flex h-8 cursor-grab items-center pl-5 pr-1 text-[11px] text-slate-600 select-none dark:text-slate-300"
                                             [class.bg-sky-100]="isHotInput(node, port)"
                                             [class.dark:bg-sky-950]="isHotInput(node, port)"
-                                            (pointerdown)="onInputPortDown($event, node, port)"
                                         >
                                             <button
                                                 type="button"
-                                                class="absolute -left-2 z-20 h-4 w-4 rounded-full border-2 border-white bg-slate-400 shadow"
+                                                class="absolute -left-2 z-20 h-4 w-4 cursor-crosshair rounded-full border-2 border-white bg-slate-400 shadow"
                                                 [class.bg-sky-500]="!!boundSource(node.id, port)"
                                                 [class.ring-2]="isHotInput(node, port)"
                                                 [class.ring-sky-400]="isHotInput(node, port)"
+                                                (pointerdown)="onInputPortDown($event, node, port)"
                                             ></button>
-                                            <span class="min-w-0 truncate">{{ portLabel(node, port) }}</span>
+                                            <span class="min-w-0 flex-1 truncate">{{ portLabel(node, port) }}</span>
+                                            @if (canHidePort(node, 'inputs', port)) {
+                                                <button
+                                                    type="button"
+                                                    class="ml-0.5 text-slate-300 hover:text-red-500"
+                                                    [matTooltip]="'visitaGuide.flowRemoveParam' | transloco"
+                                                    (pointerdown)="$event.stopPropagation()"
+                                                    (click)="hideVisiblePort(node, 'inputs', port); $event.stopPropagation()"
+                                                >
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
+                                                </button>
+                                            }
                                         </div>
+                                    }
+                                    @if (node.kind === 'endpoint') {
+                                        <button
+                                            type="button"
+                                            class="ml-3 mt-1 inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-800 dark:bg-violet-950 dark:text-violet-200"
+                                            [matMenuTriggerFor]="inputParamMenu"
+                                            [matTooltip]="'visitaGuide.flowAddInputParams' | transloco"
+                                            (pointerdown)="$event.stopPropagation()"
+                                            (click)="$event.stopPropagation()"
+                                        >
+                                            {{ 'visitaGuide.flowAddParams' | transloco }}
+                                        </button>
+                                        <mat-menu #inputParamMenu="matMenu">
+                                            @for (port of allInputChoices(node); track port) {
+                                                <button
+                                                    type="button"
+                                                    mat-menu-item
+                                                    (click)="toggleVisiblePort(node, 'inputs', port)"
+                                                >
+                                                    <mat-icon>{{ isPortVisible(node, 'inputs', port) ? 'check' : 'add' }}</mat-icon>
+                                                    <span>{{ fieldLabel(port) }}</span>
+                                                </button>
+                                            }
+                                            @if (!allInputChoices(node).length) {
+                                                <button type="button" mat-menu-item disabled>
+                                                    {{ 'visitaGuide.flowNoMoreParams' | transloco }}
+                                                </button>
+                                            }
+                                        </mat-menu>
                                     }
                                     </div>
                                     <div>
                                     @for (port of outputPorts(node); track port) {
                                         <div
                                             data-flow-port
-                                            class="relative flex h-8 cursor-crosshair items-center justify-end pl-1 pr-5 text-[11px] font-medium text-slate-700 dark:text-slate-200"
-                                            (pointerdown)="onOutputPortDown($event, node, port)"
+                                            class="relative flex h-8 cursor-grab items-center justify-end pl-1 pr-5 text-[11px] font-medium text-slate-700 select-none dark:text-slate-200"
                                         >
+                                            @if (canHidePort(node, 'outputs', port)) {
+                                                <button
+                                                    type="button"
+                                                    class="mr-0.5 text-slate-300 hover:text-red-500"
+                                                    [matTooltip]="'visitaGuide.flowRemoveParam' | transloco"
+                                                    (pointerdown)="$event.stopPropagation()"
+                                                    (click)="hideVisiblePort(node, 'outputs', port); $event.stopPropagation()"
+                                                >
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
+                                                </button>
+                                            }
                                             <span class="min-w-0 truncate">{{ fieldLabel(port) }}</span>
                                             <button
                                                 type="button"
-                                                class="absolute -right-2 z-20 h-4 w-4 rounded-full border-2 border-white bg-emerald-500 shadow"
+                                                class="absolute -right-2 z-20 h-4 w-4 cursor-crosshair rounded-full border-2 border-white bg-emerald-500 shadow"
                                                 [class.ring-2]="hasOutgoing(node.id, port)"
                                                 [class.ring-emerald-300]="hasOutgoing(node.id, port)"
                                                 (pointerdown)="onOutputPortDown($event, node, port)"
                                             ></button>
                                         </div>
                                     }
+                                    @if (node.kind === 'endpoint') {
+                                        <div class="mt-1 flex justify-end pr-3">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+                                                [matMenuTriggerFor]="outputParamMenu"
+                                                [matTooltip]="'visitaGuide.flowAddOutputParams' | transloco"
+                                                (pointerdown)="$event.stopPropagation()"
+                                                (click)="$event.stopPropagation()"
+                                            >
+                                                {{ 'visitaGuide.flowAddParams' | transloco }}
+                                            </button>
+                                        </div>
+                                        <mat-menu #outputParamMenu="matMenu">
+                                            @for (port of allOutputChoices(node); track port) {
+                                                <button
+                                                    type="button"
+                                                    mat-menu-item
+                                                    (click)="toggleVisiblePort(node, 'outputs', port)"
+                                                >
+                                                    <mat-icon>{{ isPortVisible(node, 'outputs', port) ? 'check' : 'add' }}</mat-icon>
+                                                    <span>{{ fieldLabel(port) }}</span>
+                                                </button>
+                                            }
+                                            @if (!allOutputChoices(node).length) {
+                                                <button type="button" mat-menu-item disabled>
+                                                    {{ 'visitaGuide.flowNoMoreParams' | transloco }}
+                                                </button>
+                                            }
+                                        </mat-menu>
+                                    }
                                     </div>
                                 </div>
-                                @if (node.kind === 'endpoint') {
-                                    <button
-                                        type="button"
-                                        class="mb-2 ml-3 inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-800"
-                                        (pointerdown)="$event.stopPropagation()"
-                                        (click)="selectNode(node.id)"
-                                    >
-                                        {{ 'visitaGuide.flowAddBranch' | transloco }}
-                                    </button>
-                                }
                             </div>
                             }
                         }
@@ -491,9 +585,40 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                     @if (node.feature) {
                                         <p class="mt-1 font-mono text-[11px] text-slate-500">{{ requestLabel(node.feature) }}</p>
                                         <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowInputs' | transloco }}</p>
+                                        <button
+                                            type="button"
+                                            class="mt-2 inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-800 dark:bg-violet-950 dark:text-violet-200"
+                                            [matMenuTriggerFor]="configInputMenu"
+                                        >
+                                            {{ 'visitaGuide.flowAddInputParams' | transloco }}
+                                        </button>
+                                        <mat-menu #configInputMenu="matMenu">
+                                            @for (port of allInputChoices(node); track port) {
+                                                <button
+                                                    type="button"
+                                                    mat-menu-item
+                                                    (click)="toggleVisiblePort(node, 'inputs', port)"
+                                                >
+                                                    <mat-icon>{{ isPortVisible(node, 'inputs', port) ? 'check' : 'add' }}</mat-icon>
+                                                    <span>{{ fieldLabel(port) }}</span>
+                                                </button>
+                                            }
+                                        </mat-menu>
                                         @for (port of inputPorts(node); track port) {
                                             <div class="mt-2 rounded-xl border border-slate-200 p-2 dark:border-gray-800">
-                                                <p class="text-xs font-medium text-slate-800 dark:text-slate-100">{{ fieldLabel(port) }}</p>
+                                                <div class="flex items-start justify-between gap-2">
+                                                    <p class="text-xs font-medium text-slate-800 dark:text-slate-100">{{ fieldLabel(port) }}</p>
+                                                    @if (canHidePort(node, 'inputs', port)) {
+                                                        <button
+                                                            type="button"
+                                                            class="text-slate-400 hover:text-red-500"
+                                                            [matTooltip]="'visitaGuide.flowRemoveParam' | transloco"
+                                                            (click)="hideVisiblePort(node, 'inputs', port)"
+                                                        >
+                                                            <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                                                        </button>
+                                                    }
+                                                </div>
                                                 <p class="mt-1 text-[11px] text-sky-700 dark:text-sky-300">{{ boundSource(node.id, port) || ('visitaGuide.flowAskUser' | transloco) }}</p>
                                                 <select
                                                     class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
@@ -513,9 +638,40 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                             </div>
                                         }
                                         <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowOutputs' | transloco }}</p>
+                                        <button
+                                            type="button"
+                                            class="mt-2 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+                                            [matMenuTriggerFor]="configOutputMenu"
+                                        >
+                                            {{ 'visitaGuide.flowAddOutputParams' | transloco }}
+                                        </button>
+                                        <mat-menu #configOutputMenu="matMenu">
+                                            @for (port of allOutputChoices(node); track port) {
+                                                <button
+                                                    type="button"
+                                                    mat-menu-item
+                                                    (click)="toggleVisiblePort(node, 'outputs', port)"
+                                                >
+                                                    <mat-icon>{{ isPortVisible(node, 'outputs', port) ? 'check' : 'add' }}</mat-icon>
+                                                    <span>{{ fieldLabel(port) }}</span>
+                                                </button>
+                                            }
+                                        </mat-menu>
                                         <div class="mt-2 flex flex-wrap gap-1">
                                             @for (port of outputPorts(node); track port) {
-                                                <span class="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">{{ fieldLabel(port) }}</span>
+                                                <span class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+                                                    {{ fieldLabel(port) }}
+                                                    @if (canHidePort(node, 'outputs', port)) {
+                                                        <button
+                                                            type="button"
+                                                            class="text-emerald-700 hover:text-red-500"
+                                                            [matTooltip]="'visitaGuide.flowRemoveParam' | transloco"
+                                                            (click)="hideVisiblePort(node, 'outputs', port)"
+                                                        >
+                                                            <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
+                                                        </button>
+                                                    }
+                                                </span>
                                             }
                                         </div>
                                     } @else {
@@ -553,6 +709,15 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
             }
             .pointer-events-stroke {
                 pointer-events: stroke;
+            }
+            .flow-node,
+            .flow-node p,
+            .flow-node span {
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .flow-node button {
+                cursor: pointer;
             }
             .flow-drawer {
                 pointer-events: none;
@@ -801,7 +966,8 @@ export class EndpointChainBoardComponent {
     }
 
     onNodePointerDown(event: PointerEvent, node: FlowGraphNode): void {
-        if ((event.target as HTMLElement).closest('button, [data-flow-port]')) return;
+        if ((event.target as HTMLElement).closest('button')) return;
+        event.preventDefault();
         event.stopPropagation();
         const point = this._toWorld(event);
         this._didMove = false;
@@ -816,7 +982,7 @@ export class EndpointChainBoardComponent {
             this._didMove = false;
             return;
         }
-        this.selectNode(node.id);
+        this.selectNode(node.id, false);
     }
 
     onOutputPortDown(event: PointerEvent, node: FlowGraphNode, port: string): void {
@@ -928,12 +1094,16 @@ export class EndpointChainBoardComponent {
         this.configOpen.set(previous.config);
     }
 
-    selectNode(id: string, revealConfig = true): void {
+    selectNode(id: string, revealConfig = false): void {
         this.selectedId.set(id);
         if (!revealConfig) return;
         this.configOpen.set(true);
         this.libraryOpen.set(false);
         this.selectedWireId.set(null);
+    }
+
+    openNodeConfig(id: string): void {
+        this.selectNode(id, true);
     }
 
     nodeWidth(node: FlowGraphNode): number {
@@ -947,14 +1117,101 @@ export class EndpointChainBoardComponent {
                 .edges.filter((edge) => edge.to === FLOW_RESULT_ID)
                 .map((edge) => edge.toPort);
         }
-        return this.profiles()[node.id]?.inputs ?? [];
+        return this._visiblePorts(
+            node,
+            'inputs',
+            [...this._defaultInputPorts(node), ...this._wiredInputPorts(node), ...extraPortsFor(this.graph(), node.id, 'inputs')]
+        );
     }
 
     outputPorts(node: FlowGraphNode): string[] {
         if (node.kind === 'start') return startOutputPorts(this.graph(), this.profiles());
         if (node.kind === 'result') return [];
-        const outputs = this.profiles()[node.id]?.outputs ?? [];
-        return [...outputs.slice(0, 8), '*'];
+        return this._visiblePorts(
+            node,
+            'outputs',
+            [...this._defaultOutputPorts(node), ...this._wiredOutputPorts(node), ...extraPortsFor(this.graph(), node.id, 'outputs')]
+        );
+    }
+
+    allInputChoices(node: FlowGraphNode): string[] {
+        return this._uniquePorts(this.profiles()[node.id]?.inputs ?? []);
+    }
+
+    allOutputChoices(node: FlowGraphNode): string[] {
+        return this._uniquePorts([...(this.profiles()[node.id]?.outputs ?? []), '*']);
+    }
+
+    isPortVisible(node: FlowGraphNode, side: 'inputs' | 'outputs', port: string): boolean {
+        return (side === 'inputs' ? this.inputPorts(node) : this.outputPorts(node)).includes(port);
+    }
+
+    canHidePort(node: FlowGraphNode, _side: 'inputs' | 'outputs', _port: string): boolean {
+        return node.kind === 'endpoint';
+    }
+
+    hideVisiblePort(node: FlowGraphNode, side: 'inputs' | 'outputs', port: string): void {
+        if (!this.canHidePort(node, side, port)) return;
+        const next = hidePort(this.graph(), node.id, side, port);
+        const selected = this.selectedWireId();
+        if (selected && !next.edges.some((edge) => edge.id === selected)) {
+            this.selectedWireId.set(null);
+        }
+        this.graph.set(next);
+        this._emit();
+    }
+
+    toggleVisiblePort(node: FlowGraphNode, side: 'inputs' | 'outputs', port: string): void {
+        if (this.isPortVisible(node, side, port)) {
+            this.hideVisiblePort(node, side, port);
+            return;
+        }
+        this.graph.set(addExtraPort(this.graph(), node.id, side, port));
+        this._emit();
+    }
+
+    private _visiblePorts(node: FlowGraphNode, side: 'inputs' | 'outputs', ports: string[]): string[] {
+        const hidden = new Set(hiddenPortsFor(this.graph(), node.id, side));
+        return this._uniquePorts(ports).filter((port) => !hidden.has(port));
+    }
+
+    private _defaultInputPorts(node: FlowGraphNode): string[] {
+        const profile = this.profiles()[node.id];
+        const catalog = profile?.inputs ?? [];
+        const required = (node.feature ? requiredVisibleFields(node.feature) : [])
+            .map((field) => canonicalChainField(field))
+            .filter((field) => catalog.includes(field));
+        if (required.length) return required;
+        return catalog.filter((field) => DEFAULT_CHAIN_PORTS.has(field)).slice(0, 2);
+    }
+
+    private _defaultOutputPorts(node: FlowGraphNode): string[] {
+        const catalog = this.profiles()[node.id]?.outputs ?? [];
+        const seeds = catalog.filter((field) => DEFAULT_CHAIN_PORTS.has(field));
+        return (seeds.length ? seeds : catalog).slice(0, 3);
+    }
+
+    private _wiredInputPorts(node: FlowGraphNode): string[] {
+        const fixed = Object.keys(this.graph().fixed[node.id] ?? {});
+        const wired = this.graph()
+            .edges.filter((edge) => edge.to === node.id && edge.toPort !== '*')
+            .map((edge) => edge.toPort);
+        return [...fixed, ...wired];
+    }
+
+    private _wiredOutputPorts(node: FlowGraphNode): string[] {
+        return this.graph()
+            .edges.filter(
+                (edge) =>
+                    edge.from === node.id &&
+                    edge.fromPort !== '*' &&
+                    edge.to !== FLOW_RESULT_ID
+            )
+            .map((edge) => edge.fromPort);
+    }
+
+    private _uniquePorts(ports: string[]): string[] {
+        return [...new Set(ports.filter(Boolean))];
     }
 
     boundSource(nodeId: string, port: string): string {
