@@ -1,6 +1,16 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    computed,
+    effect,
+    HostListener,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -146,6 +156,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     isLoading = signal(false);
     isGenerating = signal(false);
     isSending = signal(false);
+    previewContextMenu = signal<{ x: number; y: number } | null>(null);
 
     /** Results display: PDF preview first, then table / json / excel */
     stepResultsViewMode = signal<'pdf' | 'table' | 'json' | 'excel-ag'>('pdf');
@@ -800,7 +811,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
 
         this.setStepResultsViewMode('pdf');
-        void this._generateReport(template._id!, batchId);
+        void this._generateReport(template._id!, batchId, { download: false });
     }
 
     private async _generateReport(
@@ -813,7 +824,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             this.isGenerating.set(true);
             const pdfBlob = await this._pdfBlobForCurrentRow(templateId);
             this._keepGeneratedPdf(pdfBlob);
-            if (options.download !== false) {
+            if (options.download) {
                 this._downloadHref(
                     this.pdfDataUrl()!,
                     `SmartReport_${this.selectedTemplate()?.name || templateId}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
@@ -821,7 +832,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             }
 
             this._snack.open(
-                this._transloco.translate('smartReport.pdfDownloaded'),
+                this._transloco.translate(
+                    options.download ? 'smartReport.pdfDownloaded' : 'smartReport.pdfReady'
+                ),
                 this._snackCloseLabel(),
                 { duration: 3000 }
             );
@@ -1029,6 +1042,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     }
 
     downloadReport(): void {
+        this.closePreviewContextMenu();
         const href = this.pdfDataUrl();
         if (href) {
             this._downloadHref(
@@ -1040,7 +1054,43 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             });
             return;
         }
-        void this.generateReport();
+        const template = this.selectedTemplate();
+        const batchId = this.batchId();
+        if (!template?._id || !batchId) {
+            this._snack.open(
+                this._transloco.translate('smartReport.pleaseSelectTemplate'),
+                this._snackCloseLabel(),
+                { duration: 3000 }
+            );
+            return;
+        }
+        this.setStepResultsViewMode('pdf');
+        void this._generateReport(template._id, batchId, { download: true });
+    }
+
+    onPreviewContextMenu(event: MouseEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        const menuWidth = 220;
+        const menuHeight = 48;
+        this.previewContextMenu.set({
+            x: Math.min(event.clientX, window.innerWidth - menuWidth),
+            y: Math.min(event.clientY, window.innerHeight - menuHeight),
+        });
+    }
+
+    closePreviewContextMenu(): void {
+        this.previewContextMenu.set(null);
+    }
+
+    @HostListener('document:click')
+    onDocumentClick(): void {
+        this.closePreviewContextMenu();
+    }
+
+    @HostListener('document:keydown.escape')
+    onDocumentEscape(): void {
+        this.closePreviewContextMenu();
     }
 
     /** Escape a cell value for CSV (quote if contains comma, newline, or double quote) */

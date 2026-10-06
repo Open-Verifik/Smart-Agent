@@ -51,6 +51,13 @@ const MM_TO_PX = 3.7795275591;
                             [watermarkWidth]="template().watermark?.width ?? 280"
                             [watermarkHeight]="template().watermark?.height ?? 160"
                             [watermarkRotation]="template().watermark?.rotation ?? -15"
+                            [signatureEnabled]="!!(template().signature?.enabled && template().signature?.image)"
+                            [signatureImage]="template().signature?.image || null"
+                            [signatureX]="template().signature?.x ?? 48"
+                            [signatureY]="template().signature?.y ?? 720"
+                            [signatureWidth]="template().signature?.width ?? 160"
+                            [signatureHeight]="template().signature?.height ?? 64"
+                            [signaturePage]="template().signature?.page ?? 0"
                         ></report-preview>
                     </div>
                 </div>

@@ -233,32 +233,31 @@
                                         }
                                     </button>
 
-                                    @if (report()) {
-                                        <button
-                                            mat-stroked-button
-                                            (click)="downloadReport()"
-                                            class="w-full !rounded-xl !inline-flex !items-center !justify-center"
-                                        >
-                                            <mat-icon class="mr-2 !align-middle">download</mat-icon>
-                                            {{ 'smartReport.downloadPdf' | transloco }}
-                                        </button>
+                                    <button
+                                        mat-stroked-button
+                                        (click)="downloadReport()"
+                                        [disabled]="isGenerating()"
+                                        class="w-full !rounded-xl !inline-flex !items-center !justify-center"
+                                    >
+                                        <mat-icon class="mr-2 !align-middle">download</mat-icon>
+                                        {{ 'smartReport.downloadPdf' | transloco }}
+                                    </button>
 
-                                        <button
-                                            mat-stroked-button
-                                            (click)="sendEmail()"
-                                            [disabled]="isSending()"
-                                            class="w-full !rounded-xl !inline-flex !items-center !justify-center"
-                                        >
-                                            @if (isSending()) {
-                                                <mat-icon class="animate-spin mr-2 !align-middle"
-                                                    >refresh</mat-icon
-                                                >
-                                                {{ 'smartReport.sending' | transloco }}
-                                            } @else {
-                                                {{ 'smartReport.sendViaEmail' | transloco }}
-                                            }
-                                        </button>
-                                    }
+                                    <button
+                                        mat-stroked-button
+                                        (click)="sendEmail()"
+                                        [disabled]="isSending() || isGenerating()"
+                                        class="w-full !rounded-xl !inline-flex !items-center !justify-center"
+                                    >
+                                        @if (isSending()) {
+                                            <mat-icon class="animate-spin mr-2 !align-middle"
+                                                >refresh</mat-icon
+                                            >
+                                            {{ 'smartReport.sending' | transloco }}
+                                        } @else {
+                                            {{ 'smartReport.sendViaEmail' | transloco }}
+                                        }
+                                    </button>
                                 }
 
                                 <!-- Data Export -->
@@ -307,10 +306,16 @@
                 </div>
 
                 <!-- Right column: Step results layout + PDF Preview -->
-                <div class="lg:col-span-2 space-y-6">
+                <div
+                    class="lg:col-span-2 lg:sticky lg:top-[5.5rem] lg:max-h-[calc(100vh-7rem)] flex min-h-0 flex-col"
+                >
                     <!-- Step results layout (print-style, drag-and-drop) -->
-                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
-                        <div class="border-b border-stone-200 bg-stone-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-950/50">
+                    <div
+                        class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                    >
+                        <div
+                            class="shrink-0 border-b border-stone-200 bg-stone-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-950/50"
+                        >
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <h3 class="font-semibold text-stone-950 dark:text-white">
@@ -379,9 +384,12 @@
                             </div>
                         </div>
                         @if (stepResultsContentExpanded()) {
-                            <div class="p-6">
+                            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">
                                 @if (stepResultsViewMode() === 'pdf') {
-                                    <div class="relative min-h-[600px] overflow-auto dark:bg-gray-950/30">
+                                    <div
+                                        class="relative min-h-[480px] dark:bg-gray-950/30"
+                                        (contextmenu)="onPreviewContextMenu($event)"
+                                    >
                                         @if (isGenerating()) {
                                             <div
                                                 class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 text-stone-400 dark:bg-gray-950/80 dark:text-stone-500"
@@ -778,4 +786,23 @@
         </button>
     </div>
 </ng-template>
+
+@if (previewContextMenu(); as menu) {
+    <div
+        class="fixed z-[80] min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+        [style.left.px]="menu.x"
+        [style.top.px]="menu.y"
+        (click)="$event.stopPropagation()"
+        (contextmenu)="$event.preventDefault()"
+    >
+        <button
+            type="button"
+            class="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+            (click)="downloadReport()"
+        >
+            <mat-icon class="!text-lg !h-5 !w-5 text-stone-500 dark:text-stone-400">download</mat-icon>
+            {{ 'smartReport.downloadPdf' | transloco }}
+        </button>
+    </div>
+}
 

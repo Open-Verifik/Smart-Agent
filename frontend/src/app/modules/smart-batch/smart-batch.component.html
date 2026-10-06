@@ -661,6 +661,15 @@
                             [watermarkWidth]="preview.watermark?.width ?? 280"
                             [watermarkHeight]="preview.watermark?.height ?? 160"
                             [watermarkRotation]="preview.watermark?.rotation ?? -15"
+                            [signatureEnabled]="!!(preview.signature?.enabled && preview.signature?.image)"
+                            [signatureImage]="preview.signature?.image || null"
+                            [signatureX]="preview.signature?.x ?? 48"
+                            [signatureY]="preview.signature?.y ?? 720"
+                            [signatureWidth]="preview.signature?.width ?? 160"
+                            [signatureHeight]="preview.signature?.height ?? 64"
+                            [signaturePage]="preview.signature?.page ?? 0"
+                            [termsAndConditions]="preview.termsAndConditions || ''"
+                            [termsPosition]="preview.termsPosition || 'left'"
                         ></report-preview>
                     }
                 </div>
