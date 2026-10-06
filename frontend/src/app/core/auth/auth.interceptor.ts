@@ -126,7 +126,7 @@ function handleSessionExpiration(
     // clearWeb2Only: true - preserve wallet if user has one
     sessionService.handleSessionExpired({
         clearWeb2Only: true,
-        silent: false,
+        showModal: true,
     });
 
     // Reset flag after a delay

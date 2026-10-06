@@ -930,11 +930,16 @@ export class PostmanService {
         if (getPostmanRequestValidationIssues(endpoint, postDraft).length > 0) {
             return;
         }
+
+        const isX402 = this.paymentMethod() === 'x402';
+        if (!isX402 && !this._sessionService.isTokenValid()) {
+            this._sessionService.openAuthModal();
+            return;
+        }
+
         this.isLoading.set(true);
         this.response.set(null);
         this.error.set(null);
-
-        const isX402 = this.paymentMethod() === 'x402';
 
         const effectiveUrl = buildPostmanEffectiveUrl(endpoint);
         const pathParamKeys = getPostmanPathParamKeysForEndpoint(endpoint);
@@ -1027,6 +1032,10 @@ export class PostmanService {
             }),
             catchError((err) => {
                 this.isLoading.set(false);
+                if (!isX402 && err?.status === 401) {
+                    this._sessionService.openAuthModal();
+                    return of(null);
+                }
                 this.error.set(err);
                 this._refreshCredits(err?.status);
                 return of(null);

@@ -78,6 +78,11 @@ export class CheckListRequestService {
                   );
         if (getPostmanRequestValidationIssues(endpoint, postDraft).length > 0) return;
 
+        if (!this._session.isTokenValid()) {
+            this._session.openAuthModal();
+            return;
+        }
+
         this.loading.set(true);
         this.response.set(null);
         this.error.set(null);
@@ -135,6 +140,10 @@ export class CheckListRequestService {
                 }),
                 catchError((err) => {
                     this.loading.set(false);
+                    if (err?.status === 401) {
+                        this._session.openAuthModal();
+                        return of(null);
+                    }
                     this.error.set(err);
                     this._refreshCredits(err?.status);
                     return of(null);

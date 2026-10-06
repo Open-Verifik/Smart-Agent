@@ -33,6 +33,8 @@ export class SessionService {
 
     // Storage key for tracking reload attempts
     private readonly RELOAD_TRACKING_KEY = 'session_reload_tracking';
+    private readonly AUTH_MODAL_ID = 'verifik-auth-modal';
+    private _authModalPending = false;
 
     constructor() {
         // Initialize reload tracking from localStorage (persists across reloads)
@@ -121,11 +123,48 @@ export class SessionService {
             this._isLoggingOut = false;
         }, 1000);
 
+        if (options.showModal) {
+            this.openAuthModal();
+            return;
+        }
+
         // Navigate if not silent
         if (!options.silent) {
             // Navigate to home (which will show auth modal or redirect appropriately)
             this._router.navigate(['/']);
         }
+    }
+
+    /**
+     * Opens the existing sign-in / create-account dialog.
+     * No-ops when that dialog is already open or about to open.
+     */
+    openAuthModal(): void {
+        if (this._authModalPending || this._matDialog.getDialogById(this.AUTH_MODAL_ID)) {
+            return;
+        }
+
+        this._authModalPending = true;
+        void import('app/layout/common/auth-modal/auth-modal.component')
+            .then(({ AuthModalComponent }) => {
+                if (this._matDialog.getDialogById(this.AUTH_MODAL_ID)) {
+                    this._authModalPending = false;
+                    return;
+                }
+
+                const dialogRef = this._matDialog.open(AuthModalComponent, {
+                    id: this.AUTH_MODAL_ID,
+                    panelClass: 'auth-modal-dialog',
+                    width: '400px',
+                    maxWidth: '100vw',
+                });
+                dialogRef.afterClosed().subscribe(() => {
+                    this._authModalPending = false;
+                });
+            })
+            .catch(() => {
+                this._authModalPending = false;
+            });
     }
 
     /**
