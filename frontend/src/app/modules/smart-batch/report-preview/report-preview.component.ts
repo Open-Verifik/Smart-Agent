@@ -3165,9 +3165,6 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
     }
 
     private _printSheetMarkup(paper: HTMLElement, pageWidthMm: number, pageHeightMm: number): string {
-        const width = paper.offsetWidth || paper.getBoundingClientRect().width;
-        const height = paper.offsetHeight || paper.getBoundingClientRect().height;
-        if (!width || !height) return '';
         const clone = paper.cloneNode(true) as HTMLElement;
         this._inlineComputedStyles(paper, clone);
         clone.querySelectorAll('[data-print-hide],[data-overlay-handle]').forEach((node) => node.remove());
@@ -3236,7 +3233,35 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             const dst = clone.querySelector(`[data-overlay-id="${CSS.escape(id)}"]`) as HTMLElement | null;
             if (dst) this._pinPrintedBox(src, dst, source);
         });
+        this._pinPrintedLayoutFromModel(clone, pageIndex);
         this._stickPrintedChrome(clone);
+    }
+
+    /** When the live sheet has no layout box (hidden tab), pin from saved frames. */
+    private _pinPrintedLayoutFromModel(clone: HTMLElement, pageIndex: number): void {
+        if (!this.hasFreeLayout()) return;
+        const pageW = this.pageWidthPx() || 1;
+        const pageH = this.pageHeightPx() || 1;
+        for (const section of this.template()?.sections ?? []) {
+            const frame = this.displayFrame(section);
+            if (!frame || (frame.page ?? 0) !== pageIndex || !section.id) continue;
+            const dst = clone.querySelector(
+                `[data-section-id="${CSS.escape(section.id)}"]`
+            ) as HTMLElement | null;
+            if (!dst || (dst.style.left && dst.style.width)) continue;
+            dst.style.position = 'absolute';
+            dst.style.margin = '0';
+            dst.style.right = 'auto';
+            dst.style.bottom = 'auto';
+            dst.style.left = `${((Number(frame.x) || 0) / pageW) * 100}%`;
+            dst.style.top = `${((Number(frame.y) || 0) / pageH) * 100}%`;
+            if (Number(frame.width) > 0) {
+                dst.style.width = `${(Number(frame.width) / pageW) * 100}%`;
+            }
+            if (Number(frame.height) > 0) {
+                dst.style.height = `${(Number(frame.height) / pageH) * 100}%`;
+            }
+        }
     }
 
     private _pinPrintedBox(src: HTMLElement, dst: HTMLElement, origin: HTMLElement): void {

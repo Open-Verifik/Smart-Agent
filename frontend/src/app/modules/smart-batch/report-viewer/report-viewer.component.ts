@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -120,8 +120,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
-
-    @ViewChild('livePreview') private _livePreview?: ReportPreviewComponent;
 
     // Route params
     configId = signal<string | null>(null);
@@ -802,7 +800,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
 
         this.setStepResultsViewMode('pdf');
-        this._cdr.detectChanges();
         void this._generateReport(template._id!, batchId);
     }
 
@@ -822,15 +819,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     `SmartReport_${this.selectedTemplate()?.name || templateId}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
                 );
             }
-
-            const report = await firstValueFrom(
-                this._reportService.createReport({
-                    template: templateId,
-                    smartBatch: batchId,
-                    name: `${this._transloco.translate('smartReport.generateReport')} - ${this.batch()?.name || this._defaultBatchLabel()}`,
-                })
-            );
-            this.report.set(report);
 
             this._snack.open(
                 this._transloco.translate('smartReport.pdfDownloaded'),
@@ -869,18 +857,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         };
     }
 
-    private async _printHtmlFromLivePreview(): Promise<string | undefined> {
-        this.setStepResultsViewMode('pdf');
-        this._cdr.detectChanges();
-        for (let attempt = 0; attempt < 40; attempt++) {
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-            if (attempt % 8 === 0) this._cdr.detectChanges();
-            const html = this._livePreview?.exportPrintHtml();
-            if (html?.includes('<html')) return html;
-        }
-        return this._livePreview?.exportPrintHtml() ?? undefined;
-    }
-
     private _clearGeneratedPdf(): void {
         const previous = this.pdfDataUrl();
         if (previous?.startsWith('blob:')) URL.revokeObjectURL(previous);
@@ -895,86 +871,64 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
     }
 
+    private _pdfEngine(): 'pdfkit' | 'puppeteer' {
+        return this.selectedTemplate()?.pdfEngine === 'pdfkit' ? 'pdfkit' : 'puppeteer';
+    }
+
+    private _base64ToPdfBlob(buffer: string): Blob {
+        const binary = atob(buffer);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return new Blob([bytes], { type: 'application/pdf' });
+    }
+
+    private async _ensureReport(templateId: string, batchId: string): Promise<SmartReport> {
+        const current = this.report();
+        const currentTemplate =
+            typeof current?.template === 'string' ? current.template : current?.template?._id;
+        if (current?._id && currentTemplate === templateId) return current;
+        const created = await firstValueFrom(
+            this._reportService.createReport({
+                template: templateId,
+                smartBatch: batchId,
+                name: `${this._transloco.translate('smartReport.generateReport')} - ${this.batch()?.name || this._defaultBatchLabel()}`,
+            })
+        );
+        this.report.set(created);
+        return created;
+    }
+
     private async _pdfBlobForCurrentRow(templateId: string): Promise<Blob> {
-        const printHtml = await this._printHtmlFromLivePreview();
-        if (!printHtml?.includes('<html')) throw new Error('print-html');
+        const batchId = this.batchId();
+        const rowIndex = this._currentPreviewRowIndex();
+        if (batchId) {
+            const report = await this._ensureReport(templateId, batchId);
+            const result = await firstValueFrom(
+                this._reportService.generateReport(report._id!, {
+                    engine: this._pdfEngine(),
+                    ...(rowIndex != null ? { rowIndex } : {}),
+                })
+            );
+            this.report.set(result.data);
+            if (result.pdf?.buffer) return this._base64ToPdfBlob(result.pdf.buffer);
+            const downloaded = await firstValueFrom(
+                this._reportService.downloadReport(report._id!, rowIndex)
+            );
+            const pdfBlob = (await this._isPdfBlob(downloaded))
+                ? downloaded
+                : await this._blobFromJsonBytes(downloaded);
+            if (!pdfBlob) throw new Error('pdf');
+            return pdfBlob;
+        }
+
         const blob = await firstValueFrom(
             this._reportService.downloadTemplateSample(templateId, {
                 sampleData: this._sampleDataForCurrentRow(),
-                printHtml,
             })
         );
         const pdfBlob = (await this._isPdfBlob(blob)) ? blob : await this._blobFromJsonBytes(blob);
         if (!pdfBlob) throw new Error('pdf');
         return pdfBlob;
-    }
-
-    private async _pdfFilesForEmail(sendAll: boolean, templateId: string): Promise<{ filename: string; pdfBase64: string }[]> {
-        if (!sendAll) {
-            if (!this.pdfDataUrl()) {
-                this._keepGeneratedPdf(await this._pdfBlobForCurrentRow(templateId));
-            }
-            const pdfBase64 = await this._generatedPdfBase64();
-            return pdfBase64
-                ? [{ filename: `Consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`, pdfBase64 }]
-                : [];
-        }
-        const saved = this.previewPageIndex();
-        const files: { filename: string; pdfBase64: string }[] = [];
-        const rows = this.previewDataForAllRows();
-        try {
-            for (let i = 0; i < rows.length; i++) {
-                this.goToPreviewPage(i);
-                this._cdr.detectChanges();
-                const expectedRow = Number(rows[i]['rowIndex']);
-                for (let wait = 0; wait < 20; wait++) {
-                    if (Number(this.previewDataForCurrentPage()['rowIndex']) === expectedRow) break;
-                    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-                    this._cdr.detectChanges();
-                }
-                const blob = await this._pdfBlobForCurrentRow(templateId);
-                const pdfBase64 = await this._blobToBase64(blob);
-                if (pdfBase64) files.push({ filename: `Consulta_${i + 1}.pdf`, pdfBase64 });
-            }
-        } finally {
-            this.previewPageIndex.set(saved);
-            this._cdr.detectChanges();
-        }
-        return files;
-    }
-
-    private _blobToBase64(blob: Blob): Promise<string | undefined> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const dataUrl = String(reader.result || '');
-                const marker = 'base64,';
-                const at = dataUrl.indexOf(marker);
-                resolve(at >= 0 ? dataUrl.slice(at + marker.length) : undefined);
-            };
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(blob);
-        });
-    }
-
-    private async _generatedPdfBase64(): Promise<string | undefined> {
-        const href = this.pdfDataUrl();
-        if (!href) return undefined;
-        if (href.startsWith('data:')) {
-            const marker = 'base64,';
-            const at = href.indexOf(marker);
-            return at >= 0 ? href.slice(at + marker.length) : undefined;
-        }
-        const blob = await fetch(href).then((res) => res.blob());
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result || ''));
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(blob);
-        });
-        const marker = 'base64,';
-        const at = dataUrl.indexOf(marker);
-        return at >= 0 ? dataUrl.slice(at + marker.length) : undefined;
     }
 
     private _downloadHref(href: string, filename: string): void {
@@ -985,10 +939,11 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     }
 
     sendEmail(): void {
-        const report = this.report();
-        if (!report?._id) {
+        const templateId = this.selectedTemplate()?._id;
+        const batchId = this.batchId();
+        if (!templateId || !batchId) {
             this._snack.open(
-                this._transloco.translate('smartReport.generateReportFirst'),
+                this._transloco.translate('smartReport.pleaseSelectTemplate'),
                 this._snackCloseLabel(),
                 { duration: 3000 }
             );
@@ -1017,25 +972,25 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             if (!result?.recipients?.length) return;
 
             this.isSending.set(true);
-            void this._sendReportEmail(report._id, result, currentRowIndex);
+            void this._sendReportEmail(templateId, batchId, result, currentRowIndex);
         });
     }
 
     private async _sendReportEmail(
-        reportId: string,
+        templateId: string,
+        batchId: string,
         result: { recipients: string[]; subject?: string; sendAll?: boolean },
         currentRowIndex?: number
     ): Promise<void> {
         try {
-            const templateId = this.selectedTemplate()?._id;
-            const pdfFiles = templateId ? await this._pdfFilesForEmail(!!result.sendAll, templateId) : [];
+            const report = await this._ensureReport(templateId, batchId);
             this._reportService
-                .sendReportEmail(reportId, {
+                .sendReportEmail(report._id!, {
                     recipients: result.recipients,
                     subject: result.subject,
                     language: 'es',
+                    engine: this._pdfEngine(),
                     ...(result.sendAll ? { sendAll: true } : { rowIndex: currentRowIndex }),
-                    ...(pdfFiles.length ? { pdfFiles } : {}),
                 })
                 .subscribe({
                     next: (res) => {

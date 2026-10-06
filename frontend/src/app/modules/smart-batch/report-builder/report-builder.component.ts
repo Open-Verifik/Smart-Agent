@@ -1607,11 +1607,9 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             if (!id) return;
 
             this.isDownloadingSample.set(true);
-            const printHtml = this._samplePreview?.exportPrintHtml();
             this._reportService
                 .downloadTemplateSample(id, {
                     sampleData: this.previewData(),
-                    ...(printHtml ? { printHtml } : {}),
                 })
                 .subscribe({
                     next: async (blob) => {

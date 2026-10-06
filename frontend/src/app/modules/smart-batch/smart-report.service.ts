@@ -604,6 +604,7 @@ export class SmartReportService {
             subject?: string;
             language?: 'en' | 'es';
             sampleData: SampleReportData;
+            printHtml?: string;
         }
     ): Observable<{ success: boolean; message: string; messageId?: string; error?: string }> {
         return this._httpClient.post<{

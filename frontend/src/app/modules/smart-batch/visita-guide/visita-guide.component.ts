@@ -4411,13 +4411,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this.inputValues()[key] ?? '';
     }
 
-    async generatePdf(printHtmlOverride?: string | null): Promise<void> {
+    async generatePdf(_printHtmlOverride?: string | null): Promise<void> {
         this.isGenerating.set(true);
-        const savedRecord = this.previewRecordIndex();
         try {
-            const printHtml = printHtmlOverride ?? (await this._printHtmlForCurrentRecord());
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
+            const engine = this.pdfEngine() === 'pdfkit' ? 'pdfkit' : 'puppeteer';
             const batchId = this._state.batchId();
             const rowIndex = Number(this.previewData()['rowIndex']);
             if (batchId) {
@@ -4430,8 +4429,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 );
                 const result = await firstValueFrom(
                     this._reports.generateReport(report._id!, {
+                        engine,
                         ...(Number.isFinite(rowIndex) ? { rowIndex } : {}),
-                        ...(printHtml ? { printHtml } : {}),
                     })
                 );
                 if (!result.pdf?.buffer) throw new Error('pdf');
@@ -4443,11 +4442,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 });
                 return;
             }
-            const sample = this.previewData();
             const blob = await firstValueFrom(
                 this._reports.downloadTemplateSample(template._id, {
-                    sampleData: sample,
-                    ...(printHtml ? { printHtml } : {}),
+                    sampleData: this.previewData(),
                 })
             );
             const url = URL.createObjectURL(blob);
@@ -4457,43 +4454,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 duration: 3000,
             });
         } catch {
-            const batchId = this._state.batchId();
-            const template = this.selectedTemplate();
-            if (batchId && template?._id) {
-                try {
-                    const printHtml = printHtmlOverride ?? (await this._printHtmlForCurrentRecord());
-                    const report = await firstValueFrom(
-                        this._reports.createReport({
-                            template: template._id,
-                            smartBatch: batchId,
-                            name: this.reportTitle() || template.name,
-                        })
-                    );
-                    const rowIndex = Number(this.previewData()['rowIndex']);
-                    const result = await firstValueFrom(
-                        this._reports.generateReport(report._id!, {
-                            ...(Number.isFinite(rowIndex) ? { rowIndex } : {}),
-                            ...(printHtml ? { printHtml } : {}),
-                        })
-                    );
-                    if (result.pdf?.buffer) {
-                        const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
-                        this._state.pdfDataUrl.set(dataUrl);
-                        this.downloadDataUrl(dataUrl, `${this.fileBaseName()}.pdf`);
-                        this._snack.open(this._transloco.translate('visitaGuide.pdfReady'), undefined, {
-                            duration: 3000,
-                        });
-                        return;
-                    }
-                } catch {
-                    /* fall through */
-                }
-            }
             this._snack.open(this._transloco.translate('visitaGuide.pdfFailed'), undefined, {
                 duration: 4000,
             });
         } finally {
-            this.previewRecordIndex.set(savedRecord);
             this.isGenerating.set(false);
         }
     }
@@ -4511,7 +4475,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private async _waitForEditorPrintHtml(): Promise<string | null> {
         for (let attempt = 0; attempt < 12; attempt++) {
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+                setTimeout(() => resolve(), 50);
+            });
             const html = this._editorPrintHtml();
             if (html?.includes('<html')) return html;
         }
