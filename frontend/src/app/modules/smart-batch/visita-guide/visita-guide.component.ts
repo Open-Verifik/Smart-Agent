@@ -53,6 +53,9 @@ import {
     tableColumnPath,
     isHiddenParamKey,
     layoutParamGroups,
+    LAYOUT_HOST_SECTION_TYPES,
+    relativeLayoutItemKey,
+    remapLayoutOverrideKey,
     setHiddenParamKey,
     sortByKeyOrder,
     valueAtDataPath,
@@ -1251,13 +1254,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     this.isSendingSample.set(false);
                     return;
                 }
-                this._reports
-                    .sendTemplateSample(id, {
-                        recipients: result.recipients,
-                        subject: result.subject,
-                        language: lang,
-                        sampleData: this.previewData(),
-                    })
+                void (async () => {
+                    const printHtml = await this._printHtmlForCurrentRecord();
+                    this._reports
+                        .sendTemplateSample(id, {
+                            recipients: result.recipients,
+                            subject: result.subject,
+                            language: lang,
+                            sampleData: this.previewData(),
+                            ...(printHtml ? { printHtml } : {}),
+                        })
                     .subscribe({
                         next: (res) => {
                             this._snack.open(
@@ -1281,6 +1287,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                             this.isSendingSample.set(false);
                         },
                     });
+                })();
             };
             void this.saveLayoutTemplate().then((saved) => {
                 if (saved) performSend();
@@ -1980,7 +1987,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         extract: boolean;
     }): void {
         const point = this._layoutEditorPreview?.canonicalPointAt(event.clientX, event.clientY) ?? null;
-        this._placeLayoutItem(event.section, event.key, { extract: event.extract, point });
+        this._placeLayoutItem(event.section, event.key, {
+            extract: event.extract,
+            point,
+            clientX: event.clientX,
+            clientY: event.clientY,
+        });
     }
 
     onLayoutOverlayContextMenu(event: { overlay: ReportOverlayId; x: number; y: number }): void {
@@ -2099,8 +2111,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _placeLayoutItem(
         source: ReportSection,
         key: string,
-        options: { extract: boolean; point?: { x: number; y: number; page: number } | null }
+        options: {
+            extract: boolean;
+            point?: { x: number; y: number; page: number } | null;
+            clientX?: number;
+            clientY?: number;
+        }
     ): void {
+        if (
+            options.clientX != null &&
+            options.clientY != null &&
+            this._reparentLayoutItem(source, key, options)
+        ) {
+            return;
+        }
         const dataPath = joinReportDataPath(source.dataPath, key);
         if (!dataPath) return;
         const override = source.keyOverrides?.[key];
@@ -2139,8 +2163,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const topZ = Math.max(0, ...this.layoutSections().map((section) => Number(section.style?.zIndex) || 0));
         const field: ReportSection = {
             id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-            type: isTable ? 'keyValueGrid' : 'field',
-            ...(isTable ? { columnsPerRow: 1 } : {}),
+            type: isTable ? 'dataTable' : 'field',
+            ...(isTable ? { maxRows: 200 } : {}),
             order: this.layoutSections().length,
             label,
             dataPath,
@@ -2182,6 +2206,64 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutCellPart.set('cell');
         this._focusLayoutEditor(field, 'block');
+    }
+
+    private _reparentLayoutItem(
+        source: ReportSection,
+        key: string,
+        options: { extract: boolean; clientX?: number; clientY?: number }
+    ): boolean {
+        if (options.clientX == null || options.clientY == null) return false;
+        const targetId = this._layoutEditorPreview?.sectionIdAt(options.clientX, options.clientY);
+        if (!targetId) return false;
+        if (targetId === source.id) return true;
+        const target = this.layoutSections().find((section) => section.id === targetId);
+        if (!target || !LAYOUT_HOST_SECTION_TYPES.has(target.type)) return false;
+        const destKey = relativeLayoutItemKey(source.dataPath, target.dataPath, key);
+        if (!destKey) return false;
+        const override = source.keyOverrides?.[key];
+        this.layoutSections.update((list) =>
+            list.map((section) => {
+                if (section.id === source.id) {
+                    if (!options.extract) return section;
+                    return { ...section, hiddenKeys: setHiddenParamKey(section.hiddenKeys, key, false) };
+                }
+                if (section.id !== target.id) return section;
+                const keyOverrides = { ...(section.keyOverrides ?? {}) };
+                if (override) {
+                    keyOverrides[destKey] = { ...override };
+                }
+                for (const [storedKey, value] of Object.entries(source.keyOverrides ?? {})) {
+                    const nextKey = remapLayoutOverrideKey(storedKey, key, destKey);
+                    if (nextKey !== storedKey) keyOverrides[nextKey] = value;
+                }
+                const visible = collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
+                    hiddenKeys: setHiddenParamKey(section.hiddenKeys, destKey, true),
+                    keyOrder: section.keyOrder,
+                }).map((item) => item.key);
+                if (!visible.includes(destKey)) visible.push(destKey);
+                else {
+                    const from = visible.indexOf(destKey);
+                    visible.splice(from, 1);
+                    visible.push(destKey);
+                }
+                const allKeys = collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
+                    hiddenKeys: [],
+                }).map((item) => item.key);
+                const seed = sortByKeyOrder(allKeys, section.keyOrder, (itemKey) => itemKey);
+                return {
+                    ...section,
+                    hiddenKeys: setHiddenParamKey(section.hiddenKeys, destKey, true),
+                    keyOrder: applyVisibleKeyReorder(seed, visible),
+                    keyOverrides,
+                };
+            })
+        );
+        this.selectedLayoutSectionId.set(target.id);
+        this.selectedLayoutCellKey.set(destKey);
+        this.selectedLayoutCellPart.set('cell');
+        this._focusLayoutEditor(target, 'cell');
+        return true;
     }
 
     private _layoutItemLabel(source: ReportSection, key: string): string {

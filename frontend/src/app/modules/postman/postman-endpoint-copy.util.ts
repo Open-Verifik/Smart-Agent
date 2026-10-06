@@ -51,6 +51,56 @@ export interface TranslocoLike {
     translate?(key: string): string;
 }
 
+const catalogCopyFromBlock = (
+    feature: { title?: string; description?: string } | undefined
+): { title?: string; description?: string } => {
+    if (!feature || typeof feature !== 'object' || Array.isArray(feature)) return {};
+    return {
+        title:
+            typeof feature.title === 'string' && feature.title.trim()
+                ? feature.title.trim()
+                : undefined,
+        description:
+            typeof feature.description === 'string' && feature.description.trim()
+                ? feature.description.trim()
+                : undefined,
+    };
+};
+
+const catalogCopyFromMap = (
+    appFeatures: Record<string, { title?: string; description?: string }>,
+    code: string
+): { title?: string; description?: string } => {
+    const candidates = [
+        code,
+        code.toLowerCase(),
+        `api_${code}`,
+        `${code}_vehicle`,
+        `api_${code}_vehicle`,
+        code.replace(/^[a-z]{2,10}_api_/, 'api_'),
+    ];
+    for (const key of candidates) {
+        const found = catalogCopyFromBlock(appFeatures[key]);
+        if (found.title || found.description) return found;
+    }
+    const compact = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const wanted = compact(code);
+    if (wanted.length >= 8) {
+        for (const [key, block] of Object.entries(appFeatures)) {
+            const hay = compact(key);
+            if (hay === wanted || hay.endsWith(wanted) || wanted.endsWith(hay)) {
+                const found = catalogCopyFromBlock(block);
+                if (found.title || found.description) return found;
+            }
+        }
+    }
+    if (code.includes('data_sheet')) {
+        const dsKey = Object.keys(appFeatures).find((k) => k.includes('data_sheet'));
+        if (dsKey) return catalogCopyFromBlock(appFeatures[dsKey]);
+    }
+    return {};
+};
+
 /**
  * Safely looks up `appFeatures.${code}.title` and `appFeatures.${code}.description`
  * from loaded Transloco translations without triggering missing key warnings.
@@ -61,50 +111,25 @@ export const getAppFeatureCatalogCopy = (
 ): { title?: string; description?: string } => {
     if (!code) return {};
     const lang = transloco.getActiveLang();
-    const translations = transloco.getTranslation(lang) || {};
-    const appFeatures = translations['appFeatures'] as
-        | Record<string, { title?: string; description?: string }>
-        | undefined;
-    if (appFeatures && typeof appFeatures === 'object' && !Array.isArray(appFeatures)) {
-        const candidates = [
-            code,
-            code.toLowerCase(),
-            `api_${code}`,
-            `${code}_vehicle`,
-            `api_${code}_vehicle`,
-            code.replace(/^[a-z]{2,10}_api_/, 'api_'),
-        ];
-        for (const key of candidates) {
-            const feature = appFeatures[key];
-            if (feature && typeof feature === 'object' && !Array.isArray(feature)) {
-                return {
-                    title:
-                        typeof feature.title === 'string' && feature.title.trim()
-                            ? feature.title.trim()
-                            : undefined,
-                    description:
-                        typeof feature.description === 'string' && feature.description.trim()
-                            ? feature.description.trim()
-                            : undefined,
-                };
-            }
-        }
-        if (code.includes('data_sheet')) {
-            const dsKey = Object.keys(appFeatures).find((k) => k.includes('data_sheet'));
-            if (dsKey && appFeatures[dsKey]) {
-                const feature = appFeatures[dsKey];
-                return {
-                    title:
-                        typeof feature.title === 'string' && feature.title.trim()
-                            ? feature.title.trim()
-                            : undefined,
-                    description:
-                        typeof feature.description === 'string' && feature.description.trim()
-                            ? feature.description.trim()
-                            : undefined,
-                };
-            }
-        }
+    const baseLang = lang.split('-')[0];
+    const dictionaries = [transloco.getTranslation(lang), transloco.getTranslation(baseLang)];
+    for (const translations of dictionaries) {
+        const appFeatures = translations?.['appFeatures'] as
+            | Record<string, { title?: string; description?: string }>
+            | undefined;
+        if (!appFeatures || typeof appFeatures !== 'object' || Array.isArray(appFeatures)) continue;
+        const found = catalogCopyFromMap(appFeatures, code);
+        if (found.title || found.description) return found;
+    }
+    if (typeof transloco.translate === 'function') {
+        const titleKey = `appFeatures.${code}.title`;
+        const descriptionKey = `appFeatures.${code}.description`;
+        const title = transloco.translate(titleKey);
+        const description = transloco.translate(descriptionKey);
+        return {
+            title: title && title !== titleKey ? title.trim() : undefined,
+            description: description && description !== descriptionKey ? description.trim() : undefined,
+        };
     }
     return {};
 };
@@ -135,6 +160,9 @@ const toDocLocale = (locale: string | null | undefined): EndpointDocLocale | nul
     return (DOC_LOCALES as string[]).includes(base) ? (base as EndpointDocLocale) : null;
 };
 
+const docHasLocalizedCopy = (doc: EndpointDocLang | null | undefined): boolean =>
+    Boolean(doc?.overview?.trim() || doc?.description?.trim() || doc?.title?.trim());
+
 const pickActiveDocLang = (
     docs: EndpointDocs | undefined,
     locale: PostmanCopyLocale | null | undefined
@@ -142,7 +170,8 @@ const pickActiveDocLang = (
     if (!docs) return null;
     const active = toDocLocale(locale ?? null);
     if (!active || !docs[active]) return null;
-    return docs[active] ?? null;
+    const doc = docs[active] ?? null;
+    return docHasLocalizedCopy(doc) ? doc : null;
 };
 
 const pickEnglishDocLang = (docs: EndpointDocs | undefined): EndpointDocLang | null =>
@@ -185,6 +214,28 @@ const isGenericDescription = (value: string | null | undefined): boolean => {
     if (GENERIC_APP_FEATURE_DESCRIPTIONS.has(normalized)) return true;
     return false;
 };
+
+/** True when copy is English even though the UI locale is not. */
+const looksLikeEnglishCopy = (value: string | null | undefined): boolean => {
+    if (!value?.trim()) return false;
+    const sample = value.slice(0, 500);
+    const spanishHits = (
+        sample.match(
+            /\b(el|la|los|las|un|una|de|del|para|con|por|consulta|permite|verifica|licencia|c[eé]dula|ciudadano|veh[ií]culo|informaci[oó]n|usando|mediante)\b/gi
+        ) ?? []
+    ).length;
+    const englishHits = (
+        sample.match(
+            /\b(the|and|with|from|this|allows|query|official|through|using|provides|returns|license|driver|information|registered)\b/gi
+        ) ?? []
+    ).length;
+    return englishHits >= 3 && englishHits > spanishHits;
+};
+
+const skipEnglishLeak = (
+    text: string | null | undefined,
+    locale: EndpointDocLocale | null
+): boolean => prefersCatalogCopy(locale) && looksLikeEnglishCopy(text);
 
 /**
  * First plain-text paragraph from markdown overview (no headings, links simplified).
@@ -266,16 +317,22 @@ export const resolvePostmanEndpointCopy = (
     const enOverview = overviewLeadParagraph(enDoc?.overview);
     const catalogDesc = catalogDescription?.trim();
     const endpointDesc = endpoint.description?.trim();
+    const localizedDescription =
+        activeDocDescription && !skipEnglishLeak(activeDocDescription, activeLocale)
+            ? activeDocDescription
+            : '';
+    const localizedOverview =
+        activeOverview && !skipEnglishLeak(activeOverview, activeLocale) ? activeOverview : '';
 
     let description = '';
-    if (activeDocDescription) {
-        description = activeDocDescription;
-    } else if (preferCatalogOverEnglish && catalogDesc) {
+    if (localizedDescription) {
+        description = localizedDescription;
+    } else if (localizedOverview) {
+        description = localizedOverview;
+    } else if ((preferCatalogOverEnglish || prefersCatalogCopy(activeLocale)) && catalogDesc) {
         description = catalogDesc;
     } else if (enDocDescription) {
         description = enDocDescription;
-    } else if (activeOverview) {
-        description = activeOverview;
     } else if (enOverview) {
         description = enOverview;
     } else if (catalogDesc && !isGenericDescription(catalogDesc)) {
@@ -366,18 +423,23 @@ export const resolveAboutOverview = (input: ResolveAboutOverviewInput): string =
     const enDoc = pickEnglishDocLang(endpoint.docs);
     const activeLocale = toDocLocale(locale ?? null);
 
+    const catalogDesc = catalogDescription?.trim();
     const activeOverview = activeDoc?.overview?.trim();
-    if (activeOverview) return activeOverview;
+    if (activeOverview && !skipEnglishLeak(activeOverview, activeLocale)) {
+        return activeOverview;
+    }
 
     const activeDocDescription = activeDoc?.description?.trim();
-    if (activeDocDescription) return activeDocDescription;
+    if (activeDocDescription && !skipEnglishLeak(activeDocDescription, activeLocale)) {
+        return activeDocDescription;
+    }
 
-    const catalogDesc = catalogDescription?.trim();
     if (catalogDesc && !isGenericDescription(catalogDesc)) {
         return catalogDesc;
     }
 
-    if (!activeDoc) {
+    const allowEnglishFallback = activeLocale === 'en' || !activeLocale;
+    if (allowEnglishFallback && !activeDoc) {
         const enOverview = enDoc?.overview?.trim();
         if (enOverview) return enOverview;
         const enDocDescription = enDoc?.description?.trim();
@@ -385,11 +447,11 @@ export const resolveAboutOverview = (input: ResolveAboutOverviewInput): string =
     }
 
     const endpointDesc = endpoint.description?.trim();
-    if (activeLocale === 'en' && endpointDesc && !isGenericDescription(endpointDesc)) {
+    if (allowEnglishFallback && endpointDesc && !isGenericDescription(endpointDesc)) {
         return endpointDesc;
     }
 
     if (catalogDesc) return catalogDesc;
 
-    return endpointDesc ?? '';
+    return allowEnglishFallback ? (endpointDesc ?? '') : '';
 };

@@ -407,6 +407,7 @@
         "flowCanChain": "Se encadena con {{fields}}",
         "flowAddParallel": "Nueva rama en paralelo",
         "flowInspectorEmpty": "Selecciona un bloque para ver qué pide y qué devuelve.",
+        "flowEndpointAbout": "Para qué sirve",
         "endpointDetails": "Ver detalles",
         "endpointDetailsClose": "Cerrar",
         "advancedBranchLabel": "Rama {{index}}",

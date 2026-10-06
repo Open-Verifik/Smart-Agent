@@ -7,6 +7,7 @@ import {
     flattenSampleResultsForPdf,
     isHiddenParamKey,
     layoutParamGroups,
+    relativeLayoutItemKey,
     setHiddenParamKey,
     sortByKeyOrder,
 } from './report-param-entries.util';
@@ -89,6 +90,20 @@ describe('layoutParamGroups', () => {
             kind: 'fields',
             keys: ['data.plate', 'data.owner.name'],
         });
+    });
+});
+
+describe('relativeLayoutItemKey', () => {
+    it('keeps the key when both blocks share a data path', () => {
+        expect(relativeLayoutItemKey('results.1', 'results.1', 'owners')).toBe('owners');
+    });
+
+    it('re-nests a child field when dropping into a parent block', () => {
+        expect(relativeLayoutItemKey('results.1.vehicle', 'results.1', 'plate')).toBe('vehicle.plate');
+    });
+
+    it('rejects a move into an unrelated payload', () => {
+        expect(relativeLayoutItemKey('results.1', 'results.2', 'owners')).toBeNull();
     });
 });
 

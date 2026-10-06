@@ -13,6 +13,7 @@ import {
     untracked,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -72,7 +73,11 @@ import {
 import { FEATURE_GROUP_ICONS, featureGroup, FeatureGroupId, featureGroupIcon } from '../feature-group.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import { AppFeature } from '../smart-batch.service';
-import { getAppFeatureCatalogCopy } from '../../postman/postman-endpoint-copy.util';
+import {
+    getAppFeatureCatalogCopy,
+    resolveAboutOverview,
+} from '../../postman/postman-endpoint-copy.util';
+import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 
 type FlowDrag = { from: 'tray'; feature: AppFeature };
 
@@ -160,6 +165,7 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
         MatProgressSpinnerModule,
         MatTooltipModule,
         TranslocoModule,
+        MarkdownPipe,
     ],
     host: { class: 'flex min-h-0 flex-1 flex-col' },
     template: `
@@ -584,6 +590,13 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                     <p class="text-sm font-medium text-slate-900 dark:text-white">{{ nodeTitle(node) }}</p>
                                     @if (node.feature) {
                                         <p class="mt-1 font-mono text-[11px] text-slate-500">{{ requestLabel(node.feature) }}</p>
+                                        @if (featureDescription(node.feature); as about) {
+                                            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowEndpointAbout' | transloco }}</p>
+                                            <div
+                                                class="endpoint-about mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-300"
+                                                [innerHTML]="about | markdown"
+                                            ></div>
+                                        }
                                         <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ 'visitaGuide.flowInputs' | transloco }}</p>
                                         <button
                                             type="button"
@@ -719,6 +732,16 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
             .flow-node button {
                 cursor: pointer;
             }
+            .endpoint-about :where(p, ul, ol) {
+                margin: 0;
+            }
+            .endpoint-about :where(p + p, p + ul, ul + p) {
+                margin-top: 0.5rem;
+            }
+            .endpoint-about ul {
+                list-style: disc;
+                padding-left: 1.1rem;
+            }
             .flow-drawer {
                 pointer-events: none;
                 opacity: 0;
@@ -779,6 +802,9 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
 })
 export class EndpointChainBoardComponent {
     private _transloco = inject(TranslocoService);
+    private readonly _activeLang = toSignal(this._transloco.langChanges$, {
+        initialValue: this._transloco.getActiveLang(),
+    });
     private _confirm = inject(FuseConfirmationService);
     private readonly _viewport = viewChild<ElementRef<HTMLElement>>('viewport');
     private readonly _flowStage = viewChild<ElementRef<HTMLElement>>('flowStage');
@@ -1405,11 +1431,23 @@ export class EndpointChainBoardComponent {
     }
 
     name(feature: AppFeature): string {
+        this._activeLang();
         const catalog = getAppFeatureCatalogCopy(this._transloco, feature.code);
         if (catalog.title) return catalog.title;
-        const lang = this._transloco.getActiveLang();
-        if (lang.startsWith('es') && feature.nameES?.trim()) return feature.nameES.trim();
+        const lang = (this._activeLang() ?? this._transloco.getActiveLang()).split('-')[0].toLowerCase();
+        if (lang === 'es' && feature.nameES?.trim()) return feature.nameES.trim();
         return feature.name;
+    }
+
+    featureDescription(feature: AppFeature): string {
+        this._activeLang();
+        const locale = (this._activeLang() ?? this._transloco.getActiveLang()).split('-')[0].toLowerCase();
+        const catalog = getAppFeatureCatalogCopy(this._transloco, feature.code);
+        return resolveAboutOverview({
+            endpoint: feature,
+            catalogDescription: catalog.description ?? '',
+            locale,
+        }).trim();
     }
 
     icon(feature: AppFeature): string {

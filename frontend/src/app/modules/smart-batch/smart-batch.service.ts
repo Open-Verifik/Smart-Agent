@@ -119,6 +119,9 @@ export interface AppFeature {
     name: string;
     nameES?: string;
     description?: string;
+    docs?: {
+        [locale: string]: { title?: string; description?: string; overview?: string } | undefined;
+    };
     endpoint?: string;
     method?: string;
     url?: string;

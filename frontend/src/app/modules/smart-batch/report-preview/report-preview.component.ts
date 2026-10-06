@@ -863,6 +863,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         };
     }
 
+    /** Section under the pointer, used when dropping a field or nested table. */
+    sectionIdAt(clientX: number, clientY: number): string | null {
+        const stack = document.elementsFromPoint(clientX, clientY);
+        for (const node of stack) {
+            const host = (node as HTMLElement).closest?.('[data-report-section]');
+            const id = host?.getAttribute('data-section-id');
+            if (id) return id;
+        }
+        return null;
+    }
+
     onSectionActivate(section: ReportSection, event: Event): void {
         event.stopPropagation();
         if (this._sectionDragMoved) {
@@ -2832,7 +2843,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     onCellPointerDown(section: ReportSection, key: string, event: PointerEvent): void {
         if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
         if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
-        if (!event.altKey && !event.shiftKey) return;
         event.stopPropagation();
         this._clearSectionDrag();
         this._cellDragMoved = false;
@@ -2842,7 +2852,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             pointerId: event.pointerId,
             startClientX: event.clientX,
             startClientY: event.clientY,
-            extract: event.altKey || event.shiftKey,
+            extract: true,
         };
         window.addEventListener('pointermove', this._onWindowCellMove);
         window.addEventListener('pointerup', this._onWindowCellUp, true);

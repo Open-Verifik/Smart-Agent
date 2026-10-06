@@ -411,6 +411,7 @@
         "flowCanChain": "Chains with {{fields}}",
         "flowAddParallel": "New parallel branch",
         "flowInspectorEmpty": "Select a block to see what it asks for and what it returns.",
+        "flowEndpointAbout": "What this endpoint does",
         "endpointDetails": "View details",
         "endpointDetailsClose": "Close",
         "advancedBranchLabel": "Branch {{index}}",

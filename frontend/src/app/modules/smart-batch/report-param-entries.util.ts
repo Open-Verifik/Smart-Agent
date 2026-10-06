@@ -155,6 +155,35 @@ export const joinReportDataPath = (base: string | undefined, key: string): strin
     return `${left}.${right}`;
 };
 
+/** Blocks that can host fields and nested tables after a drag. */
+export const LAYOUT_HOST_SECTION_TYPES = new Set(['keyValueGrid', 'card', 'table']);
+
+/**
+ * Key of an item relative to another block's `dataPath`.
+ * `null` means the payloads do not nest; empty string means the target is already that item.
+ */
+export const relativeLayoutItemKey = (
+    sourcePath: string | undefined,
+    targetPath: string | undefined,
+    key: string
+): string | null => {
+    const full = joinReportDataPath(sourcePath, key);
+    if (!full) return null;
+    const prefix = (targetPath || '').replace(/\.+$/, '');
+    if (!prefix) return full;
+    if (full === prefix) return '';
+    if (full.startsWith(`${prefix}.`)) return full.slice(prefix.length + 1);
+    return null;
+};
+
+export const remapLayoutOverrideKey = (storedKey: string, fromKey: string, toKey: string): string => {
+    if (storedKey === fromKey) return toKey;
+    if (storedKey.startsWith(`${fromKey}.`) || storedKey.startsWith(`${fromKey}#`)) {
+        return `${toKey}${storedKey.slice(fromKey.length)}`;
+    }
+    return storedKey;
+};
+
 export const valueAtDataPath = (root: unknown, dataPath?: string): unknown => {
     if (!dataPath) return root;
     let current: unknown = root;
