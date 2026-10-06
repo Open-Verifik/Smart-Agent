@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     EventEmitter,
@@ -86,6 +87,7 @@ export function reportPaperSizePx(
     standalone: true,
     imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './report-preview.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** All paper cards in the rendered preview. The first card is used as the
@@ -338,14 +340,41 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     };
     private _pinnedIdsThisDrag = new Set<string>();
     private _sectionDragRaf: number | null = null;
+    private _resizeRaf: number | null = null;
+    private _rotateRaf: number | null = null;
+    private _pendingDragPoint: { x: number; y: number } | null = null;
+    private _pendingResizePoint: { x: number; y: number } | null = null;
+    private _pendingRotatePoint: { x: number; y: number } | null = null;
+    private _lockedViewScale: { x: number; y: number } | null = null;
+    private _lockedPointerScale: { x: number; y: number } | null = null;
+    private _pageInnerCache = new Map<number, HTMLElement | null>();
+    private _pageRectCache: { scrollTop: number; rects: DOMRect[] } | null = null;
+    private _alignCache: { key: string; x: number[]; y: number[] } | null = null;
     readonly draggingSectionId = signal<string | null>(null);
     /** Lines shown while dragging, when an edge or the center lines up with another block. */
     readonly alignmentGuides = signal<{ page: number; axis: 'x' | 'y'; at: number }[]>([]);
     private _sheetDragging = false;
+    readonly freeLayout = computed(() => {
+        if (Object.keys(this.liveFrames()).length > 0) return true;
+        return (this.template().sections ?? []).some((section) => Boolean(section.frame));
+    });
 
     private _setSheetDragging(active: boolean): void {
         if (this._sheetDragging === active) return;
         this._sheetDragging = active;
+        if (active) {
+            this._lockedViewScale = this._readViewScale();
+            this._lockedPointerScale = this._readPointerScale();
+            this._pageInnerCache.clear();
+            this._pageRectCache = null;
+            this._alignCache = null;
+        } else {
+            this._lockedViewScale = null;
+            this._lockedPointerScale = null;
+            this._pageInnerCache.clear();
+            this._pageRectCache = null;
+            this._alignCache = null;
+        }
         this.sheetDragChange.emit(active);
     }
     readonly liveRotations = signal<Record<string, number>>({});
@@ -615,6 +644,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Canonical px per layout px. Ignores visual zoom so boxes keep their ratio. */
     private get _scaleFactors(): { x: number; y: number } {
+        return this._lockedViewScale ?? this._readViewScale();
+    }
+
+    /** Canonical px per screen px. Use this for pointer drag / drop. */
+    private get _pointerScaleFactors(): { x: number; y: number } {
+        return this._lockedPointerScale ?? this._readPointerScale();
+    }
+
+    private _readViewScale(): { x: number; y: number } {
         const el = this.reportPage?.nativeElement;
         if (!el) return { x: 1, y: 1 };
         const currentWidth = el.offsetWidth;
@@ -626,8 +664,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         };
     }
 
-    /** Canonical px per screen px. Use this for pointer drag / drop. */
-    private get _pointerScaleFactors(): { x: number; y: number } {
+    private _readPointerScale(): { x: number; y: number } {
         const el = this.reportPage?.nativeElement;
         if (!el) return { x: 1, y: 1 };
         const rect = el.getBoundingClientRect();
@@ -1129,13 +1166,26 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const resize = this._sectionResize;
         if (!resize || event.pointerId !== resize.pointerId) return;
         event.preventDefault();
+        this._pendingResizePoint = { x: event.clientX, y: event.clientY };
+        if (this._resizeRaf !== null) return;
+        this._resizeRaf = requestAnimationFrame(() => {
+            this._resizeRaf = null;
+            const point = this._pendingResizePoint;
+            if (!point || !this._sectionResize) return;
+            this._applySectionResize(point.x, point.y);
+        });
+    };
+
+    private _applySectionResize(clientX: number, clientY: number): void {
+        const resize = this._sectionResize;
+        if (!resize) return;
         const scales = this._pointerScaleFactors;
         const start = resize.startFrame;
         const startW = start.width || 48;
         const startH = start.height || 48;
         const rad = (-resize.rotation * Math.PI) / 180;
-        const dx = (event.clientX - resize.startClientX) * scales.x;
-        const dy = (event.clientY - resize.startClientY) * scales.y;
+        const dx = (clientX - resize.startClientX) * scales.x;
+        const dy = (clientY - resize.startClientY) * scales.y;
         const localX = dx * Math.cos(rad) - dy * Math.sin(rad);
         const localY = dx * Math.sin(rad) + dy * Math.cos(rad);
         let width = startW;
@@ -1162,6 +1212,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
         width = Math.max(12, width);
         height = Math.max(12, height);
+        const prev = this.liveFrames()[resize.id];
+        if (prev && prev.x === x && prev.y === y && prev.width === width && prev.height === height) return;
         this.liveFrames.update((current) => ({
             ...current,
             [resize.id]: { ...start, x, y, width, height },
@@ -1171,9 +1223,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _onWindowSectionResizeUp = (event: PointerEvent): void => {
         const resize = this._sectionResize;
         if (!resize || event.pointerId !== resize.pointerId) return;
-        this._onWindowSectionResizeMove(event);
+        this._pendingResizePoint = { x: event.clientX, y: event.clientY };
+        this._flushSectionResizeRaf();
+        this._applySectionResize(event.clientX, event.clientY);
         const frame = this.liveFrames()[resize.id];
         this._sectionResize = null;
+        this._pendingResizePoint = null;
         window.removeEventListener('pointermove', this._onWindowSectionResizeMove);
         window.removeEventListener('pointerup', this._onWindowSectionResizeUp, true);
         window.removeEventListener('pointercancel', this._onWindowSectionResizeUp, true);
@@ -1188,18 +1243,36 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const rotate = this._sectionRotate;
         if (!rotate || event.pointerId !== rotate.pointerId) return;
         event.preventDefault();
-        const angle = Math.atan2(event.clientY - rotate.centerY, event.clientX - rotate.centerX);
+        this._pendingRotatePoint = { x: event.clientX, y: event.clientY };
+        if (this._rotateRaf !== null) return;
+        this._rotateRaf = requestAnimationFrame(() => {
+            this._rotateRaf = null;
+            const point = this._pendingRotatePoint;
+            if (!point || !this._sectionRotate) return;
+            this._applySectionRotate(point.x, point.y);
+        });
+    };
+
+    private _applySectionRotate(clientX: number, clientY: number): void {
+        const rotate = this._sectionRotate;
+        if (!rotate) return;
+        const angle = Math.atan2(clientY - rotate.centerY, clientX - rotate.centerX);
         const degrees = rotate.startRotation + ((angle - rotate.startAngle) * 180) / Math.PI;
         const next = Math.round(((degrees % 360) + 360) % 360);
-        this.liveRotations.update((current) => ({ ...current, [rotate.id]: next > 180 ? next - 360 : next }));
+        const value = next > 180 ? next - 360 : next;
+        if (this.liveRotations()[rotate.id] === value) return;
+        this.liveRotations.update((current) => ({ ...current, [rotate.id]: value }));
     };
 
     private _onWindowSectionRotateUp = (event: PointerEvent): void => {
         const rotate = this._sectionRotate;
         if (!rotate || event.pointerId !== rotate.pointerId) return;
-        this._onWindowSectionRotateMove(event);
+        this._pendingRotatePoint = { x: event.clientX, y: event.clientY };
+        this._flushSectionRotateRaf();
+        this._applySectionRotate(event.clientX, event.clientY);
         const rotation = this.liveRotations()[rotate.id] ?? 0;
         this._sectionRotate = null;
+        this._pendingRotatePoint = null;
         window.removeEventListener('pointermove', this._onWindowSectionRotateMove);
         window.removeEventListener('pointerup', this._onWindowSectionRotateUp, true);
         window.removeEventListener('pointercancel', this._onWindowSectionRotateUp, true);
@@ -1251,7 +1324,37 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             document.body.style.cursor = 'grabbing';
         }
         event.preventDefault();
-        this._applySectionDrag(drag, event.clientX, event.clientY);
+        this._pendingDragPoint = { x: event.clientX, y: event.clientY };
+        this._scheduleSectionDragPaint();
+    }
+
+    private _scheduleSectionDragPaint(): void {
+        if (this._sectionDragRaf !== null) return;
+        this._sectionDragRaf = requestAnimationFrame(() => {
+            this._sectionDragRaf = null;
+            const drag = this._sectionDrag;
+            const point = this._pendingDragPoint;
+            if (!drag?.active || !point) return;
+            this._applySectionDrag(drag, point.x, point.y);
+        });
+    }
+
+    private _flushSectionDragRaf(): void {
+        if (this._sectionDragRaf === null) return;
+        cancelAnimationFrame(this._sectionDragRaf);
+        this._sectionDragRaf = null;
+    }
+
+    private _flushSectionResizeRaf(): void {
+        if (this._resizeRaf === null) return;
+        cancelAnimationFrame(this._resizeRaf);
+        this._resizeRaf = null;
+    }
+
+    private _flushSectionRotateRaf(): void {
+        if (this._rotateRaf === null) return;
+        cancelAnimationFrame(this._rotateRaf);
+        this._rotateRaf = null;
     }
 
     onSectionPointerUp(event: PointerEvent): void {
@@ -1259,6 +1362,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!drag || event.pointerId !== drag.pointerId) return;
         const wasActive = drag.active;
         if (wasActive) {
+            this._pendingDragPoint = { x: event.clientX, y: event.clientY };
+            this._flushSectionDragRaf();
             this._applySectionDrag(drag, event.clientX, event.clientY);
         }
         const live = this.liveFrames();
@@ -1302,7 +1407,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     hasFreeLayout(): boolean {
-        return this._usesPinnedFrames() || Object.keys(this.liveFrames()).length > 0;
+        return this.freeLayout();
     }
 
     visiblePages(): ReportSection[][] {
@@ -1509,19 +1614,18 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const width = Number(frame.width) > 0 ? Number(frame.width) / scales.x : 0;
         const height = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
         const rotation = this.sectionRotation(section);
+        const dragging = this.draggingSectionId() === section.id;
         const style: Record<string, string> = {
             position: 'absolute',
             left: `${x / scales.x}px`,
             top: `${y / scales.y}px`,
             width: width ? `${width}px` : '100%',
             marginBottom: '0px',
-            zIndex:
-                this.draggingSectionId() === section.id
-                    ? '1000'
-                    : String(Math.min(this._sectionZIndex(section), 800)),
+            zIndex: dragging ? '1000' : String(Math.min(this._sectionZIndex(section), 800)),
             pointerEvents:
                 this.draggingSectionId() && this.draggingSectionId() !== section.id ? 'none' : 'auto',
         };
+        if (dragging) style['willChange'] = 'left, top, width, height';
         const clipToFrame = section.type === 'image';
         if (height) {
             if (clipToFrame || section.type === 'shape') style['height'] = `${height}px`;
@@ -1587,7 +1691,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             while (y < -24 && toPage > 0 && guard < 6) {
                 const previous = this._pageInner(toPage - 1);
                 if (!previous) break;
-                y += previous.getBoundingClientRect().height * scales.y;
+                y += this.pageHeightPx();
                 toPage -= 1;
                 guard += 1;
             }
@@ -1605,7 +1709,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const placed = clamp(snapped.x, snapped.y);
             x = placed.x;
             y = placed.y;
-        } else {
+        } else if (this.alignmentGuides().length) {
             this.alignmentGuides.set([]);
         }
         this._scrollDragViewport(clientX, clientY);
@@ -1617,7 +1721,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             width,
             height,
         };
-        this.liveFrames.update((current) => ({ ...current, [drag.id]: next }));
+        const prev = this.liveFrames()[drag.id];
+        const same =
+            prev &&
+            prev.page === next.page &&
+            prev.x === next.x &&
+            prev.y === next.y &&
+            prev.width === next.width &&
+            prev.height === next.height;
+        if (!same) {
+            this.liveFrames.update((current) => ({ ...current, [drag.id]: next }));
+        }
         if (toPage !== fromPage) {
             this._setPagesIfDifferent(this._pagesFromFrames(this.template().sections || []));
             drag.startFrame = next;
@@ -1643,8 +1757,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     ): { x: number; y: number } {
         const scales = this._pointerScaleFactors;
         const threshold = 6 * Math.max(scales.x, scales.y);
-        const xTargets = this._alignmentTargets(dragId, page, 'x', ignoreOverlay);
-        const yTargets = this._alignmentTargets(dragId, page, 'y', ignoreOverlay);
+        const targets = this._alignmentPair(dragId, page, ignoreOverlay);
+        const xTargets = targets.x;
+        const yTargets = targets.y;
         const snap = (origin: number, size: number, targets: number[]): number => {
             const edges = [origin, origin + size / 2, origin + size];
             let best = threshold + 1;
@@ -1679,8 +1794,33 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         };
         collect(nextX, width, xTargets, 'x', view.x || 1);
         collect(nextY, height, yTargets, 'y', view.y || 1);
-        this.alignmentGuides.set(guides);
+        const currentGuides = this.alignmentGuides();
+        const sameGuides =
+            currentGuides.length === guides.length &&
+            currentGuides.every(
+                (guide, index) =>
+                    guide.axis === guides[index].axis &&
+                    guide.page === guides[index].page &&
+                    guide.at === guides[index].at
+            );
+        if (!sameGuides) this.alignmentGuides.set(guides);
         return { x: nextX, y: nextY };
+    }
+
+    private _alignmentPair(
+        dragId: string,
+        page: number,
+        ignoreOverlay?: ReportOverlayId
+    ): { x: number[]; y: number[] } {
+        const key = `${dragId}:${page}:${ignoreOverlay ?? ''}`;
+        if (this._alignCache?.key === key) return this._alignCache;
+        const next = {
+            key,
+            x: this._alignmentTargets(dragId, page, 'x', ignoreOverlay),
+            y: this._alignmentTargets(dragId, page, 'y', ignoreOverlay),
+        };
+        this._alignCache = next;
+        return next;
     }
 
     /** Edges and centers of the other blocks on this sheet, plus the sheet center. */
@@ -1735,9 +1875,33 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     private _pageInner(pageIndex: number): HTMLElement | null {
+        if (this._sheetDragging && this._pageInnerCache.has(pageIndex)) {
+            return this._pageInnerCache.get(pageIndex) ?? null;
+        }
         const pages = this._reportPages?.toArray() ?? [];
         const ref = pages[pageIndex] ?? pages[0];
-        return (ref?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? null;
+        const inner =
+            (ref?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? null;
+        if (this._sheetDragging) this._pageInnerCache.set(pageIndex, inner);
+        return inner;
+    }
+
+    private _pageRects(): DOMRect[] {
+        const pages = this._reportPages?.toArray() ?? [];
+        if (!this._sheetDragging) {
+            return pages.map((page) => page.nativeElement.getBoundingClientRect());
+        }
+        const scrollTop = this._dragViewport()?.scrollTop ?? 0;
+        if (
+            this._pageRectCache &&
+            this._pageRectCache.scrollTop === scrollTop &&
+            this._pageRectCache.rects.length === pages.length
+        ) {
+            return this._pageRectCache.rects;
+        }
+        const rects = pages.map((page) => page.nativeElement.getBoundingClientRect());
+        this._pageRectCache = { scrollTop, rects };
+        return rects;
     }
 
     /** Paper under the pointer; stays on the current sheet until the cursor actually enters another. */
@@ -1752,22 +1916,21 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
      * sheet counts as the sheet above, so the block does not stick at the top edge.
      */
     private _pageForDrag(clientX: number, clientY: number, fallback: number): number {
-        const pages = this._reportPages?.toArray() ?? [];
+        const rects = this._pageRects();
         const hit = this._sheetIndexAtPoint(clientX, clientY);
         if (hit != null) return hit;
-        if (!pages.length) return fallback;
+        if (!rects.length) return fallback;
 
-        const last = pages[pages.length - 1].nativeElement.getBoundingClientRect();
+        const last = rects[rects.length - 1];
         if (clientY > last.bottom && clientX >= last.left - 24 && clientX <= last.right + 24) {
-            return pages.length;
+            return rects.length;
         }
 
-        for (let index = 0; index < pages.length; index++) {
-            const rect = pages[index].nativeElement.getBoundingClientRect();
+        for (let index = 0; index < rects.length; index++) {
+            const rect = rects[index];
             const horizontallyNear = clientX >= rect.left - 24 && clientX <= rect.right + 24;
             if (!horizontallyNear || clientY >= rect.top) continue;
-            const previousBottom =
-                index === 0 ? Number.NEGATIVE_INFINITY : pages[index - 1].nativeElement.getBoundingClientRect().bottom;
+            const previousBottom = index === 0 ? Number.NEGATIVE_INFINITY : rects[index - 1].bottom;
             if (clientY >= previousBottom) return index === 0 ? 0 : index - 1;
         }
         return fallback;
@@ -1805,20 +1968,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         else if (clientY > rect.bottom - edge) next += step;
         const max = Math.max(0, host.scrollHeight - host.clientHeight);
         next = Math.min(max, Math.max(0, next));
-        if (next === host.scrollTop || this._sectionDragRaf !== null) return;
+        if (next === host.scrollTop) return;
         host.scrollTop = next;
-        this._sectionDragRaf = requestAnimationFrame(() => {
-            this._sectionDragRaf = null;
-            const current = this._sectionDrag;
-            if (!current?.active || current !== drag) return;
-            this._applySectionDrag(current, clientX, clientY);
-        });
+        this._pageRectCache = null;
+        this._scheduleSectionDragPaint();
     }
 
     private _sheetIndexAtPoint(clientX: number, clientY: number): number | null {
-        const pages = this._reportPages?.toArray() ?? [];
-        for (let index = 0; index < pages.length; index++) {
-            const rect = pages[index].nativeElement.getBoundingClientRect();
+        const rects = this._pageRects();
+        for (let index = 0; index < rects.length; index++) {
+            const rect = rects[index];
             if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
                 return index;
             }
@@ -2106,10 +2265,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         window.removeEventListener('pointermove', this._onWindowSectionMove);
         window.removeEventListener('pointerup', this._onWindowSectionUp, true);
         window.removeEventListener('pointercancel', this._onWindowSectionUp, true);
-        if (this._sectionDragRaf !== null) {
-            cancelAnimationFrame(this._sectionDragRaf);
-            this._sectionDragRaf = null;
-        }
+        this._flushSectionDragRaf();
+        this._flushSectionResizeRaf();
+        this._flushSectionRotateRaf();
+        this._pendingDragPoint = null;
     }
 
     private _clearSectionDrag(): void {
