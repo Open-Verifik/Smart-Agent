@@ -607,6 +607,8 @@
         "layoutWatermarkOpacity": "Intensidad",
         "layoutLogoHint": "Arrastra el logo en la hoja, agrándalo desde la esquina y rótalo con el círculo de arriba.",
         "layoutWatermarkHint": "Arrastra la marca de agua, agrándala y rótala igual que el logo. En modo repetida solo se aplica la rotación a cada sello.",
+        "layoutWatermarkPageWidth": "Ancho de la hoja",
+        "layoutWatermarkFullPage": "Toda la hoja",
         "layoutRotation": "Rotación",
         "layoutFooter": "Pie de página",
         "layoutFooterPlaceholder": "Ej. Confidencial · Empresa S.A.S.",

@@ -60,12 +60,11 @@
                         >
                             @if (watermarkType() === 'text') {
                                 <span
-                                    class="pointer-events-none select-none whitespace-nowrap text-center font-bold text-gray-700"
-                                    style="text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 1px 1px rgba(0, 0, 0, 0.55)"
+                                    class="pointer-events-none select-none whitespace-nowrap text-center font-bold leading-none text-gray-700"
+                                    style="text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 1px 1px rgba(0, 0, 0, 0.55); letter-spacing: 0.08em"
                                     [style.opacity]="watermarkPaintOpacity()"
                                     [style.font-size.px]="viewWatermarkFontSize"
                                     [style.transform]="watermarkRotateStyle"
-                                    [style.letter-spacing.px]="6"
                                     >{{ watermarkText() }}</span
                                 >
                             } @else if (watermarkType() === 'logo' && watermarkStampSrc()) {
@@ -82,7 +81,7 @@
                             @if (isOverlaySelected('watermark')) {
                                 <div
                                     data-overlay-handle
-                                    class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    class="absolute left-1/2 top-1 z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
                                     (pointerdown)="startRotate($event, 'watermark')"
                                 >
                                     <mat-icon
@@ -93,7 +92,7 @@
                                 </div>
                                 <div
                                     data-overlay-handle
-                                    class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    class="absolute bottom-1 right-1 z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
                                     (pointerdown)="startResize($event, 'watermark')"
                                 >
                                     <mat-icon

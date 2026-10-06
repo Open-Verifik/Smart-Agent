@@ -611,6 +611,8 @@
         "layoutWatermarkOpacity": "Intensity",
         "layoutLogoHint": "Drag the logo on the page, resize it from the corner, and rotate it with the top handle.",
         "layoutWatermarkHint": "Drag, resize, and rotate the watermark like the logo. Repeated mode only rotates each stamp.",
+        "layoutWatermarkPageWidth": "Page width",
+        "layoutWatermarkFullPage": "Full page",
         "layoutRotation": "Rotation",
         "layoutFooter": "Footer",
         "layoutFooterPlaceholder": "e.g. Confidential · Acme Inc.",

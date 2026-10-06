@@ -2909,13 +2909,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutWatermarkPositionChange(pos: { x: number; y: number }): void {
-        this._state.watermarkX.set(Math.max(0, Math.round(pos.x)));
-        this._state.watermarkY.set(Math.max(0, Math.round(pos.y)));
+        this._placeWatermarkBox(pos.x, pos.y, this.watermarkWidth(), this.watermarkHeight());
     }
 
     onLayoutWatermarkSizeChange(size: { width: number; height: number }): void {
-        this._state.watermarkWidth.set(Math.max(40, Math.round(size.width)));
-        this._state.watermarkHeight.set(Math.max(24, Math.round(size.height)));
+        this._placeWatermarkBox(this.watermarkX(), this.watermarkY(), size.width, size.height);
     }
 
     onLayoutWatermarkRotationChange(rotation: number): void {
@@ -3350,7 +3348,82 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     selectedLayoutUsesCompactOverlayBar(): boolean {
         const id = this.selectedLayoutOverlay();
-        return Boolean(id && (id === 'signature' || id === 'logo' || id.startsWith('hdr:') || id.startsWith('img:')));
+        return Boolean(
+            id &&
+                (id === 'signature' ||
+                    id === 'logo' ||
+                    id === 'watermark' ||
+                    id.startsWith('hdr:') ||
+                    id.startsWith('img:'))
+        );
+    }
+
+    layoutPaperWidth(): number {
+        return this._layoutPaperPx().width;
+    }
+
+    layoutPaperHeight(): number {
+        return this._layoutPaperPx().height;
+    }
+
+    nudgeWatermarkSize(delta: number): void {
+        this._placeWatermarkBox(
+            this.watermarkX(),
+            this.watermarkY(),
+            this.watermarkWidth() + delta,
+            this.watermarkHeight() + Math.round(delta * 0.45)
+        );
+    }
+
+    setWatermarkBoxWidth(value: string | number): void {
+        const width = Number(value);
+        if (!Number.isFinite(width)) return;
+        this._placeWatermarkBox(this.watermarkX(), this.watermarkY(), width, this.watermarkHeight());
+    }
+
+    setWatermarkBoxHeight(value: string | number): void {
+        const height = Number(value);
+        if (!Number.isFinite(height)) return;
+        this._placeWatermarkBox(this.watermarkX(), this.watermarkY(), this.watermarkWidth(), height);
+    }
+
+    /** Stretch the stamp across the sheet width and keep its vertical place. */
+    fitWatermarkToPageWidth(): void {
+        const page = this._layoutPaperPx();
+        this._state.watermarkX.set(0);
+        this._state.watermarkWidth.set(page.width);
+        this._placeWatermarkBox(0, this.watermarkY(), page.width, this.watermarkHeight());
+    }
+
+    /** Cover the whole sheet. */
+    fitWatermarkToSheet(): void {
+        const page = this._layoutPaperPx();
+        this._state.watermarkX.set(0);
+        this._state.watermarkY.set(0);
+        this._state.watermarkWidth.set(page.width);
+        this._state.watermarkHeight.set(page.height);
+    }
+
+    private _layoutPaperPx(): { width: number; height: number } {
+        const preview = this._layoutEditorPreview;
+        const landscape = this.orientation() === 'landscape';
+        return {
+            width: Math.round(preview?.pageWidthPx() ?? (landscape ? 297 : 210) * 3.7795275591),
+            height: Math.round(preview?.pageHeightPx() ?? (landscape ? 210 : 297) * 3.7795275591),
+        };
+    }
+
+    /** Keep the stamp on the sheet. Growing past an edge slides it until it can cover the page. */
+    private _placeWatermarkBox(x: number, y: number, width: number, height: number): void {
+        const page = this._layoutPaperPx();
+        const nextWidth = Math.min(page.width, Math.max(40, Math.round(width)));
+        const nextHeight = Math.min(page.height, Math.max(24, Math.round(height)));
+        const nextX = Math.min(Math.max(0, Math.round(x)), Math.max(0, page.width - nextWidth));
+        const nextY = Math.min(Math.max(0, Math.round(y)), Math.max(0, page.height - nextHeight));
+        this._state.watermarkX.set(nextX);
+        this._state.watermarkY.set(nextY);
+        this._state.watermarkWidth.set(nextWidth);
+        this._state.watermarkHeight.set(nextHeight);
     }
 
     selectedLayoutHeaderLogo(): ReportHeaderLogo | null {

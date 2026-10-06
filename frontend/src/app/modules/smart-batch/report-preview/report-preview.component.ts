@@ -821,8 +821,15 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.sheetImages().find((image) => image.id === id) ?? null;
     }
 
+    /** Largest size that still fits the stamp box, so widening the box enlarges the text. */
     get viewWatermarkFontSize(): number {
-        return Math.max(14, this.viewWatermarkHeight * 0.32);
+        const height = Math.max(1, this.viewWatermarkHeight);
+        const width = Math.max(1, this.viewWatermarkWidth);
+        const text = (this.watermarkText() || '').replace(/\s+/g, ' ').trim();
+        const heightCap = height * 0.86;
+        if (!text) return Math.max(12, Math.min(height * 0.32, heightCap));
+        const fromWidth = (width * 0.94) / (text.length * 0.68);
+        return Math.max(12, Math.min(fromWidth, heightCap));
     }
 
     get logoRotateStyle(): string {

@@ -3491,7 +3491,42 @@
         >
             <div data-format-toolbar class="flex items-center gap-0.5">
             @if (selectedLayoutUsesCompactOverlayBar()) {
-                @if (selectedLayoutOverlay() === 'signature') {
+                @if (selectedLayoutOverlay() === 'watermark') {
+                    <button
+                        type="button"
+                        class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                        [attr.aria-label]="t('smartReport.width')"
+                        (click)="nudgeWatermarkSize(-24)"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">remove</mat-icon>
+                    </button>
+                    <span class="min-w-[2.75rem] text-center text-xs font-medium tabular-nums text-stone-800 dark:text-stone-100">{{
+                        watermarkWidth()
+                    }}</span>
+                    <button
+                        type="button"
+                        class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                        [attr.aria-label]="t('smartReport.width')"
+                        (click)="nudgeWatermarkSize(24)"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
+                    </button>
+                    <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                    <button
+                        type="button"
+                        class="flex h-8 items-center rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
+                        (click)="fitWatermarkToPageWidth()"
+                    >
+                        {{ t('visitaGuide.layoutWatermarkPageWidth') }}
+                    </button>
+                    <button
+                        type="button"
+                        class="flex h-8 items-center rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
+                        (click)="fitWatermarkToSheet()"
+                    >
+                        {{ t('visitaGuide.layoutWatermarkFullPage') }}
+                    </button>
+                } @else if (selectedLayoutOverlay() === 'signature') {
                     <button
                         type="button"
                         class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
@@ -3756,7 +3791,67 @@
                         </div>
                     }
                     @if (selectedLayoutUsesCompactOverlayBar()) {
-                        @if (selectedLayoutOverlay() === 'signature') {
+                        @if (selectedLayoutOverlay() === 'watermark') {
+                            <div class="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    class="rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    (click)="fitWatermarkToPageWidth()"
+                                >
+                                    {{ t('visitaGuide.layoutWatermarkPageWidth') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                    (click)="fitWatermarkToSheet()"
+                                >
+                                    {{ t('visitaGuide.layoutWatermarkFullPage') }}
+                                </button>
+                            </div>
+                            <label class="mt-2 block text-[11px] text-stone-500">{{ t('smartReport.width') }} (px)</label>
+                            <input
+                                type="number"
+                                min="40"
+                                [max]="layoutPaperWidth()"
+                                class="mt-1 w-full rounded-lg border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                [ngModel]="watermarkWidth()"
+                                (ngModelChange)="setWatermarkBoxWidth($event)"
+                            />
+                            <label class="mt-2 block text-[11px] text-stone-500">{{ t('smartReport.height') }} (px)</label>
+                            <input
+                                type="number"
+                                min="24"
+                                [max]="layoutPaperHeight()"
+                                class="mt-1 w-full rounded-lg border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                [ngModel]="watermarkHeight()"
+                                (ngModelChange)="setWatermarkBoxHeight($event)"
+                            />
+                            <label class="mt-2 flex items-center justify-between text-[11px] text-stone-500">
+                                <span>{{ t('visitaGuide.layoutWatermarkOpacity') }}</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="0.04"
+                                max="0.4"
+                                step="0.01"
+                                class="mt-1 w-full"
+                                [ngModel]="watermarkOpacity()"
+                                (ngModelChange)="setWatermarkOpacity($event)"
+                            />
+                            <label class="mt-2 flex items-center justify-between text-[11px] text-stone-500">
+                                <span>{{ t('visitaGuide.layoutRotation') }}</span>
+                                <span>{{ watermarkRotation() }}°</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="-180"
+                                max="180"
+                                step="1"
+                                class="mt-1 w-full"
+                                [ngModel]="watermarkRotation()"
+                                (ngModelChange)="setWatermarkRotation($event)"
+                            />
+                        } @else if (selectedLayoutOverlay() === 'signature') {
                             <label class="block text-[11px] text-stone-500">{{ t('smartReport.width') }} (px)</label>
                             <input
                                 type="number"
