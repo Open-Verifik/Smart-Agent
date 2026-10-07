@@ -1,0 +1,337 @@
+<ng-container *transloco="let t" [formGroup]="form">
+    <div class="details-screen">
+        <header class="details-hero">
+            <div>
+                <span class="details-hero__eyebrow">{{ t('humanAuthnProjects.setup.details.eyebrow') }}</span>
+                <h2>{{ t('humanAuthnProjects.setup.details.title') }}</h2>
+                <p>{{ t('humanAuthnProjects.setup.details.subtitle') }}</p>
+            </div>
+            <div class="details-hero__choice">
+                <span>{{ t('humanAuthnProjects.setup.details.currentChoice') }}</span>
+                <strong>{{ projectName || t('humanAuthnProjects.setup.details.nameRequiredChip') }}</strong>
+            </div>
+        </header>
+
+        <div class="details-decision">
+            <section class="fields">
+                <div class="section-heading">
+                    <span>01</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.details.fieldsTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.details.fieldsHelp') }}</p>
+                    </div>
+                </div>
+
+                <div class="field-list">
+                    <article class="field-card" [class.field-card--ready]="!!projectName">
+                        <span class="field-card__icon"><mat-icon>label</mat-icon></span>
+                        <div class="field-card__content">
+                            <span class="field-card__title">
+                                <strong>{{ t('humanAuthnProjects.setup.details.identityTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.details.required') }}</small>
+                            </span>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.details.identityBody') }}</span>
+                            <div class="input-stack">
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                    <mat-label>{{ t('humanAuthnProjects.setup.details.nameLabel') }}</mat-label>
+                                    <input matInput formControlName="name" [maxlength]="MAX_NAME_LENGTH + 1" autocomplete="off" />
+                                    <mat-hint align="end">
+                                        <span [class.counter--warning]="nameLengthStatus === 'warning'" [class.counter--danger]="nameLengthStatus === 'danger'">
+                                            {{ nameLength }}/{{ MAX_NAME_LENGTH }}
+                                        </span>
+                                    </mat-hint>
+                                </mat-form-field>
+                                @if (showError('name')) {
+                                    <p class="field-error">{{ t('humanAuthnProjects.setup.details.fieldRequired') }}</p>
+                                }
+                                <p class="field-note">{{ t('humanAuthnProjects.setup.details.nameHint') }}</p>
+
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                    <mat-label>{{ t('humanAuthnProjects.setup.details.contactEmailLabel') }}</mat-label>
+                                    <input matInput formControlName="contactEmail" type="email" autocomplete="email" />
+                                </mat-form-field>
+                                @if (showError('contactEmail')) {
+                                    <p class="field-error">
+                                        {{
+                                            form.get('contactEmail')?.hasError('email')
+                                                ? t('humanAuthnProjects.setup.details.emailInvalid')
+                                                : t('humanAuthnProjects.setup.details.fieldRequired')
+                                        }}
+                                    </p>
+                                }
+                                <p class="field-note">{{ t('humanAuthnProjects.setup.details.contactEmailHint') }}</p>
+
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                    <mat-label>{{ t('humanAuthnProjects.setup.details.languageLabel') }}</mat-label>
+                                    <mat-select formControlName="defaultLanguage">
+                                        @for (language of defaultLanguages; track language.code) {
+                                            <mat-option [value]="language.code">{{ language.label }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                                <p class="field-note">{{ t('humanAuthnProjects.setup.details.languageHint') }}</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="field-card" [class.field-card--ready]="allowedCountries.length > 0">
+                        <span class="field-card__icon"><mat-icon>public</mat-icon></span>
+                        <div class="field-card__content">
+                            <span class="field-card__title">
+                                <strong>{{ t('humanAuthnProjects.setup.details.countriesTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.details.required') }}</small>
+                            </span>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.details.countriesBody') }}</span>
+                            @if (allowedCountries.length) {
+                                <div class="chips">
+                                    @for (country of allowedCountries; track country) {
+                                        <span class="chip">
+                                            {{ countryLabel(country) }}
+                                            <button
+                                                type="button"
+                                                (click)="removeCountry(country)"
+                                                [attr.aria-label]="t('humanAuthnProjects.setup.details.countriesRemove')"
+                                            >
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('humanAuthnProjects.setup.details.countriesAdd') }}</mat-label>
+                                <input
+                                    matInput
+                                    type="text"
+                                    autocomplete="off"
+                                    [formControl]="allowedCountryFilterCtrl"
+                                    [placeholder]="t('humanAuthnProjects.setup.details.countriesSearch')"
+                                    [matAutocomplete]="allowedCountriesAuto"
+                                />
+                                <mat-autocomplete #allowedCountriesAuto="matAutocomplete" (optionSelected)="onAllowedCountryPicked($event)">
+                                    @for (country of filteredAllowedCountries; track country.country) {
+                                        <mat-option [value]="country.country">{{ t(country.name) }}</mat-option>
+                                    }
+                                </mat-autocomplete>
+                            </mat-form-field>
+                            @if (showError('allowedCountries')) {
+                                <p class="field-error">{{ t('humanAuthnProjects.setup.details.fieldRequired') }}</p>
+                            }
+                        </div>
+                    </article>
+
+                    <article class="field-card" [class.field-card--ready]="privacySet && termsSet">
+                        <span class="field-card__icon"><mat-icon>link</mat-icon></span>
+                        <div class="field-card__content">
+                            <span class="field-card__title">
+                                <strong>{{ t('humanAuthnProjects.setup.details.urlsTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.details.required') }}</small>
+                            </span>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.details.urlsBody') }}</span>
+                            <div class="input-stack">
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                    <mat-label>{{ t('humanAuthnProjects.setup.details.privacyLabel') }}</mat-label>
+                                    <input matInput formControlName="privacyUrl" type="url" placeholder="https://" autocomplete="off" />
+                                </mat-form-field>
+                                @if (showError('privacyUrl')) {
+                                    <p class="field-error">
+                                        {{
+                                            form.get('privacyUrl')?.hasError('pattern')
+                                                ? t('humanAuthnProjects.setup.details.urlInvalid')
+                                                : t('humanAuthnProjects.setup.details.urlRequired')
+                                        }}
+                                    </p>
+                                }
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                    <mat-label>{{ t('humanAuthnProjects.setup.details.termsLabel') }}</mat-label>
+                                    <input matInput formControlName="termsAndConditionsUrl" type="url" placeholder="https://" autocomplete="off" />
+                                </mat-form-field>
+                                @if (showError('termsAndConditionsUrl')) {
+                                    <p class="field-error">
+                                        {{
+                                            form.get('termsAndConditionsUrl')?.hasError('pattern')
+                                                ? t('humanAuthnProjects.setup.details.urlInvalid')
+                                                : t('humanAuthnProjects.setup.details.urlRequired')
+                                        }}
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="field-card" formGroupName="dataProtection" [class.field-card--ready]="!!officerName">
+                        <span class="field-card__icon"><mat-icon>gavel</mat-icon></span>
+                        <div class="field-card__content">
+                            <span class="field-card__title">
+                                <strong>{{ t('humanAuthnProjects.setup.details.officerTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.details.required') }}</small>
+                            </span>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.details.officerBody') }}</span>
+                            <div class="input-grid">
+                                <div>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.details.officerName') }}</mat-label>
+                                        <input matInput formControlName="name" autocomplete="name" />
+                                    </mat-form-field>
+                                    @if (showError('dataProtection.name')) {
+                                        <p class="field-error">{{ t('humanAuthnProjects.setup.details.fieldRequired') }}</p>
+                                    }
+                                </div>
+                                <div>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.details.officerEmail') }}</mat-label>
+                                        <input matInput formControlName="email" type="email" autocomplete="email" />
+                                    </mat-form-field>
+                                    @if (showError('dataProtection.email')) {
+                                        <p class="field-error">
+                                            {{
+                                                form.get('dataProtection.email')?.hasError('email')
+                                                    ? t('humanAuthnProjects.setup.details.emailInvalid')
+                                                    : t('humanAuthnProjects.setup.details.fieldRequired')
+                                            }}
+                                        </p>
+                                    }
+                                </div>
+                                <div class="span-2">
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.details.officerAddress') }}</mat-label>
+                                        <input matInput formControlName="address" autocomplete="street-address" />
+                                    </mat-form-field>
+                                    @if (showError('dataProtection.address')) {
+                                        <p class="field-error">{{ t('humanAuthnProjects.setup.details.fieldRequired') }}</p>
+                                    }
+                                </div>
+                                <div class="span-2">
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.details.officerAddress2') }}</mat-label>
+                                        <input matInput formControlName="address2" autocomplete="address-line2" />
+                                    </mat-form-field>
+                                </div>
+                                <div>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.details.officerCity') }}</mat-label>
+                                        <input matInput formControlName="city" autocomplete="address-level2" />
+                                    </mat-form-field>
+                                    @if (showError('dataProtection.city')) {
+                                        <p class="field-error">{{ t('humanAuthnProjects.setup.details.fieldRequired') }}</p>
+                                    }
+                                </div>
+                                <div>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.details.officerPostal') }}</mat-label>
+                                        <input matInput formControlName="postalCode" autocomplete="postal-code" />
+                                    </mat-form-field>
+                                    @if (showError('dataProtection.postalCode')) {
+                                        <p class="field-error">{{ t('humanAuthnProjects.setup.details.fieldRequired') }}</p>
+                                    }
+                                </div>
+                                <div class="span-2">
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ t('humanAuthnProjects.setup.details.officerCountry') }}</mat-label>
+                                        <mat-select formControlName="country">
+                                            @for (country of officerCountries; track country.country) {
+                                                <mat-option [value]="country.country">{{ t(country.name) }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                    @if (showError('dataProtection.country')) {
+                                        <p class="field-error">{{ t('humanAuthnProjects.setup.details.fieldRequired') }}</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <aside class="details-explainer" aria-live="polite">
+                <div class="section-heading section-heading--light">
+                    <span>02</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.details.howTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.details.howHelp') }}</p>
+                    </div>
+                </div>
+                <div class="audience">
+                    <article>
+                        <mat-icon>group</mat-icon>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.details.teamTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.details.teamBody', { name: projectName || t('humanAuthnProjects.setup.details.nameRequiredChip') }) }}</p>
+                        </div>
+                    </article>
+                    <article>
+                        <mat-icon>person</mat-icon>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.details.personTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.details.personLanguage', { language: languageLabel }) }}</p>
+                            <p>
+                                {{
+                                    allowsWorld
+                                        ? t('humanAuthnProjects.setup.details.personCountriesWorld')
+                                        : allowedCountries.length
+                                          ? t('humanAuthnProjects.setup.details.personCountriesCount', { count: allowedCountries.length })
+                                          : t('humanAuthnProjects.setup.details.personCountriesNone')
+                                }}
+                            </p>
+                            <p class="audience-link">
+                                <span>{{ t('humanAuthnProjects.setup.details.privacyLabel') }}</span>
+                                {{ privacyUrl || t('humanAuthnProjects.setup.details.personPrivacyOff') }}
+                            </p>
+                            <p class="audience-link">
+                                <span>{{ t('humanAuthnProjects.setup.details.termsLabel') }}</span>
+                                {{ termsUrl || t('humanAuthnProjects.setup.details.personTermsOff') }}
+                            </p>
+                        </div>
+                    </article>
+                    <article>
+                        <mat-icon>gavel</mat-icon>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.details.officerRowTitle') }}</strong>
+                            <p>
+                                {{
+                                    officerName
+                                        ? t('humanAuthnProjects.setup.details.officerReady', { name: officerName, email: officerEmail })
+                                        : t('humanAuthnProjects.setup.details.officerMissing')
+                                }}
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </aside>
+        </div>
+
+        <section class="details-facts">
+            <div class="section-heading">
+                <span>03</span>
+                <div>
+                    <h3>{{ t('humanAuthnProjects.setup.details.factsTitle') }}</h3>
+                    <p>{{ t('humanAuthnProjects.setup.details.factsHelp') }}</p>
+                </div>
+            </div>
+            <div class="fact-items">
+                <article>
+                    <span class="fact-items__icon fact-items__icon--name"><mat-icon>label</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.details.factNameTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.details.factNameBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="fact-items__icon fact-items__icon--countries"><mat-icon>public</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.details.factCountriesTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.details.factCountriesBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="fact-items__icon fact-items__icon--officer"><mat-icon>gavel</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.details.factOfficerTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.details.factOfficerBody') }}</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</ng-container>

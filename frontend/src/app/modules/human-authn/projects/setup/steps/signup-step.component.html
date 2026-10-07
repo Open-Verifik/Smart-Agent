@@ -1,0 +1,379 @@
+<ng-container *transloco="let t" [formGroup]="form">
+    <div class="signup-screen" formGroupName="projectFlow">
+        <header class="signup-hero">
+            <div>
+                <span class="signup-hero__eyebrow">{{ t('humanAuthnProjects.setup.signup.eyebrow') }}</span>
+                <h2>{{ t('humanAuthnProjects.setup.signup.title') }}</h2>
+                <p>{{ t('humanAuthnProjects.setup.signup.subtitle') }}</p>
+            </div>
+            <div class="signup-hero__choice">
+                <span>{{ t('humanAuthnProjects.setup.signup.currentChoice') }}</span>
+                <strong>{{ collectedSummary }}</strong>
+            </div>
+        </header>
+
+        <div class="signup-decision" formGroupName="signUpForm">
+            <section class="fields">
+                <div class="section-heading">
+                    <span>01</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.signup.fieldsTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.signup.fieldsHelp') }}</p>
+                    </div>
+                </div>
+
+                <div class="field-list">
+                    <article class="field-card field-card--ready">
+                        <span class="field-card__icon"><mat-icon>person</mat-icon></span>
+                        <div class="field-card__content">
+                            <span class="field-card__title">
+                                <strong>{{ t('humanAuthnProjects.setup.signup.nameTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.signup.nameRequired') }}</small>
+                            </span>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.signup.nameBody') }}</span>
+                            <div class="option-list" role="radiogroup" [attr.aria-label]="t('humanAuthnProjects.setup.signup.nameTitle')">
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    class="option"
+                                    [class.option--selected]="nameStyle === 'separate'"
+                                    [attr.aria-checked]="nameStyle === 'separate'"
+                                    (click)="setNameStyle('separate')"
+                                >
+                                    <mat-icon>{{ nameStyle === 'separate' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                                    <span>
+                                        <strong>{{ t('humanAuthnProjects.setup.signup.nameSeparate') }}</strong>
+                                        <em>{{ t('humanAuthnProjects.setup.signup.nameSeparateBody') }}</em>
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    class="option"
+                                    [class.option--selected]="nameStyle === 'together'"
+                                    [attr.aria-checked]="nameStyle === 'together'"
+                                    (click)="setNameStyle('together')"
+                                >
+                                    <mat-icon>{{ nameStyle === 'together' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                                    <span>
+                                        <strong>{{ t('humanAuthnProjects.setup.signup.nameTogether') }}</strong>
+                                        <em>{{ t('humanAuthnProjects.setup.signup.nameTogetherBody') }}</em>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="field-card" [class.field-card--ready]="phoneOn">
+                        <span class="field-card__icon"><mat-icon>smartphone</mat-icon></span>
+                        <div class="field-card__content">
+                            <div class="field-card__head">
+                                <span class="field-card__title">
+                                    <strong>{{ t('humanAuthnProjects.setup.signup.phoneTitle') }}</strong>
+                                    <small>{{ t('humanAuthnProjects.setup.signup.optional') }}</small>
+                                </span>
+                                <mat-slide-toggle formControlName="phone" [attr.aria-label]="t('humanAuthnProjects.setup.signup.phoneTitle')"></mat-slide-toggle>
+                            </div>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.signup.phoneBody') }}</span>
+                            @if (phoneOn) {
+                                <div class="option-list" role="group" [attr.aria-label]="t('humanAuthnProjects.setup.signup.channelHelp')">
+                                    <button
+                                        type="button"
+                                        role="checkbox"
+                                        class="option"
+                                        [class.option--selected]="phoneWhatsappChecked"
+                                        [attr.aria-checked]="phoneWhatsappChecked"
+                                        (click)="onPhoneChannelChange('whatsapp', !phoneWhatsappChecked)"
+                                    >
+                                        <mat-icon>{{ phoneWhatsappChecked ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                                        <span><strong>{{ t('humanAuthnProjects.setup.signup.channelWhatsapp') }}</strong></span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        role="checkbox"
+                                        class="option"
+                                        [class.option--selected]="phoneSmsChecked"
+                                        [attr.aria-checked]="phoneSmsChecked"
+                                        (click)="onPhoneChannelChange('sms', !phoneSmsChecked)"
+                                    >
+                                        <mat-icon>{{ phoneSmsChecked ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                                        <span><strong>{{ t('humanAuthnProjects.setup.signup.channelSms') }}</strong></span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        role="checkbox"
+                                        class="option"
+                                        [class.option--selected]="phoneGateway === 'none'"
+                                        [attr.aria-checked]="phoneGateway === 'none'"
+                                        (click)="onPhoneChannelChange('none', true)"
+                                    >
+                                        <mat-icon>{{ phoneGateway === 'none' ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                                        <span><strong>{{ t('humanAuthnProjects.setup.signup.channelNone') }}</strong></span>
+                                    </button>
+                                </div>
+                                <p class="field-note">{{ t('humanAuthnProjects.setup.signup.channelHelp') }}</p>
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="country-field">
+                                    <mat-label>{{ t('humanAuthnProjects.setup.signup.countryCode') }}</mat-label>
+                                    <mat-select
+                                        formControlName="countryCode"
+                                        (openedChange)="$event && onCountryCodeSelectOpened()"
+                                    >
+                                        <mat-select-trigger>
+                                            <span class="font-semibold">{{ countryCode }}</span>
+                                            <span class="ml-2 text-stone-500">{{ selectedCountryName }}</span>
+                                        </mat-select-trigger>
+                                        <div
+                                            class="sticky top-0 z-10 flex items-center gap-2 bg-white px-3 py-2 dark:bg-gray-900"
+                                            (click)="$event.stopPropagation()"
+                                            (keydown)="$event.stopPropagation()"
+                                            (mousedown)="$event.stopPropagation()"
+                                        >
+                                            <mat-icon class="!h-4 !w-4 text-stone-400">search</mat-icon>
+                                            <input
+                                                #countryCodeSearchInput
+                                                type="text"
+                                                class="w-full bg-transparent text-sm outline-none placeholder:text-stone-400"
+                                                [placeholder]="t('humanAuthnProjects.setup.signup.searchCountry')"
+                                                [value]="countryCodeSearchTerm"
+                                                (click)="$event.stopPropagation()"
+                                                (input)="onCountryCodeSearchChange($any($event.target).value)"
+                                                (keydown)="$event.stopPropagation()"
+                                            />
+                                            @if (countryCodeSearchTerm) {
+                                                <button mat-icon-button type="button" class="!h-6 !w-6 !min-w-0" (click)="clearCountryCodeSearch($event)">
+                                                    <mat-icon class="!h-4 !w-4">close</mat-icon>
+                                                </button>
+                                            }
+                                        </div>
+                                        @for (country of filteredPhoneCountryCodes; track country.code) {
+                                            <mat-option [value]="country.code">
+                                                <span class="font-semibold">{{ country.code }}</span>
+                                                <span class="ml-2 text-stone-500">{{ country.name }}</span>
+                                            </mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            }
+                        </div>
+                    </article>
+
+                    <article class="field-card" [class.field-card--ready]="emailOn">
+                        <span class="field-card__icon"><mat-icon>mail</mat-icon></span>
+                        <div class="field-card__content">
+                            <div class="field-card__head">
+                                <span class="field-card__title">
+                                    <strong>{{ t('humanAuthnProjects.setup.signup.emailTitle') }}</strong>
+                                    <small>{{ t('humanAuthnProjects.setup.signup.optional') }}</small>
+                                </span>
+                                <mat-slide-toggle formControlName="email" [attr.aria-label]="t('humanAuthnProjects.setup.signup.emailTitle')"></mat-slide-toggle>
+                            </div>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.signup.emailBody') }}</span>
+                            @if (emailOn) {
+                                <div class="option-list" role="radiogroup" [attr.aria-label]="t('humanAuthnProjects.setup.signup.emailTitle')">
+                                    <button
+                                        type="button"
+                                        role="radio"
+                                        class="option"
+                                        [class.option--selected]="emailVerified"
+                                        [attr.aria-checked]="emailVerified"
+                                        (click)="setEmailVerified(true)"
+                                    >
+                                        <mat-icon>{{ emailVerified ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                                        <span>
+                                            <strong>{{ t('humanAuthnProjects.setup.signup.emailVerify') }}</strong>
+                                            <em>{{ t('humanAuthnProjects.setup.signup.emailVerifyBody') }}</em>
+                                        </span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        role="radio"
+                                        class="option"
+                                        [class.option--selected]="!emailVerified"
+                                        [attr.aria-checked]="!emailVerified"
+                                        (click)="setEmailVerified(false)"
+                                    >
+                                        <mat-icon>{{ !emailVerified ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                                        <span>
+                                            <strong>{{ t('humanAuthnProjects.setup.signup.emailPlain') }}</strong>
+                                            <em>{{ t('humanAuthnProjects.setup.signup.emailPlainBody') }}</em>
+                                        </span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </article>
+
+                    <article class="field-card" [class.field-card--ready]="extrasOn && selectedExtras.length > 0">
+                        <span class="field-card__icon"><mat-icon>playlist_add</mat-icon></span>
+                        <div class="field-card__content">
+                            <div class="field-card__head">
+                                <span class="field-card__title">
+                                    <strong>{{ t('humanAuthnProjects.setup.signup.extrasTitle') }}</strong>
+                                    <small>{{ t('humanAuthnProjects.setup.signup.optional') }}</small>
+                                </span>
+                                <mat-slide-toggle
+                                    formControlName="allowAdditionalFields"
+                                    [attr.aria-label]="t('humanAuthnProjects.setup.signup.extrasTitle')"
+                                ></mat-slide-toggle>
+                            </div>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.signup.extrasBody') }}</span>
+                            @if (extrasOn) {
+                                <div class="option-list option-list--grid" role="group" [attr.aria-label]="t('humanAuthnProjects.setup.signup.extrasTitle')">
+                                    @for (field of additionalFields; track field.value) {
+                                        <button
+                                            type="button"
+                                            role="checkbox"
+                                            class="option"
+                                            [class.option--selected]="additionalFieldChecked(field.value)"
+                                            [attr.aria-checked]="additionalFieldChecked(field.value)"
+                                            (click)="toggleAdditionalField(field.value, !additionalFieldChecked(field.value))"
+                                        >
+                                            <mat-icon>{{ additionalFieldChecked(field.value) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                                            <span><strong>{{ t(field.labelKey) }}</strong></span>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </article>
+
+                    <article class="field-card" [class.field-card--ready]="termsOn || privacyOn">
+                        <span class="field-card__icon"><mat-icon>gavel</mat-icon></span>
+                        <div class="field-card__content">
+                            <span class="field-card__title">
+                                <strong>{{ t('humanAuthnProjects.setup.signup.legalTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.signup.optional') }}</small>
+                            </span>
+                            <span class="field-card__body">{{ t('humanAuthnProjects.setup.signup.legalBody') }}</span>
+                            <div class="legal-row">
+                                <div>
+                                    <strong>{{ t('humanAuthnProjects.setup.signup.termsToggle') }}</strong>
+                                    @if (termsOn) {
+                                        <p>{{ termsUrl || t('humanAuthnProjects.setup.signup.urlMissing') }}</p>
+                                    }
+                                </div>
+                                <mat-slide-toggle
+                                    formControlName="showTermsAndConditions"
+                                    [attr.aria-label]="t('humanAuthnProjects.setup.signup.termsToggle')"
+                                ></mat-slide-toggle>
+                            </div>
+                            <div class="legal-row">
+                                <div>
+                                    <strong>{{ t('humanAuthnProjects.setup.signup.privacyToggle') }}</strong>
+                                    @if (privacyOn) {
+                                        <p>{{ privacyUrl || t('humanAuthnProjects.setup.signup.urlMissing') }}</p>
+                                    }
+                                </div>
+                                <mat-slide-toggle
+                                    formControlName="showPrivacyNotice"
+                                    [attr.aria-label]="t('humanAuthnProjects.setup.signup.privacyToggle')"
+                                ></mat-slide-toggle>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <aside class="signup-explainer" aria-live="polite">
+                <div class="section-heading section-heading--light">
+                    <span>02</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.signup.howTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.signup.howHelp') }}</p>
+                    </div>
+                </div>
+
+                <div class="sample" aria-hidden="true">
+                    <h4>{{ t('humanAuthnProjects.setup.signup.sampleTitle') }}</h4>
+                    @if (nameStyle === 'separate') {
+                        <div class="sample-field">
+                            <span>{{ t('humanAuthnProjects.setup.signup.sampleFirstName') }}</span>
+                            <i></i>
+                        </div>
+                        <div class="sample-field">
+                            <span>{{ t('humanAuthnProjects.setup.signup.sampleLastName') }}</span>
+                            <i></i>
+                        </div>
+                    } @else {
+                        <div class="sample-field">
+                            <span>{{ t('humanAuthnProjects.setup.signup.sampleFullName') }}</span>
+                            <i></i>
+                        </div>
+                    }
+                    @if (phoneOn) {
+                        <div class="sample-field">
+                            <span>{{ t('humanAuthnProjects.setup.signup.samplePhone') }}</span>
+                            <i><b>{{ countryCode }}</b></i>
+                            <em>
+                                {{
+                                    phoneGateway === 'none'
+                                        ? t('humanAuthnProjects.setup.signup.phoneTypedHint')
+                                        : t('humanAuthnProjects.setup.signup.phoneCodeHint', { channel: t(phoneChannelKey) })
+                                }}
+                            </em>
+                        </div>
+                    }
+                    @if (emailOn) {
+                        <div class="sample-field">
+                            <span>{{ t('humanAuthnProjects.setup.signup.sampleEmail') }}</span>
+                            <i></i>
+                            <em>
+                                {{
+                                    emailVerified
+                                        ? t('humanAuthnProjects.setup.signup.emailCodeHint')
+                                        : t('humanAuthnProjects.setup.signup.emailTypedHint')
+                                }}
+                            </em>
+                        </div>
+                    }
+                    @for (field of extrasOn ? selectedExtras : []; track field.value) {
+                        <div class="sample-field">
+                            <span>{{ t(field.labelKey) }}</span>
+                            <i></i>
+                        </div>
+                    }
+                    @if (termsOn) {
+                        <p class="sample-legal"><mat-icon>check_box_outline_blank</mat-icon>{{ t('humanAuthnProjects.setup.signup.termsSample') }}</p>
+                    }
+                    @if (privacyOn) {
+                        <p class="sample-legal"><mat-icon>check_box_outline_blank</mat-icon>{{ t('humanAuthnProjects.setup.signup.privacySample') }}</p>
+                    }
+                    <span class="sample-button">{{ t('humanAuthnProjects.setup.signup.sampleContinue') }}</span>
+                </div>
+            </aside>
+        </div>
+
+        <section class="signup-facts">
+            <div class="section-heading">
+                <span>03</span>
+                <div>
+                    <h3>{{ t('humanAuthnProjects.setup.signup.factsTitle') }}</h3>
+                    <p>{{ t('humanAuthnProjects.setup.signup.factsHelp') }}</p>
+                </div>
+            </div>
+            <div class="fact-items">
+                <article>
+                    <span class="fact-items__icon fact-items__icon--name"><mat-icon>person</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.signup.factNameTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.signup.factNameBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="fact-items__icon fact-items__icon--contact"><mat-icon>verified_user</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.signup.factContactTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.signup.factContactBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="fact-items__icon fact-items__icon--optional"><mat-icon>tune</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.signup.factOptionalTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.signup.factOptionalBody') }}</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</ng-container>

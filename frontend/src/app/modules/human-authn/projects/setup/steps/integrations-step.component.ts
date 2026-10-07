@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
@@ -15,35 +16,14 @@ import { HumanAuthnSetupService } from '../human-authn-setup.service';
         CommonModule,
         ReactiveFormsModule,
         MatFormFieldModule,
+        MatIconModule,
         MatInputModule,
         MatSelectModule,
         RouterLink,
         TranslocoModule,
     ],
-    template: `
-        <ng-container *transloco="let t" [formGroup]="form">
-            <div class="flex flex-col gap-4" formGroupName="projectFlow">
-                <div class="flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-6" formGroupName="integrations">
-                    <mat-form-field appearance="outline">
-                        <mat-label>{{ t('humanAuthnProjects.setup.integrations.redirectUrl') }}</mat-label>
-                        <input matInput formControlName="redirectUrl" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                        <mat-label>{{ t('humanAuthnProjects.setup.integrations.webhook') }}</mat-label>
-                        <mat-select formControlName="webhook">
-                            <mat-option [value]="null">{{ t('humanAuthnProjects.setup.integrations.noWebhook') }}</mat-option>
-                            @for (webhook of webhooks; track webhook._id) {
-                                <mat-option [value]="webhook._id">{{ webhook.name || webhook._id }}</mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
-                    <a routerLink="/smart-monitor/webhooks" class="text-sm underline">
-                        {{ t('humanAuthnProjects.setup.integrations.manageWebhooks') }}
-                    </a>
-                </div>
-            </div>
-        </ng-container>
-    `,
+    templateUrl: './integrations-step.component.html',
+    styleUrl: './integrations-step.component.scss',
 })
 export class HumanAuthnIntegrationsStepComponent implements OnInit {
     @Input() form!: FormGroup;
@@ -56,5 +36,33 @@ export class HumanAuthnIntegrationsStepComponent implements OnInit {
                 this.webhooks = res?.data ?? [];
             },
         });
+    }
+
+    get redirectControl(): AbstractControl | null {
+        return this.form?.get('projectFlow.integrations.redirectUrl') ?? null;
+    }
+
+    get webhookId(): string | null {
+        return this.form?.get('projectFlow.integrations.webhook')?.value || null;
+    }
+
+    get hasWebhook(): boolean {
+        return !!this.webhookId;
+    }
+
+    get redirectHost(): string | null {
+        const value = `${this.redirectControl?.value || ''}`.trim();
+        if (!value || this.redirectControl?.invalid) return null;
+
+        try {
+            return new URL(value).host;
+        } catch {
+            return null;
+        }
+    }
+
+    get selectedWebhookName(): string {
+        const match = this.webhooks.find((webhook) => webhook._id === this.webhookId);
+        return match?.name || match?._id || this.webhookId || '';
     }
 }

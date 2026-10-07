@@ -1,0 +1,486 @@
+<ng-container *transloco="let t">
+    @if (isFormReady) {
+        <div class="docs-screen">
+            <header class="docs-hero">
+                <div>
+                    <span class="docs-hero__eyebrow">{{ t('humanAuthnProjects.setup.documents.eyebrow') }}</span>
+                    <h2>{{ t('humanAuthnProjects.setup.documents.title') }}</h2>
+                    <p>{{ t('humanAuthnProjects.setup.documents.subtitle') }}</p>
+                </div>
+                <div class="docs-hero__choice">
+                    <span>{{ t('humanAuthnProjects.setup.documents.currentChoice') }}</span>
+                    <strong>{{ t('humanAuthnProjects.setup.documents.requirement.' + requirementValue) }}</strong>
+                </div>
+            </header>
+
+            <div class="docs-decision">
+                <section class="docs-record">
+                    <div class="section-heading">
+                        <span>01</span>
+                        <div>
+                            <h3>{{ t('humanAuthnProjects.setup.documents.recordTitle') }}</h3>
+                            <p>{{ t('humanAuthnProjects.setup.documents.recordHelp') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="documents-journey">
+                        <ol class="documents-timeline">
+                            <li class="documents-stage">
+                                <span class="documents-stage__marker" aria-hidden="true">1</span>
+                                <section class="documents-panel" [formGroup]="stepFormGroup">
+                                    <header class="documents-panel__header">
+                                        <div>
+                                            <span class="documents-panel__eyebrow">
+                                                {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 1 }) }}
+                                            </span>
+                                            <h3>{{ t('smartEnrollProjects.setup.documents.journey.requirementTitle') }}</h3>
+                                            <p>{{ t('humanAuthnProjects.setup.documents.requirementHelp') }}</p>
+                                        </div>
+                                        <span class="documents-panel__status">
+                                            {{ t('humanAuthnProjects.setup.documents.requirement.' + requirementValue) }}
+                                        </span>
+                                    </header>
+                                    <mat-button-toggle-group formControlName="document" class="requirement-options" [hideSingleSelectionIndicator]="true">
+                                        @for (value of ['skip', 'optional', 'mandatory']; track value) {
+                                            <mat-button-toggle [value]="value">
+                                                <span class="requirement-option">
+                                                    <strong>{{ t('humanAuthnProjects.setup.documents.requirement.' + value) }}</strong>
+                                                    <small>{{ t('humanAuthnProjects.setup.documents.requirementDetail.' + value) }}</small>
+                                                </span>
+                                            </mat-button-toggle>
+                                        }
+                                    </mat-button-toggle-group>
+                                </section>
+                            </li>
+
+                            <ng-container [formGroup]="formGroup">
+                                <li class="documents-stage">
+                                    <span class="documents-stage__marker" aria-hidden="true">2</span>
+                                    <section class="documents-panel" [class.documents-panel--error]="!isNotRequired && documentTypesErrorKeys.length">
+                                        <header class="documents-panel__header">
+                                            <div>
+                                                <span class="documents-panel__eyebrow">
+                                                    {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 2 }) }}
+                                                </span>
+                                                <h3>{{ t('smartEnrollProjects.setup.documents.types.title') }}</h3>
+                                                <p>{{ t('humanAuthnProjects.setup.documents.typesHelp') }}</p>
+                                            </div>
+                                            <span class="documents-panel__status">
+                                                {{
+                                                    t('smartEnrollProjects.setup.documents.journey.documentSummary', {
+                                                        countries: configuredCountriesCount,
+                                                        documents: selectedDocumentsCount,
+                                                    })
+                                                }}
+                                            </span>
+                                        </header>
+                                        @if (isNotRequired) {
+                                            <div class="disabled-stage">
+                                                <mat-icon>lock_outline</mat-icon>
+                                                <span>{{ t('humanAuthnProjects.setup.documents.enableToConfigure') }}</span>
+                                            </div>
+                                        } @else {
+                                            <div class="documents-panel__body">
+                                                @if (documentTypesErrorKeys.length) {
+                                                    <div class="validation-summary">
+                                                        <mat-icon>error_outline</mat-icon>
+                                                        <div>
+                                                            @if (documentTypesErrorKeys.includes('atLeastOneDocumentVerificationTypeRequired')) {
+                                                                <span>{{ t('smartEnrollProjects.setup.documents.types.errors.atLeastOne') }}</span>
+                                                            }
+                                                            @if (documentTypesErrorKeys.includes('duplicateCountriesNotAllowed')) {
+                                                                <span>{{ t('smartEnrollProjects.setup.documents.types.errors.duplicateCountries') }}</span>
+                                                            }
+                                                            @if (documentTypesErrorKeys.includes('allDocumentVerificationTypesMustBeValid')) {
+                                                                <span>{{ t('smartEnrollProjects.setup.documents.types.errors.allMustBeValid') }}</span>
+                                                            }
+                                                            @if (documentTypesErrorKeys.includes('emptyCountryValuesNotAllowed')) {
+                                                                <span>{{ t('smartEnrollProjects.setup.documents.types.errors.emptyCountry') }}</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                                @if (documentTypesFormArray) {
+                                                    <document-verification-type-list
+                                                        class="document-editor"
+                                                        [form]="form"
+                                                        [documentTypes]="documentTypesFormArray"
+                                                        target="personal"
+                                                    ></document-verification-type-list>
+                                                }
+                                            </div>
+                                        }
+                                    </section>
+                                </li>
+
+                                @let methodsCtrl = formGroup?.get('verificationMethods');
+                                <li class="documents-stage">
+                                    <span class="documents-stage__marker" aria-hidden="true">3</span>
+                                    <section
+                                        class="documents-panel"
+                                        [class.documents-panel--error]="!isNotRequired && methodsCtrl?.dirty && methodsCtrl?.errors?.['required']"
+                                    >
+                                        <header class="documents-panel__header">
+                                            <div>
+                                                <span class="documents-panel__eyebrow">
+                                                    {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 3 }) }}
+                                                </span>
+                                                <h3>{{ t('smartEnrollProjects.setup.documents.journey.collectionTitle') }}</h3>
+                                                <p>{{ t('humanAuthnProjects.setup.documents.collectionHelp') }}</p>
+                                            </div>
+                                            <span class="documents-panel__status">
+                                                {{
+                                                    t('humanAuthnProjects.setup.documents.collectionSummary', {
+                                                        methods: verificationMethodsValue.length,
+                                                        attempts: attemptLimit,
+                                                    })
+                                                }}
+                                            </span>
+                                        </header>
+                                        @if (isNotRequired) {
+                                            <div class="disabled-stage">
+                                                <mat-icon>lock_outline</mat-icon>
+                                                <span>{{ t('humanAuthnProjects.setup.documents.enableToConfigure') }}</span>
+                                            </div>
+                                        } @else {
+                                            <div class="documents-panel__body collection-policy">
+                                                <div class="policy-section">
+                                                    <div class="policy-section__copy">
+                                                        <strong>{{ t('smartEnrollProjects.setup.documents.method.title') }}</strong>
+                                                        <span>{{ t('smartEnrollProjects.setup.documents.method.help') }}</span>
+                                                    </div>
+                                                    <div class="method-options">
+                                                        @for (method of verificationMethods; track method.value) {
+                                                            <button
+                                                                type="button"
+                                                                class="method-option"
+                                                                [class.method-option--selected]="isVerificationMethodSelected(method.value)"
+                                                                (click)="toggleVerificationMethod(method.value)"
+                                                            >
+                                                                <mat-icon>{{ method.icon }}</mat-icon>
+                                                                <span>{{ t(method.labelKey) }}</span>
+                                                                @if (isVerificationMethodSelected(method.value)) {
+                                                                    <mat-icon class="method-option__check">check_circle</mat-icon>
+                                                                }
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                    @if (methodsCtrl?.dirty && methodsCtrl?.errors?.['required']) {
+                                                        <p class="field-error">{{ t('smartEnrollProjects.setup.documents.method.required') }}</p>
+                                                    }
+                                                </div>
+                                                <div class="policy-section policy-section--attempts">
+                                                    <div class="policy-section__copy">
+                                                        <strong>{{ t('smartEnrollProjects.setup.documents.attempts.title') }}</strong>
+                                                        <span>{{ t('smartEnrollProjects.setup.documents.attempts.subtitle') }}</span>
+                                                    </div>
+                                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                        <mat-label>{{ t('smartEnrollProjects.setup.documents.attempts.limit') }}</mat-label>
+                                                        <mat-select formControlName="attemptLimit" required>
+                                                            @for (n of attemptOptions; track n) {
+                                                                <mat-option [value]="n">
+                                                                    {{
+                                                                        n === 1
+                                                                            ? t('smartEnrollProjects.setup.documents.attempts.one')
+                                                                            : t('smartEnrollProjects.setup.documents.attempts.many', { count: n })
+                                                                    }}
+                                                                </mat-option>
+                                                            }
+                                                        </mat-select>
+                                                    </mat-form-field>
+                                                </div>
+                                            </div>
+                                        }
+                                    </section>
+                                </li>
+
+                                <li class="documents-stage">
+                                    <span class="documents-stage__marker" aria-hidden="true">4</span>
+                                    <section class="documents-panel" [class.documents-panel--error]="!isNotRequired && formGroup?.errors?.['screeningRequiresVerification']">
+                                        <header class="documents-panel__header">
+                                            <div>
+                                                <span class="documents-panel__eyebrow">
+                                                    {{ t('smartEnrollProjects.setup.documents.journey.stage', { number: 4 }) }}
+                                                </span>
+                                                <h3>{{ t('smartEnrollProjects.setup.documents.journey.screeningTitle') }}</h3>
+                                                <p>{{ t('humanAuthnProjects.setup.documents.screeningHelp') }}</p>
+                                            </div>
+                                            <span class="documents-panel__status">
+                                                {{
+                                                    screeningOn
+                                                        ? t('smartEnrollProjects.setup.documents.journey.screeningSummary', { count: screeningChecksCount })
+                                                        : t('humanAuthnProjects.setup.documents.screeningOffLabel')
+                                                }}
+                                            </span>
+                                        </header>
+                                        @if (isNotRequired) {
+                                            <div class="disabled-stage">
+                                                <mat-icon>lock_outline</mat-icon>
+                                                <span>{{ t('humanAuthnProjects.setup.documents.enableToConfigure') }}</span>
+                                            </div>
+                                        } @else {
+                                            <div class="documents-panel__body">
+                                                <div class="setting-row">
+                                                    <div class="setting-row__copy">
+                                                        <mat-icon>manage_search</mat-icon>
+                                                        <div>
+                                                            <strong>{{ t('smartEnrollProjects.setup.documents.screening.title') }}</strong>
+                                                            <span>{{ t('humanAuthnProjects.setup.documents.screeningToggleHelp') }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <mat-slide-toggle formControlName="screening"></mat-slide-toggle>
+                                                </div>
+                                                @if (screeningOn) {
+                                                    @if (formGroup?.errors?.['screeningRequiresVerification']) {
+                                                        <p class="field-error">{{ t('smartEnrollProjects.setup.documents.screening.requiresVerification') }}</p>
+                                                    }
+                                                    <div class="screening-options">
+                                                        <label class="screening-option">
+                                                            <mat-checkbox formControlName="informationVerification"></mat-checkbox>
+                                                            <mat-icon>account_balance</mat-icon>
+                                                            <span>
+                                                                <strong>{{ t('smartEnrollProjects.setup.documents.screening.informationVerification') }}</strong>
+                                                                <small>{{ t('smartEnrollProjects.setup.documents.screening.informationVerificationDescription') }}</small>
+                                                            </span>
+                                                        </label>
+                                                        <label class="screening-option">
+                                                            <mat-checkbox formControlName="criminalHistoryVerification"></mat-checkbox>
+                                                            <mat-icon>security</mat-icon>
+                                                            <span>
+                                                                <strong>{{ t('smartEnrollProjects.setup.documents.screening.criminalHistory') }}</strong>
+                                                                <small>{{ t('smartEnrollProjects.setup.documents.screening.criminalHistoryDescription') }}</small>
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                    @if (formGroup?.get('criminalHistoryVerification')?.value) {
+                                                        <div class="criminal-check-catalog">
+                                                            <div class="criminal-check-catalog__intro">
+                                                                <div>
+                                                                    <span>{{ t('smartEnrollProjects.setup.documents.screening.catalogEyebrow') }}</span>
+                                                                    <h4>{{ t('smartEnrollProjects.setup.documents.screening.catalogTitle') }}</h4>
+                                                                </div>
+                                                                <p>{{ t('smartEnrollProjects.setup.documents.screening.catalogDescription') }}</p>
+                                                            </div>
+                                                            @for (section of countryCheckSections; track section.country) {
+                                                                <section class="check-scope">
+                                                                    <header class="check-scope__header">
+                                                                        <div>
+                                                                            <span class="check-scope__badge">
+                                                                                {{ t('smartEnrollProjects.setup.documents.screening.countryChecks') }}
+                                                                            </span>
+                                                                            <h5>{{ section.country }}</h5>
+                                                                        </div>
+                                                                        <p>{{ t('smartEnrollProjects.setup.documents.screening.countryDescription', { country: section.country }) }}</p>
+                                                                    </header>
+                                                                    @if (section.checks.length) {
+                                                                        <div class="check-card-grid">
+                                                                            @for (check of section.checks; track check.value) {
+                                                                                <label class="check-card" [class.check-card--selected]="isEndpointSelected(check.value)">
+                                                                                    <mat-checkbox
+                                                                                        [checked]="isEndpointSelected(check.value)"
+                                                                                        (change)="toggleCriminalEndpoint(check.value)"
+                                                                                    ></mat-checkbox>
+                                                                                    <span class="check-card__copy">
+                                                                                        <strong>{{ t(check.titleKey) }}</strong>
+                                                                                        <small>{{ t(check.descriptionKey) }}</small>
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            class="check-card__source"
+                                                                                            [matTooltip]="t('smartEnrollProjects.setup.documents.screening.aboutTooltip')"
+                                                                                            matTooltipPosition="above"
+                                                                                            (click)="openCheckDetails($event, check)"
+                                                                                        >
+                                                                                            {{ t(check.sourceKey) }}
+                                                                                        </button>
+                                                                                    </span>
+                                                                                </label>
+                                                                            }
+                                                                        </div>
+                                                                    } @else {
+                                                                        <div class="check-scope__empty">
+                                                                            <mat-icon>info_outline</mat-icon>
+                                                                            <span>{{ t('smartEnrollProjects.setup.documents.screening.noCountryChecks') }}</span>
+                                                                        </div>
+                                                                    }
+                                                                </section>
+                                                            }
+                                                            <section class="check-scope check-scope--international">
+                                                                <span class="check-scope__badge check-scope__badge--floating">
+                                                                    {{ t('smartEnrollProjects.setup.documents.screening.globalChecks') }}
+                                                                </span>
+                                                                <header class="check-scope__header">
+                                                                    <div>
+                                                                        <h5>{{ t('smartEnrollProjects.setup.documents.screening.internationalTitle') }}</h5>
+                                                                    </div>
+                                                                    <p>{{ t('smartEnrollProjects.setup.documents.screening.internationalDescription') }}</p>
+                                                                </header>
+                                                                <div class="check-card-grid">
+                                                                    @for (check of internationalChecks; track check.value) {
+                                                                        <label class="check-card" [class.check-card--selected]="isEndpointSelected(check.value)">
+                                                                            <mat-checkbox
+                                                                                [checked]="isEndpointSelected(check.value)"
+                                                                                (change)="toggleCriminalEndpoint(check.value)"
+                                                                            ></mat-checkbox>
+                                                                            <span class="check-card__copy">
+                                                                                <strong>{{ t(check.titleKey) }}</strong>
+                                                                                <small>{{ t(check.descriptionKey) }}</small>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    class="check-card__source"
+                                                                                    [matTooltip]="t('smartEnrollProjects.setup.documents.screening.aboutTooltip')"
+                                                                                    matTooltipPosition="above"
+                                                                                    (click)="openCheckDetails($event, check)"
+                                                                                >
+                                                                                    {{ t(check.sourceKey) }}
+                                                                                </button>
+                                                                            </span>
+                                                                        </label>
+                                                                    }
+                                                                </div>
+                                                            </section>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        }
+                                    </section>
+                                </li>
+                            </ng-container>
+                        </ol>
+                    </div>
+                </section>
+
+                <aside class="docs-explainer" aria-live="polite">
+                    <div class="section-heading section-heading--light">
+                        <span>02</span>
+                        <div>
+                            <h3>{{ t('humanAuthnProjects.setup.documents.howTitle') }}</h3>
+                            <p>{{ t('humanAuthnProjects.setup.documents.howHelp') }}</p>
+                        </div>
+                    </div>
+                    <ol class="docs-flow">
+                        <li>
+                            <mat-icon>assignment</mat-icon>
+                            <span>{{ t('humanAuthnProjects.setup.documents.requirement.' + requirementValue) }}</span>
+                        </li>
+                        <li>
+                            <mat-icon>public</mat-icon>
+                            <span>
+                                {{
+                                    isNotRequired
+                                        ? t('humanAuthnProjects.setup.documents.notCollected')
+                                        : t('humanAuthnProjects.setup.documents.typesSummary', {
+                                              countries: configuredCountriesCount,
+                                              documents: selectedDocumentsCount,
+                                          })
+                                }}
+                            </span>
+                        </li>
+                        <li>
+                            <mat-icon>photo_camera</mat-icon>
+                            <span>
+                                {{
+                                    isNotRequired
+                                        ? t('humanAuthnProjects.setup.documents.notCollected')
+                                        : t('humanAuthnProjects.setup.documents.collectionSummary', {
+                                              methods: verificationMethodsValue.length,
+                                              attempts: attemptLimit,
+                                          })
+                                }}
+                            </span>
+                        </li>
+                        <li class="docs-flow__result">
+                            <mat-icon>{{ screeningOn && !isNotRequired ? 'manage_search' : 'lock' }}</mat-icon>
+                            <span>
+                                {{
+                                    t(
+                                        screeningOn && !isNotRequired
+                                            ? 'humanAuthnProjects.setup.documents.screeningOnLabel'
+                                            : 'humanAuthnProjects.setup.documents.screeningOffLabel'
+                                    )
+                                }}
+                            </span>
+                        </li>
+                    </ol>
+                    <div class="docs-path">
+                        <span class="docs-path__label">{{ t('humanAuthnProjects.setup.documents.selectedPath') }}</span>
+                        <h4>{{ t('humanAuthnProjects.setup.documents.path.' + requirementValue + 'Title') }}</h4>
+                        <p>{{ t('humanAuthnProjects.setup.documents.path.' + requirementValue + 'Body') }}</p>
+                        <div class="docs-path__result">
+                            <mat-icon>{{ screeningOn && !isNotRequired ? 'manage_search' : 'description' }}</mat-icon>
+                            <span>
+                                {{
+                                    t(
+                                        screeningOn && !isNotRequired
+                                            ? 'humanAuthnProjects.setup.documents.screeningOn'
+                                            : 'humanAuthnProjects.setup.documents.screeningOff'
+                                    )
+                                }}
+                            </span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <section class="docs-facts">
+                <div class="section-heading">
+                    <span>03</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.documents.factsTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.documents.factsHelp') }}</p>
+                    </div>
+                </div>
+                <div class="fact-items">
+                    <article>
+                        <span class="fact-items__icon fact-items__icon--compare"><mat-icon>face</mat-icon></span>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.documents.factCompareTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.documents.factCompareBody') }}</p>
+                        </div>
+                    </article>
+                    <article>
+                        <span class="fact-items__icon fact-items__icon--types"><mat-icon>public</mat-icon></span>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.documents.factTypesTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.documents.factTypesBody') }}</p>
+                        </div>
+                    </article>
+                    <article>
+                        <span class="fact-items__icon fact-items__icon--screening"><mat-icon>manage_search</mat-icon></span>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.documents.factScreeningTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.documents.factScreeningBody') }}</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    }
+
+    <ng-template #checkDetailsDialog>
+        @if (selectedCheck) {
+            <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-lg bg-white dark:bg-gray-900">
+                <div class="flex items-start justify-between gap-4 border-b border-stone-200 bg-stone-50 p-5 dark:border-gray-700 dark:bg-gray-900/60">
+                    <div class="flex min-w-0 flex-col items-start gap-2">
+                        <span class="check-card__source">{{ t(selectedCheck.sourceKey) }}</span>
+                        <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">{{ t(selectedCheck.titleKey) }}</h2>
+                    </div>
+                    <button mat-icon-button mat-dialog-close>
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5">
+                    <p class="m-0 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{{ t(selectedCheck.aboutKey) }}</p>
+                </div>
+                <div class="flex flex-wrap justify-end gap-2 border-t border-stone-200 p-4 dark:border-gray-700">
+                    <a mat-stroked-button [href]="docsUrl(selectedCheck)" target="_blank" rel="noopener noreferrer">
+                        {{ t('smartEnrollProjects.setup.documents.screening.readDocs') }}
+                    </a>
+                    <a mat-flat-button color="primary" [href]="postmanUrl(selectedCheck)" target="_blank" rel="noopener noreferrer">
+                        {{ t('smartEnrollProjects.setup.documents.screening.tryInPostman') }}
+                    </a>
+                </div>
+            </div>
+        }
+    </ng-template>
+</ng-container>

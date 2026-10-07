@@ -1,0 +1,256 @@
+<ng-container *transloco="let t">
+    @if (isFormReady) {
+        <div class="ui-screen">
+            <header class="ui-hero">
+                <div>
+                    <span class="ui-hero__eyebrow">{{ t('humanAuthnProjects.setup.ui.eyebrow') }}</span>
+                    <h2>{{ t('humanAuthnProjects.setup.ui.title') }}</h2>
+                    <p>{{ t('humanAuthnProjects.setup.ui.subtitle') }}</p>
+                </div>
+                <div class="ui-hero__choice">
+                    <span>{{ t('humanAuthnProjects.setup.ui.currentChoice') }}</span>
+                    <strong>{{ t(hasLogo ? 'humanAuthnProjects.setup.ui.logoOn' : 'humanAuthnProjects.setup.ui.logoOff') }}</strong>
+                    <em>{{ t(hasBanner ? 'humanAuthnProjects.setup.ui.bannerOn' : 'humanAuthnProjects.setup.ui.bannerOff') }}</em>
+                </div>
+            </header>
+
+            <div class="ui-decision">
+                <section class="choices">
+                    <div class="section-heading">
+                        <span>01</span>
+                        <div>
+                            <h3>{{ t('humanAuthnProjects.setup.ui.changeTitle') }}</h3>
+                            <p>{{ t('humanAuthnProjects.setup.ui.changeHelp') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="choice-list">
+                        <article class="choice" [class.choice--ready]="hasLogo">
+                            <span class="choice__icon"><mat-icon>image</mat-icon></span>
+                            <div class="choice__content">
+                                <span class="choice__title">
+                                    <strong>{{ t('humanAuthnProjects.setup.ui.logoTitle') }}</strong>
+                                    <small>{{ t('humanAuthnProjects.setup.ui.optional') }}</small>
+                                </span>
+                                <span class="choice__body">{{ t('humanAuthnProjects.setup.ui.logoBody') }}</span>
+                                <span class="choice__benefits">
+                                    <span><mat-icon>check</mat-icon>{{ t('humanAuthnProjects.setup.ui.logoBenefitHeader') }}</span>
+                                    <span><mat-icon>check</mat-icon>{{ t('humanAuthnProjects.setup.ui.logoBenefitFormat') }}</span>
+                                    <span><mat-icon>check</mat-icon>{{ t('humanAuthnProjects.setup.ui.logoBenefitSize') }}</span>
+                                </span>
+                                @if (imageValue('logo'); as src) {
+                                    <div class="current-file">
+                                        <img [src]="src" [alt]="t('humanAuthnProjects.setup.ui.logoAlt')" />
+                                        <span>{{ t('humanAuthnProjects.setup.ui.currentLogo') }}</span>
+                                        <button
+                                            mat-stroked-button
+                                            type="button"
+                                            color="warn"
+                                            (click)="clearImage('logo')"
+                                            [attr.aria-label]="t('humanAuthnProjects.setup.ui.removeLogo')"
+                                        >
+                                            <mat-icon>delete</mat-icon>
+                                            {{ t('humanAuthnProjects.setup.ui.removeLogo') }}
+                                        </button>
+                                    </div>
+                                } @else {
+                                    <file-drop-zone
+                                        [accept]="imageAccept"
+                                        [maxFileSize]="logoMaxSize"
+                                        [expirationDays]="0"
+                                        source="project"
+                                        (attachmentUploaded)="onAttachmentUploaded('logo', $event)"
+                                        (uploadError)="onUploadError('logo', $event)"
+                                        (fileError)="onFileError('logo', $event)"
+                                    ></file-drop-zone>
+                                }
+                            </div>
+                        </article>
+
+                        <article class="choice" [class.choice--ready]="hasBanner">
+                            <span class="choice__icon"><mat-icon>panorama</mat-icon></span>
+                            <div class="choice__content">
+                                <span class="choice__title">
+                                    <strong>{{ t('humanAuthnProjects.setup.ui.bannerTitle') }}</strong>
+                                    <small>{{ t('humanAuthnProjects.setup.ui.optional') }}</small>
+                                </span>
+                                <span class="choice__body">{{ t('humanAuthnProjects.setup.ui.bannerBody') }}</span>
+                                <span class="choice__benefits">
+                                    <span><mat-icon>check</mat-icon>{{ t('humanAuthnProjects.setup.ui.bannerBenefitSide') }}</span>
+                                    <span><mat-icon>check</mat-icon>{{ t('humanAuthnProjects.setup.ui.bannerBenefitOptional') }}</span>
+                                    <span><mat-icon>check</mat-icon>{{ t('humanAuthnProjects.setup.ui.bannerBenefitSize') }}</span>
+                                </span>
+                                @if (imageValue('image'); as src) {
+                                    <div class="current-file">
+                                        <img [src]="src" [alt]="t('humanAuthnProjects.setup.ui.bannerAlt')" />
+                                        <span>{{ t('humanAuthnProjects.setup.ui.currentBanner') }}</span>
+                                        <button
+                                            mat-stroked-button
+                                            type="button"
+                                            color="warn"
+                                            (click)="clearImage('image')"
+                                            [attr.aria-label]="t('humanAuthnProjects.setup.ui.removeBanner')"
+                                        >
+                                            <mat-icon>delete</mat-icon>
+                                            {{ t('humanAuthnProjects.setup.ui.removeBanner') }}
+                                        </button>
+                                    </div>
+                                } @else {
+                                    <file-drop-zone
+                                        [accept]="imageAccept"
+                                        [maxFileSize]="imageMaxSize"
+                                        [expirationDays]="0"
+                                        source="project"
+                                        (attachmentUploaded)="onAttachmentUploaded('image', $event)"
+                                        (uploadError)="onUploadError('image', $event)"
+                                        (fileError)="onFileError('image', $event)"
+                                    ></file-drop-zone>
+                                }
+                            </div>
+                        </article>
+
+                        <article class="choice choice--colors" [formGroup]="brandingFormGroup!">
+                            <span class="choice__icon"><mat-icon>palette</mat-icon></span>
+                            <div class="choice__content">
+                                <span class="choice__title">
+                                    <strong>{{ t('humanAuthnProjects.setup.ui.colorsTitle') }}</strong>
+                                </span>
+                                <span class="choice__body">{{ t('humanAuthnProjects.setup.ui.colorsBody') }}</span>
+                                <div class="color-fields">
+                                    <div class="color-field">
+                                        <swatch-picker
+                                            formControlName="titleColor"
+                                            [colors]="titleColors"
+                                            [label]="t('humanAuthnProjects.setup.ui.colorTitle')"
+                                            [required]="true"
+                                        ></swatch-picker>
+                                        <p>{{ t('humanAuthnProjects.setup.ui.colorTitleHelp') }}</p>
+                                    </div>
+                                    <div class="color-field">
+                                        <swatch-picker
+                                            formControlName="textColor"
+                                            [colors]="textColors"
+                                            [label]="t('humanAuthnProjects.setup.ui.colorText')"
+                                            [required]="true"
+                                        ></swatch-picker>
+                                        <p>{{ t('humanAuthnProjects.setup.ui.colorTextHelp') }}</p>
+                                    </div>
+                                    <div class="color-field">
+                                        <swatch-picker
+                                            formControlName="buttonColor"
+                                            [colors]="buttonColors"
+                                            [label]="t('humanAuthnProjects.setup.ui.colorButton')"
+                                            [required]="true"
+                                        ></swatch-picker>
+                                        <p>{{ t('humanAuthnProjects.setup.ui.colorButtonHelp') }}</p>
+                                    </div>
+                                    <div class="color-field">
+                                        <swatch-picker
+                                            formControlName="buttonTextColor"
+                                            [colors]="buttonTextColors"
+                                            [label]="t('humanAuthnProjects.setup.ui.colorButtonText')"
+                                            [required]="true"
+                                        ></swatch-picker>
+                                        <p>{{ t('humanAuthnProjects.setup.ui.colorButtonTextHelp') }}</p>
+                                    </div>
+                                    <div class="color-field">
+                                        <swatch-picker
+                                            formControlName="backgroundColor"
+                                            [colors]="backgroundColors"
+                                            [label]="t('humanAuthnProjects.setup.ui.colorBackground')"
+                                            [required]="true"
+                                        ></swatch-picker>
+                                        <p>{{ t('humanAuthnProjects.setup.ui.colorBackgroundHelp') }}</p>
+                                    </div>
+                                    <div class="color-field">
+                                        <swatch-picker
+                                            formControlName="imageBackgroundColor"
+                                            [colors]="imageBackgroundColors"
+                                            [label]="t('humanAuthnProjects.setup.ui.colorImageBackground')"
+                                            [required]="true"
+                                        ></swatch-picker>
+                                        <p>{{ t('humanAuthnProjects.setup.ui.colorImageBackgroundHelp') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <aside class="ui-explainer" aria-live="polite">
+                    <div class="section-heading section-heading--light">
+                        <span>02</span>
+                        <div>
+                            <h3>{{ t('humanAuthnProjects.setup.ui.howTitle') }}</h3>
+                            <p>{{ t('humanAuthnProjects.setup.ui.howHelp') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="sample" [class.sample--split]="hasBanner">
+                        <div class="sample__form" [style.background]="color('backgroundColor')">
+                            @if (imageValue('logo'); as src) {
+                                <img [src]="src" [alt]="t('humanAuthnProjects.setup.ui.logoAlt')" />
+                            } @else {
+                                <span class="sample__logo">{{ t('humanAuthnProjects.setup.ui.logoPlaceholder') }}</span>
+                            }
+                            <strong [style.color]="color('titleColor')">{{ t('humanAuthnProjects.setup.ui.sampleTitle') }}</strong>
+                            <p [style.color]="color('textColor')">{{ t('humanAuthnProjects.setup.ui.sampleBody') }}</p>
+                            <span class="sample__action" [style.background]="color('buttonColor')" [style.color]="color('buttonTextColor')">
+                                {{ t('humanAuthnProjects.setup.ui.sampleButton') }}
+                            </span>
+                        </div>
+                        @if (imageValue('image'); as src) {
+                            <div class="sample__banner" [style.background]="color('imageBackgroundColor')">
+                                <img [src]="src" [alt]="t('humanAuthnProjects.setup.ui.bannerAlt')" />
+                            </div>
+                        }
+                    </div>
+
+                    <div class="selected-path">
+                        <span class="selected-path__label">{{ t('humanAuthnProjects.setup.ui.selectedPath') }}</span>
+                        @if (hasBanner) {
+                            <h4>{{ t('humanAuthnProjects.setup.ui.withBannerTitle') }}</h4>
+                            <p>{{ t('humanAuthnProjects.setup.ui.withBannerBody') }}</p>
+                        } @else {
+                            <h4>{{ t('humanAuthnProjects.setup.ui.noBannerTitle') }}</h4>
+                            <p>{{ t('humanAuthnProjects.setup.ui.noBannerBody') }}</p>
+                        }
+                    </div>
+                </aside>
+            </div>
+
+            <section class="ui-facts">
+                <div class="section-heading">
+                    <span>03</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.ui.factsTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.ui.factsHelp') }}</p>
+                    </div>
+                </div>
+                <div class="fact-items">
+                    <article>
+                        <span class="fact-items__icon fact-items__icon--logo"><mat-icon>image</mat-icon></span>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.ui.markTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.ui.markBody') }}</p>
+                        </div>
+                    </article>
+                    <article>
+                        <span class="fact-items__icon fact-items__icon--colors"><mat-icon>palette</mat-icon></span>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.ui.paletteTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.ui.paletteBody') }}</p>
+                        </div>
+                    </article>
+                    <article>
+                        <span class="fact-items__icon fact-items__icon--banner"><mat-icon>view_sidebar</mat-icon></span>
+                        <div>
+                            <strong>{{ t('humanAuthnProjects.setup.ui.widthTitle') }}</strong>
+                            <p>{{ t('humanAuthnProjects.setup.ui.widthBody') }}</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    }
+</ng-container>

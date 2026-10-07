@@ -1,0 +1,215 @@
+<ng-container *transloco="let t" [formGroup]="form">
+    <div class="integrations-screen" formGroupName="projectFlow">
+        <header class="integrations-hero">
+            <div>
+                <span class="integrations-hero__eyebrow">{{ t('humanAuthnProjects.setup.integrations.eyebrow') }}</span>
+                <h2>{{ t('humanAuthnProjects.setup.integrations.title') }}</h2>
+                <p>{{ t('humanAuthnProjects.setup.integrations.subtitle') }}</p>
+            </div>
+            <div class="integrations-hero__choice">
+                <span>{{ t('humanAuthnProjects.setup.integrations.currentChoice') }}</span>
+                <strong>{{ redirectHost || t('humanAuthnProjects.setup.integrations.redirectRequired') }}</strong>
+                <em>{{ t(hasWebhook ? 'humanAuthnProjects.setup.integrations.webhookOn' : 'humanAuthnProjects.setup.integrations.webhookOff') }}</em>
+            </div>
+        </header>
+
+        <div class="integrations-decision" formGroupName="integrations">
+            <section class="destinations">
+                <div class="section-heading">
+                    <span>01</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.integrations.destinationsTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.integrations.destinationsHelp') }}</p>
+                    </div>
+                </div>
+
+                <div class="destination-list">
+                    <article class="destination" [class.destination--ready]="!!redirectHost">
+                        <span class="destination__icon">
+                            <mat-icon>open_in_browser</mat-icon>
+                        </span>
+                        <div class="destination__content">
+                            <span class="destination__title">
+                                <strong>{{ t('humanAuthnProjects.setup.integrations.redirectTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.integrations.redirectRequiredBadge') }}</small>
+                            </span>
+                            <span class="destination__body">{{ t('humanAuthnProjects.setup.integrations.redirectBody') }}</span>
+                            <span class="destination__benefits">
+                                <span>
+                                    <mat-icon>check</mat-icon>
+                                    {{ t('humanAuthnProjects.setup.integrations.redirectBenefitPerson') }}
+                                </span>
+                                <span>
+                                    <mat-icon>check</mat-icon>
+                                    {{ t('humanAuthnProjects.setup.integrations.redirectBenefitHttps') }}
+                                </span>
+                                <span>
+                                    <mat-icon>check</mat-icon>
+                                    {{ t('humanAuthnProjects.setup.integrations.redirectBenefitIndependent') }}
+                                </span>
+                            </span>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('humanAuthnProjects.setup.integrations.redirectLabel') }}</mat-label>
+                                <input matInput type="url" formControlName="redirectUrl" placeholder="https://" required />
+                            </mat-form-field>
+                            @if (redirectControl?.invalid && (redirectControl?.touched || redirectControl?.dirty)) {
+                                <p class="field-error">
+                                    @if (redirectControl?.hasError('required')) {
+                                        {{ t('humanAuthnProjects.setup.integrations.redirectRequiredError') }}
+                                    } @else if (redirectControl?.hasError('pattern')) {
+                                        {{ t('humanAuthnProjects.setup.integrations.redirectInvalid') }}
+                                    }
+                                </p>
+                            }
+                        </div>
+                    </article>
+
+                    <article class="destination" [class.destination--ready]="hasWebhook">
+                        <span class="destination__icon">
+                            <mat-icon>webhook</mat-icon>
+                        </span>
+                        <div class="destination__content">
+                            <span class="destination__title">
+                                <strong>{{ t('humanAuthnProjects.setup.integrations.webhookTitle') }}</strong>
+                                <small>{{ t('humanAuthnProjects.setup.integrations.webhookOptionalBadge') }}</small>
+                            </span>
+                            <span class="destination__body">{{ t('humanAuthnProjects.setup.integrations.webhookBody') }}</span>
+                            <span class="destination__benefits">
+                                <span>
+                                    <mat-icon>check</mat-icon>
+                                    {{ t('humanAuthnProjects.setup.integrations.webhookBenefitServer') }}
+                                </span>
+                                <span>
+                                    <mat-icon>check</mat-icon>
+                                    {{ t('humanAuthnProjects.setup.integrations.webhookBenefitExisting') }}
+                                </span>
+                                <span>
+                                    <mat-icon>check</mat-icon>
+                                    {{ t('humanAuthnProjects.setup.integrations.webhookBenefitOptional') }}
+                                </span>
+                            </span>
+
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>{{ t('humanAuthnProjects.setup.integrations.webhookSelect') }}</mat-label>
+                                <mat-select formControlName="webhook">
+                                    <mat-option [value]="null">{{ t('humanAuthnProjects.setup.integrations.noWebhook') }}</mat-option>
+                                    @for (webhook of webhooks; track webhook._id) {
+                                        <mat-option [value]="webhook._id">{{ webhook.name || webhook._id }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+
+                            @if (!webhooks.length) {
+                                <p class="destination__empty">{{ t('humanAuthnProjects.setup.integrations.noWebhooksMessage') }}</p>
+                            }
+
+                            <a routerLink="/smart-monitor/webhooks" class="manage-link">
+                                {{ t('humanAuthnProjects.setup.integrations.manageWebhooks') }}
+                                <mat-icon>open_in_new</mat-icon>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <aside class="integrations-explainer" aria-live="polite">
+                <div class="section-heading section-heading--light">
+                    <span>02</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.integrations.howTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.integrations.howHelp') }}</p>
+                    </div>
+                </div>
+
+                <div class="integrations-flow">
+                    <div class="integrations-flow__node">
+                        <mat-icon>task_alt</mat-icon>
+                        <span>{{ t('humanAuthnProjects.setup.integrations.flowFinish') }}</span>
+                    </div>
+                    <span class="integrations-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                    <div class="integrations-flow__node integrations-flow__node--browser">
+                        <mat-icon>open_in_browser</mat-icon>
+                        <span>{{ t('humanAuthnProjects.setup.integrations.flowBrowser') }}</span>
+                    </div>
+                    <span class="integrations-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                    <div
+                        class="integrations-flow__node"
+                        [class.integrations-flow__node--server]="hasWebhook"
+                        [class.integrations-flow__node--skipped]="!hasWebhook"
+                    >
+                        <mat-icon>{{ hasWebhook ? 'dns' : 'notifications_off' }}</mat-icon>
+                        <span>
+                            {{
+                                t(
+                                    hasWebhook
+                                        ? 'humanAuthnProjects.setup.integrations.flowServer'
+                                        : 'humanAuthnProjects.setup.integrations.flowSkipped'
+                                )
+                            }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="selected-path">
+                    <span class="selected-path__label">{{ t('humanAuthnProjects.setup.integrations.selectedPath') }}</span>
+                    @if (hasWebhook) {
+                        <h4>{{ t('humanAuthnProjects.setup.integrations.withWebhookTitle') }}</h4>
+                        <p>
+                            {{
+                                t('humanAuthnProjects.setup.integrations.withWebhookBody', {
+                                    name: selectedWebhookName,
+                                })
+                            }}
+                        </p>
+                        <div class="selected-path__result">
+                            <mat-icon>webhook</mat-icon>
+                            <span>{{ selectedWebhookName }}</span>
+                        </div>
+                    } @else {
+                        <h4>{{ t('humanAuthnProjects.setup.integrations.noWebhookTitle') }}</h4>
+                        <p>{{ t('humanAuthnProjects.setup.integrations.noWebhookBody') }}</p>
+                        <div class="selected-path__result">
+                            <mat-icon>notifications_off</mat-icon>
+                            <span>{{ t('humanAuthnProjects.setup.integrations.flowSkipped') }}</span>
+                        </div>
+                    }
+                </div>
+            </aside>
+        </div>
+
+        <section class="integrations-channels">
+            <div class="section-heading">
+                <span>03</span>
+                <div>
+                    <h3>{{ t('humanAuthnProjects.setup.integrations.channelsTitle') }}</h3>
+                    <p>{{ t('humanAuthnProjects.setup.integrations.channelsHelp') }}</p>
+                </div>
+            </div>
+
+            <div class="channel-items">
+                <article>
+                    <span class="channel-items__icon channel-items__icon--person"><mat-icon>person</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.integrations.personTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.integrations.personBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="channel-items__icon channel-items__icon--server"><mat-icon>dns</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.integrations.serverTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.integrations.serverBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="channel-items__icon channel-items__icon--separate"><mat-icon>call_split</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.integrations.separateTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.integrations.separateBody') }}</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</ng-container>

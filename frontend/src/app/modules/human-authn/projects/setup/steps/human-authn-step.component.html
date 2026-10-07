@@ -1,15 +1,44 @@
 <ng-container *transloco="let t">
-    <div class="human-authn-journey" [formGroup]="form">
-        <div class="journey-intro">
-            <span class="journey-intro__icon"><mat-icon>encrypted</mat-icon></span>
+    <div class="ha-screen" [formGroup]="form">
+        <header class="ha-hero">
             <div>
+                <span class="ha-hero__eyebrow">{{ t('humanAuthnProjects.setup.humanAuthn.eyebrow') }}</span>
                 <h2>{{ t('humanAuthnProjects.setup.humanAuthn.journeyTitle') }}</h2>
                 <p>{{ t('humanAuthnProjects.setup.humanAuthn.privacy') }}</p>
             </div>
-        </div>
+            <div class="ha-hero__choice">
+                <span>{{ t('humanAuthnProjects.setup.humanAuthn.currentChoice') }}</span>
+                <strong>
+                    {{
+                        t(
+                            requireLiveness
+                                ? 'humanAuthnProjects.setup.humanAuthn.accessActive'
+                                : 'humanAuthnProjects.setup.humanAuthn.accessStandard'
+                        )
+                    }}
+                </strong>
+                <em>
+                    {{
+                        t(
+                            humanAuthnGroup.get('outputFormat')?.value === 'qrCode'
+                                ? 'humanAuthnProjects.setup.humanAuthn.outputQr'
+                                : 'humanAuthnProjects.setup.humanAuthn.outputString'
+                        )
+                    }}
+                </em>
+            </div>
+        </header>
 
-        <ng-container formGroupName="projectFlow">
-            <ng-container formGroupName="humanAuthn">
+        <div class="ha-decision">
+            <section class="ha-record" formGroupName="projectFlow">
+                <div class="section-heading">
+                    <span>01</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.humanAuthn.recordTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.recordHelp') }}</p>
+                    </div>
+                </div>
+                <ng-container formGroupName="humanAuthn">
                 <ol class="journey-timeline">
                     <li class="journey-stage">
                         <span class="journey-stage__marker" aria-hidden="true">1</span>
@@ -240,7 +269,130 @@
                         </article>
                     </li>
                 </ol>
-            </ng-container>
-        </ng-container>
+                </ng-container>
+            </section>
+
+            <aside class="ha-explainer" aria-live="polite">
+                <div class="section-heading section-heading--light">
+                    <span>02</span>
+                    <div>
+                        <h3>{{ t('humanAuthnProjects.setup.humanAuthn.howTitle') }}</h3>
+                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.howHelp') }}</p>
+                    </div>
+                </div>
+
+                <ol class="ha-flow">
+                    <li>
+                        <mat-icon>fingerprint</mat-icon>
+                        <span>{{ t('humanAuthnProjects.setup.humanAuthn.flowChecked') }}</span>
+                    </li>
+                    <li>
+                        <mat-icon>visibility</mat-icon>
+                        <span>
+                            {{ t('humanAuthnProjects.setup.humanAuthn.flowPublic') }}
+                            <small>
+                                {{
+                                    t('humanAuthnProjects.setup.humanAuthn.publicDataCount', {
+                                        selected: selectedPublicDataCount,
+                                        total: publicDataOptions.length,
+                                    })
+                                }}
+                            </small>
+                        </span>
+                    </li>
+                    <li>
+                        <mat-icon>{{ requireLiveness ? 'face' : 'lock' }}</mat-icon>
+                        <span>
+                            {{
+                                t(
+                                    requireLiveness
+                                        ? 'humanAuthnProjects.setup.humanAuthn.accessActive'
+                                        : 'humanAuthnProjects.setup.humanAuthn.accessStandard'
+                                )
+                            }}
+                        </span>
+                    </li>
+                    <li class="ha-flow__result">
+                        <mat-icon>{{ humanAuthnGroup.get('outputFormat')?.value === 'qrCode' ? 'qr_code_2' : 'data_object' }}</mat-icon>
+                        <span>
+                            {{
+                                t(
+                                    humanAuthnGroup.get('outputFormat')?.value === 'qrCode'
+                                        ? 'humanAuthnProjects.setup.humanAuthn.outputQr'
+                                        : 'humanAuthnProjects.setup.humanAuthn.outputString'
+                                )
+                            }}
+                        </span>
+                    </li>
+                </ol>
+
+                <div class="ha-path">
+                    <span class="ha-path__label">{{ t('humanAuthnProjects.setup.humanAuthn.selectedPath') }}</span>
+                    <h4>
+                        {{
+                            t(
+                                requireLiveness
+                                    ? 'humanAuthnProjects.setup.humanAuthn.activeTitle'
+                                    : 'humanAuthnProjects.setup.humanAuthn.standardTitle'
+                            )
+                        }}
+                    </h4>
+                    <p>
+                        {{
+                            t(
+                                requireLiveness
+                                    ? 'humanAuthnProjects.setup.humanAuthn.activeBody'
+                                    : 'humanAuthnProjects.setup.humanAuthn.standardBody'
+                            )
+                        }}
+                    </p>
+                    <div class="ha-path__result">
+                        <mat-icon>{{ documentEnabled ? 'face' : 'description' }}</mat-icon>
+                        <span>
+                            {{
+                                t(
+                                    documentEnabled
+                                        ? 'humanAuthnProjects.setup.humanAuthn.compareOn'
+                                        : 'humanAuthnProjects.setup.humanAuthn.compareOff'
+                                )
+                            }}
+                        </span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <section class="ha-facts">
+            <div class="section-heading">
+                <span>03</span>
+                <div>
+                    <h3>{{ t('humanAuthnProjects.setup.humanAuthn.factsTitle') }}</h3>
+                    <p>{{ t('humanAuthnProjects.setup.humanAuthn.factsHelp') }}</p>
+                </div>
+            </div>
+            <div class="fact-items">
+                <article>
+                    <span class="fact-items__icon fact-items__icon--private"><mat-icon>face_retouching_off</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factTemplateBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="fact-items__icon fact-items__icon--public"><mat-icon>visibility</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factPublicBody') }}</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="fact-items__icon fact-items__icon--active"><mat-icon>verified_user</mat-icon></span>
+                    <div>
+                        <strong>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveTitle') }}</strong>
+                        <p>{{ t('humanAuthnProjects.setup.humanAuthn.factActiveBody') }}</p>
+                    </div>
+                </article>
+            </div>
+        </section>
     </div>
 </ng-container>
