@@ -69,6 +69,11 @@ import {
     getPostmanSexoLabelKey,
     normalizePostmanSexoValue,
 } from '../postman-sexo.util';
+import {
+    isPostmanDateParam,
+    pickerValueToWireDate,
+    wireDateToPickerValue,
+} from '../postman-date-format.util';
 
 /**
  * Stable UI string for numeric prices (avoids float artifacts like 0.3000000005).
@@ -98,6 +103,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
         AboutEndpointComponent,
         PostmanEndpointLabelComponent,
     ],
+    styleUrls: ['./request-editor.component.scss'],
     host: {
         class: 'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden',
     },
@@ -394,16 +400,27 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
                             @if (showDependencyGuidanceBanner()) {
                                 <div
-                                    class="select-text rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 shadow-sm dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-100"
+                                    class="postman-guidance-note relative select-text overflow-hidden rounded-2xl border border-indigo-100/80 shadow-sm dark:border-indigo-900/40"
                                 >
-                                    <div class="flex items-start gap-2">
-                                        <mat-icon
-                                            class="icon-size-5 flex-shrink-0 text-amber-600 dark:text-amber-300"
-                                            >info</mat-icon
+                                    <div
+                                        class="postman-guidance-note__blob postman-guidance-note__blob--tr"
+                                        aria-hidden="true"
+                                    ></div>
+                                    <div
+                                        class="postman-guidance-note__blob postman-guidance-note__blob--bl"
+                                        aria-hidden="true"
+                                    ></div>
+                                    <div class="relative z-10 flex items-start gap-3 p-4">
+                                        <div
+                                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30"
                                         >
-                                        <div class="space-y-1.5 min-w-0">
-                                            <div
-                                                class="font-semibold text-amber-900 dark:text-amber-50"
+                                            <mat-icon class="!h-5 !w-5 !text-xl text-white"
+                                                >info</mat-icon
+                                            >
+                                        </div>
+                                        <div class="min-w-0 space-y-1.5">
+                                            <span
+                                                class="inline-flex items-center rounded-full border border-indigo-500/25 bg-indigo-500/[0.08] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-indigo-600 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300"
                                             >
                                                 @if (dependencyGuidanceKind() === 'documentFields') {
                                                     {{
@@ -416,9 +433,9 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                             | transloco
                                                     }}
                                                 }
-                                            </div>
+                                            </span>
                                             <p
-                                                class="leading-relaxed text-amber-900/90 dark:text-amber-100/90"
+                                                class="text-sm leading-relaxed text-gray-600 dark:text-slate-400"
                                             >
                                                 @if (dependencyGuidanceKind() === 'documentFields') {
                                                     {{
@@ -439,7 +456,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                             </p>
                                             @if (endpointHasDateFormatDeps()) {
                                                 <p
-                                                    class="text-xs font-medium text-amber-800/90 dark:text-amber-200/90"
+                                                    class="text-xs font-medium text-indigo-700/90 dark:text-indigo-200/90"
                                                 >
                                                     {{
                                                         'postman.requestEditor.validation.groupedModesDateLine'
@@ -919,6 +936,18 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 <option [value]="opt">{{ paramOptionDisplayLabel(item.param, opt) }}</option>
                             }
                         </select>
+                    } @else if (isDateParam(item.param)) {
+                        <input
+                            type="date"
+                            class="postman-param-date-input w-full min-w-0 px-3 py-2 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                            [ngClass]="
+                                firstIssueVisibleForField(item.param.key)
+                                    ? 'border-rose-400 ring-2 ring-rose-500/30'
+                                    : 'border-slate-200'
+                            "
+                            [ngModel]="paramDatePickerValue(item.param)"
+                            (ngModelChange)="onDateParamPickerChange(item.param, $event)"
+                        />
                     } @else {
                         <input
                             class="w-full min-w-0 px-3 py-2 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
@@ -1489,6 +1518,22 @@ export class RequestEditorComponent {
     /**
      * Coerces known aliases (e.g. Female → FEMENINO) before send/validation.
      */
+    isDateParam = isPostmanDateParam;
+
+    paramDatePickerValue(param: NonNullable<ApiEndpoint['params']>[number]): string {
+        if (!param.dateFormat) return '';
+        return wireDateToPickerValue(param.value, param.dateFormat);
+    }
+
+    onDateParamPickerChange(
+        param: NonNullable<ApiEndpoint['params']>[number],
+        pickerValue: string
+    ): void {
+        if (!param.dateFormat) return;
+        param.value = pickerValueToWireDate(pickerValue, param.dateFormat);
+        this.onRequestInputsChanged();
+    }
+
     coerceParamValue(key: string, value: string): string {
         if (key === 'sexo') {
             return normalizePostmanSexoValue(value);

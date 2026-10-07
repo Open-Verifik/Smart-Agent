@@ -28,6 +28,7 @@ import {
     resolveAboutOverview,
 } from '../postman-endpoint-copy.util';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
+import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
 
 /**
  * "About" tab for the Postman-style request editor.
@@ -391,7 +392,9 @@ export class AboutEndpointComponent {
     /** Rich params table merging doc-level descriptions with catalog-level metadata. */
     readonly paramsRows = computed(() => {
         const doc = this.activeDoc();
-        const catalog = (this._endpoint()?.params ?? []).filter((p) => p.system !== 'includeCost');
+        const catalog = (this._endpoint()?.params ?? []).filter(
+            (p) => p.system !== 'includeCost' && isClientVisibleBatchDependencyField(p.key)
+        );
         const englishParamDescriptions = new Map(
             (this._docs()?.en?.params ?? [])
                 .filter((row) => row.field?.trim() && row.description?.trim())
@@ -433,7 +436,7 @@ export class AboutEndpointComponent {
         };
         if (doc?.params?.length) {
             return doc.params
-                .filter((row) => row.field?.trim())
+                .filter((row) => row.field?.trim() && isClientVisibleBatchDependencyField(row.field))
                 .map((row) => {
                     const extra = byField.get(row.field) || {};
                     byField.delete(row.field);
