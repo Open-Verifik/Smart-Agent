@@ -65,7 +65,7 @@ import {
     type LayoutSheetItem,
 } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
-import { resolveTextRole } from '../report-text-role.util';
+import { materializeSectionTypography, resolveTextRole } from '../report-text-role.util';
 import {
     clampRowLineMark,
     clampRowLineWidth,
@@ -3083,7 +3083,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutWatermarkSizeChange(size: { width: number; height: number }): void {
-        this._placeWatermarkBox(this.watermarkX(), this.watermarkY(), size.width, size.height);
+        this._resizeWatermarkAroundCenter(size.width, size.height);
     }
 
     onLayoutWatermarkRotationChange(rotation: number): void {
@@ -3537,9 +3537,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     nudgeWatermarkSize(delta: number): void {
-        this._placeWatermarkBox(
-            this.watermarkX(),
-            this.watermarkY(),
+        this._resizeWatermarkAroundCenter(
             this.watermarkWidth() + delta,
             this.watermarkHeight() + Math.round(delta * 0.45)
         );
@@ -3548,21 +3546,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     setWatermarkBoxWidth(value: string | number): void {
         const width = Number(value);
         if (!Number.isFinite(width)) return;
-        this._placeWatermarkBox(this.watermarkX(), this.watermarkY(), width, this.watermarkHeight());
+        this._resizeWatermarkAroundCenter(width, this.watermarkHeight());
     }
 
     setWatermarkBoxHeight(value: string | number): void {
         const height = Number(value);
         if (!Number.isFinite(height)) return;
-        this._placeWatermarkBox(this.watermarkX(), this.watermarkY(), this.watermarkWidth(), height);
-    }
-
-    /** Stretch the stamp across the sheet width and keep its vertical place. */
-    fitWatermarkToPageWidth(): void {
-        const page = this._layoutPaperPx();
-        this._state.watermarkX.set(0);
-        this._state.watermarkWidth.set(page.width);
-        this._placeWatermarkBox(0, this.watermarkY(), page.width, this.watermarkHeight());
+        this._resizeWatermarkAroundCenter(this.watermarkWidth(), height);
     }
 
     /** Cover the whole sheet. */
@@ -3581,6 +3571,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             width: Math.round(preview?.pageWidthPx() ?? (landscape ? 297 : 210) * 3.7795275591),
             height: Math.round(preview?.pageHeightPx() ?? (landscape ? 210 : 297) * 3.7795275591),
         };
+    }
+
+    /** Grow or shrink the single stamp without sliding it to the page edge. */
+    private _resizeWatermarkAroundCenter(width: number, height: number): void {
+        const centerX = this.watermarkX() + this.watermarkWidth() / 2;
+        const centerY = this.watermarkY() + this.watermarkHeight() / 2;
+        this._placeWatermarkBox(centerX - width / 2, centerY - height / 2, width, height);
     }
 
     /** Keep the stamp on the sheet. Growing past an edge slides it until it can cover the page. */
@@ -3617,6 +3614,37 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const image = this.selectedSheetImage();
         if (!image) return;
         this.setSelectedSheetImageRotation((image.rotation || 0) + delta);
+    }
+
+    /** Stretch the selected picture across the sheet width and keep its shape. */
+    fitSelectedSheetImageToPageWidth(): void {
+        const image = this.selectedSheetImage();
+        if (!image) return;
+        const page = this._layoutPaperPx();
+        const scale = image.width > 0 ? page.width / image.width : 1;
+        const height = Math.min(page.height, Math.max(24, Math.round(image.height * scale)));
+        const y = Math.min(Math.max(0, image.y), Math.max(0, page.height - height));
+        this.onLayoutSheetImageChange({
+            ...image,
+            x: 0,
+            y,
+            width: page.width,
+            height,
+        });
+    }
+
+    /** Cover the whole sheet with the selected picture. */
+    fitSelectedSheetImageToSheet(): void {
+        const image = this.selectedSheetImage();
+        if (!image) return;
+        const page = this._layoutPaperPx();
+        this.onLayoutSheetImageChange({
+            ...image,
+            x: 0,
+            y: 0,
+            width: page.width,
+            height: page.height,
+        });
     }
 
     layoutShapePickerHex(): string {
@@ -4192,6 +4220,54 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const tableAt = without.indexOf(this.selectedLayoutCellKey() || '');
         without.splice(tableAt >= 0 ? tableAt + 1 : without.length, 0, ...order);
         this._patchSelectedLayout({ keyOrder: without });
+    }
+
+    /** Columns of a table that was pulled out of its block, in the order the sheet uses. */
+    selectedDataTableColumns(): { key: string; label: string; visible: boolean }[] {
+        const section = this.selectedLayoutSection();
+        if (section?.type !== 'dataTable') return [];
+        const hidden = new Set(section.hiddenKeys ?? []);
+        const source = section.columns?.length
+            ? section.columns.map((column) => ({
+                  key: column.key,
+                  label: column.label || humanizeParamKey(column.key),
+              }))
+            : this._derivedDataTableColumns(section);
+        return source.map((column) => ({ ...column, visible: !hidden.has(column.key) }));
+    }
+
+    moveSelectedDataTableColumn(columnKey: string, delta: -1 | 1): void {
+        const section = this.selectedLayoutSection();
+        if (!section || section.type !== 'dataTable') return;
+        const columns = this.selectedDataTableColumns().map((column) => ({
+            key: column.key,
+            label: column.label,
+        }));
+        const from = columns.findIndex((column) => column.key === columnKey);
+        const to = from + delta;
+        if (from < 0 || to < 0 || to >= columns.length) return;
+        const [moved] = columns.splice(from, 1);
+        columns.splice(to, 0, moved);
+        this._patchSelectedLayout({ columns });
+    }
+
+    private _derivedDataTableColumns(section: ReportSection): { key: string; label: string }[] {
+        const value = valueAtDataPath(this.previewData(), section.dataPath);
+        const records = Array.isArray(value)
+            ? value.filter((entry) => entry && typeof entry === 'object' && !Array.isArray(entry))
+            : value && typeof value === 'object'
+              ? [value]
+              : [];
+        const keys: string[] = [];
+        for (const record of records as Record<string, unknown>[]) {
+            for (const key of Object.keys(record)) {
+                if (!keys.includes(key)) keys.push(key);
+            }
+        }
+        const hidden = new Set(section.hiddenKeys ?? []);
+        const visible = keys.filter((key) => !hidden.has(key)).slice(0, section.maxColumns || 6);
+        const concealed = keys.filter((key) => hidden.has(key));
+        return [...visible, ...concealed].map((key) => ({ key, label: humanizeParamKey(key) }));
     }
 
     layoutParamOptions(): { key: string; label: string }[] {
@@ -5288,7 +5364,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             },
             sheetImages: cloneReportValue(this.sheetImages()),
             headerLogos: cloneReportValue(this.headerLogos()),
-            sections: cloneReportValue(this.layoutSections()),
+            sections: cloneReportValue(this.layoutSections()).map((section) =>
+                materializeSectionTypography(section, this.primaryColor(), this.previewData())
+            ),
             pageSize: this.pageSize(),
             orientation: this.orientation(),
             margins: draft.margins,

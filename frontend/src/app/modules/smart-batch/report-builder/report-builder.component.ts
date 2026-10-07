@@ -41,6 +41,7 @@ import {
     type LayoutSheetItem,
 } from '../report-param-entries.util';
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
+import { materializeSectionTypography } from '../report-text-role.util';
 import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
 import {
@@ -1371,7 +1372,9 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
         const templateData: Partial<SmartReportTemplate> = {
             ...formVal,
-            sections: cloneReportValue(this.sections()),
+            sections: cloneReportValue(this.sections()).map((section) =>
+                materializeSectionTypography(section, formVal.primaryColor || '#4F46E5', this.previewData())
+            ),
             batchConfiguration: this.linkedConfigId() || undefined,
             sampleData: this.previewData(),
             logo: this.logoUrl() || undefined,

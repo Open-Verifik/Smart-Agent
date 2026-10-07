@@ -355,7 +355,7 @@
                                 <img
                                     [src]="image.src"
                                     alt=""
-                                    class="h-full w-full object-contain pointer-events-none select-none"
+                                    class="h-full w-full object-cover pointer-events-none select-none"
                                     [style.transform]="'rotate(' + (image.rotation || 0) + 'deg)'"
                                     draggable="false"
                                 />
@@ -1040,15 +1040,6 @@
                         }
                     </tbody>
                 </table>
-                <p class="mt-1 text-[10px] text-gray-400">
-                    {{
-                        'smartReport.structuralRows'
-                            | transloco: { count: structuralRecords(section).length }
-                    }}
-                    @if (!section.columns?.length) {
-                        · {{ 'smartReport.structuralAuto' | transloco }}
-                    }
-                </p>
             } @else {
                 <div
                     class="rounded-lg border border-dashed border-gray-200 py-4 text-center text-xs text-gray-300"
@@ -1186,9 +1177,6 @@
                                         {{ tableLabel(section, chunk.table) }}
                                     </p>
                                 }
-                                <span class="shrink-0 text-[10px] text-stone-600">
-                                    {{ 'smartReport.structuralRows' | transloco: { count: chunk.table.rows.length } }}
-                                </span>
                             </div>
                             <table class="w-full border-collapse">
                                 <thead>
@@ -1432,9 +1420,6 @@
                                         {{ tableLabel(section, chunk.table) }}
                                     </p>
                                 }
-                                <span class="shrink-0 text-[10px] text-stone-600">
-                                    {{ 'smartReport.structuralRows' | transloco: { count: chunk.table.rows.length } }}
-                                </span>
                             </div>
                             <table class="w-full border-collapse">
                                 <thead>
