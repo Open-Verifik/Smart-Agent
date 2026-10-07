@@ -27,6 +27,8 @@ const ISO_TO_NAME: Record<string, string> = {
 	uy: 'Uruguay',
 	py: 'Paraguay',
 	ca: 'Canada',
+	in: 'India',
+	ind: 'India',
 };
 
 const NAME_ALIASES: Record<string, string> = {
@@ -52,6 +54,7 @@ const NAME_ALIASES: Record<string, string> = {
 	uruguay: 'Uruguay',
 	paraguay: 'Paraguay',
 	canada: 'Canada',
+	india: 'India',
 };
 
 const COUNTRY_FLAGS: Record<string, string> = {
@@ -75,6 +78,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
 	uruguay: '🇺🇾',
 	paraguay: '🇵🇾',
 	canada: '🇨🇦',
+	india: '🇮🇳',
 	world: '🌐',
 };
 
@@ -118,6 +122,37 @@ export const filterFeaturesForCountry = <T extends { country?: string }>(
 	return features.filter((feature) => isFeatureForCountry(feature.country, selectedCountry));
 };
 
+export const filterFeaturesForCountries = <T extends { country?: string }>(
+	features: T[],
+	selectedCountries?: string[]
+): T[] => {
+	const selected = (selectedCountries ?? []).map((country) => country.trim()).filter(Boolean);
+	if (!selected.length) return [];
+
+	const seen = new Set<T>();
+	for (const country of selected) {
+		for (const feature of filterFeaturesForCountry(features, country)) {
+			seen.add(feature);
+		}
+	}
+	return [...seen];
+};
+
+/**
+ * Selected-country sources before world sources, then by name.
+ * World stays last so a national registry is the first card in its category.
+ */
+export const compareFeaturesForSelectedCountry = <T extends { country?: string; name?: string }>(
+	left: T,
+	right: T
+): number => {
+	const rank = (feature: T): number => (isWorldCountry(feature.country) ? 1 : 0);
+	const byCountry = rank(left) - rank(right);
+	if (byCountry !== 0) return byCountry;
+
+	return (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' });
+};
+
 /**
  * Map API / preset values (`CO`, `COLOMBIA`) onto a dropdown `{ code: 'Colombia' }` entry.
  */
@@ -140,4 +175,23 @@ export const getCountryFlag = (country?: string): string => {
 	const key = tokenize(canonical);
 
 	return COUNTRY_FLAGS[key] ?? '🏳️';
+};
+
+/** ISO 3166-1 alpha-2 for flag images (emoji flags often render as letters on Windows). */
+export const countryIso2 = (country?: string): string | null => {
+	const key = tokenize(country);
+	if (!key || key === 'world') return null;
+	if (key.length === 2 && ISO_TO_NAME[key]) return key;
+
+	const name = tokenize(normalizeCountryName(country));
+	const match = Object.entries(ISO_TO_NAME).find(
+		([iso, display]) => iso.length === 2 && tokenize(display) === name
+	);
+	if (match) return match[0];
+	return /^[a-z]{2}$/.test(key) ? key : null;
+};
+
+export const countryFlagImageUrl = (country?: string): string | null => {
+	const iso = countryIso2(country);
+	return iso ? `https://flagcdn.com/w40/${iso}.png` : null;
 };

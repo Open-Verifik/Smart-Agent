@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -27,11 +28,15 @@ export interface SendSampleModalData {
     defaultSubject: string;
     /** When false, shows "Send Report" instead of "Send Sample Report" (Report Viewer sends real reports). */
     isSample?: boolean;
+    allowSendAll?: boolean;
+    currentRecordNumber?: number;
+    batchRowCount?: number;
 }
 
 export interface SendSampleModalResult {
     recipients: string[];
     subject?: string;
+    sendAll?: boolean;
 }
 
 @Component({
@@ -45,6 +50,7 @@ export interface SendSampleModalResult {
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
+        MatRadioModule,
         TranslocoModule,
     ],
     template: `
@@ -97,6 +103,28 @@ export interface SendSampleModalResult {
                     <input matInput formControlName="subject" [placeholder]="subjectPlaceholder" />
                 </mat-form-field>
 
+                @if (allowSendAll) {
+                    <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+                        <p class="mb-3 text-sm text-slate-600 dark:text-slate-400">
+                            {{ 'smartReport.emailScopeHint' | transloco }}
+                        </p>
+                        <mat-radio-group formControlName="emailScope" class="flex flex-col gap-2">
+                            <mat-radio-button value="current">
+                                {{
+                                    'smartReport.emailScopeCurrent'
+                                        | transloco: { index: currentRecordNumber }
+                                }}
+                            </mat-radio-button>
+                            <mat-radio-button value="all">
+                                {{
+                                    'smartReport.emailScopeAll'
+                                        | transloco: { count: batchRowCount }
+                                }}
+                            </mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+                }
+
                 <div class="flex gap-3 pt-2 justify-end border-t border-slate-200 dark:border-slate-700">
                     <button mat-button type="button" (click)="onCancel()" class="!text-slate-600">
                         {{ 'smartReport.cancel' | transloco }}
@@ -141,6 +169,18 @@ export class SendSampleModalComponent {
             : this._transloco.translate('smartReport.reportBatchPlaceholder');
     }
 
+    get allowSendAll(): boolean {
+        return this._data?.allowSendAll === true;
+    }
+
+    get currentRecordNumber(): number {
+        return this._data?.currentRecordNumber ?? 1;
+    }
+
+    get batchRowCount(): number {
+        return this._data?.batchRowCount ?? 1;
+    }
+
     constructor() {
         const defaultSubject =
             this._data?.defaultSubject ||
@@ -150,6 +190,7 @@ export class SendSampleModalComponent {
         this.form = this._fb.group({
             recipients: ['', [emailsValidator]],
             subject: [defaultSubject, []],
+            emailScope: ['current'],
         });
     }
 
@@ -178,6 +219,7 @@ export class SendSampleModalComponent {
         const result: SendSampleModalResult = {
             recipients: validRecipients,
             subject: this.form.get('subject')?.value?.trim() || undefined,
+            sendAll: this.allowSendAll && this.form.get('emailScope')?.value === 'all',
         };
 
         this._dialogRef.close(result);

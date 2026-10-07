@@ -4,49 +4,117 @@
     overlays and the optional content top spacer; every page renders the
     legend at the bottom (mirrors Puppeteer's footerTemplate).
 -->
-<div class="flex flex-col items-center gap-4">
+<div
+    class="relative mx-auto"
+    [style.width.px]="zoomedStackWidthPx()"
+    [style.height.px]="zoomedStackHeightPx()"
+>
+<div
+    class="absolute left-0 top-0 flex flex-col items-center gap-4"
+    [style.width]="pageWidthCss()"
+    [style.transform]="zoomInnerTransform()"
+    [style.transform-origin]="'top left'"
+    (click)="onPaperClick($event)"
+    (contextmenu)="onPaperContextMenu($event)"
+>
     @for (
-        pageSections of pages();
-        track $index;
+        pageSections of visiblePages();
+        track pagePaintTrack($index);
         let pageIndex = $index, isFirst = $first, count = $count
     ) {
         <div
             #reportPage
-            class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative w-full"
-            [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
-            [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
+            data-report-page
+            [attr.data-report-row]="previewData()?.rowIndex"
+            [attr.data-report-page-index]="pageIndex"
+            class="mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-lg"
+            [class.shadow-lg]="!thumbnailMode()"
+            [style.width]="pageWidthCss()"
+            [style.max-width]="pageWidthCss()"
+            [style.min-width]="pageWidthCss()"
+            [style.min-height]="pageHeightCss()"
+            [style.height]="pageHeightCss()"
+            [style.background-color]="pageBackgroundColor() || '#ffffff'"
             style="border: 1px solid #e5e7eb"
         >
             <!-- Watermark overlay (every page, matches PDF behaviour) -->
             @if (watermarkEnabled()) {
                 @if (watermarkPattern() === 'single') {
                     <div
-                        class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden"
+                        class="pointer-events-none absolute inset-0 overflow-hidden"
+                        [style.z-index]="layerZIndex('watermark', 900)"
+                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
                     >
-                        @if (watermarkType() === 'text') {
-                            <span
-                                class="text-gray-500 font-bold select-none whitespace-nowrap"
-                                [style.opacity]="watermarkOpacity()"
-                                style="
-                                    font-size: 72px;
-                                    transform: rotate(-35deg);
-                                    letter-spacing: 8px;
-                                "
-                                >{{ watermarkText() }}</span
-                            >
-                        } @else if (watermarkType() === 'logo' && logoUrl()) {
-                            <img
-                                [src]="logoUrl()"
-                                alt="Watermark"
-                                class="select-none max-w-[60%] max-h-[40%] object-contain"
-                                [style.opacity]="watermarkOpacity()"
-                                style="transform: rotate(-15deg)"
-                            />
-                        }
+                        <div
+                            data-overlay-box
+                            data-overlay-id="watermark"
+                            class="absolute flex items-center justify-center"
+                            [class.cursor-move]="isOverlaySelected('watermark')"
+                            [class.cursor-pointer]="clickable() && isFirst && !isOverlaySelected('watermark')"
+                            [class.layer-quiet]="isLayerQuiet('watermark')"
+                        [class.pointer-events-auto]="clickable() && isFirst && !isLayerQuiet('watermark')"
+                            [style.pointer-events]="isLayerQuiet('watermark') ? 'none' : null"
+                            [class.group]="isOverlaySelected('watermark')"
+                            [style.left.px]="viewWatermarkX"
+                            [style.top.px]="viewWatermarkY"
+                            [style.width.px]="viewWatermarkWidth"
+                            [style.height.px]="viewWatermarkHeight"
+                            [style.border]="watermarkOverlayBorder"
+                            (pointerdown)="startMove($event, 'watermark')"
+                            (click)="selectOverlay('watermark', $event)"
+                            (contextmenu)="onOverlayContextMenu('watermark', $event)"
+                        >
+                            @if (watermarkType() === 'text') {
+                                <span
+                                    class="pointer-events-none select-none whitespace-nowrap text-center font-bold leading-none text-gray-700"
+                                    style="text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 1px 1px rgba(0, 0, 0, 0.55); letter-spacing: 0.08em"
+                                    [style.opacity]="watermarkPaintOpacity()"
+                                    [style.font-size.px]="viewWatermarkFontSize"
+                                    [style.transform]="watermarkRotateStyle"
+                                    >{{ watermarkText() }}</span
+                                >
+                            } @else if (watermarkType() === 'logo' && watermarkStampSrc()) {
+                                <img
+                                    [src]="watermarkStampSrc()"
+                                    alt="Watermark"
+                                    class="h-full w-full object-contain pointer-events-none select-none"
+                                    style="filter: drop-shadow(0 0 1px #fff) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55))"
+                                    [style.opacity]="watermarkPaintOpacity()"
+                                    [style.transform]="watermarkRotateStyle"
+                                    draggable="false"
+                                />
+                            }
+                            @if (isOverlaySelected('watermark') && !isLayerQuiet('watermark')) {
+                                <div
+                                    data-overlay-handle
+                                    class="absolute left-1/2 top-1 z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    (pointerdown)="startRotate($event, 'watermark')"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] text-amber-600"
+                                        style="pointer-events: none"
+                                        >rotate_right</mat-icon
+                                    >
+                                </div>
+                                <div
+                                    data-overlay-handle
+                                    class="absolute bottom-1 right-1 z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    (pointerdown)="startResize($event, 'watermark')"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] rotate-90 text-amber-600"
+                                        style="pointer-events: none"
+                                        >open_in_full</mat-icon
+                                    >
+                                </div>
+                            }
+                        </div>
                     </div>
                 } @else {
                     <div
-                        class="absolute inset-0 pointer-events-none z-10 overflow-hidden"
+                        class="pointer-events-none absolute inset-0 overflow-hidden"
+                        [style.z-index]="layerZIndex('watermark', 900)"
+                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
                         style="
                             display: grid;
                             grid-template-columns: repeat(3, 1fr);
@@ -58,22 +126,20 @@
                             <div class="flex items-center justify-center">
                                 @if (watermarkType() === 'text') {
                                     <span
-                                        class="text-gray-500 font-bold select-none whitespace-nowrap"
-                                        [style.opacity]="watermarkOpacity()"
-                                        style="
-                                            font-size: 18px;
-                                            transform: rotate(-35deg);
-                                            letter-spacing: 3px;
-                                        "
+                                        class="select-none whitespace-nowrap font-bold text-gray-700"
+                                        [style.opacity]="watermarkPaintOpacity()"
+                                        [style.transform]="watermarkRotateStyle"
+                                        style="font-size: 18px; letter-spacing: 3px; text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 1px 1px rgba(0, 0, 0, 0.55)"
                                         >{{ watermarkText() }}</span
                                     >
-                                } @else if (watermarkType() === 'logo' && logoUrl()) {
+                                } @else if (watermarkType() === 'logo' && watermarkStampSrc()) {
                                     <img
-                                        [src]="logoUrl()"
+                                        [src]="watermarkStampSrc()"
                                         alt=""
-                                        class="select-none w-16 h-16 object-contain"
-                                        [style.opacity]="watermarkOpacity()"
-                                        style="transform: rotate(-15deg)"
+                                        class="h-16 w-16 select-none object-contain"
+                                        style="filter: drop-shadow(0 0 1px #fff) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55))"
+                                        [style.opacity]="watermarkPaintOpacity()"
+                                        [style.transform]="watermarkRotateStyle"
                                     />
                                 }
                             </div>
@@ -82,74 +148,257 @@
                 }
             }
 
-            <!--
-                Logo + Signature overlays: page 1 only, mirroring the PDF
-                where they're absolutely positioned inside the .report-page
-                row (so they only appear on the first physical page).
-            -->
-            @if (isFirst && signatureEnabled() && signatureImage()) {
-                <div class="absolute inset-0 pointer-events-none z-20">
+            <!-- Logo stays on the first sheet. The signature follows signaturePage. -->
+            @if (signatureEnabled() && signatureImage() && pageIndex === (signaturePage() || 0)) {
+                <div
+                    class="absolute inset-0 pointer-events-none"
+                    [style.z-index]="layerZIndex('signature', 120)"
+                    [style.visibility]="isLayerHidden('signature') ? 'hidden' : null"
+                >
                     <div
-                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        data-overlay-box
+                        data-overlay-id="signature"
+                        class="absolute"
+                        [class.cursor-move]="isOverlaySelected('signature')"
+                        [class.cursor-pointer]="clickable() && !isOverlaySelected('signature')"
+                        [class.layer-quiet]="isLayerQuiet('signature')"
+                        [class.pointer-events-auto]="clickable() && !isLayerQuiet('signature')"
+                        [style.pointer-events]="isLayerQuiet('signature') ? 'none' : null"
+                        [style.left.px]="viewSignatureX"
+                        [style.top.px]="viewSignatureY"
                         [style.width.px]="viewSignatureWidth"
                         [style.height.px]="viewSignatureHeight"
-                        cdkDrag
-                        [cdkDragFreeDragPosition]="{ x: viewSignatureX, y: viewSignatureY }"
-                        (cdkDragEnded)="onSignatureDragEnd($event)"
+                        [style.border]="signatureOverlayBorder"
+                        (pointerdown)="startMove($event, 'signature')"
+                        (click)="selectOverlay('signature', $event)"
+                        (contextmenu)="onOverlayContextMenu('signature', $event)"
                     >
                         <img
                             [src]="signatureImage()"
                             class="w-full h-full object-contain pointer-events-none select-none"
                             draggable="false"
                         />
-                        <div
-                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                            (mousedown)="startResize($event, 'signature')"
-                        >
-                            <mat-icon
-                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                                style="pointer-events: none"
-                                >open_in_full</mat-icon
+                        @if (isOverlaySelected('signature') && !isLayerQuiet('signature')) {
+                            <div
+                                data-overlay-handle
+                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startResize($event, 'signature')"
                             >
-                        </div>
+                                <mat-icon
+                                    class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
+                                    style="pointer-events: none"
+                                    >open_in_full</mat-icon
+                                >
+                            </div>
+                        }
                     </div>
                 </div>
             }
 
-            @if (isFirst && logoEnabled() && logoUrl()) {
-                <div class="absolute inset-0 pointer-events-none z-20">
+            <!-- Logo stays on the first sheet. Company logos repeat in the header of every page. -->
+            @if (hasHeaderLogos() && clickable() && !thumbnailMode()) {
+                <div
+                    class="pointer-events-none absolute left-0 right-0 z-[840] border-b border-dashed border-stone-300"
+                    [style.top.px]="headerBandTopView()"
+                    [style.height.px]="headerBandHeightView()"
+                ></div>
+            }
+            @if (headerLogoViews().length) {
+                @for (logo of headerLogoViews(); track logo.id) {
                     <div
-                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        class="pointer-events-none absolute inset-0"
+                        [style.z-index]="layerZIndex(headerOverlayId(logo.id), 850)"
+                        [style.visibility]="isLayerHidden(headerOverlayId(logo.id)) ? 'hidden' : null"
+                    >
+                        <div
+                            data-overlay-box
+                            [attr.data-overlay-id]="headerOverlayId(logo.id)"
+                            class="absolute"
+                            [class.cursor-ew-resize]="clickable()"
+                            [class.layer-quiet]="isLayerQuiet(headerOverlayId(logo.id))"
+                            [class.pointer-events-auto]="clickable() && !isLayerQuiet(headerOverlayId(logo.id))"
+                            [style.pointer-events]="isLayerQuiet(headerOverlayId(logo.id)) ? 'none' : null"
+                            [style.left.px]="logo.viewX"
+                            [style.top.px]="logo.viewY"
+                            [style.width.px]="logo.viewWidth"
+                            [style.height.px]="logo.viewHeight"
+                            [style.border]="headerLogoBorder(logo.id)"
+                            (pointerdown)="startHeaderLogoMove($event, logo.id)"
+                            (pointermove)="onHeaderLogoMove($event)"
+                            (pointerup)="stopHeaderLogoMove($event)"
+                            (pointercancel)="stopHeaderLogoMove($event)"
+                            (click)="selectOverlay(headerOverlayId(logo.id), $event)"
+                            (contextmenu)="onOverlayContextMenu(headerOverlayId(logo.id), $event)"
+                        >
+                            <img
+                                [src]="logo.src"
+                                alt=""
+                                class="h-full w-full object-contain pointer-events-none select-none"
+                                draggable="false"
+                            />
+                            @if (clickable() && isOverlaySelected(headerOverlayId(logo.id)) && !isLayerQuiet(headerOverlayId(logo.id))) {
+                                <div
+                                    data-overlay-handle
+                                    class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                    (pointerdown)="startHeaderLogoResize($event, logo.id)"
+                                    (pointermove)="onHeaderLogoResize($event)"
+                                    (pointerup)="stopHeaderLogoResize($event)"
+                                    (pointercancel)="stopHeaderLogoResize($event)"
+                                >
+                                    <mat-icon
+                                        class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                        style="pointer-events: none"
+                                        >open_in_full</mat-icon
+                                    >
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            @if (hasFooterLogos() && clickable() && !thumbnailMode()) {
+                <div
+                    class="pointer-events-none absolute left-0 right-0 z-[840] border-t border-dashed border-stone-300"
+                    [style.top.px]="footerBandTopView()"
+                    [style.height.px]="footerBandHeightView()"
+                ></div>
+            }
+
+            @if (isFirst && logoEnabled() && logoUrl() && !headerLogoViews().length) {
+                <div
+                    class="absolute inset-0 pointer-events-none"
+                    [style.z-index]="layerZIndex('logo', 80)"
+                    [style.visibility]="isLayerHidden('logo') ? 'hidden' : null"
+                >
+                    <div
+                        data-overlay-box
+                        data-overlay-id="logo"
+                        class="absolute"
+                        [class.cursor-move]="isOverlaySelected('logo')"
+                        [class.cursor-pointer]="clickable() && !isOverlaySelected('logo')"
+                        [class.layer-quiet]="isLayerQuiet('logo')"
+                        [class.pointer-events-auto]="clickable() && !isLayerQuiet('logo')"
+                        [style.pointer-events]="isLayerQuiet('logo') ? 'none' : null"
+                        [class.group]="isOverlaySelected('logo')"
+                        [style.left.px]="viewLogoX"
+                        [style.top.px]="viewLogoY"
                         [style.width.px]="viewLogoWidth"
                         [style.height.px]="viewLogoHeight"
-                        cdkDrag
-                        [cdkDragFreeDragPosition]="{ x: viewLogoX, y: viewLogoY }"
-                        (cdkDragEnded)="onLogoDragEnd($event)"
+                        [style.border]="logoOverlayBorder"
+                        (pointerdown)="startMove($event, 'logo')"
+                        (click)="selectOverlay('logo', $event)"
+                        (contextmenu)="onOverlayContextMenu('logo', $event)"
                     >
                         <img
                             [src]="logoUrl()"
                             alt="Logo"
-                            class="w-full h-full object-contain pointer-events-none select-none"
+                            class="h-full w-full object-contain pointer-events-none select-none"
+                            [style.transform]="logoRotateStyle"
                             draggable="false"
                         />
-                        <div
-                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                            (mousedown)="startResize($event, 'logo')"
-                        >
-                            <mat-icon
-                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                                style="pointer-events: none"
-                                >open_in_full</mat-icon
+                        @if (isOverlaySelected('logo') && !isLayerQuiet('logo')) {
+                            <div
+                                data-overlay-handle
+                                class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startRotate($event, 'logo')"
                             >
-                        </div>
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-[16px] text-indigo-500"
+                                    style="pointer-events: none"
+                                    >rotate_right</mat-icon
+                                >
+                            </div>
+                            <div
+                                data-overlay-handle
+                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startResize($event, 'logo')"
+                            >
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                    style="pointer-events: none"
+                                    >open_in_full</mat-icon
+                                >
+                            </div>
+                        }
                     </div>
                 </div>
             }
 
+            @for (image of sheetImagesForPage(pageIndex); track image.id) {
+                    @if (image.src) {
+                        <div
+                            class="absolute inset-0 pointer-events-none"
+                            data-sheet-image
+                            [attr.data-sheet-image-page]="image.page ?? 0"
+                            [style.z-index]="layerZIndex(sheetOverlayId(image.id), image.zIndex || 48)"
+                            [style.visibility]="isLayerHidden(sheetOverlayId(image.id)) ? 'hidden' : null"
+                        >
+                            <div
+                                data-overlay-box
+                                [attr.data-overlay-id]="sheetOverlayId(image.id)"
+                                class="absolute"
+                                [class.cursor-move]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.cursor-pointer]="clickable() && !isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.layer-quiet]="isLayerQuiet(sheetOverlayId(image.id))"
+                                [class.pointer-events-auto]="clickable() && !isLayerQuiet(sheetOverlayId(image.id))"
+                                [style.pointer-events]="isLayerQuiet(sheetOverlayId(image.id)) ? 'none' : null"
+                                [class.group]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [style.left.px]="sheetImageView(image).x"
+                                [style.top.px]="sheetImageView(image).y"
+                                [style.width.px]="sheetImageView(image).width"
+                                [style.height.px]="sheetImageView(image).height"
+                                [style.border]="sheetImageBorder(image.id)"
+                                (pointerdown)="startMove($event, sheetOverlayId(image.id))"
+                                (click)="selectOverlay(sheetOverlayId(image.id), $event)"
+                                (contextmenu)="onOverlayContextMenu(sheetOverlayId(image.id), $event)"
+                            >
+                                <img
+                                    [src]="image.src"
+                                    alt=""
+                                    class="h-full w-full object-cover pointer-events-none select-none"
+                                    [style.transform]="'rotate(' + (image.rotation || 0) + 'deg)'"
+                                    draggable="false"
+                                />
+                                @if (isOverlaySelected(sheetOverlayId(image.id)) && !isLayerQuiet(sheetOverlayId(image.id))) {
+                                    <div
+                                        data-overlay-handle
+                                        class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        (pointerdown)="startRotate($event, sheetOverlayId(image.id))"
+                                    >
+                                        <mat-icon
+                                            class="!h-4 !w-4 !text-[16px] text-indigo-500"
+                                            style="pointer-events: none"
+                                            >rotate_right</mat-icon
+                                        >
+                                    </div>
+                                    <div
+                                        data-overlay-handle
+                                        class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        (pointerdown)="startResize($event, sheetOverlayId(image.id))"
+                                    >
+                                        <mat-icon
+                                            class="!h-4 !w-4 !text-[16px] rotate-90 text-indigo-500"
+                                            style="pointer-events: none"
+                                            >open_in_full</mat-icon
+                                        >
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
             <!-- Top page number (every page when configured) -->
             @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
                 <div
-                    class="px-8 sm:px-10 lg:px-12 pt-4 text-[10px] text-gray-400"
+                    data-report-top-chrome
+                    class="px-8 pt-4 text-[10px] text-gray-400"
+                    [style.position]="hasFreeLayout() ? 'absolute' : null"
+                    [style.top.px]="hasFreeLayout() ? 0 : null"
+                    [style.left.px]="hasFreeLayout() ? 0 : null"
+                    [style.right.px]="hasFreeLayout() ? 0 : null"
+                    [style.z-index]="hasFreeLayout() ? '910' : null"
+                    [style.pointer-events]="hasFreeLayout() ? 'none' : null"
                     [style.text-align]="
                         pageNumberPosition() === 'top-left'
                             ? 'left'
@@ -158,13 +407,26 @@
                               : 'center'
                     "
                 >
-                    Page {{ pageIndex + 1 }} of {{ count }}
+                    {{ 'smartReport.pageOf' | transloco: { current: pageIndex + 1, total: count } }}
                 </div>
             }
 
-            <div class="p-8 sm:p-10 lg:p-12 flex-1 flex flex-col min-h-0">
-                <!-- Logo top spacer (page 1 only) -->
-                @if (isFirst && viewContentPaddingTop > 0) {
+            <div
+                data-report-page-inner
+                class="min-h-0"
+                [class.relative]="!hasFreeLayout()"
+                [class.flex]="!hasFreeLayout()"
+                [class.flex-1]="!hasFreeLayout()"
+                [class.flex-col]="!hasFreeLayout()"
+                [class.absolute]="hasFreeLayout()"
+                [class.inset-0]="hasFreeLayout()"
+                [class.p-8]="!hasFreeLayout()"
+                [class.overflow-hidden]="!hasFreeLayout()"
+                [class.overflow-visible]="hasFreeLayout()"
+                [style.box-shadow]="clickable() && reorderable() ? 'inset 0 0 0 1px rgba(99, 102, 241, 0.25)' : null"
+            >
+                <!-- Flow layout keeps content below the logo. Free placement uses the whole sheet. -->
+                @if (!hasFreeLayout() && isFirst && viewContentPaddingTop > 0) {
                     <div [style.height.px]="viewContentPaddingTop"></div>
                 }
 
@@ -177,47 +439,159 @@
                 }
 
                 @for (section of pageSections; track section.id) {
+                    @if (!isPageAnchor(section)) {
                     <div
-                        class="transition-all duration-200"
-                        [class.cursor-pointer]="clickable()"
-                        [class.ring-2]="clickable() && selectedSectionId() === section.id"
-                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id"
-                        [class.rounded-md]="clickable() && selectedSectionId() === section.id"
-                        (click)="clickable() && sectionClick() ? sectionClick()!(section) : null"
+                        data-report-section
+                        [class.layer-quiet]="isLayerQuiet('sec:' + section.id)"
+                        [attr.data-section-id]="section.id"
+                        [attr.data-section-type]="section.type"
+                        [class.relative]="!hasFreeLayout()"
+                        [class.absolute]="hasFreeLayout()"
+                        [style.pointer-events]="draggingSectionId() && draggingSectionId() !== section.id ? 'none' : null"
+                        [style.touch-action]="reorderable() ? 'none' : null"
+                        [class.mb-3]="!hasFreeLayout()"
+                        [class.cursor-pointer]="clickable() && !reorderable()"
+                        [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
+                        [class.cursor-grabbing]="draggingSectionId() === section.id"
+                        [class.opacity-90]="draggingSectionId() === section.id"
+                        [class.ring-2]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)"
+                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)"
+                        [class.rounded-md]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)"
+                        [style.background-color]="isShapeSection(section) ? null : sectionFrameBackground(section)"
+                        [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"
+                        [style.border-radius.px]="isShapeSection(section) ? 0 : sectionFrameRadius(section)"
+                        [style.padding]="isShapeSection(section) ? '0' : sectionFramePadding(section)"
+                        [ngStyle]="sectionHostStyle(section)"
+                        (click)="onSectionActivate(section, $event)"
+                        (contextmenu)="onSectionContextMenu(section, $event)"
+                        (pointerdown)="onSectionPointerDown(section, $event)"
                     >
+                        @if (clickable() && reorderable() && (selectedSectionId() === section.id || draggingSectionId() === section.id)) {
+                            <div
+                                data-print-hide
+                                class="absolute -left-1 -top-1 z-30 flex h-6 w-6 items-center justify-center rounded-full border border-indigo-200 bg-white text-indigo-500 shadow-sm"
+                                title="Mover"
+                            >
+                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]" style="pointer-events: none">open_with</mat-icon>
+                            </div>
+                        }
+                        @if (clickable() && isShapeSection(section) && selectedSectionId() === section.id) {
+                            <div
+                                data-print-hide
+                                data-section-handle
+                                class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                (pointerdown)="startSectionRotate(section, $event)"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-[16px] text-indigo-500" style="pointer-events: none">rotate_right</mat-icon>
+                            </div>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute left-[-8px] top-[-8px] z-30 h-4 w-4 cursor-nwse-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'nw')"
+                            ></button>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute right-[-8px] top-[-8px] z-30 h-4 w-4 cursor-nesw-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'ne')"
+                            ></button>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute bottom-[-8px] left-[-8px] z-30 h-4 w-4 cursor-nesw-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'sw')"
+                            ></button>
+                            <button
+                                type="button"
+                                data-print-hide
+                                data-section-handle
+                                class="absolute bottom-[-8px] right-[-8px] z-30 h-4 w-4 cursor-nwse-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                (pointerdown)="startSectionResize(section, $event, 'se')"
+                            ></button>
+                        }
+                        @if (isSectionDropBefore(section)) {
+                            <div class="pointer-events-none absolute left-1 right-1 top-0 z-20 h-1 rounded-full bg-indigo-500"></div>
+                        }
+                        @if (isSectionDropAfter(section)) {
+                            <div class="pointer-events-none absolute bottom-0 left-1 right-1 z-20 h-1 rounded-full bg-indigo-500"></div>
+                        }
                         <ng-container
                             [ngTemplateOutlet]="sectionBody"
-                            [ngTemplateOutletContext]="{ section: section }"
+                            [ngTemplateOutletContext]="{ section: section, measure: false }"
                         ></ng-container>
                     </div>
+                    }
                 }
 
-                <!-- Footer (every page, mirrors Puppeteer footerTemplate) -->
-                @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
-                    <div class="mt-auto shrink-0 pb-6">
-                        @if (legend()) {
-                            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
-                                <p
-                                    class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
-                                    [textContent]="legend()"
-                                ></p>
+                @if (alignmentGuides().length) {
+                    @for (guide of alignmentGuides(); track guide.axis + ':' + guide.page + ':' + guide.at) {
+                        @if (guide.page === pageIndex) {
+                            <div
+                                data-print-hide
+                                class="pointer-events-none absolute z-[1200]"
+                                [style.left.px]="guide.axis === 'x' ? guide.at : 0"
+                                [style.top.px]="guide.axis === 'y' ? guide.at : 0"
+                                [style.width]="guide.axis === 'y' ? '100%' : '0px'"
+                                [style.height]="guide.axis === 'x' ? '100%' : '0px'"
+                                [style.border-left]="guide.axis === 'x' ? '1px dashed #e11d48' : null"
+                                [style.border-top]="guide.axis === 'y' ? '1px dashed #e11d48' : null"
+                            ></div>
+                        }
+                    }
+                }
+
+                <!-- Footer (every page). In free layout it stays at the bottom
+                     of the sheet and sits behind the blocks, so a block can
+                     move over it. The PDF clone copies this same box. -->
+                @if (hasBottomChrome()) {
+                    <div
+                        data-report-footer
+                        class="shrink-0"
+                        [class.mt-auto]="!hasFreeLayout()"
+                        [class.pb-6]="!hasFreeLayout()"
+                        [class.px-0]="!hasFreeLayout()"
+                        [style.position]="hasFreeLayout() ? 'absolute' : null"
+                        [style.left.px]="hasFreeLayout() ? 0 : null"
+                        [style.right.px]="hasFreeLayout() ? 0 : null"
+                        [style.bottom.px]="hasFreeLayout() ? 0 : null"
+                        [style.z-index]="hasFreeLayout() ? '910' : null"
+                        [style.pointer-events]="hasFreeLayout() && draggingSectionId() ? 'none' : null"
+                        [style.padding-left.px]="hasFreeLayout() ? 32 : null"
+                        [style.padding-right.px]="hasFreeLayout() ? 32 : null"
+                        [style.padding-bottom.px]="hasFreeLayout() ? 24 : null"
+                        [style.background-color]="hasFreeLayout() ? (pageBackgroundColor() || '#ffffff') : null"
+                    >
+                        @if (legend() || termsAndConditions()) {
+                            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2 space-y-1.5">
+                                @if (legend()) {
+                                    <p
+                                        class="text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0 font-medium"
+                                        [style.text-align]="legendPosition()"
+                                        [textContent]="legend()"
+                                    ></p>
+                                }
+                                @if (termsAndConditions()) {
+                                    <p
+                                        class="text-[9px] text-gray-400 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0"
+                                        [style.text-align]="termsPosition()"
+                                        [textContent]="termsAndConditions()"
+                                    ></p>
+                                }
                             </div>
                         }
                         @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
                             <div
                                 class="text-[10px] text-gray-400"
-                                [class.border-t]="!legend()"
-                                [class.border-gray-200]="!legend()"
-                                [class.pt-3]="!legend()"
-                                [style.text-align]="
-                                    pageNumberPosition() === 'bottom-left'
-                                        ? 'left'
-                                        : pageNumberPosition() === 'bottom-right'
-                                          ? 'right'
-                                          : 'center'
-                                "
+                                [class.border-t]="!legend() && !termsAndConditions()"
+                                [class.border-gray-200]="!legend() && !termsAndConditions()"
+                                [class.pt-3]="!legend() && !termsAndConditions()"
+                                [style.text-align]="footerAlign(pageNumberPosition())"
                             >
-                                Page {{ pageIndex + 1 }} of {{ count }}
+                                {{ 'smartReport.pageOf' | transloco: { current: pageIndex + 1, total: count } }}
                             </div>
                         }
                     </div>
@@ -226,6 +600,29 @@
         </div>
     }
 </div>
+</div>
+    @if (reorderable() && !printCapture() && !thumbnailMode()) {
+        <div class="mx-auto mt-4 flex flex-wrap items-center justify-center gap-2">
+            @if (canRemoveLastPage()) {
+                <button
+                    type="button"
+                    class="flex items-center gap-1.5 rounded-full border border-rose-300 bg-rose-50 px-3 py-1.5 text-[11px] font-medium text-rose-800 shadow-sm hover:border-rose-400 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300 dark:hover:bg-rose-950"
+                    (click)="emitRemovePage($event)"
+                >
+                    <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">delete</mat-icon>
+                    {{ 'visitaGuide.layoutRemovePage' | transloco }}
+                </button>
+            }
+            <button
+                type="button"
+                class="flex items-center gap-1.5 rounded-full border border-stone-300 bg-white px-3 py-1.5 text-[11px] font-medium text-stone-700 shadow-sm hover:border-stone-400 hover:bg-stone-50 dark:border-gray-600 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="emitAddPage($event)"
+            >
+                <mat-icon class="!h-3.5 !w-3.5 !text-[15px]">note_add</mat-icon>
+                {{ 'visitaGuide.layoutAddPage' | transloco }}
+            </button>
+        </div>
+    }
 
 <!--
     Off-screen measurement container.
@@ -234,6 +631,7 @@
     height and bin-pack them into pages. Hidden but still laid out so
     getBoundingClientRect returns real values.
 -->
+@if (!thumbnailMode()) {
 <div
     aria-hidden="true"
     class="px-8 sm:px-10 lg:px-12"
@@ -244,28 +642,59 @@
         visibility: hidden;
         pointer-events: none;
     "
-    [style.width]="orientation() === 'landscape' ? '297mm' : '210mm'"
+    [style.width]="measureWidthCss()"
 >
     @for (section of template().sections || []; track section.id) {
-        <div #measureSection [attr.data-section-id]="section.id">
+        <div
+            #measureSection
+            [attr.data-section-id]="section.id"
+            [style.background-color]="sectionFrameBackground(section)"
+            [style.border]="sectionFrameBorder(section)"
+            [style.border-radius.px]="sectionFrameRadius(section)"
+            [style.padding]="sectionFramePadding(section)"
+        >
             <ng-container
                 [ngTemplateOutlet]="sectionBody"
-                [ngTemplateOutletContext]="{ section: section }"
+                [ngTemplateOutletContext]="{ section: section, measure: true }"
             ></ng-container>
         </div>
     }
 
-    @if (legend()) {
+    @if (hasBottomChrome()) {
         <div #measureLegend class="pb-6">
-            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
-                <p
-                    class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
-                    [textContent]="legend()"
-                ></p>
-            </div>
+            @if (legend() || termsAndConditions()) {
+                <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2 space-y-1.5">
+                    @if (legend()) {
+                        <p
+                            class="text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0 font-medium"
+                            [style.text-align]="legendPosition()"
+                            [textContent]="legend()"
+                        ></p>
+                    }
+                    @if (termsAndConditions()) {
+                        <p
+                            class="text-[9px] text-gray-400 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0"
+                            [style.text-align]="termsPosition()"
+                            [textContent]="termsAndConditions()"
+                        ></p>
+                    }
+                </div>
+            }
+            @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
+                <div
+                    class="text-[10px] text-gray-400"
+                    [class.border-t]="!legend() && !termsAndConditions()"
+                    [class.border-gray-200]="!legend() && !termsAndConditions()"
+                    [class.pt-3]="!legend() && !termsAndConditions()"
+                    [style.text-align]="footerAlign(pageNumberPosition())"
+                >
+                    {{ 'smartReport.pageOf' | transloco: { current: 1, total: 1 } }}
+                </div>
+            }
         </div>
     }
 </div>
+}
 
 <!--
     One definition per section type, used by both the visible cards and the
@@ -277,16 +706,27 @@
     which the builder shows in its "Exact" iframe. The canvas only needs enough to
     recognize, select and reorder a block.
 -->
-<ng-template #sectionBody let-section="section">
+<ng-template #sectionBody let-section="section" let-measure="measure">
     @if (section.type === 'header') {
-        <div class="mb-4" [style.text-align]="section.style?.textAlign || 'left'">
+        <div class="mb-4" [style.text-align]="roleTextAlign(section, 'title')">
             <h2
-                [style.font-size.px]="section.style?.fontSize || 22"
-                [style.font-weight]="section.style?.fontWeight || 'bold'"
-                [style.color]="section.style?.color || primaryColor()"
-                class="leading-tight"
+                data-sheet-role="title"
+                [style.font-size.px]="roleFontSize(section, 'title')"
+                [style.font-weight]="roleFontWeight(section, 'title')"
+                [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
+                [style.font-family]="roleFontFamily(section, 'title')"
+                [style.color]="roleColor(section, 'title')"
+                class="inline-block max-w-full leading-tight"
+                [class.ring-2]="isTitleSelected(section)"
+                [class.ring-inset]="isTitleSelected(section)"
+                [class.ring-indigo-400]="isTitleSelected(section)"
+                [class.rounded-sm]="isTitleSelected(section)"
+                (contextmenu)="onTitleContextMenu(section, $event)"
             >
-                {{ section.staticContent || section.label || ('smartReport.untitled' | transloco) }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.staticContent || section.label || ('smartReport.untitled' | transloco), measure)"
+                ></ng-container>
             </h2>
         </div>
     }
@@ -294,57 +734,117 @@
     @if (section.type === 'text') {
         <div class="mb-3">
             <p
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight || 'normal'"
-                [style.text-align]="section.style?.textAlign || 'left'"
-                [style.color]="section.style?.color || '#374151'"
+                [style.font-size.px]="roleFontSize(section, 'title')"
+                [style.font-weight]="roleFontWeight(section, 'title')"
+                [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
+                [style.font-family]="roleFontFamily(section, 'title')"
+                [style.text-align]="roleTextAlign(section, 'title')"
+                [style.color]="roleColor(section, 'title')"
                 class="leading-relaxed whitespace-pre-wrap"
             >
-                {{ section.staticContent || ('smartReport.textContent' | transloco) }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'body', section.staticContent || ('smartReport.textContent' | transloco), measure, true)"
+                ></ng-container>
             </p>
         </div>
     }
 
     @if (section.type === 'field') {
         <div
-            class="flex gap-3 py-2.5 border-b border-gray-100"
-            [style.text-align]="section.style?.textAlign || 'left'"
+            class="min-w-0 px-2 py-1.5"
+            [ngStyle]="rowLineBg(section)"
         >
-            <span
-                class="min-w-[140px] shrink-0"
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight || 'normal'"
-                [style.color]="section.style?.color || '#6B7280'"
-                >{{ section.label || ('smartReport.field' | transloco) }}</span
+            <div
+                class="min-w-0 break-words tracking-wide"
+                [style.font-size.px]="roleFontSize(section, 'label')"
+                [style.font-weight]="roleFontWeight(section, 'label')"
+                [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
+                [style.font-family]="roleFontFamily(section, 'label')"
+                [style.text-align]="roleTextAlign(section, 'label')"
+                [style.color]="roleColor(section, 'label')"
             >
-            <span
-                [style.font-size.px]="section.style?.fontSize || 12"
-                [style.font-weight]="section.style?.fontWeight === 'bold' ? 'bold' : 500"
-                [style.color]="section.style?.color || '#111827'"
-                >{{ resolveDataPath(section.dataPath) || '—' }}</span
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label || ('smartReport.field' | transloco), measure)"
+                ></ng-container>
+            </div>
+            <div
+                class="min-w-0 break-words"
+                [style.font-size.px]="roleFontSize(section, 'value')"
+                [style.font-weight]="roleFontWeight(section, 'value')"
+                [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
+                [style.font-family]="roleFontFamily(section, 'value')"
+                [style.text-align]="roleTextAlign(section, 'value')"
+                [style.color]="roleColor(section, 'value')"
             >
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, '__value', resolveDataPath(section.dataPath) || '—'), measure, false, '__value', resolveDataPath(section.dataPath) || '')"
+                ></ng-container>
+            </div>
         </div>
     }
 
     @if (section.type === 'table') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    data-sheet-role="title"
+                    class="mb-2 inline-block max-w-full tracking-wide"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
+                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-inset]="isTitleSelected(section)"
+                    [class.ring-indigo-400]="isTitleSelected(section)"
+                    [class.rounded-sm]="isTitleSelected(section)"
+                    (contextmenu)="onTitleContextMenu(section, $event)"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
-            <table class="w-full text-sm">
+            <table class="w-full">
                 <tbody>
-                    @for (row of resolveTableData(section.dataPath); track row.key) {
-                        <tr class="border-b border-gray-100">
-                            <td class="py-2 pr-4 text-gray-500 w-1/3">{{ row.key }}</td>
-                            <td class="py-2 text-gray-900 font-medium">{{ row.value }}</td>
+                    @for (row of resolveTableData(section); track row.key) {
+                        <tr
+                            [ngStyle]="rowLineBg(section)"
+                        >
+                            <td
+                                class="py-2 pr-4 w-1/3"
+                                [style.font-family]="roleFontFamily(section, 'label')"
+                                [style.font-size.px]="roleFontSize(section, 'label')"
+                                [style.font-weight]="roleFontWeight(section, 'label')"
+                                [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
+                                [style.text-align]="roleTextAlign(section, 'label')"
+                                [style.color]="roleColor(section, 'label')"
+                            >
+                                <ng-container
+                                    [ngTemplateOutlet]="sheetText"
+                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, row), measure, false, row.key, row.label)"
+                                ></ng-container>
+                            </td>
+                            <td
+                                class="py-2"
+                                [style.font-family]="roleFontFamily(section, 'value')"
+                                [style.font-size.px]="roleFontSize(section, 'value')"
+                                [style.font-weight]="roleFontWeight(section, 'value')"
+                                [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
+                                [style.text-align]="roleTextAlign(section, 'value')"
+                                [style.color]="roleColor(section, 'value')"
+                            >
+                                <ng-container
+                                    [ngTemplateOutlet]="sheetText"
+                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, row.key, row.value), measure, false, row.key, row.value)"
+                                ></ng-container>
+                            </td>
                         </tr>
                     }
-                    @if (resolveTableData(section.dataPath).length === 0) {
+                    @if (resolveTableData(section).length === 0) {
                         <tr>
                             <td colspan="2" class="py-4 text-center text-gray-300 text-xs">
                                 {{
@@ -360,7 +860,7 @@
     }
 
     @if (section.type === 'image') {
-        <div class="mb-4" [style.text-align]="section.style?.textAlign || 'center'">
+        <div class="mb-4" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.staticContent) {
                 <img
                     [src]="section.staticContent"
@@ -386,51 +886,160 @@
         />
     }
 
+    @if (section.type === 'shape') {
+        <div
+            class="h-full w-full min-h-[12px] overflow-visible"
+            [style.transform]="shapeRotateStyle(section)"
+            style="transform-origin: center center"
+        >
+            <svg
+                viewBox="0 0 100 100"
+                class="h-full w-full overflow-visible"
+                [attr.preserveAspectRatio]="shapeKeepRatio(section) ? 'xMidYMid meet' : 'none'"
+                aria-hidden="true"
+            >
+                @switch (shapeKind(section)) {
+                    @case ('circle') {
+                        <ellipse
+                            cx="50"
+                            cy="50"
+                            rx="46"
+                            ry="46"
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                        />
+                    }
+                    @case ('bullet') {
+                        <ellipse
+                            cx="50"
+                            cy="50"
+                            rx="46"
+                            ry="46"
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                        />
+                    }
+                    @case ('star') {
+                        <polygon
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                            points="50,4 61,38 97,38 68,59 79,95 50,74 21,95 32,59 3,38 39,38"
+                        />
+                    }
+                    @case ('triangle') {
+                        <polygon
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                            points="50,8 94,92 6,92"
+                        />
+                    }
+                    @case ('diamond') {
+                        <polygon
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                            points="50,4 96,50 50,96 4,50"
+                        />
+                    }
+                    @default {
+                        <rect
+                            x="2"
+                            y="2"
+                            width="96"
+                            height="96"
+                            [attr.rx]="shapeRectRadius(section)"
+                            [attr.fill]="shapeFill(section)"
+                            [attr.stroke]="shapeStroke(section)"
+                            [attr.stroke-width]="shapeStrokeWidth(section)"
+                            vector-effect="non-scaling-stroke"
+                        />
+                    }
+                }
+            </svg>
+        </div>
+    }
+
     @if (section.type === 'spacer') {
         <div [style.height.px]="section.style?.padding || 16"></div>
     }
 
     <!-- dataTable: derived headings plus two sample rows. -->
     @if (section.type === 'dataTable') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    data-sheet-role="title"
+                    class="mb-2 inline-block max-w-full tracking-wide"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
+                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-inset]="isTitleSelected(section)"
+                    [class.ring-indigo-400]="isTitleSelected(section)"
+                    [class.rounded-sm]="isTitleSelected(section)"
+                    (contextmenu)="onTitleContextMenu(section, $event)"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (structuralColumns(section).length > 0) {
-                <table class="w-full text-xs">
+                <table class="w-full">
                     <thead>
                         <tr class="border-b-2" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
-                                <th class="py-1.5 pr-3 text-left font-semibold text-gray-600">
-                                    {{ column.label }}
+                                <th
+                                    class="py-1.5 pr-3 text-left"
+                                    [style.font-family]="roleFontFamily(section, 'label')"
+                                    [style.font-size.px]="roleFontSize(section, 'label')"
+                                    [style.font-weight]="roleFontWeight(section, 'label')"
+                                    [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
+                                    [style.text-align]="roleTextAlign(section, 'label')"
+                                    [style.color]="roleColor(section, 'label')"
+                                >
+                                    <ng-container
+                                        [ngTemplateOutlet]="sheetText"
+                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, column), measure, false, column.key, column.label)"
+                                    ></ng-container>
                                 </th>
                             }
                         </tr>
                     </thead>
                     <tbody>
-                        @for (row of structuralSampleRows(section); track $index) {
-                            <tr class="border-b border-gray-100">
-                                @for (cell of row; track $index) {
-                                    <td class="py-1.5 pr-3 text-gray-800">{{ cell }}</td>
+                        @for (row of structuralSampleRows(section); track $index; let rowIndex = $index) {
+                            <tr [ngStyle]="rowLineBg(section)">
+                                @for (cell of row; track $index; let colIndex = $index) {
+                                    <td
+                                        class="py-1.5 pr-3"
+                                        [style.font-family]="roleFontFamily(section, 'value')"
+                                        [style.font-size.px]="roleFontSize(section, 'value')"
+                                        [style.font-weight]="roleFontWeight(section, 'value')"
+                                        [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
+                                        [style.text-align]="roleTextAlign(section, 'value')"
+                                        [style.color]="roleColor(section, 'value')"
+                                    >
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, cellStoreKey(structuralColumns(section)[colIndex].key, rowIndex), cell), measure, false, cellStoreKey(structuralColumns(section)[colIndex].key, rowIndex), cell)"
+                                        ></ng-container>
+                                    </td>
                                 }
                             </tr>
                         }
                     </tbody>
                 </table>
-                <p class="mt-1 text-[10px] text-gray-400">
-                    {{
-                        'smartReport.structuralRows'
-                            | transloco: { count: structuralRecords(section).length }
-                    }}
-                    @if (!section.columns?.length) {
-                        · {{ 'smartReport.structuralAuto' | transloco }}
-                    }
-                </p>
             } @else {
                 <div
                     class="rounded-lg border border-dashed border-gray-200 py-4 text-center text-xs text-gray-300"
@@ -443,33 +1052,188 @@
 
     <!-- keyValueGrid: label/value pairs in the configured column count. -->
     @if (section.type === 'keyValueGrid') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    data-sheet-role="title"
+                    class="mb-2 inline-block max-w-full tracking-wide"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
+                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-inset]="isTitleSelected(section)"
+                    [class.ring-indigo-400]="isTitleSelected(section)"
+                    [class.rounded-sm]="isTitleSelected(section)"
+                    (contextmenu)="onTitleContextMenu(section, $event)"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
-            @if (structuralEntries(section).length > 0) {
-                <div
-                    class="grid gap-x-4 gap-y-1.5"
-                    [style.grid-template-columns]="
-                        'repeat(' + (section.columnsPerRow || 2) + ', minmax(0, 1fr))'
-                    "
-                >
-                    @for (entry of structuralEntries(section); track entry.key) {
-                        <div class="min-w-0 border-b border-gray-100 pb-1">
-                            <div class="text-[10px] uppercase tracking-wide text-gray-400">
-                                {{ entry.key }}
+            @if (sectionHasStructuredData(section)) {
+                @for (chunk of sheetChunks(section); track chunk.kind === 'table' ? chunk.table.key : chunk.entries[0]?.key) {
+                    @if (chunk.kind === 'fields') {
+                        <div
+                            class="grid gap-x-4 gap-y-1.5"
+                            [style.grid-template-columns]="
+                                'repeat(' + (section.columnsPerRow || 2) + ', minmax(0, 1fr))'
+                            "
+                        >
+                            @for (entry of chunk.entries; track entry.key; let last = $last) {
+                                <div
+                                    data-report-cell
+                                    [attr.data-cell-key]="entry.key"
+                                    class="min-w-0 px-2 py-1.5"
+                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-inset]="isCellSelected(section, entry.key)"
+                                    [class.ring-indigo-400]="isCellSelected(section, entry.key)"
+                                    [class.cursor-pointer]="clickable() && !reorderable()"
+                                    [class.cursor-grab]="clickable() && reorderable()"
+                                    [ngStyle]="rowLineBg(section, entry.key, last)"
+                                    [style.background-color]="cellBackground(section, entry.key) || null"
+                                    [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
+                                    [style.border-radius.px]="cellRadius(section, entry.key)"
+                                    (click)="onCellActivate(section, entry.key, 'cell', $event)"
+                                    (pointerdown)="onCellPointerDown(section, entry.key, $event)"
+                                    (contextmenu)="onCellContextMenu(section, entry.key, $event)"
+                                >
+                                    <div
+                                        data-cell-part="label"
+                                        class="min-w-0 break-words tracking-wide"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'label')"
+                                        [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
+                                        [class.rounded-sm]="isCellSelected(section, entry.key, 'label')"
+                                        [style.font-family]="roleFontFamily(section, 'label', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'label', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'label', entry.key)"
+                                        [style.color]="roleColor(section, 'label', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'label', $event)"
+                                    >
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, entry), measure, false, entry.key, entry.label)"
+                                        ></ng-container>
+                                    </div>
+                                    <div
+                                        data-cell-part="value"
+                                        class="min-w-0 break-words"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
+                                        [class.rounded-sm]="isCellSelected(section, entry.key, 'value')"
+                                        [style.font-family]="roleFontFamily(section, 'value', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'value', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'value', entry.key)"
+                                        [style.color]="roleColor(section, 'value', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'value', $event)"
+                                    >
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, entry.key, entry.value), measure, false, entry.key, entry.value)"
+                                        ></ng-container>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <div
+                            data-report-cell
+                            [attr.data-cell-key]="chunk.table.key"
+                            class="mt-3 overflow-x-auto rounded-lg border px-2 py-2"
+                            [class.ring-2]="isCellSelected(section, chunk.table.key)"
+                            [class.ring-inset]="isCellSelected(section, chunk.table.key)"
+                            [class.ring-indigo-400]="isCellSelected(section, chunk.table.key)"
+                            [class.cursor-pointer]="clickable()"
+                            [style.background-color]="tableFill(section, chunk.table.key)"
+                            [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
+                            [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
+                            (click)="onCellActivate(section, chunk.table.key, 'cell', $event)"
+                            (pointerdown)="onCellPointerDown(section, chunk.table.key, $event)"
+                            (contextmenu)="onCellContextMenu(section, chunk.table.key, $event)"
+                        >
+                            <div class="mb-1.5 flex items-center gap-2">
+                                @if (tableShowsBadge(section, chunk.table.key)) {
+                                    <span
+                                        class="rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-950"
+                                        [style.background-color]="tableHeaderFill(section, chunk.table.key)"
+                                    >
+                                        {{ 'smartReport.sheetTable' | transloco }}
+                                    </span>
+                                }
+                                @if (chunk.table.key !== '__list') {
+                                    <p
+                                        class="min-w-0 flex-1 truncate tracking-wide"
+                                        [style.font-family]="roleFontFamily(section, 'label')"
+                                        [style.font-size.px]="roleFontSize(section, 'label')"
+                                        [style.font-weight]="roleFontWeight(section, 'label')"
+                                        [style.color]="roleColor(section, 'label')"
+                                    >
+                                        {{ tableLabel(section, chunk.table) }}
+                                    </p>
+                                }
                             </div>
-                            <div class="truncate text-xs font-medium text-gray-800">
-                                {{ entry.value }}
-                            </div>
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
+                                        @for (column of chunk.table.columns; track column.key) {
+                                            <th
+                                                class="cursor-pointer border-b py-1 pr-2 text-left"
+                                                [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [style.border-color]="tableEdge(section, chunk.table.key)"
+                                                [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
+                                                [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
+                                                [style.font-weight]="tableText(section, 'label', chunk.table.key, column.key).fontWeight"
+                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'label', chunk.table.key, column.key).textDecoration"
+                                                [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
+                                                [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
+                                                (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
+                                                (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
+                                            >
+                                                <ng-container
+                                                    [ngTemplateOutlet]="sheetText"
+                                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
+                                                ></ng-container>
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (row of chunk.table.rows; track $index; let last = $last; let rowIndex = $index) {
+                                        <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
+                                            @for (column of chunk.table.columns; track column.key) {
+                                                <td
+                                                    class="cursor-pointer py-1 pr-2 align-top"
+                                                    [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
+                                                    [style.font-size.px]="tableText(section, 'value', chunk.table.key, column.key).fontSize"
+                                                    [style.font-weight]="tableText(section, 'value', chunk.table.key, column.key).fontWeight"
+                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'value', chunk.table.key, column.key).textDecoration"
+                                                    [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
+                                                    [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
+                                                    (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
+                                                    (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
+                                                >
+                                                    <ng-container
+                                                        [ngTemplateOutlet]="sheetText"
+                                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key]), measure, false, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key])"
+                                                    ></ng-container>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     }
-                </div>
+                }
             } @else {
                 <div
                     class="rounded-lg border border-dashed border-gray-200 py-4 text-center text-xs text-gray-300"
@@ -482,63 +1246,279 @@
 
     <!-- badge: a pill in the static variant colour. -->
     @if (section.type === 'badge') {
-        <div class="mb-3 flex items-center gap-2">
+        <div
+            class="mb-3 flex items-center gap-2"
+            [style.font-family]="roleFontFamily(section, 'title')"
+            [style.text-align]="roleTextAlign(section, 'title')"
+        >
             @if (section.label) {
-                <span class="text-[11px] uppercase tracking-wide text-gray-400">{{
-                    section.label
-                }}</span>
+                <span
+                    class="tracking-wide"
+                    [style.font-size.px]="roleFontSize(section, 'label')"
+                    [style.font-weight]="roleFontWeight(section, 'label')"
+                    [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
+                    [style.color]="roleColor(section, 'label')"
+                >
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
+                </span>
             }
             <span
-                class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                class="inline-flex items-center rounded-full border px-2.5 py-0.5"
+                [style.font-size.px]="roleFontSize(section, 'value')"
+                [style.font-weight]="roleFontWeight(section, 'value')"
+                [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                 [ngClass]="variantClasses(section)"
             >
-                {{ resolveDataPath(section.dataPath) || '—' }}
+                <ng-container
+                    [ngTemplateOutlet]="sheetText"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, '__value', resolveDataPath(section.dataPath) || '—'), measure, false, '__value', resolveDataPath(section.dataPath) || '')"
+                ></ng-container>
             </span>
         </div>
     }
 
     <!-- card: titled box with its copy and any resolved entries. -->
     @if (section.type === 'card') {
-        <div class="mb-4 rounded-lg border p-3" [ngClass]="variantClasses(section)">
+        <div
+            class="mb-4 rounded-lg border p-3"
+            [ngClass]="variantClasses(section)"
+            [style.font-family]="roleFontFamily(section, 'title')"
+            [style.text-align]="roleTextAlign(section, 'title')"
+        >
             @if (section.label) {
-                <h4 class="mb-1 text-xs font-semibold">{{ section.label }}</h4>
+                <h4
+                    data-sheet-role="title"
+                    class="mb-1 inline-block max-w-full"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
+                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-inset]="isTitleSelected(section)"
+                    [class.ring-indigo-400]="isTitleSelected(section)"
+                    [class.rounded-sm]="isTitleSelected(section)"
+                    (contextmenu)="onTitleContextMenu(section, $event)"
+                >
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
+                </h4>
             }
             @if (section.staticContent) {
-                <p class="whitespace-pre-wrap text-xs opacity-90">{{ section.staticContent }}</p>
+                <p
+                    class="whitespace-pre-wrap opacity-90"
+                    [style.font-family]="roleFontFamily(section, 'value')"
+                    [style.font-size.px]="roleFontSize(section, 'value')"
+                    [style.font-weight]="roleFontWeight(section, 'value')"
+                    [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
+                    [style.text-align]="roleTextAlign(section, 'value')"
+                    [style.color]="roleColor(section, 'value')"
+                >
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'body', section.staticContent, measure, true)"
+                    ></ng-container>
+                </p>
             }
-            @if (structuralEntries(section).length > 0) {
-                <div class="mt-2 space-y-0.5">
-                    @for (entry of structuralEntries(section); track entry.key) {
-                        <div class="flex gap-2 text-[11px]">
-                            <span class="opacity-60">{{ entry.key }}</span>
-                            <span class="font-medium">{{ entry.value }}</span>
+            @if (sectionHasStructuredData(section)) {
+                @for (chunk of sheetChunks(section); track chunk.kind === 'table' ? chunk.table.key : chunk.entries[0]?.key) {
+                    @if (chunk.kind === 'fields') {
+                        <div class="mt-2 space-y-0.5">
+                            @for (entry of chunk.entries; track entry.key; let last = $last) {
+                                <div
+                                    data-report-cell
+                                    [attr.data-cell-key]="entry.key"
+                                    class="flex gap-2 px-2 py-1"
+                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-inset]="isCellSelected(section, entry.key)"
+                                    [class.ring-indigo-400]="isCellSelected(section, entry.key)"
+                                    [class.cursor-pointer]="clickable() && !reorderable()"
+                                    [class.cursor-grab]="clickable() && reorderable()"
+                                    [ngStyle]="rowLineBg(section, entry.key, last)"
+                                    [style.background-color]="cellBackground(section, entry.key) || null"
+                                    [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
+                                    [style.border-radius.px]="cellRadius(section, entry.key)"
+                                    (click)="onCellActivate(section, entry.key, 'cell', $event)"
+                                    (pointerdown)="onCellPointerDown(section, entry.key, $event)"
+                                    (contextmenu)="onCellContextMenu(section, entry.key, $event)"
+                                >
+                                    <span
+                                        data-cell-part="label"
+                                        class="min-w-0 break-words"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'label')"
+                                        [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
+                                        [style.font-family]="roleFontFamily(section, 'label', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'label', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'label', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'label', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'label', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'label', entry.key)"
+                                        [style.color]="roleColor(section, 'label', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'label', $event)"
+                                    >
+                                        <ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, entry), measure, false, entry.key, entry.label)"
+                                        ></ng-container>
+                                    </span>
+                                    <span
+                                        data-cell-part="value"
+                                        class="min-w-0 break-words"
+                                        [class.ring-1]="isCellSelected(section, entry.key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
+                                        [style.font-family]="roleFontFamily(section, 'value', entry.key)"
+                                        [style.font-size.px]="roleFontSize(section, 'value', entry.key)"
+                                        [style.font-weight]="roleFontWeight(section, 'value', entry.key)"
+                                        [style.font-style]="roleFontStyle(section, 'value', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'value', entry.key)"
+                                        [style.text-align]="roleTextAlign(section, 'value', entry.key)"
+                                        [style.color]="roleColor(section, 'value', entry.key)"
+                                        (click)="onCellActivate(section, entry.key, 'value', $event)"
+                                        ><ng-container
+                                            [ngTemplateOutlet]="sheetText"
+                                            [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, entry.key, entry.value), measure, false, entry.key, entry.value)"
+                                        ></ng-container></span
+                                    >
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <div
+                            data-report-cell
+                            [attr.data-cell-key]="chunk.table.key"
+                            class="mt-3 overflow-x-auto rounded-lg border px-2 py-2"
+                            [class.ring-2]="isCellSelected(section, chunk.table.key)"
+                            [class.ring-inset]="isCellSelected(section, chunk.table.key)"
+                            [class.ring-indigo-400]="isCellSelected(section, chunk.table.key)"
+                            [class.cursor-pointer]="clickable()"
+                            [style.background-color]="tableFill(section, chunk.table.key)"
+                            [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
+                            [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
+                            (click)="onCellActivate(section, chunk.table.key, 'cell', $event)"
+                            (pointerdown)="onCellPointerDown(section, chunk.table.key, $event)"
+                            (contextmenu)="onCellContextMenu(section, chunk.table.key, $event)"
+                        >
+                            <div class="mb-1.5 flex items-center gap-2">
+                                @if (tableShowsBadge(section, chunk.table.key)) {
+                                    <span
+                                        class="rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-950"
+                                        [style.background-color]="tableHeaderFill(section, chunk.table.key)"
+                                    >
+                                        {{ 'smartReport.sheetTable' | transloco }}
+                                    </span>
+                                }
+                                @if (chunk.table.key !== '__list') {
+                                    <p
+                                        class="min-w-0 flex-1 truncate tracking-wide"
+                                        [style.font-family]="roleFontFamily(section, 'label')"
+                                        [style.font-size.px]="roleFontSize(section, 'label')"
+                                        [style.font-weight]="roleFontWeight(section, 'label')"
+                                        [style.color]="roleColor(section, 'label')"
+                                    >
+                                        {{ tableLabel(section, chunk.table) }}
+                                    </p>
+                                }
+                            </div>
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
+                                        @for (column of chunk.table.columns; track column.key) {
+                                            <th
+                                                class="cursor-pointer border-b py-1 pr-2 text-left"
+                                                [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [style.border-color]="tableEdge(section, chunk.table.key)"
+                                                [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
+                                                [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
+                                                [style.font-weight]="tableText(section, 'label', chunk.table.key, column.key).fontWeight"
+                                                [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'label', chunk.table.key, column.key).textDecoration"
+                                                [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
+                                                [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
+                                                (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
+                                                (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
+                                            >
+                                                <ng-container
+                                                    [ngTemplateOutlet]="sheetText"
+                                                    [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
+                                                ></ng-container>
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (row of chunk.table.rows; track $index; let last = $last; let rowIndex = $index) {
+                                        <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
+                                            @for (column of chunk.table.columns; track column.key) {
+                                                <td
+                                                    class="cursor-pointer py-1 pr-2 align-top"
+                                                    [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
+                                                    [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
+                                                    [style.font-size.px]="tableText(section, 'value', chunk.table.key, column.key).fontSize"
+                                                    [style.font-weight]="tableText(section, 'value', chunk.table.key, column.key).fontWeight"
+                                                    [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'value', chunk.table.key, column.key).textDecoration"
+                                                    [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
+                                                    [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
+                                                    (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
+                                                    (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
+                                                >
+                                                    <ng-container
+                                                        [ngTemplateOutlet]="sheetText"
+                                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellValue', boundValue(section, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key]), measure, false, cellStoreKey(tableColumnKey(chunk.table.key, column.key), rowIndex), row[column.key])"
+                                                    ></ng-container>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     }
-                </div>
+                }
             }
         </div>
     }
 
     <!-- repeater: one outlined item per record, capped for the canvas. -->
     @if (section.type === 'repeater') {
-        <div class="mb-4">
+        <div class="mb-4" [style.font-family]="roleFontFamily(section, 'title')" [style.text-align]="roleTextAlign(section, 'title')">
             @if (section.label) {
                 <h4
-                    class="text-xs font-semibold uppercase tracking-wide mb-2"
-                    [style.color]="primaryColor()"
+                    data-sheet-role="title"
+                    class="mb-2 inline-block max-w-full tracking-wide"
+                    [style.font-size.px]="roleFontSize(section, 'title')"
+                    [style.font-weight]="roleFontWeight(section, 'title')"
+                    [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
+                    [style.color]="roleColor(section, 'title')"
+                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-inset]="isTitleSelected(section)"
+                    [class.ring-indigo-400]="isTitleSelected(section)"
+                    [class.rounded-sm]="isTitleSelected(section)"
+                    (contextmenu)="onTitleContextMenu(section, $event)"
                 >
-                    {{ section.label }}
+                    <ng-container
+                        [ngTemplateOutlet]="sheetText"
+                        [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.label, measure)"
+                    ></ng-container>
                 </h4>
             }
             @if (structuralRecords(section).length > 0) {
                 @for (record of structuralRecords(section).slice(0, 2); track $index) {
                     <div class="mb-1.5 rounded-lg border border-gray-200 px-3 py-2">
                         <div class="text-xs font-semibold text-gray-700">
-                            {{ section.itemTitle || ('smartReport.sectionNumber' | transloco: { num: $index + 1 }) }}
+                            <ng-container
+                                [ngTemplateOutlet]="sheetText"
+                                [ngTemplateOutletContext]="sheetTextContext(section, 'itemTitle', section.itemTitle || ('smartReport.sectionNumber' | transloco: { num: $index + 1 }), measure, false, undefined, section.itemTitle || ('smartReport.sectionNumber' | transloco: { num: $index + 1 }))"
+                            ></ng-container>
                         </div>
-                        @if (section.itemTemplate) {
+                        @if (section.itemTemplate || canInlineEdit(measure)) {
                             <p class="mt-0.5 whitespace-pre-wrap text-[11px] text-gray-500">
-                                {{ section.itemTemplate }}
+                                <ng-container
+                                    [ngTemplateOutlet]="sheetText"
+                                    [ngTemplateOutletContext]="sheetTextContext(section, 'itemTemplate', section.itemTemplate || '', measure, true, undefined, section.itemTemplate || '')"
+                                ></ng-container>
                             </p>
                         }
                     </div>
@@ -576,5 +1556,55 @@
                 }
             </p>
         </div>
+    }
+</ng-template>
+
+<ng-template
+    #sheetText
+    let-section="section"
+    let-kind="kind"
+    let-text="text"
+    let-key="key"
+    let-fallback="fallback"
+    let-multiline="multiline"
+    let-measure="measure"
+>
+    @if (canInlineEdit(measure) && isEditingText(section.id, kind, key)) {
+        @if (multiline) {
+            <textarea
+                data-inline-edit
+                rows="3"
+                class="m-0 min-w-[4rem] w-full resize-y bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit outline-none ring-1 ring-indigo-400 rounded-sm"
+                [value]="inlineDraft()"
+                (input)="onInlineDraftInput($event)"
+                (blur)="commitInlineEdit()"
+                (keydown)="onInlineKeydown($event, true)"
+                (click)="$event.stopPropagation()"
+                (pointerdown)="$event.stopPropagation()"
+                (dblclick)="$event.stopPropagation()"
+            ></textarea>
+        } @else {
+            <input
+                data-inline-edit
+                type="text"
+                class="m-0 min-w-[4rem] w-full bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit outline-none ring-1 ring-indigo-400 rounded-sm"
+                [value]="inlineDraft()"
+                (input)="onInlineDraftInput($event)"
+                (blur)="commitInlineEdit()"
+                (keydown)="onInlineKeydown($event, false)"
+                (click)="$event.stopPropagation()"
+                (pointerdown)="$event.stopPropagation()"
+                (dblclick)="$event.stopPropagation()"
+            />
+        }
+    } @else {
+        <span
+            data-sheet-text
+            class="inline-block min-h-[1em] min-w-[1ch]"
+            [class.cursor-text]="canInlineEdit(measure)"
+            (pointerdown)="$event.stopPropagation()"
+            (click)="startInlineEdit(section, kind, $event, key, fallback)"
+            >{{ liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
+        >
     }
 </ng-template>

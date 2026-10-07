@@ -1,6 +1,16 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    computed,
+    effect,
+    HostListener,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -17,19 +27,20 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
-import { ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { ReportPreviewComponent, reportPaperSizeMm } from '../report-preview/report-preview.component';
 import {
     BatchConfiguration,
     BatchStep,
     SmartBatch,
     SmartBatchService,
 } from '../smart-batch.service';
-import { SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { SampleReportData, SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
 import { sortStepExportFieldLabels } from '../step-result-display.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import {
@@ -118,6 +129,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _sanitizer = inject(DomSanitizer);
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
+    private _cdr = inject(ChangeDetectorRef);
 
     // Route params
     configId = signal<string | null>(null);
@@ -131,6 +143,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     configuration = signal<BatchConfiguration | null>(null);
     templates = signal<SmartReportTemplate[]>([]);
     selectedTemplate = signal<SmartReportTemplate | null>(null);
+    previewPaperWidthMm = computed(() => {
+        const template = this.selectedTemplate();
+        return reportPaperSizeMm(template?.pageSize, template?.orientation || 'portrait').width;
+    });
     report = signal<SmartReport | null>(null);
 
     // Step results layout: ordered list of step blocks (sequence + label)
@@ -140,15 +156,22 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     isLoading = signal(false);
     isGenerating = signal(false);
     isSending = signal(false);
+    previewContextMenu = signal<{ x: number; y: number } | null>(null);
 
-    /** Step results display: table, json, excel-ag (AG Grid) */
-    stepResultsViewMode = signal<'table' | 'json' | 'excel-ag'>('table');
+    /** Results display: PDF preview first, then table / json / excel */
+    stepResultsViewMode = signal<'pdf' | 'table' | 'json' | 'excel-ag'>('pdf');
 
     /** Whether step results content is expanded (collapsible to free space for PDF preview) */
     stepResultsContentExpanded = signal(true);
 
     toggleStepResultsContent(): void {
         this.stepResultsContentExpanded.update((v) => !v);
+    }
+
+    setStepResultsViewMode(mode: 'pdf' | 'table' | 'json' | 'excel-ag'): void {
+        if (!mode) return;
+        this.stepResultsViewMode.set(mode);
+        if (mode === 'pdf') this.stepResultsContentExpanded.set(true);
     }
 
     // Pagination for Table/JSON view
@@ -346,6 +369,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this._clearJsonCopyTimer();
+        this._clearGeneratedPdf();
     }
 
     private _clearJsonCopyTimer(): void {
@@ -750,8 +774,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
     selectTemplate(template: SmartReportTemplate): void {
         this.selectedTemplate.set(template);
-        this.pdfDataUrl.set(null);
-        this.pdfSafeUrl.set(null);
+        this._clearGeneratedPdf();
         this.report.set(null);
 
         const configId = this.configId();
@@ -787,81 +810,161 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this.isGenerating.set(true);
+        this.setStepResultsViewMode('pdf');
+        void this._generateReport(template._id!, batchId, { download: false });
+    }
 
-        // First create the report record
-        this._reportService
-            .createReport({
-                template: template._id!,
+    private async _generateReport(
+        templateId: string,
+        batchId: string,
+        options: { download?: boolean } = {}
+    ): Promise<void> {
+        const savedPreviewPage = this.previewPageIndex();
+        try {
+            this.isGenerating.set(true);
+            const pdfBlob = await this._pdfBlobForCurrentRow(templateId);
+            this._keepGeneratedPdf(pdfBlob);
+            if (options.download) {
+                this._downloadHref(
+                    this.pdfDataUrl()!,
+                    `SmartReport_${this.selectedTemplate()?.name || templateId}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
+                );
+            }
+
+            this._snack.open(
+                this._transloco.translate(
+                    options.download ? 'smartReport.pdfDownloaded' : 'smartReport.pdfReady'
+                ),
+                this._snackCloseLabel(),
+                { duration: 3000 }
+            );
+        } catch (err) {
+            console.error('Failed to generate PDF:', err);
+            this._snack.open(
+                this._transloco.translate('smartReport.failedToGenerateReport'),
+                this._snackCloseLabel(),
+                { duration: 3000 }
+            );
+        } finally {
+            this.previewPageIndex.set(savedPreviewPage);
+            this._cdr.detectChanges();
+            this.isGenerating.set(false);
+        }
+    }
+
+    private _currentPreviewRowIndex(): number | undefined {
+        const rowIndex = Number(this.previewDataForCurrentPage()['rowIndex']);
+        return Number.isFinite(rowIndex) ? rowIndex : this.selectedRowIndex() ?? undefined;
+    }
+
+    private _sampleDataForCurrentRow(): SampleReportData {
+        const current = this.previewDataForCurrentPage();
+        const rowIndex = Number(current['rowIndex']);
+        return {
+            batchName: String(current['batchName'] ?? this.batch()?.name ?? ''),
+            rowIndex: Number.isFinite(rowIndex) ? rowIndex : 0,
+            inputData: current['inputData'] ?? {},
+            results: current['results'] ?? {},
+            errors: current['errors'],
+            report: current['report'],
+        };
+    }
+
+    private _clearGeneratedPdf(): void {
+        const previous = this.pdfDataUrl();
+        if (previous?.startsWith('blob:')) URL.revokeObjectURL(previous);
+        this.pdfDataUrl.set(null);
+        this.pdfSafeUrl.set(null);
+    }
+
+    private _keepGeneratedPdf(blob: Blob): void {
+        this._clearGeneratedPdf();
+        const url = URL.createObjectURL(blob);
+        this.pdfDataUrl.set(url);
+        this.pdfSafeUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
+    }
+
+    private _pdfEngine(): 'pdfkit' | 'puppeteer' {
+        return this.selectedTemplate()?.pdfEngine === 'pdfkit' ? 'pdfkit' : 'puppeteer';
+    }
+
+    private _base64ToPdfBlob(buffer: string): Blob {
+        const binary = atob(buffer);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return new Blob([bytes], { type: 'application/pdf' });
+    }
+
+    private async _ensureReport(templateId: string, batchId: string): Promise<SmartReport> {
+        const current = this.report();
+        const currentTemplate =
+            typeof current?.template === 'string' ? current.template : current?.template?._id;
+        if (current?._id && currentTemplate === templateId) return current;
+        const created = await firstValueFrom(
+            this._reportService.createReport({
+                template: templateId,
                 smartBatch: batchId,
                 name: `${this._transloco.translate('smartReport.generateReport')} - ${this.batch()?.name || this._defaultBatchLabel()}`,
             })
-            .subscribe({
-                next: (report) => {
-                    this.report.set(report);
+        );
+        this.report.set(created);
+        return created;
+    }
 
-                    // Now generate the PDF (pass rowIndex for single-record report)
-                    const rowIndex = this.selectedRowIndex();
-                    this._reportService
-                        .generateReport(report._id!, {
-                            ...(rowIndex != null ? { rowIndex } : {}),
-                        })
-                        .subscribe({
-                            next: (result) => {
-                                this.report.set(result.data);
+    private async _pdfBlobForCurrentRow(templateId: string): Promise<Blob> {
+        const batchId = this.batchId();
+        const rowIndex = this._currentPreviewRowIndex();
+        if (batchId) {
+            const report = await this._ensureReport(templateId, batchId);
+            const result = await firstValueFrom(
+                this._reportService.generateReport(report._id!, {
+                    engine: this._pdfEngine(),
+                    ...(rowIndex != null ? { rowIndex } : {}),
+                })
+            );
+            this.report.set(result.data);
+            if (result.pdf?.buffer) return this._base64ToPdfBlob(result.pdf.buffer);
+            const downloaded = await firstValueFrom(
+                this._reportService.downloadReport(report._id!, rowIndex)
+            );
+            const pdfBlob = (await this._isPdfBlob(downloaded))
+                ? downloaded
+                : await this._blobFromJsonBytes(downloaded);
+            if (!pdfBlob) throw new Error('pdf');
+            return pdfBlob;
+        }
 
-                                // Convert base64 to data URL for preview (sanitize for iframe)
-                                if (result.pdf?.buffer) {
-                                    const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
-                                    this.pdfDataUrl.set(dataUrl);
-                                    this.pdfSafeUrl.set(
-                                        this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl)
-                                    );
-                                }
+        const blob = await firstValueFrom(
+            this._reportService.downloadTemplateSample(templateId, {
+                sampleData: this._sampleDataForCurrentRow(),
+            })
+        );
+        const pdfBlob = (await this._isPdfBlob(blob)) ? blob : await this._blobFromJsonBytes(blob);
+        if (!pdfBlob) throw new Error('pdf');
+        return pdfBlob;
+    }
 
-                                this.isGenerating.set(false);
-                                this._snack.open(
-                                    this._transloco.translate('smartReport.reportGenerated'),
-                                    this._snackCloseLabel(),
-                                    { duration: 3000 }
-                                );
-                            },
-                            error: (err) => {
-                                console.error('Failed to generate PDF:', err);
-                                this.isGenerating.set(false);
-                                this._snack.open(
-                                    this._transloco.translate('smartReport.failedToGenerateReport'),
-                                    this._snackCloseLabel(),
-                                    {
-                                        duration: 3000,
-                                    }
-                                );
-                            },
-                        });
-                },
-                error: (err) => {
-                    console.error('Failed to create report:', err);
-                    this.isGenerating.set(false);
-                    this._snack.open(
-                        this._transloco.translate('smartReport.failedToCreateReport'),
-                        this._snackCloseLabel(),
-                        { duration: 3000 }
-                    );
-                },
-            });
+    private _downloadHref(href: string, filename: string): void {
+        const a = document.createElement('a');
+        a.href = href;
+        a.download = filename.replace(/[^\w.\-]+/g, '_').slice(0, 80);
+        a.click();
     }
 
     sendEmail(): void {
-        const report = this.report();
-        if (!report?._id) {
+        const templateId = this.selectedTemplate()?._id;
+        const batchId = this.batchId();
+        if (!templateId || !batchId) {
             this._snack.open(
-                this._transloco.translate('smartReport.generateReportFirst'),
+                this._transloco.translate('smartReport.pleaseSelectTemplate'),
                 this._snackCloseLabel(),
                 { duration: 3000 }
             );
             return;
         }
 
+        const batchRows = this.previewDataForAllRows();
+        const currentRowIndex = this._currentPreviewRowIndex();
         const defaultSubject = `${this._transloco.translate('smartReport.generateReport')} - ${this.batch()?.name ?? this._defaultBatchLabel()}`;
         const dialogRef = this._dialog.open(SendSampleModalComponent, {
             panelClass: 'send-sample-dialog',
@@ -869,18 +972,38 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             width: '95vw',
             disableClose: false,
             autoFocus: true,
-            data: { defaultSubject, isSample: false },
+            data: {
+                defaultSubject,
+                isSample: false,
+                allowSendAll: batchRows.length > 1 && this.selectedRowIndex() == null,
+                currentRecordNumber: (currentRowIndex ?? 0) + 1,
+                batchRowCount: batchRows.length,
+            },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
             if (!result?.recipients?.length) return;
 
             this.isSending.set(true);
+            void this._sendReportEmail(templateId, batchId, result, currentRowIndex);
+        });
+    }
+
+    private async _sendReportEmail(
+        templateId: string,
+        batchId: string,
+        result: { recipients: string[]; subject?: string; sendAll?: boolean },
+        currentRowIndex?: number
+    ): Promise<void> {
+        try {
+            const report = await this._ensureReport(templateId, batchId);
             this._reportService
-                .sendReportEmail(report._id, {
+                .sendReportEmail(report._id!, {
                     recipients: result.recipients,
                     subject: result.subject,
                     language: 'es',
+                    engine: this._pdfEngine(),
+                    ...(result.sendAll ? { sendAll: true } : { rowIndex: currentRowIndex }),
                 })
                 .subscribe({
                     next: (res) => {
@@ -893,12 +1016,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                             );
                         } else {
                             this._snack.open(
-                                res.error ||
-                                    this._transloco.translate('smartReport.failedToSendEmail'),
+                                res.error || this._transloco.translate('smartReport.failedToSendEmail'),
                                 this._snackCloseLabel(),
-                                {
-                                    duration: 3000,
-                                }
+                                { duration: 3000 }
                             );
                         }
                     },
@@ -911,62 +1031,66 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                         );
                     },
                 });
-        });
+        } catch {
+            this.isSending.set(false);
+            this._snack.open(
+                this._transloco.translate('smartReport.failedToSendEmail'),
+                this._snackCloseLabel(),
+                { duration: 3000 }
+            );
+        }
     }
 
     downloadReport(): void {
-        const report = this.report();
-        if (!report?._id) {
+        this.closePreviewContextMenu();
+        const href = this.pdfDataUrl();
+        if (href) {
+            this._downloadHref(
+                href,
+                `SmartReport_${this.selectedTemplate()?.name || 'report'}_consulta_${(this._currentPreviewRowIndex() ?? 0) + 1}.pdf`
+            );
+            this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), this._snackCloseLabel(), {
+                duration: 2000,
+            });
+            return;
+        }
+        const template = this.selectedTemplate();
+        const batchId = this.batchId();
+        if (!template?._id || !batchId) {
             this._snack.open(
-                this._transloco.translate('smartReport.generateReportFirst'),
+                this._transloco.translate('smartReport.pleaseSelectTemplate'),
                 this._snackCloseLabel(),
                 { duration: 3000 }
             );
             return;
         }
+        this.setStepResultsViewMode('pdf');
+        void this._generateReport(template._id, batchId, { download: true });
+    }
 
-        this.isSending.set(true);
-        this._reportService.downloadReport(report._id).subscribe({
-            next: async (blob) => {
-                let pdfBlob = blob;
-
-                const hasPdfMagic = await this._isPdfBlob(blob);
-                if (!hasPdfMagic) {
-                    pdfBlob = await this._blobFromJsonBytes(blob);
-                    if (!pdfBlob) {
-                        const errorMsg = await this._parseBlobError(blob);
-                        this._snack.open(
-                            errorMsg || this._transloco.translate('smartReport.invalidPdfReceived'),
-                            this._snackCloseLabel(),
-                            {
-                                duration: 4000,
-                            }
-                        );
-                        return;
-                    }
-                }
-
-                const url = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `SmartReport_${report._id}.pdf`;
-                a.click();
-                URL.revokeObjectURL(url);
-                this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), this._snackCloseLabel(), {
-                    duration: 2000,
-                });
-            },
-            error: () => {
-                this._snack.open(
-                    this._transloco.translate('smartReport.failedToDownloadPdf'),
-                    this._snackCloseLabel(),
-                    { duration: 3000 }
-                );
-            },
-            complete: () => {
-                this.isSending.set(false);
-            },
+    onPreviewContextMenu(event: MouseEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        const menuWidth = 220;
+        const menuHeight = 48;
+        this.previewContextMenu.set({
+            x: Math.min(event.clientX, window.innerWidth - menuWidth),
+            y: Math.min(event.clientY, window.innerHeight - menuHeight),
         });
+    }
+
+    closePreviewContextMenu(): void {
+        this.previewContextMenu.set(null);
+    }
+
+    @HostListener('document:click')
+    onDocumentClick(): void {
+        this.closePreviewContextMenu();
+    }
+
+    @HostListener('document:keydown.escape')
+    onDocumentEscape(): void {
+        this.closePreviewContextMenu();
     }
 
     /** Escape a cell value for CSV (quote if contains comma, newline, or double quote) */
@@ -1157,12 +1281,20 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
 
         const navigationExtras = previewData ? { state: { previewData } } : {};
-
+        const batchId = b?._id ?? this.batchId();
         const templateId = createNew ? null : this.selectedTemplate()?._id;
-        const route = templateId
-            ? ['/smart-batch', configId, 'report-builder', templateId]
-            : ['/smart-batch', configId, 'report-builder'];
 
-        this._router.navigate(route, navigationExtras);
+        this._router.navigate(['/smart-batch'], {
+            queryParams: {
+                step: 'layout',
+                intent: 'template',
+                configId,
+                ...(batchId ? { batchId } : {}),
+                ...(templateId
+                    ? { templateId }
+                    : { templateChoice: 'scratch' }),
+            },
+            ...navigationExtras,
+        });
     }
 }
