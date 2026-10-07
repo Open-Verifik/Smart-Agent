@@ -1,0 +1,330 @@
+<div
+    *ngIf="isOpen"
+    class="mcp-setup-modal fixed inset-0 z-[1100] flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm"
+    (click)="onBackdropClick($event)"
+>
+    <div
+        class="relative flex max-h-[min(92vh,820px)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'settings.api_key.mcp.title' | transloco"
+    >
+        <div class="border-b border-stone-200/80 p-5 dark:border-gray-800 md:p-6">
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/60 dark:bg-indigo-950/30 dark:text-indigo-300"
+                >
+                    <mat-icon>hub</mat-icon>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h2 class="text-lg font-semibold text-stone-950 dark:text-white">
+                        {{ 'settings.api_key.mcp.title' | transloco }}
+                    </h2>
+                    <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                        {{ 'settings.api_key.mcp.subtitle' | transloco }}
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-stone-500 transition hover:bg-stone-100 hover:text-stone-800 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
+                    (click)="onClose()"
+                    [attr.aria-label]="'settings.api_key.help_close' | transloco"
+                >
+                    <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
+                </button>
+            </div>
+
+            <ol
+                *ngIf="mode === 'full'"
+                class="mcp-setup-stepper mt-5"
+                [attr.data-step]="currentStep"
+                aria-label="MCP setup progress"
+            >
+                <li
+                    *ngFor="let label of stepLabels; let i = index"
+                    class="mcp-setup-step"
+                    [class.is-active]="currentStep === i + 1"
+                    [class.is-complete]="currentStep > i + 1"
+                >
+                    <span class="mcp-setup-step__index" aria-hidden="true">{{ i + 1 }}</span>
+                    <span class="mcp-setup-step__label">{{ label }}</span>
+                </li>
+            </ol>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-5 md:p-6">
+            <ng-container *ngIf="currentStep === 1">
+                <p
+                    class="mb-4 flex items-start gap-2 rounded-xl border border-blue-200/90 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-100"
+                >
+                    <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-blue-600 dark:text-blue-400"
+                        >info</mat-icon
+                    >
+                    <span>{{ 'settings.api_key.mcp.create_notice' | transloco }}</span>
+                </p>
+
+                <label
+                    for="mcp-token-alias"
+                    class="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400"
+                >
+                    {{ 'settings.api_key.alias_label' | transloco }}
+                </label>
+                <input
+                    id="mcp-token-alias"
+                    class="mb-5 min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    [value]="newTokenAlias"
+                    maxlength="120"
+                    [attr.placeholder]="'settings.api_key.alias_placeholder' | transloco"
+                    (input)="onAliasInput($event)"
+                />
+
+                <fieldset>
+                    <legend
+                        class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
+                    >
+                        {{ 'settings.api_key.select_expiration' | transloco }}
+                    </legend>
+                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                        {{ 'settings.api_key.duration_helper' | transloco }}
+                    </p>
+                    <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                        <button
+                            *ngFor="let option of expirationOptions"
+                            type="button"
+                            (click)="selectExpiration(option.value)"
+                            class="relative flex min-h-24 flex-col items-start justify-between gap-3 rounded-xl border p-4 text-left transition"
+                            [ngClass]="
+                                selectedExpiration === option.value
+                                    ? 'border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-600/15 dark:border-blue-400 dark:bg-blue-500'
+                                    : 'border-stone-200 bg-white text-stone-700 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-sm dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200'
+                            "
+                        >
+                            <span class="text-base font-semibold leading-tight">
+                                {{ option.durationKey | transloco }}
+                            </span>
+                            <span
+                                *ngIf="option.badgeKey"
+                                class="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                                [ngClass]="
+                                    selectedExpiration === option.value
+                                        ? 'bg-white/20 text-white'
+                                        : 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                                "
+                            >
+                                {{ option.badgeKey | transloco }}
+                            </span>
+                        </button>
+                    </div>
+                </fieldset>
+
+                <div
+                    *ngIf="isLongLivedSelection"
+                    class="mt-4 flex items-start gap-2 rounded-xl border border-amber-200/90 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100"
+                >
+                    <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base">shield</mat-icon>
+                    {{ 'settings.api_key.long_lived_warning' | transloco }}
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentStep === 2">
+                <div
+                    class="mb-5 overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 dark:border-gray-800 dark:bg-gray-950"
+                >
+                    <div class="grid gap-4 p-5 sm:grid-cols-3">
+                        <div>
+                            <p
+                                class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
+                            >
+                                {{ 'settings.api_key.mcp.summary_type' | transloco }}
+                            </p>
+                            <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                                {{ 'settings.api_key.mcp.summary_type_value' | transloco }}
+                            </p>
+                        </div>
+                        <div>
+                            <p
+                                class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
+                            >
+                                {{ 'settings.api_key.alias_label' | transloco }}
+                            </p>
+                            <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                                {{ summaryAlias }}
+                            </p>
+                        </div>
+                        <div>
+                            <p
+                                class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
+                            >
+                                {{ 'settings.api_key.mcp.summary_access' | transloco }}
+                            </p>
+                            <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                                {{ 'settings.api_key.mcp.summary_access_value' | transloco }}
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        *ngIf="summaryExpiresAt"
+                        class="border-t border-stone-200/80 px-5 py-3 text-sm text-stone-600 dark:border-gray-800 dark:text-stone-300"
+                    >
+                        {{ 'settings.api_key.expires_label' | transloco }}:
+                        <span class="font-semibold text-stone-900 dark:text-white">{{
+                            formatDate(summaryExpiresAt)
+                        }}</span>
+                    </div>
+                </div>
+
+                <div
+                    class="mb-4 flex items-start gap-2 rounded-xl border border-amber-200/90 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100"
+                >
+                    <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base">warning</mat-icon>
+                    {{ 'settings.api_key.mcp.token_once_warning' | transloco }}
+                </div>
+
+                <div class="flex flex-col gap-2 sm:flex-row">
+                    <code
+                        class="min-w-0 flex-1 break-all rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 font-mono text-xs leading-relaxed text-stone-200"
+                    >
+                        {{ plaintextToken }}
+                    </code>
+                    <button
+                        type="button"
+                        class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                        (click)="copyToken()"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                        {{ 'settings.api_key.copy_new_token' | transloco }}
+                    </button>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentStep === 3">
+                <div
+                    *ngIf="showTokenPastePrompt"
+                    class="mb-5 rounded-2xl border border-amber-200/90 bg-amber-50 p-4 dark:border-amber-900/60 dark:bg-amber-950/30"
+                >
+                    <p class="text-sm font-semibold text-amber-950 dark:text-amber-50">
+                        {{ 'settings.api_key.mcp.paste_token_title' | transloco }}
+                    </p>
+                    <p class="mt-1 text-sm leading-6 text-amber-900 dark:text-amber-100">
+                        {{ 'settings.api_key.mcp.paste_token_desc' | transloco }}
+                    </p>
+                    <input
+                        class="mt-3 min-h-11 w-full rounded-xl border border-amber-300 bg-white px-3 font-mono text-sm text-stone-900 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15 dark:border-amber-900 dark:bg-gray-950 dark:text-white"
+                        [value]="pastedToken"
+                        [attr.placeholder]="'settings.api_key.mcp.paste_token_placeholder' | transloco"
+                        (input)="onPastedTokenInput($event)"
+                    />
+                </div>
+
+                <p class="mb-4 text-sm leading-6 text-stone-600 dark:text-stone-300">
+                    {{ 'settings.api_key.mcp.connect_intro' | transloco }}
+                </p>
+
+                <div class="mb-4 flex flex-wrap gap-2">
+                    <button
+                        *ngFor="let tab of configTabs"
+                        type="button"
+                        class="inline-flex min-h-9 items-center justify-center rounded-xl border px-4 text-sm font-medium transition"
+                        [ngClass]="
+                            activeConfigTab === tab
+                                ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm'
+                                : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200 dark:hover:bg-gray-800'
+                        "
+                        (click)="selectConfigTab(tab)"
+                    >
+                        {{ 'settings.api_key.mcp.tab_' + tab | transloco }}
+                    </button>
+                </div>
+
+                <div class="relative">
+                    <pre
+                        class="mcp-setup-config overflow-x-auto rounded-xl border border-stone-200 bg-stone-950 p-4 text-xs leading-relaxed text-stone-200 dark:border-gray-800"
+                    >{{ activeConfigSnippet }}</pre>
+                    <button
+                        type="button"
+                        class="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-700 bg-stone-900 text-stone-200 transition hover:bg-stone-800"
+                        (click)="copyActiveConfig()"
+                        [attr.aria-label]="'settings.api_key.mcp.copy_config' | transloco"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                    </button>
+                </div>
+
+                <p
+                    *ngIf="!hasResolvableToken"
+                    class="mt-3 text-xs leading-5 text-stone-500 dark:text-stone-400"
+                >
+                    {{ 'settings.api_key.mcp.placeholder_hint' | transloco }}
+                </p>
+
+                <p class="mt-4 text-xs leading-5 text-stone-500 dark:text-stone-400">
+                    {{ 'settings.api_key.mcp.package_note' | transloco }}
+                </p>
+            </ng-container>
+        </div>
+
+        <div
+            class="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80 p-5 dark:border-gray-800 md:p-6"
+        >
+            <button
+                *ngIf="mode === 'full' && currentStep > 1"
+                type="button"
+                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="goBack()"
+                [disabled]="isCreating"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base">arrow_back</mat-icon>
+                {{ 'settings.api_key.mcp.back' | transloco }}
+            </button>
+
+            <div class="ml-auto flex flex-wrap justify-end gap-3">
+                <button
+                    *ngIf="currentStep === 3"
+                    type="button"
+                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="copyAllConfigs()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">copy_all</mat-icon>
+                    {{ 'settings.api_key.mcp.copy_all' | transloco }}
+                </button>
+
+                <button
+                    *ngIf="currentStep === 1"
+                    type="button"
+                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                    (click)="continueFromStep1()"
+                    [disabled]="isCreating || !aliasReady"
+                >
+                    <mat-spinner *ngIf="isCreating" diameter="18"></mat-spinner>
+                    <span>
+                        {{
+                            isCreating
+                                ? ('settings.api_key.renewing' | transloco)
+                                : ('settings.api_key.mcp.continue' | transloco)
+                        }}
+                    </span>
+                    <mat-icon *ngIf="!isCreating" class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                </button>
+
+                <button
+                    *ngIf="currentStep === 2"
+                    type="button"
+                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                    (click)="continueFromStep2()"
+                >
+                    {{ 'settings.api_key.mcp.continue' | transloco }}
+                    <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                </button>
+
+                <button
+                    *ngIf="currentStep === 3"
+                    type="button"
+                    class="inline-flex min-h-10 items-center justify-center rounded-xl bg-stone-950 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                    (click)="onClose()"
+                >
+                    {{ 'settings.api_key.mcp.done' | transloco }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
