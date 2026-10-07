@@ -64,6 +64,7 @@ import {
 } from 'rxjs';
 import { mergeParamsFromDocs } from './postman-docs-params.util';
 import { postmanEndpointDetailCache } from './postman-endpoint-detail.cache';
+import { isClientVisibleBatchDependencyField } from '../smart-batch/smart-batch-dependency.constants';
 
 @Injectable({
     providedIn: 'root',
@@ -615,7 +616,9 @@ export class PostmanService {
         rawDeps: any[],
         xorMeta: ReturnType<typeof getPostmanXorGroupMetadata>
     ) {
-        return rawDeps.map((dependency) => {
+        return rawDeps
+            .filter((dependency) => isClientVisibleBatchDependencyField(dependency.field))
+            .map((dependency) => {
             const groupId =
                 dependency.dependencyGroup != null ? String(dependency.dependencyGroup).trim() : '';
             const isXorDocumentType =
@@ -628,7 +631,7 @@ export class PostmanService {
                 : paramValueForDependency(dependency);
             let desc = dependency.description;
             if (!desc && dependency.enum && dependency.enum.length) {
-                desc = this._transloco.translate('postman.params.pickValue', {
+                desc = this._transloco.translate('postman.requestEditor.params.pickValue', {
                     values: dependency.enum.join(', '),
                 });
             }
@@ -982,7 +985,7 @@ export class PostmanService {
                     return;
                 }
                 // The includeCost row is handled separately by resolvePostmanIncludeCostForSend.
-                if (p.key === POSTMAN_INCLUDE_COST_KEY) {
+                if (p.key === POSTMAN_INCLUDE_COST_KEY || !isClientVisibleBatchDependencyField(p.key)) {
                     return;
                 }
                 options.params[p.key] =
