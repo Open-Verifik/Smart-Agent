@@ -86,15 +86,6 @@
                             {{ 'smartScan.selectCountry' | transloco }}
                         </h3>
                         <div class="flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                (click)="selectedCountry = ''"
-                                class="scan-tool-pill"
-                                [class.scan-tool-pill--active]="!selectedCountry"
-                            >
-                                <span class="text-base leading-none" aria-hidden="true">🌍</span>
-                                {{ 'smartScan.allCountries' | transloco }}
-                            </button>
                             @for (c of countries; track c) {
                                 <button
                                     type="button"
@@ -109,53 +100,73 @@
                         </div>
                     </div>
 
-                    <div>
-                        <mat-form-field
-                            appearance="outline"
-                            class="scan-tool-search w-full"
-                            subscriptSizing="dynamic"
-                        >
-                            <mat-icon matPrefix class="mr-2 text-stone-400">search</mat-icon>
-                            <input
-                                matInput
-                                [(ngModel)]="searchQuery"
-                                [placeholder]="'smartScan.searchPlaceholder' | transloco"
-                            />
-                            @if (searchQuery) {
-                                <button
-                                    matSuffix
-                                    mat-icon-button
-                                    (click)="searchQuery = ''"
-                                    type="button"
-                                >
-                                    <mat-icon>close</mat-icon>
-                                </button>
-                            }
-                        </mat-form-field>
-                    </div>
-
-                    <div>
-                        <div class="flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                (click)="selectedCategory = ''"
-                                class="scan-tool-chip"
-                                [class.scan-tool-chip--active]="!selectedCategory"
+                    @if (selectedCountry) {
+                        <div>
+                            <mat-form-field
+                                appearance="outline"
+                                class="scan-tool-search w-full"
+                                subscriptSizing="dynamic"
                             >
-                                {{ 'smartScan.allCategories' | transloco }}
-                            </button>
-                            @for (cat of categories; track cat) {
+                                <mat-icon matPrefix class="mr-2 text-stone-400">search</mat-icon>
+                                <input
+                                    matInput
+                                    [(ngModel)]="searchQuery"
+                                    [placeholder]="'smartScan.searchPlaceholder' | transloco"
+                                />
+                                @if (searchQuery) {
+                                    <button
+                                        matSuffix
+                                        mat-icon-button
+                                        (click)="searchQuery = ''"
+                                        type="button"
+                                    >
+                                        <mat-icon>close</mat-icon>
+                                    </button>
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div>
+                            <div class="mb-3 flex flex-wrap gap-2">
                                 <button
                                     type="button"
-                                    (click)="toggleCategory(cat)"
+                                    (click)="toggleMine(false)"
                                     class="scan-tool-chip"
-                                    [class.scan-tool-chip--active]="selectedCategory === cat"
+                                    [class.scan-tool-chip--active]="!showMine"
                                 >
-                                    {{ getCategoryLabel(cat) }}
+                                    {{ 'smartScan.mineFilterAll' | transloco }}
                                 </button>
-                            }
+                                <button
+                                    type="button"
+                                    (click)="toggleMine(true)"
+                                    class="scan-tool-chip"
+                                    [class.scan-tool-chip--active]="showMine"
+                                >
+                                    {{ 'smartScan.mineFilterMine' | transloco }}
+                                </button>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    (click)="selectedCategory = ''"
+                                    class="scan-tool-chip"
+                                    [class.scan-tool-chip--active]="!selectedCategory"
+                                >
+                                    {{ 'smartScan.allCategories' | transloco }}
+                                </button>
+                                @for (cat of categories; track cat) {
+                                    <button
+                                        type="button"
+                                        (click)="toggleCategory(cat)"
+                                        class="scan-tool-chip"
+                                        [class.scan-tool-chip--active]="selectedCategory === cat"
+                                    >
+                                        {{ getCategoryLabel(cat) }}
+                                    </button>
+                                }
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
 
                 <div
@@ -166,17 +177,39 @@
                     >
                         {{ 'smartScan.selectDocumentType' | transloco }}
                     </h4>
-                    <p class="mb-6 text-sm text-stone-600 dark:text-stone-400">
-                        {{ filteredDocumentTypes.length }}
-                        {{ 'smartScan.results' | transloco | lowercase }}
-                    </p>
+                    @if (selectedCountry && !documentTypesLoading) {
+                        <p class="mb-6 text-sm text-stone-600 dark:text-stone-400">
+                            {{ filteredDocumentTypes.length }}
+                            {{ 'smartScan.results' | transloco | lowercase }}
+                        </p>
+                    }
 
-                    @if (filteredDocumentTypes.length > 0) {
+                    @if (!selectedCountry) {
+                        <div
+                            class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 bg-stone-50/50 py-16 text-center dark:border-gray-700 dark:bg-gray-950/30"
+                        >
+                            <mat-icon
+                                class="icon-size-16 mb-4 text-stone-300 dark:text-stone-600"
+                                [svgIcon]="'heroicons_outline:document-magnifying-glass'"
+                            ></mat-icon>
+                            <p class="text-base font-medium text-stone-600 dark:text-stone-400">
+                                {{ 'smartScan.selectCountryToSeeTypes' | transloco }}
+                            </p>
+                        </div>
+                    } @else if (documentTypesLoading) {
+                        <div class="flex items-center justify-center py-16">
+                            <mat-progress-spinner
+                                mode="indeterminate"
+                                diameter="36"
+                            ></mat-progress-spinner>
+                        </div>
+                    } @else if (filteredDocumentTypes.length > 0) {
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             @for (dt of filteredDocumentTypes; track dt._id) {
                                 <div
                                     class="doc-type-card cursor-pointer"
                                     (click)="selectDocumentType(dt)"
+                                    (contextmenu)="onOwnedCardContextMenu($event, dt)"
                                 >
                                     <div class="scan-tool-doc-card">
                                         <div class="scan-tool-doc-card__media">
@@ -206,6 +239,17 @@
                                                     ></mat-icon>
                                                 </div>
                                             }
+                                            @if (dt.client) {
+                                                <button
+                                                    type="button"
+                                                    mat-icon-button
+                                                    class="absolute left-1 top-1 flex h-8 w-8 items-center justify-center rounded-lg bg-black/40 text-white hover:bg-black/60"
+                                                    (click)="editDocumentType(dt, $event)"
+                                                    [attr.aria-label]="'smartScan.editDocumentType' | transloco"
+                                                >
+                                                    <mat-icon class="icon-size-4">edit</mat-icon>
+                                                </button>
+                                            }
                                             @if (dt.backImage) {
                                                 <button
                                                     type="button"
@@ -231,6 +275,11 @@
                                                 <span class="scan-tool-doc-card__code">{{
                                                     dt.code
                                                 }}</span>
+                                                @if (dt.client) {
+                                                    <span class="ml-2 text-[10px] font-semibold uppercase tracking-wide text-stone-400">
+                                                        {{ 'smartScan.mineBadge' | transloco }}
+                                                    </span>
+                                                }
                                                 <p
                                                     class="mt-2 truncate text-sm font-semibold text-stone-900 dark:text-white"
                                                 >
@@ -251,6 +300,19 @@
                                     </div>
                                 </div>
                             }
+                            <a
+                                class="doc-type-card flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed border-stone-300 bg-stone-50/70 p-6 text-center transition hover:border-stone-400 dark:border-gray-600 dark:bg-gray-950/40"
+                                [routerLink]="['/smart-enroll/smart-scan/document-type/new']"
+                                [queryParams]="{ country: selectedCountry }"
+                            >
+                                <mat-icon class="icon-size-10 mb-3 text-stone-400">add</mat-icon>
+                                <p class="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                    {{ 'smartScan.addDocumentType' | transloco }}
+                                </p>
+                                <p class="mt-1 text-xs text-stone-500">
+                                    {{ 'smartScan.addDocumentTypeHint' | transloco }}
+                                </p>
+                            </a>
                         </div>
                     } @else {
                         <div
@@ -263,6 +325,13 @@
                             <p class="text-base font-medium text-stone-600 dark:text-stone-400">
                                 {{ 'smartScan.noDocTypes' | transloco }}
                             </p>
+                            <a
+                                class="mt-4 text-sm font-semibold text-stone-900 underline dark:text-stone-100"
+                                [routerLink]="['/smart-enroll/smart-scan/document-type/new']"
+                                [queryParams]="{ country: selectedCountry }"
+                            >
+                                {{ 'smartScan.addDocumentType' | transloco }}
+                            </a>
                         </div>
                     }
                 </div>
@@ -598,13 +667,6 @@
                                 {{ 'smartScan.scanDocument' | transloco }}
                             }
                         </button>
-                        <button
-                            mat-stroked-button
-                            (click)="reset()"
-                            class="scan-tool-mat-btn-pill !border-stone-200 dark:!border-gray-600"
-                        >
-                            {{ 'smartScan.cancel' | transloco }}
-                        </button>
                     </div>
                 </div>
             </div>
@@ -840,30 +902,67 @@
                             </div>
 
                             <div class="space-y-3">
+                                @if (smartCheck) {
+                                    <div
+                                        class="rounded-2xl border border-stone-200/90 p-4 dark:border-gray-700"
+                                    >
+                                        <h4 class="font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartScan.smartCheckResult' | transloco }}
+                                        </h4>
+                                        <p class="mt-1 text-sm text-stone-600 dark:text-stone-300">
+                                            {{ 'smartScan.smartCheckStatus.' + smartCheck.status | transloco }}
+                                            @if (smartCheck.featureCode) {
+                                                <span> · {{ smartCheck.featureCode }}</span>
+                                            }
+                                        </p>
+                                        @if (smartCheck.reason === 'missing_dependencies') {
+                                            <p class="mt-2 text-sm text-amber-800 dark:text-amber-200">
+                                                {{ 'smartScan.smartCheckMissing' | transloco }}
+                                                {{ smartCheck.missing?.join(', ') }}
+                                            </p>
+                                        }
+                                        @if (smartCheck.error?.message) {
+                                            <p class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                                {{ smartCheck.error?.message }}
+                                            </p>
+                                        }
+                                    </div>
+                                }
                                 <h4 class="font-semibold text-stone-900 dark:text-white">
                                     {{ 'smartScan.extractedFields' | transloco }}
                                 </h4>
-                                <div
-                                    class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700"
-                                >
-                                    @for (f of getExtractionFields(); track f.key; let i = $index) {
-                                        <div
-                                            class="flex justify-between gap-4 px-4 py-3"
-                                            [ngClass]="{
-                                                'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0,
-                                            }"
-                                        >
-                                            <span
-                                                class="text-sm font-medium text-stone-500 dark:text-stone-400"
-                                                >{{ f.key }}</span
+                                @for (section of extractionSections(); track section.id) {
+                                    @if (section.fields.length) {
+                                        <div class="space-y-2">
+                                            @if (section.labelKey) {
+                                                <h5 class="text-sm font-medium text-stone-500 dark:text-stone-400">
+                                                    {{ section.labelKey | transloco }}
+                                                </h5>
+                                            }
+                                            <div
+                                                class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700"
                                             >
-                                            <span
-                                                class="break-all text-right text-sm font-medium text-stone-900 dark:text-white"
-                                                >{{ f.value }}</span
-                                            >
+                                                @for (f of section.fields; track f.key; let i = $index) {
+                                                    <div
+                                                        class="flex justify-between gap-4 px-4 py-3"
+                                                        [ngClass]="{
+                                                            'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0,
+                                                        }"
+                                                    >
+                                                        <span
+                                                            class="text-sm font-medium text-stone-500 dark:text-stone-400"
+                                                            >{{ f.key }}</span
+                                                        >
+                                                        <span
+                                                            class="break-all text-right text-sm font-medium text-stone-900 dark:text-white"
+                                                            >{{ f.value }}</span
+                                                        >
+                                                    </div>
+                                                }
+                                            </div>
                                         </div>
                                     }
-                                </div>
+                                }
                             </div>
                         </div>
                     }
@@ -871,4 +970,17 @@
             </div>
         }
     </div>
+    <div
+        class="fixed z-50 h-0 w-0"
+        [style.left.px]="menuX"
+        [style.top.px]="menuY"
+        [matMenuTriggerFor]="ownedTypeMenu"
+        #editMenuTrigger="matMenuTrigger"
+    ></div>
+    <mat-menu #ownedTypeMenu="matMenu">
+        <button mat-menu-item type="button" (click)="editContextDocumentType()">
+            <mat-icon>edit</mat-icon>
+            <span>{{ 'smartScan.editDocumentType' | transloco }}</span>
+        </button>
+    </mat-menu>
 </div>

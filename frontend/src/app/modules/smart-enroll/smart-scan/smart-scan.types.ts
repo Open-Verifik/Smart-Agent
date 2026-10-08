@@ -18,6 +18,10 @@ export interface DocumentValidation {
     url?: string;
     backUrl?: string;
     OCRExtraction?: Record<string, unknown>;
+    fieldMapping?: {
+        front?: Record<string, boolean>;
+        back?: Record<string, boolean>;
+    };
     createdAt?: string;
     updatedAt?: string;
     client?: string;
@@ -72,6 +76,11 @@ export interface DocumentType {
     fields?: DocumentTypeField[];
     frontImage?: string;
     backImage?: string;
+    version?: string | null;
+    client?: string | null;
+    appFeature?: string | { _id?: string } | null;
+    smartCheckFieldMap?: Array<{ mapKey?: string; dependencyField?: string }>;
+    promptTemplate?: PromptTemplate;
 }
 
 export interface DocumentTypeField {
@@ -108,6 +117,25 @@ export interface DocumentClassification {
     reason: string;
 }
 
+export interface SmartCheckResult {
+    status: 'completed' | 'failed' | 'skipped';
+    reason?: string;
+    missing?: string[];
+    featureCode?: string;
+    httpStatus?: number;
+    data?: unknown;
+    error?: { code?: string; message?: string } | null;
+}
+
+export interface AppFeatureOption {
+    _id: string;
+    code: string;
+    name: string;
+    country?: string;
+    smartCheckEnabled?: boolean;
+    dependencies?: Array<{ field: string; required?: boolean; type?: string }>;
+}
+
 export interface ScanResult {
     _id?: string;
     documentType: string;
@@ -118,4 +146,9 @@ export interface ScanResult {
     status?: string;
     url?: string;
     backUrl?: string;
+    smartCheck?: SmartCheckResult | null;
+    fieldMapping?: {
+        front?: Record<string, boolean>;
+        back?: Record<string, boolean>;
+    };
 }

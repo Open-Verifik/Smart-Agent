@@ -7,6 +7,33 @@
     overflow-wrap: anywhere;
     word-break: break-word;
 
+    :deep(p) {
+        margin: 0 0 0.55rem;
+    }
+
+    :deep(p:empty),
+    :deep(p:has(> br:only-child)) {
+        height: 0.75rem;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    :deep(p:has(> br:only-child) br) {
+        display: none;
+    }
+
+    :deep(p > span + span) {
+        margin-inline-start: 0.4em;
+    }
+
+    :deep(h1),
+    :deep(h2),
+    :deep(h3) {
+        font-size: 1.05rem;
+        line-height: 1.35;
+        margin: 0.35rem 0 0.4rem;
+    }
+
     :deep(a) {
         color: rgb(13 148 136);
         font-weight: 500;

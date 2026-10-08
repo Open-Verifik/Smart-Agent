@@ -280,17 +280,28 @@
                                     <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                                         {{ 'smartScan.extractedFields' | transloco }}
                                     </h3>
-                                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700">
-                                        @for (f of getExtractionFields(); track f.key; let i = $index) {
-                                            <div
-                                                class="flex justify-between gap-4 px-4 py-3"
-                                                [ngClass]="{ 'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0 }"
-                                            >
-                                                <span class="text-sm font-medium text-stone-500 dark:text-stone-400">{{ f.key }}</span>
-                                                <span class="break-all text-right text-sm font-medium text-stone-900 dark:text-white">{{ f.value }}</span>
+                                    @for (section of extractionSections(); track section.id) {
+                                        @if (section.fields.length) {
+                                            <div class="space-y-2">
+                                                @if (section.labelKey) {
+                                                    <h4 class="text-xs font-medium uppercase tracking-wider text-stone-400 dark:text-stone-500">
+                                                        {{ section.labelKey | transloco }}
+                                                    </h4>
+                                                }
+                                                <div class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700">
+                                                    @for (f of section.fields; track f.key; let i = $index) {
+                                                        <div
+                                                            class="flex justify-between gap-4 px-4 py-3"
+                                                            [ngClass]="{ 'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0 }"
+                                                        >
+                                                            <span class="text-sm font-medium text-stone-500 dark:text-stone-400">{{ f.key }}</span>
+                                                            <span class="break-all text-right text-sm font-medium text-stone-900 dark:text-white">{{ f.value }}</span>
+                                                        </div>
+                                                    }
+                                                </div>
                                             </div>
                                         }
-                                    </div>
+                                    }
                                 </div>
                             </div>
                         }
