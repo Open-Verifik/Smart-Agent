@@ -27,7 +27,7 @@ describe('mcp-config-builder.util', () => {
         apiBase: 'https://api.verifik.co',
     };
 
-    it('builds Cursor mcp.json without optional filters by default', () => {
+    it('builds Cursor mcp.json with SmartCheck scope explicitly disabled by default', () => {
         const parsed = JSON.parse(buildCursorMcpJson(baseOptions));
 
         expect(parsed.mcpServers[VERIFIK_MCP_CONFIG.serverId]).toEqual({
@@ -36,6 +36,7 @@ describe('mcp-config-builder.util', () => {
             env: {
                 VERIFIK_API_TOKEN: 'test-jwt-token',
                 VERIFIK_API_BASE: 'https://api.verifik.co',
+                VERIFIK_MCP_SMARTCHECK_ONLY: 'false',
             },
         });
     });
@@ -53,6 +54,7 @@ describe('mcp-config-builder.util', () => {
             VERIFIK_API_TOKEN: 'test-jwt-token',
             VERIFIK_API_BASE: 'https://api.verifik.co',
             VERIFIK_MCP_COUNTRY: 'Colombia',
+            VERIFIK_MCP_SMARTCHECK_ONLY: 'false',
         });
     });
 
@@ -69,10 +71,11 @@ describe('mcp-config-builder.util', () => {
             VERIFIK_API_TOKEN: 'test-jwt-token',
             VERIFIK_API_BASE: 'https://api.verifik.co',
             VERIFIK_MCP_COUNTRY: 'Colombia,world',
+            VERIFIK_MCP_SMARTCHECK_ONLY: 'false',
         });
     });
 
-    it('adds SmartCheck-only filter only when opted in', () => {
+    it('sets SmartCheck-only to true when opted in', () => {
         const parsed = JSON.parse(
             buildCursorMcpJson({
                 ...baseOptions,
@@ -91,13 +94,13 @@ describe('mcp-config-builder.util', () => {
         expect(buildClaudeDesktopConfig(baseOptions)).toBe(buildCursorMcpJson(baseOptions));
     });
 
-    it('builds a generic CLI export snippet without optional filters', () => {
+    it('builds a generic CLI export snippet with SmartCheck scope explicitly disabled', () => {
         const snippet = buildGenericCliSnippet(baseOptions);
 
         expect(snippet).toContain('export VERIFIK_API_TOKEN="test-jwt-token"');
         expect(snippet).toContain('export VERIFIK_API_BASE="https://api.verifik.co"');
+        expect(snippet).toContain('export VERIFIK_MCP_SMARTCHECK_ONLY="false"');
         expect(snippet).not.toContain('VERIFIK_MCP_COUNTRY');
-        expect(snippet).not.toContain('VERIFIK_MCP_SMARTCHECK_ONLY');
         expect(snippet).toContain('npx -y @verifik/mcp');
     });
 });

@@ -26,9 +26,9 @@ function buildMcpEnv(options: BuildMcpConfigOptions): Record<string, string> {
         env[envVars.country] = countryValue;
     }
 
-    if (options.smartcheckOnly) {
-        env[envVars.smartcheckOnly] = envDefaults.smartcheckOnly;
-    }
+    env[envVars.smartcheckOnly] = options.smartcheckOnly
+        ? envDefaults.smartcheckOnly
+        : envDefaults.smartcheckOnlyOff;
 
     return env;
 }

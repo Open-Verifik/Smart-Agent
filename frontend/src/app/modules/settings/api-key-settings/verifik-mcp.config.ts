@@ -25,6 +25,7 @@ export const VERIFIK_MCP_CONFIG = {
         apiBaseProduction: 'https://api.verifik.co',
         apiBaseStaging: 'https://staging-api.verifik.co',
         smartcheckOnly: 'true',
+        smartcheckOnlyOff: 'false',
     },
     tokenPlaceholder: 'YOUR_VERIFIK_API_TOKEN',
     /**
