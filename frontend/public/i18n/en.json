@@ -6778,6 +6778,8 @@
             "editRules": "Edit rules",
             "generateReport": "Generate report",
             "reportPickTemplate": "Choose the template you want to use to generate the PDF",
+            "reportPreview": "Preview",
+            "reportEditTemplate": "Edit template",
             "reportTemplateEmpty": "There are no templates for this report yet.",
             "createTemplate": "Create a template from scratch",
             "reportWorking": "Generating the report…",

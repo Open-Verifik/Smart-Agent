@@ -6774,6 +6774,8 @@
             "editRules": "Editar reglas",
             "generateReport": "Generar reporte",
             "reportPickTemplate": "Escoge la plantilla con la que quieres generar el PDF",
+            "reportPreview": "Ver vista previa",
+            "reportEditTemplate": "Editar plantilla",
             "reportTemplateEmpty": "Todavía no hay plantillas para este reporte.",
             "createTemplate": "Crear plantilla desde cero",
             "reportWorking": "Generando el reporte…",

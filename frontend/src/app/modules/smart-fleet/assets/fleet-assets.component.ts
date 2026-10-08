@@ -3,7 +3,8 @@ import { Component, computed, inject, OnInit, signal, ViewChild, ViewEncapsulati
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -25,6 +26,7 @@ import {
 } from '../fleet-country.util';
 import { FleetNavComponent } from '../fleet-nav.component';
 import { FleetGroupsBoardComponent } from './fleet-groups-board.component';
+import { FleetTemplatePreviewDialogComponent } from './fleet-template-preview-dialog.component';
 import { FleetVehicleIconComponent } from './fleet-vehicle-icon.component';
 import {
     FleetAsset,
@@ -58,6 +60,7 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
         MatButtonModule,
         MatIconModule,
         MatTooltipModule,
+        MatDialogModule,
         MatMenuModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
@@ -86,6 +89,45 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
                 max-height: 16rem;
                 overflow-y: auto;
             }
+
+            .fleet-report-menu-row {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+                padding: 0 4px 0 8px;
+            }
+
+            .fleet-report-menu-name {
+                min-width: 0;
+                flex: 1;
+                overflow: hidden;
+                border: 0;
+                background: transparent;
+                padding: 8px;
+                text-align: left;
+                font-size: 14px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: inherit;
+                cursor: pointer;
+            }
+
+            .fleet-report-menu-row:hover {
+                background: rgba(120, 113, 108, 0.12);
+            }
+
+            .fleet-report-menu-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border: 0;
+                border-radius: 8px;
+                background: transparent;
+                color: inherit;
+                cursor: pointer;
+            }
         `,
     ],
 })
@@ -101,6 +143,8 @@ export class FleetAssetsComponent implements OnInit {
     private _batches = inject(SmartBatchService);
     private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewData = inject(ReportBuilderPreviewDataService);
+    private _dialog = inject(MatDialog);
+    private _reportMenu?: MatMenuTrigger;
 
     @ViewChild(FleetGroupsBoardComponent) private _groupsBoard?: FleetGroupsBoardComponent;
 
@@ -366,6 +410,42 @@ export class FleetAssetsComponent implements OnInit {
         }
     }
 
+    rememberReportMenu(trigger: MatMenuTrigger): void {
+        this._reportMenu = trigger;
+    }
+
+    closeReportMenu(): void {
+        this._reportMenu?.closeMenu();
+    }
+
+    previewReportTemplate(template: SmartReportTemplate, event: Event): void {
+        event.stopPropagation();
+        this.closeReportMenu();
+        this._dialog.open(FleetTemplatePreviewDialogComponent, {
+            data: { templateId: template._id, fallback: template },
+            autoFocus: false,
+            panelClass: 'fleet-template-preview-panel',
+        });
+    }
+
+    editReportTemplate(template: SmartReportTemplate, event: Event): void {
+        event.stopPropagation();
+        this.closeReportMenu();
+
+        if (!template._id) return;
+
+        const configId = this._configIdOf(template);
+
+        void this._router.navigate(['/smart-batch'], {
+            queryParams: {
+                step: 'layout',
+                templateId: template._id,
+                intent: 'template',
+                ...(configId ? { configId } : {}),
+            },
+        });
+    }
+
     async createReportTemplate(): Promise<void> {
         const asset = this.reportTarget();
 
@@ -384,12 +464,9 @@ export class FleetAssetsComponent implements OnInit {
         this._previewData.setPendingPreviewData(sample);
         void this._router.navigate(['/smart-batch'], {
             queryParams: {
-                step: 'layout',
+                step: 'country',
                 intent: 'template',
                 templateChoice: 'scratch',
-                entities: 'vehicle',
-                country: (asset.country || 'co').toLowerCase(),
-                mode: 'single',
             },
         });
     }
