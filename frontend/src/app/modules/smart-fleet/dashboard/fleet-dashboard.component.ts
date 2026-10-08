@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { FleetNavComponent } from '../fleet-nav.component';
 import { FleetSeverity, SmartFleetService } from '../smart-fleet.service';
 
 @Component({
@@ -20,6 +21,7 @@ import { FleetSeverity, SmartFleetService } from '../smart-fleet.service';
         MatIconModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
+        FleetNavComponent,
     ],
     templateUrl: './fleet-dashboard.component.html',
     encapsulation: ViewEncapsulation.None,

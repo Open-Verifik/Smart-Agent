@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
@@ -18,6 +18,9 @@ import {
     getFleetCountryPlaceholders,
     mergeFleetCountries,
 } from '../fleet-country.util';
+import { FleetNavComponent } from '../fleet-nav.component';
+import { FleetGroupsBoardComponent } from './fleet-groups-board.component';
+import { FleetVehicleIconComponent } from './fleet-vehicle-icon.component';
 import {
     FleetAsset,
     FleetAvailableCheck,
@@ -27,9 +30,16 @@ import {
 /** Column order for the import template, matching what the server-side parser expects. */
 const IMPORT_HEADERS = ['plate', 'vin', 'nickname', 'group', 'documentType', 'documentNumber'];
 
-type IdentifierMode = 'plate' | 'vin';
+type IdentifierMode = 'plate' | 'plateOnly' | 'vin';
 
-const DEFAULT_DRAFT = (): FleetAsset => ({ country: 'co', type: 'vehicle' });
+/** Document types accepted by the Colombia vehicle lookup. CC is cédula. */
+const CO_DOCUMENT_TYPES = ['CC', 'CE', 'TI', 'PA', 'RC'] as const;
+
+const DEFAULT_DRAFT = (): FleetAsset => ({
+    country: 'co',
+    type: 'vehicle',
+    ownerDocumentType: 'CC',
+});
 
 @Component({
     selector: 'fleet-assets',
@@ -45,6 +55,9 @@ const DEFAULT_DRAFT = (): FleetAsset => ({ country: 'co', type: 'vehicle' });
         MatMenuModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        FleetNavComponent,
+        FleetGroupsBoardComponent,
+        FleetVehicleIconComponent,
     ],
     templateUrl: './fleet-assets.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -56,6 +69,9 @@ export class FleetAssetsComponent implements OnInit {
     private _snackBar = inject(MatSnackBar);
     private _confirm = inject(FuseConfirmationService);
     private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+
+    @ViewChild(FleetGroupsBoardComponent) private _groupsBoard?: FleetGroupsBoardComponent;
 
     assets = this._fleetService.assets;
     isLoading = this._fleetService.isLoadingAssets;
@@ -83,10 +99,13 @@ export class FleetAssetsComponent implements OnInit {
     checkingAssetId = signal<string | null>(null);
 
     showCreateForm = signal(false);
+    /** Vehicle whose row menu is assigning a group. */
+    groupTarget = signal<FleetAsset | null>(null);
     /** When set, the shared form updates this asset instead of creating. */
     editingAssetId = signal<string | null>(null);
     draft = signal<FleetAsset>(DEFAULT_DRAFT());
     identifierMode = signal<IdentifierMode>('plate');
+    readonly documentTypes = CO_DOCUMENT_TYPES;
     availableChecks = signal<FleetAvailableCheck[]>([]);
 
     /** Live + Coming soon countries for the create/import selectors. */
@@ -157,6 +176,13 @@ export class FleetAssetsComponent implements OnInit {
                 this._loadCountries();
                 this._loadAvailableChecks();
                 this.loadPage(1);
+
+                if (this._route.snapshot.queryParamMap.get('add') === '1') {
+                    this.editingAssetId.set(null);
+                    this.identifierMode.set('plate');
+                    this.draft.set(DEFAULT_DRAFT());
+                    this.showCreateForm.set(true);
+                }
             },
             panelClass: 'auth-required-dialog',
         });
@@ -234,22 +260,46 @@ export class FleetAssetsComponent implements OnInit {
     setIdentifierMode(mode: IdentifierMode): void {
         this.identifierMode.set(mode);
 
-        if (mode === 'plate') {
-            this.updateDraft('vin', '');
-        } else {
-            this.draft.update((draft) => ({
-                ...draft,
-                plate: '',
-                ownerDocumentType: '',
-                ownerDocumentNumber: '',
-            }));
-        }
+        // Drop the unused identifier instead of sending an empty string.
+        // The API rejects "" with "vin is not allowed to be empty".
+        this.draft.update((draft) => {
+            if (mode === 'vin') {
+                const {
+                    plate: _plate,
+                    ownerDocumentType: _ownerDocumentType,
+                    ownerDocumentNumber: _ownerDocumentNumber,
+                    ...rest
+                } = draft;
+
+                return rest;
+            }
+
+            const { vin: _vin, ...withoutVin } = draft;
+
+            if (mode === 'plateOnly') {
+                const {
+                    ownerDocumentType: _ownerDocumentType,
+                    ownerDocumentNumber: _ownerDocumentNumber,
+                    ...rest
+                } = withoutVin;
+
+                return rest;
+            }
+
+            return {
+                ...withoutVin,
+                ownerDocumentType: withoutVin.ownerDocumentType || 'CC',
+            };
+        });
     }
 
     /** Open the shared form populated from an existing vehicle. */
     startEdit(asset: FleetAsset): void {
-        const mode: IdentifierMode =
-            asset.vin && !asset.ownerDocumentNumber ? 'vin' : 'plate';
+        const mode: IdentifierMode = asset.vin && !asset.plate
+            ? 'vin'
+            : asset.plate && !asset.ownerDocumentNumber
+              ? 'plateOnly'
+              : 'plate';
 
         this.editingAssetId.set(asset._id!);
         this.identifierMode.set(mode);
@@ -283,6 +333,25 @@ export class FleetAssetsComponent implements OnInit {
         this.draft.update((draft) => ({ ...draft, [field]: value }));
     }
 
+    /** Groups created on this page, plus the vehicle's current group if it is not listed yet. */
+    groupOptions(): string[] {
+        const names = new Set(this._groupsBoard?.groupNames() ?? []);
+        const current = this.draft().group?.trim();
+
+        if (current) names.add(current);
+
+        return [...names].sort((left, right) => left.localeCompare(right));
+    }
+
+    setDraftGroup(value: string): void {
+        const name = value.trim();
+
+        this.draft.update((draft) => ({
+            ...draft,
+            group: name || (this.editingAssetId() ? null : undefined),
+        }));
+    }
+
     setDraftCountry(code: string): void {
         const option = this.countryOptions().find((entry) => entry.code === code);
 
@@ -309,13 +378,15 @@ export class FleetAssetsComponent implements OnInit {
 
         const plate = draft.plate?.trim() || '';
         const vin = draft.vin?.trim() || '';
+        const hasPlateOnly = this.identifierMode() === 'plateOnly' && plate.length >= 4;
         const hasPlatePath =
+            this.identifierMode() === 'plate' &&
             plate.length >= 4 &&
             Boolean(draft.ownerDocumentType?.trim()) &&
             Boolean(draft.ownerDocumentNumber?.trim());
-        const hasVinPath = vin.length >= 5;
+        const hasVinPath = this.identifierMode() === 'vin' && vin.length >= 5;
 
-        return hasPlatePath || hasVinPath;
+        return hasPlateOnly || hasPlatePath || hasVinPath;
     });
 
     saveAsset(): void {
@@ -351,6 +422,7 @@ export class FleetAssetsComponent implements OnInit {
                     { duration: 3000 }
                 );
                 this.loadPage(editingId ? this.page() : 1);
+                this._groupsBoard?.reload();
             },
             error: (err) => {
                 this.isCreating.set(false);
@@ -388,6 +460,7 @@ export class FleetAssetsComponent implements OnInit {
                     duration: 3000,
                 });
                 this.loadPage(this.page());
+                this._groupsBoard?.reload();
             },
             error: (err) => this._reportFailure('smartFleet.assets.deleteFailed', err),
         });
@@ -501,6 +574,7 @@ export class FleetAssetsComponent implements OnInit {
                         { duration: 5000 }
                     );
                     this.loadPage(1);
+                    this._groupsBoard?.reload();
                 },
                 error: (err) => {
                     this.isImporting.set(false);
@@ -540,6 +614,33 @@ export class FleetAssetsComponent implements OnInit {
 
     openAsset(asset: FleetAsset): void {
         this._router.navigate(['/smart-fleet/assets', asset._id]);
+    }
+
+    assignGroup(group: string | null): void {
+        const asset = this.groupTarget();
+
+        if (!asset?._id || (asset.group || null) === group) return;
+
+        this._fleetService.updateAsset(asset._id, { group }).subscribe({
+            next: () => {
+                this._snackBar.open(
+                    this._transloco.translate('smartFleet.assets.groupAssigned'),
+                    undefined,
+                    { duration: 3000 }
+                );
+                this.loadPage(this.page());
+                this._groupsBoard?.reload();
+            },
+            error: (err) => this._reportFailure('smartFleet.groups.moveFailed', err),
+        });
+    }
+
+    editRules(asset: FleetAsset): void {
+        if (!asset._id) return;
+
+        this._router.navigate(['/smart-fleet/watch-rules'], {
+            queryParams: { asset: asset._id },
+        });
     }
 
     alertBadgeClasses(asset: FleetAsset): string {

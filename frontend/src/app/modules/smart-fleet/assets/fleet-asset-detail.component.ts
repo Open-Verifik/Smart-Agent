@@ -14,6 +14,7 @@ import {
     getFleetCountryPlaceholders,
     mergeFleetCountries,
 } from '../fleet-country.util';
+import { FleetNavComponent } from '../fleet-nav.component';
 import {
     FleetAlert,
     FleetAlertDelivery,
@@ -89,6 +90,7 @@ const FIELD_MAP: Record<string, { key: string; label: string }[]> = {
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        FleetNavComponent,
     ],
     templateUrl: './fleet-asset-detail.component.html',
     encapsulation: ViewEncapsulation.None,

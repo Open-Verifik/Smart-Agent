@@ -49,7 +49,62 @@ export type FleetFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'cust
 
 export type FleetSeverity = 'info' | 'warning' | 'critical';
 
-export type FleetChannel = 'email' | 'webhook' | 'inApp';
+export type FleetChannel = 'email' | 'webhook' | 'inApp' | 'sms' | 'whatsapp';
+
+export const FLEET_GROUP_COLOR_DEFAULT = '#6366f1';
+
+export const FLEET_GROUP_COLORS = [
+    '#6366f1',
+    '#0ea5e9',
+    '#10b981',
+    '#f59e0b',
+    '#ef4444',
+    '#a855f7',
+    '#ec4899',
+    '#64748b',
+];
+
+export const FLEET_GROUP_ICONS = [
+    'car',
+    'pickup',
+    'minivan',
+    'van',
+    'bus',
+    'truck',
+    'tractocamion',
+    'tractomula',
+    'tractor',
+    'motorcycle',
+    'motocarro',
+] as const;
+
+export type FleetGroupIcon = (typeof FLEET_GROUP_ICONS)[number];
+
+export const FLEET_GROUP_ICON_DEFAULT: FleetGroupIcon = 'car';
+
+export interface FleetGroupRef {
+    name: string;
+    color: string;
+    icon: FleetGroupIcon;
+}
+
+export function normalizeFleetGroup(entry: Partial<FleetGroupRef> | string | null | undefined): FleetGroupRef {
+    if (!entry || typeof entry === 'string') {
+        return {
+            name: typeof entry === 'string' ? entry : '',
+            color: FLEET_GROUP_COLOR_DEFAULT,
+            icon: FLEET_GROUP_ICON_DEFAULT,
+        };
+    }
+
+    const icon = FLEET_GROUP_ICONS.find((item) => item === entry.icon) || FLEET_GROUP_ICON_DEFAULT;
+
+    return {
+        name: entry.name || '',
+        color: entry.color || FLEET_GROUP_COLOR_DEFAULT,
+        icon,
+    };
+}
 
 export type FleetAlertStatus = 'open' | 'acknowledged' | 'resolved' | 'all';
 
@@ -72,7 +127,8 @@ export interface FleetAsset {
     ownerDocumentType?: string;
     ownerDocumentNumber?: string;
     nickname?: string;
-    group?: string;
+    /** null clears the group when a vehicle is dragged out. */
+    group?: string | null;
     notes?: string;
     isActive?: boolean;
     lastCheckedAt?: string;
@@ -108,10 +164,58 @@ export interface FleetWatchRule {
     channels?: FleetChannel[];
     emailRecipients?: string[];
     webhookUrl?: string | null;
+    smsRecipients?: string[];
+    whatsappRecipients?: string[];
     severity?: FleetSeverity;
     isActive?: boolean;
+    /** Saved without a vehicle, group, or fleet until someone assigns it. */
+    unassigned?: boolean;
     lastTriggeredAt?: string;
     createdAt?: string;
+}
+
+/** Split a phone field into E.164 numbers. Country code is required. */
+export function parseFleetPhones(value: string): string[] {
+    return value
+        .split(/[,;\s]+/)
+        .map((part) => {
+            const compact = part.replace(/[^\d+]/g, '');
+
+            if (!compact) return '';
+
+            const withPlus = compact.startsWith('+') ? compact : `+${compact}`;
+
+            return /^\+[1-9]\d{7,14}$/.test(withPlus) ? withPlus : '';
+        })
+        .filter((phone, index, list) => phone && list.indexOf(phone) === index);
+}
+
+/** True when this vehicle has the identifiers the check's endpoint actually needs. */
+export function fleetAssetSupportsCheck(check: FleetAvailableCheck, asset: FleetAsset): boolean {
+    const value = (field: string) => {
+        const raw = (asset as unknown as Record<string, unknown>)[field];
+
+        return typeof raw === 'string' ? raw.trim() : '';
+    };
+    const plateFields = check.requiresByPlate?.length
+        ? check.requiresByPlate
+        : check.endpoints?.byPlate?.requires || [];
+    const vinFields = check.requiresByVin?.length
+        ? check.requiresByVin
+        : check.endpoints?.byVin?.requires || [];
+
+    if (plateFields.length || vinFields.length) {
+        const plateOk = plateFields.length > 0 && plateFields.every((field) => value(field));
+        const vinOk = vinFields.length > 0 && vinFields.every((field) => value(field));
+
+        return plateOk || vinOk;
+    }
+
+    const requires = check.requires || [];
+
+    if (!requires.length) return true;
+
+    return requires.every((field) => value(field));
 }
 
 export interface FleetAlertDelivery {
@@ -290,6 +394,36 @@ export interface FleetImportResult {
 }
 
 /**
+ * Joi rejects blank strings ("vin" is not allowed to be empty). Plate + owner
+ * document is a valid identifier on its own, so unused fields must be omitted.
+ */
+export function compactFleetAssetPayload<T extends object>(asset: T): Partial<T> {
+    const payload: Partial<T> = {};
+
+    for (const [key, value] of Object.entries(asset)) {
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+
+            if (!trimmed) continue;
+
+            (payload as Record<string, unknown>)[key] = trimmed;
+            continue;
+        }
+
+        if (value === null && key === 'group') {
+            (payload as Record<string, unknown>)[key] = null;
+            continue;
+        }
+
+        if (value === undefined || value === null) continue;
+
+        (payload as Record<string, unknown>)[key] = value;
+    }
+
+    return payload;
+}
+
+/**
  * Smart Fleet API client.
  *
  * Mirrors `SmartBatchService`: plain `HttpClient` against `environment.apiUrl`, with the
@@ -375,6 +509,41 @@ export class SmartFleetService {
             );
     }
 
+    /** Named groups saved for this client, including ones with no vehicles yet. */
+    listGroups() {
+        return this._httpClient.get<{ data: FleetGroupRef[] }>(`${environment.apiUrl}/v2/fleet-groups`);
+    }
+
+    createGroup(name: string, color = FLEET_GROUP_COLOR_DEFAULT, icon: FleetGroupIcon = FLEET_GROUP_ICON_DEFAULT) {
+        return this._httpClient.post<{ data: FleetGroupRef }>(`${environment.apiUrl}/v2/fleet-groups`, {
+            name,
+            color,
+            icon,
+        });
+    }
+
+    updateGroup(name: string, changes: { color?: string; icon?: FleetGroupIcon; newName?: string }) {
+        return this._httpClient.put<{ data: FleetGroupRef }>(`${environment.apiUrl}/v2/fleet-groups`, {
+            name,
+            ...changes,
+        });
+    }
+
+    deleteGroup(name: string) {
+        return this._httpClient.delete<{ data: { deleted: boolean; name: string } }>(
+            `${environment.apiUrl}/v2/fleet-groups`,
+            { params: { name } }
+        );
+    }
+
+    /** Full list for the groups board. Does not replace the paginated table. */
+    listAssets(perPage = 200) {
+        return this._httpClient.get<PaginatedResponse<FleetAsset>>(
+            `${environment.apiUrl}/v2/fleet-assets`,
+            { params: { page: 1, perPage } }
+        );
+    }
+
     getAsset(id: string) {
         return this._httpClient.get<{ data: FleetAsset }>(
             `${environment.apiUrl}/v2/fleet-assets/${id}`
@@ -391,14 +560,14 @@ export class SmartFleetService {
     createAsset(asset: FleetAsset) {
         return this._httpClient.post<{ data: FleetAsset }>(
             `${environment.apiUrl}/v2/fleet-assets`,
-            asset
+            compactFleetAssetPayload(asset)
         );
     }
 
     updateAsset(id: string, asset: Partial<FleetAsset>) {
         return this._httpClient.put<{ data: FleetAsset }>(
             `${environment.apiUrl}/v2/fleet-assets/${id}`,
-            asset
+            compactFleetAssetPayload(asset)
         );
     }
 
@@ -480,6 +649,20 @@ export class SmartFleetService {
                     error: () => this.isLoadingRules.set(false),
                 })
             );
+    }
+
+    /** Asset-scoped fetch that does not replace the rules list on the rules page. */
+    listWatchRules(options: { asset?: string; group?: string } = {}) {
+        return this._httpClient.get<PaginatedResponse<FleetWatchRule>>(
+            `${environment.apiUrl}/v2/fleet-watch-rules`,
+            {
+                params: {
+                    perPage: 100,
+                    ...(options.asset ? { asset: options.asset } : {}),
+                    ...(options.group ? { group: options.group } : {}),
+                },
+            }
+        );
     }
 
     createWatchRule(rule: FleetWatchRule) {
