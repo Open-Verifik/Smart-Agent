@@ -220,6 +220,59 @@
                     {{ 'settings.api_key.mcp.connect_intro' | transloco }}
                 </p>
 
+                <div
+                    class="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950"
+                >
+                    <label
+                        for="mcp-country-filter"
+                        class="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400"
+                    >
+                        {{ 'settings.api_key.mcp.country_label' | transloco }}
+                    </label>
+                    <select
+                        id="mcp-country-filter"
+                        class="min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-medium text-stone-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                        [value]="selectedCountry || ''"
+                        (change)="onCountrySelect($event)"
+                    >
+                        <option value="">
+                            {{ 'settings.api_key.mcp.country_all' | transloco }}
+                        </option>
+                        <option *ngFor="let country of countryOptions" [value]="country.value">
+                            {{ country.labelKey | transloco }}
+                        </option>
+                    </select>
+
+                    <label
+                        *ngIf="hasSelectedCountry"
+                        class="mt-4 flex cursor-pointer items-start gap-3 text-sm leading-6 text-stone-700 dark:text-stone-200"
+                    >
+                        <input
+                            type="checkbox"
+                            class="mt-1 h-4 w-4 rounded border-stone-300 text-indigo-600 focus:ring-indigo-500"
+                            [checked]="includeGlobalChecks"
+                            (change)="onIncludeGlobalChecksChange($event)"
+                        />
+                        <span>{{ 'settings.api_key.mcp.include_global_checks' | transloco }}</span>
+                    </label>
+
+                    <label
+                        class="mt-4 flex cursor-pointer items-start gap-3 text-sm leading-6 text-stone-700 dark:text-stone-200"
+                    >
+                        <input
+                            type="checkbox"
+                            class="mt-1 h-4 w-4 rounded border-stone-300 text-indigo-600 focus:ring-indigo-500"
+                            [checked]="smartcheckOnly"
+                            (change)="onSmartcheckOnlyChange($event)"
+                        />
+                        <span>{{ 'settings.api_key.mcp.smartcheck_only' | transloco }}</span>
+                    </label>
+
+                    <p class="mt-3 text-xs leading-5 text-stone-500 dark:text-stone-400">
+                        {{ 'settings.api_key.mcp.tools_hint' | transloco }}
+                    </p>
+                </div>
+
                 <div class="mb-4 flex flex-wrap gap-2">
                     <button
                         *ngFor="let tab of configTabs"
