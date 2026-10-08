@@ -130,7 +130,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _pollTimer: ReturnType<typeof setTimeout> | null = null;
     private _shouldAutostart = false;
     private _reportOnComplete = false;
-    private _reportRowIndex = '0';
+    private _reportRowIndex: string | null = null;
     /** Guards the one-shot redirect so a late poll cannot navigate twice. */
     private _reportRedirectDone = false;
     /** One refetch when GET batch omitted `rows` so the tab runner can start. */
@@ -498,7 +498,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this._route.queryParams.subscribe((query) => {
             this._shouldAutostart = query['autostart'] === '1';
             this._reportOnComplete = query['reportOnComplete'] === '1';
-            this._reportRowIndex = query['rowIndex'] ?? '0';
+            this._reportRowIndex = typeof query['rowIndex'] === 'string' ? query['rowIndex'] : null;
         });
         this._route.params.subscribe((params) => {
             this.configId.set(params['configId']);
@@ -909,7 +909,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         if (!configId || !batchId) return;
 
         this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'report'], {
-            queryParams: { rowIndex: this._reportRowIndex },
+            queryParams: this._reportRowIndex != null ? { rowIndex: this._reportRowIndex } : {},
         });
     }
 

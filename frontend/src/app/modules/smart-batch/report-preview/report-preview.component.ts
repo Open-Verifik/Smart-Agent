@@ -1,24 +1,81 @@
-import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     EventEmitter,
+    OnDestroy,
     Output,
     QueryList,
     ViewChild,
     ViewChildren,
+    computed,
     effect,
+    inject,
     input,
     signal,
     untracked,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ReportSection, SmartReportTemplate } from '../smart-report.service';
+import { ReportCellPart, ReportHeaderLogo, ReportLogoBand, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogoSize, headerLogoAlignAt, headerLogoBandHeight, placeCompanyLogos, PlacedHeaderLogo } from '../header-logos.util';
+import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, tableColumnPath } from '../report-param-entries.util';
+import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
+import { resolveTextRole } from '../report-text-role.util';
+
+export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
+
+export type ReportInlineTextKind = 'title' | 'body' | 'cellLabel' | 'cellValue' | 'itemTitle' | 'itemTemplate';
+
+export type ReportInlineTextChange = {
+    sectionId: string;
+    kind: ReportInlineTextKind;
+    key?: string;
+    value: string;
+};
+
+export function isReportPageAnchor(section: ReportSection): boolean {
+    return section.type === 'spacer' && section.id.startsWith('hoja-');
+}
 
 const MM_TO_PX = 3.7795275591;
+/** Tailwind `mb-3` between blocks. Margin is not included in getBoundingClientRect. */
+const SECTION_GAP_PX = 12;
+/** Where a block starts when it spills onto the next page. */
+const PAGE_INSET_PX = 32;
+
+export type ReportPageSizeName = 'A4' | 'Letter' | 'Legal';
+
+/** Portrait paper in millimeters. Matches Chromium `format` / 96 DPI preview. */
+export const REPORT_PAGE_SIZE_MM: Record<ReportPageSizeName, { width: number; height: number }> = {
+    A4: { width: 210, height: 297 },
+    Letter: { width: 215.9, height: 279.4 },
+    Legal: { width: 215.9, height: 355.6 },
+};
+
+export function resolvePageSizeName(value: string | null | undefined): ReportPageSizeName {
+    return value === 'Letter' || value === 'Legal' ? value : 'A4';
+}
+
+export function reportPaperSizeMm(
+    pageSize: string | null | undefined,
+    orientation: 'portrait' | 'landscape' = 'portrait'
+): { width: number; height: number } {
+    const base = REPORT_PAGE_SIZE_MM[resolvePageSizeName(pageSize)];
+    return orientation === 'landscape'
+        ? { width: base.height, height: base.width }
+        : { width: base.width, height: base.height };
+}
+
+export function reportPaperSizePx(
+    pageSize: string | null | undefined,
+    orientation: 'portrait' | 'landscape' = 'portrait'
+): { width: number; height: number } {
+    const mm = reportPaperSizeMm(pageSize, orientation);
+    return { width: mm.width * MM_TO_PX, height: mm.height * MM_TO_PX };
+}
 
 /**
  * Shared report preview component - renders a template with data, paginating
@@ -28,10 +85,19 @@ const MM_TO_PX = 3.7795275591;
 @Component({
     selector: 'report-preview',
     standalone: true,
-    imports: [CommonModule, MatIconModule, TranslocoModule, DragDropModule],
+    imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './report-preview.component.html',
+    styles: [
+        `
+            .layer-quiet,
+            .layer-quiet * {
+                pointer-events: none !important;
+            }
+        `,
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReportPreviewComponent implements AfterViewInit {
+export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** All paper cards in the rendered preview. The first card is used as the
      *  reference for canonical-to-screen scaling and overlay anchoring. */
     @ViewChildren('reportPage') private _reportPages!: QueryList<ElementRef<HTMLDivElement>>;
@@ -48,19 +114,40 @@ export class ReportPreviewComponent implements AfterViewInit {
     previewData = input.required<Record<string, any>>();
     /** Primary color for styling */
     primaryColor = input<string>('#4F46E5');
+    /** Paper background color */
+    pageBackgroundColor = input<string>('#ffffff');
     /** Orientation for container sizing */
     orientation = input<'portrait' | 'landscape'>('portrait');
+    /** Paper format. Falls back to the template when omitted. */
+    pageSize = input<ReportPageSizeName | null>(null);
+    /** Visual scale of the sheet. Layout coordinates stay canonical. */
+    viewZoom = input<number>(1);
     /** Whether sections are clickable (for builder edit mode) */
     clickable = input<boolean>(false);
     /** Currently selected section ID (for builder highlight) */
     selectedSectionId = input<string | null>(null);
+    /** Parameter key selected inside a block */
+    selectedCellKey = input<string | null>(null);
+    /** Label, value, or whole cell */
+    selectedCellPart = input<ReportCellPart | null>(null);
+    /** Currently selected overlay (logo, watermark, signature) */
+    selectedOverlay = input<ReportOverlayId | null>(null);
     /** Section click handler (optional) */
     sectionClick = input<((section: ReportSection) => void) | null>(null);
+    /** When true, right-click emits a custom menu instead of the browser menu. */
+    customContextMenu = input<boolean>(false);
+    /** When true, holding a block lets the user reorder it on the page. */
+    reorderable = input<boolean>(false);
+    /** Snapshot this instance for PDF, not the layout editor. */
+    printCapture = input<boolean>(false);
 
     /** Logo URL or base64 */
     logoUrl = input<string | null>(null);
-    /** Footer legend text */
+    /** Footer company / legend text */
     legend = input<string>('');
+    legendPosition = input<'left' | 'center' | 'right'>('left');
+    termsAndConditions = input<string>('');
+    termsPosition = input<'left' | 'center' | 'right'>('left');
     /** Show page numbers */
     showPageNumbers = input<boolean>(false);
     /** Page number position */
@@ -70,12 +157,28 @@ export class ReportPreviewComponent implements AfterViewInit {
     watermarkEnabled = input<boolean>(false);
     /** Watermark type (text or logo) */
     watermarkType = input<string>('text');
+    /**
+     * Image for a logo watermark.
+     * Unset keeps the workspace logo. Null means the watermark has its own empty slot.
+     */
+    watermarkLogoUrl = input<string | null | undefined>(undefined);
+    /** Logo watermark image. A dedicated upload wins; otherwise the workspace logo is used. */
+    watermarkStampSrc = computed(() => {
+        const dedicated = this.watermarkLogoUrl();
+        if (dedicated !== undefined) return dedicated || null;
+        return this.logoUrl();
+    });
     /** Watermark text */
     watermarkText = input<string>('CONFIDENTIAL');
     /** Watermark opacity (0.01–0.5) */
     watermarkOpacity = input<number>(0.08);
     /** Watermark pattern (single or repeated) */
     watermarkPattern = input<string>('single');
+    watermarkX = input<number>(250);
+    watermarkY = input<number>(420);
+    watermarkWidth = input<number>(280);
+    watermarkHeight = input<number>(160);
+    watermarkRotation = input<number>(-15);
 
     // Signature
     signatureEnabled = input<boolean>(false);
@@ -84,6 +187,8 @@ export class ReportPreviewComponent implements AfterViewInit {
     signatureY = input<number>(0);
     signatureWidth = input<number>(100);
     signatureHeight = input<number>(50);
+    /** 0-based sheet the signature sits on. */
+    signaturePage = input<number>(0);
 
     // Workspace logo (drag & drop overlay)
     logoEnabled = input<boolean>(false);
@@ -91,33 +196,228 @@ export class ReportPreviewComponent implements AfterViewInit {
     logoY = input<number>(32);
     logoWidth = input<number>(160);
     logoHeight = input<number>(60);
+    logoRotation = input<number>(0);
     /** When true, content is auto-pushed below the logo overlay. */
     logoAutoFitContent = input<boolean>(false);
+    /** Extra logos/images placed freely on the sheet. */
+    sheetImages = input<ReportSheetImage[]>([]);
+    /** Editor paint order. Missing keys keep the fallback used outside the layout step. */
+    layerZ = input<Record<string, number>>({});
+    /** Editor-only. Hidden layers stay in the file; they just leave the sheet while designing. */
+    hiddenLayerIds = input<string[]>([]);
+    /** Editor-only. A locked layer stays visible and lets clicks reach whatever is behind it. */
+    lockedLayerIds = input<string[]>([]);
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding = input<number>(0);
 
+    /** Library cards: first sheet only, no off-screen measurement. */
+    thumbnailMode = input<boolean>(false);
+
     // Output
-    @Output() signaturePositionChange = new EventEmitter<{ x: number; y: number }>();
+    @Output() signaturePositionChange = new EventEmitter<{ x: number; y: number; page?: number }>();
     @Output() signatureSizeChange = new EventEmitter<{ width: number; height: number }>();
     @Output() logoPositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() logoSizeChange = new EventEmitter<{ width: number; height: number }>();
+    @Output() logoRotationChange = new EventEmitter<number>();
+    @Output() watermarkPositionChange = new EventEmitter<{ x: number; y: number }>();
+    @Output() watermarkSizeChange = new EventEmitter<{ width: number; height: number }>();
+    @Output() watermarkRotationChange = new EventEmitter<number>();
+    @Output() headerLogoAlignChange = new EventEmitter<{
+        id: string;
+        align: ReportHeaderLogo['align'];
+        band: ReportLogoBand;
+    }>();
+    @Output() headerLogoSizeChange = new EventEmitter<{ id: string; width: number; height: number }>();
+    @Output() sheetImageChange = new EventEmitter<ReportSheetImage>();
+    @Output() overlaySelect = new EventEmitter<ReportOverlayId>();
+    @Output() backgroundClick = new EventEmitter<void>();
+    @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
+    @Output() overlayContextMenu = new EventEmitter<{ overlay: ReportOverlayId; x: number; y: number }>();
+    @Output() paperContextMenu = new EventEmitter<{ x: number; y: number }>();
+    @Output() sectionReorder = new EventEmitter<{ fromId: string; toIndex: number }>();
+    @Output() sectionFramesChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }[]>();
+    @Output() sectionFrameChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }>();
+    @Output() sectionRotationChange = new EventEmitter<{ id: string; rotation: number }>();
+    @Output() cellSelect = new EventEmitter<{
+        section: ReportSection;
+        key: string | null;
+        part: ReportCellPart;
+    }>();
+    @Output() cellContextMenu = new EventEmitter<{
+        section: ReportSection;
+        key: string;
+        x: number;
+        y: number;
+    }>();
+    @Output() cellPlace = new EventEmitter<{
+        section: ReportSection;
+        key: string;
+        clientX: number;
+        clientY: number;
+        extract: boolean;
+    }>();
+    @Output() inlineTextChange = new EventEmitter<ReportInlineTextChange>();
+    @Output() addPage = new EventEmitter<void>();
+    @Output() removePage = new EventEmitter<void>();
+    @Output() sheetDragChange = new EventEmitter<boolean>();
 
     /** Sections grouped into pages after measurement. Always has at least one
      *  page entry (which may be empty when there are no sections). */
     pages = signal<ReportSection[][]>([[]]);
 
     private isResizing = false;
-    private resizeTarget: 'signature' | 'logo' | null = null;
+    private isRotating = false;
+    private isMoving = false;
+    private resizeTarget: ReportOverlayId | null = null;
+    private rotateTarget: ReportOverlayId | null = null;
+    private moveTarget: ReportOverlayId | null = null;
     private startX = 0;
     private startY = 0;
     private startWidth = 0;
     private startHeight = 0;
+    private startMoveX = 0;
+    private startMoveY = 0;
+    private rotateCenterX = 0;
+    private rotateCenterY = 0;
+    private startAngle = 0;
+    private startRotation = 0;
     private pendingResize: { width: number; height: number } | null = null;
+    private pendingMove: { x: number; y: number; page?: number } | null = null;
+    /** Pointer offset inside the signature, so a page change does not jump the grab point. */
+    private _overlayGrab: { dx: number; dy: number } | null = null;
     private resizeFrameId: number | null = null;
+    private moveFrameId: number | null = null;
+    private gestureEl: HTMLElement | null = null;
+    private gesturePointerId: number | null = null;
 
     private _measureScheduled = false;
     private _measureFrameId: number | null = null;
+    private _autoPinFrameId: number | null = null;
+    private _autoPinAttempts = 0;
+    private _contentFitFrameId: number | null = null;
+    private readonly _host = inject(ElementRef<HTMLElement>);
+    private _sectionDrag: {
+        id: string;
+        pointerId: number;
+        startClientX: number;
+        startClientY: number;
+        startFrame: ReportSectionFrame;
+        scrollTopAtStart: number;
+        active: boolean;
+        cellKey: string | null;
+        cellPart: ReportCellPart;
+        host: HTMLElement | null;
+    } | null = null;
+    private _sectionDragMoved = false;
+    /** A click on a field already selected it; the section click must not clear that ring. */
+    private _keepCellSelection = false;
+    private _cellDrag: {
+        section: ReportSection;
+        key: string;
+        pointerId: number;
+        startClientX: number;
+        startClientY: number;
+        extract: boolean;
+    } | null = null;
+    private _cellDragMoved = false;
+    private readonly _onWindowCellMove = (event: PointerEvent): void => {
+        const drag = this._cellDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        if (Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) < 8) return;
+        this._cellDragMoved = true;
+        this._setSheetDragging(true);
+        document.body.style.cursor = 'grabbing';
+        document.body.style.userSelect = 'none';
+    };
+    private readonly _onWindowCellUp = (event: PointerEvent): void => {
+        const drag = this._cellDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        window.removeEventListener('pointermove', this._onWindowCellMove);
+        window.removeEventListener('pointerup', this._onWindowCellUp, true);
+        window.removeEventListener('pointercancel', this._onWindowCellUp, true);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        this._cellDrag = null;
+        this._setSheetDragging(false);
+        if (!this._cellDragMoved) return;
+        this.cellPlace.emit({
+            section: drag.section,
+            key: drag.key,
+            clientX: event.clientX,
+            clientY: event.clientY,
+            extract: drag.extract,
+        });
+        queueMicrotask(() => {
+            this._cellDragMoved = false;
+        });
+    };
+    private _pinnedIdsThisDrag = new Set<string>();
+    private _sectionDragRaf: number | null = null;
+    private _resizeRaf: number | null = null;
+    private _rotateRaf: number | null = null;
+    private _pendingDragPoint: { x: number; y: number } | null = null;
+    private _pendingResizePoint: { x: number; y: number } | null = null;
+    private _pendingRotatePoint: { x: number; y: number } | null = null;
+    private _lockedViewScale: { x: number; y: number } | null = null;
+    private _lockedPointerScale: { x: number; y: number } | null = null;
+    private _pageInnerCache = new Map<number, HTMLElement | null>();
+    private _pageRectCache: { scrollTop: number; rects: DOMRect[] } | null = null;
+    private _alignCache: { key: string; x: number[]; y: number[] } | null = null;
+    readonly draggingSectionId = signal<string | null>(null);
+    /** Lines shown while dragging, when an edge or the center lines up with another block. */
+    readonly alignmentGuides = signal<{ page: number; axis: 'x' | 'y'; at: number }[]>([]);
+    private _sheetDragging = false;
+    readonly freeLayout = computed(() => {
+        if (Object.keys(this.liveFrames()).length > 0) return true;
+        return (this.template().sections ?? []).some((section) => Boolean(section.frame));
+    });
+
+    private _setSheetDragging(active: boolean): void {
+        if (this._sheetDragging === active) return;
+        this._sheetDragging = active;
+        if (active) {
+            this._lockedViewScale = this._readViewScale();
+            this._lockedPointerScale = this._readPointerScale();
+            this._pageInnerCache.clear();
+            this._pageRectCache = null;
+            this._alignCache = null;
+        } else {
+            this._lockedViewScale = null;
+            this._lockedPointerScale = null;
+            this._pageInnerCache.clear();
+            this._pageRectCache = null;
+            this._alignCache = null;
+        }
+        this.sheetDragChange.emit(active);
+    }
+    readonly liveRotations = signal<Record<string, number>>({});
+    private _sectionResize: {
+        id: string;
+        pointerId: number;
+        handle: 'nw' | 'ne' | 'sw' | 'se';
+        startClientX: number;
+        startClientY: number;
+        startFrame: ReportSectionFrame;
+        keepRatio: boolean;
+        rotation: number;
+    } | null = null;
+    private _sectionRotate: {
+        id: string;
+        pointerId: number;
+        centerX: number;
+        centerY: number;
+        startAngle: number;
+        startRotation: number;
+    } | null = null;
+    readonly editingText = signal<{
+        sectionId: string;
+        kind: ReportInlineTextKind;
+        key?: string;
+    } | null>(null);
+    readonly inlineDraft = signal('');
+    private _suppressInlineBlur = false;
+    readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
 
     constructor() {
         // Single effect that tracks every input that influences pagination.
@@ -127,7 +427,11 @@ export class ReportPreviewComponent implements AfterViewInit {
         effect(() => {
             // Track inputs that should trigger a remeasure
             this.template().sections;
+            this.previewData();
             this.legend();
+            this.legendPosition();
+            this.termsAndConditions();
+            this.termsPosition();
             this.orientation();
             this.bodyTopPadding();
             this.logoEnabled();
@@ -151,6 +455,7 @@ export class ReportPreviewComponent implements AfterViewInit {
         // Re-measure whenever the off-screen section list re-renders so we
         // pick up height changes from edits (text length, table rows, ...)
         this._measureSections.changes.subscribe(() => this._scheduleMeasurement());
+        this._reportPages.changes.subscribe(() => this._scheduleMeasurement());
         this._scheduleMeasurement();
     }
 
@@ -160,40 +465,37 @@ export class ReportPreviewComponent implements AfterViewInit {
     }
 
     /**
-     * Keep `pages` in sync with the latest section references. The builder's
-     * `updateSection` replaces a section with a fresh `{ ...s, ...updates }`
-     * object that keeps the same id, so an id-only equality check would
-     * silently swallow inline edits (label, dataPath, style, ...). We instead:
-     *
-     * - Reseed `pages` to a single bucket when the *set* of section ids
-     *   changes (added / removed / reordered). Measurement re-paginates.
-     * - Otherwise refresh section references in-place so the visible cards
-     *   pick up the new content while preserving the existing page layout.
+     * Keep `pages` in sync with the latest section references. Pagination
+     * groups blocks by sheet, so the flat page order is not the template
+     * order. Comparing those lists by index used to collapse every sheet
+     * back onto page 1 and jump the viewport there.
      */
     private _seedPagesIfNeeded(): void {
         const sections = this.template().sections || [];
         const current = this.pages();
         const flatCurrent = current.flat();
+        const incomingIds = new Set(sections.map((section) => section.id));
         const sameSet =
             flatCurrent.length === sections.length &&
-            flatCurrent.every((s, i) => s?.id === sections[i]?.id);
+            flatCurrent.every((section) => incomingIds.has(section.id));
 
         if (!sameSet) {
-            this.pages.set(sections.length > 0 ? [sections.slice()] : [[]]);
+            const next = sections.length > 0 ? [sections.slice()] : [[]];
+            this._replacePages(this._usesPinnedFrames() ? this._pagesFromFrames(sections) : next);
             return;
         }
 
-        const byId = new Map(sections.map((s) => [s.id, s]));
+        const byId = new Map(sections.map((section) => [section.id, section]));
         let referencesChanged = false;
         const refreshed = current.map((page) =>
-            page.map((s) => {
-                const fresh = byId.get(s.id);
-                if (fresh && fresh !== s) referencesChanged = true;
-                return fresh ?? s;
+            page.map((section) => {
+                const fresh = byId.get(section.id);
+                if (fresh && fresh !== section) referencesChanged = true;
+                return fresh ?? section;
             })
         );
 
-        if (referencesChanged) this.pages.set(refreshed);
+        if (referencesChanged) this._replacePages(refreshed);
     }
 
     private _scheduleMeasurement(): void {
@@ -214,6 +516,18 @@ export class ReportPreviewComponent implements AfterViewInit {
             return;
         }
 
+        if (this.hasFreeLayout()) {
+            this._setPagesIfDifferent(this._pagesFromFrames(sections));
+            this._scheduleAutoPinMissingFrames();
+            this._scheduleContentFit();
+            return;
+        }
+
+        if (this.thumbnailMode()) {
+            this._setPagesIfDifferent([sections.slice()]);
+            return;
+        }
+
         const els = this._measureSections?.toArray() || [];
         if (els.length !== sections.length) {
             // Off-screen list hasn't caught up yet; try again next frame.
@@ -221,10 +535,9 @@ export class ReportPreviewComponent implements AfterViewInit {
             return;
         }
 
-        // If the legend is configured but its measure node hasn't mounted
-        // yet, defer one frame so we don't bin-pack with a 0px footer
-        // reservation and then have to redo the work right after.
-        if (this.legend() && !this._measureLegend?.nativeElement) {
+        // Footer chrome must be measured before packing or the last blocks
+        // spill into the Puppeteer footer margin.
+        if (this._hasBottomChrome() && !this._measureLegend?.nativeElement) {
             this._scheduleMeasurement();
             return;
         }
@@ -237,13 +550,16 @@ export class ReportPreviewComponent implements AfterViewInit {
             heights.set(id, el.getBoundingClientRect().height);
         }
 
-        const pageHeightDom = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
-        // Mirrors the visible card's `p-8 sm:p-10 lg:p-12` (top + bottom).
-        const innerPaddingTopBottom = 96; // 48px top + 48px bottom at lg breakpoint
+        const pageHeightDom = this.pageHeightPx();
+        const innerPaddingTopBottom = this._getInnerPaddingTopBottom();
         const legendHeight = this._getLegendHeight();
+        const topChromeHeight = this._getTopChromeHeight();
         const firstPageExtraTop = this.viewContentPaddingTop;
 
-        const baseAvailable = Math.max(0, pageHeightDom - innerPaddingTopBottom - legendHeight);
+        const baseAvailable = Math.max(
+            0,
+            pageHeightDom - innerPaddingTopBottom - legendHeight - topChromeHeight
+        );
         const firstPageAvailable = Math.max(0, baseAvailable - firstPageExtraTop);
 
         const newPages: ReportSection[][] = [[]];
@@ -251,7 +567,7 @@ export class ReportPreviewComponent implements AfterViewInit {
         let isFirstPage = true;
 
         for (const section of sections) {
-            const h = heights.get(section.id) || 0;
+            const h = (heights.get(section.id) || 0) + SECTION_GAP_PX;
             const available = isFirstPage ? firstPageAvailable : baseAvailable;
             const currentBucket = newPages[newPages.length - 1];
 
@@ -270,6 +586,7 @@ export class ReportPreviewComponent implements AfterViewInit {
         }
 
         this._setPagesIfDifferent(newPages);
+        this._scheduleAutoPinMissingFrames();
     }
 
     private _setPagesIfDifferent(newPages: ReportSection[][]): void {
@@ -285,34 +602,90 @@ export class ReportPreviewComponent implements AfterViewInit {
                     p.every((s, j) => s.id === current[i][j].id && s === current[i][j])
             );
         if (same) return;
-        this.pages.set(newPages);
+        this._replacePages(newPages);
+    }
+
+    /** Swap the sheet list without sending the viewport back to page 1. */
+    private _replacePages(next: ReportSection[][]): void {
+        const host = this._dragViewport();
+        const top = host?.scrollTop ?? 0;
+        this.pages.set(next);
+        if (!host) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (host.isConnected) host.scrollTop = top;
+            });
+        });
+    }
+
+    hasBottomChrome(): boolean {
+        return (
+            Boolean(this.legend()) ||
+            Boolean(this.termsAndConditions()) ||
+            (this.showPageNumbers() && this.pageNumberPosition().startsWith('bottom'))
+        );
+    }
+
+    footerAlign(position: string): 'left' | 'center' | 'right' {
+        if (position.includes('right') || position === 'right') return 'right';
+        if (position.includes('center') || position === 'center') return 'center';
+        return 'left';
+    }
+
+    private _hasBottomChrome(): boolean {
+        return this.hasBottomChrome();
     }
 
     private _getLegendHeight(): number {
-        if (!this.legend()) return 0;
+        if (!this._hasBottomChrome()) return 0;
         const el = this._measureLegend?.nativeElement;
         if (!el) return 0;
         return el.getBoundingClientRect().height;
     }
 
+    private _getTopChromeHeight(): number {
+        if (!(this.showPageNumbers() && this.pageNumberPosition().startsWith('top'))) return 0;
+        const el = this.reportPage?.nativeElement.querySelector('[data-report-top-chrome]') as HTMLElement | null;
+        return el?.getBoundingClientRect().height || 28;
+    }
+
+    private _getInnerPaddingTopBottom(): number {
+        const inner = this.reportPage?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null;
+        if (!inner) return 96;
+        const style = getComputedStyle(inner);
+        return (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
+    }
+
+    /** Canonical px per layout px. Ignores visual zoom so boxes keep their ratio. */
     private get _scaleFactors(): { x: number; y: number } {
-        const ref = this.reportPage;
-        if (!ref) return { x: 1, y: 1 };
+        return this._lockedViewScale ?? this._readViewScale();
+    }
 
-        const rect = ref.nativeElement.getBoundingClientRect();
-        const currentWidth = rect.width;
-        const currentHeight = rect.height;
+    /** Canonical px per screen px. Use this for pointer drag / drop. */
+    private get _pointerScaleFactors(): { x: number; y: number } {
+        return this._lockedPointerScale ?? this._readPointerScale();
+    }
 
-        if (!currentWidth || !currentHeight) {
-            return { x: 1, y: 1 };
-        }
-
-        const canonicalWidth = (this.orientation() === 'landscape' ? 297 : 210) * MM_TO_PX;
-        const canonicalHeight = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
-
+    private _readViewScale(): { x: number; y: number } {
+        const el = this.reportPage?.nativeElement;
+        if (!el) return { x: 1, y: 1 };
+        const currentWidth = el.offsetWidth;
+        const currentHeight = el.offsetHeight;
+        if (!currentWidth || !currentHeight) return { x: 1, y: 1 };
         return {
-            x: canonicalWidth / currentWidth,
-            y: canonicalHeight / currentHeight,
+            x: this.pageWidthPx() / currentWidth,
+            y: this.pageHeightPx() / currentHeight,
+        };
+    }
+
+    private _readPointerScale(): { x: number; y: number } {
+        const el = this.reportPage?.nativeElement;
+        if (!el) return { x: 1, y: 1 };
+        const rect = el.getBoundingClientRect();
+        if (!rect.width || !rect.height) return { x: 1, y: 1 };
+        return {
+            x: this.pageWidthPx() / rect.width,
+            y: this.pageHeightPx() / rect.height,
         };
     }
 
@@ -350,6 +723,1629 @@ export class ReportPreviewComponent implements AfterViewInit {
         return this.logoHeight() / this._scaleFactors.y;
     }
 
+    /** Company logos packed into the header or the footer. A drag stays inside that band. */
+    headerLogoViews(): Array<PlacedHeaderLogo & { viewX: number; viewY: number; viewWidth: number; viewHeight: number }> {
+        const scale = this._scaleFactors;
+        const drag = this.headerLogoDragX();
+        return placeCompanyLogos(this._headerLogosForView(), this.pageWidthPx(), this.pageHeightPx()).map((logo) => {
+            const x = drag?.id === logo.id ? drag.x : logo.x;
+            return {
+                ...logo,
+                x,
+                viewX: x / scale.x,
+                viewY: logo.y / scale.y,
+                viewWidth: logo.width / scale.x,
+                viewHeight: logo.height / scale.y,
+            };
+        });
+    }
+
+    headerBandTopView(): number {
+        return HEADER_LOGO_BAND_TOP / this._scaleFactors.y;
+    }
+
+    headerBandHeightView(): number {
+        return headerLogoBandHeight(this._logosInBand('header')) / this._scaleFactors.y;
+    }
+
+    footerBandHeightView(): number {
+        return headerLogoBandHeight(this._logosInBand('footer')) / this._scaleFactors.y;
+    }
+
+    footerBandTopView(): number {
+        const band = headerLogoBandHeight(this._logosInBand('footer'));
+        return (this.pageHeightPx() - HEADER_LOGO_BAND_TOP - band) / this._scaleFactors.y;
+    }
+
+    hasHeaderLogos(): boolean {
+        return this._logosInBand('header').length > 0;
+    }
+
+    hasFooterLogos(): boolean {
+        return this._logosInBand('footer').length > 0;
+    }
+
+    headerLogoBorder(id: string): string {
+        return this.isOverlaySelected(this.headerOverlayId(id)) ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    headerOverlayId(id: string): ReportOverlayId {
+        return `hdr:${id}`;
+    }
+
+    private _headerLogosForView(): ReportHeaderLogo[] {
+        const resize = this.headerLogoResize();
+        const drag = this.headerLogoDragX();
+        return (this.template()?.headerLogos ?? []).map((logo) => {
+            let next = logo;
+            if (resize?.id === logo.id) next = { ...next, width: resize.width, height: resize.height };
+            if (drag?.id === logo.id) next = { ...next, band: drag.band };
+            return next;
+        });
+    }
+
+    private _logosInBand(band: ReportLogoBand): ReportHeaderLogo[] {
+        return this._headerLogosForView().filter((logo) => companyLogoBand(logo) === band);
+    }
+
+    get viewWatermarkX(): number {
+        return this.watermarkX() / this._scaleFactors.x;
+    }
+
+    get viewWatermarkY(): number {
+        return this.watermarkY() / this._scaleFactors.y;
+    }
+
+    get viewWatermarkWidth(): number {
+        return this.watermarkWidth() / this._scaleFactors.x;
+    }
+
+    get viewWatermarkHeight(): number {
+        return this.watermarkHeight() / this._scaleFactors.y;
+    }
+
+    sheetOverlayId(id: string): ReportOverlayId {
+        return `img:${id}`;
+    }
+
+    sheetImagesForPage(pageIndex: number): ReportSheetImage[] {
+        return this.sheetImages().filter((image) => (image.page ?? 0) === pageIndex);
+    }
+
+    sheetImageView(image: ReportSheetImage): { x: number; y: number; width: number; height: number } {
+        const scales = this._scaleFactors;
+        return {
+            x: image.x / scales.x,
+            y: image.y / scales.y,
+            width: image.width / scales.x,
+            height: image.height / scales.y,
+        };
+    }
+
+    sheetImageBorder(id: string): string {
+        return this.isOverlaySelected(this.sheetOverlayId(id)) ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    private _sheetImageId(target: ReportOverlayId | null): string | null {
+        return target?.startsWith('img:') ? target.slice(4) : null;
+    }
+
+    private _sheetImage(id: string | null): ReportSheetImage | null {
+        if (!id) return null;
+        return this.sheetImages().find((image) => image.id === id) ?? null;
+    }
+
+    /** Largest size that still fits the stamp box, so widening the box enlarges the text. */
+    get viewWatermarkFontSize(): number {
+        const height = Math.max(1, this.viewWatermarkHeight);
+        const width = Math.max(1, this.viewWatermarkWidth);
+        const text = (this.watermarkText() || '').replace(/\s+/g, ' ').trim();
+        const heightCap = height * 0.86;
+        if (!text) return Math.max(12, Math.min(height * 0.32, heightCap));
+        const fromWidth = (width * 0.94) / (text.length * 0.68);
+        return Math.max(12, Math.min(fromWidth, heightCap));
+    }
+
+    get logoRotateStyle(): string {
+        return `rotate(${this.logoRotation()}deg)`;
+    }
+
+    get watermarkRotateStyle(): string {
+        return `rotate(${this.watermarkRotation()}deg)`;
+    }
+
+    /** Keeps the stamp readable on any block color. The slider still lightens or darkens it. */
+    watermarkPaintOpacity(): number {
+        const value = Number(this.watermarkOpacity());
+        const opacity = Number.isFinite(value) ? value : 0.08;
+        return Math.min(0.4, Math.max(0.04, opacity));
+    }
+
+    get logoOverlayBorder(): string {
+        return this.isOverlaySelected('logo') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    get watermarkOverlayBorder(): string {
+        return this.isOverlaySelected('watermark') ? '2px dashed rgba(217, 119, 6, 0.9)' : 'none';
+    }
+
+    get signatureOverlayBorder(): string {
+        return this.isOverlaySelected('signature') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+    }
+
+    isOverlaySelected(id: ReportOverlayId): boolean {
+        return this.clickable() && this.selectedOverlay() === id;
+    }
+
+    /** Shared paint order for blocks, images, and stamps. */
+    layerZIndex(id: string, fallback: number): number {
+        const value = Number(this.layerZ()[id]);
+        if (Number.isFinite(value) && value > 0) return Math.round(value);
+        const safe = Number.isFinite(fallback) ? fallback : 40;
+        return Math.min(800, Math.max(1, Math.round(safe)));
+    }
+
+    isLayerHidden(id: string): boolean {
+        return this.hiddenLayerIds().includes(id);
+    }
+
+    isLayerLocked(id: string): boolean {
+        return this.lockedLayerIds().includes(id);
+    }
+
+    /** Locked and hidden layers do not take the click, so the block behind them can be edited. */
+    isLayerQuiet(id: string): boolean {
+        return this.isLayerHidden(id) || this.isLayerLocked(id);
+    }
+
+    private _sectionPointer(section: ReportSection): string {
+        if (this.isLayerQuiet(`sec:${section.id}`)) return 'none';
+        if (this.draggingSectionId() && this.draggingSectionId() !== section.id) return 'none';
+        return 'auto';
+    }
+
+    selectOverlay(id: ReportOverlayId, event?: Event): void {
+        event?.stopPropagation();
+        if (!this.clickable()) return;
+        this.overlaySelect.emit(id);
+    }
+
+    onPaperClick(event: MouseEvent): void {
+        if (!this.clickable()) return;
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('[data-overlay-box]') || target?.closest('[data-report-section]')) {
+            return;
+        }
+        this.backgroundClick.emit();
+    }
+
+    onPaperContextMenu(event: MouseEvent): void {
+        if (!this.clickable() || !this.customContextMenu()) return;
+        const target = event.target as HTMLElement | null;
+        if (
+            target?.closest('[data-overlay-box]') ||
+            target?.closest('[data-report-section]') ||
+            target?.closest('[data-report-cell]')
+        ) {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        this.paperContextMenu.emit({ x: event.clientX, y: event.clientY });
+    }
+
+    /** Sheet coordinates under the pointer, for dropping new overlays. */
+    canonicalPointAt(clientX: number, clientY: number): { x: number; y: number; page: number } {
+        const page = this._pageIndexAtPoint(clientX, clientY, 0);
+        const inner = this._pageInner(page);
+        if (!inner) return { x: 48, y: 48, page };
+        const origin = this._innerOrigin(inner);
+        const scales = this._pointerScaleFactors;
+        return {
+            page,
+            x: Math.max(0, (clientX - origin.left) * scales.x),
+            y: Math.max(0, (clientY - origin.top) * scales.y),
+        };
+    }
+
+    /** Section under the pointer, used when dropping a field or nested table. */
+    sectionIdAt(clientX: number, clientY: number): string | null {
+        const stack = document.elementsFromPoint(clientX, clientY);
+        for (const node of stack) {
+            const host = (node as HTMLElement).closest?.('[data-report-section]');
+            const id = host?.getAttribute('data-section-id');
+            if (id) return id;
+        }
+        return null;
+    }
+
+    onSectionActivate(section: ReportSection, event: Event): void {
+        event.stopPropagation();
+        if (this._sectionDragMoved) {
+            this._sectionDragMoved = false;
+            return;
+        }
+        if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
+        if (!this.clickable() || !this.sectionClick()) return;
+        const host = event.target as HTMLElement | null;
+        if (host?.closest('[data-sheet-role="title"]')) {
+            this._keepCellSelection = false;
+            this.cellSelect.emit({ section, key: null, part: 'title' });
+            this.sectionClick()!(section);
+            return;
+        }
+        const cell = host?.closest('[data-report-cell]');
+        const cellKey = cell?.getAttribute('data-cell-key');
+        if (cellKey) {
+            this._keepCellSelection = false;
+            const rawPart = host?.closest('[data-cell-part]')?.getAttribute('data-cell-part');
+            const part: ReportCellPart = rawPart === 'label' || rawPart === 'value' ? rawPart : 'cell';
+            this.cellSelect.emit({ section, key: cellKey, part });
+            this.sectionClick()!(section);
+            return;
+        }
+        if (this._keepCellSelection) {
+            this._keepCellSelection = false;
+            this.sectionClick()!(section);
+            return;
+        }
+        this.cellSelect.emit({ section, key: null, part: 'cell' });
+        this.sectionClick()!(section);
+    }
+
+    canInlineEdit(measure?: boolean): boolean {
+        return Boolean(
+            this.clickable() && this.sectionClick() && !this.thumbnailMode() && !this.printCapture() && !measure
+        );
+    }
+
+    isEditingText(sectionId: string, kind: string, key?: string | null): boolean {
+        const current = this.editingText();
+        return (
+            !!current &&
+            current.sectionId === sectionId &&
+            current.kind === kind &&
+            (current.key ?? '') === (key ?? '')
+        );
+    }
+
+    sheetTextContext(
+        section: ReportSection,
+        kind: ReportInlineTextKind | string,
+        text: string,
+        measure?: boolean,
+        multiline = false,
+        key?: string,
+        fallback?: string
+    ): {
+        section: ReportSection;
+        kind: string;
+        text: string;
+        measure?: boolean;
+        key?: string;
+        fallback?: string;
+        multiline?: boolean;
+    } {
+        return { section, kind, text, measure, multiline, key, fallback };
+    }
+
+    startInlineEdit(
+        section: ReportSection,
+        kind: ReportInlineTextKind | string,
+        event: Event,
+        key?: string,
+        fallback = ''
+    ): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.canInlineEdit()) return;
+        const editKind = kind as ReportInlineTextKind;
+        this._clearSectionDrag();
+        this._flushInlineEdit();
+        this._suppressInlineBlur = true;
+        this.sectionClick()?.(section);
+        const onTitle = Boolean((event.target as HTMLElement | null)?.closest('[data-sheet-role="title"]'));
+        if ((editKind === 'cellLabel' || editKind === 'cellValue') && key) {
+            this.cellSelect.emit({
+                section,
+                key: key.split('#')[0],
+                part: editKind === 'cellLabel' ? 'label' : 'value',
+            });
+        } else if (onTitle) {
+            this.cellSelect.emit({ section, key: null, part: 'title' });
+        } else {
+            this.cellSelect.emit({ section, key: null, part: 'cell' });
+        }
+        this.inlineDraft.set(this._inlineSeed(section, editKind, key, fallback));
+        this.editingText.set({ sectionId: section.id, kind: editKind, ...(key ? { key } : {}) });
+        queueMicrotask(() => {
+            this._suppressInlineBlur = false;
+            this._focusInlineEditor();
+        });
+    }
+
+    onInlineDraftInput(event: Event): void {
+        this.inlineDraft.set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
+    }
+
+    onInlineKeydown(event: KeyboardEvent, multiline: boolean): void {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this._suppressInlineBlur = true;
+            this.editingText.set(null);
+            queueMicrotask(() => {
+                this._suppressInlineBlur = false;
+            });
+            return;
+        }
+        if (event.key === 'Enter' && (!multiline || event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            this.commitInlineEdit();
+        }
+    }
+
+    commitInlineEdit(): void {
+        if (this._suppressInlineBlur) return;
+        this._flushInlineEdit();
+    }
+
+    private _flushInlineEdit(): void {
+        const editing = this.editingText();
+        if (!editing) return;
+        const value = this.inlineDraft();
+        this.editingText.set(null);
+        this.inlineTextChange.emit({ ...editing, value });
+    }
+
+    private _inlineSeed(
+        section: ReportSection,
+        kind: ReportInlineTextKind,
+        key?: string,
+        fallback = ''
+    ): string {
+        if (kind === 'body') return section.staticContent || '';
+        if (kind === 'itemTitle') return section.itemTitle || fallback || '';
+        if (kind === 'itemTemplate') return section.itemTemplate || fallback || '';
+        if (kind === 'cellLabel' && key) {
+            return this.entryLabel(section, { key, label: fallback || key });
+        }
+        if (kind === 'cellValue' && key) {
+            const custom = section.keyOverrides?.[key]?.value;
+            if (typeof custom === 'string') return custom;
+            return fallback ?? '';
+        }
+        if (section.type === 'header') return section.staticContent || section.label || '';
+        return section.label || '';
+    }
+
+    private _focusInlineEditor(): void {
+        const el = this._host.nativeElement.querySelector('[data-inline-edit]') as
+            | HTMLInputElement
+            | HTMLTextAreaElement
+            | null;
+        if (!el) return;
+        el.focus();
+        const end = el.value.length;
+        el.setSelectionRange(end, end);
+    }
+
+    onSectionPointerDown(section: ReportSection, event: PointerEvent): void {
+        if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
+        const origin = event.target as HTMLElement | null;
+        if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
+        if (origin?.closest('[data-section-handle]')) return;
+        if (origin?.closest('[data-inline-edit]') || origin?.closest('[data-sheet-text]')) return;
+        const cellKey = origin?.closest('[data-report-cell]')?.getAttribute('data-cell-key') ?? null;
+        const rawPart = origin?.closest('[data-cell-part]')?.getAttribute('data-cell-part');
+        const cellPart: ReportCellPart = rawPart === 'label' || rawPart === 'value' ? rawPart : 'cell';
+        this._sectionDragMoved = false;
+        this._sectionDrag = {
+            id: section.id,
+            pointerId: event.pointerId,
+            startClientX: event.clientX,
+            startClientY: event.clientY,
+            startFrame: this.displayFrame(section) ?? { page: 0, x: 0, y: 0, width: 0 },
+            scrollTopAtStart: this._dragViewport()?.scrollTop ?? 0,
+            active: false,
+            cellKey,
+            cellPart,
+            host: event.currentTarget as HTMLElement | null,
+        };
+        window.addEventListener('pointermove', this._onWindowSectionMove);
+        window.addEventListener('pointerup', this._onWindowSectionUp, true);
+        window.addEventListener('pointercancel', this._onWindowSectionUp, true);
+    }
+
+    startSectionResize(
+        section: ReportSection,
+        event: PointerEvent,
+        handle: 'nw' | 'ne' | 'sw' | 'se' = 'se'
+    ): void {
+        if (!this.clickable() || event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const frame = this.displayFrame(section);
+        if (!frame) return;
+        this._clearSectionDrag();
+        this._sectionResize = {
+            id: section.id,
+            pointerId: event.pointerId,
+            handle,
+            startClientX: event.clientX,
+            startClientY: event.clientY,
+            startFrame: { ...frame, width: frame.width || 48, height: frame.height || 48 },
+            keepRatio: this.shapeKeepRatio(section),
+            rotation: this.sectionRotation(section),
+        };
+        this._setSheetDragging(true);
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor =
+            handle === 'ne' || handle === 'sw' ? 'nesw-resize' : 'nwse-resize';
+        window.addEventListener('pointermove', this._onWindowSectionResizeMove);
+        window.addEventListener('pointerup', this._onWindowSectionResizeUp, true);
+        window.addEventListener('pointercancel', this._onWindowSectionResizeUp, true);
+    }
+
+    startSectionRotate(section: ReportSection, event: PointerEvent): void {
+        if (!this.clickable() || event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const box = (event.currentTarget as HTMLElement).closest('[data-report-section]') as HTMLElement | null;
+        if (!box) return;
+        const rect = box.getBoundingClientRect();
+        this._clearSectionDrag();
+        this._sectionRotate = {
+            id: section.id,
+            pointerId: event.pointerId,
+            centerX: rect.left + rect.width / 2,
+            centerY: rect.top + rect.height / 2,
+            startAngle: Math.atan2(event.clientY - (rect.top + rect.height / 2), event.clientX - (rect.left + rect.width / 2)),
+            startRotation: this.sectionRotation(section),
+        };
+        this._setSheetDragging(true);
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'grabbing';
+        window.addEventListener('pointermove', this._onWindowSectionRotateMove);
+        window.addEventListener('pointerup', this._onWindowSectionRotateUp, true);
+        window.addEventListener('pointercancel', this._onWindowSectionRotateUp, true);
+    }
+
+    private _onWindowSectionResizeMove = (event: PointerEvent): void => {
+        const resize = this._sectionResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+        event.preventDefault();
+        this._pendingResizePoint = { x: event.clientX, y: event.clientY };
+        if (this._resizeRaf !== null) return;
+        this._resizeRaf = requestAnimationFrame(() => {
+            this._resizeRaf = null;
+            const point = this._pendingResizePoint;
+            if (!point || !this._sectionResize) return;
+            this._applySectionResize(point.x, point.y);
+        });
+    };
+
+    private _applySectionResize(clientX: number, clientY: number): void {
+        const resize = this._sectionResize;
+        if (!resize) return;
+        const scales = this._pointerScaleFactors;
+        const start = resize.startFrame;
+        const startW = start.width || 48;
+        const startH = start.height || 48;
+        const rad = (-resize.rotation * Math.PI) / 180;
+        const dx = (clientX - resize.startClientX) * scales.x;
+        const dy = (clientY - resize.startClientY) * scales.y;
+        const localX = dx * Math.cos(rad) - dy * Math.sin(rad);
+        const localY = dx * Math.sin(rad) + dy * Math.cos(rad);
+        let width = startW;
+        let height = startH;
+        let x = start.x;
+        let y = start.y;
+        if (resize.handle.includes('e')) width = startW + localX;
+        if (resize.handle.includes('w')) {
+            width = startW - localX;
+            x = start.x + localX;
+        }
+        if (resize.handle.includes('s')) height = startH + localY;
+        if (resize.handle.includes('n')) {
+            height = startH - localY;
+            y = start.y + localY;
+        }
+        if (resize.keepRatio) {
+            const ratio = startW / Math.max(1, startH);
+            const fromWidth = Math.abs(width - startW) >= Math.abs(height - startH);
+            if (fromWidth) height = width / ratio;
+            else width = height * ratio;
+            if (resize.handle.includes('w')) x = start.x + startW - width;
+            if (resize.handle.includes('n')) y = start.y + startH - height;
+        }
+        width = Math.max(12, width);
+        height = Math.max(12, height);
+        const prev = this.liveFrames()[resize.id];
+        if (prev && prev.x === x && prev.y === y && prev.width === width && prev.height === height) return;
+        this.liveFrames.update((current) => ({
+            ...current,
+            [resize.id]: { ...start, x, y, width, height },
+        }));
+    };
+
+    private _onWindowSectionResizeUp = (event: PointerEvent): void => {
+        const resize = this._sectionResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+        this._pendingResizePoint = { x: event.clientX, y: event.clientY };
+        this._flushSectionResizeRaf();
+        this._applySectionResize(event.clientX, event.clientY);
+        const frame = this.liveFrames()[resize.id];
+        this._sectionResize = null;
+        this._pendingResizePoint = null;
+        window.removeEventListener('pointermove', this._onWindowSectionResizeMove);
+        window.removeEventListener('pointerup', this._onWindowSectionResizeUp, true);
+        window.removeEventListener('pointercancel', this._onWindowSectionResizeUp, true);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        if (frame) this.sectionFrameChange.emit({ id: resize.id, frame });
+        this.liveFrames.set({});
+        this._setSheetDragging(false);
+    };
+
+    private _onWindowSectionRotateMove = (event: PointerEvent): void => {
+        const rotate = this._sectionRotate;
+        if (!rotate || event.pointerId !== rotate.pointerId) return;
+        event.preventDefault();
+        this._pendingRotatePoint = { x: event.clientX, y: event.clientY };
+        if (this._rotateRaf !== null) return;
+        this._rotateRaf = requestAnimationFrame(() => {
+            this._rotateRaf = null;
+            const point = this._pendingRotatePoint;
+            if (!point || !this._sectionRotate) return;
+            this._applySectionRotate(point.x, point.y);
+        });
+    };
+
+    private _applySectionRotate(clientX: number, clientY: number): void {
+        const rotate = this._sectionRotate;
+        if (!rotate) return;
+        const angle = Math.atan2(clientY - rotate.centerY, clientX - rotate.centerX);
+        const degrees = rotate.startRotation + ((angle - rotate.startAngle) * 180) / Math.PI;
+        const next = Math.round(((degrees % 360) + 360) % 360);
+        const value = next > 180 ? next - 360 : next;
+        if (this.liveRotations()[rotate.id] === value) return;
+        this.liveRotations.update((current) => ({ ...current, [rotate.id]: value }));
+    };
+
+    private _onWindowSectionRotateUp = (event: PointerEvent): void => {
+        const rotate = this._sectionRotate;
+        if (!rotate || event.pointerId !== rotate.pointerId) return;
+        this._pendingRotatePoint = { x: event.clientX, y: event.clientY };
+        this._flushSectionRotateRaf();
+        this._applySectionRotate(event.clientX, event.clientY);
+        const rotation = this.liveRotations()[rotate.id] ?? 0;
+        this._sectionRotate = null;
+        this._pendingRotatePoint = null;
+        window.removeEventListener('pointermove', this._onWindowSectionRotateMove);
+        window.removeEventListener('pointerup', this._onWindowSectionRotateUp, true);
+        window.removeEventListener('pointercancel', this._onWindowSectionRotateUp, true);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        this.sectionRotationChange.emit({ id: rotate.id, rotation });
+        this.liveRotations.set({});
+        this._setSheetDragging(false);
+    };
+
+    private _onWindowSectionMove = (event: PointerEvent): void => {
+        this.onSectionPointerMove(event);
+    };
+
+    private _onWindowSectionUp = (event: PointerEvent): void => {
+        this.onSectionPointerUp(event);
+    };
+
+    onSectionPointerMove(event: PointerEvent): void {
+        const drag = this._sectionDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        if (!drag.active) {
+            if (Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) < 8) {
+                return;
+            }
+            const start = this._allSectionsHaveFrames()
+                ? this.liveFrames()[drag.id] ??
+                  this.template().sections?.find((section) => section.id === drag.id)?.frame ??
+                  null
+                : this._pinFlowLayout(drag.id);
+            if (!start) {
+                this._clearSectionDrag();
+                return;
+            }
+            drag.startFrame = start;
+            drag.scrollTopAtStart = this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart;
+            drag.active = true;
+            this._sectionDragMoved = true;
+            event.preventDefault();
+            try {
+                drag.host?.setPointerCapture(event.pointerId);
+            } catch {
+                /* Window listeners still follow the pointer if capture is unavailable. */
+            }
+            if (this.editingText()) this.commitInlineEdit();
+            this.draggingSectionId.set(drag.id);
+            this._setSheetDragging(true);
+            document.body.style.userSelect = 'none';
+            document.body.style.cursor = 'grabbing';
+        }
+        event.preventDefault();
+        this._pendingDragPoint = { x: event.clientX, y: event.clientY };
+        this._scheduleSectionDragPaint();
+    }
+
+    private _scheduleSectionDragPaint(): void {
+        if (this._sectionDragRaf !== null) return;
+        this._sectionDragRaf = requestAnimationFrame(() => {
+            this._sectionDragRaf = null;
+            const drag = this._sectionDrag;
+            const point = this._pendingDragPoint;
+            if (!drag?.active || !point) return;
+            this._applySectionDrag(drag, point.x, point.y);
+        });
+    }
+
+    private _flushSectionDragRaf(): void {
+        if (this._sectionDragRaf === null) return;
+        cancelAnimationFrame(this._sectionDragRaf);
+        this._sectionDragRaf = null;
+    }
+
+    private _flushSectionResizeRaf(): void {
+        if (this._resizeRaf === null) return;
+        cancelAnimationFrame(this._resizeRaf);
+        this._resizeRaf = null;
+    }
+
+    private _flushSectionRotateRaf(): void {
+        if (this._rotateRaf === null) return;
+        cancelAnimationFrame(this._rotateRaf);
+        this._rotateRaf = null;
+    }
+
+    onSectionPointerUp(event: PointerEvent): void {
+        const drag = this._sectionDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const wasActive = drag.active;
+        if (wasActive) {
+            this._pendingDragPoint = { x: event.clientX, y: event.clientY };
+            this._flushSectionDragRaf();
+            this._applySectionDrag(drag, event.clientX, event.clientY);
+        }
+        const live = this.liveFrames();
+        const changedIds = new Set<string>([drag.id, ...this._pinnedIdsThisDrag]);
+        const updates = [...changedIds]
+            .map((id) => {
+                const frame = live[id];
+                return frame ? { id, frame } : null;
+            })
+            .filter((item): item is { id: string; frame: ReportSectionFrame } => Boolean(item));
+        this._stopSectionDragListeners();
+        this._sectionDrag = null;
+        this._pinnedIdsThisDrag.clear();
+        this.draggingSectionId.set(null);
+        this.alignmentGuides.set([]);
+        this._setSheetDragging(false);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        if (!wasActive) {
+            this.liveFrames.set({});
+            const section = this.template().sections?.find((item) => item.id === drag.id);
+            if (section && drag.cellKey) {
+                this._keepCellSelection = true;
+                this.cellSelect.emit({ section, key: drag.cellKey, part: drag.cellPart });
+                queueMicrotask(() => {
+                    this._keepCellSelection = false;
+                });
+            }
+            return;
+        }
+        this.sectionFramesChange.emit(updates);
+        this.liveFrames.set({});
+    }
+
+    isSectionDropBefore(_section: ReportSection): boolean {
+        return false;
+    }
+
+    isSectionDropAfter(_section: ReportSection): boolean {
+        return false;
+    }
+
+    hasFreeLayout(): boolean {
+        return this.freeLayout();
+    }
+
+    visiblePages(): ReportSection[][] {
+        const pages = this.pages();
+        if (!this.thumbnailMode()) return pages;
+        return pages.length ? [pages[0]] : [[]];
+    }
+
+    private _pagesFromFrames(sections: ReportSection[]): ReportSection[][] {
+        let pageCount = 1;
+        for (const section of sections) {
+            pageCount = Math.max(pageCount, (this.displayFrame(section)?.page ?? 0) + 1);
+        }
+        const newPages: ReportSection[][] = Array.from({ length: pageCount }, () => []);
+        for (const section of sections) {
+            const page = Math.min(Math.max(0, this.displayFrame(section)?.page ?? 0), pageCount - 1);
+            newPages[page].push(section);
+        }
+        return newPages.length ? newPages : [[]];
+    }
+
+    isPageAnchor(section: ReportSection): boolean {
+        return isReportPageAnchor(section);
+    }
+
+    emitAddPage(event: Event): void {
+        event.stopPropagation();
+        this.addPage.emit();
+    }
+
+    emitRemovePage(event: Event): void {
+        event.stopPropagation();
+        this.removePage.emit();
+    }
+
+    pageHasBlocks(pageSections: ReportSection[]): boolean {
+        return pageSections.some((section) => !this.isPageAnchor(section));
+    }
+
+    canRemoveLastPage(): boolean {
+        const pages = this.visiblePages();
+        if (pages.length < 2) return false;
+        const lastIndex = pages.length - 1;
+        if (this.pageHasBlocks(pages[lastIndex] ?? [])) return false;
+        return !this.sheetImages().some((image) => (image.page ?? 0) === lastIndex);
+    }
+
+    pageHost(pageIndex: number): HTMLElement | null {
+        return this._reportPages?.toArray()[pageIndex]?.nativeElement ?? null;
+    }
+
+    /** Screen box of the selected block, its title, or one cell inside it. */
+    anchorRect(sectionId: string, cellKey?: string | null, part?: ReportCellPart | null): DOMRect | null {
+        const root = this._host.nativeElement as HTMLElement;
+        if (!sectionId) return null;
+        const section = root.querySelector(`[data-section-id="${CSS.escape(sectionId)}"]`);
+        if (!(section instanceof HTMLElement)) return null;
+        if (!cellKey && part === 'title') {
+            const title = section.querySelector('[data-sheet-role="title"]');
+            if (title instanceof HTMLElement) return title.getBoundingClientRect();
+        }
+        if (cellKey) {
+            const cell = section.querySelector(`[data-cell-key="${CSS.escape(cellKey)}"]`);
+            if (cell instanceof HTMLElement) return cell.getBoundingClientRect();
+        }
+        return section.getBoundingClientRect();
+    }
+
+    overlayAnchorRect(id: ReportOverlayId | null | undefined): DOMRect | null {
+        if (!id) return null;
+        const root = this._host.nativeElement as HTMLElement;
+        const box = root.querySelector(`[data-overlay-id="${CSS.escape(id)}"]`);
+        return box instanceof HTMLElement ? box.getBoundingClientRect() : null;
+    }
+
+    isTitleSelected(section: ReportSection): boolean {
+        return (
+            this.clickable() &&
+            this.selectedSectionId() === section.id &&
+            !this.selectedCellKey() &&
+            this.selectedCellPart() === 'title'
+        );
+    }
+
+    onTitleContextMenu(section: ReportSection, event: MouseEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.clickable()) return;
+        this.cellSelect.emit({ section, key: null, part: 'title' });
+        this.sectionClick()?.(section);
+    }
+
+    private _usesPinnedFrames(): boolean {
+        return (this.template().sections ?? []).some((section) => Boolean(section.frame));
+    }
+
+    private _allSectionsHaveFrames(): boolean {
+        const sections = this.template().sections ?? [];
+        return sections.length > 0 && sections.every((section) => Boolean(this.displayFrame(section)));
+    }
+
+    displayFrame(section: ReportSection): ReportSectionFrame | null {
+        return this.liveFrames()[section.id] ?? section.frame ?? null;
+    }
+
+    paperName(): ReportPageSizeName {
+        return resolvePageSizeName(this.pageSize() ?? this.template()?.pageSize);
+    }
+
+    paperSizeMm(): { width: number; height: number } {
+        return reportPaperSizeMm(this.paperName(), this.orientation());
+    }
+
+    pageWidthCss(): string {
+        return `${this.paperSizeMm().width}mm`;
+    }
+
+    pageHeightCss(): string {
+        return `${this.paperSizeMm().height}mm`;
+    }
+
+    measureWidthCss(): string {
+        return `${this.paperSizeMm().width}mm`;
+    }
+
+    zoomInnerTransform(): string {
+        const zoom = this._viewZoom();
+        return zoom === 1 ? 'none' : `scale(${zoom})`;
+    }
+
+    zoomedStackWidthPx(): number {
+        return this.pageWidthPx() * this._viewZoom();
+    }
+
+    zoomedStackHeightPx(): number {
+        const pages = Math.max(1, this.visiblePages().length);
+        const gap = 16;
+        return (this.pageHeightPx() * pages + gap * Math.max(0, pages - 1)) * this._viewZoom();
+    }
+
+    private _viewZoom(): number {
+        const zoom = Number(this.viewZoom());
+        return Number.isFinite(zoom) && zoom > 0 ? zoom : 1;
+    }
+
+    pageWidthPx(): number {
+        return this.paperSizeMm().width * MM_TO_PX;
+    }
+
+    pageHeightPx(): number {
+        return this.paperSizeMm().height * MM_TO_PX;
+    }
+
+    /** Last usable Y before the footer / bottom margin. */
+    contentBottomLimitPx(): number {
+        const legend = this._getLegendHeight() * this._scaleFactors.y;
+        return Math.max(PAGE_INSET_PX + 80, this.pageHeightPx() - PAGE_INSET_PX - legend);
+    }
+
+    /** Keep a new block on its sheet. A later block must stay reachable above an earlier one. */
+    fitFrameOnSheet(frame: ReportSectionFrame): ReportSectionFrame {
+        const height = Number(frame.height) || 0;
+        const y = Number(frame.y) || 0;
+        const limit = this.contentBottomLimitPx();
+        if (height > 0 && y + height > limit) {
+            return { ...frame, y: Math.max(0, limit - height) };
+        }
+        return frame;
+    }
+
+    /**
+     * Where a new content block goes: under the lowest block already on the sheet.
+     * If it would collide with the footer, it starts on the next A4 page.
+     */
+    frameBelowContent(size: { width: number; height: number }): ReportSectionFrame | null {
+        const boxes = (this.template().sections ?? [])
+            .filter((section) => !isReportPageAnchor(section))
+            .map((section) => this.displayFrame(section))
+            .filter((frame): frame is ReportSectionFrame => Boolean(frame));
+        if (!boxes.length) return null;
+
+        const pageHeight = this.pageHeightPx();
+        const lowest = boxes.reduce((best, frame) => {
+            const bestRank = (best.page ?? 0) * pageHeight + (best.y ?? 0) + (best.height ?? 0);
+            const nextRank = (frame.page ?? 0) * pageHeight + (frame.y ?? 0) + (frame.height ?? 0);
+            return nextRank >= bestRank ? frame : best;
+        });
+        return this.fitFrameOnSheet({
+            x: lowest.x ?? 24,
+            y: (lowest.y ?? 0) + (lowest.height || size.height) + SECTION_GAP_PX,
+            width: size.width,
+            height: size.height,
+            page: lowest.page ?? 0,
+        });
+    }
+
+    sectionHostStyle(section: ReportSection): Record<string, string> {
+        const frame = this.displayFrame(section);
+        if (!this.hasFreeLayout() || !frame) return {};
+        const x = Number(frame.x);
+        const y = Number(frame.y);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return {};
+        const scales = this._scaleFactors;
+        const width = Number(frame.width) > 0 ? Number(frame.width) / scales.x : 0;
+        const height = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
+        const rotation = this.sectionRotation(section);
+        const dragging = this.draggingSectionId() === section.id;
+        const style: Record<string, string> = {
+            position: 'absolute',
+            left: `${x / scales.x}px`,
+            top: `${y / scales.y}px`,
+            width: width ? `${width}px` : '100%',
+            marginBottom: '0px',
+            zIndex: dragging ? '100000' : String(this.layerZIndex(`sec:${section.id}`, this._sectionZIndex(section))),
+            pointerEvents: this._sectionPointer(section),
+        };
+        if (this.isLayerHidden(`sec:${section.id}`)) style['visibility'] = 'hidden';
+        if (dragging) style['willChange'] = 'left, top, width, height';
+        const clipToFrame = section.type === 'image';
+        if (height) {
+            if (clipToFrame || section.type === 'shape') style['height'] = `${height}px`;
+            else style['min-height'] = `${height}px`;
+        }
+        style['overflow'] = clipToFrame ? 'hidden' : 'visible';
+        if (section.type !== 'shape' && rotation) {
+            style['transform'] = `rotate(${rotation}deg)`;
+            style['transform-origin'] = 'center center';
+        }
+        return style;
+    }
+
+    private _sectionZIndex(section: ReportSection): number {
+        const stored = Number(section.style?.zIndex);
+        if (Number.isFinite(stored) && stored > 0) return Math.round(stored);
+        return 40;
+    }
+
+    sectionRotation(section: ReportSection): number {
+        const live = this.liveRotations()[section.id];
+        if (Number.isFinite(live)) return live;
+        const stored = Number(section.style?.rotation);
+        return Number.isFinite(stored) ? stored : 0;
+    }
+
+    isShapeSection(section: ReportSection): boolean {
+        return section.type === 'shape';
+    }
+
+    private _applySectionDrag(
+        drag: {
+            id: string;
+            startClientX: number;
+            startClientY: number;
+            startFrame: ReportSectionFrame;
+            scrollTopAtStart: number;
+        },
+        clientX: number,
+        clientY: number
+    ): void {
+        const scales = this._pointerScaleFactors;
+        const width = drag.startFrame.width || 240;
+        const height = drag.startFrame.height || 80;
+        const fromPage = drag.startFrame.page ?? 0;
+        let toPage = this._pageForDrag(clientX, clientY, fromPage);
+        const creating = toPage > fromPage && toPage >= (this._reportPages?.length ?? 0);
+        const scrollDelta = (this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart) - drag.scrollTopAtStart;
+        let x = drag.startFrame.x + (clientX - drag.startClientX) * scales.x;
+        let y = creating
+            ? PAGE_INSET_PX
+            : drag.startFrame.y + (clientY - drag.startClientY + scrollDelta) * scales.y;
+        const fromInner = this._pageInner(fromPage);
+        const toInner = this._pageInner(toPage);
+        if (!creating && fromInner && toInner && fromInner !== toInner) {
+            const fromOrigin = this._innerOrigin(fromInner);
+            const toOrigin = this._innerOrigin(toInner);
+            x += (fromOrigin.left - toOrigin.left) * scales.x;
+            y += (fromOrigin.top - toOrigin.top) * scales.y;
+        }
+        if (!creating) {
+            let guard = 0;
+            while (y < -24 && toPage > 0 && guard < 6) {
+                const previous = this._pageInner(toPage - 1);
+                if (!previous) break;
+                y += this.pageHeightPx();
+                toPage -= 1;
+                guard += 1;
+            }
+        }
+        if (!creating) {
+            const keep = 48;
+            const pageW = this.pageWidthPx();
+            const pageH = this.pageHeightPx();
+            const clamp = (nextX: number, nextY: number): { x: number; y: number } => ({
+                x: Math.min(Math.max(0, nextX), Math.max(0, pageW - Math.min(width, keep))),
+                y: Math.min(Math.max(0, nextY), Math.max(0, pageH - Math.min(height, keep))),
+            });
+            const bounded = clamp(x, y);
+            const snapped = this._alignDragBox(drag.id, toPage, bounded.x, bounded.y, width, height);
+            const placed = clamp(snapped.x, snapped.y);
+            x = placed.x;
+            y = placed.y;
+        } else if (this.alignmentGuides().length) {
+            this.alignmentGuides.set([]);
+        }
+        this._scrollDragViewport(clientX, clientY);
+        const next: ReportSectionFrame = {
+            ...drag.startFrame,
+            page: toPage,
+            x,
+            y,
+            width,
+            height,
+        };
+        const prev = this.liveFrames()[drag.id];
+        const same =
+            prev &&
+            prev.page === next.page &&
+            prev.x === next.x &&
+            prev.y === next.y &&
+            prev.width === next.width &&
+            prev.height === next.height;
+        if (!same) {
+            this.liveFrames.update((current) => ({ ...current, [drag.id]: next }));
+        }
+        if (toPage !== fromPage) {
+            this._setPagesIfDifferent(this._pagesFromFrames(this.template().sections || []));
+            drag.startFrame = next;
+            drag.startClientX = clientX;
+            drag.startClientY = clientY;
+            drag.scrollTopAtStart = this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart;
+        }
+    }
+
+    /**
+     * While a block is moving, pull it onto a nearby edge or center of another
+     * element and draw that line. The magnet is a few screen pixels, so the
+     * block still sits wherever it is dropped once it leaves the line.
+     */
+    private _alignDragBox(
+        dragId: string,
+        page: number,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        ignoreOverlay?: ReportOverlayId
+    ): { x: number; y: number } {
+        const scales = this._pointerScaleFactors;
+        const threshold = 6 * Math.max(scales.x, scales.y);
+        const targets = this._alignmentPair(dragId, page, ignoreOverlay);
+        const xTargets = targets.x;
+        const yTargets = targets.y;
+        const snap = (origin: number, size: number, targets: number[]): number => {
+            const edges = [origin, origin + size / 2, origin + size];
+            let best = threshold + 1;
+            let delta = 0;
+            for (const edge of edges) {
+                for (const target of targets) {
+                    const diff = target - edge;
+                    if (Math.abs(diff) < best) {
+                        best = Math.abs(diff);
+                        delta = diff;
+                    }
+                }
+            }
+            return best <= threshold ? origin + delta : origin;
+        };
+        const nextX = snap(x, width, xTargets);
+        const nextY = snap(y, height, yTargets);
+        const view = this._scaleFactors;
+        const guides: { page: number; axis: 'x' | 'y'; at: number }[] = [];
+        const collect = (origin: number, size: number, targets: number[], axis: 'x' | 'y', scale: number) => {
+            const edges = [origin, origin + size / 2, origin + size];
+            const seen = new Set<number>();
+            for (const edge of edges) {
+                for (const target of targets) {
+                    if (Math.abs(target - edge) > 1) continue;
+                    const key = Math.round(target);
+                    if (seen.has(key)) continue;
+                    seen.add(key);
+                    guides.push({ page, axis, at: target / scale });
+                }
+            }
+        };
+        collect(nextX, width, xTargets, 'x', view.x || 1);
+        collect(nextY, height, yTargets, 'y', view.y || 1);
+        const currentGuides = this.alignmentGuides();
+        const sameGuides =
+            currentGuides.length === guides.length &&
+            currentGuides.every(
+                (guide, index) =>
+                    guide.axis === guides[index].axis &&
+                    guide.page === guides[index].page &&
+                    guide.at === guides[index].at
+            );
+        if (!sameGuides) this.alignmentGuides.set(guides);
+        return { x: nextX, y: nextY };
+    }
+
+    private _alignmentPair(
+        dragId: string,
+        page: number,
+        ignoreOverlay?: ReportOverlayId
+    ): { x: number[]; y: number[] } {
+        const key = `${dragId}:${page}:${ignoreOverlay ?? ''}`;
+        if (this._alignCache?.key === key) return this._alignCache;
+        const next = {
+            key,
+            x: this._alignmentTargets(dragId, page, 'x', ignoreOverlay),
+            y: this._alignmentTargets(dragId, page, 'y', ignoreOverlay),
+        };
+        this._alignCache = next;
+        return next;
+    }
+
+    /** Edges and centers of the other blocks on this sheet, plus the sheet center. */
+    private _alignmentTargets(
+        dragId: string,
+        page: number,
+        axis: 'x' | 'y',
+        ignoreOverlay?: ReportOverlayId
+    ): number[] {
+        const targets: number[] = [];
+        const pushBox = (left: number, top: number, width: number, height: number) => {
+            if (axis === 'x') {
+                targets.push(left, left + width / 2, left + width);
+            } else {
+                targets.push(top, top + height / 2, top + height);
+            }
+        };
+        for (const section of this.template().sections ?? []) {
+            if (section.id === dragId || isReportPageAnchor(section)) continue;
+            const frame = this.liveFrames()[section.id] ?? section.frame;
+            if (!frame || (frame.page ?? 0) !== page) continue;
+            const boxWidth = Number(frame.width) || 0;
+            const boxHeight = Number(frame.height) || 0;
+            if (boxWidth <= 0 && boxHeight <= 0) continue;
+            pushBox(Number(frame.x) || 0, Number(frame.y) || 0, boxWidth, boxHeight);
+        }
+        if (ignoreOverlay !== 'logo' && page === 0 && this.logoEnabled() && this.logoUrl()) {
+            pushBox(this.logoX(), this.logoY(), this.logoWidth(), this.logoHeight());
+        }
+        if (ignoreOverlay !== 'signature' && page === (this.signaturePage() || 0) && this.signatureEnabled() && this.signatureImage()) {
+            pushBox(this.signatureX(), this.signatureY(), this.signatureWidth(), this.signatureHeight());
+        }
+        if (ignoreOverlay !== 'watermark' && this.watermarkEnabled()) {
+            pushBox(this.watermarkX(), this.watermarkY(), this.watermarkWidth(), this.watermarkHeight());
+        }
+        for (const image of this.sheetImages()) {
+            if (ignoreOverlay === this.sheetOverlayId(image.id)) continue;
+            if ((image.page ?? 0) !== page) continue;
+            pushBox(image.x, image.y, image.width, image.height);
+        }
+        targets.push(axis === 'x' ? this.pageWidthPx() / 2 : this.pageHeightPx() / 2);
+        return targets;
+    }
+
+    private _innerOrigin(inner: HTMLElement): { left: number; top: number } {
+        const host = inner.getBoundingClientRect();
+        const style = getComputedStyle(inner);
+        return {
+            left: host.left + (parseFloat(style.borderLeftWidth) || 0),
+            top: host.top + (parseFloat(style.borderTopWidth) || 0),
+        };
+    }
+
+    private _pageInner(pageIndex: number): HTMLElement | null {
+        if (this._sheetDragging && this._pageInnerCache.has(pageIndex)) {
+            return this._pageInnerCache.get(pageIndex) ?? null;
+        }
+        const pages = this._reportPages?.toArray() ?? [];
+        const ref = pages[pageIndex] ?? pages[0];
+        const inner =
+            (ref?.nativeElement.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? null;
+        if (this._sheetDragging) this._pageInnerCache.set(pageIndex, inner);
+        return inner;
+    }
+
+    private _pageRects(): DOMRect[] {
+        const pages = this._reportPages?.toArray() ?? [];
+        if (!this._sheetDragging) {
+            return pages.map((page) => page.nativeElement.getBoundingClientRect());
+        }
+        const scrollTop = this._dragViewport()?.scrollTop ?? 0;
+        if (
+            this._pageRectCache &&
+            this._pageRectCache.scrollTop === scrollTop &&
+            this._pageRectCache.rects.length === pages.length
+        ) {
+            return this._pageRectCache.rects;
+        }
+        const rects = pages.map((page) => page.nativeElement.getBoundingClientRect());
+        this._pageRectCache = { scrollTop, rects };
+        return rects;
+    }
+
+    /** Paper under the pointer; stays on the current sheet until the cursor actually enters another. */
+    private _pageIndexAtPoint(clientX: number, clientY: number, fallback: number): number {
+        const hit = this._sheetIndexAtPoint(clientX, clientY);
+        return hit == null ? fallback : hit;
+    }
+
+    /**
+     * Sheet the pointer is on, or one past the last sheet when it has gone below
+     * the page. That extra index is what opens the next A4 page. The gap above a
+     * sheet counts as the sheet above, so the block does not stick at the top edge.
+     */
+    private _pageForDrag(clientX: number, clientY: number, fallback: number): number {
+        const rects = this._pageRects();
+        const hit = this._sheetIndexAtPoint(clientX, clientY);
+        if (hit != null) return hit;
+        if (!rects.length) return fallback;
+
+        const last = rects[rects.length - 1];
+        if (clientY > last.bottom && clientX >= last.left - 24 && clientX <= last.right + 24) {
+            return rects.length;
+        }
+
+        for (let index = 0; index < rects.length; index++) {
+            const rect = rects[index];
+            const horizontallyNear = clientX >= rect.left - 24 && clientX <= rect.right + 24;
+            if (!horizontallyNear || clientY >= rect.top) continue;
+            const previousBottom = index === 0 ? Number.NEGATIVE_INFINITY : rects[index - 1].bottom;
+            if (clientY >= previousBottom) return index === 0 ? 0 : index - 1;
+        }
+        return fallback;
+    }
+
+    /** Scrollable sheet list. The visita layout marks it; other editors use the nearest scroller. */
+    private _dragViewport(): HTMLElement | null {
+        const page = this._reportPages?.first?.nativeElement;
+        if (!page) return null;
+        const marked = page.closest('[data-document-viewport]') as HTMLElement | null;
+        if (marked) return marked;
+        let node = page.parentElement;
+        while (node) {
+            const style = getComputedStyle(node);
+            const scrolls = /(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 4;
+            if (scrolls) return node;
+            node = node.parentElement;
+        }
+        return null;
+    }
+
+    /**
+     * The paper is taller than the editor viewport. Holding the pointer on the
+     * edge scrolls the sheet and the next frame keeps the block under the cursor.
+     */
+    private _scrollDragViewport(clientX: number, clientY: number): void {
+        const host = this._dragViewport();
+        const drag = this._sectionDrag;
+        if (!host || !drag?.active) return;
+        const edge = 56;
+        const step = 18;
+        const rect = host.getBoundingClientRect();
+        let next = host.scrollTop;
+        if (clientY < rect.top + edge) next -= step;
+        else if (clientY > rect.bottom - edge) next += step;
+        const max = Math.max(0, host.scrollHeight - host.clientHeight);
+        next = Math.min(max, Math.max(0, next));
+        if (next === host.scrollTop) return;
+        host.scrollTop = next;
+        this._pageRectCache = null;
+        this._scheduleSectionDragPaint();
+    }
+
+    private _sheetIndexAtPoint(clientX: number, clientY: number): number | null {
+        const rects = this._pageRects();
+        for (let index = 0; index < rects.length; index++) {
+            const rect = rects[index];
+            if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+                return index;
+            }
+        }
+        return null;
+    }
+
+    /** Drop trailing / leading empty sheets and persist 0-based page indexes. */
+    private _framesForEmit(updates: { id: string; frame: ReportSectionFrame }[]): { id: string; frame: ReportSectionFrame }[] {
+        const merged: Record<string, ReportSectionFrame> = {};
+        for (const section of this.template().sections ?? []) {
+            const frame = this.liveFrames()[section.id] ?? section.frame;
+            if (frame) merged[section.id] = frame;
+        }
+        for (const item of updates) {
+            merged[item.id] = item.frame;
+        }
+        return Object.entries(merged).map(([id, frame]) => ({
+            id,
+            frame,
+        }));
+    }
+
+    /**
+     * Layout coordinates of a block inside its page, in the same space that
+     * `position:absolute; left/top` uses (the inner padding box).
+     *
+     * `getBoundingClientRect()` is avoided here: when the first drag pins a
+     * flow layout into free placement, viewport rects can include ancestor
+     * zoom/scale and send every sibling off the visible sheet.
+     */
+    private _sectionCssBox(el: HTMLElement): { x: number; y: number; width: number; height: number; page: number } {
+        const inner = el.closest('[data-report-page-inner]') as HTMLElement | null;
+        const pages = this._reportPages?.toArray() ?? [];
+        const page = Math.max(
+            0,
+            pages.findIndex((ref) => ref.nativeElement.contains(el))
+        );
+        const width = el.offsetWidth;
+        const height = el.offsetHeight;
+        if (!inner) {
+            return { x: 0, y: 0, width, height, page };
+        }
+        let x = el.offsetLeft;
+        let y = el.offsetTop;
+        if (el.offsetParent !== inner) {
+            const box = el.getBoundingClientRect();
+            const host = inner.getBoundingClientRect();
+            const visualScaleX = host.width / (inner.offsetWidth || host.width || 1) || 1;
+            const visualScaleY = host.height / (inner.offsetHeight || host.height || 1) || 1;
+            const style = getComputedStyle(inner);
+            x = (box.left - host.left - (parseFloat(style.borderLeftWidth) || 0)) / visualScaleX;
+            y = (box.top - host.top - (parseFloat(style.borderTopWidth) || 0)) / visualScaleY;
+        }
+        return { x, y, width, height, page };
+    }
+
+    private _snapshotSectionFrames(): { id: string; frame: ReportSectionFrame }[] {
+        const scales = this._scaleFactors;
+        const result: { id: string; frame: ReportSectionFrame }[] = [];
+        const pages = this._reportPages?.toArray() ?? [];
+        pages.forEach((pageRef, pageIndex) => {
+            pageRef.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
+                const el = node as HTMLElement;
+                const id = el.dataset['sectionId'];
+                if (!id) return;
+                const placed = this._sectionCssBox(el);
+                result.push({
+                    id,
+                    frame: {
+                        page: placed.page || pageIndex,
+                        x: placed.x * scales.x,
+                        y: placed.y * scales.y,
+                        width: placed.width * scales.x,
+                        height: placed.height * scales.y,
+                    },
+                });
+            });
+        });
+        return result;
+    }
+
+    /** Shapes, rules and spacers keep the size the user drew. Data blocks do not. */
+    private _locksFrameHeight(section: ReportSection): boolean {
+        return section.type === 'shape' || section.type === 'divider' || section.type === 'spacer';
+    }
+
+    /**
+     * Border-box height of the data inside the block.
+     * The host's offsetHeight is the saved frame, so a short block still
+     * reports the tall box and the selection ring never tightens.
+     */
+    private _contentBoxHeight(el: HTMLElement): number {
+        let bottom = 0;
+        let found = false;
+        for (const node of Array.from(el.children)) {
+            const child = node as HTMLElement;
+            if (child.dataset['printHide'] != null || child.dataset['sectionHandle'] != null) continue;
+            const position = getComputedStyle(child).position;
+            if (position === 'absolute' || position === 'fixed') continue;
+            found = true;
+            bottom = Math.max(bottom, child.offsetTop + child.offsetHeight);
+        }
+        if (!found) return el.offsetHeight;
+        const style = getComputedStyle(el);
+        return (
+            bottom +
+            (parseFloat(style.paddingBottom) || 0) +
+            (parseFloat(style.borderTopWidth) || 0) +
+            (parseFloat(style.borderBottomWidth) || 0)
+        );
+    }
+
+    /**
+     * After the sheet paints, store the content height so the selection ring,
+     * drag box and PDF use the same size as the data on the block.
+     */
+    private _scheduleContentFit(): void {
+        if (!this.reorderable() || this.thumbnailMode() || this.printCapture() || this._sectionDrag) return;
+        if (this._contentFitFrameId !== null) cancelAnimationFrame(this._contentFitFrameId);
+        this._contentFitFrameId = requestAnimationFrame(() => {
+            this._contentFitFrameId = requestAnimationFrame(() => {
+                this._contentFitFrameId = null;
+                this._fitContentBoxHeights();
+            });
+        });
+    }
+
+    private _fitContentBoxHeights(): void {
+        if (this._sectionDrag || !this.hasFreeLayout() || !this.reorderable() || this.thumbnailMode()) return;
+        const scales = this._scaleFactors;
+        const sections = (this.template().sections ?? []).filter((section) => !isReportPageAnchor(section));
+        const byId = new Map(sections.map((section) => [section.id, section]));
+        const frames = new Map<string, ReportSectionFrame>();
+        for (const section of sections) {
+            const frame = this.displayFrame(section);
+            if (frame) frames.set(section.id, { ...frame });
+        }
+        const desired = new Map<string, number>();
+        const pages = this._reportPages?.toArray() ?? [];
+        for (const pageRef of pages) {
+            pageRef.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
+                const el = node as HTMLElement;
+                const id = el.dataset['sectionId'];
+                if (!id) return;
+                const section = byId.get(id);
+                if (!section || this._locksFrameHeight(section) || !frames.has(id)) return;
+                const natural = this._contentBoxHeight(el);
+                if (!natural) return;
+                desired.set(id, Math.max(24, Math.ceil(natural * scales.y)));
+            });
+        }
+        const growing = [...desired.entries()]
+            .flatMap(([id, height]) => {
+                const frame = frames.get(id);
+                if (!frame) return [];
+                const current = Number(frame.height) || 0;
+                if (Math.abs(height - current) <= 4) return [];
+                return [{ id, height, current, page: frame.page ?? 0, y: frame.y ?? 0 }];
+            })
+            .sort((left, right) => left.page - right.page || left.y - right.y);
+        if (!growing.length) return;
+        for (const item of growing) {
+            const frame = frames.get(item.id);
+            if (!frame) continue;
+            const oldBottom = (frame.y ?? 0) + item.current;
+            const delta = item.height - item.current;
+            frame.height = item.height;
+            if (delta <= 4) continue;
+            const page = frame.page ?? 0;
+            for (const [otherId, other] of frames) {
+                if (otherId === item.id || (other.page ?? 0) !== page) continue;
+                if ((other.y ?? 0) + 8 < oldBottom) continue;
+                other.y = (other.y ?? 0) + delta;
+            }
+        }
+        const updates: { id: string; frame: ReportSectionFrame }[] = [];
+        for (const [id, frame] of frames) {
+            const section = byId.get(id);
+            const prev = section ? this.displayFrame(section) : null;
+            if (!prev) continue;
+            const changed =
+                Math.abs((Number(prev.height) || 0) - (Number(frame.height) || 0)) > 4 ||
+                Math.abs((prev.y ?? 0) - (frame.y ?? 0)) > 1 ||
+                (prev.page ?? 0) !== (frame.page ?? 0);
+            if (changed) updates.push({ id, frame });
+        }
+        if (!updates.length) return;
+        // A one-item frame update raises that block. Height fitting is not a
+        // selection, so pair it with another frame and leave the stack alone.
+        if (updates.length === 1) {
+            const other = sections.find((section) => section.id !== updates[0].id && frames.has(section.id));
+            const otherFrame = other ? frames.get(other.id) : null;
+            if (other && otherFrame) updates.push({ id: other.id, frame: { ...otherFrame } });
+        }
+        this.sectionFramesChange.emit(updates);
+    }
+
+    /**
+     * New reports add endpoint blocks without saved frames (flow layout).
+     * Saved templates already have frames, which is why editing those feels
+     * stable. Capture the stacked layout after pagination so the first drag
+     * is the same as opening a stored template.
+     */
+    private _scheduleAutoPinMissingFrames(): void {
+        if (!this.reorderable() || this.thumbnailMode() || this._sectionDrag) return;
+        const sections = this.template().sections ?? [];
+        if (!sections.length || sections.every((section) => Boolean(this.displayFrame(section)))) {
+            this._autoPinAttempts = 0;
+            return;
+        }
+        if (this._autoPinAttempts > 8) return;
+        if (this._autoPinFrameId !== null) cancelAnimationFrame(this._autoPinFrameId);
+        this._autoPinFrameId = requestAnimationFrame(() => {
+            this._autoPinFrameId = requestAnimationFrame(() => {
+                this._autoPinFrameId = null;
+                this._autoPinMissingFrames();
+            });
+        });
+    }
+
+    private _autoPinMissingFrames(): void {
+        if (this._sectionDrag || !this.reorderable() || this.thumbnailMode()) return;
+        const sections = this.template().sections ?? [];
+        if (!sections.length || sections.every((section) => Boolean(this.displayFrame(section)))) {
+            this._autoPinAttempts = 0;
+            return;
+        }
+        const pinned = this._snapshotSectionFrames();
+        if (!pinned.length) {
+            this._autoPinAttempts += 1;
+            this._scheduleAutoPinMissingFrames();
+            return;
+        }
+        const byId = new Map(pinned.map((item) => [item.id, item.frame]));
+        const missing = sections.filter((section) => !this.displayFrame(section) && byId.has(section.id));
+        if (!missing.length) {
+            this._autoPinAttempts += 1;
+            this._scheduleAutoPinMissingFrames();
+            return;
+        }
+        this._autoPinAttempts = 0;
+        this.sectionFramesChange.emit(this._framesBelowPlacedContent(missing, byId));
+    }
+
+    /**
+     * A block added beside framed ones used to be pushed under the previous
+     * block. Keep the measured spot so a later block is not locked below an earlier one.
+     */
+    private _framesBelowPlacedContent(
+        missing: ReportSection[],
+        measured: Map<string, ReportSectionFrame>
+    ): { id: string; frame: ReportSectionFrame }[] {
+        return missing.map((section) => ({ id: section.id, frame: measured.get(section.id)! }));
+    }
+
+    /**
+     * Freeze every block at its current on-sheet position before the first
+     * free-move. Without this, only the dragged block gets a frame and the
+     * rest jump into absolute layout with (0,0) or viewport-scaled coords.
+     */
+    private _pinFlowLayout(dragId: string): ReportSectionFrame | null {
+        const pinned = this._snapshotSectionFrames();
+        const merged: Record<string, ReportSectionFrame> = { ...this.liveFrames() };
+        for (const section of this.template().sections ?? []) {
+            const current = merged[section.id] ?? section.frame;
+            if (current) {
+                merged[section.id] = current;
+            }
+        }
+        for (const item of pinned) {
+            if (!merged[item.id]) {
+                merged[item.id] = item.frame;
+                this._pinnedIdsThisDrag.add(item.id);
+            }
+        }
+        const start = merged[dragId] ?? pinned.find((item) => item.id === dragId)?.frame ?? null;
+        if (!start) return null;
+        merged[dragId] = start;
+        this.liveFrames.set(merged);
+        return start;
+    }
+
+    private _stopSectionDragListeners(): void {
+        window.removeEventListener('pointermove', this._onWindowSectionMove);
+        window.removeEventListener('pointerup', this._onWindowSectionUp, true);
+        window.removeEventListener('pointercancel', this._onWindowSectionUp, true);
+        this._flushSectionDragRaf();
+        this._flushSectionResizeRaf();
+        this._flushSectionRotateRaf();
+        this._pendingDragPoint = null;
+    }
+
+    private _clearSectionDrag(): void {
+        this._stopSectionDragListeners();
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        this._sectionDrag = null;
+        this._pinnedIdsThisDrag.clear();
+        this.draggingSectionId.set(null);
+        this.alignmentGuides.set([]);
+        this.liveFrames.set({});
+    }
+
+    onSectionContextMenu(section: ReportSection, event: MouseEvent): void {
+        if (!this.clickable() || !this.customContextMenu()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.sectionClick()?.(section);
+        this.sectionContextMenu.emit({ section, x: event.clientX, y: event.clientY });
+    }
+
+    onOverlayContextMenu(id: ReportOverlayId, event: MouseEvent): void {
+        if (!this.clickable() || !this.customContextMenu()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.overlaySelect.emit(id);
+        this.overlayContextMenu.emit({ overlay: id, x: event.clientX, y: event.clientY });
+    }
+
     /**
      * Effective top padding applied to the section content area, in canonical 96 DPI px.
      *
@@ -377,67 +2373,358 @@ export class ReportPreviewComponent implements AfterViewInit {
         return this.effectiveContentPaddingTop / this._scaleFactors.y;
     }
 
-    onSignatureDragEnd(event: CdkDragEnd) {
-        if (this.isResizing) return;
+    private _headerDrag: {
+        id: string;
+        pointerId: number;
+        startClientX: number;
+        originX: number;
+        width: number;
+        band: ReportLogoBand;
+    } | null = null;
+    headerLogoDragX = signal<{ id: string; x: number; band: ReportLogoBand } | null>(null);
+    headerLogoResize = signal<{ id: string; width: number; height: number } | null>(null);
+    private _headerResize: {
+        id: string;
+        pointerId: number;
+        startClientY: number;
+        width: number;
+        height: number;
+    } | null = null;
 
-        const { x, y } = event.source.getFreeDragPosition();
-        const scales = this._scaleFactors;
+    startHeaderLogoMove(event: PointerEvent, id: string): void {
+        if (!this.clickable() || event.button !== 0) return;
+        if ((event.target as HTMLElement | null)?.closest('[data-overlay-handle]')) return;
+        event.stopPropagation();
+        const placed = placeCompanyLogos(
+            this.template()?.headerLogos ?? [],
+            this.pageWidthPx(),
+            this.pageHeightPx()
+        ).find((logo) => logo.id === id);
+        if (!placed) return;
+        this.selectOverlay(`hdr:${id}`, event);
+        const source = (this.template()?.headerLogos ?? []).find((logo) => logo.id === id);
+        this._headerDrag = {
+            id,
+            pointerId: event.pointerId,
+            startClientX: event.clientX,
+            originX: placed.x,
+            width: placed.width,
+            band: companyLogoBand(source),
+        };
+        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    }
 
-        // View -> Canonical, rounded to remove sub-pixel jitter
-        this.signaturePositionChange.emit({
-            x: Math.round(x * scales.x),
-            y: Math.round(y * scales.y),
+    onHeaderLogoMove(event: PointerEvent): void {
+        const drag = this._headerDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const page = (event.currentTarget as HTMLElement).closest('[data-report-page]') as HTMLElement | null;
+        const rect = page?.getBoundingClientRect();
+        const scale = rect?.width ? this.pageWidthPx() / rect.width : 1;
+        const next = drag.originX + (event.clientX - drag.startClientX) * scale;
+        const min = HEADER_LOGO_INSET;
+        const max = Math.max(min, this.pageWidthPx() - HEADER_LOGO_INSET - drag.width);
+        this.headerLogoDragX.set({
+            id: drag.id,
+            x: Math.min(max, Math.max(min, next)),
+            band: drag.band,
         });
     }
 
-    onLogoDragEnd(event: CdkDragEnd) {
-        if (this.isResizing) return;
-
-        const { x, y } = event.source.getFreeDragPosition();
-        const scales = this._scaleFactors;
-
-        this.logoPositionChange.emit({
-            x: Math.round(x * scales.x),
-            y: Math.round(y * scales.y),
-        });
+    stopHeaderLogoMove(event: PointerEvent): void {
+        const drag = this._headerDrag;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const live = this.headerLogoDragX();
+        const x = live?.id === drag.id ? live.x : drag.originX;
+        const align = headerLogoAlignAt(x + drag.width / 2, this.pageWidthPx());
+        this._headerDrag = null;
+        this.headerLogoDragX.set(null);
+        this.headerLogoAlignChange.emit({ id: drag.id, align, band: drag.band });
     }
 
-    startResize(event: MouseEvent, target: 'signature' | 'logo' = 'signature') {
+    startHeaderLogoResize(event: PointerEvent, id: string): void {
+        if (!this.clickable() || event.button !== 0) return;
         event.stopPropagation();
         event.preventDefault();
+        const logo = (this.template()?.headerLogos ?? []).find((item) => item.id === id);
+        if (!logo) return;
+        this.selectOverlay(`hdr:${id}`, event);
+        this._headerResize = {
+            id,
+            pointerId: event.pointerId,
+            startClientY: event.clientY,
+            width: logo.width,
+            height: logo.height,
+        };
+        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    }
+
+    onHeaderLogoResize(event: PointerEvent): void {
+        const drag = this._headerResize;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const page = (event.currentTarget as HTMLElement).closest('[data-report-page]') as HTMLElement | null;
+        const rect = page?.getBoundingClientRect();
+        const scale = rect?.height ? this.pageHeightPx() / rect.height : 1;
+        const next = fitHeaderLogoSize(drag.width, drag.height, drag.height + (event.clientY - drag.startClientY) * scale);
+        this.headerLogoResize.set({ id: drag.id, width: next.width, height: next.height });
+    }
+
+    stopHeaderLogoResize(event: PointerEvent): void {
+        const drag = this._headerResize;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const live = this.headerLogoResize();
+        const size =
+            live?.id === drag.id
+                ? { width: live.width, height: live.height }
+                : fitHeaderLogoSize(drag.width, drag.height);
+        this._headerResize = null;
+        this.headerLogoResize.set(null);
+        this.headerLogoSizeChange.emit({ id: drag.id, width: size.width, height: size.height });
+    }
+
+    startMove(event: PointerEvent, target: ReportOverlayId) {
+        if (!this.clickable() || this.isResizing || this.isRotating || event.button !== 0) return;
+        const origin = event.target as HTMLElement | null;
+        if (origin?.closest('[data-overlay-handle]')) return;
+
+        this.overlaySelect.emit(target);
+        this.isMoving = true;
+        this._setSheetDragging(true);
+        this.moveTarget = target;
+        this._movePage = this._pageIndexAtPoint(event.clientX, event.clientY, 0);
+        this.startX = event.clientX;
+        this.startY = event.clientY;
+
+        const extra = this._sheetImage(this._sheetImageId(target));
+        if (target === 'signature' || extra) {
+            const page = extra ? Math.max(0, extra.page ?? 0) : Math.max(0, this.signaturePage() || 0);
+            this._movePage = page;
+            const local = this._sheetLocalPoint(event.clientX, event.clientY, page);
+            const width = extra ? extra.width : this.signatureWidth();
+            const height = extra ? extra.height : this.signatureHeight();
+            const x = extra ? extra.x : this.signatureX();
+            const y = extra ? extra.y : this.signatureY();
+            this._overlayGrab = local
+                ? { dx: local.x - x, dy: local.y - y }
+                : { dx: width / 2, dy: height / 2 };
+            this.startMoveX = x;
+            this.startMoveY = y;
+            this._capturePointer(event, this.onMove, this.stopMove, false);
+            return;
+        }
+        this._overlayGrab = null;
+        if (target === 'logo') {
+            this.startMoveX = this.logoX();
+            this.startMoveY = this.logoY();
+        } else if (target === 'watermark') {
+            this.startMoveX = this.watermarkX();
+            this.startMoveY = this.watermarkY();
+        } else {
+            this.startMoveX = this.signatureX();
+            this.startMoveY = this.signatureY();
+        }
+
+        this._capturePointer(event, this.onMove, this.stopMove);
+    }
+
+    private onMove = (event: PointerEvent) => {
+        if (!this.isMoving) return;
+        if ((this.moveTarget === 'signature' || this._sheetImageId(this.moveTarget)) && this._overlayGrab) {
+            this.pendingMove = this._pagedOverlayMoveAt(event.clientX, event.clientY);
+        } else {
+            const scales = this._pointerScaleFactors;
+            this.pendingMove = {
+                x: Math.max(0, Math.round(this.startMoveX + (event.clientX - this.startX) * scales.x)),
+                y: Math.max(0, Math.round(this.startMoveY + (event.clientY - this.startY) * scales.y)),
+            };
+        }
+        if (this.moveFrameId !== null) return;
+        this.moveFrameId = requestAnimationFrame(this._flushMove);
+    };
+
+    private _flushMove = () => {
+        this.moveFrameId = null;
+        const payload = this.pendingMove;
+        if (!payload || !this.moveTarget) return;
+        this.pendingMove = null;
+        this._emitMove(payload);
+    };
+
+    private _movePage = 0;
+
+    private _overlayBox(target: ReportOverlayId): { width: number; height: number } | null {
+        if (target === 'logo') return { width: this.logoWidth(), height: this.logoHeight() };
+        if (target === 'watermark') return { width: this.watermarkWidth(), height: this.watermarkHeight() };
+        if (target === 'signature') return { width: this.signatureWidth(), height: this.signatureHeight() };
+        const image = this._sheetImage(this._sheetImageId(target));
+        if (!image) return null;
+        return { width: image.width, height: image.height };
+    }
+
+    private _pagedOverlayMoveAt(clientX: number, clientY: number): { x: number; y: number; page: number } {
+        const moving = this.moveTarget;
+        const extra = this._sheetImage(this._sheetImageId(moving));
+        const box = this._overlayBox(moving ?? 'signature') ?? { width: 160, height: 64 };
+        const pages = this._reportPages?.toArray() ?? [];
+        const last = Math.max(0, pages.length - 1);
+        const hit = this._sheetIndexAtPoint(clientX, clientY);
+        const page = Math.max(0, Math.min(last, hit == null ? this._movePage : hit));
+        const local = this._sheetLocalPoint(clientX, clientY, page);
+        const grab = this._overlayGrab ?? { dx: 0, dy: 0 };
+        let x = local ? local.x - grab.dx : this.startMoveX;
+        let y = local ? local.y - grab.dy : this.startMoveY;
+        const clamped = extra
+            ? this._clampOverlay(x, y, box.width, box.height)
+            : this._clampOverlay(x, y, this.signatureWidth(), this.signatureHeight());
+        this._movePage = page;
+        return { x: clamped.x, y: clamped.y, page };
+    }
+
+    private _sheetLocalPoint(clientX: number, clientY: number, pageIndex: number): { x: number; y: number } | null {
+        const el = this._reportPages?.toArray()[pageIndex]?.nativeElement;
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        if (!rect.width || !rect.height) return null;
+        const scales = this._pointerScaleFactors;
+        return {
+            x: (clientX - rect.left) * scales.x,
+            y: (clientY - rect.top) * scales.y,
+        };
+    }
+
+    private _clampOverlay(x: number, y: number, width: number, height: number): { x: number; y: number } {
+        const keep = 48;
+        const pageW = this.pageWidthPx();
+        const pageH = this.pageHeightPx();
+        return {
+            x: Math.round(Math.min(Math.max(0, x), Math.max(0, pageW - Math.min(width, keep)))),
+            y: Math.round(Math.min(Math.max(0, y), Math.max(0, pageH - Math.min(height, keep)))),
+        };
+    }
+
+    private _emitMove(payload: { x: number; y: number; page?: number }) {
+        const moving = this.moveTarget;
+        const box = moving ? this._overlayBox(moving) : null;
+        if (moving && box) {
+            const snapped = this._alignDragBox(
+                '',
+                this._movePage,
+                payload.x,
+                payload.y,
+                box.width,
+                box.height,
+                moving
+            );
+            const clamped =
+                moving === 'signature' || this._sheetImageId(moving)
+                    ? this._clampOverlay(snapped.x, snapped.y, box.width, box.height)
+                    : { x: Math.round(snapped.x), y: Math.round(snapped.y) };
+            payload = {
+                x: clamped.x,
+                y: clamped.y,
+                page:
+                    moving === 'signature' || this._sheetImageId(moving)
+                        ? (payload.page ?? this._movePage)
+                        : undefined,
+            };
+        }
+        const extraId = this._sheetImageId(this.moveTarget);
+        const extra = this._sheetImage(extraId);
+        if (this.moveTarget === 'logo') {
+            this.logoPositionChange.emit(payload);
+        } else if (this.moveTarget === 'watermark') {
+            this.watermarkPositionChange.emit(payload);
+        } else if (extra) {
+            this.sheetImageChange.emit({
+                ...extra,
+                x: payload.x,
+                y: payload.y,
+                page: payload.page ?? extra.page ?? 0,
+            });
+        } else {
+            this.signaturePositionChange.emit(payload);
+        }
+    }
+
+    private stopMove = () => {
+        this.isMoving = false;
+        if (this.moveFrameId !== null) {
+            cancelAnimationFrame(this.moveFrameId);
+            this.moveFrameId = null;
+        }
+        if (this.pendingMove) {
+            const payload = this.pendingMove;
+            this.pendingMove = null;
+            this._emitMove(payload);
+        }
+        this.moveTarget = null;
+        this._overlayGrab = null;
+        this.alignmentGuides.set([]);
+        this._setSheetDragging(false);
+        this._releasePointer(this.onMove, this.stopMove);
+    };
+
+    startResize(event: PointerEvent, target: ReportOverlayId = 'signature') {
+        if (event.button !== 0) return;
         this.isResizing = true;
+        this._setSheetDragging(true);
         this.resizeTarget = target;
         this.startX = event.clientX;
         this.startY = event.clientY;
 
-        // Start dimensions in DOM/Screen pixels
+        const extra = this._sheetImage(this._sheetImageId(target));
         if (target === 'logo') {
-            this.startWidth = this.viewLogoWidth;
-            this.startHeight = this.viewLogoHeight;
+            this.startWidth = this.logoWidth();
+            this.startHeight = this.logoHeight();
+        } else if (target === 'watermark') {
+            this.startWidth = this.watermarkWidth();
+            this.startHeight = this.watermarkHeight();
+        } else if (extra) {
+            this.startWidth = extra.width;
+            this.startHeight = extra.height;
         } else {
-            this.startWidth = this.viewSignatureWidth;
-            this.startHeight = this.viewSignatureHeight;
+            this.startWidth = this.signatureWidth();
+            this.startHeight = this.signatureHeight();
         }
 
-        window.addEventListener('mousemove', this.onResize);
-        window.addEventListener('mouseup', this.stopResize);
+        this._capturePointer(event, this.onResize, this.stopResize);
     }
 
-    private onResize = (event: MouseEvent) => {
+    startRotate(event: PointerEvent, target: ReportOverlayId) {
+        if (event.button !== 0) return;
+        const box = (event.currentTarget as HTMLElement).closest('[data-overlay-box]') as HTMLElement | null;
+        if (!box) return;
+
+        const rect = box.getBoundingClientRect();
+        this.isRotating = true;
+        this._setSheetDragging(true);
+        this.rotateTarget = target;
+        this.rotateCenterX = rect.left + rect.width / 2;
+        this.rotateCenterY = rect.top + rect.height / 2;
+        this.startAngle = Math.atan2(
+            event.clientY - this.rotateCenterY,
+            event.clientX - this.rotateCenterX
+        );
+        const extra = this._sheetImage(this._sheetImageId(target));
+        this.startRotation =
+            target === 'logo'
+                ? this.logoRotation()
+                : extra
+                  ? extra.rotation || 0
+                  : this.watermarkRotation();
+
+        this._capturePointer(event, this.onRotate, this.stopRotate);
+    }
+
+    private onResize = (event: PointerEvent) => {
         if (!this.isResizing) return;
         const dx = event.clientX - this.startX;
         const dy = event.clientY - this.startY;
 
-        const scales = this._scaleFactors;
+        const scales = this._pointerScaleFactors;
 
-        // New DOM dimensions (sane minimums to avoid disappearing handles)
-        const newDomWidth = Math.max(24, this.startWidth + dx);
-        const newDomHeight = Math.max(16, this.startHeight + dy);
-
-        // Convert back to Canonical for emit, rounded to remove sub-pixel jitter
         this.pendingResize = {
-            width: Math.round(newDomWidth * scales.x),
-            height: Math.round(newDomHeight * scales.y),
+            width: Math.max(24, Math.round(this.startWidth + dx * scales.x)),
+            height: Math.max(16, Math.round(this.startHeight + dy * scales.y)),
         };
 
         if (this.resizeFrameId !== null) return;
@@ -449,12 +2736,21 @@ export class ReportPreviewComponent implements AfterViewInit {
         const payload = this.pendingResize;
         if (!payload) return;
         this.pendingResize = null;
+        this._emitResize(payload);
+    };
+
+    private _emitResize(payload: { width: number; height: number }): void {
+        const extra = this._sheetImage(this._sheetImageId(this.resizeTarget));
         if (this.resizeTarget === 'logo') {
             this.logoSizeChange.emit(payload);
+        } else if (this.resizeTarget === 'watermark') {
+            this.watermarkSizeChange.emit(payload);
+        } else if (extra) {
+            this.sheetImageChange.emit({ ...extra, width: payload.width, height: payload.height });
         } else {
             this.signatureSizeChange.emit(payload);
         }
-    };
+    }
 
     private stopResize = () => {
         this.isResizing = false;
@@ -462,19 +2758,91 @@ export class ReportPreviewComponent implements AfterViewInit {
             cancelAnimationFrame(this.resizeFrameId);
             this.resizeFrameId = null;
         }
-        // Flush the final pending payload so the last delta is never dropped
         if (this.pendingResize) {
             const payload = this.pendingResize;
             this.pendingResize = null;
-            if (this.resizeTarget === 'logo') {
-                this.logoSizeChange.emit(payload);
-            } else if (this.resizeTarget === 'signature') {
-                this.signatureSizeChange.emit(payload);
-            }
+            this._emitResize(payload);
         }
         this.resizeTarget = null;
-        window.removeEventListener('mousemove', this.onResize);
-        window.removeEventListener('mouseup', this.stopResize);
+        this._setSheetDragging(false);
+        this._releasePointer(this.onResize, this.stopResize);
+    };
+
+    private onRotate = (event: PointerEvent) => {
+        if (!this.isRotating) return;
+        const angle = Math.atan2(
+            event.clientY - this.rotateCenterY,
+            event.clientX - this.rotateCenterX
+        );
+        const next = Math.round(this.startRotation + ((angle - this.startAngle) * 180) / Math.PI);
+        const extra = this._sheetImage(this._sheetImageId(this.rotateTarget));
+        if (this.rotateTarget === 'logo') {
+            this.logoRotationChange.emit(next);
+        } else if (extra) {
+            this.sheetImageChange.emit({ ...extra, rotation: next });
+        } else {
+            this.watermarkRotationChange.emit(next);
+        }
+    };
+
+    private stopRotate = () => {
+        this.isRotating = false;
+        this.rotateTarget = null;
+        this._setSheetDragging(false);
+        this._releasePointer(this.onRotate, this.stopRotate);
+    };
+
+    private _capturePointer(
+        event: PointerEvent,
+        move: (event: PointerEvent) => void,
+        stop: () => void,
+        captureElement = true
+    ): void {
+        event.preventDefault();
+        event.stopPropagation();
+        const el = event.currentTarget as HTMLElement | null;
+        this.gestureEl = captureElement ? el : null;
+        this.gesturePointerId = captureElement ? event.pointerId : null;
+        if (captureElement) {
+            try {
+                el?.setPointerCapture(event.pointerId);
+            } catch {
+                /* element may not support capture */
+            }
+        }
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', stop, true);
+        window.addEventListener('pointercancel', stop, true);
+    }
+
+    private _releasePointer(move: (event: PointerEvent) => void, stop: () => void): void {
+        if (this.gestureEl && this.gesturePointerId != null) {
+            try {
+                this.gestureEl.releasePointerCapture(this.gesturePointerId);
+            } catch {
+                /* already released */
+            }
+        }
+        this.gestureEl = null;
+        this.gesturePointerId = null;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', stop, true);
+        window.removeEventListener('pointercancel', stop, true);
+    }
+
+    ngOnDestroy(): void {
+        this.stopResize();
+        this.stopRotate();
+        this.stopMove();
+        this._clearSectionDrag();
+        if (this._autoPinFrameId !== null) {
+            cancelAnimationFrame(this._autoPinFrameId);
+            this._autoPinFrameId = null;
+        }
+        if (this._contentFitFrameId !== null) {
+            cancelAnimationFrame(this._contentFitFrameId);
+            this._contentFitFrameId = null;
+        }
     };
 
     resolveDataPath(path: string | undefined): string {
@@ -491,21 +2859,76 @@ export class ReportPreviewComponent implements AfterViewInit {
         return String(current);
     }
 
-    resolveTableData(path: string | undefined): { key: string; value: string }[] {
-        if (!path) return [];
-        const source = this.previewData();
-        const parts = path.split('.');
-        let current: any = source;
-        for (const part of parts) {
-            if (current == null || typeof current !== 'object') return [];
-            current = current[part];
-        }
-        if (current == null || typeof current !== 'object') return [];
+    resolveTableData(section: ReportSection): { key: string; label: string; value: string }[] {
+        return this.structuralEntries(section);
+    }
 
-        return Object.entries(current).map(([key, val]) => ({
-            key: this._humanize(key),
-            value: val != null ? String(val) : '',
-        }));
+    /** Text stored on the sheet, or the consulted value when it has not been rewritten. */
+    boundValue(section: ReportSection, key: string, fallback: unknown): string {
+        if (this.clickable()) {
+            const custom = section.keyOverrides?.[key]?.value;
+            if (typeof custom === 'string') return custom;
+        }
+        if (fallback == null) return '';
+        return String(fallback);
+    }
+
+    pagePaintTrack(pageIndex: number): string {
+        return `${pageIndex}:${String(this.previewData()?.['rowIndex'] ?? '')}`;
+    }
+
+    liveSheetText(
+        section: ReportSection,
+        kind: string,
+        key?: string,
+        fallback?: string
+    ): string {
+        this.previewData();
+        if (kind === 'title') return section.staticContent || section.label || fallback || '';
+        if (kind === 'body') return section.staticContent || fallback || '';
+        if (kind === 'itemTitle') return section.itemTitle || fallback || '';
+        if (kind === 'itemTemplate') return section.itemTemplate || fallback || '';
+        if (kind === 'cellLabel' && key) {
+            return this.entryLabel(section, { key, label: fallback || key });
+        }
+        if (kind === 'cellValue') {
+            return this.boundValue(section, key || '__value', this._liveValueForKey(section, key, fallback));
+        }
+        return fallback || '';
+    }
+
+    private _liveValueForKey(section: ReportSection, key?: string, fallback?: string): unknown {
+        if (!key || key === '__value') {
+            return this.resolveDataPath(section.dataPath) || fallback || '—';
+        }
+        const hash = key.lastIndexOf('#');
+        if (hash > 0) {
+            const storeKey = key.slice(0, hash);
+            const rowIndex = Number(key.slice(hash + 1));
+            if (Number.isFinite(rowIndex) && rowIndex >= 0) {
+                const records = this.structuralRecords(section);
+                if (records[rowIndex] && storeKey in records[rowIndex]) {
+                    return records[rowIndex][storeKey];
+                }
+                for (const chunk of this.sheetChunks(section)) {
+                    if (chunk.kind !== 'table') continue;
+                    const column = chunk.table.columns.find(
+                        (item) =>
+                            item.key === storeKey ||
+                            this.tableColumnKey(chunk.table.key, item.key) === storeKey
+                    );
+                    if (!column) continue;
+                    const row = chunk.table.rows[rowIndex];
+                    if (row) return row[column.key];
+                }
+            }
+        }
+        const entry = this.structuralEntries(section).find((item) => item.key === key);
+        return entry?.value ?? fallback;
+    }
+
+    cellStoreKey(base: string, rowIndex: number): string {
+        return `${base}#${rowIndex}`;
     }
 
     private _humanize(key: string): string {
@@ -534,7 +2957,15 @@ export class ReportPreviewComponent implements AfterViewInit {
         for (const part of path.split('.')) {
             if (current == null || typeof current !== 'object') return null;
 
-            current = current[part];
+            if (Object.prototype.hasOwnProperty.call(current, part)) {
+                current = current[part];
+                continue;
+            }
+            if (/^\d+$/.test(part) && current[Number(part)] !== undefined) {
+                current = current[Number(part)];
+                continue;
+            }
+            return null;
         }
 
         return current ?? null;
@@ -553,11 +2984,15 @@ export class ReportPreviewComponent implements AfterViewInit {
 
     /** Declared columns, or the ones the backend would derive from the records. */
     structuralColumns(section: ReportSection): { key: string; label: string }[] {
+        const hidden = new Set(section.hiddenKeys ?? []);
+
         if (section.columns?.length) {
-            return section.columns.map((column) => ({
-                key: column.key,
-                label: column.label || this._humanize(column.key),
-            }));
+            return section.columns
+                .filter((column) => !hidden.has(column.key))
+                .map((column) => ({
+                    key: column.key,
+                    label: column.label || this._humanize(column.key),
+                }));
         }
 
         const records = this.structuralRecords(section);
@@ -570,6 +3005,7 @@ export class ReportPreviewComponent implements AfterViewInit {
         }
 
         return keys
+            .filter((key) => !hidden.has(key))
             .slice(0, section.maxColumns || 6)
             .map((key) => ({ key, label: this._humanize(key) }));
     }
@@ -591,16 +3027,311 @@ export class ReportPreviewComponent implements AfterViewInit {
             );
     }
 
-    /** Entries behind a `keyValueGrid`, capped so the outline stays compact. */
-    structuralEntries(section: ReportSection): { key: string; value: string }[] {
-        const value = this._valueAt(section.dataPath);
+    onCellActivate(
+        section: ReportSection,
+        key: string,
+        part: ReportCellPart,
+        event: Event
+    ): void {
+        event.stopPropagation();
+        if (!this.clickable() || this._sectionDragMoved || this._cellDragMoved) return;
+        this.cellSelect.emit({ section, key, part });
+    }
 
-        if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+    onCellContextMenu(section: ReportSection, key: string, event: MouseEvent): void {
+        if (!this.clickable() || !this.customContextMenu()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.sectionClick()?.(section);
+        this.cellSelect.emit({ section, key, part: 'cell' });
+        this.cellContextMenu.emit({ section, key, x: event.clientX, y: event.clientY });
+    }
 
-        return Object.entries(value)
-            .filter(([, entry]) => entry != null && typeof entry !== 'object')
-            .slice(0, 6)
-            .map(([key, entry]) => ({ key: this._humanize(key), value: String(entry) }));
+    onCellPointerDown(section: ReportSection, key: string, event: PointerEvent): void {
+        if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
+        if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
+        event.stopPropagation();
+        this._clearSectionDrag();
+        this._cellDragMoved = false;
+        this._cellDrag = {
+            section,
+            key,
+            pointerId: event.pointerId,
+            startClientX: event.clientX,
+            startClientY: event.clientY,
+            extract: true,
+        };
+        window.addEventListener('pointermove', this._onWindowCellMove);
+        window.addEventListener('pointerup', this._onWindowCellUp, true);
+        window.addEventListener('pointercancel', this._onWindowCellUp, true);
+    }
+
+    isCellSelected(section: ReportSection, key: string, part?: ReportCellPart): boolean {
+        if (!this.clickable() || this.selectedSectionId() !== section.id) return false;
+        if (this.selectedCellKey() !== key) return false;
+        if (!part) return true;
+        return this.selectedCellPart() === part;
+    }
+
+    entryLabel(section: ReportSection, entry: { key: string; label: string }): string {
+        return section.keyOverrides?.[entry.key]?.label || entry.label;
+    }
+
+    tableLabel(section: ReportSection, table: { key: string; label: string }): string {
+        return section.keyOverrides?.[table.key]?.label || table.label;
+    }
+
+    tableFill(section: ReportSection, key: string): string {
+        return section.keyOverrides?.[key]?.backgroundColor || '#fffbeb';
+    }
+
+    tableEdge(section: ReportSection, key: string): string {
+        return `color-mix(in srgb, ${this.tableFill(section, key)} 62%, #000000)`;
+    }
+
+    tableHeaderFill(section: ReportSection, key: string): string {
+        return `color-mix(in srgb, ${this.tableFill(section, key)} 82%, #000000)`;
+    }
+
+    tableShowsBadge(section: ReportSection, key: string): boolean {
+        return section.keyOverrides?.[key]?.showTableBadge !== false;
+    }
+
+    tableColumnKey(tableKey: string, column: string): string {
+        return tableColumnPath(tableKey, column);
+    }
+
+    tableText(
+        section: ReportSection,
+        role: 'label' | 'value',
+        tableKey: string,
+        column?: string
+    ): { fontFamily: string; fontSize: number; fontWeight: string; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
+        const base = resolveTextRole(section, role, this.primaryColor(), tableKey);
+        if (!column) return base;
+        const columnKey = tableColumnPath(tableKey, column);
+        const nested =
+            role === 'label'
+                ? section.keyOverrides?.[columnKey]?.labelStyle
+                : section.keyOverrides?.[columnKey]?.valueStyle;
+        if (!nested) return base;
+        const size = Number(nested.fontSize);
+        const align = nested.textAlign;
+        return {
+            fontFamily: nested.fontFamily || base.fontFamily,
+            fontSize: Number.isFinite(size) && size > 0 ? size : base.fontSize,
+            fontWeight: nested.fontWeight || base.fontWeight,
+            fontStyle: nested.fontStyle || base.fontStyle,
+            textDecoration: nested.textDecoration || base.textDecoration,
+            textAlign:
+                align === 'left' || align === 'center' || align === 'right' || align === 'justify'
+                    ? align
+                    : base.textAlign,
+            color: nested.color || base.color,
+        };
+    }
+
+    shapeKind(section: ReportSection): ReportShapeKind {
+        const value = section.shape || section.staticContent;
+        if (
+            value === 'rectangle' ||
+            value === 'square' ||
+            value === 'circle' ||
+            value === 'star' ||
+            value === 'triangle' ||
+            value === 'diamond' ||
+            value === 'bullet'
+        ) {
+            return value;
+        }
+        return 'rectangle';
+    }
+
+    shapeKeepRatio(section: ReportSection): boolean {
+        return this.shapeKind(section) !== 'rectangle';
+    }
+
+    shapeRotateStyle(section: ReportSection): string {
+        const rotation = this.sectionRotation(section);
+        return rotation ? `rotate(${rotation}deg)` : 'none';
+    }
+
+    shapeFill(section: ReportSection): string {
+        return section.style?.color || section.style?.backgroundColor || this.primaryColor();
+    }
+
+    shapeStroke(section: ReportSection): string {
+        return Number(section.style?.borderWidth) > 0 ? section.style?.borderColor || '#111827' : 'none';
+    }
+
+    shapeStrokeWidth(section: ReportSection): number {
+        const width = Number(section.style?.borderWidth);
+        return width > 0 ? Math.max(1, Math.round(width)) : 0;
+    }
+
+    shapeRectRadius(section: ReportSection): number {
+        const radius = Number(section.style?.borderRadius);
+        if (!Number.isFinite(radius) || radius <= 0) return this.shapeKind(section) === 'square' ? 4 : 2;
+        const frame = this.displayFrame(section);
+        const width = Math.max(12, Number(frame?.width) || 96);
+        return Math.max(0, Math.min(48, (radius / width) * 96));
+    }
+
+    cellBackground(section: ReportSection, key: string): string {
+        return section.keyOverrides?.[key]?.backgroundColor || '';
+    }
+
+    cellHasBox(section: ReportSection, key: string): boolean {
+        return Number(section.keyOverrides?.[key]?.borderWidth ?? 0) > 0;
+    }
+
+    cellBorder(section: ReportSection, key: string): string {
+        if (!this.cellHasBox(section, key)) return 'none';
+        const override = section.keyOverrides?.[key];
+        const width = Math.max(1, Math.round(Number(override?.borderWidth ?? 1)));
+        return `${width}px solid ${override?.borderColor || '#d6d3d1'}`;
+    }
+
+    cellRadius(section: ReportSection, key: string): number {
+        const explicit = Number(section.keyOverrides?.[key]?.borderRadius);
+        if (Number.isFinite(explicit) && explicit >= 0) return explicit;
+        return this.cellHasBox(section, key) ? 8 : 0;
+    }
+
+    cellShowsRowLine(section: ReportSection, key: string, isLast: boolean): boolean {
+        const override = section.keyOverrides?.[key];
+        if (override?.showRowLine === false) return false;
+        if (override?.showRowLine === true) return true;
+        return this.sectionShowsRowLines(section) && !this.cellHasBox(section, key) && !isLast;
+    }
+
+    rowLineStyle(section: ReportSection, key?: string): ReportRowLineStyle {
+        const override = key ? section.keyOverrides?.[key]?.rowLineStyle : undefined;
+        if (override === 'dotted' || override === 'dashed' || override === 'solid') return override;
+        return section.rowLineStyle === 'dotted' || section.rowLineStyle === 'dashed' ? section.rowLineStyle : 'solid';
+    }
+
+    rowLineColor(section: ReportSection, key?: string): string {
+        return (key ? section.keyOverrides?.[key]?.rowLineColor : undefined) || section.rowLineColor || '#d6d3d1';
+    }
+
+    rowLineWidth(section: ReportSection, key?: string): number {
+        return clampRowLineWidth((key ? section.keyOverrides?.[key]?.rowLineWidth : undefined) ?? section.rowLineWidth);
+    }
+
+    rowLineMark(section: ReportSection, key?: string): number {
+        const style = this.rowLineStyle(section, key);
+        return clampRowLineMark(
+            (key ? section.keyOverrides?.[key]?.rowLineMark : undefined) ?? section.rowLineMark,
+            style,
+            defaultRowLineMark(style)
+        );
+    }
+
+    rowLineFill(section: ReportSection, key?: string): string {
+        return rowLinePaint(
+            this.rowLineStyle(section, key),
+            this.rowLineColor(section, key),
+            this.rowLineWidth(section, key),
+            this.rowLineMark(section, key)
+        ).image;
+    }
+
+    rowLineBg(section: ReportSection, key?: string, isLast = false): Record<string, string> | null {
+        const show = key ? this.cellShowsRowLine(section, key, isLast) : this.sectionShowsRowLines(section);
+        if (!show) return null;
+        const paint = rowLinePaint(
+            this.rowLineStyle(section, key),
+            this.rowLineColor(section, key),
+            this.rowLineWidth(section, key),
+            this.rowLineMark(section, key)
+        );
+        return {
+            'background-image': paint.image,
+            'background-repeat': 'no-repeat',
+            'background-position': 'left bottom',
+            'background-size': paint.size,
+        };
+    }
+
+    rowLineCss(section: ReportSection, key?: string): string {
+        const style = this.rowLineStyle(section, key);
+        const color = this.rowLineColor(section, key);
+        return `${this.rowLineWidth(section, key)}px ${style} ${color}`;
+    }
+
+    /** Entries behind a `keyValueGrid`, table, or card, honoring hidden keys. */
+    structuralEntries(section: ReportSection): { key: string; label: string; value: string }[] {
+        return this.sheetChunks(section).flatMap((chunk) => (chunk.kind === 'fields' ? chunk.entries : []));
+    }
+
+    sheetChunks(section: ReportSection): LayoutSheetChunk[] {
+        return chunkLayoutSheetItems(
+            collectLayoutSheetItems(this._valueAt(section.dataPath), {
+                hiddenKeys: section.hiddenKeys,
+                keyOrder: section.keyOrder,
+            })
+        );
+    }
+
+    sectionHasStructuredData(section: ReportSection): boolean {
+        return this.sheetChunks(section).length > 0;
+    }
+
+    sectionShowsRowLines(section: ReportSection): boolean {
+        return section.showRowLines !== false;
+    }
+
+    roleFontFamily(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontFamily;
+    }
+
+    roleFontSize(section: ReportSection, role: ReportTextRole, key?: string): number {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontSize;
+    }
+
+    roleFontWeight(section: ReportSection, role: ReportTextRole, key?: string): 'normal' | 'bold' {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontWeight;
+    }
+
+    roleFontStyle(section: ReportSection, role: ReportTextRole, key?: string): 'normal' | 'italic' {
+        return resolveTextRole(section, role, this.primaryColor(), key).fontStyle;
+    }
+
+    roleTextDecoration(section: ReportSection, role: ReportTextRole, key?: string): 'none' | 'underline' {
+        return resolveTextRole(section, role, this.primaryColor(), key).textDecoration;
+    }
+
+    roleTextAlign(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).textAlign;
+    }
+
+    roleColor(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).color;
+    }
+
+    sectionFrameBorder(section: ReportSection): string {
+        const width = Number(section.style?.borderWidth ?? 0);
+        if (!width || width <= 0) return 'none';
+        const color = section.style?.borderColor || '#d6d3d1';
+        return `${Math.max(1, Math.round(width))}px solid ${color}`;
+    }
+
+    sectionFrameRadius(section: ReportSection): number {
+        const explicit = Number(section.style?.borderRadius);
+        if (Number.isFinite(explicit) && explicit >= 0) return explicit;
+        return 0;
+    }
+
+    sectionFramePadding(section: ReportSection): string {
+        if (Number(section.style?.borderWidth ?? 0) > 0) return '10px';
+        const bg = section.style?.backgroundColor;
+        if (bg && bg !== '#ffffff' && bg !== '#fff') return '10px';
+        return '';
+    }
+
+    sectionFrameBackground(section: ReportSection): string | null {
+        return section.style?.backgroundColor || null;
     }
 
     /**
@@ -620,5 +3351,318 @@ export class ReportPreviewComponent implements AfterViewInit {
         };
 
         return palette[section.style?.variant || 'neutral'] ?? palette.neutral;
+    }
+
+    /**
+     * Snapshot the on-screen sheets as a standalone HTML document for Puppeteer,
+     * so the PDF matches the editor instead of a second EJS layout.
+     */
+    exportPrintHtml(): string | null {
+        const papers = this._reportPages?.toArray().map((ref) => ref.nativeElement) ?? [];
+        if (!papers.length) return null;
+
+        const { width: pageWidthMm, height: pageHeightMm } = this.paperSizeMm();
+        const sheets = papers
+            .map((paper) => this._printSheetMarkup(paper, pageWidthMm, pageHeightMm))
+            .filter(Boolean);
+
+        if (!sheets.length) return null;
+
+        const pageCount = sheets.length;
+        return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/><style>
+@page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
+html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
+.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
+.print-sheet [data-report-page-inner]{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;box-sizing:border-box}
+.print-sheet [data-report-footer]{position:absolute;left:0;right:0;bottom:0;width:100%;top:auto}
+.print-sheet [data-report-top-chrome]{position:absolute;left:0;right:0;top:0;width:100%;bottom:auto}
+.print-sheet + .print-sheet{break-before:page;page-break-before:always}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+</style></head><body>${sheets.join('')}</body></html>`;
+    }
+
+    private _printSheetMarkup(paper: HTMLElement, pageWidthMm: number, pageHeightMm: number): string {
+        const clone = paper.cloneNode(true) as HTMLElement;
+        this._inlineComputedStyles(paper, clone);
+        clone.querySelectorAll('[data-print-hide],[data-overlay-handle]').forEach((node) => node.remove());
+        this._stripPrintNoise(clone);
+        clone.querySelectorAll('[class*="ring-"]').forEach((node) => {
+            (node as HTMLElement).style.boxShadow = 'none';
+        });
+        clone.style.boxShadow = 'none';
+        clone.style.border = 'none';
+        clone.style.borderRadius = '0';
+        clone.style.margin = '0';
+        clone.style.maxWidth = 'none';
+        clone.style.boxSizing = 'border-box';
+        clone.style.overflow = 'hidden';
+        clone.style.position = 'relative';
+        clone.style.left = 'auto';
+        clone.style.top = 'auto';
+        clone.style.width = `${pageWidthMm}mm`;
+        clone.style.height = `${pageHeightMm}mm`;
+        clone.style.minWidth = `${pageWidthMm}mm`;
+        clone.style.minHeight = `${pageHeightMm}mm`;
+        clone.style.maxWidth = `${pageWidthMm}mm`;
+        clone.style.maxHeight = `${pageHeightMm}mm`;
+        clone.style.zoom = '1';
+        clone.style.transform = 'none';
+        this._pinPrintedLayout(paper, clone, Number(paper.getAttribute('data-report-page-index') || 0));
+        return `<div class="print-sheet">${clone.outerHTML}</div>`;
+    }
+
+    private _pinPrintedLayout(source: HTMLElement, clone: HTMLElement, pageIndex = 0): void {
+        const sourceInner =
+            (source.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? source;
+        const cloneInner =
+            (clone.querySelector('[data-report-page-inner]') as HTMLElement | null) ?? clone;
+        cloneInner.style.position = 'absolute';
+        cloneInner.style.left = '0';
+        cloneInner.style.top = '0';
+        cloneInner.style.right = '0';
+        cloneInner.style.bottom = '0';
+        cloneInner.style.width = '100%';
+        cloneInner.style.height = '100%';
+        cloneInner.style.minHeight = '0';
+        cloneInner.style.maxHeight = 'none';
+        cloneInner.style.overflow = 'hidden';
+        cloneInner.style.margin = '0';
+
+        clone.querySelectorAll('[data-sheet-image]').forEach((node) => {
+            const imagePage = Number((node as HTMLElement).getAttribute('data-sheet-image-page') || 0);
+            if (imagePage !== pageIndex) node.remove();
+        });
+
+        if (this.hasFreeLayout()) {
+            source.querySelectorAll('[data-report-section]').forEach((node) => {
+                const src = node as HTMLElement;
+                const id = src.getAttribute('data-section-id');
+                const dst = id
+                    ? (clone.querySelector(`[data-section-id="${CSS.escape(id)}"]`) as HTMLElement | null)
+                    : null;
+                if (dst) this._pinPrintedBox(src, dst, sourceInner);
+            });
+        }
+        source.querySelectorAll('[data-overlay-box]').forEach((node) => {
+            const src = node as HTMLElement;
+            const id = src.getAttribute('data-overlay-id');
+            if (!id) return;
+            const dst = clone.querySelector(`[data-overlay-id="${CSS.escape(id)}"]`) as HTMLElement | null;
+            if (dst) this._pinPrintedBox(src, dst, source);
+        });
+        this._pinPrintedLayoutFromModel(clone, pageIndex);
+        this._stickPrintedChrome(clone);
+    }
+
+    /** When the live sheet has no layout box (hidden tab), pin from saved frames. */
+    private _pinPrintedLayoutFromModel(clone: HTMLElement, pageIndex: number): void {
+        if (!this.hasFreeLayout()) return;
+        const pageW = this.pageWidthPx() || 1;
+        const pageH = this.pageHeightPx() || 1;
+        for (const section of this.template()?.sections ?? []) {
+            const frame = this.displayFrame(section);
+            if (!frame || (frame.page ?? 0) !== pageIndex || !section.id) continue;
+            const dst = clone.querySelector(
+                `[data-section-id="${CSS.escape(section.id)}"]`
+            ) as HTMLElement | null;
+            if (!dst || (dst.style.left && dst.style.width)) continue;
+            dst.style.position = 'absolute';
+            dst.style.margin = '0';
+            dst.style.right = 'auto';
+            dst.style.bottom = 'auto';
+            dst.style.left = `${((Number(frame.x) || 0) / pageW) * 100}%`;
+            dst.style.top = `${((Number(frame.y) || 0) / pageH) * 100}%`;
+            if (Number(frame.width) > 0) {
+                dst.style.width = `${(Number(frame.width) / pageW) * 100}%`;
+            }
+            if (Number(frame.height) > 0) {
+                dst.style.height = `${(Number(frame.height) / pageH) * 100}%`;
+            }
+        }
+    }
+
+    private _pinPrintedBox(src: HTMLElement, dst: HTMLElement, origin: HTMLElement): void {
+        const parent = (src.offsetParent as HTMLElement | null) ?? origin;
+        const parentW = parent.clientWidth || origin.clientWidth || 1;
+        const parentH = parent.clientHeight || origin.clientHeight || 1;
+        if (!src.offsetWidth && !src.offsetHeight) return;
+        dst.style.position = 'absolute';
+        dst.style.margin = '0';
+        dst.style.right = 'auto';
+        dst.style.bottom = 'auto';
+        dst.style.left = `${(src.offsetLeft / parentW) * 100}%`;
+        dst.style.top = `${(src.offsetTop / parentH) * 100}%`;
+        dst.style.width = `${(src.offsetWidth / parentW) * 100}%`;
+        dst.style.height = `${(src.offsetHeight / parentH) * 100}%`;
+        dst.style.transform = src.style.transform || 'none';
+        dst.style.transformOrigin = src.style.transformOrigin || 'center center';
+        const srcImgs = src.querySelectorAll('img');
+        dst.querySelectorAll('img').forEach((node, i) => {
+            const img = node as HTMLElement;
+            const from = srcImgs[i] as HTMLElement | undefined;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.maxWidth = 'none';
+            img.style.maxHeight = 'none';
+            img.style.objectFit = 'contain';
+            img.style.transform = from?.style.transform || 'none';
+            img.style.transformOrigin = from?.style.transformOrigin || 'center center';
+        });
+        const srcSpans = src.querySelectorAll('span');
+        dst.querySelectorAll('span').forEach((node, i) => {
+            const from = srcSpans[i] as HTMLElement | undefined;
+            if (from?.style.transform) (node as HTMLElement).style.transform = from.style.transform;
+        });
+    }
+
+    private _stickPrintedChrome(clone: HTMLElement): void {
+        clone.querySelectorAll('[data-report-footer]').forEach((node) => {
+            const el = node as HTMLElement;
+            el.style.position = 'absolute';
+            el.style.left = '0';
+            el.style.right = '0';
+            el.style.bottom = '0';
+            el.style.top = 'auto';
+            el.style.width = '100%';
+            el.style.height = 'auto';
+            el.style.maxHeight = 'none';
+            el.style.margin = '0';
+            el.style.transform = 'none';
+            el.style.zIndex = '30';
+        });
+        clone.querySelectorAll('[data-report-top-chrome]').forEach((node) => {
+            const el = node as HTMLElement;
+            el.style.position = 'absolute';
+            el.style.left = '0';
+            el.style.right = '0';
+            el.style.top = '0';
+            el.style.bottom = 'auto';
+            el.style.width = '100%';
+            el.style.height = 'auto';
+            el.style.margin = '0';
+            el.style.zIndex = '30';
+        });
+    }
+
+    printSurfaceWidth(): number {
+        return this._reportPages?.first?.nativeElement.getBoundingClientRect().width ?? 0;
+    }
+
+    private _inlineComputedStyles(source: Element, target: Element): void {
+        const computed = getComputedStyle(source);
+        const keys = [
+            'position',
+            'top',
+            'left',
+            'right',
+            'bottom',
+            'width',
+            'height',
+            'min-width',
+            'min-height',
+            'max-width',
+            'max-height',
+            'margin',
+            'padding',
+            'display',
+            'flex-direction',
+            'flex-wrap',
+            'align-items',
+            'justify-content',
+            'gap',
+            'grid-template-columns',
+            'grid-template-rows',
+            'font-family',
+            'font-size',
+            'font-weight',
+            'font-style',
+            'text-decoration',
+            'line-height',
+            'letter-spacing',
+            'text-align',
+            'text-transform',
+            'transform',
+            'transform-origin',
+            'color',
+            'white-space',
+            'background-color',
+            'background-image',
+            'background-repeat',
+            'background-position',
+            'background-size',
+            'opacity',
+            'border',
+            'border-top',
+            'border-right',
+            'border-bottom',
+            'border-left',
+            'border-radius',
+            'box-sizing',
+            'overflow',
+            'object-fit',
+            'object-position',
+            'z-index',
+            'border-collapse',
+            'vertical-align',
+        ];
+        const skip = new Set([
+            '',
+            'none',
+            'normal',
+            'auto',
+            'static',
+            'visible',
+            'stretch',
+            'start',
+            'normal',
+            'rgba(0, 0, 0, 0)',
+            'rgba(0,0,0,0)',
+            'transparent',
+            '0px',
+            '0',
+        ]);
+        let css = '';
+        for (const key of keys) {
+            const value = computed.getPropertyValue(key).trim();
+            if (!value || skip.has(value)) continue;
+            if (key === 'transform' || key === 'transform-origin') continue;
+            if (
+                key === 'background-image' &&
+                !value.includes('url(') &&
+                !/gradient/i.test(value)
+            ) {
+                continue;
+            }
+            css += `${key}:${value};`;
+        }
+        const elSrc = source as HTMLElement;
+        const elDst = target as HTMLElement;
+        if (css) elDst.style.cssText = css;
+        if (elSrc.style?.transform) elDst.style.transform = elSrc.style.transform;
+        if (elSrc.style?.transformOrigin) elDst.style.transformOrigin = elSrc.style.transformOrigin;
+        if (elSrc.style?.backgroundImage) elDst.style.backgroundImage = elSrc.style.backgroundImage;
+        if (elSrc.style?.backgroundSize) elDst.style.backgroundSize = elSrc.style.backgroundSize;
+        if (elSrc.style?.backgroundPosition) elDst.style.backgroundPosition = elSrc.style.backgroundPosition;
+        if (elSrc.style?.backgroundRepeat) elDst.style.backgroundRepeat = elSrc.style.backgroundRepeat;
+        const srcKids = source.children;
+        const dstKids = target.children;
+        const n = Math.min(srcKids.length, dstKids.length);
+        for (let i = 0; i < n; i++) this._inlineComputedStyles(srcKids[i], dstKids[i]);
+    }
+
+    private _stripPrintNoise(root: HTMLElement): void {
+        root.querySelectorAll('*').forEach((node) => {
+            const el = node as HTMLElement;
+            for (let i = el.attributes.length - 1; i >= 0; i--) {
+                const attr = el.attributes.item(i);
+                if (!attr) continue;
+                if (attr.name.startsWith('_ng') || attr.name.startsWith('ng-')) {
+                    el.removeAttribute(attr.name);
+                }
+            }
+            if (el.getAttribute('class') && !el.classList.contains('print-sheet')) {
+                el.removeAttribute('class');
+            }
+        });
     }
 }

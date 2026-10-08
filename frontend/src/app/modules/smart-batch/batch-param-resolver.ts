@@ -1,6 +1,12 @@
+import {
+    canonicalChainField,
+    collectCanonicalScalarValues,
+} from './endpoint-chain.util';
+
 /**
  * Step params for the in-tab Sync runner. Mirrors FeatureRunner precedence:
- * dependency default → input name → parameterDefaults → inputFieldMapping.
+ * dependency default → input name → parameterDefaults → inputFieldMapping
+ * → identifiers found in previous step payloads.
  */
 
 const TEMPLATE = /^\{\{\s*([^}]+?)\s*\}\}$/;
@@ -71,6 +77,21 @@ export const resolveStepParams = (options: {
             ? resolveTemplate(inputColumn, context)
             : getByPath(inputData, inputColumn);
         if (!isEmpty(raw)) params[apiParam] = raw;
+    }
+
+    const fromPrior = {
+        ...collectCanonicalScalarValues(results),
+        ...collectCanonicalScalarValues(inputData),
+    };
+    for (const dependency of options.dependencies || []) {
+        if (!dependency.field || !isEmpty(params[dependency.field])) continue;
+        const raw = fromPrior[canonicalChainField(dependency.field)];
+        if (!isEmpty(raw)) params[dependency.field] = raw;
+    }
+    for (const key of Object.keys(params)) {
+        if (!isEmpty(params[key])) continue;
+        const raw = fromPrior[canonicalChainField(key)];
+        if (!isEmpty(raw)) params[key] = raw;
     }
 
     for (const key of Object.keys(params)) {

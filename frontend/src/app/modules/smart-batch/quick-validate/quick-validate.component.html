@@ -27,7 +27,7 @@
                         >
                     } @else if (from() === 'dashboard') {
                         <a
-                            routerLink="/smart-batch"
+                            routerLink="/smart-batch/workspace"
                             class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                             >{{ t('smartBatchLanding.title') }}</a
                         >
@@ -39,7 +39,7 @@
                         >
                     } @else {
                         <a
-                            routerLink="/smart-batch"
+                            routerLink="/smart-batch/workspace"
                             [queryParams]="{ tab: 'templates' }"
                             class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                             >{{ t('smartBatchLanding.title') }}</a

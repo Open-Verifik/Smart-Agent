@@ -457,7 +457,7 @@ export class CreateBatchComponent implements OnInit {
             this.configId.set(id);
             this.loadConfiguration(id);
         } else {
-            this._router.navigate(['/smart-batch']);
+            this._router.navigate(['/smart-batch/workspace']);
         }
 
         // Check if we should show the tutorial
@@ -507,7 +507,7 @@ export class CreateBatchComponent implements OnInit {
                 this.isLoading.set(false);
             },
             error: () => {
-                this._router.navigate(['/smart-batch']);
+                this._router.navigate(['/smart-batch/workspace']);
             },
         });
     }
@@ -1824,6 +1824,10 @@ export class CreateBatchComponent implements OnInit {
     goBack() {
         if (this.isAppendMode() && this.batchId()) {
             this._router.navigate(['/smart-batch', this.configId(), 'batch', this.batchId()]);
+            return;
+        }
+        if (this._route.snapshot.queryParamMap.get('from') === 'guide') {
+            this._router.navigate(['/smart-batch']);
             return;
         }
         this._router.navigate(['/smart-batch', this.configId()]);
