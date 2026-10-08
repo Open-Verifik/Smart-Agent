@@ -10,7 +10,8 @@
                     <button
                         mat-icon-button
                         type="button"
-                        routerLink="/smart-fleet"
+                        [routerLink]="bulkWorking() ? null : '/smart-fleet'"
+                        [disabled]="bulkWorking()"
                         [matTooltip]="'smartFleet.back' | transloco"
                         class="shrink-0 !text-stone-600 dark:!text-stone-300"
                     >
@@ -52,7 +53,7 @@
                         mat-stroked-button
                         type="button"
                         [matMenuTriggerFor]="importMenu"
-                        [disabled]="isImporting()"
+                        [disabled]="bulkWorking() || isImporting()"
                         class="rounded-xl !px-5 !py-2"
                     >
                         <mat-icon class="mr-2 icon-size-5">upload_file</mat-icon>
@@ -81,6 +82,7 @@
                         color="primary"
                         type="button"
                         (click)="toggleCreateForm()"
+                        [disabled]="bulkWorking()"
                         class="rounded-xl !px-6 !py-2"
                     >
                         <mat-icon class="mr-2 icon-size-5">{{
@@ -444,9 +446,85 @@
                         class="w-full rounded-xl border border-stone-200 bg-white py-2 pl-10 pr-3 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     />
                 </div>
-                <button mat-stroked-button type="button" (click)="applySearch()" class="rounded-xl">
+                <button mat-stroked-button type="button" (click)="applySearch()" [disabled]="bulkWorking()" class="rounded-xl">
                     {{ 'smartFleet.assets.search' | transloco }}
                 </button>
+                <button mat-stroked-button type="button" (click)="toggleBulkMode()" [disabled]="bulkWorking()" class="rounded-xl">
+                    <mat-icon class="mr-1 icon-size-5">library_add</mat-icon>
+                    {{ 'smartFleet.assets.bulkReports' | transloco }}
+                </button>
+            </div>
+
+            <div
+                *ngIf="bulkMode()"
+                class="rounded-2xl border border-stone-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900"
+            >
+                <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                    {{ 'smartFleet.assets.bulkReports' | transloco }}
+                </h3>
+                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                    {{ 'smartFleet.assets.bulkPick' | transloco }}
+                </p>
+                <div *ngIf="bulkLoading() || (bulkTemplateId() && !bulkReady())" class="flex justify-center py-8">
+                    <mat-spinner diameter="28"></mat-spinner>
+                </div>
+                <div *ngIf="!bulkLoading()" class="mt-4 flex flex-col gap-3">
+                    <select
+                        class="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        [ngModel]="bulkTemplateId()"
+                        [disabled]="bulkWorking()"
+                        (ngModelChange)="chooseBulkTemplate($event)"
+                    >
+                        <option value="">{{ 'smartFleet.assets.reportPickTemplate' | transloco }}</option>
+                        <option *ngFor="let template of reportTemplates()" [value]="template._id">
+                            {{ template.name }}
+                        </option>
+                    </select>
+                    <p *ngIf="bulkKindLabels().length" class="text-sm text-stone-600 dark:text-stone-300">
+                        {{ 'smartFleet.assets.bulkApplies' | transloco }}
+                        {{ bulkKindLabels().join(', ') }}
+                    </p>
+                    <div *ngIf="bulkReady()" class="flex flex-wrap gap-2">
+                        <button type="button" class="text-xs font-semibold text-sky-700 disabled:opacity-40 dark:text-sky-300" [disabled]="bulkWorking()" (click)="selectBulkCompatible(true)">
+                            {{ 'smartFleet.assets.bulkSelectAll' | transloco }}
+                        </button>
+                        <button type="button" class="text-xs font-semibold text-stone-500 disabled:opacity-40" [disabled]="bulkWorking()" (click)="selectBulkCompatible(false)">
+                            {{ 'smartFleet.assets.bulkClear' | transloco }}
+                        </button>
+                    </div>
+                    <div
+                        *ngIf="bulkCompatible().length"
+                        class="max-h-64 overflow-y-auto rounded-xl border border-stone-200 dark:border-gray-700"
+                    >
+                        <label
+                            *ngFor="let asset of bulkCompatible()"
+                            class="flex cursor-pointer items-center gap-3 border-b border-stone-100 px-3 py-2 text-sm last:border-b-0 dark:border-gray-800"
+                        >
+                            <input type="checkbox" [checked]="bulkChecked(asset)" [disabled]="bulkWorking()" (change)="toggleBulkAsset(asset)" />
+                            <span class="font-mono font-semibold">{{ assetLabel(asset) }}</span>
+                            <span class="truncate text-stone-500" *ngIf="asset.nickname">{{ asset.nickname }}</span>
+                        </label>
+                    </div>
+                    <p *ngIf="bulkReady() && !bulkCompatible().length" class="text-sm text-stone-500">
+                        {{ 'smartFleet.assets.bulkEmpty' | transloco }}
+                    </p>
+                    <p *ngIf="bulkSkippedCount()" class="text-xs text-stone-500">
+                        {{ 'smartFleet.assets.bulkSkipped' | transloco: { count: bulkSkippedCount() } }}
+                    </p>
+                    <div class="flex justify-end">
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="rounded-xl"
+                            [disabled]="!bulkSelectedAssets().length || bulkWorking()"
+                            (click)="generateBulkReports()"
+                        >
+                            <mat-spinner *ngIf="bulkWorking()" diameter="18" class="mr-2"></mat-spinner>
+                            {{ 'smartFleet.assets.bulkGenerate' | transloco }}
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Table -->
@@ -470,6 +548,7 @@
                         color="primary"
                         type="button"
                         (click)="toggleCreateForm()"
+                        [disabled]="bulkWorking()"
                         class="rounded-xl !px-6 !py-2"
                     >
                         <mat-icon class="mr-2 icon-size-5">add</mat-icon>
@@ -501,8 +580,9 @@
                             <td class="px-5 py-3">
                                 <button
                                     type="button"
+                                    [disabled]="bulkWorking()"
                                     (click)="openAsset(asset)"
-                                    class="flex flex-col items-start gap-1 text-left"
+                                    class="flex flex-col items-start gap-1 text-left disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     <span class="inline-flex items-center gap-2">
                                         <span
@@ -572,7 +652,7 @@
                                         #assetReportMenu="matMenuTrigger"
                                         [matMenuTriggerFor]="reportMenu"
                                         (click)="reportTarget.set(asset); rememberReportMenu(assetReportMenu)"
-                                        [disabled]="reportingAssetId() === asset._id"
+                                        [disabled]="bulkWorking() || reportingAssetId() === asset._id"
                                         [matTooltip]="
                                             (readyReport(asset)
                                                 ? 'smartFleet.assets.reportRegenerate'
@@ -588,7 +668,7 @@
                                         mat-icon-button
                                         type="button"
                                         (click)="downloadVehicleReport(asset)"
-                                        [disabled]="reportingAssetId() === asset._id"
+                                        [disabled]="bulkWorking() || reportingAssetId() === asset._id"
                                         [matTooltip]="'smartFleet.assets.reportDownload' | transloco"
                                         class="!text-rose-600"
                                     >
@@ -599,6 +679,7 @@
                                         type="button"
                                         [matMenuTriggerFor]="groupMenu"
                                         (click)="groupTarget.set(asset)"
+                                        [disabled]="bulkWorking()"
                                         [matTooltip]="'smartFleet.assets.addToGroup' | transloco"
                                         class="!text-violet-700 dark:!text-violet-300"
                                     >
@@ -608,6 +689,7 @@
                                         mat-icon-button
                                         type="button"
                                         (click)="editRules(asset)"
+                                        [disabled]="bulkWorking()"
                                         [matTooltip]="'smartFleet.assets.editRules' | transloco"
                                         class="!text-amber-700 dark:!text-amber-300"
                                     >
@@ -617,6 +699,7 @@
                                         mat-icon-button
                                         type="button"
                                         (click)="startEdit(asset)"
+                                        [disabled]="bulkWorking()"
                                         [matTooltip]="'smartFleet.assets.edit' | transloco"
                                     >
                                         <mat-icon class="icon-size-5">edit</mat-icon>
@@ -624,7 +707,7 @@
                                     <button
                                         mat-icon-button
                                         type="button"
-                                        [disabled]="checkingAssetId() === asset._id"
+                                        [disabled]="bulkWorking() || checkingAssetId() === asset._id"
                                         (click)="checkNow(asset)"
                                         [matTooltip]="'smartFleet.assets.checkNow' | transloco"
                                     >
@@ -634,6 +717,7 @@
                                         mat-icon-button
                                         type="button"
                                         (click)="toggleActive(asset)"
+                                        [disabled]="bulkWorking()"
                                         [matTooltip]="
                                             (asset.isActive
                                                 ? 'smartFleet.assets.pause'
@@ -649,6 +733,7 @@
                                         mat-icon-button
                                         type="button"
                                         (click)="deleteAsset(asset)"
+                                        [disabled]="bulkWorking()"
                                         [matTooltip]="'smartFleet.assets.delete' | transloco"
                                         class="!text-red-500"
                                     >
@@ -745,7 +830,7 @@
                     <button
                         mat-icon-button
                         type="button"
-                        [disabled]="!canGoPrevious()"
+                        [disabled]="bulkWorking() || !canGoPrevious()"
                         (click)="previousPage()"
                         [matTooltip]="'smartFleet.previousPage' | transloco"
                     >
@@ -757,7 +842,7 @@
                     <button
                         mat-icon-button
                         type="button"
-                        [disabled]="!canGoNext()"
+                        [disabled]="bulkWorking() || !canGoNext()"
                         (click)="nextPage()"
                         [matTooltip]="'smartFleet.nextPage' | transloco"
                     >

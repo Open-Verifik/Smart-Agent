@@ -475,6 +475,26 @@ export class SmartFleetService {
 
     // ── Assets ───────────────────────────────────────────────────
 
+    /** Read a page without replacing the list the table is showing. */
+    findAssets(
+        options: {
+            page?: number;
+            perPage?: number;
+            search?: string;
+        } = {}
+    ) {
+        const page = options.page ?? 1;
+        const perPage = options.perPage ?? DEFAULT_PER_PAGE;
+
+        return this._httpClient.get<PaginatedResponse<FleetAsset>>(`${environment.apiUrl}/v2/fleet-assets`, {
+            params: {
+                page,
+                perPage,
+                ...(options.search ? { search: options.search } : {}),
+            },
+        });
+    }
+
     getAssets(
         options: {
             page?: number;
