@@ -30,6 +30,8 @@ import {
     McpConfigTab,
 } from './mcp-config-builder.util';
 import { VERIFIK_MCP_CONFIG } from './verifik-mcp.config';
+
+export type McpCountrySelection = string | null;
 import { SettingsService } from '../settings.service';
 
 export type McpSetupMode = 'full' | 'connect';
@@ -81,9 +83,13 @@ export class ApiKeyMcpSetupModalComponent implements OnChanges, OnDestroy {
     pastedToken = '';
     activeConfigTab: McpConfigTab = 'cursor';
     createdTokenExpiresAt: Date | null = null;
+    selectedCountry: McpCountrySelection = null;
+    smartcheckOnly = false;
+    includeGlobalChecks = true;
 
     readonly configTabs: McpConfigTab[] = ['cursor', 'claude', 'generic'];
     readonly npmPackageUrl = VERIFIK_MCP_CONFIG.npmPackageUrl;
+    readonly countryOptions = VERIFIK_MCP_CONFIG.countries;
     readonly expirationOptions: TokenExpirationOption[] = [
         { value: 1, durationKey: 'settings.api_key.duration_1_month', descriptorKey: 'settings.api_key.duration_short_term' },
         { value: 2, durationKey: 'settings.api_key.duration_2_months' },
@@ -210,11 +216,12 @@ export class ApiKeyMcpSetupModalComponent implements OnChanges, OnDestroy {
         return this.mode === 'full' ? this.selectedExpirationDate : null;
     }
 
+    get hasSelectedCountry(): boolean {
+        return Boolean(this.selectedCountry);
+    }
+
     get activeConfigSnippet(): string {
-        return buildMcpConfigSnippet(this.activeConfigTab, {
-            token: this.tokenForConfig,
-            apiBase: this._apiBaseUrl(),
-        });
+        return buildMcpConfigSnippet(this.activeConfigTab, this._configOptions());
     }
 
     get stepLabels(): string[] {
@@ -254,6 +261,22 @@ export class ApiKeyMcpSetupModalComponent implements OnChanges, OnDestroy {
 
     selectConfigTab(tab: McpConfigTab): void {
         this.activeConfigTab = tab;
+        this._cdr.markForCheck();
+    }
+
+    onCountrySelect(event: Event): void {
+        const value = (event.target as HTMLSelectElement).value;
+        this.selectedCountry = value || null;
+        this._cdr.markForCheck();
+    }
+
+    onSmartcheckOnlyChange(event: Event): void {
+        this.smartcheckOnly = (event.target as HTMLInputElement).checked;
+        this._cdr.markForCheck();
+    }
+
+    onIncludeGlobalChecksChange(event: Event): void {
+        this.includeGlobalChecks = (event.target as HTMLInputElement).checked;
         this._cdr.markForCheck();
     }
 
@@ -322,10 +345,7 @@ export class ApiKeyMcpSetupModalComponent implements OnChanges, OnDestroy {
         const bundle = this.configTabs
             .map((tab) => {
                 const label = this._translocoService.translate(`settings.api_key.mcp.tab_${tab}`);
-                return `--- ${label} ---\n${buildMcpConfigSnippet(tab, {
-                    token: this.tokenForConfig,
-                    apiBase: this._apiBaseUrl(),
-                })}`;
+                return `--- ${label} ---\n${buildMcpConfigSnippet(tab, this._configOptions())}`;
             })
             .join('\n\n');
 
@@ -362,10 +382,23 @@ export class ApiKeyMcpSetupModalComponent implements OnChanges, OnDestroy {
         this.plaintextToken = this.tokenContext?.token || null;
         this.pastedToken = '';
         this.activeConfigTab = 'cursor';
+        this.selectedCountry = null;
+        this.smartcheckOnly = false;
+        this.includeGlobalChecks = true;
         this.createdTokenExpiresAt = this.plaintextToken
             ? getTokenExpirationDate(this.plaintextToken)
             : null;
         this._cdr.markForCheck();
+    }
+
+    private _configOptions() {
+        return {
+            token: this.tokenForConfig,
+            apiBase: this._apiBaseUrl(),
+            country: this.selectedCountry,
+            includeGlobalChecks: this.includeGlobalChecks,
+            smartcheckOnly: this.smartcheckOnly,
+        };
     }
 
     private _registerToken(alias: string, accessToken: string): void {

@@ -1,51 +1,65 @@
-import { VERIFIK_MCP_CONFIG } from './verifik-mcp.config';
+import { buildMcpCountryEnvValue, VERIFIK_MCP_CONFIG } from './verifik-mcp.config';
 
 export type McpConfigTab = 'cursor' | 'claude' | 'generic';
 
 export interface BuildMcpConfigOptions {
     token: string;
     apiBase: string;
+    country?: string | null;
+    includeGlobalChecks?: boolean;
+    smartcheckOnly?: boolean;
 }
 
-function buildMcpEnv(token: string, apiBase: string): Record<string, string> {
+function buildMcpEnv(options: BuildMcpConfigOptions): Record<string, string> {
     const { envVars, envDefaults } = VERIFIK_MCP_CONFIG;
-
-    return {
-        [envVars.apiToken]: token,
-        [envVars.apiBase]: apiBase,
-        [envVars.smartcheckOnly]: envDefaults.smartcheckOnly,
+    const env: Record<string, string> = {
+        [envVars.apiToken]: options.token,
+        [envVars.apiBase]: options.apiBase,
     };
+
+    const countryValue = buildMcpCountryEnvValue(
+        options.country,
+        options.includeGlobalChecks ?? true
+    );
+
+    if (countryValue) {
+        env[envVars.country] = countryValue;
+    }
+
+    if (options.smartcheckOnly) {
+        env[envVars.smartcheckOnly] = envDefaults.smartcheckOnly;
+    }
+
+    return env;
 }
 
-function buildMcpServerEntry(token: string, apiBase: string): Record<string, unknown> {
+function buildMcpServerEntry(options: BuildMcpConfigOptions): Record<string, unknown> {
     const { npxCommand, npxArgs, serverId } = VERIFIK_MCP_CONFIG;
 
     return {
         [serverId]: {
             command: npxCommand,
             args: [...npxArgs],
-            env: buildMcpEnv(token, apiBase),
+            env: buildMcpEnv(options),
         },
     };
 }
 
 export function buildCursorMcpJson(options: BuildMcpConfigOptions): string {
-    return JSON.stringify({ mcpServers: buildMcpServerEntry(options.token, options.apiBase) }, null, 2);
+    return JSON.stringify({ mcpServers: buildMcpServerEntry(options) }, null, 2);
 }
 
 export function buildClaudeDesktopConfig(options: BuildMcpConfigOptions): string {
-    return JSON.stringify({ mcpServers: buildMcpServerEntry(options.token, options.apiBase) }, null, 2);
+    return JSON.stringify({ mcpServers: buildMcpServerEntry(options) }, null, 2);
 }
 
 export function buildGenericCliSnippet(options: BuildMcpConfigOptions): string {
-    const { envVars, envDefaults, npxCommand, npxArgs } = VERIFIK_MCP_CONFIG;
-    const envLines = [
-        `export ${envVars.apiToken}="${options.token}"`,
-        `export ${envVars.apiBase}="${options.apiBase}"`,
-        `export ${envVars.smartcheckOnly}="${envDefaults.smartcheckOnly}"`,
-    ].join('\n');
+    const { npxCommand, npxArgs } = VERIFIK_MCP_CONFIG;
+    const envLines = Object.entries(buildMcpEnv(options)).map(
+        ([key, value]) => `export ${key}="${value}"`
+    );
 
-    return `${envLines}\n${npxCommand} ${npxArgs.join(' ')}`;
+    return `${envLines.join('\n')}\n${npxCommand} ${npxArgs.join(' ')}`;
 }
 
 export function buildMcpConfigSnippet(tab: McpConfigTab, options: BuildMcpConfigOptions): string {
