@@ -565,30 +565,52 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3">
-                                <div class="flex items-center justify-end gap-1">
+                                <div class="flex items-center justify-end gap-0.5">
                                     <button
-                                        type="button"
-                                        [matMenuTriggerFor]="groupMenu"
-                                        (click)="groupTarget.set(asset)"
-                                        class="rounded-lg bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-200 dark:bg-gray-800 dark:text-stone-200"
-                                    >
-                                        {{ 'smartFleet.assets.addToGroup' | transloco }}
-                                    </button>
-                                    <button
+                                        mat-icon-button
                                         type="button"
                                         [matMenuTriggerFor]="reportMenu"
                                         (click)="reportTarget.set(asset)"
                                         [disabled]="reportingAssetId() === asset._id"
-                                        class="rounded-lg bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-200 disabled:opacity-60 dark:bg-gray-800 dark:text-stone-200"
+                                        [matTooltip]="
+                                            (readyReport(asset)
+                                                ? 'smartFleet.assets.reportRegenerate'
+                                                : 'smartFleet.assets.generateReport'
+                                            ) | transloco
+                                        "
+                                        class="!text-rose-600"
                                     >
-                                        {{ 'smartFleet.assets.generateReport' | transloco }}
+                                        <mat-icon class="icon-size-6">picture_as_pdf</mat-icon>
                                     </button>
                                     <button
+                                        *ngIf="readyReport(asset)"
+                                        mat-icon-button
+                                        type="button"
+                                        (click)="downloadVehicleReport(asset)"
+                                        [disabled]="reportingAssetId() === asset._id"
+                                        [matTooltip]="'smartFleet.assets.reportDownload' | transloco"
+                                        class="!text-rose-600"
+                                    >
+                                        <mat-icon class="icon-size-5">download</mat-icon>
+                                    </button>
+                                    <button
+                                        mat-icon-button
+                                        type="button"
+                                        [matMenuTriggerFor]="groupMenu"
+                                        (click)="groupTarget.set(asset)"
+                                        [matTooltip]="'smartFleet.assets.addToGroup' | transloco"
+                                        class="!text-violet-700 dark:!text-violet-300"
+                                    >
+                                        <mat-icon class="icon-size-5">group_add</mat-icon>
+                                    </button>
+                                    <button
+                                        mat-icon-button
                                         type="button"
                                         (click)="editRules(asset)"
-                                        class="mr-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:text-indigo-200"
+                                        [matTooltip]="'smartFleet.assets.editRules' | transloco"
+                                        class="!text-amber-700 dark:!text-amber-300"
                                     >
-                                        {{ 'smartFleet.assets.editRules' | transloco }}
+                                        <mat-icon class="icon-size-5">rule</mat-icon>
                                     </button>
                                     <button
                                         mat-icon-button
@@ -638,18 +660,23 @@
                 </table>
             </div>
 
-            <mat-menu #reportMenu="matMenu">
-                <button mat-menu-item type="button" disabled *ngIf="!reportTemplates().length">
-                    {{ 'smartFleet.assets.reportTemplateEmpty' | transloco }}
-                </button>
-                <button
-                    mat-menu-item
-                    type="button"
-                    *ngFor="let template of reportTemplates()"
-                    (click)="generateVehicleReport(template)"
-                >
-                    {{ template.name }}
-                </button>
+            <mat-menu #reportMenu="matMenu" class="fleet-report-menu">
+                <div class="fleet-report-menu-title" (click)="$event.stopPropagation()">
+                    {{ 'smartFleet.assets.reportPickTemplate' | transloco }}
+                </div>
+                <div class="fleet-report-menu-list">
+                    <button mat-menu-item type="button" disabled *ngIf="!reportTemplates().length">
+                        {{ 'smartFleet.assets.reportTemplateEmpty' | transloco }}
+                    </button>
+                    <button
+                        mat-menu-item
+                        type="button"
+                        *ngFor="let template of reportTemplates()"
+                        (click)="generateVehicleReport(template)"
+                    >
+                        {{ template.name }}
+                    </button>
+                </div>
                 <button mat-menu-item type="button" (click)="createReportTemplate()">
                     {{ 'smartFleet.assets.createTemplate' | transloco }}
                 </button>

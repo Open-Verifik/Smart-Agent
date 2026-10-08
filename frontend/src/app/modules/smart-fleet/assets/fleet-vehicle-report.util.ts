@@ -53,12 +53,23 @@ function latestByFeature(snapshots: FleetSnapshot[]): Map<string, FleetSnapshot>
     return latest;
 }
 
+const FEATURE_PAYLOAD_KEYS = ['informacionGeneral', 'soat', 'tecnoMecanica', 'multas', 'sinister', 'totalGeneral', 'pazSalvo'];
+
+/** The check stores the same body a Smart Batch step keeps. Sometimes that body is still wrapped in `data`. */
 function payloadOf(snapshot: FleetSnapshot): Record<string, unknown> | null {
     const raw = snapshot.raw;
 
-    if (!raw || !Object.keys(raw).length) return null;
+    if (!raw || typeof raw !== 'object') return null;
 
-    return raw;
+    const nested = raw['data'];
+    const source =
+        nested && typeof nested === 'object' && !Array.isArray(nested) && FEATURE_PAYLOAD_KEYS.some((key) => key in nested)
+            ? (nested as Record<string, unknown>)
+            : raw;
+
+    if (!Object.keys(source).length) return null;
+
+    return source;
 }
 
 function uniqueSnapshots(byCode: Map<string, FleetSnapshot>): FleetSnapshot[] {

@@ -11,7 +11,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
-import { BatchStep, SmartBatchService } from 'app/modules/smart-batch/smart-batch.service';
+import { BatchBrowserRunnerService } from 'app/modules/smart-batch/batch-browser-runner.service';
+import { BatchStep, SmartBatch, SmartBatchService } from 'app/modules/smart-batch/smart-batch.service';
 import { SmartReportService, SmartReportTemplate } from 'app/modules/smart-batch/smart-report.service';
 import { ReportBuilderPreviewDataService } from 'app/modules/smart-batch/report-builder-preview-data.service';
 import { buildFleetVehicleSample, fleetReportFileName, pdfBlobFromResponse } from './fleet-vehicle-report.util';
@@ -66,6 +67,27 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
     ],
     templateUrl: './fleet-assets.component.html',
     encapsulation: ViewEncapsulation.None,
+    styles: [
+        `
+            .fleet-report-menu.mat-mdc-menu-panel {
+                max-width: 22rem;
+                overflow: hidden;
+            }
+
+            .fleet-report-menu-title {
+                padding: 12px 16px 8px;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.35;
+                white-space: normal;
+            }
+
+            .fleet-report-menu-list {
+                max-height: 16rem;
+                overflow-y: auto;
+            }
+        `,
+    ],
 })
 export class FleetAssetsComponent implements OnInit {
     private _fleetService = inject(SmartFleetService);
@@ -77,6 +99,7 @@ export class FleetAssetsComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _reports = inject(SmartReportService);
     private _batches = inject(SmartBatchService);
+    private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewData = inject(ReportBuilderPreviewDataService);
 
     @ViewChild(FleetGroupsBoardComponent) private _groupsBoard?: FleetGroupsBoardComponent;
@@ -113,6 +136,8 @@ export class FleetAssetsComponent implements OnInit {
     reportTarget = signal<FleetAsset | null>(null);
     reportTemplates = signal<SmartReportTemplate[]>([]);
     reportingAssetId = signal<string | null>(null);
+    /** Report ready to download, keyed by vehicle. Nothing is saved to disk until the user asks. */
+    readyReports = signal<Record<string, { reportId: string; templateName?: string }>>({});
     /** When set, the shared form updates this asset instead of creating. */
     editingAssetId = signal<string | null>(null);
     draft = signal<FleetAsset>(DEFAULT_DRAFT());
@@ -229,30 +254,68 @@ export class FleetAssetsComponent implements OnInit {
         if (!asset?._id || !template._id || this.reportingAssetId()) return;
 
         this.reportingAssetId.set(asset._id);
-        this._snackBar.open(this._transloco.translate('smartFleet.assets.reportWorking'), undefined, {
-            duration: 2000,
-        });
+        const notice = this._snackBar.open(this._transloco.translate('smartFleet.assets.reportWorking'));
 
         try {
             const full = await firstValueFrom(this._reports.getTemplate(template._id));
-            const sample = await this._sampleFor(asset, await this._stepsForTemplate(full));
-            const blob = await firstValueFrom(
-                this._reports.downloadTemplateSample(template._id, {
-                    sampleData: { ...sample, report: undefined },
+            const configId = this._configIdOf(full);
+
+            if (!configId) {
+                this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsBatch'), undefined, {
+                    duration: 4000,
+                });
+                return;
+            }
+
+            const configuration = await firstValueFrom(this._batches.getConfiguration(configId));
+            const config = configuration.data;
+            const steps = (config?.steps || []).filter((step) => step.enabled !== false);
+            const batchName = (asset.nickname || asset.plate || asset.vin || 'Vehículo').slice(0, 150);
+            const created = await firstValueFrom(
+                this._batches.createSmartBatch({
+                    batchConfiguration: configId,
+                    name: batchName,
+                    rows: [{ inputData: this._batchInputFor(asset, steps) }],
                 })
             );
-            const pdf = await pdfBlobFromResponse(blob);
+            const batchId = created.data?._id;
 
-            if (!pdf) throw new Error('pdf');
+            if (!batchId) throw new Error('batch');
 
-            const url = URL.createObjectURL(pdf);
-            const anchor = document.createElement('a');
+            const estimate = await firstValueFrom(this._batches.getBatchEstimate(batchId));
 
-            anchor.href = url;
-            anchor.download = fleetReportFileName(asset, template.name);
-            anchor.click();
-            setTimeout(() => URL.revokeObjectURL(url), 2000);
-            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportReady'), undefined, {
+            if (estimate.data?.sufficientCredits === false) {
+                this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsCredits'), undefined, {
+                    duration: 4000,
+                });
+                return;
+            }
+
+            const started = await firstValueFrom(this._batches.startSmartBatch(batchId));
+            const batch = started.data?.rows?.length
+                ? started.data
+                : (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
+            const status =
+                config?.executor === 'queue' ? await this._pollBatch(batchId) : await this._runBatchInBrowser(batch, steps);
+
+            if (status === 'failed') {
+                throw new Error(this._transloco.translate('smartFleet.assets.reportNoData'));
+            }
+
+            const report = await firstValueFrom(
+                this._reports.createReport({
+                    template: template._id,
+                    smartBatch: batchId,
+                    name: batchName,
+                })
+            );
+            if (!report._id) throw new Error('pdf');
+
+            this.readyReports.update((current) => ({
+                ...current,
+                [asset._id!]: { reportId: report._id!, templateName: template.name },
+            }));
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportPrepared'), undefined, {
                 duration: 3000,
             });
         } catch (err) {
@@ -263,7 +326,43 @@ export class FleetAssetsComponent implements OnInit {
                 duration: 4000,
             });
         } finally {
+            notice.dismiss();
             this.reportingAssetId.set(null);
+        }
+    }
+
+    readyReport(asset: FleetAsset): { reportId: string; templateName?: string } | null {
+        if (!asset._id) return null;
+
+        return this.readyReports()[asset._id] ?? null;
+    }
+
+    async downloadVehicleReport(asset: FleetAsset): Promise<void> {
+        const ready = this.readyReport(asset);
+
+        if (!ready || this.reportingAssetId()) return;
+
+        try {
+            const pdf = await pdfBlobFromResponse(
+                await firstValueFrom(this._reports.downloadReport(ready.reportId, 0))
+            );
+
+            if (!pdf) throw new Error('pdf');
+
+            const url = URL.createObjectURL(pdf);
+            const anchor = document.createElement('a');
+
+            anchor.href = url;
+            anchor.download = fleetReportFileName(asset, ready.templateName);
+            anchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        } catch (err) {
+            console.error('[SmartFleet] download report error', err);
+            const detail = await this._reportErrorDetail(err);
+
+            this._snackBar.open(detail || this._transloco.translate('smartFleet.assets.reportFailed'), undefined, {
+                duration: 4000,
+            });
         }
     }
 
@@ -315,25 +414,97 @@ export class FleetAssetsComponent implements OnInit {
         return '';
     }
 
-    private async _stepsForTemplate(template: SmartReportTemplate): Promise<BatchStep[]> {
+    private _configIdOf(template: SmartReportTemplate): string | null {
         const linked = template.batchConfiguration;
-        const configId = typeof linked === 'string' ? linked : linked?._id || linked?.id;
 
-        if (configId) {
-            try {
-                const response = await firstValueFrom(this._batches.getConfiguration(configId));
+        if (!linked) return null;
 
-                if (response.data?.steps?.length) return response.data.steps;
-            } catch (err) {
-                console.error('[SmartFleet] report configuration error', err);
+        return typeof linked === 'string' ? linked : linked._id || linked.id || null;
+    }
+
+    /** Same plate column the external page resolves from the template's Smart Batch. */
+    private _plateFieldFor(steps: BatchStep[]): string {
+        const ordered = [...steps].sort((left, right) => left.sequence - right.sequence);
+
+        for (const step of ordered) {
+            const feature = typeof step.appFeature === 'object' ? step.appFeature : null;
+
+            for (const dependency of feature?.dependencies || []) {
+                if (dependency.field && this._isPlateField(dependency.field)) return dependency.field;
+            }
+
+            const mapping = step.inputFieldMapping;
+
+            if (!mapping || typeof mapping !== 'object') continue;
+
+            for (const key of Object.keys(mapping as Record<string, unknown>)) {
+                if (this._isPlateField(key)) return key;
             }
         }
 
-        return (template.presetSteps ?? []).map((step) => ({
-            sequence: step.sequence,
-            enabled: true,
-            appFeature: { code: step.appFeatureCode } as BatchStep['appFeature'],
-        }));
+        return 'plate';
+    }
+
+    private _isPlateField(field: string): boolean {
+        const token = field.replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+        return /^(plate|placa|licenseplate|vehicleplate)$/.test(token) || token.includes('placa') || token.endsWith('plate');
+    }
+
+    /** One row, like the page: the plate field, plus document or VIN when this vehicle has them. */
+    private _batchInputFor(asset: FleetAsset, steps: BatchStep[]): Record<string, string> {
+        const plateField = this._plateFieldFor(steps);
+        const input: Record<string, string> = {};
+
+        if (asset.plate) {
+            input[plateField] = asset.plate;
+            if (plateField !== 'plate') input.plate = asset.plate;
+        }
+
+        if (asset.ownerDocumentType) input.documentType = asset.ownerDocumentType;
+        if (asset.ownerDocumentNumber) input.documentNumber = asset.ownerDocumentNumber;
+        if (asset.vin) input.vin = asset.vin;
+
+        return input;
+    }
+
+    /** Queue executor: the server runs the steps. Same wait as the page. */
+    private async _pollBatch(batchId: string): Promise<string> {
+        const started = Date.now();
+
+        while (Date.now() - started < 180_000) {
+            const progress = await firstValueFrom(this._batches.getBatchProgress(batchId));
+            const status = progress.data?.status;
+
+            if (
+                status === 'completed' ||
+                status === 'failed' ||
+                status === 'cancelled' ||
+                progress.data?.pendingRows === 0
+            ) {
+                return status || 'failed';
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+
+        throw new Error(this._transloco.translate('smartFleet.assets.reportStillRunning'));
+    }
+
+    /** Browser executor: this tab calls each feature, then writes the row. */
+    private async _runBatchInBrowser(batch: SmartBatch, steps: BatchStep[]): Promise<string> {
+        let latest = batch;
+
+        await this._browserRunner.runBatch(batch, steps, (next) => {
+            latest = next;
+        });
+
+        const rows = latest.rows || [];
+        const failed = rows.filter((row) => row.status === 'failed').length;
+
+        if (!rows.length || failed === rows.length) return 'failed';
+
+        return failed ? 'partial' : 'completed';
     }
 
     private async _sampleFor(asset: FleetAsset, steps: BatchStep[] = []) {
