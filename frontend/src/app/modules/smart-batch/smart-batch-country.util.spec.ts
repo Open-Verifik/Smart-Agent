@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+	compareFeaturesForSelectedCountry,
 	countriesMatch,
 	filterFeaturesForCountry,
+	countryFlagImageUrl,
 	getCountryFlag,
 	isFeatureForCountry,
 	normalizeCountryName,
@@ -64,10 +66,33 @@ describe('resolveDropdownCountry', () => {
 	});
 });
 
+describe('compareFeaturesForSelectedCountry', () => {
+	it('lists a Panama endpoint before a world background check', () => {
+		const features = [
+			{ name: 'Global - ONU Background Check', country: 'world' },
+			{ name: 'Panama - Panamanian Citizen', country: 'Panama' },
+			{ name: 'Global - DEA Background Check', country: 'world' },
+		];
+
+		const sorted = [...features].sort(compareFeaturesForSelectedCountry);
+
+		expect(sorted.map((feature) => feature.name)).toEqual([
+			'Panama - Panamanian Citizen',
+			'Global - DEA Background Check',
+			'Global - ONU Background Check',
+		]);
+	});
+});
+
 describe('getCountryFlag', () => {
 	it('uses the same flag for CO and Colombia', () => {
 		expect(getCountryFlag('CO')).toBe('🇨🇴');
 		expect(getCountryFlag('Colombia')).toBe('🇨🇴');
 		expect(getCountryFlag('MX')).toBe('🇲🇽');
+	});
+
+	it('builds a flag image url from ISO or name', () => {
+		expect(countryFlagImageUrl('co')).toBe('https://flagcdn.com/w40/co.png');
+		expect(countryFlagImageUrl('Colombia')).toBe('https://flagcdn.com/w40/co.png');
 	});
 });

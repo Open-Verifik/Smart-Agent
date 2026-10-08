@@ -57,6 +57,60 @@ export class BatchBrowserRunnerService {
         }
     }
 
+    async retryRowSteps(
+        batch: SmartBatch,
+        steps: BatchStep[],
+        rowIndex: number,
+        sequences: number[],
+        onBatch: (next: SmartBatch) => void
+    ): Promise<SmartBatch> {
+        const batchId = batch._id;
+        const row = (batch.rows || []).find((item) => item.rowIndex === rowIndex);
+        if (!batchId || !row) return batch;
+
+        const wanted = [...new Set(sequences.map(Number).filter(Number.isFinite))];
+        const enabled = steps.filter((step) => step.enabled !== false).sort((a, b) => a.sequence - b.sequence);
+        const results: Record<number, unknown> = { ...(row.results || {}) };
+        const errors = (row.errors || []).filter((error) => !wanted.includes(Number(error.step)));
+
+        for (const sequence of wanted) {
+            delete results[sequence];
+        }
+
+        this.running.set(true);
+        try {
+            const pending = await this._putRow(batchId, rowIndex, {
+                status: 'pending',
+                results,
+                errors,
+            });
+            onBatch(pending.data);
+
+            for (const sequence of wanted) {
+                if (this._abort) break;
+                const step = enabled.find((item) => item.sequence === sequence);
+                if (!step) continue;
+                const outcome = await this._invokeStep(step, row.inputData || {}, results);
+                if (outcome.ok) {
+                    results[sequence] = outcome.body;
+                    continue;
+                }
+                if ('message' in outcome) {
+                    errors.push({ step: sequence, message: outcome.message, code: outcome.code });
+                }
+            }
+
+            const status: SmartBatchRowStatus =
+                errors.length === 0 ? 'completed' : Object.keys(results).length ? 'partial' : 'failed';
+            const res = await this._putRow(batchId, rowIndex, { status, results, errors });
+            onBatch(res.data);
+            return res.data;
+        } finally {
+            this.running.set(false);
+            this._abort = false;
+        }
+    }
+
     private async _runRow(
         batchId: string,
         row: SmartBatchRow,

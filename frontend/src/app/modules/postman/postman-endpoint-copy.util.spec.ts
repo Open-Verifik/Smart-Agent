@@ -493,6 +493,23 @@ describe('postman-endpoint-copy.util', () => {
             expect(result).toBe(frOverview);
         });
 
+        it('does not fall back to English OpenAPI when the UI locale is Spanish', () => {
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'colombia_api_driver',
+                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    docs: {
+                        en: { overview: enOverview },
+                    },
+                },
+                catalogDescription: '',
+                locale: 'es',
+            });
+
+            expect(result).toBe('');
+            expect(result).not.toContain('Driver\'s License');
+        });
+
         it('prefers docs.es.overview when populated after re-seed', () => {
             const esOverview =
                 'La API de validación de licencias de Verifik permite consultar información oficial registrada en el RUNT de Colombia.';
@@ -510,6 +527,26 @@ describe('postman-endpoint-copy.util', () => {
             });
 
             expect(result).toBe(esOverview);
+        });
+
+        it('uses Spanish catalog when docs.es overview is actually English', () => {
+            const catalogDescription =
+                'Valida licencias de conducción en Colombia mediante el número de cédula con la API de Verifik.';
+
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'colombia_api_driver',
+                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    docs: {
+                        es: { overview: enOverview },
+                    },
+                },
+                catalogDescription,
+                locale: 'es',
+            });
+
+            expect(result).toBe(catalogDescription);
+            expect(result).not.toContain("Driver's License");
         });
     });
 

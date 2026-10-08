@@ -5,6 +5,13 @@ import { SmartBatchComponent } from './smart-batch.component';
 export default [
     {
         path: '',
+        loadComponent: () =>
+            import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
+                (m) => m.VisitaGuideComponent
+            ),
+    },
+    {
+        path: 'workspace',
         component: SmartBatchComponent,
     },
     {
@@ -16,6 +23,13 @@ export default [
         component: CreateBatchConfigComponent,
     },
     {
+        path: 'report-builder/:templateId',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-builder/report-builder.component').then(
+                (m) => m.ReportBuilderComponent
+            ),
+    },
+    {
         path: 'report-builder',
         loadComponent: () =>
             import('app/modules/smart-batch/report-builder/report-builder.component').then(
@@ -23,7 +37,14 @@ export default [
             ),
     },
     {
-        path: 'report-builder/:templateId',
+        path: ':configId/report-builder/:templateId',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-builder/report-builder.component').then(
+                (m) => m.ReportBuilderComponent
+            ),
+    },
+    {
+        path: ':configId/report-builder',
         loadComponent: () =>
             import('app/modules/smart-batch/report-builder/report-builder.component').then(
                 (m) => m.ReportBuilderComponent
@@ -34,13 +55,6 @@ export default [
         loadComponent: () =>
             import('app/modules/smart-batch/quick-validate/quick-validate.component').then(
                 (m) => m.QuickValidateComponent
-            ),
-    },
-    {
-        path: ':configId',
-        loadComponent: () =>
-            import('app/modules/smart-batch/dashboard/batch-dashboard.component').then(
-                (m) => m.BatchDashboardComponent
             ),
     },
     {
@@ -65,6 +79,13 @@ export default [
             ),
     },
     {
+        path: ':configId/batch/:batchId/report',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-viewer/report-viewer.component').then(
+                (m) => m.ReportViewerComponent
+            ),
+    },
+    {
         path: ':configId/batch/:batchId',
         loadComponent: () =>
             import(
@@ -72,24 +93,10 @@ export default [
             ).then((m) => m.BatchProcessingComponent),
     },
     {
-        path: ':configId/report-builder',
+        path: ':configId',
         loadComponent: () =>
-            import('app/modules/smart-batch/report-builder/report-builder.component').then(
-                (m) => m.ReportBuilderComponent
-            ),
-    },
-    {
-        path: ':configId/report-builder/:templateId',
-        loadComponent: () =>
-            import('app/modules/smart-batch/report-builder/report-builder.component').then(
-                (m) => m.ReportBuilderComponent
-            ),
-    },
-    {
-        path: ':configId/batch/:batchId/report',
-        loadComponent: () =>
-            import('app/modules/smart-batch/report-viewer/report-viewer.component').then(
-                (m) => m.ReportViewerComponent
+            import('app/modules/smart-batch/dashboard/batch-dashboard.component').then(
+                (m) => m.BatchDashboardComponent
             ),
     },
 ] as Routes;

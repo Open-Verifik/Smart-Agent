@@ -22,6 +22,12 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { ApiKeyHelpModalComponent, ApiKeyHelpModalContent } from './api-key-help-modal.component';
 import {
+    ApiKeyMcpSetupModalComponent,
+    McpSetupMode,
+    McpSetupTokenContext,
+} from './api-key-mcp-setup-modal.component';
+import { VERIFIK_MCP_FEATURE } from './verifik-mcp.config';
+import {
     addCalendarMonths,
     getTokenExpirationDate,
     getTokenLifecycleStatus,
@@ -56,6 +62,7 @@ interface TokenExpiration {
         ClipboardModule,
         SettingsBusinessAccountEmptyStateComponent,
         ApiKeyHelpModalComponent,
+        ApiKeyMcpSetupModalComponent,
     ],
     templateUrl: './api-key-settings.component.html',
     styleUrl: './api-key-settings.component.scss',
@@ -87,6 +94,11 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
     aliasDraft = '';
     savingAliasId: string = null;
     showNewListNote = false;
+    mcpSetupOpen = false;
+    mcpSetupMode: McpSetupMode = 'full';
+    mcpSetupContext: McpSetupTokenContext | null = null;
+    lastGeneratedTokenAlias: string | null = null;
+    readonly mcpSetupEnabled = VERIFIK_MCP_FEATURE.enabled;
     private _registerInFlight = false;
     private _pendingAlias: string = null;
     private _listNoteCounted = false;
@@ -230,6 +242,58 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
 
     closeHelp(): void {
         this.activeHelp = null;
+        this._cdr.markForCheck();
+    }
+
+    openMcpSetupFull(): void {
+        this.mcpSetupMode = 'full';
+        this.mcpSetupContext = null;
+        this.mcpSetupOpen = true;
+        this._cdr.markForCheck();
+    }
+
+    openMcpSetupForToken(row: SavedJsonWebToken): void {
+        const tokenAvailable = this.tokenMatchesBrowser(row) && !row.revokedAt;
+
+        this.mcpSetupMode = 'connect';
+        this.mcpSetupContext = {
+            alias: row.alias,
+            expiresAt: row.expiresAt,
+            token: tokenAvailable ? this.accessToken : null,
+            tokenAvailable,
+        };
+        this.mcpSetupOpen = true;
+        this._cdr.markForCheck();
+    }
+
+    openMcpSetupFromNewToken(): void {
+        if (!this.newlyGeneratedToken) {
+            return;
+        }
+
+        this.mcpSetupMode = 'connect';
+        this.mcpSetupContext = {
+            alias: this.lastGeneratedTokenAlias || this._browserAlias(),
+            expiresAt: getTokenExpirationDate(this.newlyGeneratedToken),
+            token: this.newlyGeneratedToken,
+            tokenAvailable: true,
+        };
+        this.mcpSetupOpen = true;
+        this._cdr.markForCheck();
+    }
+
+    closeMcpSetup(): void {
+        this.mcpSetupOpen = false;
+        this.mcpSetupContext = null;
+        this._cdr.markForCheck();
+    }
+
+    onMcpTokenCreated(event: { accessToken: string; alias: string }): void {
+        this.accessToken = event.accessToken;
+        this.newlyGeneratedToken = event.accessToken;
+        this.lastGeneratedTokenAlias = event.alias;
+        this.showNewTokenAlert = true;
+        this._loadSavedTokens(false);
         this._cdr.markForCheck();
     }
 
@@ -404,6 +468,7 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
                     if (response?.accessToken) {
                         this.accessToken = response.accessToken;
                         this.newlyGeneratedToken = response.accessToken;
+                        this.lastGeneratedTokenAlias = alias;
                         this.showNewTokenAlert = true;
                         this.showRenewPanel = false;
                         this.newTokenAlias = '';
@@ -448,6 +513,7 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
                     if (newToken) {
                         this.accessToken = newToken;
                         this.newlyGeneratedToken = newToken;
+                        this.lastGeneratedTokenAlias = alias;
                         this.showNewTokenAlert = true;
                         this.showRevokeConfirm = false;
                         this.newTokenAlias = '';
