@@ -4,21 +4,24 @@ import {
     Component,
     ElementRef,
     inject,
+    OnDestroy,
     OnInit,
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { Subscription } from 'rxjs';
 import { SmartScanService } from '../smart-scan.service';
-import type { DocumentType, DocumentClassification, DocumentTypeField } from '../smart-scan.types';
+import type { DocumentType, DocumentClassification, DocumentTypeField, SmartCheckResult } from '../smart-scan.types';
 
 type ScanToolStep = 'select' | 'preview' | 'upload' | 'results';
 
@@ -54,19 +57,22 @@ const COUNTRY_FLAGS: Record<string, string> = {
         MatInputModule,
         MatSelectModule,
         MatChipsModule,
+        MatMenuModule,
         MatProgressSpinnerModule,
         TranslocoModule,
     ],
     templateUrl: './scan-tool.component.html',
     styleUrls: ['./scan-tool.component.scss'],
 })
-export class ScanToolComponent implements OnInit {
+export class ScanToolComponent implements OnInit, OnDestroy {
     @ViewChild('frontInput') frontInput!: ElementRef<HTMLInputElement>;
     @ViewChild('backInput') backInput!: ElementRef<HTMLInputElement>;
+    @ViewChild('editMenuTrigger') editMenuTrigger?: MatMenuTrigger;
 
     private _scanService = inject(SmartScanService);
     private _cdr = inject(ChangeDetectorRef);
     private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
     private _location = inject(Location);
     private _transloco = inject(TranslocoService);
 
@@ -77,7 +83,12 @@ export class ScanToolComponent implements OnInit {
     selectedCategory = '';
     countries: string[] = [];
     categories: string[] = [];
+    documentTypesLoading = false;
+    showMine = false;
     flippedCardId: string | null = null;
+
+    private _countriesSub: Subscription | null = null;
+    private _documentTypesSub: Subscription | null = null;
 
     lastCountry = '';
     lastCategory = '';
@@ -112,11 +123,15 @@ export class ScanToolComponent implements OnInit {
 
     ngOnInit() {
         this._scanService.resetScanState();
-        this._scanService.getDocumentTypes().subscribe({
-            next: () => {
-                const types = this._scanService.documentTypes();
-                this.countries = [...new Set(types.map((t) => t.country).filter(Boolean))].sort();
-                this.categories = [...new Set(types.map((t) => t.category).filter(Boolean))].sort();
+        this._scanService.documentTypes.set([]);
+        const requestedCountry = this._route.snapshot.queryParamMap.get('country') || '';
+        this._countriesSub = this._scanService.getDocumentTypeCountries().subscribe({
+            next: (countries) => {
+                this.countries = countries;
+                const match = countries.find(
+                    (country) => country.toLowerCase() === requestedCountry.toLowerCase()
+                );
+                if (match) this.toggleCountry(match);
                 this._cdr.markForCheck();
             },
             error: () => {
@@ -124,6 +139,11 @@ export class ScanToolComponent implements OnInit {
                 this._cdr.markForCheck();
             },
         });
+    }
+
+    ngOnDestroy() {
+        this._countriesSub?.unsubscribe();
+        this._documentTypesSub?.unsubscribe();
     }
 
     getFlag(country: string): string {
@@ -153,19 +173,84 @@ export class ScanToolComponent implements OnInit {
     }
 
     toggleCountry(country: string) {
-        this.selectedCountry = this.selectedCountry === country ? '' : country;
+        if (this.selectedCountry === country) {
+            this.clearCountrySelection();
+            return;
+        }
+
+        this.selectedCountry = country;
+        this.selectedCategory = '';
+        this.searchQuery = '';
+        this.flippedCardId = null;
+        this.loadDocumentTypes(country);
     }
 
     toggleCategory(category: string) {
         this.selectedCategory = this.selectedCategory === category ? '' : category;
     }
 
+    toggleMine(mine: boolean) {
+        if (this.showMine === mine || !this.selectedCountry) return;
+        this.showMine = mine;
+        this.selectedCategory = '';
+        this.loadDocumentTypes(this.selectedCountry);
+    }
+
+    private loadDocumentTypes(country: string) {
+        if (!country) return;
+
+        this._documentTypesSub?.unsubscribe();
+        this.documentTypesLoading = true;
+        this.categories = [];
+        this._scanService.documentTypes.set([]);
+        this._cdr.markForCheck();
+
+        this._documentTypesSub = this._scanService.getDocumentTypes(country, this.showMine).subscribe({
+            next: () => {
+                const types = this._scanService.documentTypes();
+                this.categories = [...new Set(types.map((t) => t.category).filter(Boolean))].sort();
+                this.documentTypesLoading = false;
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.documentTypesLoading = false;
+                this.errorMessage = 'Failed to load document types';
+                this._cdr.markForCheck();
+            },
+        });
+    }
+
+    private clearCountrySelection() {
+        this._documentTypesSub?.unsubscribe();
+        this._documentTypesSub = null;
+        this.selectedCountry = '';
+        this.selectedCategory = '';
+        this.searchQuery = '';
+        this.categories = [];
+        this.documentTypesLoading = false;
+        this.flippedCardId = null;
+        this._scanService.documentTypes.set([]);
+        this._cdr.markForCheck();
+    }
+
+    private restoreSelectStep() {
+        this.selectedCountry = this.lastCountry;
+        this.selectedCategory = this.lastCategory;
+        this.searchQuery = this.lastSearchQuery;
+        this.step = 'select';
+
+        if (this.selectedCountry && this.documentTypes().length === 0) {
+            this.loadDocumentTypes(this.selectedCountry);
+        }
+
+        this._cdr.markForCheck();
+    }
+
     get filteredDocumentTypes(): DocumentType[] {
+        if (!this.selectedCountry) return [];
+
         let types = this.documentTypes();
 
-        if (this.selectedCountry) {
-            types = types.filter((t) => t.country === this.selectedCountry);
-        }
         if (this.selectedCategory) {
             types = types.filter((t) => t.category === this.selectedCategory);
         }
@@ -185,6 +270,31 @@ export class ScanToolComponent implements OnInit {
     flipCard(id: string, event: Event) {
         event.stopPropagation();
         this.flippedCardId = this.flippedCardId === id ? null : id;
+    }
+
+    menuX = 0;
+    menuY = 0;
+    contextDocumentType: DocumentType | null = null;
+
+    onOwnedCardContextMenu(event: MouseEvent, documentType: DocumentType) {
+        if (!documentType.client) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.contextDocumentType = documentType;
+        this.menuX = event.clientX;
+        this.menuY = event.clientY;
+        this._cdr.detectChanges();
+        this.editMenuTrigger?.openMenu();
+    }
+
+    editDocumentType(documentType: DocumentType, event?: Event) {
+        event?.stopPropagation();
+        this._router.navigate(['/smart-enroll/smart-scan/document-type', documentType._id]);
+    }
+
+    editContextDocumentType() {
+        if (!this.contextDocumentType) return;
+        this.editDocumentType(this.contextDocumentType);
     }
 
     selectDocumentType(dt: DocumentType) {
@@ -228,11 +338,7 @@ export class ScanToolComponent implements OnInit {
     }
 
     backToSelect() {
-        this.selectedCountry = this.lastCountry;
-        this.selectedCategory = this.lastCategory;
-        this.searchQuery = this.lastSearchQuery;
-        this.step = 'select';
-        this._cdr.markForCheck();
+        this.restoreSelectStep();
     }
 
     backToPreview() {
@@ -251,11 +357,7 @@ export class ScanToolComponent implements OnInit {
         this._scanService.selectedPromptTemplate.set(null);
         this.showRawJson = false;
 
-        this.selectedCountry = this.lastCountry;
-        this.selectedCategory = this.lastCategory;
-        this.searchQuery = this.lastSearchQuery;
-        this.step = 'select';
-        this._cdr.markForCheck();
+        this.restoreSelectStep();
     }
 
     triggerFrontInput() {
@@ -332,7 +434,8 @@ export class ScanToolComponent implements OnInit {
         const image = await this.fileToBase64(this.frontFile);
         const backImage = this.backFile ? await this.fileToBase64(this.backFile) : undefined;
 
-        this._scanService.scanDocument(docType.code, image, backImage).subscribe({
+        const templateId = this._scanService.selectedPromptTemplate()?._id;
+        this._scanService.scanDocument(docType.code, image, backImage, templateId).subscribe({
             next: () => {
                 this.step = 'results';
                 const cls = this.getClassification();
@@ -355,9 +458,7 @@ export class ScanToolComponent implements OnInit {
         this.frontUrl = null;
         this.backFile = null;
         this.backUrl = null;
-        this.selectedCountry = '';
-        this.selectedCategory = '';
-        this.searchQuery = '';
+        this.clearCountrySelection();
         this.showRawJson = false;
         this._cdr.markForCheck();
     }
@@ -379,8 +480,47 @@ export class ScanToolComponent implements OnInit {
         const extraction = this.scanResult()?.OCRExtraction;
         if (!extraction || typeof extraction !== 'object') return [];
         return Object.entries(extraction)
-            .filter(([k]) => k !== 'documentClassification' && !k.startsWith('_'))
+            .filter(([k]) => k !== 'documentClassification' && k !== 'smartCheck' && !k.startsWith('_'))
             .map(([key, value]) => ({ key, value }));
+    }
+
+    extractionSections(): Array<{ id: string; labelKey: string; fields: Array<{ key: string; value: unknown }> }> {
+        const rows = this.getExtractionFields();
+        const { front, back } = this.sideKeys();
+        if (!front.size && !back.size) return [{ id: 'all', labelKey: '', fields: rows }];
+
+        return [
+            { id: 'front', labelKey: 'smartScan.frontSideFields', fields: rows.filter((row) => front.has(row.key)) },
+            {
+                id: 'back',
+                labelKey: 'smartScan.backSideFields',
+                fields: rows.filter((row) => back.has(row.key) && !front.has(row.key)),
+            },
+            {
+                id: 'other',
+                labelKey: 'smartScan.otherFields',
+                fields: rows.filter((row) => !front.has(row.key) && !back.has(row.key)),
+            },
+        ];
+    }
+
+    private sideKeys(): { front: Set<string>; back: Set<string> } {
+        const mapping = this.scanResult()?.fieldMapping;
+        if (mapping?.front || mapping?.back) {
+            return {
+                front: new Set(Object.keys(mapping.front || {})),
+                back: new Set(Object.keys(mapping.back || {})),
+            };
+        }
+
+        return {
+            front: new Set(this.selectedTemplateFields.map((field) => field.mapKey).filter(Boolean)),
+            back: new Set(this.selectedTemplateBackFields.map((field) => field.mapKey).filter(Boolean)),
+        };
+    }
+
+    get smartCheck(): SmartCheckResult | null {
+        return this.scanResult()?.smartCheck ?? null;
     }
 
     getClassification(): DocumentClassification | null {

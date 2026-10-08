@@ -1,0 +1,392 @@
+<div class="wizard-page">
+    <header class="wizard-header">
+        <div class="wizard-header__inner">
+            <div class="wizard-crumb">
+                <a routerLink="/smart-enroll/smart-scan/new" [queryParams]="country ? { country: country } : {}">
+                    {{ 'smartScan.wizard.breadcrumbScan' | transloco }}
+                </a>
+                <span>/</span>
+                <span>{{ (openedAsEdit ? 'smartScan.wizard.editTitle' : 'smartScan.wizard.title') | transloco }}</span>
+            </div>
+            <div class="wizard-header__title">
+                <button mat-icon-button type="button" (click)="previousStep()" [attr.aria-label]="'smartScan.wizard.back' | transloco">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <h1>{{ (openedAsEdit ? 'smartScan.wizard.editTitle' : 'smartScan.wizard.title') | transloco }}</h1>
+            </div>
+            <nav class="wizard-pills">
+                @for (step of steps; track step; let i = $index) {
+                    <button
+                        type="button"
+                        class="wizard-pill"
+                        [class.wizard-pill--current]="isStepCurrent(i)"
+                        [disabled]="saving || loading || (!openedAsEdit && i > stepIndex)"
+                        (click)="goToStep(i)"
+                    >
+                        {{ 'smartScan.wizard.steps.' + step | transloco }}
+                    </button>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <main class="wizard-main">
+        @if (loading) {
+            <div class="wizard-loading">
+                <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+            </div>
+        }
+        @if (!loading) {
+            @if (errorMessage) {
+                <p class="wizard-error">{{ errorMessage }}</p>
+            }
+
+        <div class="wizard-screen">
+            <header class="wizard-hero">
+                <div>
+                    <span class="wizard-hero__eyebrow">{{ 'smartScan.wizard.' + stepCopyKey + '.eyebrow' | transloco }}</span>
+                    <h2>{{ 'smartScan.wizard.' + stepCopyKey + '.title' | transloco }}</h2>
+                    <p>{{ 'smartScan.wizard.' + stepCopyKey + '.subtitle' | transloco }}</p>
+                </div>
+                <div class="wizard-hero__choice">
+                    <span>{{ 'smartScan.wizard.' + stepCopyKey + '.choiceLabel' | transloco }}</span>
+                    <strong>{{ choiceLabel }}</strong>
+                </div>
+            </header>
+
+            <div class="wizard-decision">
+                <section class="wizard-form">
+                    @if (stepIndex === 0) {
+                        <div class="section-heading">
+                            <span>01</span>
+                            <div>
+                                <h3>{{ 'smartScan.wizard.details.sectionTitle' | transloco }}</h3>
+                                <p>{{ 'smartScan.wizard.details.sectionHelp' | transloco }}</p>
+                            </div>
+                        </div>
+                        <article class="field-card" [class.field-card--ready]="identityReady">
+                            <span class="field-card__icon"><mat-icon>badge</mat-icon></span>
+                            <div class="field-card__content">
+                                <span class="field-card__title">
+                                    <strong>{{ 'smartScan.wizard.details.identityTitle' | transloco }}</strong>
+                                    <small>{{ 'smartScan.wizard.details.required' | transloco }}</small>
+                                </span>
+                                <span class="field-card__body">{{ 'smartScan.wizard.details.identityBody' | transloco }}</span>
+                                <div class="input-stack">
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ 'smartScan.wizard.name' | transloco }}</mat-label>
+                                        <input matInput [(ngModel)]="name" />
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ 'smartScan.wizard.code' | transloco }}</mat-label>
+                                        <input matInput [ngModel]="code" (ngModelChange)="onCodeInput($event)" />
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="field-card" [class.field-card--ready]="!!category">
+                            <span class="field-card__icon"><mat-icon>category</mat-icon></span>
+                            <div class="field-card__content">
+                                <span class="field-card__title">
+                                    <strong>{{ 'smartScan.wizard.details.classificationTitle' | transloco }}</strong>
+                                </span>
+                                <span class="field-card__body">{{ 'smartScan.wizard.details.classificationBody' | transloco }}</span>
+                                <div class="input-grid">
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ 'smartScan.wizard.category' | transloco }}</mat-label>
+                                        <mat-select [(ngModel)]="category">
+                                            @for (item of categories; track item) {
+                                                <mat-option [value]="item">{{ 'smartScan.categories.' + item | transloco }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                        <mat-label>{{ 'smartScan.wizard.version' | transloco }}</mat-label>
+                                        <input matInput [(ngModel)]="version" />
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </article>
+                    }
+
+                    @if (stepIndex === 1) {
+                        <div class="section-heading">
+                            <span>01</span>
+                            <div>
+                                <h3>{{ 'smartScan.wizard.sidesStep.sectionTitle' | transloco }}</h3>
+                                <p>{{ 'smartScan.wizard.sidesStep.sectionHelp' | transloco }}</p>
+                            </div>
+                        </div>
+                        <div class="side-choices">
+                            <button type="button" class="side-choice" [class.side-choice--ready]="!requiresBackSide" (click)="onRequiresBackSideChange(false)">
+                                <mat-icon>crop_portrait</mat-icon>
+                                <strong>{{ 'smartScan.wizard.frontOnly' | transloco }}</strong>
+                                <span>{{ 'smartScan.wizard.sidesStep.frontBody' | transloco }}</span>
+                            </button>
+                            <button type="button" class="side-choice" [class.side-choice--ready]="requiresBackSide" (click)="onRequiresBackSideChange(true)">
+                                <mat-icon>flip</mat-icon>
+                                <strong>{{ 'smartScan.wizard.bothSides' | transloco }}</strong>
+                                <span>{{ 'smartScan.wizard.sidesStep.backBody' | transloco }}</span>
+                            </button>
+                        </div>
+                        <article class="field-card" [class.field-card--ready]="!!frontImage">
+                            <span class="field-card__icon"><mat-icon>image</mat-icon></span>
+                            <div class="field-card__content">
+                                <span class="field-card__title">
+                                    <strong>{{ 'smartScan.wizard.frontImage' | transloco }}</strong>
+                                    <small>{{ 'smartScan.wizard.details.required' | transloco }}</small>
+                                </span>
+                                <label class="image-drop">
+                                    @if (frontImage) {
+                                        <img class="image-drop__preview" [src]="frontImage" alt="" />
+                                    } @else {
+                                        <mat-icon>upload</mat-icon>
+                                    }
+                                    <input type="file" accept="image/*" (change)="onImageSelected($event, 'front')" />
+                                </label>
+                            </div>
+                        </article>
+                        @if (requiresBackSide) {
+                            <article class="field-card" [class.field-card--ready]="!!backImage">
+                                <span class="field-card__icon"><mat-icon>flip</mat-icon></span>
+                                <div class="field-card__content">
+                                    <span class="field-card__title">
+                                        <strong>{{ 'smartScan.wizard.backImage' | transloco }}</strong>
+                                        <small>{{ 'smartScan.wizard.details.required' | transloco }}</small>
+                                    </span>
+                                    <label class="image-drop">
+                                        @if (backImage) {
+                                            <img class="image-drop__preview" [src]="backImage" alt="" />
+                                        } @else {
+                                            <mat-icon>upload</mat-icon>
+                                        }
+                                        <input type="file" accept="image/*" (change)="onImageSelected($event, 'back')" />
+                                    </label>
+                                </div>
+                            </article>
+                        }
+                    }
+
+                    @if (stepIndex === 2) {
+                        <div class="section-heading">
+                            <span>01</span>
+                            <div>
+                                <h3>{{ 'smartScan.wizard.fieldsStep.sectionTitle' | transloco }}</h3>
+                                <p>{{ 'smartScan.wizard.fieldsStep.sectionHelp' | transloco }}</p>
+                            </div>
+                        </div>
+                        @for (field of fields; track $index) {
+                            <article class="field-card" [class.field-card--ready]="!!(field.name.trim() && field.mapKey.trim())">
+                                <span class="field-card__icon"><mat-icon>data_object</mat-icon></span>
+                                <div class="field-card__content">
+                                    <span class="field-card__title">
+                                        <strong>{{ 'smartScan.wizard.fieldsStep.fieldTitle' | transloco }} {{ $index + 1 }}</strong>
+                                        <button type="button" class="text-button" (click)="removeField(fields, $index)">
+                                            {{ 'smartScan.wizard.remove' | transloco }}
+                                        </button>
+                                    </span>
+                                    <span class="field-card__body">{{ 'smartScan.wizard.fieldsStep.fieldBody' | transloco }}</span>
+                                    <div class="input-grid">
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                            <mat-label>{{ 'smartScan.wizard.fieldName' | transloco }}</mat-label>
+                                            <input matInput [(ngModel)]="field.name" />
+                                        </mat-form-field>
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                            <mat-label>{{ 'smartScan.wizard.mapKey' | transloco }}</mat-label>
+                                            <input matInput [(ngModel)]="field.mapKey" />
+                                        </mat-form-field>
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                            <mat-label>{{ 'smartScan.wizard.fieldType' | transloco }}</mat-label>
+                                            <mat-select [(ngModel)]="field.type">
+                                                @for (type of fieldTypes; track type) {
+                                                    <mat-option [value]="type">{{ type }}</mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                            <mat-label>{{ 'smartScan.wizard.page' | transloco }}</mat-label>
+                                            <mat-select [(ngModel)]="field.page">
+                                                <mat-option [value]="0">{{ 'smartScan.wizard.frontPage' | transloco }}</mat-option>
+                                                @if (requiresBackSide) {
+                                                    <mat-option [value]="1">{{ 'smartScan.wizard.backPage' | transloco }}</mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                        <button mat-stroked-button type="button" (click)="addField(fields)">
+                            {{ 'smartScan.wizard.addField' | transloco }}
+                        </button>
+                    }
+
+                    @if (stepIndex === 3) {
+                        <div class="section-heading">
+                            <span>01</span>
+                            <div>
+                                <h3>{{ 'smartScan.wizard.smartCheckStep.sectionTitle' | transloco }}</h3>
+                                <p>{{ 'smartScan.wizard.smartCheckStep.sectionHelp' | transloco }}</p>
+                            </div>
+                        </div>
+                        @if (featuresLoading) {
+                            <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+                        } @else if (!features.length) {
+                            <article class="field-card">
+                                <span class="field-card__icon"><mat-icon>travel_explore</mat-icon></span>
+                                <div class="field-card__content">
+                                    <span class="field-card__title">
+                                        <strong>{{ 'smartScan.wizard.noSmartCheck' | transloco }}</strong>
+                                    </span>
+                                </div>
+                            </article>
+                        } @else {
+                            <article class="field-card" [class.field-card--ready]="!!selectedFeatureId">
+                                <span class="field-card__icon"><mat-icon>verified</mat-icon></span>
+                                <div class="field-card__content">
+                                    <span class="field-card__title">
+                                        <strong>{{ 'smartScan.wizard.smartCheck' | transloco }}</strong>
+                                    </span>
+                                    <span class="field-card__body">{{ 'smartScan.wizard.smartCheckHint' | transloco }}</span>
+                                    <mat-form-field appearance="outline" class="input-stack" subscriptSizing="dynamic">
+                                        <mat-label>{{ 'smartScan.wizard.smartCheck' | transloco }}</mat-label>
+                                        <mat-select [ngModel]="selectedFeatureId" (ngModelChange)="onFeatureChange($event)">
+                                            <mat-option value="">{{ 'smartScan.wizard.skipSmartCheck' | transloco }}</mat-option>
+                                            @for (feature of features; track feature._id) {
+                                                <mat-option [value]="feature._id">{{ feature.name }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                    @for (dependency of selectedFeature?.dependencies || []; track dependency.field) {
+                                        <div class="input-grid">
+                                            <p class="dependency-name">
+                                                {{ dependency.field }}
+                                                @if (dependency.required) {
+                                                    <span>*</span>
+                                                }
+                                            </p>
+                                            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                                <mat-label>{{ 'smartScan.wizard.mapDependency' | transloco }}</mat-label>
+                                                <mat-select [(ngModel)]="fieldMap[dependency.field]">
+                                                    <mat-option value="">—</mat-option>
+                                                    @for (key of mapKeys; track key) {
+                                                        <mat-option [value]="key">{{ key }}</mat-option>
+                                                    }
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    }
+                </section>
+
+                @if (stepIndex === 2) {
+                    <aside class="wizard-samples">
+                        <div class="sample-frame">
+                            @if (frontImage) {
+                                <img class="image-drop__preview" [src]="frontImage" alt="" />
+                            }
+                        </div>
+                        @if (requiresBackSide && backImage) {
+                            <div class="sample-frame">
+                                <img class="image-drop__preview" [src]="backImage" alt="" />
+                            </div>
+                        }
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="try-extract"
+                            [disabled]="!canTryExtraction()"
+                            (click)="tryExtraction()"
+                        >
+                            @if (extracting) {
+                                <mat-spinner diameter="18"></mat-spinner>
+                            } @else {
+                                {{ 'smartScan.wizard.fieldsStep.tryExtract' | transloco }}
+                            }
+                        </button>
+                        <p class="try-extract__hint">{{ 'smartScan.wizard.fieldsStep.tryExtractHint' | transloco }}</p>
+                        @if (extractionError) {
+                            <p class="wizard-error">{{ extractionError }}</p>
+                        }
+                        @if (extractionRows.length) {
+                            <div class="extraction-list">
+                                <h3>{{ 'smartScan.wizard.fieldsStep.extractionResult' | transloco }}</h3>
+                                @for (row of extractionRows; track row.key) {
+                                    <article>
+                                        <strong>{{ row.key }}</strong>
+                                        <span>{{ row.value }}</span>
+                                    </article>
+                                }
+                            </div>
+                        } @else if (extractionAttempted && !extracting && !extractionError) {
+                            <p class="try-extract__hint">{{ 'smartScan.wizard.fieldsStep.extractionEmpty' | transloco }}</p>
+                        }
+                    </aside>
+                } @else {
+                    <aside class="wizard-explainer">
+                        <div class="section-heading section-heading--light">
+                            <span>02</span>
+                            <div>
+                                <h3>{{ 'smartScan.wizard.' + stepCopyKey + '.explainTitle' | transloco }}</h3>
+                                <p>{{ 'smartScan.wizard.' + stepCopyKey + '.explainHelp' | transloco }}</p>
+                            </div>
+                        </div>
+                        <div class="explainer-notes">
+                            @for (note of explainerNotes; track note) {
+                                <article>
+                                    <mat-icon>info</mat-icon>
+                                    <p>{{ note }}</p>
+                                </article>
+                            }
+                        </div>
+                    </aside>
+                }
+            </div>
+
+            @if (stepIndex === 0) {
+                <section class="wizard-facts">
+                    <article>
+                        <span class="fact-icon fact-icon--code"><mat-icon>tag</mat-icon></span>
+                        <div>
+                            <strong>{{ 'smartScan.wizard.details.factCodeTitle' | transloco }}</strong>
+                            <p>{{ 'smartScan.wizard.details.factCodeBody' | transloco }}</p>
+                        </div>
+                    </article>
+                    <article>
+                        <span class="fact-icon fact-icon--country"><mat-icon>public</mat-icon></span>
+                        <div>
+                            <strong>{{ 'smartScan.wizard.details.factCountryTitle' | transloco }}</strong>
+                            <p>{{ 'smartScan.wizard.details.factCountryBody' | transloco }}</p>
+                        </div>
+                    </article>
+                    <article>
+                        <span class="fact-icon fact-icon--private"><mat-icon>lock</mat-icon></span>
+                        <div>
+                            <strong>{{ 'smartScan.wizard.details.factPrivateTitle' | transloco }}</strong>
+                            <p>{{ 'smartScan.wizard.details.factPrivateBody' | transloco }}</p>
+                        </div>
+                    </article>
+                </section>
+            }
+        </div>
+
+        <div class="wizard-actions">
+            <button mat-stroked-button type="button" (click)="previousStep()">
+                {{ 'smartScan.wizard.back' | transloco }}
+            </button>
+            <button mat-flat-button color="primary" class="wizard-next" type="button" [disabled]="!canGoNext()" (click)="nextStep()">
+                @if (saving) {
+                    <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+                } @else if (stepIndex === steps.length - 1) {
+                    {{ selectedFeatureId ? ('smartScan.wizard.finish' | transloco) : ('smartScan.wizard.skip' | transloco) }}
+                } @else {
+                    {{ 'smartScan.wizard.next' | transloco }}
+                }
+            </button>
+        </div>
+        }
+    </main>
+</div>

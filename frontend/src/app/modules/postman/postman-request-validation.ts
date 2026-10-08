@@ -555,6 +555,7 @@ export const buildGetInputRecord = (endpoint: ApiEndpoint): Record<string, unkno
     const row: Record<string, unknown> = {};
     if (endpoint.method === 'GET' && endpoint.params?.length) {
         for (const p of endpoint.params) {
+            if (!isClientVisibleBatchDependencyField(p.key)) continue;
             row[p.key] = p.value;
         }
     }
@@ -592,6 +593,7 @@ const pathParamIssues = (endpoint: ApiEndpoint): PostmanValidationIssue[] => {
 const legacyParamIssues = (endpoint: ApiEndpoint, stepLabel: string): PostmanValidationIssue[] => {
     const issues: PostmanValidationIssue[] = [];
     for (const p of endpoint.params ?? []) {
+        if (!isClientVisibleBatchDependencyField(p.key)) continue;
         if (p.required && !String(p.value ?? '').trim()) {
             issues.push({
                 field: p.key,
@@ -745,12 +747,16 @@ const isSharedXorNameAndDocumentField = (field: string): boolean => field === SE
 /**
  * Partitions GET query param rows into Smart Batch–style XOR groups when dependency metadata has
  * distinct name vs document groups (and optional serial group).
+ * Rows already on the endpoint stay visible, including a blank row or a key the user typed
+ * themselves. Internal fields such as `force` are omitted when the catalog list is built.
  */
 export const getPostmanXorParamLayout = (
     endpoint: ApiEndpoint | null | undefined
 ): PostmanXorParamLayout => {
-    const params = endpoint?.params ?? [];
-    const allRows: PostmanParamRowRef[] = params.map((param, index) => ({ index, param }));
+    const allRows: PostmanParamRowRef[] = (endpoint?.params ?? []).map((param, index) => ({
+        index,
+        param,
+    }));
 
     const rawDeps = endpoint?.dependencies ?? [];
     const deps = rawDeps.filter(

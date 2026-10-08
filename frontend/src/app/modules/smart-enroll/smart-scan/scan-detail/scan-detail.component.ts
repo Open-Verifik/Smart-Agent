@@ -16,6 +16,7 @@ import { SmartScanService } from '../smart-scan.service';
 import {
     resolveEnrollmentRecordLink,
     type DocumentClassification,
+    type DocumentTypeField,
     type DocumentValidation,
 } from '../smart-scan.types';
 
@@ -45,6 +46,7 @@ export class ScanDetailComponent implements OnInit {
     private _domSanitizer = inject(DomSanitizer);
 
     scan: DocumentValidation | null = null;
+    templateFields: DocumentTypeField[] = [];
     loading = true;
     errorMessage: string | null = null;
     deleteLoading = false;
@@ -67,6 +69,7 @@ export class ScanDetailComponent implements OnInit {
                 const cls = this.getClassification();
                 this.showClassificationReason = cls ? !cls.isMatch : false;
                 this.loading = false;
+                this.loadTemplateFields();
                 this._cdr.markForCheck();
             },
             error: () => {
@@ -144,6 +147,59 @@ export class ScanDetailComponent implements OnInit {
         return Object.entries(extraction)
             .filter(([k]) => k !== 'documentClassification' && !k.startsWith('_'))
             .map(([key, value]) => ({ key, value }));
+    }
+
+    extractionSections(): Array<{ id: string; labelKey: string; fields: Array<{ key: string; value: unknown }> }> {
+        const rows = this.getExtractionFields();
+        const { front, back } = this.sideKeys();
+        if (!front.size && !back.size) return [{ id: 'all', labelKey: '', fields: rows }];
+
+        return [
+            { id: 'front', labelKey: 'smartScan.frontSideFields', fields: rows.filter((row) => front.has(row.key)) },
+            {
+                id: 'back',
+                labelKey: 'smartScan.backSideFields',
+                fields: rows.filter((row) => back.has(row.key) && !front.has(row.key)),
+            },
+            {
+                id: 'other',
+                labelKey: 'smartScan.otherFields',
+                fields: rows.filter((row) => !front.has(row.key) && !back.has(row.key)),
+            },
+        ];
+    }
+
+    private loadTemplateFields() {
+        const mapping = this.scan?.fieldMapping;
+        if ((mapping?.front && Object.keys(mapping.front).length) || (mapping?.back && Object.keys(mapping.back).length)) return;
+        const code = this.scan?.documentType;
+        if (!code) return;
+
+        this._scanService.getPromptTemplatesByCode(code).subscribe({
+            next: (response) => {
+                const rows = Array.isArray(response.data) ? response.data : [];
+                this.templateFields = rows.find((row) => row.fields?.length)?.fields || [];
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.templateFields = [];
+            },
+        });
+    }
+
+    private sideKeys(): { front: Set<string>; back: Set<string> } {
+        const mapping = this.scan?.fieldMapping;
+        if (mapping?.front || mapping?.back) {
+            return {
+                front: new Set(Object.keys(mapping.front || {})),
+                back: new Set(Object.keys(mapping.back || {})),
+            };
+        }
+
+        return {
+            front: new Set(this.templateFields.filter((field) => field.page !== 1).map((field) => field.mapKey).filter(Boolean)),
+            back: new Set(this.templateFields.filter((field) => field.page === 1).map((field) => field.mapKey).filter(Boolean)),
+        };
     }
 
     formatDate(date: string | undefined): string {

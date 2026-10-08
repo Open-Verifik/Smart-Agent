@@ -4,11 +4,15 @@ import { environment } from 'environments/environment';
 import {
     catchError,
     finalize,
+    map,
+    of,
     tap,
     throwError,
 } from 'rxjs';
 import type {
+    AppFeatureOption,
     DocumentType,
+    DocumentTypeField,
     DocumentValidation,
     DocumentValidationResponse,
     PromptTemplate,
@@ -124,14 +128,45 @@ export class SmartScanService {
             );
     }
 
-    getDocumentTypes(country?: string) {
+    /**
+     * Active document-type countries only. Does not store records, so preview images stay unloaded.
+     */
+    getDocumentTypeCountries() {
         const params: Record<string, string> = {
             where_status: 'active',
+            columns: 'country',
+            limit: '500',
+        };
+
+        return this._httpClient
+            .get<{ data: Array<{ country?: string }> }>(`${this.apiUrl}/v2/document-types`, {
+                params,
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((response) => this.uniqueCountries(response.data)),
+                catchError((err) => {
+                    console.error('Error fetching document type countries:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    /**
+     * Full document types for one country, including preview images.
+     */
+    getDocumentTypes(country: string, mine = false) {
+        if (!country?.trim()) {
+            this.documentTypes.set([]);
+            return of([] as DocumentType[]);
+        }
+
+        const params: Record<string, string> = {
+            where_status: 'active',
+            where_country: country,
             limit: '200',
         };
-        if (country) {
-            params['where_country'] = country;
-        }
+        if (mine) params['where_mine'] = 'true';
 
         return this._httpClient
             .get<{ data: DocumentType[] }>(`${this.apiUrl}/v2/document-types`, {
@@ -139,15 +174,28 @@ export class SmartScanService {
                 headers: this.authHeaders,
             })
             .pipe(
-                tap((response) => {
-                    const data = Array.isArray(response.data) ? response.data : [];
-                    this.documentTypes.set(data);
-                }),
+                map((response) => (Array.isArray(response.data) ? response.data : [])),
+                tap((data) => this.documentTypes.set(data)),
                 catchError((err) => {
                     console.error('Error fetching document types:', err);
                     return throwError(() => err);
                 })
             );
+    }
+
+    private uniqueCountries(data: Array<{ country?: string }> | undefined): string[] {
+        const rows = Array.isArray(data) ? data : [];
+        const names = rows
+            .map((row) => row.country?.trim())
+            .filter((country): country is string => Boolean(country));
+        return [...new Set(names)].sort();
+    }
+
+    getPromptTemplatesByCode(code: string) {
+        return this._httpClient.get<{ data: PromptTemplate[] }>(`${this.apiUrl}/v2/prompt-templates`, {
+            params: { where_documentTypes: code },
+            headers: this.authHeaders,
+        });
     }
 
     getPromptTemplates(documentTypeId?: string) {
@@ -173,7 +221,58 @@ export class SmartScanService {
             );
     }
 
-    scanDocument(documentType: string, image: string, backImage?: string) {
+    getDocumentType(id: string) {
+        return this._httpClient.get<{ data: DocumentType | null }>(`${this.apiUrl}/v2/document-types/${id}`, {
+            headers: this.authHeaders,
+        });
+    }
+
+    createDocumentType(body: Record<string, unknown>) {
+        return this._httpClient.post<{ data: DocumentType }>(`${this.apiUrl}/v2/document-types`, body, {
+            headers: { ...this.authHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+
+    updateDocumentType(id: string, body: Record<string, unknown>) {
+        return this._httpClient.put<{ data: DocumentType }>(`${this.apiUrl}/v2/document-types/${id}`, body, {
+            headers: { ...this.authHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+
+    updatePromptTemplate(id: string, body: Record<string, unknown>) {
+        return this._httpClient.put<{ data: PromptTemplate }>(`${this.apiUrl}/v2/prompt-templates/${id}`, body, {
+            headers: { ...this.authHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+
+    createPromptTemplate(body: Record<string, unknown>) {
+        return this._httpClient.post<{ data: PromptTemplate }>(`${this.apiUrl}/v2/prompt-templates`, body, {
+            headers: { ...this.authHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+
+    getSmartCheckFeatures(country: string) {
+        return this._httpClient.get<{ data: AppFeatureOption[] }>(`${this.apiUrl}/v2/app-features/my-list`, {
+            params: {
+                where_country: country,
+                where_smartCheckEnabled: 'true',
+                where_isAvailable: 'true',
+                limit: '200',
+            },
+            headers: this.authHeaders,
+        });
+    }
+
+    identifyDocumentFields(image: string, backImage?: string) {
+        const body: Record<string, string> = { image };
+        if (backImage) body['backImage'] = backImage;
+
+        return this._httpClient.post<{ data?: DocumentTypeField[] }>(`${this.apiUrl}/v2/ocr/identify-fields`, body, {
+            headers: { ...this.authHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+
+    scanDocument(documentType: string, image: string, backImage?: string, promptTemplateId?: string) {
         this.scanLoading.set(true);
         this.scanResult.set(null);
 
@@ -183,6 +282,9 @@ export class SmartScanService {
         };
         if (backImage) {
             body['backImage'] = backImage;
+        }
+        if (promptTemplateId) {
+            body['promptTemplateId'] = promptTemplateId;
         }
 
         return this._httpClient
