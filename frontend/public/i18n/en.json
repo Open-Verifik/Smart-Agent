@@ -4170,7 +4170,7 @@
                 "config_copied": "Config copied to clipboard",
                 "all_configs_copied": "All MCP configs copied to clipboard",
                 "placeholder_hint": "Configs use a placeholder until you paste your token above.",
-                "package_note": "Requires @verifik/mcp on npm (coming soon). Until then, teammates can run the server locally from verifik-backend PR #371.",
+                "learn_more": "Learn more about @verifik/mcp",
                 "back": "Back",
                 "continue": "Continue",
                 "done": "Done"

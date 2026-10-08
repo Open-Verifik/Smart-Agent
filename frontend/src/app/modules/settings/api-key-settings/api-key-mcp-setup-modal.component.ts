@@ -83,6 +83,7 @@ export class ApiKeyMcpSetupModalComponent implements OnChanges, OnDestroy {
     createdTokenExpiresAt: Date | null = null;
 
     readonly configTabs: McpConfigTab[] = ['cursor', 'claude', 'generic'];
+    readonly npmPackageUrl = VERIFIK_MCP_CONFIG.npmPackageUrl;
     readonly expirationOptions: TokenExpirationOption[] = [
         { value: 1, durationKey: 'settings.api_key.duration_1_month', descriptorKey: 'settings.api_key.duration_short_term' },
         { value: 2, durationKey: 'settings.api_key.duration_2_months' },

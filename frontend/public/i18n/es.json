@@ -4166,7 +4166,7 @@
                 "config_copied": "Configuración copiada al portapapeles",
                 "all_configs_copied": "Todas las configuraciones MCP copiadas al portapapeles",
                 "placeholder_hint": "Las configuraciones usan un marcador hasta que pegues tu token arriba.",
-                "package_note": "Requiere @verifik/mcp en npm (próximamente). Mientras tanto, el equipo puede ejecutar el servidor localmente desde verifik-backend PR #371.",
+                "learn_more": "Más información sobre @verifik/mcp",
                 "back": "Atrás",
                 "continue": "Continuar",
                 "done": "Listo"

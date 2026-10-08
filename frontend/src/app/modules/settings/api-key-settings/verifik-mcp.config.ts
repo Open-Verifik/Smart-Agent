@@ -1,14 +1,13 @@
 /**
  * Verifik MCP server setup — single source of truth for package name, command, and env vars.
- * Update here when @verifik/mcp is published or env names change (see verifik-backend PR #371).
  */
 export const VERIFIK_MCP_FEATURE = {
-    /** Flip to false to hide MCP setup UI until @verifik/mcp is on npm. */
     enabled: true,
 };
 
 export const VERIFIK_MCP_CONFIG = {
     npmPackage: '@verifik/mcp',
+    npmPackageUrl: 'https://www.npmjs.com/package/@verifik/mcp',
     npxCommand: 'npx',
     npxArgs: ['-y', '@verifik/mcp'] as const,
     serverId: 'verifik-smartcheck',

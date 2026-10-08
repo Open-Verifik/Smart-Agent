@@ -257,9 +257,15 @@
                     {{ 'settings.api_key.mcp.placeholder_hint' | transloco }}
                 </p>
 
-                <p class="mt-4 text-xs leading-5 text-stone-500 dark:text-stone-400">
-                    {{ 'settings.api_key.mcp.package_note' | transloco }}
-                </p>
+                <a
+                    [href]="npmPackageUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 transition hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                >
+                    {{ 'settings.api_key.mcp.learn_more' | transloco }}
+                    <mat-icon class="!h-3.5 !w-3.5 !text-sm">open_in_new</mat-icon>
+                </a>
             </ng-container>
         </div>
 
