@@ -532,6 +532,14 @@ export class FleetAssetDetailComponent implements OnInit {
         return this._transloco.translate('smartFleet.rules.scopeFleet');
     }
 
+    snapshotErrorText(snapshot: FleetSnapshot): string | null {
+        const error = snapshot.error;
+
+        if (!error) return null;
+
+        return typeof error === 'string' ? error : error.message || null;
+    }
+
     private _loadAlerts(): void {
         this._fleetService
             .getAlerts({ asset: this.assetId(), status: 'all', perPage: 50 })
@@ -587,7 +595,7 @@ export class FleetAssetDetailComponent implements OnInit {
             checkType: snapshot.checkType,
             observedAt: snapshot.observedAt,
             isSuccessful: snapshot.isSuccessful !== false,
-            error: snapshot.error,
+            error: this.snapshotErrorText(snapshot),
             rows,
             listTitle: listKey,
             list: listKey ? (normalized[listKey] as Record<string, unknown>[]) : undefined,

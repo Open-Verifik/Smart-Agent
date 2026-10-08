@@ -247,9 +247,11 @@ export interface FleetSnapshot {
     checkType: FleetCheckType;
     featureCode?: string;
     normalized?: Record<string, unknown>;
+    /** Untouched API payload. Present only when the timeline is asked for it. */
+    raw?: Record<string, unknown>;
     fingerprint?: string | null;
     isSuccessful?: boolean;
-    error?: string | null;
+    error?: { message?: string; code?: string } | string | null;
     creditsSpent?: number;
     observedAt?: string;
 }
@@ -615,13 +617,17 @@ export class SmartFleetService {
         );
     }
 
-    getAssetTimeline(id: string, options: { checkType?: FleetCheckType; limit?: number } = {}) {
+    getAssetTimeline(
+        id: string,
+        options: { checkType?: FleetCheckType; limit?: number; includeRaw?: boolean } = {}
+    ) {
         return this._httpClient.get<{
             data: FleetSnapshot[] | { asset?: string; snapshots?: FleetSnapshot[] };
         }>(`${environment.apiUrl}/v2/fleet-assets/${id}/timeline`, {
             params: {
                 ...(options.checkType ? { checkType: options.checkType } : {}),
                 ...(options.limit ? { limit: options.limit } : {}),
+                ...(options.includeRaw ? { includeRaw: true } : {}),
             },
         });
     }

@@ -555,7 +555,9 @@ export class FleetAssetRulesBoardComponent implements OnInit {
             this.testResult.set({
                 checkType: card.check.checkType,
                 tone: 'error',
-                message: snapshot?.error || this._transloco.translate('smartFleet.rules.testFailed'),
+                message:
+                    (typeof snapshot?.error === 'string' ? snapshot.error : snapshot?.error?.message) ||
+                    this._transloco.translate('smartFleet.rules.testFailed'),
                 rows,
             });
 

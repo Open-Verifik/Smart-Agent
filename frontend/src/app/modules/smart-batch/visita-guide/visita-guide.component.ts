@@ -45,7 +45,7 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup, featureGroupIcon, FeatureGroupId, isSmartBatchCatalogFeature } from '../feature-group.util';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SmartReport, SmartReportService, SmartReportTemplate, cloneReportValue } from '../smart-report.service';
+import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SampleReportData, SmartReport, SmartReportService, SmartReportTemplate, cloneReportValue } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
@@ -824,6 +824,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     overlayLogoEnabled = computed(() => !this.headerLogos().length && Boolean(this.logoDataUrl()));
 
     previewRecordIndex = signal(0);
+    /** Vehicle (or other) sample handed in when opening the designer from outside Smart Batch. */
+    externalPreview = signal<SampleReportData | null>(null);
 
     previewRecords = computed(() => {
         const batch = this.batch();
@@ -841,6 +843,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 }),
             }));
         }
+        const external = this.externalPreview();
+        if (external) return [external];
+
         const sample = this.selectedTemplate()?.sampleData;
         if (sample) {
             return [
@@ -5800,6 +5805,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _resumeFromUrl(): void {
+        const pendingPreview = this._previewBridge.consumePendingPreviewData();
+
+        if (pendingPreview) this.externalPreview.set(pendingPreview);
+
         const parsed = parseGuideUrl(this._route.snapshot.queryParamMap);
         this._pendingFeatureIds = parsed.features;
 

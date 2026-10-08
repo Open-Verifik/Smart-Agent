@@ -408,7 +408,7 @@
                                 <span
                                     class="ml-2 text-xs text-red-500"
                                     *ngIf="!snapshot.isSuccessful"
-                                    >{{ snapshot.error }}</span
+                                    >{{ snapshotErrorText(snapshot) }}</span
                                 >
                             </td>
                             <td class="px-5 py-2.5 text-stone-600 dark:text-stone-300">

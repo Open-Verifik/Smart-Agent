@@ -468,6 +468,8 @@ export interface SampleReportData {
     errors?: { step: number; message: string; code: string }[];
     /** Pre-composed Colombia vehicle report (optional; built at runtime when omitted). */
     report?: Record<string, any>;
+    /** Batch steps so the PDF composer can match each result to its feature, same as Smart Batch. */
+    steps?: { sequence: number; enabled?: boolean; featureCode?: string; appFeature?: { code?: string } }[];
 }
 
 @Injectable({

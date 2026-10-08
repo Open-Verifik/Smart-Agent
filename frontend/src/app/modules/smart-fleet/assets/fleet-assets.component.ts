@@ -11,6 +11,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
+import { BatchStep, SmartBatchService } from 'app/modules/smart-batch/smart-batch.service';
+import { SmartReportService, SmartReportTemplate } from 'app/modules/smart-batch/smart-report.service';
+import { ReportBuilderPreviewDataService } from 'app/modules/smart-batch/report-builder-preview-data.service';
+import { buildFleetVehicleSample, fleetReportFileName, pdfBlobFromResponse } from './fleet-vehicle-report.util';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import {
     FleetCountryChoice,
@@ -24,6 +28,7 @@ import { FleetVehicleIconComponent } from './fleet-vehicle-icon.component';
 import {
     FleetAsset,
     FleetAvailableCheck,
+    FleetSnapshot,
     SmartFleetService,
 } from '../smart-fleet.service';
 
@@ -70,6 +75,9 @@ export class FleetAssetsComponent implements OnInit {
     private _confirm = inject(FuseConfirmationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _reports = inject(SmartReportService);
+    private _batches = inject(SmartBatchService);
+    private _previewData = inject(ReportBuilderPreviewDataService);
 
     @ViewChild(FleetGroupsBoardComponent) private _groupsBoard?: FleetGroupsBoardComponent;
 
@@ -101,6 +109,10 @@ export class FleetAssetsComponent implements OnInit {
     showCreateForm = signal(false);
     /** Vehicle whose row menu is assigning a group. */
     groupTarget = signal<FleetAsset | null>(null);
+    /** Vehicle whose report menu is open. */
+    reportTarget = signal<FleetAsset | null>(null);
+    reportTemplates = signal<SmartReportTemplate[]>([]);
+    reportingAssetId = signal<string | null>(null);
     /** When set, the shared form updates this asset instead of creating. */
     editingAssetId = signal<string | null>(null);
     draft = signal<FleetAsset>(DEFAULT_DRAFT());
@@ -175,6 +187,7 @@ export class FleetAssetsComponent implements OnInit {
             onAuthenticated: () => {
                 this._loadCountries();
                 this._loadAvailableChecks();
+                this._loadReportTemplates();
                 this.loadPage(1);
 
                 if (this._route.snapshot.queryParamMap.get('add') === '1') {
@@ -193,6 +206,150 @@ export class FleetAssetsComponent implements OnInit {
             next: (response) => this.availableChecks.set(response.data?.checks ?? []),
             error: (err) => console.error('[SmartFleet] getAvailableChecks error', err),
         });
+    }
+
+    private _loadReportTemplates(): void {
+        this._reports.getTemplates().subscribe({
+            next: (templates) => {
+                const rank = (template: SmartReportTemplate) => (template.category === 'vehicle' ? 0 : 1);
+
+                this.reportTemplates.set(
+                    [...(templates ?? [])].sort(
+                        (left, right) => rank(left) - rank(right) || left.name.localeCompare(right.name)
+                    )
+                );
+            },
+            error: (err) => console.error('[SmartFleet] getTemplates error', err),
+        });
+    }
+
+    async generateVehicleReport(template: SmartReportTemplate): Promise<void> {
+        const asset = this.reportTarget();
+
+        if (!asset?._id || !template._id || this.reportingAssetId()) return;
+
+        this.reportingAssetId.set(asset._id);
+        this._snackBar.open(this._transloco.translate('smartFleet.assets.reportWorking'), undefined, {
+            duration: 2000,
+        });
+
+        try {
+            const full = await firstValueFrom(this._reports.getTemplate(template._id));
+            const sample = await this._sampleFor(asset, await this._stepsForTemplate(full));
+            const blob = await firstValueFrom(
+                this._reports.downloadTemplateSample(template._id, {
+                    sampleData: { ...sample, report: undefined },
+                })
+            );
+            const pdf = await pdfBlobFromResponse(blob);
+
+            if (!pdf) throw new Error('pdf');
+
+            const url = URL.createObjectURL(pdf);
+            const anchor = document.createElement('a');
+
+            anchor.href = url;
+            anchor.download = fleetReportFileName(asset, template.name);
+            anchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportReady'), undefined, {
+                duration: 3000,
+            });
+        } catch (err) {
+            console.error('[SmartFleet] generate report error', err);
+            const detail = await this._reportErrorDetail(err);
+
+            this._snackBar.open(detail || this._transloco.translate('smartFleet.assets.reportFailed'), undefined, {
+                duration: 4000,
+            });
+        } finally {
+            this.reportingAssetId.set(null);
+        }
+    }
+
+    async createReportTemplate(): Promise<void> {
+        const asset = this.reportTarget();
+
+        if (!asset) return;
+
+        let sample = buildFleetVehicleSample(asset, []);
+
+        if (asset._id) {
+            try {
+                sample = await this._sampleFor(asset);
+            } catch (err) {
+                console.error('[SmartFleet] report sample error', err);
+            }
+        }
+
+        this._previewData.setPendingPreviewData(sample);
+        void this._router.navigate(['/smart-batch'], {
+            queryParams: {
+                step: 'layout',
+                intent: 'template',
+                templateChoice: 'scratch',
+                entities: 'vehicle',
+                country: (asset.country || 'co').toLowerCase(),
+                mode: 'single',
+            },
+        });
+    }
+
+    private async _reportErrorDetail(err: unknown): Promise<string> {
+        if (err instanceof Error && err.message && err.message !== 'pdf' && !err.message.startsWith('Http failure')) {
+            return err.message;
+        }
+
+        const body = (err as { error?: unknown })?.error;
+
+        if (body instanceof Blob) {
+            try {
+                const parsed = JSON.parse(await body.text()) as { message?: string };
+
+                return parsed.message || '';
+            } catch {
+                return '';
+            }
+        }
+
+        return '';
+    }
+
+    private async _stepsForTemplate(template: SmartReportTemplate): Promise<BatchStep[]> {
+        const linked = template.batchConfiguration;
+        const configId = typeof linked === 'string' ? linked : linked?._id || linked?.id;
+
+        if (configId) {
+            try {
+                const response = await firstValueFrom(this._batches.getConfiguration(configId));
+
+                if (response.data?.steps?.length) return response.data.steps;
+            } catch (err) {
+                console.error('[SmartFleet] report configuration error', err);
+            }
+        }
+
+        return (template.presetSteps ?? []).map((step) => ({
+            sequence: step.sequence,
+            enabled: true,
+            appFeature: { code: step.appFeatureCode } as BatchStep['appFeature'],
+        }));
+    }
+
+    private async _sampleFor(asset: FleetAsset, steps: BatchStep[] = []) {
+        const response = await firstValueFrom(
+            this._fleetService.getAssetTimeline(asset._id!, { limit: 40, includeRaw: true })
+        );
+
+        return buildFleetVehicleSample(asset, this._snapshotsOf(response.data), steps);
+    }
+
+    private _snapshotsOf(
+        data: FleetSnapshot[] | { snapshots?: FleetSnapshot[] } | undefined
+    ): FleetSnapshot[] {
+        if (Array.isArray(data)) return data;
+
+        return data?.snapshots ?? [];
     }
 
     private _loadCountries(): void {
