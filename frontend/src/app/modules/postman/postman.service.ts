@@ -985,7 +985,8 @@ export class PostmanService {
                     return;
                 }
                 // The includeCost row is handled separately by resolvePostmanIncludeCostForSend.
-                if (p.key === POSTMAN_INCLUDE_COST_KEY || !isClientVisibleBatchDependencyField(p.key)) {
+                // A blank key is an unfinished row. A key the user typed, including force, is sent.
+                if (!p.key || p.key === POSTMAN_INCLUDE_COST_KEY) {
                     return;
                 }
                 options.params[p.key] =

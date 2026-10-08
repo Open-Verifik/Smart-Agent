@@ -747,14 +747,16 @@ const isSharedXorNameAndDocumentField = (field: string): boolean => field === SE
 /**
  * Partitions GET query param rows into Smart Batch–style XOR groups when dependency metadata has
  * distinct name vs document groups (and optional serial group).
+ * Rows already on the endpoint stay visible, including a blank row or a key the user typed
+ * themselves. Internal fields such as `force` are omitted when the catalog list is built.
  */
 export const getPostmanXorParamLayout = (
     endpoint: ApiEndpoint | null | undefined
 ): PostmanXorParamLayout => {
-    const params = (endpoint?.params ?? []).filter((param) =>
-        isClientVisibleBatchDependencyField(param.key)
-    );
-    const allRows: PostmanParamRowRef[] = params.map((param, index) => ({ index, param }));
+    const allRows: PostmanParamRowRef[] = (endpoint?.params ?? []).map((param, index) => ({
+        index,
+        param,
+    }));
 
     const rawDeps = endpoint?.dependencies ?? [];
     const deps = rawDeps.filter(
