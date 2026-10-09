@@ -26,6 +26,7 @@ import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogo
 import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, tableColumnPath } from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
+import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
 import { fontHeadMarkup, registerReportFonts } from '../report-fonts.util';
 import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
 
@@ -1172,16 +1173,32 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return section.label || '';
     }
 
-    private _focusInlineEditor(): void {
+    /**
+     * The editor renders on the next change detection, so it may not exist yet.
+     * An editor that never got focus never blurs, and would stay on the sheet.
+     */
+    private _focusInlineEditor(attempt = 0): void {
+        if (!this.editingText()) return;
         const el = this._host.nativeElement.querySelector('[data-inline-edit]') as
             | HTMLInputElement
             | HTMLTextAreaElement
             | null;
-        if (!el) return;
+        if (!el) {
+            if (attempt < 5) requestAnimationFrame(() => this._focusInlineEditor(attempt + 1));
+            return;
+        }
+        if (document.activeElement === el) return;
         el.focus();
         const end = el.value.length;
         el.setSelectionRange(end, end);
     }
+
+    /** A press anywhere else on the sheet closes the editor, even when that press keeps focus. */
+    private _onHostPointerDownCapture = (event: PointerEvent): void => {
+        if (!this.editingText()) return;
+        if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
+        this.commitInlineEdit();
+    };
 
     onSectionPointerDown(section: ReportSection, event: PointerEvent): void {
         if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
@@ -1754,7 +1771,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             else style['min-height'] = `${height}px`;
         }
         style['overflow'] = clipToFrame ? 'hidden' : 'visible';
-        if (section.type !== 'shape' && rotation) {
+        if (rotation && this._rotatesHost(section)) {
             style['transform'] = `rotate(${rotation}deg)`;
             style['transform-origin'] = 'center center';
         }
@@ -1765,6 +1782,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const stored = Number(section.style?.zIndex);
         if (Number.isFinite(stored) && stored > 0) return Math.round(stored);
         return 40;
+    }
+
+    /** A thin line turns its whole box, so the grab area and handles follow the stroke. */
+    private _rotatesHost(section: ReportSection): boolean {
+        return section.type !== 'shape' || this.shapeKind(section) === 'line';
     }
 
     sectionRotation(section: ReportSection): number {
@@ -2916,6 +2938,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._autoPinFrameId = null;
         }
         if (this._contentFitFrameId !== null) {
+        this._host.nativeElement.removeEventListener('pointerdown', this._onHostPointerDownCapture, true);
             cancelAnimationFrame(this._contentFitFrameId);
             this._contentFitFrameId = null;
         }
@@ -2971,6 +2994,35 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return this.boundValue(section, key || '__value', this._liveValueForKey(section, key, fallback));
         }
         return fallback || '';
+    }
+
+    /** `liveSheetText` with the role's letter case; inline editing keeps the stored text. */
+    sheetDisplayText(section: ReportSection, kind: string, key?: string, fallback?: string): string {
+        return applyTextCase(this.liveSheetText(section, kind, key, fallback), this._sheetTextCase(section, kind, key));
+    }
+
+    /**
+     * Cell keys look like `table.column#row`. The column's own case wins, then the
+     * nested table's, then the block's role, the same order the PDF merges them.
+     */
+    private _sheetTextCase(section: ReportSection, kind: string, key?: string): ReportTextCase {
+        const role: ReportTextRole =
+            kind === 'cellLabel'
+                ? 'label'
+                : kind === 'title' || kind === 'itemTitle' || (kind === 'body' && section.type === 'text')
+                  ? 'title'
+                  : 'value';
+        if (role !== 'title' && key) {
+            const styleKey = role === 'label' ? 'labelStyle' : 'valueStyle';
+            let path = key.split('#')[0];
+            while (path) {
+                const own = section.keyOverrides?.[path]?.[styleKey]?.textCase;
+                if (isReportTextCase(own)) return own;
+                const dot = path.lastIndexOf('.');
+                path = dot > 0 ? path.slice(0, dot) : '';
+            }
+        }
+        return resolveTextRole(section, role, this.primaryColor()).textCase;
     }
 
     private _liveValueForKey(section: ReportSection, key?: string, fallback?: string): unknown {
@@ -3226,6 +3278,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /**
      * `iconSvg` was cleaned by `sanitizeIconSvg` when inserted; the server cleans it
+            value === 'icon' ||
+            value === 'line'
+        ) {
+            return value;
+        }
+        return 'rectangle';
+    }
+
+    /** A line shape paints only its stroke: `rowLineWidth` / `rowLineStyle`, colored like a shape fill. */
+    lineStroke(section: ReportSection): string {
+        const width = Math.max(1, Math.min(12, Math.round(Number(section.rowLineWidth) || 2)));
+        const style = section.rowLineStyle === 'dashed' || section.rowLineStyle === 'dotted' ? section.rowLineStyle : 'solid';
+        return `${width}px ${style} ${this.shapeFill(section)}`;
+    }
+
+    /**
+     * `iconSvg` was cleaned by `sanitizeIconSvg` when inserted; the server cleans it
      * again before printing. Coloring only rewrites paint attributes.
      */
     iconMarkup(section: ReportSection): SafeHtml | null {
@@ -3241,7 +3310,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     shapeKeepRatio(section: ReportSection): boolean {
-        return this.shapeKind(section) !== 'rectangle';
+        const kind = this.shapeKind(section);
+        return kind !== 'rectangle' && kind !== 'line';
     }
 
     shapeRotateStyle(section: ReportSection): string {
@@ -3286,12 +3356,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return width > 0 ? Math.max(1, Math.round(width)) : 0;
     }
 
-    shapeRectRadius(section: ReportSection): number {
-        const radius = Number(section.style?.borderRadius);
-        if (!Number.isFinite(radius) || radius <= 0) return this.shapeKind(section) === 'square' ? 4 : 2;
+    /**
+     * Rectangle corner on one axis of the 0-100 shape viewBox. Rectangles stretch
+     * that box to the frame, so each axis gets its own radius to keep the corner
+     * circular. Past half the short side the shape becomes a pill.
+     */
+    shapeRectRadius(section: ReportSection, axis: 'x' | 'y' = 'x'): number {
+        const kind = this.shapeKind(section);
+        const raw = section.style?.borderRadius;
+        const radius = Number(raw);
+        if (raw == null || !Number.isFinite(radius) || radius < 0) return kind === 'square' ? 4 : 2;
         const frame = this.displayFrame(section);
-        const width = Math.max(12, Number(frame?.width) || 96);
-        return Math.max(0, Math.min(48, (radius / width) * 96));
+        const frameWidth = Math.max(12, Number(frame?.width) || 96);
+        const frameHeight = Math.max(12, Number(frame?.height) || frameWidth);
+        const stretched = kind === 'rectangle';
+        const boxWidth = stretched ? frameWidth : Math.min(frameWidth, frameHeight);
+        const boxHeight = stretched ? frameHeight : boxWidth;
+        const corner = Math.min(radius, boxWidth * 0.48, boxHeight * 0.48);
+        return (corner * 100) / (axis === 'x' ? boxWidth : boxHeight);
     }
 
     cellBackground(section: ReportSection, key: string): string {

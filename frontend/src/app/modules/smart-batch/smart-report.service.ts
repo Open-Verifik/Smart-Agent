@@ -30,6 +30,7 @@ export const REPORT_SHAPE_KINDS = [
     'diamond',
     'bullet',
     'icon',
+    'line',
 ] as const;
 
 export type ReportShapeKind = (typeof REPORT_SHAPE_KINDS)[number];
@@ -99,6 +100,8 @@ export interface ReportTextRoleStyle {
     fontFamily?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
     color?: string;
+    /** Letter case applied to the text, see `applyTextCase`. */
+    textCase?: 'none' | 'upper' | 'lower' | 'sentence' | 'title';
 }
 
 /** Per-parameter cell inside a keyValueGrid / card / table. */

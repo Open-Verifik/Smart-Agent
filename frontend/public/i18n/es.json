@@ -793,6 +793,28 @@
         "layoutAddStar": "Estrella",
         "layoutAddTriangle": "Triángulo",
         "layoutAddDiamond": "Rombo",
+        "layoutAddLine": "Línea",
+        "layoutLineColor": "Color de la línea",
+        "layoutLineWidth": "Grosor de la línea",
+        "layoutLineStyle": "Estilo de la línea",
+        "layoutLineDirection": "Dirección (o gírala libremente con la manija o el control de rotación)",
+        "lineAngle": {
+            "horizontal": "Horizontal",
+            "vertical": "Vertical",
+            "diagonalUp": "Diagonal ascendente",
+            "diagonalDown": "Diagonal descendente"
+        },
+        "shapeRadius": {
+            "none": "Recto",
+            "soft": "Suave",
+            "medium": "Medio",
+            "pill": "Píldora"
+        },
+        "lineStyle": {
+            "solid": "Sólida",
+            "dashed": "Discontinua",
+            "dotted": "Punteada"
+        },
         "layoutAddBullet": "Viñeta",
         "layoutAddIcon": "Ícono",
         "layoutIcon": "Ícono",
@@ -1181,6 +1203,14 @@
         "fontWeight": "Grosor de la fuente",
         "italic": "Cursiva",
         "underline": "Subrayado",
+        "textCase": {
+            "label": "Mayúsculas y minúsculas",
+            "none": "Como viene el dato",
+            "sentence": "Tipo oración",
+            "title": "Tipo Título",
+            "upper": "MAYÚSCULAS",
+            "lower": "minúsculas"
+        },
         "fontFamily": "Tipo de letra",
         "fontSans": "Sans (Inter)",
         "fontSerif": "Serif (Georgia)",

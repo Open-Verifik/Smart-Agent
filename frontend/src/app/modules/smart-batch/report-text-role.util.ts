@@ -2,6 +2,7 @@ import { ReportKeyOverride, ReportSection, ReportTextRole, ReportTextRoleStyle }
 import { REPORT_FONT_STACKS, ReportTextAlign } from './report-fonts.util';
 import { collectLayoutSheetItems, valueAtDataPath } from './report-param-entries.util';
 import { defaultRowLineMark } from './report-row-line.util';
+import { isReportTextCase, ReportTextCase } from './report-text-case.util';
 
 export type ResolvedTextRoleStyle = {
     fontFamily: string;
@@ -11,6 +12,7 @@ export type ResolvedTextRoleStyle = {
     textDecoration: 'none' | 'underline';
     textAlign: ReportTextAlign;
     color: string;
+    textCase: ReportTextCase;
 };
 
 const DEFAULT_FAMILY = REPORT_FONT_STACKS[0].value;
@@ -79,6 +81,7 @@ export const resolveTextRole = (
                 ? align
                 : defaultAlign,
         color: nested?.color || fallbackColor || defaultColor,
+        textCase: isReportTextCase(nested?.textCase) ? nested.textCase : 'none',
     };
 };
 
@@ -90,6 +93,7 @@ const roleStyle = (resolved: ResolvedTextRoleStyle): ReportTextRoleStyle => ({
     textDecoration: resolved.textDecoration,
     textAlign: resolved.textAlign,
     color: resolved.color,
+    ...(resolved.textCase !== 'none' ? { textCase: resolved.textCase } : {}),
 });
 
 const TITLE_MIRROR_TYPES = new Set<ReportSection['type']>([

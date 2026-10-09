@@ -945,8 +945,8 @@
     @if (section.type === 'divider') {
         <hr
             class="my-4"
-            [style.border-color]="section.style?.color || '#E5E7EB'"
-            style="border-width: 1px"
+            style="border: 0; height: 0"
+            [style.border-top]="'1px solid ' + (section.style?.color || '#E5E7EB')"
         />
     }
 
@@ -960,7 +960,13 @@
         ></div>
     }
 
-    @if (section.type === 'shape' && shapeKind(section) !== 'icon') {
+    @if (section.type === 'shape' && shapeKind(section) === 'line') {
+        <div class="flex h-full w-full min-h-[8px] items-center overflow-visible">
+            <div class="w-full" [style.border-top]="lineStroke(section)"></div>
+        </div>
+    }
+
+    @if (section.type === 'shape' && shapeKind(section) !== 'icon' && shapeKind(section) !== 'line') {
         <div
             class="h-full w-full min-h-[12px] overflow-visible"
             [style.transform]="shapeRotateStyle(section)"
@@ -1030,7 +1036,8 @@
                             y="2"
                             width="96"
                             height="96"
-                            [attr.rx]="shapeRectRadius(section)"
+                            [attr.rx]="shapeRectRadius(section, 'x')"
+                            [attr.ry]="shapeRectRadius(section, 'y')"
                             [attr.fill]="shapeFill(section)"
                             [attr.stroke]="shapeStroke(section)"
                             [attr.stroke-width]="shapeStrokeWidth(section)"
@@ -1707,7 +1714,7 @@
                 [style.border-radius]="rule.backgroundColor ? '999px' : null"
                 (pointerdown)="$event.stopPropagation()"
                 (click)="startInlineEdit(section, kind, $event, key, fallback)"
-                ><span [innerHTML]="ruleBadge(rule)"></span>{{ rule.text || liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
+                ><span [innerHTML]="ruleBadge(rule)"></span>{{ rule.text || sheetDisplayText(section, kind, key, fallback) || '\u00a0' }}</span
             >
         } @else {
             <span
@@ -1716,7 +1723,7 @@
                 [class.cursor-text]="canInlineEdit(measure)"
                 (pointerdown)="$event.stopPropagation()"
                 (click)="startInlineEdit(section, kind, $event, key, fallback)"
-                >{{ liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
+                >{{ sheetDisplayText(section, kind, key, fallback) || '\u00a0' }}</span
             >
         }
     }

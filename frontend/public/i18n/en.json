@@ -797,6 +797,28 @@
         "layoutAddStar": "Star",
         "layoutAddTriangle": "Triangle",
         "layoutAddDiamond": "Diamond",
+        "layoutAddLine": "Line",
+        "layoutLineColor": "Line color",
+        "layoutLineWidth": "Line thickness",
+        "layoutLineStyle": "Line style",
+        "layoutLineDirection": "Direction (or turn it freely with the handle or the rotation control)",
+        "lineAngle": {
+            "horizontal": "Horizontal",
+            "vertical": "Vertical",
+            "diagonalUp": "Diagonal up",
+            "diagonalDown": "Diagonal down"
+        },
+        "shapeRadius": {
+            "none": "Square",
+            "soft": "Soft",
+            "medium": "Medium",
+            "pill": "Pill"
+        },
+        "lineStyle": {
+            "solid": "Solid",
+            "dashed": "Dashed",
+            "dotted": "Dotted"
+        },
         "layoutAddBullet": "Bullet",
         "layoutAddIcon": "Icon",
         "layoutIcon": "Icon",
@@ -1185,6 +1207,14 @@
         "fontWeight": "Font Weight",
         "italic": "Italic",
         "underline": "Underline",
+        "textCase": {
+            "label": "Letter case",
+            "none": "As in the data",
+            "sentence": "Sentence case",
+            "title": "Title Case",
+            "upper": "UPPERCASE",
+            "lower": "lowercase"
+        },
         "fontFamily": "Typeface",
         "fontSans": "Sans (Inter)",
         "fontSerif": "Serif (Georgia)",

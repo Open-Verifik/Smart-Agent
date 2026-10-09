@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
@@ -85,6 +86,7 @@ import {
 import { customFontStack, REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, registerReportFonts, ReportCustomFont, ReportTextAlign, sanitizeCustomFonts } from '../report-fonts.util';
 import { ReportFontDialogComponent, ReportFontDialogData, ReportFontDialogResult } from '../report-font-dialog.component';
 import { materializeSectionTypography, resolveTextRole } from '../report-text-role.util';
+import { REPORT_TEXT_CASES, ReportTextCase } from '../report-text-case.util';
 import {
     clampRowLineMark,
     clampRowLineWidth,
@@ -138,6 +140,9 @@ import {
 const POLL_MS = 2500;
 const LAYOUT_HISTORY_LIMIT = 40;
 const LAYOUT_HISTORY_DEBOUNCE_MS = 400;
+/** Corner radius past any shape's half side, so it stays fully rounded when resized. Matches the API maximum. */
+const SHAPE_PILL_RADIUS = 999;
+
 const LAYOUT_ARROW_STEPS: Record<string, { x: number; y: number }> = {
     ArrowUp: { x: 0, y: -1 },
     ArrowDown: { x: 0, y: 1 },
@@ -152,6 +157,7 @@ const LAYOUT_SHAPE_TOOLS: {
     width: number;
     height: number;
 }[] = [
+    { kind: 'line', icon: 'horizontal_rule', labelKey: 'visitaGuide.layoutAddLine', width: 220, height: 16 },
     { kind: 'rectangle', icon: 'rectangle', labelKey: 'visitaGuide.layoutAddRectangle', width: 180, height: 96 },
     { kind: 'square', icon: 'square', labelKey: 'visitaGuide.layoutAddSquare', width: 96, height: 96 },
     { kind: 'circle', icon: 'circle', labelKey: 'visitaGuide.layoutAddCircle', width: 96, height: 96 },
@@ -255,6 +261,7 @@ type GuideResultCard = {
         MatProgressSpinnerModule,
         MatSnackBarModule,
         MatTooltipModule,
+        OverlayModule,
         TranslocoModule,
         ReportPreviewComponent,
         ColorHexFieldComponent,
@@ -521,6 +528,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     layoutFormatAnchor = signal<{ x: number; y: number; opensUp: boolean; room: number } | null>(null);
     layoutFormatExpanded = signal(false);
     layoutShapesOpen = signal(false);
+    /** Below the button, or above it when the viewport has no room underneath. */
+    readonly layoutShapesMenuPositions: ConnectedPosition[] = [
+        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 6 },
+        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -6 },
+    ];
 
     toggleLayoutShapesMenu(event: Event): void {
         event.stopPropagation();
@@ -538,6 +550,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     readonly layoutShapeTools = LAYOUT_SHAPE_TOOLS;
     layoutEditorFocused = signal(false);
     layoutEditorDrag = signal({ x: 0, y: 0 });
+    /**
+     * Old templates drew lines as `divider` blocks, which cannot rotate.
+     * Selecting one turns it into a line shape in place, keeping color and frame.
+     */
+    private readonly _upgradeDividerEffect = effect(() => {
+        const section = this.selectedLayoutSection();
+        if (section?.type !== 'divider' || !section.frame) return;
+        untracked(() =>
+            this._patchLayoutSectionById(section.id, (current) => ({
+                type: 'shape',
+                shape: 'line',
+                staticContent: 'line',
+                label: current.label || this._transloco.translate('visitaGuide.layoutAddLine'),
+                rowLineWidth: current.rowLineWidth || 1,
+                rowLineStyle: current.rowLineStyle || 'solid',
+                style: { ...(current.style ?? {}), color: current.style?.color || '#E5E7EB' },
+            }))
+        );
+    });
     private readonly _liftEditorEffect = effect(() => {
         const onLayout = this.step() === 'layout';
         const visible = onLayout && this.layoutEditorKind() === 'page' && !this.layoutEditorSuppressed();
@@ -2131,6 +2162,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     toggleLayoutFormatUnderline(): void {
         const next = !this.layoutFormatUnderline();
         for (const role of this._formatRoles()) this.setLayoutRoleUnderline(role, next);
+    }
+
+    readonly textCases = REPORT_TEXT_CASES;
+    layoutTextCaseOpen = signal(false);
+
+    layoutFormatTextCase(): ReportTextCase {
+        return this._layoutRole(this._formatRoles()[0]).textCase;
+    }
+
+    setLayoutFormatTextCase(mode: ReportTextCase): void {
+        for (const role of this._formatRoles()) this._patchSelectedLayoutRole(role, { textCase: mode });
+        this.layoutTextCaseOpen.set(false);
     }
 
     layoutFormatSize(): number {
@@ -3965,6 +4008,83 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.setSelectedLayoutColor((event.target as HTMLInputElement).value);
     }
 
+    readonly lineStyles: ReportRowLineStyle[] = ['solid', 'dashed', 'dotted'];
+
+    selectedLayoutIsLine(): boolean {
+        const section = this.selectedLayoutSection();
+        return section?.type === 'shape' && (section.shape || section.staticContent) === 'line';
+    }
+
+    selectedLineWidth(): number {
+        return Math.max(1, Math.min(12, Math.round(Number(this.selectedLayoutSection()?.rowLineWidth) || 2)));
+    }
+
+    selectedLineStyle(): ReportRowLineStyle {
+        const style = this.selectedLayoutSection()?.rowLineStyle;
+        return style === 'dashed' || style === 'dotted' ? style : 'solid';
+    }
+
+    setSelectedLineWidth(value: string | number): void {
+        const width = Number(value);
+        if (!Number.isFinite(width)) return;
+        this._patchSelectedLayout({ rowLineWidth: Math.max(1, Math.min(12, Math.round(width))) });
+    }
+
+    setSelectedLineStyle(style: ReportRowLineStyle): void {
+        this._patchSelectedLayout({ rowLineStyle: style });
+    }
+
+    /** Horizontal, vertical and both diagonals; any other angle goes through the rotation slider or handle. */
+    readonly lineAngles = [
+        { angle: 0, labelKey: 'visitaGuide.lineAngle.horizontal' },
+        { angle: 90, labelKey: 'visitaGuide.lineAngle.vertical' },
+        { angle: -45, labelKey: 'visitaGuide.lineAngle.diagonalUp' },
+        { angle: 45, labelKey: 'visitaGuide.lineAngle.diagonalDown' },
+    ];
+
+    /** A line looks the same turned 180°, so 90 and -90 are both "vertical". */
+    selectedLineAngleIs(angle: number): boolean {
+        const current = Number(this.selectedLayoutSection()?.style?.rotation) || 0;
+        return (((current - angle) % 180) + 180) % 180 === 0;
+    }
+
+    setSelectedLineAngle(angle: number): void {
+        this.setSelectedLayoutRotation(angle);
+    }
+
+    /** Largest corner that still changes the shape: half its short side. */
+    selectedShapeMaxRadius(): number {
+        const frame = this.selectedLayoutSection()?.frame;
+        const side = Math.min(Number(frame?.width) || 96, Number(frame?.height) || 96);
+        return Math.max(1, Math.floor(side / 2));
+    }
+
+    selectedShapeRadius(): number {
+        const radius = Number(this.selectedLayoutSection()?.style?.borderRadius) || 0;
+        return Math.min(Math.max(0, Math.round(radius)), this.selectedShapeMaxRadius());
+    }
+
+    readonly shapeRadiusPresets = [
+        { id: 'none', radius: 0, labelKey: 'visitaGuide.shapeRadius.none' },
+        { id: 'soft', radius: 6, labelKey: 'visitaGuide.shapeRadius.soft' },
+        { id: 'medium', radius: 16, labelKey: 'visitaGuide.shapeRadius.medium' },
+        { id: 'pill', radius: SHAPE_PILL_RADIUS, labelKey: 'visitaGuide.shapeRadius.pill' },
+    ] as const;
+
+    selectedShapeRadiusIs(radius: number): boolean {
+        const stored = Number(this.selectedLayoutSection()?.style?.borderRadius) || 0;
+        if (radius === SHAPE_PILL_RADIUS) return stored >= this.selectedShapeMaxRadius();
+        return stored === radius;
+    }
+
+    /** At the slider maximum the shape stays a pill after later resizes. */
+    setSelectedShapeRadius(value: string | number): void {
+        const radius = Number(value);
+        if (!Number.isFinite(radius)) return;
+        const pill = radius >= this.selectedShapeMaxRadius();
+        this.setSelectedLayoutBorderRadius(pill ? SHAPE_PILL_RADIUS : radius);
+    }
+
     nudgeSelectedLayoutRotation(delta: number): void {
         const current = Number(this.selectedLayoutSection()?.style?.rotation) || 0;
         this.setSelectedLayoutRotation(current + delta);
@@ -4140,9 +4260,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const key = role === 'title' ? 'titleStyle' : role === 'label' ? 'labelStyle' : 'valueStyle';
         const current = section.style?.[key] ?? {};
         const next = { ...current, ...patch };
+        const { textCase: _roleOnly, ...titleMirror } = patch;
         const mirrored =
             role === 'title'
-                ? { ...patch }
+                ? titleMirror
                 : patch.color
                   ? role === 'label'
                       ? { labelColor: patch.color }
@@ -4596,7 +4717,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     setSelectedLayoutBorderRadius(value: string | number): void {
         const radius = Number(value);
         if (!Number.isFinite(radius)) return;
-        this._patchSelectedLayoutStyle({ borderRadius: Math.max(0, Math.min(48, Math.round(radius))) });
+        this._patchSelectedLayoutStyle({ borderRadius: Math.max(0, Math.min(SHAPE_PILL_RADIUS, Math.round(radius))) });
     }
 
     selectedLayoutHasBorder(): boolean {
