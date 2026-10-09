@@ -18,6 +18,14 @@ import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
 import { ReportIconPickerDialogComponent, ReportIconPickerResult } from '../report-icon-picker-dialog.component';
 import { ReportEmojiPickerData, ReportEmojiPickerDialogComponent } from '../report-emoji-picker-dialog.component';
+import {
+    ReportRuleIconChoice,
+    ReportRuleScope,
+    ReportValueRulesDialogComponent,
+    ReportValueRulesDialogData,
+    ReportValueRulesDialogResult,
+} from '../report-value-rules-dialog.component';
+import { sanitizeValueRules } from '../report-value-rules.util';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
 import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
@@ -4069,6 +4077,144 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const override = this.selectedLayoutSection()?.keyOverrides?.[key]?.label;
         const option = this.layoutParamOptions().find((item) => item.key === key);
         return override || option?.label || humanizeParamKey(key);
+    }
+
+    selectedCellRuleCount(): number {
+        const key = this.selectedLayoutCellKey();
+        return key ? (this.selectedLayoutSection()?.keyOverrides?.[key]?.rules?.length ?? 0) : 0;
+    }
+
+    selectedBlockRuleCount(): number {
+        return this.selectedLayoutSection()?.valueRules?.length ?? 0;
+    }
+
+    /** Excel-like conditional formatting for the selected value, or for every value of the block. */
+    openSelectedValueRules(): void {
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        const key = this.selectedLayoutCellKey();
+        const own = key ? section.keyOverrides?.[key]?.rules ?? [] : [];
+        const block = section.valueRules ?? [];
+        const scope: ReportRuleScope = !key || (!own.length && block.length) ? 'block' : 'value';
+        this._raiseAppOverlay();
+        const dialogRef = this._dialog.open<ReportValueRulesDialogComponent, ReportValueRulesDialogData, ReportValueRulesDialogResult>(
+            ReportValueRulesDialogComponent,
+            {
+                data: {
+                    mode: 'value',
+                    title: key ? this.selectedLayoutCellTitle() : this._layoutSectionLayerLabel(section),
+                    rules: cloneReportValue(scope === 'value' ? own : block),
+                    allowScope: Boolean(key),
+                    scope,
+                    samples: this._valueRuleSamples(key),
+                    reportIcons: this._reportIconChoices(),
+                },
+                maxWidth: '96vw',
+            }
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+            if (!result) return;
+            const rules = sanitizeValueRules(result.rules);
+            this._patchLayoutSectionById(section.id, (current) => {
+                const keyOverrides = { ...(current.keyOverrides ?? {}) };
+                if (key) {
+                    const next = { ...(keyOverrides[key] ?? {}) };
+                    delete next.rules;
+                    if (result.scope === 'value' && rules.length) next.rules = rules;
+                    keyOverrides[key] = next;
+                }
+                if (result.scope === 'value' && key) return { keyOverrides };
+                return { keyOverrides, valueRules: rules.length ? rules : undefined };
+            });
+        });
+    }
+
+    private _patchLayoutSectionById(id: string, patch: (section: ReportSection) => Partial<ReportSection>): void {
+        this.layoutSections.update((list) =>
+            list.map((section) => (section.id === id ? { ...section, ...patch(section) } : section))
+        );
+    }
+
+    /** Recolor a shape or icon from a data value, e.g. red when the SOAT is "vencido". */
+    openSelectedShapeRules(): void {
+        const section = this.selectedLayoutSection();
+        if (section?.type !== 'shape') return;
+        this._raiseAppOverlay();
+        const dialogRef = this._dialog.open<ReportValueRulesDialogComponent, ReportValueRulesDialogData, ReportValueRulesDialogResult>(
+            ReportValueRulesDialogComponent,
+            {
+                data: {
+                    mode: 'shape',
+                    title: this._layoutSectionLayerLabel(section),
+                    rules: cloneReportValue(section.valueRules ?? []),
+                    field: section.ruleField ?? '',
+                    fieldOptions: this._ruleFieldOptions(),
+                },
+                maxWidth: '96vw',
+            }
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+            if (!result) return;
+            const rules = sanitizeValueRules(result.rules);
+            const field = rules.length ? result.field || undefined : undefined;
+            this._patchLayoutSectionById(section.id, () => ({ valueRules: field ? rules : undefined, ruleField: field }));
+        });
+    }
+
+    /** Icons and emojis already on the sheet, plus those other rules use, so they can be reused. */
+    private _reportIconChoices(): ReportRuleIconChoice[] {
+        const choices = new Map<string, ReportRuleIconChoice>();
+        const add = (svg: string | undefined, name: string | undefined, keepColors: boolean | undefined) => {
+            if (svg && !choices.has(svg)) choices.set(svg, { svg, name: name || '', keepColors: Boolean(keepColors) });
+        };
+        for (const section of this.layoutSections()) {
+            if (section.type === 'shape' && section.shape === 'icon') add(section.iconSvg, section.iconName, section.iconKeepColors);
+            for (const rule of section.valueRules ?? []) add(rule.iconSvg, rule.iconName, rule.iconKeepColors);
+            for (const override of Object.values(section.keyOverrides ?? {})) {
+                for (const rule of override?.rules ?? []) add(rule.iconSvg, rule.iconName, rule.iconKeepColors);
+            }
+        }
+        return [...choices.values()].slice(0, 16);
+    }
+
+    private _valueRuleSamples(key: string | null): string[] {
+        const source = this.layoutSourceValue();
+        const samples = new Set<string>();
+        if (source != null && typeof source !== 'object') samples.add(String(source));
+        for (const item of collectLayoutSheetItems(source, { hiddenKeys: [] })) {
+            if (item.kind === 'field') {
+                if (!key || item.key === key) samples.add(item.entry.value);
+                continue;
+            }
+            for (const column of item.table.columns) {
+                const path = tableColumnPath(item.table.key, column.key);
+                if (key && path !== key && item.table.key !== key) continue;
+                for (const row of item.table.rows) samples.add(row[column.key]);
+            }
+            if (samples.size > 40) break;
+        }
+        return [...samples].filter((value) => value && value !== '—').slice(0, 8);
+    }
+
+    private _ruleFieldOptions(): { path: string; label: string; sample?: string }[] {
+        const options = new Map<string, { path: string; label: string; sample?: string }>();
+        const root = this.previewData();
+        for (const section of this.layoutSections()) {
+            if (!section.dataPath || section.type === 'shape') continue;
+            const value = valueAtDataPath(root, section.dataPath);
+            const blockLabel = this._layoutSectionLayerLabel(section);
+            if (value != null && typeof value !== 'object') {
+                options.set(section.dataPath, { path: section.dataPath, label: blockLabel, sample: String(value) });
+                continue;
+            }
+            for (const item of collectLayoutSheetItems(value, { hiddenKeys: [] })) {
+                if (item.kind !== 'field') continue;
+                const path = joinReportDataPath(section.dataPath, item.key);
+                const label = section.keyOverrides?.[item.key]?.label || item.label;
+                if (!options.has(path)) options.set(path, { path, label: `${blockLabel} · ${label}`, sample: item.entry.value });
+            }
+        }
+        return [...options.values()].slice(0, 300);
     }
 
     setSelectedLayoutCellLabel(value: string): void {

@@ -1608,13 +1608,31 @@
             />
         }
     } @else {
-        <span
-            data-sheet-text
-            class="inline-block min-h-[1em] min-w-[1ch]"
-            [class.cursor-text]="canInlineEdit(measure)"
-            (pointerdown)="$event.stopPropagation()"
-            (click)="startInlineEdit(section, kind, $event, key, fallback)"
-            >{{ liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
-        >
+        @let rule = cellRule(section, kind, key, fallback);
+        @if (rule) {
+            <span
+                data-sheet-text
+                data-value-rule
+                class="inline-block min-h-[1em] min-w-[1ch]"
+                [class.cursor-text]="canInlineEdit(measure)"
+                [style.color]="rule.color || null"
+                [style.background-color]="rule.backgroundColor || null"
+                [style.font-weight]="rule.bold ? 700 : null"
+                [style.padding]="rule.backgroundColor ? '0.05em 0.5em' : null"
+                [style.border-radius]="rule.backgroundColor ? '999px' : null"
+                (pointerdown)="$event.stopPropagation()"
+                (click)="startInlineEdit(section, kind, $event, key, fallback)"
+                ><span [innerHTML]="ruleBadge(rule)"></span>{{ rule.text || liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
+            >
+        } @else {
+            <span
+                data-sheet-text
+                class="inline-block min-h-[1em] min-w-[1ch]"
+                [class.cursor-text]="canInlineEdit(measure)"
+                (pointerdown)="$event.stopPropagation()"
+                (click)="startInlineEdit(section, kind, $event, key, fallback)"
+                >{{ liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
+            >
+        }
     }
 </ng-template>

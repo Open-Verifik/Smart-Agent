@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
 import type { ReportCustomFont } from './report-fonts.util';
+import type { ReportValueRule } from './report-value-rules.util';
 
 export type ReportSectionType =
     | 'header'
@@ -119,6 +120,8 @@ export interface ReportKeyOverride {
     rowLineMark?: number;
     labelStyle?: ReportTextRoleStyle;
     valueStyle?: ReportTextRoleStyle;
+    /** Conditional formatting for this value; replaces the block-wide `valueRules`. */
+    rules?: ReportValueRule[];
 }
 
 export interface ReportSectionCondition {
@@ -166,6 +169,13 @@ export interface ReportSection {
     rowLineMark?: number;
     /** Independent label, value, and cell chrome per parameter key. */
     keyOverrides?: Record<string, ReportKeyOverride>;
+    /**
+     * Conditional formatting for every value in the block without its own rules.
+     * On shapes and icons the rules test `ruleField` and recolor the shape.
+     */
+    valueRules?: ReportValueRule[];
+    /** Full data path a shape's `valueRules` read, e.g. `results.2.soat.0.estado`. */
+    ruleField?: string;
 
     /** repeater: `{field}` placeholders resolved against each array item. */
     itemTitle?: string;

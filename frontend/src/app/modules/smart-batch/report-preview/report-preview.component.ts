@@ -27,6 +27,7 @@ import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, table
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
 import { fontHeadMarkup, registerReportFonts } from '../report-fonts.util';
+import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
 
@@ -3183,7 +3184,31 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     shapeFill(section: ReportSection): string {
+        if (section.ruleField && section.valueRules?.length) {
+            const rule = matchValueRule(section.valueRules, this._valueAt(section.ruleField));
+            if (rule?.color) return rule.color;
+        }
         return section.style?.color || section.style?.backgroundColor || this.primaryColor();
+    }
+
+    /** Conditional-format rule that applies to a value cell, if any. */
+    cellRule(section: ReportSection, kind: string, key?: string, fallback?: string): ReportValueRule | null {
+        if (kind !== 'cellValue') return null;
+        const rules = keyValueRules(section, (key || '__value').split('#')[0]);
+        if (!rules.length) return null;
+        return matchValueRule(rules, this._liveValueForKey(section, key, fallback));
+    }
+
+    ruleBadge(rule: ReportValueRule): SafeHtml | null {
+        const markup = ruleIconMarkup(rule);
+        if (!markup) return null;
+        let safe = this._iconMarkupCache.get(markup);
+        if (!safe) {
+            if (this._iconMarkupCache.size > 200) this._iconMarkupCache.clear();
+            safe = this._domSanitizer.bypassSecurityTrustHtml(markup);
+            this._iconMarkupCache.set(markup, safe);
+        }
+        return safe;
     }
 
     shapeStroke(section: ReportSection): string {
