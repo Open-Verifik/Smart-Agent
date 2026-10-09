@@ -1780,6 +1780,7 @@
                                         (paperContextMenu)="onLayoutPaperContextMenu($event)"
                                         (sectionFramesChange)="onLayoutSectionFrames($event)"
                                         (sectionFrameChange)="onLayoutSectionFrame($event)"
+                                        (cellSizeChange)="onLayoutCellSize($event)"
                                         (sectionRotationChange)="onLayoutSectionRotation($event)"
                                         (addPage)="addPageSheet()"
                                         (removePage)="removeLastPageSheet()"
@@ -3740,6 +3741,7 @@
             [style.left.px]="anchor.x"
             [style.top.px]="anchor.y"
             (pointerdown)="onLayoutFormatPointerDown($event)"
+            (mousedown)="onLayoutFormatMouseDown($event)"
             (click)="$event.stopPropagation()"
         >
             <div data-format-toolbar class="flex items-center gap-0.5">

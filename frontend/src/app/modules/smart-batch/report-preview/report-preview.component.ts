@@ -44,6 +44,18 @@ export function isReportPageAnchor(section: ReportSection): boolean {
     return section.type === 'spacer' && section.id.startsWith('hoja-');
 }
 
+export type ReportResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 'e' | 's' | 'w';
+
+export type ReportCellSize = { colSpan?: number; minHeight?: number; width?: number };
+
+export type ReportCellSizeChange = { sectionId: string; key: string } & ReportCellSize;
+
+function resizeCursor(handle: ReportResizeHandle): string {
+    if (handle === 'n' || handle === 's') return 'ns-resize';
+    if (handle === 'e' || handle === 'w') return 'ew-resize';
+    return handle === 'ne' || handle === 'sw' ? 'nesw-resize' : 'nwse-resize';
+}
+
 const MM_TO_PX = 3.7795275591;
 /** Tailwind `mb-3` between blocks. Margin is not included in getBoundingClientRect. */
 const SECTION_GAP_PX = 12;
@@ -266,6 +278,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         extract: boolean;
     }>();
     @Output() inlineTextChange = new EventEmitter<ReportInlineTextChange>();
+    @Output() cellSizeChange = new EventEmitter<ReportCellSizeChange>();
     @Output() addPage = new EventEmitter<void>();
     @Output() removePage = new EventEmitter<void>();
     @Output() sheetDragChange = new EventEmitter<boolean>();
@@ -400,15 +413,42 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.sheetDragChange.emit(active);
     }
     readonly liveRotations = signal<Record<string, number>>({});
+    /** Top-left is left free for the move badge. */
+    readonly blockResizeHandles: { id: ReportResizeHandle; cls: string }[] = [
+        { id: 'ne', cls: 'right-[-7px] top-[-7px] h-3.5 w-3.5 rounded-sm cursor-nesw-resize' },
+        { id: 'sw', cls: 'bottom-[-7px] left-[-7px] h-3.5 w-3.5 rounded-sm cursor-nesw-resize' },
+        { id: 'se', cls: 'bottom-[-7px] right-[-7px] h-3.5 w-3.5 rounded-sm cursor-nwse-resize' },
+        { id: 'n', cls: 'left-1/2 top-[-5px] h-2.5 w-6 -translate-x-1/2 rounded-full cursor-ns-resize' },
+        { id: 's', cls: 'bottom-[-5px] left-1/2 h-2.5 w-6 -translate-x-1/2 rounded-full cursor-ns-resize' },
+        { id: 'e', cls: 'right-[-5px] top-1/2 h-6 w-2.5 -translate-y-1/2 rounded-full cursor-ew-resize' },
+        { id: 'w', cls: 'left-[-5px] top-1/2 h-6 w-2.5 -translate-y-1/2 rounded-full cursor-ew-resize' },
+    ];
+    /** Cell sizes while a cell edge is dragged, keyed by `${sectionId}|${key}`. */
+    readonly liveCellSizes = signal<Record<string, ReportCellSize>>({});
+    private _cellResize: {
+        sectionId: string;
+        key: string;
+        axis: 'x' | 'y';
+        pointerId: number;
+        startClientX: number;
+        startClientY: number;
+        startWidth: number;
+        startHeight: number;
+        columnWidth: number;
+        gap: number;
+        columns: number;
+    } | null = null;
     private _sectionResize: {
         id: string;
         pointerId: number;
-        handle: 'nw' | 'ne' | 'sw' | 'se';
+        handle: ReportResizeHandle;
         startClientX: number;
         startClientY: number;
         startFrame: ReportSectionFrame;
         keepRatio: boolean;
         rotation: number;
+        minSize: number;
+        tracksMinHeight: boolean;
     } | null = null;
     private _sectionRotate: {
         id: string;
@@ -425,6 +465,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     } | null>(null);
     readonly inlineDraft = signal('');
     private _suppressInlineBlur = false;
+    /** Text the editor opened with; leaving it untouched must not pin live data as fixed text. */
+    private _inlineSeedValue = '';
     readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
 
     constructor() {
@@ -1066,7 +1108,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         } else {
             this.cellSelect.emit({ section, key: null, part: 'cell' });
         }
-        this.inlineDraft.set(this._inlineSeed(section, editKind, key, fallback));
+        this._inlineSeedValue = this._inlineSeed(section, editKind, key, fallback);
+        this.inlineDraft.set(this._inlineSeedValue);
         this.editingText.set({ sectionId: section.id, kind: editKind, ...(key ? { key } : {}) });
         queueMicrotask(() => {
             this._suppressInlineBlur = false;
@@ -1104,6 +1147,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!editing) return;
         const value = this.inlineDraft();
         this.editingText.set(null);
+        if (value === this._inlineSeedValue) return;
         this.inlineTextChange.emit({ ...editing, value });
     }
 
@@ -1169,7 +1213,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     startSectionResize(
         section: ReportSection,
         event: PointerEvent,
-        handle: 'nw' | 'ne' | 'sw' | 'se' = 'se'
+        handle: ReportResizeHandle = 'se'
     ): void {
         if (!this.clickable() || event.button !== 0) return;
         event.preventDefault();
@@ -1177,20 +1221,30 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const frame = this.displayFrame(section);
         if (!frame) return;
         this._clearSectionDrag();
+        const fixed = this._locksFrameHeight(section) || section.type === 'image';
+        let width = frame.width;
+        let height = frame.height;
+        if (!width || !height) {
+            const host = (event.currentTarget as HTMLElement | null)?.closest('[data-report-section]') as HTMLElement | null;
+            const scales = this._scaleFactors;
+            width ||= host ? host.offsetWidth * scales.x : 48;
+            height ||= host ? host.offsetHeight * scales.y : 48;
+        }
         this._sectionResize = {
             id: section.id,
             pointerId: event.pointerId,
             handle,
             startClientX: event.clientX,
             startClientY: event.clientY,
-            startFrame: { ...frame, width: frame.width || 48, height: frame.height || 48 },
-            keepRatio: this.shapeKeepRatio(section),
+            startFrame: { ...frame, width: width || 48, height: height || 48 },
+            keepRatio: this.isShapeSection(section) && this.shapeKeepRatio(section),
             rotation: this.sectionRotation(section),
+            minSize: fixed ? 12 : 40,
+            tracksMinHeight: !fixed,
         };
         this._setSheetDragging(true);
         document.body.style.userSelect = 'none';
-        document.body.style.cursor =
-            handle === 'ne' || handle === 'sw' ? 'nesw-resize' : 'nwse-resize';
+        document.body.style.cursor = resizeCursor(handle);
         window.addEventListener('pointermove', this._onWindowSectionResizeMove);
         window.addEventListener('pointerup', this._onWindowSectionResizeUp, true);
         window.addEventListener('pointercancel', this._onWindowSectionResizeUp, true);
@@ -1268,13 +1322,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (resize.handle.includes('w')) x = start.x + startW - width;
             if (resize.handle.includes('n')) y = start.y + startH - height;
         }
-        width = Math.max(12, width);
-        height = Math.max(12, height);
+        width = Math.max(resize.minSize, width);
+        height = Math.max(resize.minSize, height);
         const prev = this.liveFrames()[resize.id];
         if (prev && prev.x === x && prev.y === y && prev.width === width && prev.height === height) return;
         this.liveFrames.update((current) => ({
             ...current,
-            [resize.id]: { ...start, x, y, width, height },
+            [resize.id]: {
+                ...start,
+                x,
+                y,
+                width,
+                height,
+                ...(resize.tracksMinHeight && /[ns]/.test(resize.handle) ? { minHeight: Math.round(height) } : {}),
+            },
         }));
     };
 
@@ -1292,9 +1353,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         window.removeEventListener('pointercancel', this._onWindowSectionResizeUp, true);
         document.body.style.userSelect = '';
         document.body.style.cursor = '';
-        if (frame) this.sectionFrameChange.emit({ id: resize.id, frame });
+        const moved =
+            Math.abs(event.clientX - resize.startClientX) > 2 || Math.abs(event.clientY - resize.startClientY) > 2;
+        if (frame && moved) this.sectionFrameChange.emit({ id: resize.id, frame });
         this.liveFrames.set({});
         this._setSheetDragging(false);
+        this._scheduleContentFit();
     };
 
     private _onWindowSectionRotateMove = (event: PointerEvent): void => {
@@ -2165,7 +2229,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     private _fitContentBoxHeights(): void {
-        if (this._sectionDrag || !this.hasFreeLayout() || !this.reorderable() || this.thumbnailMode()) return;
+        if (this._sectionDrag || this._sectionResize || this._cellResize) return;
+        if (!this.hasFreeLayout() || !this.reorderable() || this.thumbnailMode()) return;
         const scales = this._scaleFactors;
         const sections = (this.template().sections ?? []).filter((section) => !isReportPageAnchor(section));
         const byId = new Map(sections.map((section) => [section.id, section]));
@@ -2185,7 +2250,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 if (!section || this._locksFrameHeight(section) || !frames.has(id)) return;
                 const natural = this._contentBoxHeight(el);
                 if (!natural) return;
-                desired.set(id, Math.max(24, Math.ceil(natural * scales.y)));
+                const chosen = Number(frames.get(id)?.minHeight) || 0;
+                desired.set(id, Math.max(24, chosen, Math.ceil(natural * scales.y)));
             });
         }
         const growing = [...desired.entries()]
@@ -3248,6 +3314,126 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (Number.isFinite(explicit) && explicit >= 0) return explicit;
         return this.cellHasBox(section, key) ? 8 : 0;
     }
+
+    private _cellSize(section: ReportSection, key: string): ReportCellSize {
+        const live = this.liveCellSizes()[`${section.id}|${key}`];
+        if (live) return live;
+        const override = section.keyOverrides?.[key];
+        return { colSpan: override?.colSpan, minHeight: override?.minHeight, width: override?.width };
+    }
+
+    /** `grid-column` for a field cell that covers more than one column. */
+    cellGridColumn(section: ReportSection, key: string): string | null {
+        const columns = Math.max(1, section.columnsPerRow || 2);
+        const span = Math.min(columns, Math.round(Number(this._cellSize(section, key).colSpan) || 1));
+        return span > 1 ? `span ${span} / span ${span}` : null;
+    }
+
+    cellMinHeight(section: ReportSection, key: string): number | null {
+        const value = Number(this._cellSize(section, key).minHeight);
+        return value > 0 ? value / this._scaleFactors.y : null;
+    }
+
+    columnWidth(section: ReportSection, key: string): number | null {
+        const value = Number(this._cellSize(section, key).width);
+        return value > 0 ? value / this._scaleFactors.x : null;
+    }
+
+    /**
+     * Drag a cell edge. `x` snaps a field cell to whole grid columns, `y` sets
+     * its height, `w` sets a table column width.
+     */
+    startCellResize(section: ReportSection, key: string, axis: 'x' | 'y' | 'w', event: PointerEvent): void {
+        if (!this.clickable() || event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const cell = (event.currentTarget as HTMLElement | null)?.closest(
+            axis === 'w' ? 'th' : '[data-report-cell]'
+        ) as HTMLElement | null;
+        if (!cell) return;
+        this._clearSectionDrag();
+        const rect = cell.getBoundingClientRect();
+        const columns = Math.max(1, section.columnsPerRow || 2);
+        let columnWidth = rect.width;
+        let gap = 0;
+        const grid = cell.parentElement;
+        if (axis === 'x' && grid) {
+            const gridRect = grid.getBoundingClientRect();
+            const ratio = grid.offsetWidth ? gridRect.width / grid.offsetWidth : 1;
+            gap = (parseFloat(getComputedStyle(grid).columnGap) || 0) * ratio;
+            columnWidth = (gridRect.width - gap * (columns - 1)) / columns;
+        }
+        this._cellResize = {
+            sectionId: section.id,
+            key,
+            axis: axis === 'y' ? 'y' : 'x',
+            pointerId: event.pointerId,
+            startClientX: event.clientX,
+            startClientY: event.clientY,
+            startWidth: rect.width,
+            startHeight: rect.height,
+            columnWidth: axis === 'x' ? columnWidth : 0,
+            gap,
+            columns,
+        };
+        this._setSheetDragging(true);
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = axis === 'y' ? 'ns-resize' : 'ew-resize';
+        window.addEventListener('pointermove', this._onWindowCellResizeMove);
+        window.addEventListener('pointerup', this._onWindowCellResizeUp, true);
+        window.addEventListener('pointercancel', this._onWindowCellResizeUp, true);
+    }
+
+    /** Double-click on a cell handle drops the size back to automatic. */
+    resetCellSize(section: ReportSection, key: string, axis: 'x' | 'y' | 'w', event: MouseEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        const size: ReportCellSize = axis === 'x' ? { colSpan: 1 } : axis === 'y' ? { minHeight: 0 } : { width: 0 };
+        this.cellSizeChange.emit({ sectionId: section.id, key, ...size });
+        this._scheduleContentFit();
+    }
+
+    private _cellResizeSize(clientX: number, clientY: number): ReportCellSize {
+        const resize = this._cellResize!;
+        const scales = this._pointerScaleFactors;
+        if (resize.axis === 'y') {
+            const height = Math.max(16, resize.startHeight + clientY - resize.startClientY);
+            return { minHeight: Math.round(height * scales.y) };
+        }
+        const width = Math.max(24, resize.startWidth + clientX - resize.startClientX);
+        if (!resize.columnWidth) return { width: Math.round(width * scales.x) };
+        const span = Math.round((width + resize.gap) / (resize.columnWidth + resize.gap));
+        return { colSpan: Math.min(resize.columns, Math.max(1, span)) };
+    }
+
+    private _onWindowCellResizeMove = (event: PointerEvent): void => {
+        const resize = this._cellResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+        event.preventDefault();
+        const id = `${resize.sectionId}|${resize.key}`;
+        const section = (this.template().sections ?? []).find((item) => item.id === resize.sectionId);
+        const base = section ? this._cellSize(section, resize.key) : {};
+        const size = { ...base, ...this._cellResizeSize(event.clientX, event.clientY) };
+        this.liveCellSizes.update((current) => ({ ...current, [id]: size }));
+    };
+
+    private _onWindowCellResizeUp = (event: PointerEvent): void => {
+        const resize = this._cellResize;
+        if (!resize || event.pointerId !== resize.pointerId) return;
+        const size = this._cellResizeSize(event.clientX, event.clientY);
+        this._cellResize = null;
+        window.removeEventListener('pointermove', this._onWindowCellResizeMove);
+        window.removeEventListener('pointerup', this._onWindowCellResizeUp, true);
+        window.removeEventListener('pointercancel', this._onWindowCellResizeUp, true);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        const moved =
+            Math.abs(event.clientX - resize.startClientX) > 2 || Math.abs(event.clientY - resize.startClientY) > 2;
+        if (moved) this.cellSizeChange.emit({ sectionId: resize.sectionId, key: resize.key, ...size });
+        this.liveCellSizes.set({});
+        this._setSheetDragging(false);
+        this._scheduleContentFit();
+    };
 
     cellShowsRowLine(section: ReportSection, key: string, isLast: boolean): boolean {
         const override = section.keyOverrides?.[key];

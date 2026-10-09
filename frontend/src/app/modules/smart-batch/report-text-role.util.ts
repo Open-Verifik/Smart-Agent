@@ -164,10 +164,6 @@ const stampNestedTables = (
             override.borderRadius = Number.isFinite(radius) && radius >= 0 ? radius : 8;
             override.showTableBadge = override.showTableBadge !== false;
         }
-        if (current.labelStyle || current.valueStyle) {
-            override.labelStyle = roleStyle(resolveTextRole(section, 'label', primaryColor, key));
-            override.valueStyle = roleStyle(resolveTextRole(section, 'value', primaryColor, key));
-        }
         next[key] = override;
     }
     return next;

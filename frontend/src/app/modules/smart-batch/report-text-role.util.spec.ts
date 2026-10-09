@@ -125,6 +125,18 @@ describe('resolveTextRole', () => {
         expect(saved.columnsPerRow).toBe(3);
     });
 
+    it('saves only what a parameter changed, so later block styles still reach it', () => {
+        const block: ReportSection = {
+            id: 'bloque',
+            type: 'keyValueGrid',
+            order: 1,
+            keyOverrides: { estado: { valueStyle: { textAlign: 'center' } } },
+        };
+        const saved = materializeSectionTypography(block, '#4F46E5');
+        expect(saved.keyOverrides?.estado?.valueStyle).toEqual({ textAlign: 'center' });
+        expect(saved.keyOverrides?.estado?.labelStyle).toBeUndefined();
+    });
+
     it('caps a data table at the six columns the sheet shows by default', () => {
         const block: ReportSection = {
             id: 'tabla',

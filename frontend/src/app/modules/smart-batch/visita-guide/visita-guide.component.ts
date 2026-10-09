@@ -26,10 +26,18 @@ import {
     ReportValueRulesDialogResult,
 } from '../report-value-rules-dialog.component';
 import { sanitizeValueRules } from '../report-value-rules.util';
+import { imageAspectRatio, scalableImageSrc } from '../report-image.util';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
 import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
-import { isReportPageAnchor, ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent, reportPaperSizePx } from '../report-preview/report-preview.component';
+import {
+    isReportPageAnchor,
+    ReportCellSizeChange,
+    ReportInlineTextChange,
+    ReportOverlayId,
+    ReportPreviewComponent,
+    reportPaperSizePx,
+} from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
 import {
@@ -130,6 +138,12 @@ import {
 const POLL_MS = 2500;
 const LAYOUT_HISTORY_LIMIT = 40;
 const LAYOUT_HISTORY_DEBOUNCE_MS = 400;
+const LAYOUT_ARROW_STEPS: Record<string, { x: number; y: number }> = {
+    ArrowUp: { x: 0, y: -1 },
+    ArrowDown: { x: 0, y: 1 },
+    ArrowLeft: { x: -1, y: 0 },
+    ArrowRight: { x: 1, y: 0 },
+};
 
 const LAYOUT_SHAPE_TOOLS: {
     kind: ReportShapeKind;
@@ -1458,6 +1472,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.deleteSelectedLayoutTarget();
             return;
         }
+        const arrow = LAYOUT_ARROW_STEPS[event.key];
+        if (arrow && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            if (target?.closest('[role="slider"], [role="listbox"], [role="option"], [role="menu"], mat-select')) return;
+            const step = event.shiftKey ? 10 : 1;
+            if (this._nudgeSelectedLayout(arrow.x * step, arrow.y * step)) event.preventDefault();
+            return;
+        }
         if (!(event.ctrlKey || event.metaKey)) return;
         const key = event.key.toLowerCase();
         if (key === 'z' && !event.shiftKey) {
@@ -1481,6 +1502,58 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             event.preventDefault();
             this.copySelectedLayoutSection();
         }
+    }
+
+    /**
+     * Arrow keys move the selected block or overlay by sheet px, kept inside
+     * the page. A selected cell stays put: it lives inside its block's grid.
+     */
+    private _nudgeSelectedLayout(dx: number, dy: number): boolean {
+        const page = this._layoutPaperPx();
+        const clamp = (value: number, size: number, max: number) =>
+            Math.min(Math.max(0, Math.round(value)), Math.max(0, max - size));
+        const overlay = this.selectedLayoutOverlay();
+        if (overlay === 'logo') {
+            this.onLayoutLogoPositionChange({
+                x: clamp(this.logoX() + dx, this.logoWidth(), page.width),
+                y: clamp(this.logoY() + dy, this.logoHeight(), page.height),
+            });
+            return true;
+        }
+        if (overlay === 'watermark') {
+            this.onLayoutWatermarkPositionChange({ x: this.watermarkX() + dx, y: this.watermarkY() + dy });
+            return true;
+        }
+        if (overlay === 'signature') {
+            this.onLayoutSignaturePositionChange({
+                x: clamp(this.signatureX() + dx, this.signatureWidth(), page.width),
+                y: clamp(this.signatureY() + dy, this.signatureHeight(), page.height),
+            });
+            return true;
+        }
+        if (overlay?.startsWith('img:')) {
+            const image = this.sheetImages().find((item) => item.id === overlay.slice(4));
+            if (!image) return false;
+            this.onLayoutSheetImageChange({
+                ...image,
+                x: clamp(image.x + dx, image.width, page.width),
+                y: clamp(image.y + dy, image.height, page.height),
+            });
+            return true;
+        }
+        if (overlay) return false;
+        const section = this.selectedLayoutSection();
+        const frame = section?.frame;
+        if (!section || !frame || this.selectedLayoutCellKey()) return false;
+        this.onLayoutSectionFrame({
+            id: section.id,
+            frame: {
+                ...frame,
+                x: clamp(frame.x + dx, Number(frame.width) || 0, page.width),
+                y: clamp(frame.y + dy, Number(frame.height) || 0, page.height),
+            },
+        });
+        return true;
     }
 
     isLayoutPageAnchor(section: ReportSection): boolean {
@@ -1525,7 +1598,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         this.selectedLayoutCellKey.set(null);
-        this.selectedLayoutCellPart.set('cell');
+        this.selectedLayoutCellPart.set(event.kind === 'title' ? 'title' : 'cell');
         if (event.kind === 'body') {
             this.setSelectedLayoutBody(event.value);
         } else {
@@ -1581,6 +1654,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutSections.update((list) =>
             list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
         );
+    }
+
+    /** A dragged cell edge: column span, height or table column width. One column or 0 px clears it. */
+    onLayoutCellSize(event: ReportCellSizeChange): void {
+        this._patchLayoutSectionById(event.sectionId, (section) => {
+            const override = { ...(section.keyOverrides?.[event.key] ?? {}) };
+            if (event.colSpan !== undefined) {
+                if (event.colSpan > 1) override.colSpan = event.colSpan;
+                else delete override.colSpan;
+            }
+            if (event.minHeight !== undefined) {
+                if (event.minHeight > 0) override.minHeight = event.minHeight;
+                else delete override.minHeight;
+            }
+            if (event.width !== undefined) {
+                if (event.width > 0) override.width = event.width;
+                else delete override.width;
+            }
+            return { keyOverrides: { ...(section.keyOverrides ?? {}), [event.key]: override } };
+        });
     }
 
     /** Dragging a row in the layer list changes who paints in front. Coordinates stay put. */
@@ -1881,6 +1974,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutCellKey.set(null);
+        this.selectedLayoutCellPart.set('cell');
+        this._followCellPart = false;
+        if (this.layoutFormatExpanded()) this.layoutFormatExpanded.set(false);
     }
 
     openLayoutPageEditor(event?: Event): void {
@@ -2083,6 +2179,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     onLayoutFormatPointerDown(event: PointerEvent): void {
         event.stopPropagation();
         this.closeLayoutContextMenu();
+    }
+
+    /**
+     * Buttons must not take focus: blurring the text being edited commits it and
+     * re-renders the sheet, so the bar can move before the click lands.
+     */
+    onLayoutFormatMouseDown(event: MouseEvent): void {
+        event.stopPropagation();
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('input, select, textarea, label, [contenteditable="true"], color-hex-field')) return;
+        event.preventDefault();
     }
 
     private _ensureFormatBarLoop(): void {
@@ -3093,7 +3200,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const reader = new FileReader();
         reader.onload = () => {
             const src = String(reader.result ?? '');
-            if (src) this._state.watermarkLogo.set(src);
+            if (src) this._state.watermarkLogo.set(scalableImageSrc(src));
         };
         reader.readAsDataURL(file);
     }
@@ -4020,8 +4127,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (cellKey) {
             if (role === 'title') return;
             const styleKey = role === 'label' ? 'labelStyle' : 'valueStyle';
-            const current = section.keyOverrides?.[cellKey]?.[styleKey] ?? {};
-            this._patchSelectedKeyOverride({ [styleKey]: { ...current, ...patch } });
+            const keyOverrides = this._withoutInnerRoleStyle(section.keyOverrides, styleKey, patch, cellKey);
+            const current = keyOverrides?.[cellKey]?.[styleKey] ?? {};
+            this._patchSelectedLayout({
+                keyOverrides: {
+                    ...(keyOverrides ?? {}),
+                    [cellKey]: { ...(keyOverrides?.[cellKey] ?? {}), [styleKey]: { ...current, ...patch } },
+                },
+            });
             return;
         }
         const key = role === 'title' ? 'titleStyle' : role === 'label' ? 'labelStyle' : 'valueStyle';
@@ -4036,6 +4149,42 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                       : { valueColor: patch.color }
                   : {};
         this._patchSelectedLayoutStyle({ [key]: next, ...mirrored });
+        if (role !== 'title' && section.keyOverrides) {
+            const styleKey = role === 'label' ? 'labelStyle' : 'valueStyle';
+            this._patchSelectedLayout({ keyOverrides: this._withoutInnerRoleStyle(section.keyOverrides, styleKey, patch, null) });
+        }
+    }
+
+    /**
+     * Styling a block or a table wins over the same property on the cells inside it,
+     * like formatting a range in Excel. `scope` null means every key of the block.
+     */
+    private _withoutInnerRoleStyle(
+        overrides: Record<string, ReportKeyOverride> | undefined,
+        styleKey: 'labelStyle' | 'valueStyle',
+        patch: ReportTextRoleStyle,
+        scope: string | null
+    ): Record<string, ReportKeyOverride> | undefined {
+        if (!overrides) return overrides;
+        const props = Object.keys(patch) as (keyof ReportTextRoleStyle)[];
+        let changed = false;
+        const next: Record<string, ReportKeyOverride> = {};
+        for (const [key, override] of Object.entries(overrides)) {
+            const inside = scope === null || key.startsWith(`${scope}.`) || key.startsWith(`${scope}#`);
+            const style = override?.[styleKey];
+            if (!inside || !style || !props.some((prop) => prop in style)) {
+                next[key] = override;
+                continue;
+            }
+            const trimmed = { ...style };
+            for (const prop of props) delete trimmed[prop];
+            const copy = { ...override };
+            if (Object.keys(trimmed).length) copy[styleKey] = trimmed;
+            else delete copy[styleKey];
+            next[key] = copy;
+            changed = true;
+        }
+        return changed ? next : overrides;
     }
 
     private _writeLayoutKeyOverride(key: string, patch: Partial<ReportKeyOverride>): void {
@@ -5007,7 +5156,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutSheetImageChange(image: ReportSheetImage): void {
         this._state.sheetImages.update((list) =>
-            list.map((item) => (item.id === image.id ? { ...item, ...image } : item))
+            list.map((item) =>
+                item.id === image.id
+                    ? { ...item, ...image, src: scalableImageSrc(image.src ?? item.src) }
+                    : item
+            )
         );
     }
 
@@ -5021,9 +5174,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         files.slice(0, remaining).forEach((file, index) => {
             if (!this._acceptLayoutImageFile(file)) return;
             const reader = new FileReader();
-            reader.onload = () => {
-                const src = String(reader.result ?? '');
-                if (!src) return;
+            reader.onload = async () => {
+                const raw = String(reader.result ?? '');
+                if (!raw) return;
+                const src = scalableImageSrc(raw);
+                const ratio = await imageAspectRatio(src);
+                const width = ratio && ratio < 1 ? Math.round(160 * ratio) : 160;
+                const height = ratio ? Math.round(width / ratio) : 80;
                 const offset = origin ? index : this.sheetImages().length;
                 this._state.sheetImages.update((list) => [
                     ...list,
@@ -5032,8 +5189,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         src,
                         x: (origin?.x ?? 48) + offset * 24,
                         y: (origin?.y ?? 48) + offset * 24,
-                        width: 160,
-                        height: 80,
+                        width: Math.max(24, width),
+                        height: Math.max(16, height),
                         rotation: 0,
                         page: origin?.page ?? 0,
                         zIndex: this._topLayoutZ() + 1 + index,
@@ -5090,8 +5247,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!this._acceptLayoutImageFile(file)) return;
             const reader = new FileReader();
             reader.onload = () => {
-                const src = String(reader.result ?? '');
-                if (!src) return;
+                const raw = String(reader.result ?? '');
+                if (!raw) return;
+                const src = scalableImageSrc(raw);
                 const siblings = band === 'footer' ? this.footerBandLogos() : this.headerBandLogos();
                 const align = (['left', 'center', 'right'] as const)[siblings.length % 3];
                 this._setHeaderLogos([

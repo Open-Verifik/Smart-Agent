@@ -60,6 +60,8 @@ export interface ReportSectionFrame {
     width?: number;
     height?: number;
     page?: number;
+    /** Height the designer dragged a data block to; content can still grow past it. */
+    minHeight?: number;
 }
 
 export interface ReportSheetImage {
@@ -122,6 +124,12 @@ export interface ReportKeyOverride {
     valueStyle?: ReportTextRoleStyle;
     /** Conditional formatting for this value; replaces the block-wide `valueRules`. */
     rules?: ReportValueRule[];
+    /** Grid columns a field cell covers, from 1 to the block's `columnsPerRow`. */
+    colSpan?: number;
+    /** Cell height in sheet px; content can still grow past it. */
+    minHeight?: number;
+    /** Table column width in sheet px. */
+    width?: number;
 }
 
 export interface ReportSectionCondition {
