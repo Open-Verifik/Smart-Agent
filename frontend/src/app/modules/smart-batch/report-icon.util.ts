@@ -240,12 +240,13 @@ export async function spriteIconSvg(set: ReportIconSet, id: string): Promise<str
 }
 
 /** Iconify search. Results are `prefix:name` ids. */
-export async function searchIconify(query: string, limit = 96): Promise<string[]> {
+export async function searchIconify(query: string, limit = 96, prefixes?: string): Promise<string[]> {
     const term = query.trim();
 
     if (!term) return [];
 
-    const response = await fetch(`${ICONIFY_API}/search?query=${encodeURIComponent(term)}&limit=${limit}`);
+    const scope = prefixes ? `&prefixes=${encodeURIComponent(prefixes)}` : '';
+    const response = await fetch(`${ICONIFY_API}/search?query=${encodeURIComponent(term)}&limit=${limit}${scope}`);
 
     if (!response.ok) throw new Error(`iconify ${response.status}`);
 

@@ -380,8 +380,8 @@ export class FleetAssetsComponent implements OnInit {
 
             if (!ready) return;
 
-            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportPrepared'), undefined, {
-                duration: 3000,
+            this._snackBar.open(this._reportDoneMessage('smartFleet.assets.reportPrepared', ready.credits), undefined, {
+                duration: 5000,
             });
         } catch (err) {
             console.error('[SmartFleet] generate report error', err);
@@ -555,8 +555,8 @@ export class FleetAssetsComponent implements OnInit {
 
             if (!ready) return;
 
-            this._snackBar.open(this._transloco.translate('smartFleet.assets.bulkPrepared'), undefined, {
-                duration: 4000,
+            this._snackBar.open(this._reportDoneMessage('smartFleet.assets.bulkPrepared', ready.credits), undefined, {
+                duration: 5000,
             });
         } catch (err) {
             console.error('[SmartFleet] bulk report error', err);
@@ -720,8 +720,8 @@ export class FleetAssetsComponent implements OnInit {
         template: SmartReportTemplate,
         assets: FleetAsset[],
         onProgress?: (progress: { stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number }) => void
-    ): Promise<boolean> {
-        if (!template._id || !assets.length) return false;
+    ): Promise<{ credits: number } | null> {
+        if (!template._id || !assets.length) return null;
 
         const total = assets.length;
         const notify = (stage: 'prepare' | 'consult' | 'pdf' | 'save', done = 0) =>
@@ -734,7 +734,7 @@ export class FleetAssetsComponent implements OnInit {
             this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsBatch'), undefined, {
                 duration: 4000,
             });
-            return false;
+            return null;
         }
 
         const configuration = await firstValueFrom(this._batches.getConfiguration(configId));
@@ -749,6 +749,7 @@ export class FleetAssetsComponent implements OnInit {
             this._batches.createSmartBatch({
                 batchConfiguration: configId,
                 name: batchName,
+                source: 'smart_fleet',
                 rows: assets.map((asset) => ({ inputData: this._batchInputFor(asset, steps) })),
             })
         );
@@ -762,7 +763,7 @@ export class FleetAssetsComponent implements OnInit {
             this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsCredits'), undefined, {
                 duration: 4000,
             });
-            return false;
+            return null;
         }
 
         notify('consult', 0);
@@ -781,6 +782,8 @@ export class FleetAssetsComponent implements OnInit {
         if (status === 'failed') {
             throw new Error(this._transloco.translate('smartFleet.assets.reportNoData'));
         }
+
+        const credits = await this._creditsSpentOn(batchId);
 
         notify('pdf', total);
 
@@ -812,7 +815,30 @@ export class FleetAssetsComponent implements OnInit {
         notify('save', total);
         await this._saveReports(assets, { reportId, templateName: template.name, createdAt });
 
-        return true;
+        return { credits };
+    }
+
+    private _reportDoneMessage(key: string, credits: number): string {
+        const message = this._transloco.translate(key);
+
+        if (!credits) return message;
+
+        return `${message} · ${this._transloco.translate('smartFleet.assets.reportCredits', {
+            credits: Number(credits.toFixed(2)),
+        })}`;
+    }
+
+    /** What the template's endpoints billed, as recorded on the batch; 0 when unknown. */
+    private async _creditsSpentOn(batchId: string): Promise<number> {
+        try {
+            const batch = await firstValueFrom(this._batches.getSmartBatch(batchId));
+            const spent = Number(batch.data?.creditsSpent);
+
+            return Number.isFinite(spent) && spent > 0 ? spent : 0;
+        } catch (err) {
+            console.error('[SmartFleet] report credits error', err);
+            return 0;
+        }
     }
 
     /** History on each vehicle. A failed save only loses the history entry, not the PDF. */
@@ -1300,6 +1326,19 @@ export class FleetAssetsComponent implements OnInit {
 
                 const detail = (err as { error?: { message?: string; code?: string } })?.error;
                 const code = detail?.message || detail?.code || '';
+
+                if (String(code).includes('fleet_plan_required')) {
+                    this._snackBar
+                        .open(
+                            this._transloco.translate('smartFleet.assets.checkSkipped.fleet_plan_required'),
+                            this._transloco.translate('smartFleet.assets.viewPlans'),
+                            { duration: 8000 }
+                        )
+                        .onAction()
+                        .subscribe(() => void this._router.navigate(['/smart-fleet/plans']));
+                    return;
+                }
+
                 const known = [
                     'no_active_rules',
                     'no_due_rules',
@@ -1337,6 +1376,7 @@ export class FleetAssetsComponent implements OnInit {
             'insufficient_credits',
             'client_inactive',
             'missing_identifiers',
+            'fleet_plan_required',
         ];
 
         return known.includes(reason)
@@ -1475,6 +1515,20 @@ export class FleetAssetsComponent implements OnInit {
     private _reportFailure(key: string, error: unknown): void {
         const detail = (error as { error?: { message?: string; code?: string } })?.error;
         const code = detail?.code || '';
+
+        if (`${code} ${detail?.message || ''}`.includes('fleet_asset_limit_reached')) {
+            console.error('[SmartFleet]', key, error);
+            this._snackBar
+                .open(
+                    this._transloco.translate('smartFleet.assets.limitReached'),
+                    this._transloco.translate('smartFleet.assets.limitReachedAction'),
+                    { duration: 8000 }
+                )
+                .onAction()
+                .subscribe(() => void this._router.navigate(['/smart-fleet/plans']));
+            return;
+        }
+
         const message =
             code.includes('fleet_asset_owner_docs_or_vin_required') ||
             String(detail?.message || '').includes('fleet_asset_owner_docs_or_vin_required')

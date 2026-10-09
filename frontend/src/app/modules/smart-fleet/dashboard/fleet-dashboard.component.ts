@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { FleetNavComponent } from '../fleet-nav.component';
@@ -30,6 +30,7 @@ import { FleetAsset, FleetSeverity, FleetWatchRule, SmartFleetService } from '..
 export class FleetDashboardComponent implements OnInit {
     private _fleetService = inject(SmartFleetService);
     private _authGate = inject(AuthRequiredGateService);
+    private _router = inject(Router);
 
     dashboard = this._fleetService.dashboard;
     isLoading = this._fleetService.isLoadingDashboard;
@@ -55,6 +56,13 @@ export class FleetDashboardComponent implements OnInit {
     });
 
     isNearAssetLimit = computed(() => this.assetUsagePercent() >= 80);
+
+    /** Rendered inside the assets card link, so it must not let the outer navigation run. */
+    openPlans(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        void this._router.navigate(['/smart-fleet/plans']);
+    }
 
     /**
      * The credit balance, not the subscription, is what silently stops monitoring, so the

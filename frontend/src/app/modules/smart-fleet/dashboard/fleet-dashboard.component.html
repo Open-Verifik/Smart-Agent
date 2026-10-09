@@ -208,6 +208,16 @@
                                 [style.width.%]="assetUsagePercent()"
                             ></div>
                         </div>
+                        <span
+                            role="link"
+                            tabindex="0"
+                            class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-300"
+                            (click)="openPlans($event)"
+                            (keydown.enter)="openPlans($event)"
+                        >
+                            <mat-icon class="icon-size-4 text-current">credit_card</mat-icon>
+                            {{ (isNearAssetLimit() ? 'smartFleet.dashboard.expandPlan' : 'smartFleet.dashboard.managePlan') | transloco }}
+                        </span>
                     </a>
 
                     <a

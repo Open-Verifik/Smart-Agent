@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
+import type { ReportCustomFont } from './report-fonts.util';
 
 export type ReportSectionType =
     | 'header'
@@ -315,6 +316,9 @@ export interface SmartReportTemplate {
 
     /** Extra logos/images placed freely on the sheet (canonical 96 DPI px). */
     sheetImages?: ReportSheetImage[];
+
+    /** Fonts loaded for this template (Google Fonts, remote URL or uploaded file). */
+    customFonts?: ReportCustomFont[];
 
     /** Company logos locked to the header band and repeated on every page. */
     headerLogos?: ReportHeaderLogo[];

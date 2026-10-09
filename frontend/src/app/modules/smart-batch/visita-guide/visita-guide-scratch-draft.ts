@@ -1,4 +1,5 @@
 import { ReportHeaderLogo, ReportSection, ReportSheetImage } from '../smart-report.service';
+import { ReportCustomFont } from '../report-fonts.util';
 import { GuideTemplateChoice } from './visita-guide-state.service';
 
 const STORAGE_KEY = 'smart-batch.visita-guide.scratch-draft';
@@ -16,6 +17,7 @@ export type ScratchLayoutDraft = {
     logoHeight: number;
     logoRotation: number;
     sheetImages: ReportSheetImage[];
+    customFonts?: ReportCustomFont[];
     headerLogos?: ReportHeaderLogo[];
     legend: string;
     legendPosition?: 'left' | 'center' | 'right';

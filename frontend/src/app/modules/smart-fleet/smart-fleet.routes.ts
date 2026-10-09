@@ -30,4 +30,9 @@ export default [
         loadComponent: () =>
             import('./alerts/fleet-alerts.component').then((m) => m.FleetAlertsComponent),
     },
+    {
+        path: 'plans',
+        loadComponent: () =>
+            import('./plans/fleet-plans.component').then((m) => m.FleetPlansComponent),
+    },
 ] as Routes;

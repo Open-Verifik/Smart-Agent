@@ -17,6 +17,7 @@ import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
 import { ReportIconPickerDialogComponent, ReportIconPickerResult } from '../report-icon-picker-dialog.component';
+import { ReportEmojiPickerData, ReportEmojiPickerDialogComponent } from '../report-emoji-picker-dialog.component';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
 import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
@@ -65,7 +66,8 @@ import {
     type LayoutParamGroup,
     type LayoutSheetItem,
 } from '../report-param-entries.util';
-import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportTextAlign } from '../report-fonts.util';
+import { customFontStack, REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, registerReportFonts, ReportCustomFont, ReportTextAlign, sanitizeCustomFonts } from '../report-fonts.util';
+import { ReportFontDialogComponent, ReportFontDialogData, ReportFontDialogResult } from '../report-font-dialog.component';
 import { materializeSectionTypography, resolveTextRole } from '../report-text-role.util';
 import {
     clampRowLineMark,
@@ -266,6 +268,45 @@ type GuideResultCard = {
                     transition: none;
                 }
             }
+            .layout-tool {
+                display: inline-flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                min-width: 3.5rem;
+                height: 3.25rem;
+                padding: 0 0.375rem;
+                flex-shrink: 0;
+                border-radius: 0.625rem;
+                color: rgb(41 37 36);
+                transition: background-color 120ms ease;
+            }
+            .layout-tool:hover,
+            .layout-tool.is-active {
+                background: rgb(245 245 244);
+            }
+            .layout-tool svg {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+            .layout-tool-label {
+                font-size: 10.5px;
+                font-weight: 500;
+                line-height: 1;
+                white-space: nowrap;
+                color: rgb(87 83 78);
+            }
+            :host-context(.dark) .layout-tool {
+                color: rgb(245 245 244);
+            }
+            :host-context(.dark) .layout-tool:hover,
+            :host-context(.dark) .layout-tool.is-active {
+                background: rgb(31 41 55);
+            }
+            :host-context(.dark) .layout-tool-label {
+                color: rgb(214 211 209);
+            }
         `,
     ],
 })
@@ -379,6 +420,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     logoHeight = this._state.logoHeight;
     logoRotation = this._state.logoRotation;
     sheetImages = this._state.sheetImages;
+    customFonts = this._state.customFonts;
+    readonly customFontOptions = computed(() =>
+        this.customFonts().map((font) => ({ value: customFontStack(font.family), label: font.family }))
+    );
     headerLogos = this._state.headerLogos;
     readonly headerLogoAligns: ReportHeaderLogo['align'][] = ['left', 'center', 'right'];
     readonly headerLogoMinHeight = HEADER_LOGO_MIN_HEIGHT;
@@ -569,6 +614,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!this._layoutHistoryApplying) this._persistLayoutDraft(snapshot);
         });
     });
+    private readonly _customFontsEffect = effect(() => registerReportFonts(this.customFonts()));
     hoveredEndpoint = signal<AppFeature | null>(null);
     endpointHoverVisible = signal(false);
     endpointHoverLeft = signal(0);
@@ -816,6 +862,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 autoFitContent: true,
             },
             sheetImages: this.sheetImages(),
+            customFonts: this.customFonts(),
             headerLogos: this.headerLogos(),
             sections: useLayout ? layout : this._sectionsForPreview(base),
         };
@@ -2229,6 +2276,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.addIconBlock();
     }
 
+    insertLayoutEmojiFromMenu(): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addEmojiBlock();
+    }
+
     private _pointFromContextMenu(): { x: number; y: number; page: number } | null {
         const menu = this.layoutContextMenu();
         if (!menu) return null;
@@ -2720,6 +2773,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoHeight.set(snapshot.logoHeight);
         this._state.logoRotation.set(snapshot.logoRotation);
         this._state.sheetImages.set(cloneReportValue(snapshot.sheetImages ?? []));
+        const draftFonts = (snapshot as { customFonts?: ReportCustomFont[] }).customFonts;
+        if (Array.isArray(draftFonts)) this._state.customFonts.set(sanitizeCustomFonts(draftFonts));
         this._state.headerLogos.set(cloneReportValue(snapshot.headerLogos ?? []));
         this._state.legend.set(snapshot.legend);
         this._state.legendPosition.set(snapshot.legendPosition ?? 'left');
@@ -2761,16 +2816,29 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _persistLayoutDraft(snapshot: LayoutDesignSnapshot): void {
         const choice = this.templateChoice();
         const templateId = choice === 'scratch' ? null : this.selectedTemplate()?._id ?? null;
-        writeScratchDraft({ ...snapshot, templateId, templateChoice: choice });
+        writeScratchDraft({ ...snapshot, customFonts: this._draftFonts(), templateId, templateChoice: choice });
+    }
+
+    /** sessionStorage holds ~5 MB; large uploaded fonts stay out of the draft and live only on the saved template. */
+    private _draftFonts(): ReportCustomFont[] {
+        const fonts = this.customFonts();
+        const size = fonts.reduce((total, font) => total + font.url.length, 0);
+        return size < 1_500_000 ? fonts : fonts.filter((font) => font.source !== 'file');
+    }
+
+    private _customFontsFingerprint(): string {
+        return this.customFonts()
+            .map((font) => `${font.family}|${font.source}|${font.url.length}|${font.url.slice(-32)}`)
+            .join(';');
     }
 
     private _markLayoutClean(): void {
-        this._layoutSavedFingerprint = JSON.stringify(this._layoutDesignSnapshot());
+        this._layoutSavedFingerprint = JSON.stringify(this._layoutDesignSnapshot()) + this._customFontsFingerprint();
     }
 
     private _layoutLooksUnsaved(): boolean {
         if (!this.layoutSections().length && !this.reportTitle()) return false;
-        const current = JSON.stringify(this._layoutDesignSnapshot());
+        const current = JSON.stringify(this._layoutDesignSnapshot()) + this._customFontsFingerprint();
         return current !== this._layoutSavedFingerprint;
     }
 
@@ -3495,6 +3563,45 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    /** Opens the emoji panel; every pick lands on the sheet as a color icon. */
+    addEmojiBlock(): void {
+        let pendingPoint = this._pendingContentPoint;
+
+        this._dialog.open<ReportEmojiPickerDialogComponent, ReportEmojiPickerData>(ReportEmojiPickerDialogComponent, {
+            data: {
+                onPick: (choice) => {
+                    this._pendingContentPoint = pendingPoint;
+                    pendingPoint = null;
+                    const section: ReportSection = {
+                        id: `emoji-${Date.now()}`,
+                        type: 'shape',
+                        order: this.layoutSections().length,
+                        label: this._emojiLabel(choice.name),
+                        shape: 'icon',
+                        staticContent: 'icon',
+                        iconSvg: choice.svg,
+                        iconName: choice.name,
+                        iconKeepColors: true,
+                        style: { color: this.primaryColor() },
+                        frame: this._consumePendingContentFrame(56, 56),
+                    };
+                    this._placeLayoutSection(section);
+                    this.selectedLayoutSectionId.set(section.id);
+                },
+            },
+            autoFocus: false,
+            maxWidth: '96vw',
+            hasBackdrop: true,
+        });
+    }
+
+    private _emojiLabel(name: string): string {
+        const prefix = this._transloco.translate('reportEmojis.layerLabel');
+        if (name.startsWith('emoji:')) return `${prefix} ${name.slice(6)}`;
+        const words = (name.split(':').pop() || '').replace(/[_-]+/g, ' ').trim();
+        return words ? `${prefix}: ${words}` : prefix;
+    }
+
     replaceSelectedIcon(): void {
         const selected = this.selectedLayoutSection();
         if (!selected || selected.shape !== 'icon') return;
@@ -3843,6 +3950,33 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     setLayoutRoleFontFamily(role: ReportTextRole, value: string): void {
         this._patchSelectedLayoutRole(role, { fontFamily: value });
+    }
+
+    /** Add, remove or pick template fonts; `role` gets the picked font when given. */
+    openFontManager(role?: ReportTextRole): void {
+        const dialogRef = this._dialog.open<ReportFontDialogComponent, ReportFontDialogData & { canApply?: boolean }, ReportFontDialogResult>(
+            ReportFontDialogComponent,
+            {
+                data: { fonts: cloneReportValue(this.customFonts()), canApply: Boolean(role) },
+                panelClass: 'report-font-dialog-panel',
+                maxWidth: '96vw',
+            }
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+            if (!result) return;
+            this._state.customFonts.set(sanitizeCustomFonts(result.fonts));
+            if (role && result.apply) this.setLayoutRoleFontFamily(role, result.apply);
+            this._persistLayoutDraft(this._layoutDesignSnapshot());
+        });
+    }
+
+    /** Custom font stack that is no longer in the template, so the select still shows it. */
+    isMissingFont(value: string | null | undefined): boolean {
+        if (!value) return false;
+        return (
+            !this.reportFonts.some((font) => font.value === value) &&
+            !this.customFontOptions().some((font) => font.value === value)
+        );
     }
 
     setLayoutRoleFontSize(role: ReportTextRole, value: string | number): void {
@@ -5449,6 +5583,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 autoFitContent: draft.logoSettings?.autoFitContent ?? true,
             },
             sheetImages: cloneReportValue(this.sheetImages()),
+            customFonts: cloneReportValue(this.customFonts()),
             headerLogos: cloneReportValue(this.headerLogos()),
             sections: cloneReportValue(this.layoutSections()).map((section) =>
                 materializeSectionTypography(section, this.primaryColor(), this.previewData())
@@ -5567,6 +5702,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.logoHeight.set(60);
         this._state.logoRotation.set(0);
         this._state.sheetImages.set([]);
+        this._state.customFonts.set([]);
         this._state.headerLogos.set([]);
         this._state.legend.set('');
         this._state.legendPosition.set('left');
@@ -5647,6 +5783,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const headerLogos = this._headerLogosFromTemplate(template);
         this._state.headerLogos.set(headerLogos);
         this._state.sheetImages.set(cloneReportValue(Array.isArray(template.sheetImages) ? template.sheetImages : []));
+        this._state.customFonts.set(sanitizeCustomFonts(template.customFonts));
         if (force || template.legend) this._state.legend.set(template.legend || '');
         if (force || template.legendPosition) {
             this._state.legendPosition.set(template.legendPosition ?? 'left');

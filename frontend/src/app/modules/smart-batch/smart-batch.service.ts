@@ -246,7 +246,12 @@ export class SmartBatchService {
         );
     }
 
-    createSmartBatch(data: { batchConfiguration: string; name: string; rows: any[] }) {
+    createSmartBatch(data: {
+        batchConfiguration: string;
+        name: string;
+        rows: any[];
+        source?: 'smart_batch' | 'smart_fleet';
+    }) {
         return this._httpClient.post<{ data: SmartBatch }>(
             `${environment.apiUrl}/v2/smart-batches`,
             data
@@ -417,6 +422,8 @@ export class SmartBatchService {
             errors?: { step: number; message: string; code: string }[];
             /** Merged server-side into the row’s inputData; omit keys using null values to clear (server strips null/undefined keys). */
             inputData?: Record<string, unknown>;
+            /** Credits the endpoints billed for this update; added to the row and batch totals. */
+            creditsSpent?: number;
         }
     ) {
         return this._httpClient.put<{ data: SmartBatch }>(

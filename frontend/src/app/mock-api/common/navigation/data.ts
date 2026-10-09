@@ -131,6 +131,17 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 icon: 'heroicons_outline:bell-alert',
                 link: '/smart-fleet/alerts',
             },
+            {
+                type: 'divider',
+            },
+            {
+                id: 'smart-fleet-plans',
+                title: 'nav.subscription_plans',
+                subtitle: 'nav.manage_subscription',
+                type: 'basic',
+                icon: 'heroicons_outline:credit-card',
+                link: '/smart-fleet/plans',
+            },
         ],
     },
     {
@@ -476,6 +487,17 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:bell-alert',
                 link: '/smart-fleet/alerts',
+            },
+            {
+                type: 'divider',
+            },
+            {
+                id: 'smart-fleet-plans',
+                title: 'nav.subscription_plans',
+                subtitle: 'nav.manage_subscription',
+                type: 'basic',
+                icon: 'heroicons_outline:credit-card',
+                link: '/smart-fleet/plans',
             },
         ],
     },

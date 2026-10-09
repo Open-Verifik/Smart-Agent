@@ -26,6 +26,7 @@ import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogo
 import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, tableColumnPath } from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
+import { fontHeadMarkup, registerReportFonts } from '../report-fonts.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
 
@@ -426,6 +427,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
 
     constructor() {
+        effect(() => registerReportFonts(this.template()?.customFonts));
+
         // Single effect that tracks every input that influences pagination.
         // Reading the signals here registers the dependency; the actual work
         // is deferred to a rAF tick so the DOM has updated to reflect the new
@@ -3392,7 +3395,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!sheets.length) return null;
 
         const pageCount = sheets.length;
-        return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/><style>
+        return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/>${fontHeadMarkup(this.template()?.customFonts)}<style>
 @page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
 html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
 .print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}

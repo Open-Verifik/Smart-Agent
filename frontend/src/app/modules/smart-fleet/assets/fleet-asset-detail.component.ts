@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
     FleetCountryChoice,
@@ -103,6 +103,7 @@ const FIELD_MAP: Record<string, { key: string; label: string }[]> = {
 export class FleetAssetDetailComponent implements OnInit {
     private _fleetService = inject(SmartFleetService);
     private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
     private _transloco = inject(TranslocoService);
     private _snackBar = inject(MatSnackBar);
     private _reports = inject(SmartReportService);
@@ -369,6 +370,19 @@ export class FleetAssetDetailComponent implements OnInit {
 
                 const detail = (err as { error?: { message?: string; code?: string } })?.error;
                 const code = detail?.message || detail?.code || '';
+
+                if (String(code).includes('fleet_plan_required')) {
+                    this._snackBar
+                        .open(
+                            this._transloco.translate('smartFleet.assets.checkSkipped.fleet_plan_required'),
+                            this._transloco.translate('smartFleet.assets.viewPlans'),
+                            { duration: 8000 }
+                        )
+                        .onAction()
+                        .subscribe(() => void this._router.navigate(['/smart-fleet/plans']));
+                    return;
+                }
+
                 const known = [
                     'no_active_rules',
                     'no_due_rules',

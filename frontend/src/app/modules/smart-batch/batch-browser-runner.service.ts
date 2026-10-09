@@ -72,6 +72,7 @@ export class BatchBrowserRunnerService {
         const enabled = steps.filter((step) => step.enabled !== false).sort((a, b) => a.sequence - b.sequence);
         const results: Record<number, unknown> = { ...(row.results || {}) };
         const errors = (row.errors || []).filter((error) => !wanted.includes(Number(error.step)));
+        let creditsSpent = 0;
 
         for (const sequence of wanted) {
             delete results[sequence];
@@ -91,6 +92,7 @@ export class BatchBrowserRunnerService {
                 const step = enabled.find((item) => item.sequence === sequence);
                 if (!step) continue;
                 const outcome = await this._invokeStep(step, row.inputData || {}, results);
+                creditsSpent += outcome.credits;
                 if (outcome.ok) {
                     results[sequence] = outcome.body;
                     continue;
@@ -102,7 +104,7 @@ export class BatchBrowserRunnerService {
 
             const status: SmartBatchRowStatus =
                 errors.length === 0 ? 'completed' : Object.keys(results).length ? 'partial' : 'failed';
-            const res = await this._putRow(batchId, rowIndex, { status, results, errors });
+            const res = await this._putRow(batchId, rowIndex, { status, results, errors, creditsSpent });
             onBatch(res.data);
             return res.data;
         } finally {
@@ -121,11 +123,13 @@ export class BatchBrowserRunnerService {
         const enabled = steps.filter((step) => step.enabled !== false).sort((a, b) => a.sequence - b.sequence);
         const results: Record<number, unknown> = { ...(row.results || {}) };
         const errors: { step: number; message: string; code: string }[] = [];
+        let creditsSpent = 0;
 
         for (const step of enabled) {
             if (this._abort) return batch;
             if (results[step.sequence] != null) continue;
             const outcome = await this._invokeStep(step, row.inputData || {}, results);
+            creditsSpent += outcome.credits;
             if (outcome.ok) {
                 results[step.sequence] = outcome.body;
                 continue;
@@ -138,7 +142,7 @@ export class BatchBrowserRunnerService {
 
         const status: SmartBatchRowStatus =
             errors.length === 0 ? 'completed' : Object.keys(results).length ? 'partial' : 'failed';
-        const payload = { status, results, errors };
+        const payload = { status, results, errors, creditsSpent };
         const res = await this._putRow(batchId, row.rowIndex, payload);
         onBatch(res.data);
         return res.data;
@@ -151,6 +155,7 @@ export class BatchBrowserRunnerService {
             status: SmartBatchRow['status'];
             results: Record<number, unknown>;
             errors: { step: number; message: string; code: string }[];
+            creditsSpent?: number;
         }
     ) {
         try {
@@ -169,14 +174,18 @@ export class BatchBrowserRunnerService {
         return code === 'batch_is_server_side_managed' || message.includes('batch_is_server_side_managed');
     }
 
+    /**
+     * `includeCost` makes the endpoint return what it actually billed, the same figure the
+     * server-side runner records, so browser-run batches report real spend too.
+     */
     private async _invokeStep(
         step: BatchStep,
         inputData: Record<string, unknown>,
         results: Record<number, unknown>
-    ): Promise<{ ok: true; body: unknown } | { ok: false; message: string; code: string }> {
+    ): Promise<({ ok: true; body: unknown } | { ok: false; message: string; code: string }) & { credits: number }> {
         const feature = typeof step.appFeature === 'object' ? step.appFeature : null;
         const url = this._featureUrl(feature);
-        if (!url) return { ok: false, message: 'Step is missing an AppFeature URL', code: 'MissingFeature' };
+        if (!url) return { ok: false, message: 'Step is missing an AppFeature URL', code: 'MissingFeature', credits: 0 };
 
         const params = resolveStepParams({
             step,
@@ -186,22 +195,33 @@ export class BatchBrowserRunnerService {
         });
         const method = String(feature?.method || 'GET').toUpperCase();
         const query =
-            method === 'GET'
-                ? Object.fromEntries(
-                      Object.entries(params).map(([key, value]) => [key, value == null ? '' : String(value)])
-                  )
+            method === 'GET' || method === 'DELETE'
+                ? {
+                      ...(method === 'GET'
+                          ? Object.fromEntries(
+                                Object.entries(params).map(([key, value]) => [key, value == null ? '' : String(value)])
+                            )
+                          : {}),
+                      includeCost: 'true',
+                  }
                 : undefined;
 
         try {
             const body = await firstValueFrom(
                 this._http.request(method, url, {
-                    ...(method === 'GET' ? { params: query } : { body: params }),
+                    ...(query ? { params: query } : {}),
+                    ...(method === 'GET' ? {} : { body: method === 'DELETE' ? params : { ...params, includeCost: true } }),
                 })
             );
-            return { ok: true, body: (body as { data?: unknown })?.data ?? body };
+            return { ok: true, body: (body as { data?: unknown })?.data ?? body, credits: this._creditsOf(body) };
         } catch (error) {
-            return this._stepFailure(error, feature);
+            return { ...this._stepFailure(error, feature), credits: this._creditsOf((error as HttpErrorResponse)?.error) };
         }
+    }
+
+    private _creditsOf(body: unknown): number {
+        const value = Number((body as { creditsCharged?: unknown })?.creditsCharged);
+        return Number.isFinite(value) && value > 0 ? value : 0;
     }
 
     private _featureUrl(feature: AppFeature | null): string | null {

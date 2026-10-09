@@ -364,6 +364,58 @@ export interface FleetDashboard {
     runway: FleetRunway;
 }
 
+/** Active Smart Fleet subscription: `assetLimit` vehicle slots billed per month. */
+export interface FleetSubscription {
+    _id: string;
+    name: string;
+    code: string;
+    status: 'draft' | 'active' | 'cancelled' | 'inactive';
+    assetLimit: number;
+    billedQuantity: number;
+    amount: number;
+    currency: string;
+    interval: string;
+    intervalCount: number;
+    startDate?: string;
+    endDate?: string;
+    autoRenew?: boolean;
+    cancelAtPeriodEnd?: boolean;
+    cancelAt?: string | null;
+    cancelledAt?: string | null;
+    paymentFailedAt?: string | null;
+    cardBrand?: string | null;
+    cardExpMonth?: number | string | null;
+    cardExpYear?: number | string | null;
+    lastFour?: string | null;
+}
+
+export type FleetPlanTierKey = 'plus' | 'business';
+
+/** A paid tier: price per vehicle slot and the slot range it covers. */
+export interface FleetPlanTier {
+    key: FleetPlanTierKey;
+    code: string;
+    minAssets: number;
+    maxAssets: number;
+    name: string | null;
+    description?: string | null;
+    amount: number | null;
+    currency: string;
+    interval: string;
+    intervalCount: number;
+    /** False until the Stripe price exists. */
+    available: boolean;
+}
+
+export interface FleetPlanOverview {
+    tiers: FleetPlanTier[];
+    plan: (FleetSubscription & { tier: FleetPlanTierKey | null }) | null;
+    usage: { activeAssets: number; limit: number; freeLimit: number; maxSlots: number; enterpriseFrom: number };
+    projectedMonthlyCredits: FleetCreditEstimate;
+    /** Credits the vehicle reports' endpoints billed this month. */
+    reports: { since: string; credits: number; batches: number; vehicles: number };
+}
+
 export interface FleetCheckEndpointPath {
     featureCode: string;
     method?: string;
@@ -494,7 +546,50 @@ export class SmartFleetService {
     dashboard = signal<FleetDashboard | null>(null);
     isLoadingDashboard = signal<boolean>(false);
 
+    /** True on the free plan, where rules can be set up but never run; null until known. */
+    onFreePlan = signal<boolean | null>(null);
+    private _planStatusRequested = false;
+
     constructor(private _httpClient: HttpClient) {}
+
+    // ── Subscription ─────────────────────────────────────────────
+
+    getPlanOverview() {
+        return this._httpClient
+            .get<{ data: FleetPlanOverview }>(`${environment.apiUrl}/v2/fleet/plan`)
+            .pipe(tap((response) => this.onFreePlan.set(!response.data?.plan)));
+    }
+
+    /** Loads the plan status once per session for the free-plan notice. */
+    ensurePlanStatus(): void {
+        if (this._planStatusRequested) return;
+        this._planStatusRequested = true;
+        this.getPlanOverview().subscribe({ error: () => (this._planStatusRequested = false) });
+    }
+
+    /** Stripe Checkout for the first subscription; redirect to `data.url`. */
+    startPlanCheckout(tier: FleetPlanTierKey, assetCount: number) {
+        return this._httpClient.post<{ data: { id: string; url: string; quantity: number } }>(
+            `${environment.apiUrl}/v2/fleet/plan/checkout`,
+            { tier, assetCount, source: 'smart_agent' }
+        );
+    }
+
+    /** Change slots, and the tier too when `tier` differs from the current one. */
+    updatePlanQuantity(tier: FleetPlanTierKey, assetCount: number) {
+        return this._httpClient.put<{ data: { plan: FleetSubscription; changed: boolean } }>(
+            `${environment.apiUrl}/v2/fleet/plan/quantity`,
+            { tier, assetCount }
+        );
+    }
+
+    cancelPlan() {
+        return this._httpClient.post<{ data: FleetSubscription }>(`${environment.apiUrl}/v2/fleet/plan/cancel`, {});
+    }
+
+    resumePlan() {
+        return this._httpClient.post<{ data: FleetSubscription }>(`${environment.apiUrl}/v2/fleet/plan/resume`, {});
+    }
 
     // ── Dashboard ────────────────────────────────────────────────
 

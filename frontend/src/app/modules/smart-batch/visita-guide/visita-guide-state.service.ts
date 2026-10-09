@@ -2,6 +2,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '../smart-batch.service';
 import { ReportHeaderLogo, ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import { chainProfileForFeature } from '../endpoint-chain.util';
+import { ReportCustomFont } from '../report-fonts.util';
 import { emptyFlowGraph, endpointNodes, flowSeedFields, FlowGraph } from '../endpoint-flow-graph.util';
 import {
     buildInputRow,
@@ -59,6 +60,7 @@ export class VisitaGuideStateService {
     logoHeight = signal(60);
     logoRotation = signal(0);
     sheetImages = signal<ReportSheetImage[]>([]);
+    customFonts = signal<ReportCustomFont[]>([]);
     headerLogos = signal<ReportHeaderLogo[]>([]);
     legend = signal('');
     legendPosition = signal<'left' | 'center' | 'right'>('left');
@@ -210,6 +212,7 @@ export class VisitaGuideStateService {
         this.logoHeight.set(60);
         this.logoRotation.set(0);
         this.sheetImages.set([]);
+        this.customFonts.set([]);
         this.headerLogos.set([]);
         this.legend.set('');
         this.legendPosition.set('left');

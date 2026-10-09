@@ -1,0 +1,465 @@
+<ng-container *transloco="let t">
+    <div class="plans-container w-full flex justify-center">
+        <div class="w-full max-w-4xl px-4 sm:px-8 py-8">
+            <div class="mb-6">
+                <fleet-nav />
+            </div>
+
+            <div class="current-plan-header flex items-center gap-4 mb-8">
+                @if (view() === 'select' || (view() === 'change' && plan())) {
+                    <button (click)="goBack()" class="back-button" mat-icon-button type="button">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                }
+                <div class="header-icon">
+                    <mat-icon>local_shipping</mat-icon>
+                </div>
+                <div>
+                    <h1 class="current-plan-title">{{ t('smartFleet.plans.title') }}</h1>
+                    <p class="current-plan-subtitle">{{ t('smartFleet.plans.subtitle') }}</p>
+                </div>
+            </div>
+
+            @if (isLoading() && !overview()) {
+                <div class="flex justify-center py-16"><mat-spinner diameter="40"></mat-spinner></div>
+            } @else if (loadFailed() && !overview()) {
+                <div class="payment-alert">
+                    <mat-icon class="text-red-500">error_outline</mat-icon>
+                    <span>{{ t('smartFleet.plans.loadFailed') }}</span>
+                </div>
+            } @else {
+                <!-- Current plan -->
+                @if (view() === 'current') {
+                  @if (plan(); as current) {
+                    <div class="plan-card mb-6 animate-fadeIn" [class.payment-failed]="current.paymentFailedAt">
+                        <div class="card-header">
+                            <div class="flex items-center gap-3">
+                                <div class="card-icon" [ngClass]="current.tier || 'plus'">
+                                    <mat-icon>workspace_premium</mat-icon>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">{{ t('smartFleet.plans.yourPlan') }}</p>
+                                    <h2 class="font-semibold text-gray-900 text-lg">{{ current.name }}</h2>
+                                </div>
+                            </div>
+                            <div
+                                class="status-badge"
+                                [ngClass]="current.paymentFailedAt ? 'error' : current.cancelAtPeriodEnd ? 'warning' : 'success'"
+                            >
+                                <span class="status-dot"></span>
+                                @if (current.paymentFailedAt) {
+                                    <span>{{ t('smartFleet.plans.statusPaymentFailed') }}</span>
+                                } @else if (current.cancelAtPeriodEnd) {
+                                    <span>{{ t('smartFleet.plans.statusCancelling') }}</span>
+                                } @else {
+                                    <span>{{ t('smartFleet.plans.statusActive') }}</span>
+                                }
+                            </div>
+                        </div>
+
+                        @if (current.paymentFailedAt) {
+                            <div class="payment-alert">
+                                <mat-icon class="text-red-500">error_outline</mat-icon>
+                                <span>{{ t('smartFleet.plans.paymentFailedHint') }}</span>
+                            </div>
+                        }
+
+                        <div class="card-body">
+                            <div class="price-section">
+                                <div class="price-label">{{ t('smartFleet.plans.monthlyValue') }}</div>
+                                <div class="price-amount">
+                                    {{ planMonthlyTotal() | currency }} <span class="price-currency">USD</span>
+                                </div>
+                                <div class="price-period">
+                                    @if (current.cancelAtPeriodEnd) {
+                                        <span>{{ t('smartFleet.plans.endsOn', { date: (current.cancelAt || current.endDate | date: 'longDate') }) }}</span>
+                                    } @else if (current.endDate) {
+                                        <span>{{ t('smartFleet.plans.nextPayment', { date: (current.endDate | date: 'longDate') }) }}</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="payment-method">
+                                @if (current.cardBrand === 'link') {
+                                    <img [src]="cardLogo('link')" class="h-8 w-12 object-contain" alt="Link" />
+                                    <span class="payment-text">{{ t('smartFleet.plans.paidWithLink') }}</span>
+                                } @else if (current.cardBrand && current.lastFour) {
+                                    <img [src]="cardLogo(current.cardBrand)" class="h-8 w-12 object-contain" alt="card" />
+                                    <div class="payment-details">
+                                        <span class="payment-text">{{
+                                            t('smartFleet.plans.cardEnding', { brand: current.cardBrand, last4: current.lastFour })
+                                        }}</span>
+                                        @if (current.cardExpMonth) {
+                                            <span class="payment-expiry"
+                                                >{{ t('smartFleet.plans.expires') }} {{ current.cardExpMonth }}/{{ current.cardExpYear }}</span
+                                            >
+                                        }
+                                    </div>
+                                } @else {
+                                    <mat-icon class="text-gray-400">credit_card_off</mat-icon>
+                                    <span class="payment-text text-gray-500">{{ t('smartFleet.plans.noCard') }}</span>
+                                }
+                            </div>
+
+                            <div class="features-grid">
+                                <div class="feature-card">
+                                    <div class="feature-icon biometrics">
+                                        <mat-icon>directions_car</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t('smartFleet.plans.vehicleSlots') }}</span>
+                                        <span class="feature-value">{{ current.assetLimit | number }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status active">check_circle</mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon email">
+                                        <mat-icon>local_shipping</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t('smartFleet.plans.vehiclesInUse') }}</span>
+                                        <span class="feature-value">{{ activeAssets() | number }} / {{ usage()?.limit | number }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status" [class.active]="activeAssets() < (usage()?.limit ?? 0)">
+                                        {{ activeAssets() < (usage()?.limit ?? 0) ? 'check_circle' : 'error_outline' }}
+                                    </mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon whitelabel">
+                                        <mat-icon>payments</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t('smartFleet.plans.pricePerVehicle') }}</span>
+                                        <span class="feature-value">{{ current.amount | currency }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status active">check_circle</mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon api">
+                                        <mat-icon>description</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t('smartFleet.plans.reportCreditsMonth') }}</span>
+                                        <span class="feature-value">{{ reports()?.credits || 0 | number: '1.0-2' }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status active">receipt_long</mat-icon>
+                                </div>
+                            </div>
+
+                            <ng-container *ngTemplateOutlet="creditsInfo" />
+
+                            <div class="card-actions flex flex-wrap gap-3">
+                                <button
+                                    (click)="manageBilling()"
+                                    class="action-button primary"
+                                    [class.error]="current.paymentFailedAt"
+                                    mat-flat-button
+                                    type="button"
+                                >
+                                    {{ t('smartFleet.plans.manageBilling') }}
+                                </button>
+                                @if (current.cancelAtPeriodEnd) {
+                                    <button mat-stroked-button type="button" [disabled]="isWorking()" (click)="resumePlan()">
+                                        {{ t('smartFleet.plans.resume') }}
+                                    </button>
+                                } @else {
+                                    <button mat-button color="warn" type="button" [disabled]="isWorking()" (click)="cancelPlan()">
+                                        {{ t('smartFleet.plans.cancel') }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="upgrade-section animate-fadeIn">
+                        <div class="upgrade-header">
+                            <div class="upgrade-header-content">
+                                <div class="upgrade-badge">
+                                    <mat-icon>auto_awesome</mat-icon>
+                                    <span>{{ t('smartFleet.plans.upgradeAvailable') }}</span>
+                                </div>
+                                <h2 class="upgrade-headline">{{ t('smartFleet.plans.betterPlan') }}</h2>
+                                <p class="upgrade-subheadline">{{ t('smartFleet.plans.betterPlanText') }}</p>
+                            </div>
+                            <div class="upgrade-illustration">
+                                <div class="floating-icon icon-1"><mat-icon>local_shipping</mat-icon></div>
+                                <div class="floating-icon icon-2"><mat-icon>notifications_active</mat-icon></div>
+                                <div class="floating-icon icon-3"><mat-icon>description</mat-icon></div>
+                            </div>
+                        </div>
+                        <div class="upgrade-cta">
+                            <button (click)="changeView('change')" class="upgrade-button" mat-flat-button type="button">
+                                <span>{{ t('smartFleet.plans.explorePlans') }}</span>
+                                <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                            <span class="upgrade-hint">{{ t('smartFleet.plans.noCommitment') }}</span>
+                        </div>
+                    </div>
+                  }
+                }
+
+                <!-- Plan grid -->
+                @if (view() === 'change') {
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-semibold text-gray-900">{{ t('smartFleet.plans.selectPlan') }}</h2>
+                        <p class="text-gray-500 mt-1">{{ t('smartFleet.plans.chooseBestPlan') }}</p>
+                    </div>
+
+                    <div class="plans-grid">
+                        @for (key of tierKeys; track key) {
+                            @if (tierOf(key); as tier) {
+                                <div
+                                    class="select-plan-card animate-fadeIn"
+                                    [class.featured]="key === 'business'"
+                                    [class.select-plan-card--current]="isCurrentTier(key)"
+                                >
+                                    @if (isCurrentTier(key)) {
+                                        <div class="current-plan-badge" [class.current-plan-badge--offset]="key === 'business'">
+                                            {{ t('smartFleet.plans.currentPlanBadge') }}
+                                        </div>
+                                    }
+                                    @if (key === 'business') {
+                                        <div class="featured-badge">{{ t('smartFleet.plans.bestPrice') }}</div>
+                                    }
+                                    <div class="plan-badge" [ngClass]="key">{{ t('smartFleet.plans.tier.' + key) }}</div>
+                                    <div class="plan-pricing">
+                                        <span class="plan-price">{{ tier.amount ?? 0 | currency }}</span>
+                                        <span class="plan-period">/{{ t('smartFleet.plans.perVehicleMonth') }}</span>
+                                    </div>
+                                    <p class="plan-range">
+                                        {{ t('smartFleet.plans.vehicleRange', { min: tier.minAssets, max: tier.maxAssets }) }}
+                                    </p>
+                                    <div class="plan-features">
+                                        <div class="plan-stat">
+                                            <span class="stat-label">{{ t('smartFleet.plans.startingAt') }}</span>
+                                            <span class="stat-value">{{ tierStartingPrice(key) | currency }}/{{ t('smartFleet.plans.month') }}</span>
+                                        </div>
+                                        <div class="plan-stat">
+                                            <span class="stat-label">{{ t('smartFleet.plans.reportsAndChecks') }}</span>
+                                            <span class="stat-value">{{ t('smartFleet.plans.perEndpoint') }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="plan-includes">
+                                        <p class="includes-title">{{ t('smartFleet.plans.included') }}</p>
+                                        <ul class="includes-list">
+                                            <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.benefitMonitoring') }}</li>
+                                            <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.benefitAlerts') }}</li>
+                                            <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.benefitReports') }}</li>
+                                            @if (key === 'business') {
+                                                <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.benefitLowerPrice') }}</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                    <button
+                                        (click)="changeView('select', key)"
+                                        class="select-button"
+                                        [ngClass]="key"
+                                        mat-flat-button
+                                        type="button"
+                                        [disabled]="!tier.available || !tierFits(key)"
+                                    >
+                                        @if (!tier.available) {
+                                            {{ t('smartFleet.plans.notAvailable') }}
+                                        } @else if (!tierFits(key)) {
+                                            {{ t('smartFleet.plans.tooManyVehicles') }}
+                                        } @else {
+                                            {{ isCurrentTier(key) ? t('smartFleet.plans.adjustSlots') : t('smartFleet.plans.viewPlan') }}
+                                        }
+                                    </button>
+                                </div>
+                            }
+                        }
+
+                        <div class="select-plan-card animate-fadeIn">
+                            <div class="plan-badge enterprise">{{ t('smartFleet.plans.tier.enterprise') }}</div>
+                            <div class="plan-pricing">
+                                <span class="plan-price custom">{{ t('smartFleet.plans.contactSales') }}</span>
+                            </div>
+                            <p class="plan-range">+{{ usage()?.enterpriseFrom | number }} {{ t('smartFleet.plans.vehicles') }}</p>
+                            <div class="plan-includes">
+                                <p class="includes-title">{{ t('smartFleet.plans.included') }}</p>
+                                <ul class="includes-list">
+                                    <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.everythingInBusiness') }}</li>
+                                    <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.customPricing') }}</li>
+                                    <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.dedicatedSupport') }}</li>
+                                </ul>
+                            </div>
+                            <button (click)="purchaseEnterprise()" class="select-button enterprise" mat-flat-button type="button">
+                                {{ t('smartFleet.plans.contactSales') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="select-plan-card free-plan-card animate-fadeIn mt-6" [class.select-plan-card--current]="isCurrentTier('free')">
+                        @if (isCurrentTier('free')) {
+                            <div class="current-plan-badge">{{ t('smartFleet.plans.currentPlanBadge') }}</div>
+                        }
+                        <div class="plan-badge free">{{ t('smartFleet.plans.tier.free') }}</div>
+                        <div class="plan-pricing">
+                            <span class="plan-price">$0</span>
+                            <span class="plan-period">/{{ t('smartFleet.plans.month') }}</span>
+                        </div>
+                        <p class="plan-range">{{ t('smartFleet.plans.freeRange', { count: usage()?.freeLimit ?? 0 }) }}</p>
+                        <div class="plan-includes">
+                            <p class="includes-title">{{ t('smartFleet.plans.included') }}</p>
+                            <ul class="includes-list">
+                                <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.freeSetup') }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t('smartFleet.plans.benefitReports') }}</li>
+                                <li><mat-icon>close</mat-icon>{{ t('smartFleet.plans.freeNoRuns') }}</li>
+                            </ul>
+                        </div>
+                        @if (isRenewing()) {
+                            <button (click)="cancelPlan()" class="select-button free" mat-stroked-button type="button" [disabled]="isWorking()">
+                                {{ t('smartFleet.plans.switchToFree') }}
+                                <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                        }
+                    </div>
+
+                    <div class="mt-6">
+                        <ng-container *ngTemplateOutlet="creditsInfo" />
+                    </div>
+                }
+
+                <!-- Slots + checkout -->
+                @if (view() === 'select') {
+                  @if (tier(); as selected) {
+                    <div class="landing-slider-section animate-fadeIn">
+                        <h2 class="landing-slider-title">{{ t('smartFleet.plans.howManyVehicles') }}</h2>
+                        <p class="landing-slider-subtitle">
+                            {{ t('smartFleet.plans.selectVolume', { min: sliderMin(), max: sliderMax() }) }}
+                        </p>
+                        <div class="landing-slider-track">
+                            <span class="track-label">{{ sliderMin() | number }}</span>
+                            <div class="track-slider">
+                                <div class="range-slider" [style.--track-fill-percentage]="sliderPercent() + '%'">
+                                    <input
+                                        [min]="sliderMin()"
+                                        [max]="sliderMax()"
+                                        step="1"
+                                        [ngModel]="slots()"
+                                        (ngModelChange)="setSlots($event)"
+                                        class="range-slider__input"
+                                        type="range"
+                                        [attr.aria-label]="t('smartFleet.plans.vehicles')"
+                                    />
+                                </div>
+                            </div>
+                            <span class="track-label">{{ sliderMax() | number }}</span>
+                        </div>
+                        <div class="landing-slider-pill">
+                            <strong>{{ slots() | number }}</strong> {{ t('smartFleet.plans.vehicles') }}
+                        </div>
+                        @if (activeAssets() > selected.minAssets) {
+                            <p class="mt-3 text-center text-sm text-gray-500">{{ t('smartFleet.plans.minHint', { count: activeAssets() }) }}</p>
+                        }
+                    </div>
+
+                    <div class="checkout-card animate-fadeIn" [ngClass]="'checkout-' + selected.key">
+                        <div class="checkout-header" [ngClass]="'header-' + selected.key">
+                            <div class="checkout-plan-info">
+                                <div class="checkout-badge" [ngClass]="selected.key">
+                                    <mat-icon>{{ selected.key === 'plus' ? 'star' : 'diamond' }}</mat-icon>
+                                    <span>{{ selected.name || t('smartFleet.plans.tier.' + selected.key) }}</span>
+                                </div>
+                                <span class="checkout-plan-type">{{ t('smartFleet.plans.perVehicle') }}</span>
+                            </div>
+                            <div class="checkout-price">
+                                <span class="price-currency">$</span>
+                                <span class="price-value">{{ monthlyTotal() | number: '1.0-2' }}</span>
+                                <span class="price-period">/{{ t('smartFleet.plans.month') }}</span>
+                            </div>
+                        </div>
+                        <div class="checkout-stats">
+                            <div class="stat-item">
+                                <mat-icon>directions_car</mat-icon>
+                                <span class="stat-value">{{ slots() | number }}</span>
+                                <span class="stat-label">{{ t('smartFleet.plans.vehicles') }}</span>
+                            </div>
+                            <div class="stat-divider"></div>
+                            <div class="stat-item">
+                                <mat-icon>payments</mat-icon>
+                                <span class="stat-value">{{ selected.amount ?? 0 | currency }}</span>
+                                <span class="stat-label">{{ t('smartFleet.plans.pricePerVehicle') }}</span>
+                            </div>
+                            <div class="stat-divider"></div>
+                            <div class="stat-item">
+                                <mat-icon>toll</mat-icon>
+                                <span class="stat-value">~{{ monitoringCredits() | number: '1.0-2' }}</span>
+                                <span class="stat-label">{{ t('smartFleet.plans.monitoringCredits') }}</span>
+                            </div>
+                        </div>
+                        <div class="checkout-actions">
+                            <button
+                                (click)="checkout()"
+                                [disabled]="isWorking() || isUnchanged()"
+                                class="checkout-button"
+                                [ngClass]="selected.key"
+                                mat-flat-button
+                                type="button"
+                            >
+                                @if (isWorking()) {
+                                    <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+                                }
+                                @if (isUnchanged()) {
+                                    {{ t('smartFleet.plans.noChange') }}
+                                } @else if (isRenewing()) {
+                                    {{ t('smartFleet.plans.applyChange') }}
+                                } @else {
+                                    {{ t('smartFleet.plans.purchase') }}
+                                }
+                            </button>
+                            <p class="mt-3 text-center text-xs text-gray-500">
+                                {{ isRenewing() ? t('smartFleet.plans.prorationHint') : t('smartFleet.plans.stripeHint') }}
+                            </p>
+                        </div>
+                    </div>
+                  }
+                }
+            }
+        </div>
+    </div>
+
+    <ng-template #creditsInfo>
+        <div class="optional-section">
+            <h3 class="optional-title">{{ t('smartFleet.plans.creditsTitle') }}</h3>
+            <p class="optional-subtitle">{{ t('smartFleet.plans.creditsSubtitle') }}</p>
+            <div class="optional-grid">
+                <div class="optional-card">
+                    <div class="optional-icon sms">
+                        <mat-icon>event_repeat</mat-icon>
+                    </div>
+                    <div class="optional-content">
+                        <span class="optional-label">{{ t('smartFleet.plans.creditsMonitoring') }}</span>
+                        <span class="optional-value">{{
+                            t('smartFleet.plans.creditsMonitoringValue', {
+                                credits: (overview()?.projectedMonthlyCredits?.totalCredits || 0 | number: '1.0-2'),
+                            })
+                        }}</span>
+                    </div>
+                </div>
+                <div class="optional-card">
+                    <div class="optional-icon whatsapp">
+                        <mat-icon>description</mat-icon>
+                    </div>
+                    <div class="optional-content">
+                        <span class="optional-label">{{ t('smartFleet.plans.creditsReports') }}</span>
+                        <span class="optional-value">{{
+                            t('smartFleet.plans.creditsReportsValue', {
+                                credits: (reports()?.credits || 0 | number: '1.0-2'),
+                                count: reports()?.vehicles || 0,
+                            })
+                        }}</span>
+                    </div>
+                </div>
+            </div>
+            <a routerLink="/add-credits" class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+                <mat-icon class="icon-size-4 text-current">add_circle</mat-icon>
+                {{ t('smartFleet.plans.addCredits') }}
+            </a>
+        </div>
+    </ng-template>
+</ng-container>
