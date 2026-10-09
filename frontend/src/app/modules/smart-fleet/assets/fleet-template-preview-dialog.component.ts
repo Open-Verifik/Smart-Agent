@@ -34,20 +34,33 @@ import { SmartReportService, SmartReportTemplate } from 'app/modules/smart-batch
                 <mat-icon>close</mat-icon>
             </button>
         </div>
-        <div class="fleet-template-preview px-4 pb-4">
-            <div *ngIf="loading()" class="flex h-80 items-center justify-center">
-                <mat-spinner diameter="32"></mat-spinner>
+        <div
+            class="fleet-template-preview px-4 pb-4"
+            [class.fleet-template-preview--landscape]="template()?.orientation === 'landscape'"
+        >
+            <div *ngIf="loading()" class="fleet-template-preview__loading flex items-center justify-center">
+                <mat-spinner diameter="40"></mat-spinner>
             </div>
             <report-template-thumb *ngIf="!loading() && template()" [template]="template()!"></report-template-thumb>
         </div>
     `,
     styles: `
         .fleet-template-preview {
-            width: 16rem;
+            --preview-height: min(80vh, calc((92vw - 2rem) * 297 / 210));
+            width: calc(var(--preview-height) * 210 / 297 + 2rem);
+        }
+
+        .fleet-template-preview--landscape {
+            --preview-height: min(80vh, calc((92vw - 2rem) * 210 / 297));
+            width: calc(var(--preview-height) * 297 / 210 + 2rem);
+        }
+
+        .fleet-template-preview__loading {
+            height: var(--preview-height);
         }
 
         :host ::ng-deep .fleet-template-preview .report-template-thumb {
-            height: 22rem;
+            height: var(--preview-height) !important;
         }
     `,
 })

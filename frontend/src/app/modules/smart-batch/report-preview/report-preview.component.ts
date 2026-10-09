@@ -18,7 +18,9 @@ import {
     untracked,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslocoModule } from '@jsverse/transloco';
+import { colorIconSvg } from '../report-icon.util';
 import { ReportCellPart, ReportHeaderLogo, ReportLogoBand, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
 import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogoSize, headerLogoAlignAt, headerLogoBandHeight, placeCompanyLogos, PlacedHeaderLogo } from '../header-logos.util';
 import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, tableColumnPath } from '../report-param-entries.util';
@@ -98,6 +100,10 @@ export function reportPaperSizePx(
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
+    private _domSanitizer = inject(DomSanitizer);
+    /** Same SafeHtml instance per markup so `[innerHTML]` does not repaint every check. */
+    private _iconMarkupCache = new Map<string, SafeHtml>();
+
     /** All paper cards in the rendered preview. The first card is used as the
      *  reference for canonical-to-screen scaling and overlay anchoring. */
     @ViewChildren('reportPage') private _reportPages!: QueryList<ElementRef<HTMLDivElement>>;
@@ -3140,11 +3146,28 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             value === 'star' ||
             value === 'triangle' ||
             value === 'diamond' ||
-            value === 'bullet'
+            value === 'bullet' ||
+            value === 'icon'
         ) {
             return value;
         }
         return 'rectangle';
+    }
+
+    /**
+     * `iconSvg` was cleaned by `sanitizeIconSvg` when inserted; the server cleans it
+     * again before printing. Coloring only rewrites paint attributes.
+     */
+    iconMarkup(section: ReportSection): SafeHtml | null {
+        if (!section.iconSvg) return null;
+        const markup = colorIconSvg(section.iconSvg, this.shapeFill(section), Boolean(section.iconKeepColors));
+        let safe = this._iconMarkupCache.get(markup);
+        if (!safe) {
+            if (this._iconMarkupCache.size > 200) this._iconMarkupCache.clear();
+            safe = this._domSanitizer.bypassSecurityTrustHtml(markup);
+            this._iconMarkupCache.set(markup, safe);
+        }
+        return safe;
     }
 
     shapeKeepRatio(section: ReportSection): boolean {

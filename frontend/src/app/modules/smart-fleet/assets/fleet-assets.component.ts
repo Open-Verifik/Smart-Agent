@@ -21,6 +21,7 @@ import {
     ReportInputKind,
     templateAcceptedKinds,
 } from './fleet-report-compatibility.util';
+import { assetCoverages, CoverageChip, coverageChipClasses } from './fleet-coverage.util';
 import { buildFleetVehicleSample, fleetReportFileName, pdfBlobFromResponse } from './fleet-vehicle-report.util';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import {
@@ -36,7 +37,10 @@ import { FleetVehicleIconComponent } from './fleet-vehicle-icon.component';
 import {
     FleetAsset,
     FleetAvailableCheck,
+    FleetCoverageFilter,
+    FleetIdentifierFilter,
     FleetSnapshot,
+    savedReportsOf,
     SmartFleetService,
 } from '../smart-fleet.service';
 
@@ -82,17 +86,56 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
                 overflow: hidden;
             }
 
+            .fleet-report-menu .mat-mdc-menu-content {
+                padding: 0;
+            }
+
             .fleet-report-menu-title {
-                padding: 12px 16px 8px;
+                padding: 12px 16px;
                 font-size: 13px;
                 font-weight: 600;
                 line-height: 1.35;
                 white-space: normal;
+                background: #f5f5f4;
+                border-bottom: 1px solid #e7e5e4;
+                color: #292524;
             }
 
             .fleet-report-menu-list {
                 max-height: 16rem;
                 overflow-y: auto;
+                padding: 4px 0;
+                background: #ffffff;
+            }
+
+            .fleet-report-menu-footer.mat-mdc-menu-item {
+                background: #f5f5f4;
+                border-top: 1px solid #e7e5e4;
+                color: #4338ca;
+                font-weight: 600;
+            }
+
+            .fleet-report-menu-footer.mat-mdc-menu-item:hover {
+                background: #e7e5e4;
+            }
+
+            .dark .fleet-report-menu-title,
+            .dark .fleet-report-menu-footer.mat-mdc-menu-item {
+                background: #1f2937;
+                border-color: #374151;
+                color: #e7e5e4;
+            }
+
+            .dark .fleet-report-menu-footer.mat-mdc-menu-item {
+                color: #a5b4fc;
+            }
+
+            .dark .fleet-report-menu-footer.mat-mdc-menu-item:hover {
+                background: #374151;
+            }
+
+            .dark .fleet-report-menu-list {
+                background: #111827;
             }
 
             .fleet-report-menu-row {
@@ -174,6 +217,11 @@ export class FleetAssetsComponent implements OnInit {
     canGoNext = computed(() => this.page() < this.pages() && !this.isLoading());
 
     search = signal('');
+    filterGroup = signal('');
+    filterIdentifier = signal<FleetIdentifierFilter | ''>('');
+    filterCoverage = signal<FleetCoverageFilter | ''>('');
+    filterActive = signal<'all' | 'active' | 'paused'>('all');
+    filterAlerts = signal(false);
     isCreating = signal(false);
     isImporting = signal(false);
     checkingAssetId = signal<string | null>(null);
@@ -195,6 +243,20 @@ export class FleetAssetsComponent implements OnInit {
     bulkSteps = signal<BatchStep[]>([]);
     bulkSelected = signal<Record<string, boolean>>({});
     bulkReady = signal(false);
+    /** Rows finished out of the batch while the bulk run is going. */
+    bulkProgress = signal<{ stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number } | null>(
+        null
+    );
+    bulkProgressPercent = computed(() => {
+        const progress = this.bulkProgress();
+
+        if (!progress) return 0;
+        if (progress.stage === 'prepare') return 5;
+        if (progress.stage === 'pdf') return 92;
+        if (progress.stage === 'save') return 97;
+
+        return progress.total ? 5 + Math.round((progress.done / progress.total) * 85) : 5;
+    });
     /** When set, the shared form updates this asset instead of creating. */
     editingAssetId = signal<string | null>(null);
     draft = signal<FleetAsset>(DEFAULT_DRAFT());
@@ -337,7 +399,7 @@ export class FleetAssetsComponent implements OnInit {
     readyReport(asset: FleetAsset): { reportId: string; templateName?: string; rowIndex?: number } | null {
         if (!asset._id) return null;
 
-        return this.readyReports()[asset._id] ?? null;
+        return this.readyReports()[asset._id] ?? savedReportsOf(asset)[0] ?? null;
     }
 
     async downloadVehicleReport(asset: FleetAsset): Promise<void> {
@@ -381,19 +443,7 @@ export class FleetAssetsComponent implements OnInit {
         this.bulkLoading.set(true);
 
         try {
-            const collected: FleetAsset[] = [];
-            let page = 1;
-            let pages = 1;
-
-            do {
-                const response = await firstValueFrom(this._fleetService.findAssets({ page, perPage: 100 }));
-
-                collected.push(...(response.data ?? []));
-                pages = response.pages ?? 1;
-                page += 1;
-            } while (page <= pages && page <= 20);
-
-            this.bulkAssets.set(collected);
+            this.bulkAssets.set(await this._fleetService.findAllAssets());
         } catch (err) {
             console.error('[SmartFleet] bulk assets error', err);
             this.bulkMode.set(false);
@@ -496,10 +546,12 @@ export class FleetAssetsComponent implements OnInit {
         if (!template || !assets.length || this.bulkWorking() || this.reportingAssetId()) return;
 
         this.bulkWorking.set(true);
-        const notice = this._snackBar.open(this._transloco.translate('smartFleet.assets.reportWorking'));
+        this.bulkProgress.set({ stage: 'prepare', done: 0, total: assets.length });
 
         try {
-            const ready = await this._generateForAssets(template, assets);
+            const ready = await this._generateForAssets(template, assets, (progress) =>
+                this.bulkProgress.set(progress)
+            );
 
             if (!ready) return;
 
@@ -514,7 +566,7 @@ export class FleetAssetsComponent implements OnInit {
                 duration: 4000,
             });
         } finally {
-            notice.dismiss();
+            this.bulkProgress.set(null);
             this.bulkWorking.set(false);
         }
     }
@@ -537,6 +589,8 @@ export class FleetAssetsComponent implements OnInit {
         this._dialog.open(FleetTemplatePreviewDialogComponent, {
             data: { templateId: template._id, fallback: template },
             autoFocus: false,
+            maxWidth: '96vw',
+            maxHeight: '96vh',
             panelClass: 'fleet-template-preview-panel',
         });
     }
@@ -658,13 +712,20 @@ export class FleetAssetsComponent implements OnInit {
         return input;
     }
 
-    /** Queue executor: the server runs the steps. Same wait as the page. */
     /**
      * Same Smart Batch path as one vehicle: create the rows, run the template's
      * steps, then keep one report so each vehicle can be downloaded on its own.
      */
-    private async _generateForAssets(template: SmartReportTemplate, assets: FleetAsset[]): Promise<boolean> {
+    private async _generateForAssets(
+        template: SmartReportTemplate,
+        assets: FleetAsset[],
+        onProgress?: (progress: { stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number }) => void
+    ): Promise<boolean> {
         if (!template._id || !assets.length) return false;
+
+        const total = assets.length;
+        const notify = (stage: 'prepare' | 'consult' | 'pdf' | 'save', done = 0) =>
+            onProgress?.({ stage, done, total });
 
         const full = await firstValueFrom(this._reports.getTemplate(template._id));
         const configId = this._configIdOf(full);
@@ -704,18 +765,24 @@ export class FleetAssetsComponent implements OnInit {
             return false;
         }
 
+        notify('consult', 0);
+
         const started = await firstValueFrom(this._batches.startSmartBatch(batchId));
         const batch = started.data?.rows?.length
             ? started.data
             : (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
         const status =
             config?.executor === 'queue'
-                ? await this._pollBatch(batchId, Math.max(180_000, assets.length * 90_000))
-                : await this._runBatchInBrowser(batch, steps);
+                ? await this._pollBatch(batchId, Math.max(180_000, total * 90_000), (done) =>
+                      notify('consult', done)
+                  )
+                : await this._runBatchInBrowser(batch, steps, (done) => notify('consult', done));
 
         if (status === 'failed') {
             throw new Error(this._transloco.translate('smartFleet.assets.reportNoData'));
         }
+
+        notify('pdf', total);
 
         const report = await firstValueFrom(
             this._reports.createReport({
@@ -727,27 +794,76 @@ export class FleetAssetsComponent implements OnInit {
 
         if (!report._id) throw new Error('pdf');
 
+        const reportId = report._id;
+        const createdAt = new Date().toISOString();
+
         this.readyReports.update((current) => {
             const next = { ...current };
 
             assets.forEach((asset, index) => {
                 if (!asset._id) return;
 
-                next[asset._id] = { reportId: report._id!, templateName: template.name, rowIndex: index };
+                next[asset._id] = { reportId, templateName: template.name, rowIndex: index };
             });
 
             return next;
         });
 
+        notify('save', total);
+        await this._saveReports(assets, { reportId, templateName: template.name, createdAt });
+
         return true;
     }
 
-    private async _pollBatch(batchId: string, waitMs = 180_000): Promise<string> {
+    /** History on each vehicle. A failed save only loses the history entry, not the PDF. */
+    private async _saveReports(
+        assets: FleetAsset[],
+        entry: { reportId: string; templateName?: string; createdAt: string }
+    ): Promise<void> {
+        const saved: Record<string, FleetAsset> = {};
+        const chunkSize = 5;
+
+        for (let start = 0; start < assets.length; start += chunkSize) {
+            const chunk = assets.slice(start, start + chunkSize);
+
+            await Promise.all(
+                chunk.map(async (asset, offset) => {
+                    if (!asset._id) return;
+
+                    try {
+                        const response = await firstValueFrom(
+                            this._fleetService.saveAssetReport(asset, { ...entry, rowIndex: start + offset })
+                        );
+
+                        if (response.data) saved[asset._id] = response.data;
+                    } catch (err) {
+                        console.error('[SmartFleet] save report history error', err);
+                    }
+                })
+            );
+        }
+
+        const merge = (list: FleetAsset[]) =>
+            list.map((item) => (item._id && saved[item._id] ? { ...item, metadata: saved[item._id].metadata } : item));
+
+        this._fleetService.assets.update(merge);
+        this.bulkAssets.update(merge);
+    }
+
+    private async _pollBatch(
+        batchId: string,
+        waitMs = 180_000,
+        onDone?: (done: number) => void
+    ): Promise<string> {
         const started = Date.now();
 
         while (Date.now() - started < waitMs) {
             const progress = await firstValueFrom(this._batches.getBatchProgress(batchId));
             const status = progress.data?.status;
+
+            if (progress.data?.totalRows) {
+                onDone?.(Math.max(0, progress.data.totalRows - (progress.data.pendingRows ?? 0)));
+            }
 
             if (
                 status === 'completed' ||
@@ -765,11 +881,20 @@ export class FleetAssetsComponent implements OnInit {
     }
 
     /** Browser executor: this tab calls each feature, then writes the row. */
-    private async _runBatchInBrowser(batch: SmartBatch, steps: BatchStep[]): Promise<string> {
+    private async _runBatchInBrowser(
+        batch: SmartBatch,
+        steps: BatchStep[],
+        onDone?: (done: number) => void
+    ): Promise<string> {
         let latest = batch;
 
         await this._browserRunner.runBatch(batch, steps, (next) => {
             latest = next;
+            onDone?.(
+                (next.rows || []).filter(
+                    (row) => row.status === 'completed' || row.status === 'partial' || row.status === 'failed'
+                ).length
+            );
         });
 
         const rows = latest.rows || [];
@@ -830,9 +955,68 @@ export class FleetAssetsComponent implements OnInit {
     }
 
     loadPage(page: number): void {
-        this._fleetService.getAssets({ page, search: this.search() || undefined }).subscribe({
-            error: (err) => this._reportFailure('smartFleet.assets.loadFailed', err),
-        });
+        const active = this.filterActive();
+
+        this._fleetService
+            .getAssets({
+                page,
+                search: this.search() || undefined,
+                group: this.filterGroup() || undefined,
+                identifier: this.filterIdentifier() || undefined,
+                coverage: this.filterCoverage() || undefined,
+                hasAlerts: this.filterAlerts() || undefined,
+                isActive: active === 'active' ? true : active === 'paused' ? false : undefined,
+            })
+            .subscribe({
+                error: (err) => this._reportFailure('smartFleet.assets.loadFailed', err),
+            });
+    }
+
+    hasFilters(): boolean {
+        return Boolean(
+            this.filterGroup() ||
+                this.filterIdentifier() ||
+                this.filterCoverage() ||
+                this.filterAlerts() ||
+                this.filterActive() !== 'all'
+        );
+    }
+
+    applyFilters(): void {
+        if (this.bulkWorking()) return;
+
+        this.loadPage(1);
+    }
+
+    clearFilters(): void {
+        if (this.bulkWorking()) return;
+
+        this.filterGroup.set('');
+        this.filterIdentifier.set('');
+        this.filterCoverage.set('');
+        this.filterAlerts.set(false);
+        this.filterActive.set('all');
+        this.loadPage(1);
+    }
+
+    coverages(asset: FleetAsset): CoverageChip[] {
+        return assetCoverages(asset);
+    }
+
+    coverageClasses(chip: CoverageChip): string {
+        return coverageChipClasses(chip.tone);
+    }
+
+    coverageText(chip: CoverageChip): string {
+        if (chip.tone === 'unknown') return this._transloco.translate('smartFleet.assets.coverageUnknown');
+
+        const label = this._transloco.translate(`smartFleet.checkType.${chip.checkType}`);
+
+        if (chip.tone === 'expired') {
+            return `${label} · ${this._transloco.translate('smartFleet.assets.coverageExpired')}`;
+        }
+
+        return `${label} · ${this._transloco.translate('smartFleet.assets.coverageDays', { days: chip.days })}`;
     }
 
     previousPage(): void {

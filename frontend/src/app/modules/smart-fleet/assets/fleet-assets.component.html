@@ -455,6 +455,76 @@
                 </button>
             </div>
 
+            <div class="flex flex-wrap items-center gap-2">
+                <mat-icon class="icon-size-5 text-stone-400">filter_list</mat-icon>
+                <select
+                    class="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    [ngModel]="filterGroup()"
+                    (ngModelChange)="filterGroup.set($event); applyFilters()"
+                    [disabled]="bulkWorking()"
+                    name="filterGroup"
+                >
+                    <option value="">{{ 'smartFleet.assets.filterAllGroups' | transloco }}</option>
+                    <option *ngFor="let group of groupsBoard.groupNames()" [value]="group">{{ group }}</option>
+                </select>
+                <select
+                    class="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    [ngModel]="filterIdentifier()"
+                    (ngModelChange)="filterIdentifier.set($event); applyFilters()"
+                    [disabled]="bulkWorking()"
+                    name="filterIdentifier"
+                >
+                    <option value="">{{ 'smartFleet.assets.filterAllIdentifiers' | transloco }}</option>
+                    <option value="plate">{{ 'smartFleet.assets.modePlateDocs' | transloco }}</option>
+                    <option value="plateOnly">{{ 'smartFleet.assets.modePlateOnly' | transloco }}</option>
+                    <option value="vin">{{ 'smartFleet.assets.modeVin' | transloco }}</option>
+                </select>
+                <select
+                    class="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    [ngModel]="filterCoverage()"
+                    (ngModelChange)="filterCoverage.set($event); applyFilters()"
+                    [disabled]="bulkWorking()"
+                    name="filterCoverage"
+                >
+                    <option value="">{{ 'smartFleet.assets.filterAllCoverage' | transloco }}</option>
+                    <option value="expired">{{ 'smartFleet.assets.filterCoverageExpired' | transloco }}</option>
+                    <option value="due">{{ 'smartFleet.assets.filterCoverageDue' | transloco }}</option>
+                    <option value="valid">{{ 'smartFleet.assets.filterCoverageValid' | transloco }}</option>
+                    <option value="unknown">{{ 'smartFleet.assets.filterCoverageUnknown' | transloco }}</option>
+                </select>
+                <select
+                    class="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    [ngModel]="filterActive()"
+                    (ngModelChange)="filterActive.set($event); applyFilters()"
+                    [disabled]="bulkWorking()"
+                    name="filterActive"
+                >
+                    <option value="all">{{ 'smartFleet.assets.filterAllStatus' | transloco }}</option>
+                    <option value="active">{{ 'smartFleet.assets.active' | transloco }}</option>
+                    <option value="paused">{{ 'smartFleet.assets.paused' | transloco }}</option>
+                </select>
+                <label
+                    class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                >
+                    <input
+                        type="checkbox"
+                        [checked]="filterAlerts()"
+                        [disabled]="bulkWorking()"
+                        (change)="filterAlerts.set(!filterAlerts()); applyFilters()"
+                    />
+                    {{ 'smartFleet.assets.filterWithAlerts' | transloco }}
+                </label>
+                <button
+                    *ngIf="hasFilters()"
+                    type="button"
+                    class="text-sm font-semibold text-stone-500 underline-offset-4 hover:underline disabled:opacity-40"
+                    [disabled]="bulkWorking()"
+                    (click)="clearFilters()"
+                >
+                    {{ 'smartFleet.assets.filterClear' | transloco }}
+                </button>
+            </div>
+
             <div
                 *ngIf="bulkMode()"
                 class="rounded-2xl border border-stone-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900"
@@ -511,6 +581,23 @@
                     <p *ngIf="bulkSkippedCount()" class="text-xs text-stone-500">
                         {{ 'smartFleet.assets.bulkSkipped' | transloco: { count: bulkSkippedCount() } }}
                     </p>
+                    <div *ngIf="bulkProgress() as progress" class="flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between text-xs font-medium text-stone-600 dark:text-stone-300">
+                            <span>{{ 'smartFleet.assets.bulkStage_' + progress.stage | transloco }}</span>
+                            <span *ngIf="progress.stage === 'consult'">
+                                {{ 'smartFleet.assets.bulkProgressCount' | transloco: { done: progress.done, total: progress.total } }}
+                            </span>
+                        </div>
+                        <div class="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
+                            <div
+                                class="h-full rounded-full bg-sky-500 transition-all duration-500"
+                                [style.width.%]="bulkProgressPercent()"
+                            ></div>
+                        </div>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                            {{ 'smartFleet.assets.bulkLockedHint' | transloco }}
+                        </p>
+                    </div>
                     <div class="flex justify-end">
                         <button
                             mat-flat-button
@@ -540,10 +627,19 @@
                     *ngIf="!isLoading() && !assets().length"
                 >
                     <p class="max-w-md text-sm text-stone-500 dark:text-stone-400">
-                        {{ 'smartFleet.assets.empty' | transloco }}
+                        {{ (hasFilters() || search() ? 'smartFleet.assets.filterEmpty' : 'smartFleet.assets.empty') | transloco }}
                     </p>
                     <button
-                        *ngIf="!showCreateForm()"
+                        *ngIf="hasFilters()"
+                        mat-stroked-button
+                        type="button"
+                        (click)="clearFilters()"
+                        class="rounded-xl"
+                    >
+                        {{ 'smartFleet.assets.filterClear' | transloco }}
+                    </button>
+                    <button
+                        *ngIf="!showCreateForm() && !hasFilters() && !search()"
                         mat-flat-button
                         color="primary"
                         type="button"
@@ -561,6 +657,7 @@
                         <tr class="text-left text-xs font-medium uppercase text-stone-500">
                             <th class="px-5 py-3">{{ 'smartFleet.nav.assets' | transloco }}</th>
                             <th class="px-5 py-3">{{ 'smartFleet.assets.nickname' | transloco }}</th>
+                            <th class="px-5 py-3">{{ 'smartFleet.assets.coverage' | transloco }}</th>
                             <th class="px-5 py-3">{{ 'smartFleet.assets.alerts' | transloco }}</th>
                             <th class="px-5 py-3">
                                 {{ 'smartFleet.assets.lastChecked' | transloco }}
@@ -614,6 +711,16 @@
                             </td>
                             <td class="px-5 py-3 text-sm text-stone-700 dark:text-stone-200">
                                 {{ asset.nickname || '—' }}
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="flex flex-col items-start gap-1">
+                                    <span
+                                        *ngFor="let chip of coverages(asset)"
+                                        class="whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold"
+                                        [ngClass]="coverageClasses(chip)"
+                                        >{{ coverageText(chip) }}</span
+                                    >
+                                </div>
                             </td>
                             <td class="px-5 py-3">
                                 <span
@@ -780,7 +887,8 @@
                         </button>
                     </div>
                 </div>
-                <button mat-menu-item type="button" (click)="createReportTemplate()">
+                <button mat-menu-item type="button" class="fleet-report-menu-footer" (click)="createReportTemplate()">
+                    <mat-icon class="icon-size-5 !text-current">add_circle</mat-icon>
                     {{ 'smartFleet.assets.createTemplate' | transloco }}
                 </button>
             </mat-menu>

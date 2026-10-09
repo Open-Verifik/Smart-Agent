@@ -27,6 +27,7 @@ export const REPORT_SHAPE_KINDS = [
     'triangle',
     'diamond',
     'bullet',
+    'icon',
 ] as const;
 
 export type ReportShapeKind = (typeof REPORT_SHAPE_KINDS)[number];
@@ -134,6 +135,12 @@ export interface ReportSection {
     staticContent?: string;
     /** Decorative shape when `type` is `shape`. */
     shape?: ReportShapeKind;
+    /** Cleaned standalone `<svg>` when `shape` is `icon`. */
+    iconSvg?: string;
+    /** Where the icon came from, e.g. `mat_solid:directions_car` or `mdi:car`. */
+    iconName?: string;
+    /** Multicolor icons keep their own colors instead of `style.color`. */
+    iconKeepColors?: boolean;
 
     /** dataTable: explicit columns; derived from the row keys when omitted. */
     columns?: { key: string; label?: string }[];

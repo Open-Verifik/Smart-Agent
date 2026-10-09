@@ -1537,6 +1537,15 @@
                                         </div>
                                     }
                                 </div>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                    [matTooltip]="t('visitaGuide.layoutAddIcon')"
+                                    [attr.aria-label]="t('visitaGuide.layoutAddIcon')"
+                                    (click)="addIconBlock()"
+                                >
+                                    <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">emoji_symbols</mat-icon>
+                                </button>
                                 <span class="mx-1 h-5 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
                                 <button
                                     type="button"
@@ -3032,18 +3041,39 @@
                                         />
                                         }
                                         @if (selected.type === 'shape') {
-                                            <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
-                                            <select
-                                                class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                                [ngModel]="selected.shape || selected.staticContent"
-                                                (ngModelChange)="setSelectedLayoutShape($event)"
-                                            >
-                                                @for (tool of layoutShapeTools; track tool.kind) {
-                                                    <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
-                                                }
-                                            </select>
+                                            @if (selected.shape === 'icon') {
+                                                <span class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutIcon') }}</span>
+                                                <button
+                                                    type="button"
+                                                    class="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                                    (click)="replaceSelectedIcon()"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 !text-base">swap_horiz</mat-icon>
+                                                    {{ t('visitaGuide.layoutIconChange') }}
+                                                </button>
+                                                <label class="mt-2 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                                    <input
+                                                        type="checkbox"
+                                                        [ngModel]="!!selected.iconKeepColors"
+                                                        (ngModelChange)="setSelectedIconKeepColors($event)"
+                                                    />
+                                                    {{ t('visitaGuide.layoutIconKeepColors') }}
+                                                </label>
+                                            } @else {
+                                                <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
+                                                <select
+                                                    class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [ngModel]="selected.shape || selected.staticContent"
+                                                    (ngModelChange)="setSelectedLayoutShape($event)"
+                                                >
+                                                    @for (tool of layoutShapeTools; track tool.kind) {
+                                                        <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
+                                                    }
+                                                </select>
+                                            }
+                                            @if (selected.shape !== 'icon' || !selected.iconKeepColors) {
                                             <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
-                                                t('visitaGuide.layoutShapeFill')
+                                                t(selected.shape === 'icon' ? 'visitaGuide.layoutIconColor' : 'visitaGuide.layoutShapeFill')
                                             }}</span>
                                             <color-hex-field
                                                 class="mt-1 block"
@@ -3051,6 +3081,8 @@
                                                 (ngModelChange)="setSelectedLayoutColor($event)"
                                                 [ariaLabel]="t('visitaGuide.layoutShapeFill')"
                                             />
+                                            }
+                                            @if (selected.shape !== 'icon') {
                                             <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
                                                 <input
                                                     type="checkbox"
@@ -3082,6 +3114,7 @@
                                                     [ngModel]="selected.style?.borderWidth || 1"
                                                     (ngModelChange)="setSelectedLayoutBorderWidth($event)"
                                                 />
+                                            }
                                             }
                                             <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
                                                 <span>{{ t('visitaGuide.layoutRotation') }}</span>
@@ -3764,6 +3797,18 @@
                     <mat-icon class="!h-4 !w-4 !text-base">rotate_right</mat-icon>
                 </button>
                 }
+                @if (selectedLayoutSection()?.shape === 'icon') {
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                <button
+                    type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutIconChange')"
+                    [matTooltip]="t('visitaGuide.layoutIconChange')"
+                    (click)="replaceSelectedIcon()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">swap_horiz</mat-icon>
+                </button>
+                }
             } @else if (selectedLayoutSection()?.type === 'image' || selectedLayoutSection()?.type === 'spacer') {
             } @else {
             @for (align of layoutFormatAligns; track align) {
@@ -4048,6 +4093,25 @@
                     } @else if (selectedLayoutSection()?.type === 'shape' || selectedLayoutSection()?.type === 'divider' || selectedLayoutSection()?.type === 'image' || selectedLayoutSection()?.type === 'spacer') {
                         @if (selectedLayoutSection(); as selected) {
                             @if (selected.type === 'shape') {
+                            @if (selected.shape === 'icon') {
+                            <span class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutIcon') }}</span>
+                            <button
+                                type="button"
+                                class="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                (click)="replaceSelectedIcon()"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">swap_horiz</mat-icon>
+                                {{ t('visitaGuide.layoutIconChange') }}
+                            </button>
+                            <label class="mt-2 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                <input
+                                    type="checkbox"
+                                    [ngModel]="!!selected.iconKeepColors"
+                                    (ngModelChange)="setSelectedIconKeepColors($event)"
+                                />
+                                {{ t('visitaGuide.layoutIconKeepColors') }}
+                            </label>
+                            } @else {
                             <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
                             <select
                                 class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
@@ -4058,13 +4122,17 @@
                                     <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
                                 }
                             </select>
-                            <span class="mt-2 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutShapeFill') }}</span>
+                            }
+                            @if (selected.shape !== 'icon' || !selected.iconKeepColors) {
+                            <span class="mt-2 block text-[11px] text-stone-500">{{ t(selected.shape === 'icon' ? 'visitaGuide.layoutIconColor' : 'visitaGuide.layoutShapeFill') }}</span>
                             <color-hex-field
                                 class="mt-1 block"
                                 [ngModel]="selected.style?.color || primaryColor()"
                                 (ngModelChange)="setSelectedLayoutColor($event)"
                                 [ariaLabel]="t('visitaGuide.layoutShapeFill')"
                             />
+                            }
+                            @if (selected.shape !== 'icon') {
                             <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
                                 <input
                                     type="checkbox"
@@ -4094,6 +4162,7 @@
                                     [ngModel]="selected.style?.borderWidth || 1"
                                     (ngModelChange)="setSelectedLayoutBorderWidth($event)"
                                 />
+                            }
                             }
                             <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
                                 <span>{{ t('visitaGuide.layoutRotation') }}</span>
@@ -4731,6 +4800,14 @@
                     {{ t(tool.labelKey) }}
                 </button>
             }
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutIconFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">emoji_symbols</mat-icon>
+                {{ t('visitaGuide.layoutAddIcon') }}
+            </button>
             @if (menu.sectionId || menu.overlay) {
                 <button
                     type="button"

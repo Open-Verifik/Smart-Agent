@@ -60,6 +60,108 @@
                     </a>
                 </div>
 
+                <!-- What needs attention this week -->
+                <section
+                    class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                >
+                    <div class="border-b border-stone-200/90 px-5 py-4 dark:border-gray-800">
+                        <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                            {{ 'smartFleet.dashboard.weekTitle' | transloco }}
+                        </h2>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                            {{ 'smartFleet.dashboard.weekHint' | transloco }}
+                        </p>
+                    </div>
+                    <div class="grid gap-3 p-5 md:grid-cols-3">
+                        <button
+                            type="button"
+                            (click)="scrollToExpiring()"
+                            class="flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors"
+                            [ngClass]="
+                                dueThisWeek().length
+                                    ? 'border-red-200 bg-red-50 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30'
+                                    : 'border-stone-200 bg-stone-50 dark:border-gray-800 dark:bg-gray-950/40'
+                            "
+                        >
+                            <mat-icon
+                                class="icon-size-6"
+                                [ngClass]="dueThisWeek().length ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'"
+                                >{{ dueThisWeek().length ? 'event_busy' : 'event_available' }}</mat-icon
+                            >
+                            <div class="min-w-0">
+                                <p class="text-2xl font-bold text-stone-900 dark:text-white">
+                                    {{ dueThisWeek().length }}
+                                </p>
+                                <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
+                                    {{ 'smartFleet.dashboard.weekDue' | transloco }}
+                                </p>
+                                <p *ngIf="expiredCount()" class="mt-0.5 text-xs text-red-700 dark:text-red-300">
+                                    {{ 'smartFleet.dashboard.weekExpired' | transloco: { count: expiredCount() } }}
+                                </p>
+                            </div>
+                        </button>
+
+                        <a
+                            routerLink="/smart-fleet/watch-rules"
+                            class="flex items-start gap-3 rounded-2xl border p-4 transition-colors"
+                            [ngClass]="
+                                uncoveredAssets()?.length
+                                    ? 'border-amber-200 bg-amber-50 hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-950/30'
+                                    : 'border-stone-200 bg-stone-50 dark:border-gray-800 dark:bg-gray-950/40'
+                            "
+                        >
+                            <mat-icon
+                                class="icon-size-6"
+                                [ngClass]="uncoveredAssets()?.length ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'"
+                                >{{ uncoveredAssets()?.length ? 'rule' : 'verified' }}</mat-icon
+                            >
+                            <div class="min-w-0">
+                                <p class="text-2xl font-bold text-stone-900 dark:text-white">
+                                    {{ uncoveredAssets() === null ? '—' : uncoveredAssets()!.length }}
+                                </p>
+                                <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
+                                    {{ 'smartFleet.dashboard.weekNoRules' | transloco }}
+                                </p>
+                                <p
+                                    *ngIf="uncoveredAssets()?.length"
+                                    class="mt-0.5 truncate text-xs text-amber-800 dark:text-amber-300"
+                                >
+                                    {{ uncoveredLabel() }}
+                                </p>
+                            </div>
+                        </a>
+
+                        <a
+                            routerLink="/add-credits"
+                            class="flex items-start gap-3 rounded-2xl border p-4 transition-colors"
+                            [ngClass]="
+                                creditShortfall()
+                                    ? 'border-red-200 bg-red-50 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30'
+                                    : 'border-stone-200 bg-stone-50 dark:border-gray-800 dark:bg-gray-950/40'
+                            "
+                        >
+                            <mat-icon
+                                class="icon-size-6"
+                                [ngClass]="creditShortfall() ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'"
+                                >{{ creditShortfall() ? 'savings' : 'check_circle' }}</mat-icon
+                            >
+                            <div class="min-w-0">
+                                <p class="text-2xl font-bold text-stone-900 dark:text-white">
+                                    {{ creditShortfall() || ('smartFleet.dashboard.weekCreditsOk' | transloco) }}
+                                </p>
+                                <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
+                                    {{
+                                        (creditShortfall()
+                                            ? 'smartFleet.dashboard.weekCreditsShort'
+                                            : 'smartFleet.dashboard.weekCreditsEnough'
+                                        ) | transloco: { credits: projected()?.totalCredits ?? 0 }
+                                    }}
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+
                 <!-- What the account has right now -->
                 <section
                     class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
@@ -223,7 +325,8 @@
 
                 <!-- Expiring soon -->
                 <div
-                    class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                    id="fleet-expiring"
+                    class="scroll-mt-6 rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
                 >
                     <div
                         class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800"

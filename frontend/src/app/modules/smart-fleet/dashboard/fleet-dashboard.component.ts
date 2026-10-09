@@ -8,7 +8,8 @@ import { RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { FleetNavComponent } from '../fleet-nav.component';
-import { FleetSeverity, SmartFleetService } from '../smart-fleet.service';
+import { firstValueFrom } from 'rxjs';
+import { FleetAsset, FleetSeverity, FleetWatchRule, SmartFleetService } from '../smart-fleet.service';
 
 @Component({
     selector: 'fleet-dashboard',
@@ -65,11 +66,73 @@ export class FleetDashboardComponent implements OnInit {
         return runway?.daysOfRunway !== null && (runway?.daysOfRunway ?? 999) <= 7;
     });
 
+    /** Expired, or expiring within the next 7 days. */
+    dueThisWeek = computed(() => this.expiring().filter((entry) => entry.daysRemaining <= 7));
+
+    expiredCount = computed(() => this.expiring().filter((entry) => entry.daysRemaining < 0).length);
+
+    /** Active vehicles no active rule reaches: not by vehicle, not by group, not fleet-wide. */
+    uncoveredAssets = signal<FleetAsset[] | null>(null);
+
+    /** Credits the next month of monitoring needs beyond the balance. */
+    creditShortfall = computed(() => {
+        const runway = this.runway();
+        const projected = this.projected()?.totalCredits ?? 0;
+
+        if (!runway || !projected) return 0;
+
+        return Math.max(0, Math.ceil(projected - runway.balance));
+    });
+
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
-            onAuthenticated: () => this.reload(),
+            onAuthenticated: () => {
+                this.reload();
+                void this._loadCoverage();
+            },
             panelClass: 'auth-required-dialog',
         });
+    }
+
+    uncoveredLabel(): string {
+        const assets = this.uncoveredAssets() ?? [];
+        const names = assets.slice(0, 3).map((asset) => asset.plate || asset.vin || asset.nickname || '—');
+
+        return assets.length > 3 ? `${names.join(', ')} +${assets.length - 3}` : names.join(', ');
+    }
+
+    scrollToExpiring(): void {
+        document.getElementById('fleet-expiring')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    private async _loadCoverage(): Promise<void> {
+        try {
+            const [assets, rules] = await Promise.all([
+                this._fleetService.findAllAssets({ isActive: true }),
+                firstValueFrom(this._fleetService.listWatchRules()),
+            ]);
+            const active = (rules.data ?? []).filter((rule) => rule.isActive !== false && !rule.unassigned);
+            const assetIdOf = (rule: FleetWatchRule) =>
+                typeof rule.asset === 'string' ? rule.asset : rule.asset?._id || null;
+            const fleetWide = active.some((rule) => !assetIdOf(rule) && !rule.group);
+
+            if (fleetWide) {
+                this.uncoveredAssets.set([]);
+                return;
+            }
+
+            const byAsset = new Set(active.map(assetIdOf).filter(Boolean));
+            const byGroup = new Set(active.map((rule) => rule.group).filter(Boolean));
+
+            this.uncoveredAssets.set(
+                assets.filter(
+                    (asset) => !(asset._id && byAsset.has(asset._id)) && !(asset.group && byGroup.has(asset.group))
+                )
+            );
+        } catch (err) {
+            console.error('[SmartFleet] coverage summary error', err);
+            this.uncoveredAssets.set(null);
+        }
     }
 
     reload(): void {

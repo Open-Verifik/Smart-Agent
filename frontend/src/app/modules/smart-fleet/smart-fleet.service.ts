@@ -1,9 +1,32 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
-import { tap, timeout } from 'rxjs';
+import { firstValueFrom, tap, timeout } from 'rxjs';
 
 export const DEFAULT_PER_PAGE = 20;
+
+export const FLEET_SAVED_REPORTS_LIMIT = 20;
+
+export interface FleetSavedReport {
+    reportId: string;
+    templateName?: string;
+    rowIndex: number;
+    createdAt: string;
+}
+
+export function savedReportsOf(asset: { metadata?: { fleetReports?: unknown } } | null | undefined): FleetSavedReport[] {
+    const raw = asset?.metadata?.fleetReports;
+
+    if (!Array.isArray(raw)) return [];
+
+    return raw.filter(
+        (item): item is FleetSavedReport =>
+            Boolean(item) &&
+            typeof item === 'object' &&
+            typeof (item as FleetSavedReport).reportId === 'string' &&
+            typeof (item as FleetSavedReport).rowIndex === 'number'
+    );
+}
 
 export interface PaginatedResponse<T> {
     data: T[];
@@ -135,9 +158,32 @@ export interface FleetAsset {
     nextCheckAt?: string;
     alertCounts?: { critical: number; warning: number; info: number };
     lastKnownState?: Record<FleetCheckType | string, FleetAssetState>;
+    metadata?: { fleetReports?: unknown; [key: string]: unknown };
     createdAt?: string;
     updatedAt?: string;
 }
+
+export type FleetIdentifierFilter = 'plate' | 'plateOnly' | 'vin';
+
+export type FleetCoverageFilter = 'valid' | 'due' | 'expired' | 'unknown';
+
+export interface FleetAssetFilters {
+    group?: string;
+    isActive?: boolean;
+    identifier?: FleetIdentifierFilter;
+    coverage?: FleetCoverageFilter;
+    hasAlerts?: boolean;
+    search?: string;
+}
+
+const assetFilterParams = (filters: FleetAssetFilters): Record<string, string | boolean> => ({
+    ...(filters.group ? { group: filters.group } : {}),
+    ...(filters.isActive !== undefined ? { isActive: filters.isActive } : {}),
+    ...(filters.identifier ? { identifier: filters.identifier } : {}),
+    ...(filters.coverage ? { coverage: filters.coverage } : {}),
+    ...(filters.hasAlerts ? { hasAlerts: true } : {}),
+    ...(filters.search ? { search: filters.search } : {}),
+});
 
 /** Country option returned by GET /fleet-assets/countries (live catalog). */
 export interface FleetCountryOption {
@@ -476,34 +522,45 @@ export class SmartFleetService {
     // ── Assets ───────────────────────────────────────────────────
 
     /** Read a page without replacing the list the table is showing. */
-    findAssets(
-        options: {
-            page?: number;
-            perPage?: number;
-            search?: string;
-        } = {}
-    ) {
+    findAssets(options: FleetAssetFilters & { page?: number; perPage?: number } = {}) {
         const page = options.page ?? 1;
         const perPage = options.perPage ?? DEFAULT_PER_PAGE;
 
         return this._httpClient.get<PaginatedResponse<FleetAsset>>(`${environment.apiUrl}/v2/fleet-assets`, {
-            params: {
-                page,
-                perPage,
-                ...(options.search ? { search: options.search } : {}),
-            },
+            params: { page, perPage, ...assetFilterParams(options) },
         });
     }
 
-    getAssets(
-        options: {
-            page?: number;
-            perPage?: number;
-            group?: string;
-            isActive?: boolean;
-            search?: string;
-        } = {}
-    ) {
+    /** Every page of the fleet, without touching the table's list. */
+    async findAllAssets(options: FleetAssetFilters = {}, maxPages = 20): Promise<FleetAsset[]> {
+        const collected: FleetAsset[] = [];
+        let page = 1;
+        let pages = 1;
+
+        do {
+            const response = await firstValueFrom(this.findAssets({ ...options, page, perPage: 100 }));
+
+            collected.push(...(response.data ?? []));
+            pages = response.pages ?? 1;
+            page += 1;
+        } while (page <= pages && page <= maxPages);
+
+        return collected;
+    }
+
+    /** Keep the newest reports on the vehicle so the download survives a reload. */
+    saveAssetReport(asset: FleetAsset, report: FleetSavedReport) {
+        const current = savedReportsOf(asset).filter(
+            (item) => !(item.reportId === report.reportId && item.rowIndex === report.rowIndex)
+        );
+        const fleetReports = [report, ...current].slice(0, FLEET_SAVED_REPORTS_LIMIT);
+
+        return this._httpClient.put<{ data: FleetAsset }>(`${environment.apiUrl}/v2/fleet-assets/${asset._id}`, {
+            metadata: { ...(asset.metadata ?? {}), fleetReports },
+        });
+    }
+
+    getAssets(options: FleetAssetFilters & { page?: number; perPage?: number } = {}) {
         const page = options.page ?? 1;
         const perPage = options.perPage ?? DEFAULT_PER_PAGE;
 
@@ -511,13 +568,7 @@ export class SmartFleetService {
 
         return this._httpClient
             .get<PaginatedResponse<FleetAsset>>(`${environment.apiUrl}/v2/fleet-assets`, {
-                params: {
-                    page,
-                    perPage,
-                    ...(options.group ? { group: options.group } : {}),
-                    ...(options.isActive !== undefined ? { isActive: options.isActive } : {}),
-                    ...(options.search ? { search: options.search } : {}),
-                },
+                params: { page, perPage, ...assetFilterParams(options) },
             })
             .pipe(
                 tap({

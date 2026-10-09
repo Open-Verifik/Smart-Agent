@@ -886,7 +886,17 @@
         />
     }
 
-    @if (section.type === 'shape') {
+    @if (section.type === 'shape' && shapeKind(section) === 'icon') {
+        <div
+            class="report-icon h-full w-full min-h-[12px] overflow-visible"
+            data-report-icon
+            [style.transform]="shapeRotateStyle(section)"
+            style="transform-origin: center center; line-height: 0"
+            [innerHTML]="iconMarkup(section)"
+        ></div>
+    }
+
+    @if (section.type === 'shape' && shapeKind(section) !== 'icon') {
         <div
             class="h-full w-full min-h-[12px] overflow-visible"
             [style.transform]="shapeRotateStyle(section)"

@@ -16,6 +16,7 @@ import { catchError, firstValueFrom, interval, of, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
+import { ReportIconPickerDialogComponent, ReportIconPickerResult } from '../report-icon-picker-dialog.component';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
 import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
@@ -1711,7 +1712,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (section.type === 'header') return 'title';
         if (section.type === 'text') return 'notes';
         if (section.type === 'divider') return 'horizontal_rule';
-        if (section.type === 'shape') return 'category';
+        if (section.type === 'shape') return section.shape === 'icon' ? 'emoji_symbols' : 'category';
         if (section.type === 'image') return 'image';
         if (section.type === 'table' || section.type === 'dataTable') return 'table_chart';
         return 'dashboard';
@@ -2220,6 +2221,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._pendingContentPoint = this._pointFromContextMenu();
         this.closeLayoutContextMenu();
         this.addShapeBlock(kind);
+    }
+
+    insertLayoutIconFromMenu(): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addIconBlock();
     }
 
     private _pointFromContextMenu(): { x: number; y: number; page: number } | null {
@@ -3461,6 +3468,80 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
         this._focusLayoutEditor(section, 'block');
+    }
+
+    /** Opens the icon picker and drops the chosen icon on the sheet. */
+    addIconBlock(): void {
+        const pendingPoint = this._pendingContentPoint;
+
+        this._openIconPicker(false, (choice) => {
+            this._pendingContentPoint = pendingPoint;
+            const section: ReportSection = {
+                id: `icono-${Date.now()}`,
+                type: 'shape',
+                order: this.layoutSections().length,
+                label: this._iconLabel(choice.name),
+                shape: 'icon',
+                staticContent: 'icon',
+                iconSvg: choice.svg,
+                iconName: choice.name,
+                iconKeepColors: choice.keepColors,
+                style: { color: this.primaryColor() },
+                frame: this._consumePendingContentFrame(64, 64),
+            };
+            this._placeLayoutSection(section);
+            this.selectedLayoutSectionId.set(section.id);
+            this._focusLayoutEditor(section, 'block');
+        });
+    }
+
+    replaceSelectedIcon(): void {
+        const selected = this.selectedLayoutSection();
+        if (!selected || selected.shape !== 'icon') return;
+
+        this._openIconPicker(Boolean(selected.iconKeepColors), (choice) => {
+            this.layoutSections.update((list) =>
+                list.map((section) =>
+                    section.id === selected.id
+                        ? {
+                              ...section,
+                              iconSvg: choice.svg,
+                              iconName: choice.name,
+                              iconKeepColors: choice.keepColors,
+                              label: this._iconLabel(choice.name),
+                          }
+                        : section
+                )
+            );
+        });
+    }
+
+    setSelectedIconKeepColors(value: boolean): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        this.layoutSections.update((list) =>
+            list.map((section) => (section.id === id ? { ...section, iconKeepColors: value } : section))
+        );
+    }
+
+    private _openIconPicker(keepColors: boolean, onPick: (choice: ReportIconPickerResult) => void): void {
+        this._dialog
+            .open<ReportIconPickerDialogComponent, { keepColors: boolean }, ReportIconPickerResult>(
+                ReportIconPickerDialogComponent,
+                { data: { keepColors }, autoFocus: false, maxWidth: '96vw' }
+            )
+            .afterClosed()
+            .subscribe((choice) => {
+                if (choice?.svg) onPick(choice);
+            });
+    }
+
+    private _iconLabel(name: string): string {
+        const base = name.split(':').pop() || name;
+        const words = base.replace(/\.svg$/i, '').replace(/[_-]+/g, ' ').trim();
+        const prefix = this._transloco.translate('visitaGuide.layoutIcon');
+
+        return words ? `${prefix}: ${words}` : prefix;
     }
 
     setSelectedLayoutShape(kind: ReportShapeKind): void {

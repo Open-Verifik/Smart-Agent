@@ -564,6 +564,56 @@
                 </div>
             </div>
 
+            <!-- Generated PDFs -->
+            <div
+                class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                *ngIf="activeTab() === 'pdfs'"
+            >
+                <div class="border-b border-stone-200/90 px-5 py-4 dark:border-gray-800">
+                    <h2 class="text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'smartFleet.detail.pdfsTitle' | transloco }}
+                    </h2>
+                    <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                        {{ 'smartFleet.detail.pdfsSubtitle' | transloco }}
+                    </p>
+                </div>
+                <p
+                    *ngIf="!savedReports().length"
+                    class="px-5 py-10 text-center text-sm text-stone-500 dark:text-stone-400"
+                >
+                    {{ 'smartFleet.detail.pdfsEmpty' | transloco }}
+                </p>
+                <div class="divide-y divide-stone-200/90 dark:divide-gray-800" *ngIf="savedReports().length">
+                    <div
+                        *ngFor="let report of savedReports()"
+                        class="flex flex-wrap items-center gap-3 px-5 py-3"
+                    >
+                        <mat-icon class="icon-size-6 text-rose-600">picture_as_pdf</mat-icon>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-medium text-stone-900 dark:text-white">
+                                {{ report.templateName || ('smartFleet.detail.pdfsNoTemplate' | transloco) }}
+                            </p>
+                            <p class="text-xs text-stone-500 dark:text-stone-400">
+                                {{ formatDate(report.createdAt) }}
+                            </p>
+                        </div>
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="!text-rose-600"
+                            [disabled]="downloadingReport() !== null"
+                            [matTooltip]="'smartFleet.assets.reportDownload' | transloco"
+                            (click)="downloadSavedReport(report)"
+                        >
+                            <mat-spinner *ngIf="downloadingReport() === reportKey(report)" diameter="18"></mat-spinner>
+                            <mat-icon *ngIf="downloadingReport() !== reportKey(report)" class="icon-size-5"
+                                >download</mat-icon
+                            >
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Developer inspect -->
             <div
                 class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"

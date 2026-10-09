@@ -282,7 +282,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         },
     ];
 
-    readonly shapeKinds = REPORT_SHAPE_KINDS;
+    readonly shapeKinds = REPORT_SHAPE_KINDS.filter((kind) => kind !== 'icon');
 
     /** Palette groups, in the order they appear in the "Add sections" panel. */
     readonly sectionGroups: { key: 'content' | 'data' | 'layout'; labelKey: string }[] = [
