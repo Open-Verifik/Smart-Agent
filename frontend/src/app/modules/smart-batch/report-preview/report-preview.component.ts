@@ -110,6 +110,29 @@ export function reportPaperSizePx(
             .layer-quiet * {
                 pointer-events: none !important;
             }
+            .selection-outline {
+                outline: 2px solid rgba(129, 140, 248, 0.9);
+                outline-offset: 6px;
+                border-radius: 6px;
+            }
+            [data-overlay-handle],
+            [data-section-handle],
+            [data-cell-handle],
+            [data-move-badge] {
+                opacity: 0.72;
+                transition: opacity 120ms ease, transform 120ms ease;
+            }
+            [data-overlay-handle]:hover,
+            [data-section-handle]:hover,
+            [data-cell-handle]:hover {
+                opacity: 1;
+            }
+            .is-text-editing [data-section-handle],
+            .is-text-editing [data-cell-handle],
+            .is-text-editing [data-move-badge] {
+                opacity: 0;
+                pointer-events: none;
+            }
         `,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -414,15 +437,31 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.sheetDragChange.emit(active);
     }
     readonly liveRotations = signal<Record<string, number>>({});
-    /** Top-left is left free for the move badge. */
+    /**
+     * Rotate handle sits fully above the element so it never covers it; when
+     * the element is near the sheet top (which clips) it keeps the closer spot.
+     */
+    rotateHandleTop(elementTop: number | null | undefined): number {
+        return typeof elementTop === 'number' && elementTop >= 42 ? -40 : -12;
+    }
+
+    /** Move badge goes outside the block corner when the sheet has room for it. */
+    moveBadgeOffset(edge: number | null | undefined): number {
+        return typeof edge === 'number' && edge >= 30 ? -28 : -10;
+    }
+
+    /**
+     * Top-left is left free for the move badge. Handles are centred on the
+     * selection outline, which sits 6px outside the block (`.selection-outline`).
+     */
     readonly blockResizeHandles: { id: ReportResizeHandle; cls: string }[] = [
-        { id: 'ne', cls: 'right-[-7px] top-[-7px] h-3.5 w-3.5 rounded-sm cursor-nesw-resize' },
-        { id: 'sw', cls: 'bottom-[-7px] left-[-7px] h-3.5 w-3.5 rounded-sm cursor-nesw-resize' },
-        { id: 'se', cls: 'bottom-[-7px] right-[-7px] h-3.5 w-3.5 rounded-sm cursor-nwse-resize' },
-        { id: 'n', cls: 'left-1/2 top-[-5px] h-2.5 w-6 -translate-x-1/2 rounded-full cursor-ns-resize' },
-        { id: 's', cls: 'bottom-[-5px] left-1/2 h-2.5 w-6 -translate-x-1/2 rounded-full cursor-ns-resize' },
-        { id: 'e', cls: 'right-[-5px] top-1/2 h-6 w-2.5 -translate-y-1/2 rounded-full cursor-ew-resize' },
-        { id: 'w', cls: 'left-[-5px] top-1/2 h-6 w-2.5 -translate-y-1/2 rounded-full cursor-ew-resize' },
+        { id: 'ne', cls: 'right-[-14px] top-[-14px] h-3.5 w-3.5 rounded-sm cursor-nesw-resize' },
+        { id: 'sw', cls: 'bottom-[-14px] left-[-14px] h-3.5 w-3.5 rounded-sm cursor-nesw-resize' },
+        { id: 'se', cls: 'bottom-[-14px] right-[-14px] h-3.5 w-3.5 rounded-sm cursor-nwse-resize' },
+        { id: 'n', cls: 'left-1/2 top-[-12px] h-2.5 w-6 -translate-x-1/2 rounded-full cursor-ns-resize' },
+        { id: 's', cls: 'bottom-[-12px] left-1/2 h-2.5 w-6 -translate-x-1/2 rounded-full cursor-ns-resize' },
+        { id: 'e', cls: 'right-[-12px] top-1/2 h-6 w-2.5 -translate-y-1/2 rounded-full cursor-ew-resize' },
+        { id: 'w', cls: 'left-[-12px] top-1/2 h-6 w-2.5 -translate-y-1/2 rounded-full cursor-ew-resize' },
     ];
     /** Cell sizes while a cell edge is dragged, keyed by `${sectionId}|${key}`. */
     readonly liveCellSizes = signal<Record<string, ReportCellSize>>({});
