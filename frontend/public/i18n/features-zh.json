@@ -931,6 +931,10 @@
         "colombia_api_copnia": {
             "title": "按证件查询 COPNIA 专业执照",
             "description": "通过 GET /v2/co/copnia 按哥伦比亚证件查询 COPNIA（Consejo Profesional Nacional de Ingeniería）专业执照。"
+        },
+        "colombia_api_vehicle_valuation_sibga": {
+            "title": "SIBGA - 车辆商业估价",
+            "description": "哥伦比亚车牌的交通部（SIBGA）官方商业估价，由 RUNT 数据自动对照。"
         }
     }
 }

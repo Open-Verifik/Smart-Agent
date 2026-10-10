@@ -1208,6 +1208,20 @@
         "banners": {
             "dismissAria": "배너 닫기"
         },
+        "bell": {
+            "title": "알림",
+            "markAll": "모두 읽음으로 표시",
+            "aria": "알림",
+            "ariaCount": "알림, 읽지 않음 {{count}}개",
+            "empty": "모두 확인했습니다",
+            "loading": "불러오는 중…",
+            "justNow": "방금",
+            "minutes": "{{count}}분",
+            "hours": "{{count}}시간",
+            "days": "{{count}}일",
+            "dismissAria": "알림 닫기",
+            "closeImage": "이미지 닫기"
+        },
         "inbox": {
             "guest": {
                 "title": "알림을 보려면 로그인하세요",
@@ -3213,6 +3227,26 @@
             "backScan": "뒷면",
             "documentFace": "문서 사진",
             "documentLiveness": "문서 라이브니스",
+            "barcode": {
+                "title": "뒷면 바코드",
+                "attempts": "읽기 시도 {{count}}회",
+                "unreadableWarning": "등록은 통과할 수 있습니다. 뒷면 바코드를 읽지 못해 경고로 남깁니다.",
+                "mismatchLead": "뒷면 바코드가 앞면과 일치하지 않습니다. 문서가 수정되었을 수 있습니다.",
+                "verdict": {
+                    "confirmed": "앞면과 일치",
+                    "mismatch": "변조 가능성",
+                    "unreadable": "뒷면 미확인"
+                },
+                "field": {
+                    "fullName": "바코드의 이름",
+                    "documentNumber": "문서 번호",
+                    "dateOfBirth": "생년월일",
+                    "gender": "성별",
+                    "bloodType": "혈액형",
+                    "firstName": "이름",
+                    "lastName": "성"
+                }
+            },
             "livenessPassed": "통과",
             "livenessFailed": "실패",
             "ocr": "추출 데이터",

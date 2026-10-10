@@ -931,6 +931,10 @@
         "colombia_api_copnia": {
             "title": "コロンビア — 書類番号で COPNIA 専門免許を照会",
             "description": "GET /v2/co/copnia で COPNIA（Consejo Profesional Nacional de Ingeniería）の専門免許を身分証明書から照会します。"
+        },
+        "colombia_api_vehicle_valuation_sibga": {
+            "title": "SIBGA - 車両の商業評価額",
+            "description": "コロンビアナンバーの運輸省（SIBGA）公式商業評価額。RUNTのデータを自動で対応付けます。"
         }
     }
 }

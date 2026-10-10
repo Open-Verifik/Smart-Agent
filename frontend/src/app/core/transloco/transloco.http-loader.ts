@@ -29,6 +29,44 @@ function deepMergeTranslations(base: Translation, patch: Translation): Translati
   return out;
 }
 
+/**
+ * Bell copy for locales whose main file is root-owned (en, es).
+ * Other locales can omit the file; a missing patch is ignored.
+ */
+const mergeAppNotificationPatch = (
+  http: HttpClient,
+  lang: string,
+  merged: Translation,
+): Observable<Translation> =>
+  http
+    .get<Translation>(`./i18n/patches/app-notifications-${lang}.json`, {
+      responseType: 'json',
+      observe: 'body',
+    })
+    .pipe(
+      map((patch) => deepMergeTranslations(merged, patch)),
+      catchError(() => of(merged)),
+      switchMap((withNotifications) => mergeCedulaBarcodePatch(http, lang, withNotifications)),
+    );
+
+/**
+ * English and Spanish locale files are root-owned, so barcode copy lands in a patch.
+ */
+const mergeCedulaBarcodePatch = (
+  http: HttpClient,
+  lang: string,
+  merged: Translation,
+): Observable<Translation> =>
+  http
+    .get<Translation>(`./i18n/patches/cedula-barcode-${lang}.json`, {
+      responseType: 'json',
+      observe: 'body',
+    })
+    .pipe(
+      map((patch) => deepMergeTranslations(merged, patch)),
+      catchError(() => of(merged)),
+    );
+
 /** Optional patch files for AppFeature URL strings (avoids editing root-owned features-*.json). */
 const mergeFeatureUrlPatch = (
   http: HttpClient,
@@ -43,6 +81,7 @@ const mergeFeatureUrlPatch = (
     .pipe(
       map((featureUrlPatch) => deepMergeTranslations(merged, featureUrlPatch)),
       catchError(() => of(merged)),
+      switchMap((withUrls) => mergeAppNotificationPatch(http, lang, withUrls)),
     );
 
 @Injectable({ providedIn: 'root' })

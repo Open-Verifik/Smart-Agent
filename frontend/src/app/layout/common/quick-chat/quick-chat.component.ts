@@ -17,12 +17,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
-import {
-    QuickChatService,
-    QuickChatTab,
-} from 'app/layout/common/quick-chat/quick-chat.service';
-import { NotificationInboxPanelComponent } from 'app/modules/app-notifications/notification-inbox-panel/notification-inbox-panel.component';
+import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 import { SupportTicketChatPanelComponent } from 'app/modules/support-tickets/support-ticket-chat-panel/support-ticket-chat-panel.component';
 
 @Component({
@@ -36,22 +31,16 @@ import { SupportTicketChatPanelComponent } from 'app/modules/support-tickets/sup
         MatButtonModule,
         TranslocoModule,
         SupportTicketChatPanelComponent,
-        NotificationInboxPanelComponent,
     ],
 })
 export class QuickChatComponent implements AfterViewInit, OnDestroy {
     private readonly _destroyRef = inject(DestroyRef);
     private readonly _quickChatService = inject(QuickChatService);
-    private readonly _appNotifications = inject(AppNotificationsService);
 
     @ViewChild('ticketPanel') ticketPanel?: SupportTicketChatPanelComponent;
-    @ViewChild('notificationPanel') notificationPanel?: NotificationInboxPanelComponent;
 
     opened = false;
     expanded = false;
-    activeTab: QuickChatTab = 'tickets';
-
-    readonly unreadCount = this._appNotifications.unreadCount;
 
     private _mutationObserver: MutationObserver;
     private readonly _scrollStrategy: ScrollStrategy;
@@ -67,10 +56,7 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
 
         this._quickChatService.openPanel$
             .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((request) => {
-                if (request.tab) {
-                    this.activeTab = request.tab;
-                }
+            .subscribe(() => {
                 this.open();
             });
     }
@@ -115,11 +101,6 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
         this._mutationObserver?.disconnect();
     }
 
-    setActiveTab(tab: QuickChatTab): void {
-        this.activeTab = tab;
-        this._refreshActivePanel();
-    }
-
     open(): void {
         if (this.opened) {
             this._refreshActivePanel();
@@ -158,16 +139,7 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
     }
 
     private _refreshActivePanel(): void {
-        if (this.activeTab === 'notifications') {
-            // Panel stays mounted while the drawer is open; refresh updates shared hub state.
-            if (this.notificationPanel) {
-                this.notificationPanel.refreshIfNeeded();
-            } else {
-                this._appNotifications.refreshHubInbox().subscribe();
-            }
-        } else {
-            this.ticketPanel?.refreshIfNeeded();
-        }
+        this.ticketPanel?.refreshIfNeeded();
     }
 
     private _showOverlay(): void {

@@ -884,14 +884,7 @@ export class HomeComponent implements OnInit {
         const openNotifications = this._route.snapshot.queryParamMap.get('openNotifications');
         if (openNotifications !== '1') return;
 
-        this._appNotificationsService.refreshHubInbox().subscribe({
-            next: () => {
-                this._quickChatService.requestOpenPanel({ tab: 'notifications' });
-            },
-            error: () => {
-                this._quickChatService.requestOpenPanel({ tab: 'notifications' });
-            },
-        });
+        this._appNotificationsService.requestOpenBell();
 
         void this._router.navigate([], {
             relativeTo: this._route,

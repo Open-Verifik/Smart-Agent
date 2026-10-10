@@ -931,6 +931,10 @@
         "colombia_api_copnia": {
             "title": "콜롬비아 — 서류로 COPNIA 전문 면허 조회",
             "description": "GET /v2/co/copnia로 COPNIA(Consejo Profesional Nacional de Ingeniería) 전문 면허를 신분증으로 조회합니다."
+        },
+        "colombia_api_vehicle_valuation_sibga": {
+            "title": "SIBGA - 차량 상업 평가액",
+            "description": "콜롬비아 번호판의 교통부(SIBGA) 공식 상업 평가액. RUNT 데이터를 자동으로 대응합니다."
         }
     }
 }

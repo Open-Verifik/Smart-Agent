@@ -931,6 +931,10 @@
         "colombia_api_copnia": {
             "title": "COPNIA matrículas profesionales por documento",
             "description": "Consulta matrículas profesionales del COPNIA (Consejo Profesional Nacional de Ingeniería) por cédula mediante GET /v2/co/copnia."
+        },
+        "colombia_api_vehicle_valuation_sibga": {
+            "title": "SIBGA - Avalúo comercial de vehículo",
+            "description": "Avalúo comercial oficial del Ministerio de Transporte (SIBGA) para una placa colombiana, homologado automáticamente desde el RUNT."
         }
     }
 }

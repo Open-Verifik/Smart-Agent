@@ -931,6 +931,10 @@
         "colombia_api_copnia": {
             "title": "COPNIA professional licenses by document",
             "description": "Query COPNIA (Consejo Profesional Nacional de Ingeniería) professional licenses by Colombian ID via GET /v2/co/copnia."
+        },
+        "colombia_api_vehicle_valuation_sibga": {
+            "title": "SIBGA - Vehicle Commercial Valuation",
+            "description": "Official Ministerio de Transporte (SIBGA) commercial value for a Colombian plate, mapped automatically from RUNT."
         }
     }
 }

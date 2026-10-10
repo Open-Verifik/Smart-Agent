@@ -1,0 +1,26 @@
+{
+    "smartEnrollProjects": {
+        "recordDetail": {
+            "barcode": {
+                "title": "Back barcode",
+                "attempts": "{{count}} read attempts",
+                "unreadableWarning": "The enrollment can pass. The back barcode could not be read, so this stays as a warning.",
+                "mismatchLead": "The back barcode does not match the front. The card may have been altered.",
+                "verdict": {
+                    "confirmed": "Matches the front",
+                    "mismatch": "Possible alteration",
+                    "unreadable": "Back not validated"
+                },
+                "field": {
+                    "fullName": "Name on barcode",
+                    "documentNumber": "Document number",
+                    "dateOfBirth": "Date of birth",
+                    "gender": "Gender",
+                    "bloodType": "Blood type",
+                    "firstName": "First name",
+                    "lastName": "Last name"
+                }
+            }
+        }
+    }
+}

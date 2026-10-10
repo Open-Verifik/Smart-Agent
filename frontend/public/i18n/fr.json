@@ -1208,6 +1208,20 @@
         "banners": {
             "dismissAria": "Fermer la bannière"
         },
+        "bell": {
+            "title": "Notifications",
+            "markAll": "Tout marquer comme lu",
+            "aria": "Notifications",
+            "ariaCount": "Notifications, {{count}} non lues",
+            "empty": "Vous êtes à jour",
+            "loading": "Chargement…",
+            "justNow": "À l'instant",
+            "minutes": "{{count}} min",
+            "hours": "{{count}} h",
+            "days": "{{count}} j",
+            "dismissAria": "Ignorer la notification",
+            "closeImage": "Fermer l'image"
+        },
         "inbox": {
             "guest": {
                 "title": "Connectez-vous pour voir les notifications",
@@ -3213,6 +3227,26 @@
             "backScan": "Verso",
             "documentFace": "Portrait du document",
             "documentLiveness": "Vivacité du document",
+            "barcode": {
+                "title": "Code-barres du verso",
+                "attempts": "{{count}} tentatives de lecture",
+                "unreadableWarning": "L'inscription peut aboutir. Le code-barres du verso n'a pas pu être lu : cela reste un avertissement.",
+                "mismatchLead": "Le code-barres du verso ne correspond pas au recto. La pièce peut avoir été modifiée.",
+                "verdict": {
+                    "confirmed": "Correspond au recto",
+                    "mismatch": "Altération possible",
+                    "unreadable": "Verso non validé"
+                },
+                "field": {
+                    "fullName": "Nom sur le code",
+                    "documentNumber": "Numéro de document",
+                    "dateOfBirth": "Date de naissance",
+                    "gender": "Sexe",
+                    "bloodType": "Groupe sanguin",
+                    "firstName": "Prénom",
+                    "lastName": "Nom"
+                }
+            },
             "livenessPassed": "Réussi",
             "livenessFailed": "Échoué",
             "ocr": "Données extraites",

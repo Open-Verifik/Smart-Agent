@@ -41,21 +41,6 @@ quick-chat {
     }
 }
 
-.messages-hub-tab {
-    color: rgb(100 116 139);
-}
-
-.messages-hub-tab--active {
-    background: rgb(255 255 255);
-    color: rgb(15 118 110);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
-}
-
-:host-context(.dark) .messages-hub-tab--active {
-    background: rgb(41 37 36);
-    color: rgb(45 212 191);
-}
-
 .quick-chat-overlay {
     position: fixed;
     top: 0;

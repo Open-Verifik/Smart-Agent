@@ -11,6 +11,10 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 import { DateTime } from 'luxon';
 import { FuseHighlightService } from '@fuse/components/highlight/highlight.service';
+import {
+    BarcodeValidationPanelComponent,
+    type CedulaBarcodeValidation,
+} from '../../projects/barcode-validation-panel.component';
 import { ScanDeleteConfirmDialogComponent } from '../scan-delete-confirm-dialog.component';
 import { SmartScanService } from '../smart-scan.service';
 import {
@@ -29,6 +33,7 @@ import {
         MatButtonModule,
         MatDialogModule,
         MatIconModule,
+        BarcodeValidationPanelComponent,
         MatProgressSpinnerModule,
         TranslocoModule,
     ],
@@ -141,11 +146,17 @@ export class ScanDetailComponent implements OnInit {
         return Math.round((cls?.confidence ?? 0) * 100);
     }
 
+    barcodeValidation(): CedulaBarcodeValidation | null {
+        const extraction = this.scan?.OCRExtraction as { barcodeValidation?: CedulaBarcodeValidation } | undefined;
+
+        return extraction?.barcodeValidation || null;
+    }
+
     getExtractionFields(): Array<{ key: string; value: unknown }> {
         const extraction = this.scan?.OCRExtraction;
         if (!extraction || typeof extraction !== 'object') return [];
         return Object.entries(extraction)
-            .filter(([k]) => k !== 'documentClassification' && !k.startsWith('_'))
+            .filter(([k]) => k !== 'documentClassification' && k !== 'barcodeValidation' && !k.startsWith('_'))
             .map(([key, value]) => ({ key, value }));
     }
 

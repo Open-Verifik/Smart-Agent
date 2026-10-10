@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
-import { InboxItem } from 'app/core/notifications/app-notifications.models';
+import { InboxItem, NotificationCategory } from 'app/core/notifications/app-notifications.models';
 import {
     openNotificationCta,
     shouldShowNotificationCta,
@@ -46,13 +46,12 @@ export class HomeNotificationBannersComponent implements OnInit {
 
     dismissBanner(item: InboxItem): void {
         this.dismissingId.set(item.notificationId);
-        this._notifications.dismiss(item.notificationId).subscribe({
+        this._notifications.dismissAndForget(item.notificationId).subscribe({
             next: () => {
                 this.dismissingId.set(null);
                 this.banners.update((list) =>
                     list.filter((b) => b.notificationId !== item.notificationId)
                 );
-                this._notifications.getUnreadCount().subscribe();
             },
             error: () => this.dismissingId.set(null),
         });
@@ -66,11 +65,24 @@ export class HomeNotificationBannersComponent implements OnInit {
         openNotificationCta(item.cta, {
             router: this._router,
             quickChat: this._quickChat,
+            openBell: () => this._notifications.requestOpenBell(),
         });
     }
 
     trackById(_index: number, item: InboxItem): string {
         return item.notificationId;
+    }
+
+    categoryIcon(category: NotificationCategory): string {
+        const map: Record<NotificationCategory, string> = {
+            billing: 'heroicons_outline:credit-card',
+            security: 'heroicons_outline:shield-check',
+            legal: 'heroicons_outline:scale',
+            maintenance: 'heroicons_outline:wrench-screwdriver',
+            product: 'heroicons_outline:sparkles',
+            system: 'heroicons_outline:bell',
+        };
+        return map[category] ?? map.system;
     }
 
     private _canUseApi(): boolean {

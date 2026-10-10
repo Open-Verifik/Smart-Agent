@@ -1208,6 +1208,20 @@
         "banners": {
             "dismissAria": "Dispensar banner"
         },
+        "bell": {
+            "title": "Notificações",
+            "markAll": "Marcar todas como lidas",
+            "aria": "Notificações",
+            "ariaCount": "Notificações, {{count}} não lidas",
+            "empty": "Você está em dia",
+            "loading": "Carregando…",
+            "justNow": "Agora",
+            "minutes": "{{count}} min",
+            "hours": "{{count}} h",
+            "days": "{{count}} d",
+            "dismissAria": "Dispensar notificação",
+            "closeImage": "Fechar imagem"
+        },
         "inbox": {
             "guest": {
                 "title": "Inicie sessão para ver notificações",
@@ -3213,6 +3227,26 @@
             "backScan": "Verso",
             "documentFace": "Retrato do documento",
             "documentLiveness": "Vivacidade do documento",
+            "barcode": {
+                "title": "Código de barras do verso",
+                "attempts": "{{count}} tentativas de leitura",
+                "unreadableWarning": "O cadastro pode ser aprovado. O código do verso não pôde ser lido, então isto fica como aviso.",
+                "mismatchLead": "O código do verso não confere com a frente. O documento pode ter sido alterado.",
+                "verdict": {
+                    "confirmed": "Confere com a frente",
+                    "mismatch": "Possível alteração",
+                    "unreadable": "Verso não validado"
+                },
+                "field": {
+                    "fullName": "Nome no código",
+                    "documentNumber": "Número do documento",
+                    "dateOfBirth": "Data de nascimento",
+                    "gender": "Sexo",
+                    "bloodType": "Tipo sanguíneo",
+                    "firstName": "Nome",
+                    "lastName": "Sobrenome"
+                }
+            },
             "livenessPassed": "Aprovado",
             "livenessFailed": "Reprovado",
             "ocr": "Dados extraídos",

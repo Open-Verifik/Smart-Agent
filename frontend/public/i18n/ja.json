@@ -1208,6 +1208,20 @@
         "banners": {
             "dismissAria": "バナーを閉じる"
         },
+        "bell": {
+            "title": "通知",
+            "markAll": "すべて既読にする",
+            "aria": "通知",
+            "ariaCount": "通知、未読 {{count}} 件",
+            "empty": "すべて確認済みです",
+            "loading": "読み込み中…",
+            "justNow": "たった今",
+            "minutes": "{{count}}分",
+            "hours": "{{count}}時間",
+            "days": "{{count}}日",
+            "dismissAria": "通知を閉じる",
+            "closeImage": "画像を閉じる"
+        },
         "inbox": {
             "guest": {
                 "title": "通知を表示するにはサインインしてください",
@@ -3213,6 +3227,26 @@
             "backScan": "裏面",
             "documentFace": "顔写真",
             "documentLiveness": "書類のライブネス",
+            "barcode": {
+                "title": "裏面のバーコード",
+                "attempts": "読み取り試行 {{count}} 回",
+                "unreadableWarning": "登録は完了できます。裏面のバーコードを読めなかったため、これは警告として残ります。",
+                "mismatchLead": "裏面のバーコードが表面と一致しません。書類が改ざんされた可能性があります。",
+                "verdict": {
+                    "confirmed": "表面と一致",
+                    "mismatch": "改ざんの可能性",
+                    "unreadable": "裏面は未確認"
+                },
+                "field": {
+                    "fullName": "バーコードの氏名",
+                    "documentNumber": "書類番号",
+                    "dateOfBirth": "生年月日",
+                    "gender": "性別",
+                    "bloodType": "血液型",
+                    "firstName": "名",
+                    "lastName": "姓"
+                }
+            },
             "livenessPassed": "合格",
             "livenessFailed": "不合格",
             "ocr": "抽出データ",

@@ -58,7 +58,7 @@ export class BlockingNotificationModalHostComponent implements OnInit {
         ref.afterClosed().subscribe((success) => {
             this._dialogOpen = false;
             if (success) {
-                this._blocking.advanceAfterAction();
+                this._blocking.advanceAfterAction(item.notificationId);
                 this._notifications
                     .getUnreadCount()
                     .pipe(takeUntilDestroyed(this._destroyRef))

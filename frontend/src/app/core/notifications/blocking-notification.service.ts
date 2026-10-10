@@ -13,6 +13,9 @@ export class BlockingNotificationService {
 
     private readonly _queue = signal<InboxItem[]>([]);
     private readonly _current = signal<InboxItem | null>(null);
+    /** Acted-on ids stay closed even if a refresh still lists them as blocking. */
+    private readonly _settledIds = new Set<string>();
+    private _queueGeneration = 0;
 
     readonly currentBlocking = this._current.asReadonly();
 
@@ -34,13 +37,22 @@ export class BlockingNotificationService {
             return;
         }
 
+        const generation = ++this._queueGeneration;
         this._notifications
             .syncInbox()
             .pipe(
                 switchMap(() => this._notifications.getActiveModals()),
                 tap((res) => {
-                    const blocking = (res.data || []).filter(
-                        (item) => item.receipt?.isBlocking
+                    if (generation !== this._queueGeneration) return;
+                    const rows = res.data || [];
+                    for (const id of [...this._settledIds]) {
+                        const stillBlocking = rows.some(
+                            (item) => item.notificationId === id && item.receipt?.isBlocking
+                        );
+                        if (!stillBlocking) this._settledIds.delete(id);
+                    }
+                    const blocking = rows.filter(
+                        (item) => item.receipt?.isBlocking && !this._settledIds.has(item.notificationId)
                     );
                     this._queue.set(blocking);
                     this._current.set(blocking[0] ?? null);
@@ -49,7 +61,8 @@ export class BlockingNotificationService {
             .subscribe({ error: () => undefined });
     }
 
-    advanceAfterAction(): void {
+    advanceAfterAction(notificationId?: string): void {
+        if (notificationId) this._settledIds.add(notificationId);
         this._current.set(null);
         this.refreshQueue();
     }

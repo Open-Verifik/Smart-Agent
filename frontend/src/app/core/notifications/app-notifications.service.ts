@@ -8,6 +8,7 @@ import {
     forkJoin,
     map,
     of,
+    Subject,
     switchMap,
     tap,
     throwError,
@@ -33,12 +34,23 @@ export class AppNotificationsService {
     private readonly _hubInboxError = signal<string | null>(null);
     private readonly _hubInboxPendingOutside = signal(false);
     private _hubRefreshInFlight = false;
+    private _hubRefreshGeneration = 0;
+    /** Ids removed this session so a slower refresh cannot put them back. */
+    private readonly _resolvedIds = new Set<string>();
+    private readonly _openBell$ = new Subject<void>();
 
     readonly unreadCount = this._unreadCount.asReadonly();
     readonly hubInboxItems = this._hubInboxItems.asReadonly();
     readonly hubInboxLoading = this._hubInboxLoading.asReadonly();
     readonly hubInboxError = this._hubInboxError.asReadonly();
     readonly hubInboxPendingOutside = this._hubInboxPendingOutside.asReadonly();
+    /** Header bell listens and opens. Replaces the old messages-drawer notifications tab. */
+    readonly openBell$ = this._openBell$.asObservable();
+
+    /** Ask the header bell to open. */
+    requestOpenBell(): void {
+        this._openBell$.next();
+    }
 
     private get _baseUrl(): string {
         return `${environment.apiUrl}/v2/app-notifications`;
@@ -220,6 +232,84 @@ export class AppNotificationsService {
         this._unreadCount.set(count);
     }
 
+    /**
+     * Drop a notification from the hub immediately and keep later refreshes from restoring it.
+     */
+    forgetHubItem(notificationId: string): void {
+        const existing = this._hubInboxItems().find((item) => item.notificationId === notificationId);
+        this._resolvedIds.add(notificationId);
+        this._hubInboxItems.update((items) => items.filter((item) => item.notificationId !== notificationId));
+        if (existing?.receipt?.isUnread) {
+            this._unreadCount.update((count) => Math.max(0, count - 1));
+        }
+    }
+
+    /**
+     * Mark an informational or seen-required row read locally without removing it.
+     */
+    noteSeenLocally(notificationId: string): void {
+        let clearedUnread = false;
+        this._hubInboxItems.update((items) =>
+            items.map((item) => {
+                if (item.notificationId !== notificationId || !item.receipt?.isUnread) return item;
+                if (item.interactionMode === 'acknowledge' || item.interactionMode === 'accept') return item;
+                clearedUnread = true;
+                return {
+                    ...item,
+                    receipt: {
+                        ...item.receipt,
+                        isUnread: false,
+                        firstSeenAt: item.receipt.firstSeenAt || new Date().toISOString(),
+                    },
+                };
+            })
+        );
+        if (clearedUnread) {
+            this._unreadCount.update((count) => Math.max(0, count - 1));
+        }
+    }
+
+    dismissAndForget(notificationId: string): Observable<void> {
+        return this.dismiss(notificationId).pipe(
+            tap(() => this.forgetHubItem(notificationId)),
+            map(() => undefined)
+        );
+    }
+
+    acknowledgeAndForget(notificationId: string): Observable<void> {
+        return this.acknowledge(notificationId).pipe(
+            tap(() => this.forgetHubItem(notificationId)),
+            map(() => undefined)
+        );
+    }
+
+    acceptAndForget(notificationId: string, body: AcceptNotificationPayload): Observable<void> {
+        return this.accept(notificationId, body).pipe(
+            tap(() => this.forgetHubItem(notificationId)),
+            map(() => undefined)
+        );
+    }
+
+    /** Mark unread informational and seen-required hub rows as seen. */
+    markVisibleAsSeen(): Observable<void> {
+        const ids = this._hubInboxItems()
+            .filter(
+                (item) =>
+                    item.receipt?.isUnread &&
+                    (item.interactionMode === 'informational' || item.interactionMode === 'seen_required')
+            )
+            .map((item) => item.notificationId);
+
+        if (!ids.length) return of(undefined);
+
+        return this.markSeenBulk(ids).pipe(
+            tap(() => {
+                for (const id of ids) this.noteSeenLocally(id);
+            }),
+            map(() => undefined)
+        );
+    }
+
     /** Clear hub list (e.g. logged out / no workspace JWT). */
     clearHubInbox(): void {
         this._hubInboxItems.set([]);
@@ -227,6 +317,8 @@ export class AppNotificationsService {
         this._hubInboxPendingOutside.set(false);
         this._hubInboxLoading.set(false);
         this._hubRefreshInFlight = false;
+        this._hubRefreshGeneration += 1;
+        this._resolvedIds.clear();
     }
 
     /**
@@ -238,6 +330,7 @@ export class AppNotificationsService {
             return of(undefined);
         }
 
+        const generation = ++this._hubRefreshGeneration;
         this._hubRefreshInFlight = true;
         this._hubInboxLoading.set(true);
         this._hubInboxError.set(null);
@@ -263,6 +356,8 @@ export class AppNotificationsService {
                 })
             ),
             tap(({ inbox, banners, modals }) => {
+                if (generation !== this._hubRefreshGeneration) return;
+
                 const byId = new Map<string, InboxItem>();
                 for (const it of inbox.data || []) {
                     byId.set(it.notificationId, it);
@@ -278,8 +373,17 @@ export class AppNotificationsService {
                     }
                 }
 
-                const items = this._sortHubItems(Array.from(byId.values()));
-                const listUnread = inbox.meta?.unreadCount ?? this._unreadCount();
+                const merged = Array.from(byId.values());
+                const hiddenUnread = merged.filter(
+                    (item) => this._resolvedIds.has(item.notificationId) && item.receipt?.isUnread
+                ).length;
+                const items = this._sortHubItems(
+                    merged.filter((item) => !this._resolvedIds.has(item.notificationId))
+                );
+                const listUnread = Math.max(
+                    0,
+                    (inbox.meta?.unreadCount ?? this._unreadCount()) - hiddenUnread
+                );
 
                 this._hubInboxItems.set(items);
                 if (inbox.meta?.unreadCount != null) {
@@ -301,12 +405,15 @@ export class AppNotificationsService {
                 });
             }),
             catchError((err) => {
-                this._hubInboxError.set('appNotifications.inbox.errors.loadList');
-                this._hubInboxPendingOutside.set(false);
-                console.error('[Notifications] refreshHubInbox failed', err);
+                if (generation === this._hubRefreshGeneration) {
+                    this._hubInboxError.set('appNotifications.inbox.errors.loadList');
+                    this._hubInboxPendingOutside.set(false);
+                    console.error('[Notifications] refreshHubInbox failed', err);
+                }
                 return of(undefined);
             }),
             finalize(() => {
+                if (generation !== this._hubRefreshGeneration) return;
                 this._hubInboxLoading.set(false);
                 this._hubRefreshInFlight = false;
             }),

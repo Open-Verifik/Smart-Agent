@@ -1,3 +1,109 @@
 :host {
     display: block;
 }
+
+.home-banners {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.home-banner {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    align-items: start;
+    column-gap: 10px;
+    width: min(100%, 560px);
+    padding: 12px;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 12px;
+    background: #fff;
+}
+
+:host-context(.dark) .home-banner {
+    border-color: rgb(51 65 85);
+    background: rgb(15 23 42);
+}
+
+.home-banner__icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: rgb(241 245 249);
+    color: #0f766e;
+}
+
+:host-context(.dark) .home-banner__icon {
+    background: rgb(30 41 59);
+}
+
+.home-banner__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+}
+
+.home-banner__title {
+    margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-banner__summary {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: rgb(71 85 105);
+    font-size: 13px;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+:host-context(.dark) .home-banner__summary {
+    color: rgb(203 213 225);
+}
+
+.home-banner__dismiss {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(100 116 139);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.home-banner__dismiss:hover {
+    background: rgb(241 245 249);
+}
+
+.home-banner__dismiss:focus-visible {
+    background: rgb(241 245 249);
+    outline: 2px solid #0f766e;
+    outline-offset: 2px;
+}
+
+:host-context(.dark) .home-banner__dismiss {
+    color: rgb(203 213 225);
+}
+
+:host-context(.dark) .home-banner__dismiss:hover {
+    background: rgb(30 41 59);
+}

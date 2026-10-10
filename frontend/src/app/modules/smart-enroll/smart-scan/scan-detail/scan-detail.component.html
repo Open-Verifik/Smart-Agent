@@ -277,6 +277,7 @@
                                 </div>
 
                                 <div class="space-y-3">
+                                    <barcode-validation-panel [validation]="barcodeValidation()" />
                                     <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                                         {{ 'smartScan.extractedFields' | transloco }}
                                     </h3>

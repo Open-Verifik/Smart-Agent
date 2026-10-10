@@ -1,0 +1,26 @@
+{
+    "smartEnrollProjects": {
+        "recordDetail": {
+            "barcode": {
+                "title": "Código de barras del reverso",
+                "attempts": "{{count}} intentos de lectura",
+                "unreadableWarning": "El registro puede aprobarse. No se pudo leer el código del reverso, así que esto queda como advertencia.",
+                "mismatchLead": "El código del reverso no coincide con el frente. La cédula puede haber sido alterada.",
+                "verdict": {
+                    "confirmed": "Coincide con el frente",
+                    "mismatch": "Posible alteración",
+                    "unreadable": "Reverso no validado"
+                },
+                "field": {
+                    "fullName": "Nombre en el código",
+                    "documentNumber": "Número de documento",
+                    "dateOfBirth": "Fecha de nacimiento",
+                    "gender": "Sexo",
+                    "bloodType": "Tipo de sangre",
+                    "firstName": "Nombres",
+                    "lastName": "Apellidos"
+                }
+            }
+        }
+    }
+}

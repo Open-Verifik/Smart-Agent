@@ -1208,6 +1208,20 @@
         "banners": {
             "dismissAria": "关闭横幅"
         },
+        "bell": {
+            "title": "通知",
+            "markAll": "全部标为已读",
+            "aria": "通知",
+            "ariaCount": "通知，{{count}} 条未读",
+            "empty": "已全部查看",
+            "loading": "加载中…",
+            "justNow": "刚刚",
+            "minutes": "{{count}} 分钟",
+            "hours": "{{count}} 小时",
+            "days": "{{count}} 天",
+            "dismissAria": "关闭通知",
+            "closeImage": "关闭图片"
+        },
         "inbox": {
             "guest": {
                 "title": "登录后查看通知",
@@ -3213,6 +3227,26 @@
             "backScan": "背面",
             "documentFace": "证件人像",
             "documentLiveness": "证件活体",
+            "barcode": {
+                "title": "背面条形码",
+                "attempts": "读取尝试 {{count}} 次",
+                "unreadableWarning": "注册可以通过。背面条形码未能读取，因此这里保留为警告。",
+                "mismatchLead": "背面条形码与正面不一致。证件可能被修改过。",
+                "verdict": {
+                    "confirmed": "与正面一致",
+                    "mismatch": "可能被篡改",
+                    "unreadable": "背面未验证"
+                },
+                "field": {
+                    "fullName": "条形码上的姓名",
+                    "documentNumber": "证件号码",
+                    "dateOfBirth": "出生日期",
+                    "gender": "性别",
+                    "bloodType": "血型",
+                    "firstName": "名",
+                    "lastName": "姓"
+                }
+            },
             "livenessPassed": "通过",
             "livenessFailed": "未通过",
             "ocr": "识别字段",

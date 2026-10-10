@@ -1,0 +1,18 @@
+{
+    "appNotifications": {
+        "bell": {
+            "title": "Notificaciones",
+            "markAll": "Marcar todas como leídas",
+            "aria": "Notificaciones",
+            "ariaCount": "Notificaciones, {{count}} sin leer",
+            "empty": "Ya estás al día",
+            "loading": "Cargando…",
+            "justNow": "Ahora",
+            "minutes": "{{count}} min",
+            "hours": "{{count}} h",
+            "days": "{{count}} d",
+            "dismissAria": "Descartar notificación",
+            "closeImage": "Cerrar imagen"
+        }
+    }
+}
