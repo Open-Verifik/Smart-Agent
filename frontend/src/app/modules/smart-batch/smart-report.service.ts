@@ -107,7 +107,10 @@ export interface ReportTextRoleStyle {
 /** Per-parameter cell inside a keyValueGrid / card / table. */
 export interface ReportKeyOverride {
     label?: string;
-    /** Shown instead of the consulted value when the sheet text was rewritten. */
+    /**
+     * @deprecated Text typed over a value by older builds. Ignored by the sheet and
+     * the PDF, and dropped on save: values always come from the query.
+     */
     value?: string;
     backgroundColor?: string;
     /** Table chip. Omitted means visible. */

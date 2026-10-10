@@ -255,6 +255,21 @@ export const materializeSectionTypography = (
 
     if (section.type === 'keyValueGrid' && !next.columnsPerRow) next.columnsPerRow = 2;
     if (section.type === 'dataTable' && !next.maxColumns) next.maxColumns = 6;
+    if (next.keyOverrides) next.keyOverrides = withoutFixedValues(next.keyOverrides);
 
+    return next;
+};
+
+/** Values come from each query; text typed over a value by older builds is dropped. */
+const withoutFixedValues = (overrides: Record<string, ReportKeyOverride>): Record<string, ReportKeyOverride> => {
+    const next: Record<string, ReportKeyOverride> = {};
+    for (const [key, override] of Object.entries(overrides)) {
+        if (!override || !('value' in override)) {
+            next[key] = override;
+            continue;
+        }
+        const { value: _fixed, ...rest } = override;
+        if (Object.keys(rest).length) next[key] = rest;
+    }
     return next;
 };

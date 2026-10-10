@@ -1109,6 +1109,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         } else {
             this.cellSelect.emit({ section, key: null, part: 'cell' });
         }
+        // Values come from each query, so a value cell is selected for styling but never rewritten.
+        if (editKind === 'cellValue') return;
         this._inlineSeedValue = this._inlineSeed(section, editKind, key, fallback);
         this.inlineDraft.set(this._inlineSeedValue);
         this.editingText.set({ sectionId: section.id, kind: editKind, ...(key ? { key } : {}) });
@@ -1163,11 +1165,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (kind === 'itemTemplate') return section.itemTemplate || fallback || '';
         if (kind === 'cellLabel' && key) {
             return this.entryLabel(section, { key, label: fallback || key });
-        }
-        if (kind === 'cellValue' && key) {
-            const custom = section.keyOverrides?.[key]?.value;
-            if (typeof custom === 'string') return custom;
-            return fallback ?? '';
         }
         if (section.type === 'header') return section.staticContent || section.label || '';
         return section.label || '';
@@ -2962,12 +2959,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.structuralEntries(section);
     }
 
-    /** Text stored on the sheet, or the consulted value when it has not been rewritten. */
-    boundValue(section: ReportSection, key: string, fallback: unknown): string {
-        if (this.clickable()) {
-            const custom = section.keyOverrides?.[key]?.value;
-            if (typeof custom === 'string') return custom;
-        }
+    /**
+     * The consulted value. A `keyOverrides[key].value` left by older templates is
+     * ignored, as the PDF ignores it: values change with every query.
+     */
+    boundValue(_section: ReportSection, _key: string, fallback: unknown): string {
         if (fallback == null) return '';
         return String(fallback);
     }
@@ -3007,7 +3003,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
      */
     private _sheetTextCase(section: ReportSection, kind: string, key?: string): ReportTextCase {
         const role: ReportTextRole =
-            kind === 'cellLabel'
+            kind === 'cellLabel' || (kind === 'title' && section.type === 'field')
                 ? 'label'
                 : kind === 'title' || kind === 'itemTitle' || (kind === 'body' && section.type === 'text')
                   ? 'title'
