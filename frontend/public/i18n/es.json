@@ -4804,7 +4804,7 @@
                 "country_all": "Todos los países",
                 "include_global_checks": "Incluir verificaciones globales (sanciones, listas de vigilancia, IP, teléfono, etc.)",
                 "smartcheck_only": "Solo herramientas SmartCheck",
-                "tools_hint": "Todos los países carga cada endpoint habilitado en tu cuenta (~180 herramientas). Elige un país para mantener la lista más pequeña en clientes que tienen problemas con muchas herramientas. Las verificaciones globales añaden ~34 endpoints mundiales cuando se selecciona un país.",
+                "tools_hint": "Todos los países carga cada endpoint habilitado en tu cuenta (~183 herramientas). Elige un país para mantener la lista más pequeña en clientes que tienen problemas con muchas herramientas. Las verificaciones globales añaden ~34 endpoints mundiales cuando se selecciona un país. Las herramientas de rostro y OCR aceptan una imagen en base64 o una URL https pública (sin subir archivos). Las herramientas de búsqueda facial requieren un collection_id.",
                 "tab_cursor": "Cursor (mcp.json)",
                 "tab_claude": "Claude Desktop",
                 "tab_generic": "CLI / JSON",

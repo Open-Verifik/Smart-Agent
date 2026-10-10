@@ -4808,7 +4808,7 @@
                 "country_all": "All countries",
                 "include_global_checks": "Include global checks (sanctions, watchlists, IP, phone, etc.)",
                 "smartcheck_only": "SmartCheck tools only",
-                "tools_hint": "All countries loads every endpoint enabled on your account (~180 tools). Pick a country to keep the tool list smaller for clients that struggle with many tools. Global checks add ~34 world endpoints when a country is selected.",
+                "tools_hint": "All countries loads every endpoint enabled on your account (~183 tools). Pick a country to keep the tool list smaller for clients that struggle with many tools. Global checks add ~34 world endpoints when a country is selected. Face and OCR tools take a base64 image or a public https image URL (no file upload). Face search tools need a collection_id.",
                 "tab_cursor": "Cursor (mcp.json)",
                 "tab_claude": "Claude Desktop",
                 "tab_generic": "CLI / JSON",
