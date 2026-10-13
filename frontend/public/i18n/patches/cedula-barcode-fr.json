@@ -1,0 +1,12 @@
+{
+    "smartEnrollProjects": {
+        "setup": {
+            "documents": {
+                "colombianBarcode": {
+                    "title": "Code-barres de la cédula colombienne",
+                    "subtitle": "Lit le code-barres au verso de la cédula et le compare au recto. Une différence envoie l’inscription en vérification manuelle."
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "smartEnrollProjects": {
+        "setup": {
+            "documents": {
+                "colombianBarcode": {
+                    "title": "콜롬비아 세둘라 바코드",
+                    "subtitle": "세둘라 뒷면의 바코드를 읽어 앞면과 비교합니다. 일치하지 않으면 등록이 수동 확인으로 넘어갑니다."
+                }
+            }
+        }
+    }
+}

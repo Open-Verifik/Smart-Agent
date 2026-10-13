@@ -396,6 +396,7 @@ export class SetupService {
             project: '',
             documents: {
                 attemptLimit: 3,
+                colombianBarcodeValidation: false,
                 criminalHistoryVerification: false,
                 documentTypes: [],
                 informationVerification: false,

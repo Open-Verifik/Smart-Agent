@@ -3219,6 +3219,10 @@
                     "required": "Select at least one verification method.",
                     "help": "If both are enabled, customers can pick either. Scan uses the device camera; upload accepts a file."
                 },
+                "colombianBarcode": {
+                    "title": "Colombian cédula barcode",
+                    "subtitle": "Read the barcode on the back of the cédula and compare it with the front. A mismatch sends the enrollment to manual verification."
+                },
                 "screening": {
                     "title": "Database screening",
                     "subtitle": "Run additional verifications after a successful scan.",

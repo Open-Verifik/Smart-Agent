@@ -50,6 +50,7 @@ export interface PersonalDocumentType {
 
 export interface PersonalDocuments {
     attemptLimit: number;
+    colombianBarcodeValidation?: boolean;
     criminalHistoryVerification: boolean;
     criminalHistoryVerificationEndpoints?: string[];
     documentTypes: PersonalDocumentType[];

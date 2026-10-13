@@ -3683,6 +3683,10 @@
                     "required": "Selecciona al menos un método de verificación.",
                     "help": "Si ambos están activos, el cliente puede elegir. Escanear usa la cámara; subir acepta un archivo."
                 },
+                "colombianBarcode": {
+                    "title": "Código de barras de la cédula colombiana",
+                    "subtitle": "Lee el código de barras del reverso de la cédula y lo compara con el frente. Si no coinciden, el registro pasa a verificación manual."
+                },
                 "screening": {
                     "title": "Revisión en bases de datos",
                     "subtitle": "Ejecuta verificaciones adicionales tras un escaneo exitoso.",

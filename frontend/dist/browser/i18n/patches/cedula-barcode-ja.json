@@ -1,0 +1,12 @@
+{
+    "smartEnrollProjects": {
+        "setup": {
+            "documents": {
+                "colombianBarcode": {
+                    "title": "コロンビアのセドゥラ・バーコード",
+                    "subtitle": "セドゥラ裏面のバーコードを読み取り、表面と照合します。不一致の場合、登録は手動確認に回されます。"
+                }
+            }
+        }
+    }
+}

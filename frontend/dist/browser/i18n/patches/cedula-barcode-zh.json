@@ -1,0 +1,12 @@
+{
+    "smartEnrollProjects": {
+        "setup": {
+            "documents": {
+                "colombianBarcode": {
+                    "title": "哥伦比亚身份证条形码",
+                    "subtitle": "读取身份证背面的条形码并与正面比对。如不一致，注册将转入人工审核。"
+                }
+            }
+        }
+    }
+}

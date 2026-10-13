@@ -413,6 +413,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             documents: this._formBuilder.group(
                 {
                     attemptLimit: [currentData?.documents?.attemptLimit || 3, [Validators.required, Validators.min(1), Validators.max(5)]],
+                    colombianBarcodeValidation: [currentData?.documents?.colombianBarcodeValidation || false],
                     criminalHistoryVerification: [currentData?.documents?.criminalHistoryVerification || false],
                     criminalHistoryVerificationEndpoints: [currentData?.documents?.criminalHistoryVerificationEndpoints || []],
                     documentTypes: this._factory.createDocumentTypesWithDefaults(currentData?.documents?.documentTypes || [], 'personal'),
