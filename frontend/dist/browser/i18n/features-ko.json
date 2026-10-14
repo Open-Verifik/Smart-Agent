@@ -85,7 +85,7 @@
             "description": "베네수엘라 국적 신원 조회. GET /v2/ve/cedula로 cédula(CCVE) 보유자를 문서 번호로 검증하여 KYC 및 사기 방지에 활용합니다."
         },
         "colombia_api_vehicle_complete": {
-            "title": "Colombia - Complete Vehicle Information",
+            "title": "콜롬비아 - 전체 차량 정보",
             "description": "가져오기 comprehensive vehicle information 를 위한 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
@@ -93,7 +93,7 @@
             "description": "번호판으로 멕시코 차량 정보를 검증합니다."
         },
         "feature_passwordless_solution": {
-            "title": "Passwordless Authentication",
+            "title": "비밀번호 없는 인증",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "world_api_interpol": {
@@ -157,7 +157,7 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "feature_data_api": {
-            "title": "Data API",
+            "title": "데이터 API",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "colombia_api_min_trabajo": {
@@ -189,7 +189,7 @@
             "description": "콜롬비아 보고타 등록 차량의 피코 이 플라카(교통 제한) 정보를 실시간으로 조회합니다."
         },
         "feature_pdf_generator": {
-            "title": "PDF Report Generator",
+            "title": "PDF 보고서 생성기",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "panama_api_identity_full_lookup": {
@@ -285,7 +285,7 @@
             "description": "Check complete judicial history and active legal processes."
         },
         "credit_intent": {
-            "title": "Credit Purchase Intent",
+            "title": "크레딧 구매 의사",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "ip-lookup": {
@@ -297,7 +297,7 @@
             "description": "CC·도시·문서번호로 콜롬비아 재판부 사건(expediente)을 조회합니다 (Rama Judicial)."
         },
         "communication_messaging_sms": {
-            "title": "SMS Messaging",
+            "title": "SMS 메시지",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "communication_colombia_messaging_whatsapp": {
@@ -313,43 +313,43 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "communication_global_email_otp": {
-            "title": "Email OTP",
+            "title": "이메일 OTP",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_liveness_3d": {
-            "title": "3D Liveness Detection",
+            "title": "3D 라이브니스 감지",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_estimate_age_3d": {
-            "title": "3D Age Estimation",
+            "title": "3D 연령 추정",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_check_age_3d": {
-            "title": "3D Age Verification",
+            "title": "3D 연령 확인",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_enrollment_3d": {
-            "title": "3D Biometric Enrollment",
+            "title": "3D 생체 등록",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_id_scan_only": {
-            "title": "ID Document Scan",
+            "title": "신분증 스캔",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_liveness_2d": {
-            "title": "2D Liveness Detection",
+            "title": "2D 라이브니스 감지",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_estimate_age_2d": {
-            "title": "2D Age Estimation",
+            "title": "2D 연령 추정",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "biometrics_check_age_2d": {
-            "title": "2D Age Verification",
+            "title": "2D 연령 확인",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "credit_intent_kyc_passwordless": {
-            "title": "KYC Passwordless Credit Intent",
+            "title": "KYC 비밀번호 없는 크레딧 의사",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "brasil_api_company_lookup": {
@@ -425,7 +425,7 @@
             "description": "CC·NIT로 정치적 노출 인물(PEP) 여부를 조회합니다 (AML)."
         },
         "api_autodata_manufacturers": {
-            "title": "Vehicle Manufacturers Database",
+            "title": "차량 제조사 데이터베이스",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "world_api_phone_lookup": {
@@ -445,7 +445,7 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "api_autodata_enginer": {
-            "title": "Vehicle Engine Database",
+            "title": "차량 엔진 데이터베이스",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "colombia_api_rues_full": {
@@ -453,11 +453,11 @@
             "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
         },
         "api_autodata_enginer_code": {
-            "title": "Vehicle Engine Code Lookup",
+            "title": "차량 엔진 코드 조회",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "api_autodata_selection": {
-            "title": "Vehicle Selection Database",
+            "title": "차량 선택 데이터베이스",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "colombia_api_sisconmp": {
@@ -465,19 +465,19 @@
             "description": "콜롬비아 SISCONMP에 등록된 운송·화물 관련 교육 이수 기록을 조회합니다."
         },
         "data_finance_incomestatement": {
-            "title": "Financial - Income Statement",
+            "title": "재무 - 손익계산서",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "data_finance_balancesheet": {
-            "title": "Financial - Balance Sheet",
+            "title": "재무 - 재무상태표",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "data_finance_cashflow": {
-            "title": "Financial - Cash Flow",
+            "title": "재무 - 현금흐름표",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "data_finance_stockprice": {
-            "title": "Financial - Stock Price",
+            "title": "재무 - 주가",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "paraguay_api_identity_lookup": {
@@ -505,7 +505,7 @@
             "description": "캐나다 퀘벡 운전면허를 문서 번호로 검증합니다."
         },
         "ocr_scan_pro": {
-            "title": "OCR Document Scan Pro",
+            "title": "OCR 문서 스캔 Pro",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "el_salvador_api_identity_lookup": {
@@ -533,7 +533,7 @@
             "description": "Migración Colombia PEP(특별 체류 허가) 상태를 조회합니다."
         },
         "ocr_scan_studio": {
-            "title": "OCR Document Scan Studio",
+            "title": "OCR 문서 스캔 Studio",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "canada_api_company": {
@@ -549,7 +549,7 @@
             "description": "Verifik의 KYB API로 멕시코 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
         },
         "face_recognition_compare": {
-            "title": "Face Comparison",
+            "title": "얼굴 비교",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "face_recognition_compare_live": {
@@ -569,7 +569,7 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "face_recognition_detect": {
-            "title": "Face Detection",
+            "title": "얼굴 감지",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "face_recognition_search_crops": {
@@ -673,7 +673,7 @@
             "description": "보고타 등록 차량의 사고 이력(일자·양식·심각도)을 번호판으로 조회합니다."
         },
         "api_data_sheet_vehicle": {
-            "title": "Vehicle Data Sheet",
+            "title": "차량 데이터 시트",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "api_data_sheet_vehicle_by-plate_br": {
@@ -685,7 +685,7 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "matpis_appointments": {
-            "title": "MATPIS Appointments",
+            "title": "MATPIS 예약",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "chile_api_taxpayer_lookup": {
@@ -725,11 +725,11 @@
             "description": "번호판별 SIMIT 종합 데이터 서비스."
         },
         "world_api_passport_entries": {
-            "title": "world api passport entries",
+            "title": "여권 출입국 기록",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "validate-document": {
-            "title": "validate-document",
+            "title": "문서 검증",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "costa_rica_api_vehicle": {
@@ -837,11 +837,11 @@
             "description": "Verifik의 KYB API로 페루 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
         },
         "face_recognition_detect_face": {
-            "title": "Face Detection",
+            "title": "얼굴 감지",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "document-liveness": {
-            "title": "Document Liveness Detection",
+            "title": "문서 라이브니스 감지",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "colombia_api_inpec": {
@@ -935,6 +935,34 @@
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 차량 상업 평가액",
             "description": "콜롬비아 번호판의 교통부(SIBGA) 공식 상업 평가액. RUNT 데이터를 자동으로 대응합니다."
+        },
+        "smart_enroll_pyg": {
+            "title": "Smart Enroll 무료",
+            "description": "Smart Enroll 무료 요금제. 월간 등록 및 문서 스캔 한도가 포함됩니다."
+        },
+        "smart_enroll_plus": {
+            "title": "Smart Enroll Plus",
+            "description": "Smart Enroll Plus 요금제. 월간 한도가 더 높고 라이브니스가 포함됩니다."
+        },
+        "smart_enroll_business": {
+            "title": "Smart Enroll 비즈니스",
+            "description": "Smart Enroll 비즈니스 요금제. 월간 한도가 가장 높습니다."
+        },
+        "smart_access_pyg": {
+            "title": "Smart Access 무료",
+            "description": "Smart Access 무료 요금제. 월간 이메일 로그인 한도가 포함됩니다."
+        },
+        "smart_access_plus": {
+            "title": "Smart Access Plus",
+            "description": "Smart Access Plus 요금제. 월간 한도가 더 높습니다."
+        },
+        "smart_access_business": {
+            "title": "Smart Access 비즈니스",
+            "description": "Smart Access 비즈니스 요금제. 월간 한도가 가장 높습니다."
+        },
+        "colombia_api_runt_vehicle_by_plate_only": {
+            "title": "RUNT 번호판만 차량 조회",
+            "description": "소유자 서류 없이 번호판만으로 콜롬비아 RUNT 차량을 조회합니다."
         }
     }
 }

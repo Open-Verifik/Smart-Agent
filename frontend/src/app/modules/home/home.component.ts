@@ -1,6 +1,6 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { Onboarding, OnboardingService } from 'app/core/services/onboarding.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { catchError, of } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { AccountEnvironmentService } from '../../core/account/account-environment.service';
 import { SessionService } from '../../core/services/session.service';
 import { UserService } from '../../core/user/user.service';
@@ -94,6 +94,14 @@ export class HomeComponent implements OnInit {
     private _sessionService = inject(SessionService);
     private _matDialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
+
+    /** Active language, emitted only after that language's catalog has loaded. */
+    private readonly _lang = toSignal(
+        this._transloco.langChanges$.pipe(
+            switchMap((lang) => this._transloco.load(lang).pipe(map(() => lang), catchError(() => of(lang))))
+        ),
+        { initialValue: this._transloco.getActiveLang() }
+    );
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _userService = inject(UserService);
@@ -445,8 +453,12 @@ export class HomeComponent implements OnInit {
         this.accountEnv.startCompanyVerification();
     }
 
-    /** Display name for API code - uses appFeatures translation or falls back to code */
+    /**
+     * Display name for an API or plan code.
+     * Reads the active language so podium and globe labels recompute after a language change.
+     */
     getApiDisplayName(code: string): string {
+        this._lang();
         const key = `appFeatures.${code}.title`;
         const translated = this._transloco.translate(key);
         return translated !== key ? translated : code;

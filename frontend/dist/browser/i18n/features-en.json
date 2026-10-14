@@ -935,6 +935,34 @@
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - Vehicle Commercial Valuation",
             "description": "Official Ministerio de Transporte (SIBGA) commercial value for a Colombian plate, mapped automatically from RUNT."
+        },
+        "smart_enroll_pyg": {
+            "title": "Smart Enroll Free",
+            "description": "Free Smart Enroll plan, with a monthly allowance of enrollments and document scans."
+        },
+        "smart_enroll_plus": {
+            "title": "Smart Enroll Plus",
+            "description": "Smart Enroll Plus plan, with higher monthly limits and liveness."
+        },
+        "smart_enroll_business": {
+            "title": "Smart Enroll Business",
+            "description": "Smart Enroll Business plan, with the highest monthly limits."
+        },
+        "smart_access_pyg": {
+            "title": "Smart Access Free",
+            "description": "Free Smart Access plan, with a monthly allowance of email logins."
+        },
+        "smart_access_plus": {
+            "title": "Smart Access Plus",
+            "description": "Smart Access Plus plan, with higher monthly limits."
+        },
+        "smart_access_business": {
+            "title": "Smart Access Business",
+            "description": "Smart Access Business plan, with the highest monthly limits."
+        },
+        "colombia_api_runt_vehicle_by_plate_only": {
+            "title": "RUNT Vehicle by Plate Only",
+            "description": "Query a Colombian RUNT vehicle using only the plate, without the owner's document."
         }
     }
 }

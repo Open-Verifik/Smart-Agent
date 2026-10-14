@@ -11,11 +11,13 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import type { Arc, COBEOptions, Globe, Marker } from 'cobe';
+import { catchError, map, of, Subscription, switchMap } from 'rxjs';
 import { COUNTRY_CENTROIDS, anglesForLocation, countryName } from 'app/core/usage/country-geo';
 import { UsageApiService, UsageGroup, UsageSource } from 'app/core/usage/usage-api.service';
 
@@ -34,7 +36,6 @@ interface CountryRow {
     onGlobe: boolean;
 }
 
-const WINDOW_DAYS = 30;
 const SPIN_PER_FRAME = 0.0022;
 const MAX_LABELS = 4;
 /** Neighbouring countries closer than this share one label; the list still shows both. */
@@ -42,8 +43,38 @@ const LABEL_MIN_DEGREES = 16;
 /** cobe uploads its map texture asynchronously and only paints on `update`, so keep painting briefly. */
 const SETTLE_FRAMES = 45;
 
+export type GlobeRange = 'today' | 'week' | 'month' | 'previousMonth' | 'year';
+
 /**
- * Home dashboard: where the account's requests went in the last 30 days.
+ * Local calendar window for the globe. Weeks start on Monday.
+ * @param {GlobeRange} range
+ * @returns {{ startDate: string, endDate: string }}
+ */
+const _rangeWindow = (range: GlobeRange): { startDate: string; endDate: string } => {
+    const end = new Date();
+    const start = new Date(end);
+
+    start.setHours(0, 0, 0, 0);
+
+    if (range === 'week') {
+        const offset = start.getDay() === 0 ? 6 : start.getDay() - 1;
+
+        start.setDate(start.getDate() - offset);
+    } else if (range === 'month') {
+        start.setDate(1);
+    } else if (range === 'previousMonth') {
+        const first = new Date(end.getFullYear(), end.getMonth() - 1, 1);
+
+        return { startDate: first.toISOString(), endDate: new Date(end.getFullYear(), end.getMonth(), 0, 23, 59, 59, 999).toISOString() };
+    } else if (range === 'year') {
+        start.setMonth(0, 1);
+    }
+
+    return { startDate: start.toISOString(), endDate: end.toISOString() };
+};
+
+/**
+ * Home dashboard: where the account's requests went in the selected period.
  * A dotted cobe globe with one marker per country and arcs into the busiest country,
  * next to a ranked country list. Loads `cobe` lazily so the dashboard bundle stays lean.
  */
@@ -65,11 +96,25 @@ export class UsageGlobeComponent {
     private readonly _destroyRef = inject(DestroyRef);
     private readonly _canvas = viewChild<ElementRef<HTMLCanvasElement>>('globeCanvas');
 
+    readonly ranges: GlobeRange[] = ['today', 'week', 'month', 'previousMonth', 'year'];
+    readonly range = signal<GlobeRange>('month');
     readonly loading = signal(true);
     readonly failed = signal(false);
     readonly source = signal<UsageSource>('apiRequests');
     readonly totalRequests = signal(0);
-    readonly rows = signal<CountryRow[]>([]);
+
+    /** Raw country groups. Names are derived so a language change does not keep the previous labels. */
+    private readonly _groups = signal<UsageGroup[]>([]);
+
+    /** Active language, emitted only after that language's catalog has loaded. */
+    private readonly _lang = toSignal(
+        this._transloco.langChanges$.pipe(
+            switchMap((lang) => this._transloco.load(lang).pipe(map(() => lang), catchError(() => of(lang))))
+        ),
+        { initialValue: this._transloco.getActiveLang() }
+    );
+
+    readonly rows = computed(() => this._toRows(this._groups(), this.totalRequests()));
 
     readonly hub = computed(() => this.rows().find((row) => row.onGlobe) || null);
     readonly countryCount = computed(() => this.rows().filter((row) => row.code).length);
@@ -89,6 +134,8 @@ export class UsageGlobeComponent {
     readonly isEmpty = computed(() => !this.loading() && this.totalRequests() === 0);
 
     private _globe: Globe | null = null;
+    private _usageSub: Subscription | null = null;
+    private _opening = false;
     private _frame = 0;
     private _phi = 0;
     private _theta = 0.25;
@@ -100,10 +147,25 @@ export class UsageGlobeComponent {
         this._destroyRef.onDestroy(() => this._teardown());
     }
 
-    openCountry(row: CountryRow): void {
-        if (!row.code) return;
+    selectRange(next: GlobeRange): void {
+        if (next === this.range()) return;
 
-        this._router.navigate(['/history'], { queryParams: { country: row.code } });
+        this.range.set(next);
+        this._load();
+    }
+
+    openCountry(row: CountryRow): void {
+        if (row.code) {
+            this._router.navigate(['/history'], { queryParams: { country: row.code } });
+
+            return;
+        }
+
+        const window = _rangeWindow(this.range());
+
+        this._router.navigate(['/settings/usage-report'], {
+            queryParams: { groupBy: 'endpoint', startDate: window.startDate, endDate: window.endDate },
+        });
     }
 
     barWidth(row: CountryRow): string {
@@ -143,29 +205,31 @@ export class UsageGlobeComponent {
     }
 
     private _load(): void {
-        const endDate = new Date();
-        const startDate = new Date(endDate.getTime() - WINDOW_DAYS * 86400000);
+        const window = _rangeWindow(this.range());
 
-        this._usageApi
-            .getUsage({ groupBy: 'country', startDate: startDate.toISOString(), endDate: endDate.toISOString(), limit: 100 })
-            .subscribe({
-                next: (report) => {
-                    this.source.set(report.source);
-                    this.totalRequests.set(report.totals.totalRequests);
-                    this.rows.set(this._toRows(report.groups, report.totals.totalRequests));
-                    this.loading.set(false);
-                    void this._initGlobe();
-                },
-                error: () => {
-                    this.failed.set(true);
-                    this.loading.set(false);
-                    void this._initGlobe();
-                },
-            });
+        this.loading.set(true);
+        this.failed.set(false);
+        this._usageSub?.unsubscribe();
+        this._usageSub = this._usageApi.getUsage({ groupBy: 'country', ...window, limit: 100 }).subscribe({
+            next: (report) => {
+                this.source.set(report.source);
+                this.totalRequests.set(report.totals.totalRequests);
+                this._groups.set(report.groups);
+                this.loading.set(false);
+                void this._paintGlobe();
+            },
+            error: () => {
+                this.failed.set(true);
+                this._groups.set([]);
+                this.totalRequests.set(0);
+                this.loading.set(false);
+                void this._paintGlobe();
+            },
+        });
     }
 
     private _toRows(groups: UsageGroup[], total: number): CountryRow[] {
-        const lang = this._transloco.getActiveLang() || 'en';
+        const lang = this._lang() || 'en';
 
         return groups
             .filter((group) => group.totalRequests > 0)
@@ -179,14 +243,36 @@ export class UsageGlobeComponent {
             }));
     }
 
+    private async _paintGlobe(): Promise<void> {
+        if (!this._globe) {
+            await this._initGlobe();
+
+            return;
+        }
+
+        const hub = this.hub();
+
+        if (hub?.code) [this._phi, this._theta] = this._clampAngles(anglesForLocation(...COUNTRY_CENTROIDS[hub.code]));
+
+        this._globe.update({ markers: this._markers(), arcs: this._arcs(), phi: this._phi, theta: this._theta });
+    }
+
     private async _initGlobe(): Promise<void> {
         const canvas = this._canvas()?.nativeElement;
 
-        if (!canvas || this._globe) return;
+        if (!canvas || this._globe || this._opening) return;
+
+        this._opening = true;
 
         const { default: createGlobe } = await import('cobe');
         const size = canvas.parentElement?.clientWidth || 320;
         const hub = this.hub();
+
+        if (this._globe) {
+            this._opening = false;
+
+            return;
+        }
 
         if (hub?.code) [this._phi, this._theta] = this._clampAngles(anglesForLocation(...COUNTRY_CENTROIDS[hub.code]));
 
@@ -205,6 +291,8 @@ export class UsageGlobeComponent {
             arcHeight: 0.25,
             markerElevation: 0.01,
         } as COBEOptions);
+        this._opening = false;
+        this._globe.update({ markers: this._markers(), arcs: this._arcs(), phi: this._phi, theta: this._theta });
 
         this._observe(canvas);
 
@@ -294,6 +382,7 @@ export class UsageGlobeComponent {
     }
 
     private _teardown(): void {
+        this._usageSub?.unsubscribe();
         cancelAnimationFrame(this._frame);
         this._globe?.destroy();
         this._globe = null;

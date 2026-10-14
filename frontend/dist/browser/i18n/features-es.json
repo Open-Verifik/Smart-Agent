@@ -935,6 +935,34 @@
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - Avalúo comercial de vehículo",
             "description": "Avalúo comercial oficial del Ministerio de Transporte (SIBGA) para una placa colombiana, homologado automáticamente desde el RUNT."
+        },
+        "smart_enroll_pyg": {
+            "title": "Smart Enroll Gratis",
+            "description": "Plan gratuito de Smart Enroll, con un cupo mensual de enrolamientos y escaneos de documentos."
+        },
+        "smart_enroll_plus": {
+            "title": "Smart Enroll Plus",
+            "description": "Plan Smart Enroll Plus, con límites mensuales más altos y prueba de vida."
+        },
+        "smart_enroll_business": {
+            "title": "Smart Enroll Business",
+            "description": "Plan Smart Enroll Business, con los límites mensuales más altos."
+        },
+        "smart_access_pyg": {
+            "title": "Smart Access Gratis",
+            "description": "Plan gratuito de Smart Access, con un cupo mensual de inicios de sesión por correo."
+        },
+        "smart_access_plus": {
+            "title": "Smart Access Plus",
+            "description": "Plan Smart Access Plus, con límites mensuales más altos."
+        },
+        "smart_access_business": {
+            "title": "Smart Access Business",
+            "description": "Plan Smart Access Business, con los límites mensuales más altos."
+        },
+        "colombia_api_runt_vehicle_by_plate_only": {
+            "title": "Vehículo RUNT solo por placa",
+            "description": "Consulta un vehículo en RUNT usando solo la placa, sin el documento del propietario."
         }
     }
 }

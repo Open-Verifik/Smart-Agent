@@ -65,7 +65,7 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "world_api_covid": {
-            "title": "Global - COVID Statistics",
+            "title": "Global - Estatísticas de COVID",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "colombia_api_affiliations": {
@@ -85,7 +85,7 @@
             "description": "Consulta de identidade nacional para a Venezuela — verifique titulares de cédula (CCVE) pelo número do documento via GET /v2/ve/cedula para KYC e prevenção a fraudes."
         },
         "colombia_api_vehicle_complete": {
-            "title": "Colombia - Complete Vehicle Information",
+            "title": "Colômbia - Informação completa do veículo",
             "description": "Obter informações abrangentes de veículo para Colombian veículos. Inclui detalhes de propriedade, especificações, status legal e dados de registro."
         },
         "mexico_api_vehicle": {
@@ -93,7 +93,7 @@
             "description": "Verifique informações de veículos mexicanos usando a placa."
         },
         "feature_passwordless_solution": {
-            "title": "Passwordless Authentication",
+            "title": "Autenticação sem senha",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "world_api_interpol": {
@@ -157,7 +157,7 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "feature_data_api": {
-            "title": "Data API",
+            "title": "API de dados",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "colombia_api_min_trabajo": {
@@ -189,7 +189,7 @@
             "description": "Consulta em tempo real o Pico y Placa (restrição por final de placa) em Bogotá, Colômbia."
         },
         "feature_pdf_generator": {
-            "title": "PDF Report Generator",
+            "title": "Gerador de relatórios PDF",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "panama_api_identity_full_lookup": {
@@ -285,7 +285,7 @@
             "description": "Check complete judicial history and active legal processes."
         },
         "credit_intent": {
-            "title": "Credit Purchase Intent",
+            "title": "Intenção de compra de créditos",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "ip-lookup": {
@@ -297,7 +297,7 @@
             "description": "Consulte expedientes judiciais na Colômbia por CC, cidade e número (Rama Judicial)."
         },
         "communication_messaging_sms": {
-            "title": "SMS Messaging",
+            "title": "Mensagens SMS",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "communication_colombia_messaging_whatsapp": {
@@ -305,7 +305,7 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "communication_global_messaging_whatsapp": {
-            "title": "Global - WhatsApp Messaging",
+            "title": "Global - Mensagens WhatsApp",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "communication_global_messaging_sms": {
@@ -313,43 +313,43 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "communication_global_email_otp": {
-            "title": "Email OTP",
+            "title": "OTP por e-mail",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_liveness_3d": {
-            "title": "3D Liveness Detection",
+            "title": "Detecção de vivacidade 3D",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_estimate_age_3d": {
-            "title": "3D Age Estimation",
+            "title": "Estimativa de idade 3D",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_check_age_3d": {
-            "title": "3D Age Verification",
+            "title": "Verificação de idade 3D",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_enrollment_3d": {
-            "title": "3D Biometric Enrollment",
+            "title": "Cadastro biométrico 3D",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_id_scan_only": {
-            "title": "ID Document Scan",
+            "title": "Digitalização de documento de identidade",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_liveness_2d": {
-            "title": "2D Liveness Detection",
+            "title": "Detecção de vivacidade 2D",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_estimate_age_2d": {
-            "title": "2D Age Estimation",
+            "title": "Estimativa de idade 2D",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "biometrics_check_age_2d": {
-            "title": "2D Age Verification",
+            "title": "Verificação de idade 2D",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "credit_intent_kyc_passwordless": {
-            "title": "KYC Passwordless Credit Intent",
+            "title": "Intenção de créditos KYC sem senha",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "brasil_api_company_lookup": {
@@ -425,7 +425,7 @@
             "description": "Verifique PPE (pessoa politicamente exposta) para CC ou NIT."
         },
         "api_autodata_manufacturers": {
-            "title": "Vehicle Manufacturers Database",
+            "title": "Base de fabricantes de veículos",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "world_api_phone_lookup": {
@@ -445,7 +445,7 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "api_autodata_enginer": {
-            "title": "Vehicle Engine Database",
+            "title": "Base de motores de veículos",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "colombia_api_rues_full": {
@@ -453,11 +453,11 @@
             "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
         },
         "api_autodata_enginer_code": {
-            "title": "Vehicle Engine Code Lookup",
+            "title": "Consulta de código de motor",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "api_autodata_selection": {
-            "title": "Vehicle Selection Database",
+            "title": "Base de seleção de veículos",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "colombia_api_sisconmp": {
@@ -465,19 +465,19 @@
             "description": "Consulte registros de formação SISCONMP na Colômbia (transporte de carga e operadores)."
         },
         "data_finance_incomestatement": {
-            "title": "Financial - Income Statement",
+            "title": "Financeiro - Demonstração de resultados",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "data_finance_balancesheet": {
-            "title": "Financial - Balance Sheet",
+            "title": "Financeiro - Balanço patrimonial",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "data_finance_cashflow": {
-            "title": "Financial - Cash Flow",
+            "title": "Financeiro - Fluxo de caixa",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "data_finance_stockprice": {
-            "title": "Financial - Stock Price",
+            "title": "Financeiro - Preço da ação",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "paraguay_api_identity_lookup": {
@@ -505,7 +505,7 @@
             "description": "Verifique carteiras de motorista do Quebec (Canadá) pelo número do documento."
         },
         "ocr_scan_pro": {
-            "title": "OCR Document Scan Pro",
+            "title": "Digitalização OCR de documentos Pro",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "el_salvador_api_identity_lookup": {
@@ -533,7 +533,7 @@
             "description": "Consulte o PEP junto à Migración Colombia."
         },
         "ocr_scan_studio": {
-            "title": "OCR Document Scan Studio",
+            "title": "Digitalização OCR de documentos Studio",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "canada_api_company": {
@@ -549,7 +549,7 @@
             "description": "Valide empresas mexicanas com a API KYB da Verifik. Conecte-se a fontes oficiais e verifique dados empresariais em segundos."
         },
         "face_recognition_compare": {
-            "title": "Face Comparison",
+            "title": "Comparação facial",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "face_recognition_compare_live": {
@@ -569,7 +569,7 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "face_recognition_detect": {
-            "title": "Face Detection",
+            "title": "Detecção facial",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "face_recognition_search_crops": {
@@ -673,7 +673,7 @@
             "description": "Histórico de acidentes de trânsito em Bogotá (Colômbia) pela placa do veículo."
         },
         "api_data_sheet_vehicle": {
-            "title": "Vehicle Data Sheet",
+            "title": "Ficha técnica do veículo",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "api_data_sheet_vehicle_by-plate_br": {
@@ -685,7 +685,7 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "matpis_appointments": {
-            "title": "MATPIS Appointments",
+            "title": "Agendamentos MATPIS",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "chile_api_taxpayer_lookup": {
@@ -725,11 +725,11 @@
             "description": "Serviço de dados completos SIMIT por placa"
         },
         "world_api_passport_entries": {
-            "title": "world api passport entries",
+            "title": "Entradas de passaporte",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "validate-document": {
-            "title": "validate-document",
+            "title": "Validar documento",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "costa_rica_api_vehicle": {
@@ -749,7 +749,7 @@
             "description": "Decodificação de veículo nos EUA por VIN de 17 caracteres (NHTSA). GET /v2/usa/vehicle-by-vin."
         },
         "colombia_api_identity_ce_foreigner_id": {
-            "title": "CE (Cédula de Extranjería)",
+            "title": "CE (Cédula de Estrangeiro)",
             "description": "Consulte a CE junto à Migración Colombia."
         },
         "colombia_api_vehicle_fines_bogota": {
@@ -837,11 +837,11 @@
             "description": "Valide empresas peruanas com a API KYB da Verifik. Conecte-se a fontes oficiais e verifique dados empresariais em segundos."
         },
         "face_recognition_detect_face": {
-            "title": "Face Detection",
+            "title": "Detecção facial",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "document-liveness": {
-            "title": "Document Liveness Detection",
+            "title": "Detecção de vivacidade do documento",
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "colombia_api_inpec": {
@@ -935,6 +935,34 @@
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - Avaliação comercial do veículo",
             "description": "Valor comercial oficial do Ministerio de Transporte (SIBGA) para uma placa colombiana, homologado automaticamente a partir do RUNT."
+        },
+        "smart_enroll_pyg": {
+            "title": "Smart Enroll Grátis",
+            "description": "Plano gratuito do Smart Enroll, com uma cota mensal de cadastros e digitalizações de documentos."
+        },
+        "smart_enroll_plus": {
+            "title": "Smart Enroll Plus",
+            "description": "Plano Smart Enroll Plus, com limites mensais maiores e prova de vida."
+        },
+        "smart_enroll_business": {
+            "title": "Smart Enroll Business",
+            "description": "Plano Smart Enroll Business, com os limites mensais mais altos."
+        },
+        "smart_access_pyg": {
+            "title": "Smart Access Grátis",
+            "description": "Plano gratuito do Smart Access, com uma cota mensal de logins por e-mail."
+        },
+        "smart_access_plus": {
+            "title": "Smart Access Plus",
+            "description": "Plano Smart Access Plus, com limites mensais maiores."
+        },
+        "smart_access_business": {
+            "title": "Smart Access Business",
+            "description": "Plano Smart Access Business, com os limites mensais mais altos."
+        },
+        "colombia_api_runt_vehicle_by_plate_only": {
+            "title": "Veículo RUNT somente pela placa",
+            "description": "Consulte um veículo no RUNT colombiano usando apenas a placa, sem o documento do proprietário."
         }
     }
 }

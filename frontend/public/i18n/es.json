@@ -1256,11 +1256,20 @@
     "home": {
         "usageGlobe": {
             "title": "De dónde vienen tus solicitudes",
-            "subtitle": "{{total}} solicitudes en {{countries}} países en los últimos 30 días",
+            "subtitle": "{{total}} solicitudes en {{countries}} países",
+            "subtitleUnscoped": "{{total}} solicitudes de servicios que no pertenecen a un país",
+            "rangeLabel": "Período",
+            "ranges": {
+                "today": "Hoy",
+                "week": "Esta semana",
+                "month": "Este mes",
+                "previousMonth": "Mes pasado",
+                "year": "Este año"
+            },
             "loading": "Mapeando tu uso…",
             "error": "No pudimos cargar tu mapa de uso. Inténtalo de nuevo en un momento.",
             "emptySubtitle": "Tu primera solicitud encenderá el mapa",
-            "emptyTitle": "Sin solicitudes en los últimos 30 días",
+            "emptyTitle": "Sin solicitudes en este período",
             "emptyBody": "Haz una consulta desde Postman o tu backend y cada país que consultes aparecerá aquí.",
             "emptyCta": "Probar una API",
             "sourceCredits": "Desde facturación",
@@ -1270,7 +1279,8 @@
             "countries": "Países principales",
             "topServices": "Servicios principales",
             "failedShare": "{{rate}}% fallidas",
-            "global": "Global / otros"
+            "global": "Sin país",
+            "globalHint": "OTP por correo, SMS, Smart Enroll y otras APIs que no consultan un país."
         },
         "notifications": {
             "openFromEmail": "Abriendo tus notificaciones…"
@@ -4566,7 +4576,8 @@
             "costCenter": "Centro de costo",
             "allCostCenters": "Todos los centros de costo",
             "noCostCenter": "Sin centro de costo",
-            "sourceCredits": "No hay registro de solicitudes para este periodo, así que los totales salen de los créditos cobrados y el detalle por solicitud es limitado.",
+            "sourceCredits": "Este periodo no tiene registro de solicitudes, así que los éxitos y el costo salen de los créditos cobrados. El detalle por solicitud es limitado.",
+            "sourceCreditsAndFailures": "Los éxitos y el costo salen de los créditos cobrados. Las fallas salen del registro de solicitudes. El detalle por solicitud es limitado.",
             "loadError": "No pudimos cargar el reporte de uso.",
             "total": "Solicitudes",
             "ok": "Exitosas",

@@ -1270,11 +1270,20 @@
     "home": {
         "usageGlobe": {
             "title": "您的请求来自哪里",
-            "subtitle": "过去 30 天内，{{total}} 次请求，覆盖 {{countries}} 个国家",
+            "subtitle": "{{total}} 次请求，覆盖 {{countries}} 个国家",
+            "subtitleUnscoped": "{{total}} 次请求来自不属于某个国家的服务",
+            "rangeLabel": "请求时段",
+            "ranges": {
+                "today": "今天",
+                "week": "本周",
+                "month": "本月",
+                "previousMonth": "上月",
+                "year": "今年"
+            },
             "loading": "正在绘制您的用量…",
             "error": "无法加载用量地图。请稍后再试。",
             "emptySubtitle": "您的第一次请求会点亮地图",
-            "emptyTitle": "过去 30 天没有请求",
+            "emptyTitle": "此时段没有请求",
             "emptyBody": "从 Postman 或您的后端发起一次查询，您查询的每个国家都会显示在这里。",
             "emptyCta": "试用一个 API",
             "sourceCredits": "来自账单",
@@ -1284,7 +1293,8 @@
             "countries": "主要国家",
             "topServices": "主要服务",
             "failedShare": "{{rate}}% 失败",
-            "global": "全球 / 其他"
+            "global": "不属于某个国家",
+            "globalHint": "邮件 OTP、短信、Smart Enroll，以及其他不属于单一国家查询的 API。"
         },
         "notifications": {
             "openFromEmail": "正在打开您的通知…"
@@ -4584,7 +4594,8 @@
             "costCenter": "成本中心",
             "allCostCenters": "所有成本中心",
             "noCostCenter": "无成本中心",
-            "sourceCredits": "此期间没有请求日志，因此合计来自已计费积分，单次请求明细有限。",
+            "sourceCredits": "此期间没有请求日志，因此成功次数和费用来自已计费积分。单次请求明细有限。",
+            "sourceCreditsAndFailures": "成功次数和费用来自已计费积分。失败次数来自请求日志。单次请求明细有限。",
             "loadError": "无法加载用量报告。",
             "total": "请求",
             "ok": "成功",

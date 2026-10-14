@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { getVerifikDocsUrls } from 'app/core/docs/verifik-docs-urls';
 import { countryName } from 'app/core/usage/country-geo';
@@ -39,6 +40,7 @@ export type UsageRangeId = 'last_30_days' | 'this_month' | 'last_month' | 'last_
         SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './usage-report.component.html',
+    styleUrl: './usage-report.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsageReportComponent implements OnChanges {
@@ -48,12 +50,15 @@ export class UsageReportComponent implements OnChanges {
     private readonly _api = inject(UsageApiService);
     private readonly _transloco = inject(TranslocoService);
     private readonly _snack = inject(MatSnackBar);
+    private readonly _route = inject(ActivatedRoute);
 
     readonly groupings: UsageGroupBy[] = ['month', 'day', 'country', 'costCenter', 'endpoint'];
     readonly ranges: UsageRangeId[] = ['last_30_days', 'this_month', 'last_month', 'last_3_months', 'last_12_months'];
 
     readonly groupBy = signal<UsageGroupBy>('month');
     readonly range = signal<UsageRangeId>('last_12_months');
+    /** Set when the globe opens this report for its own dates. Preset chips do not match that window. */
+    readonly customWindow = signal<{ start: Date; end: Date } | null>(null);
     readonly costCenter = signal<string>('');
     readonly costCenters = signal<CostCenter[]>([]);
     readonly report = signal<UsageReport | null>(null);
@@ -83,6 +88,7 @@ export class UsageReportComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         if (!changes['user'] || !this.userClientId) return;
 
+        this._applyRouteQuery();
         this._api.listCostCenters().subscribe({ next: (centers) => this.costCenters.set(centers), error: () => this.costCenters.set([]) });
         this.load();
     }
@@ -97,6 +103,9 @@ export class UsageReportComponent implements OnChanges {
     }
 
     setRange(value: UsageRangeId): void {
+        if (!value) return;
+
+        this.customWindow.set(null);
         this.range.set(value);
         this.load();
     }
@@ -151,8 +160,28 @@ export class UsageReportComponent implements OnChanges {
         return group.key || '—';
     }
 
+    private _applyRouteQuery(): void {
+        const params = this._route.snapshot.queryParamMap;
+        const groupBy = params.get('groupBy');
+
+        if (groupBy && this.groupings.includes(groupBy as UsageGroupBy)) this.groupBy.set(groupBy as UsageGroupBy);
+
+        const start = this._parseDate(params.get('startDate'));
+        const end = this._parseDate(params.get('endDate'));
+
+        this.customWindow.set(start && end && start <= end ? { start, end } : null);
+    }
+
+    private _parseDate(value: string | null): Date | null {
+        if (!value) return null;
+
+        const date = new Date(value);
+
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
     private _query(): UsageQuery {
-        const { start, end } = this._bounds(this.range());
+        const { start, end } = this.customWindow() || this._bounds(this.range());
         const query: UsageQuery = { groupBy: this.groupBy(), startDate: start.toISOString(), endDate: end.toISOString(), limit: 500 };
 
         if (this.costCenter()) query.costCenter = this.costCenter();

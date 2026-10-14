@@ -1260,11 +1260,20 @@
     "home": {
         "usageGlobe": {
             "title": "Where your requests come from",
-            "subtitle": "{{total}} requests across {{countries}} countries in the last 30 days",
+            "subtitle": "{{total}} requests across {{countries}} countries",
+            "subtitleUnscoped": "{{total}} requests for services that are not tied to a country",
+            "rangeLabel": "Request period",
+            "ranges": {
+                "today": "Today",
+                "week": "This week",
+                "month": "This month",
+                "previousMonth": "Last month",
+                "year": "This year"
+            },
             "loading": "Mapping your usage…",
             "error": "We couldn't load your usage map. Try again in a moment.",
             "emptySubtitle": "Your first request will light up the map",
-            "emptyTitle": "No requests in the last 30 days",
+            "emptyTitle": "No requests in this period",
             "emptyBody": "Run a lookup from Postman or your backend and each country you query shows up here.",
             "emptyCta": "Try an API",
             "sourceCredits": "From billing",
@@ -1274,7 +1283,8 @@
             "countries": "Top countries",
             "topServices": "Top services",
             "failedShare": "{{rate}}% failed",
-            "global": "Global / other"
+            "global": "Not a country",
+            "globalHint": "Email OTP, SMS, Smart Enroll, and other APIs that are not a lookup in one country."
         },
         "notifications": {
             "openFromEmail": "Opening your notifications…"
@@ -4570,7 +4580,8 @@
             "costCenter": "Cost center",
             "allCostCenters": "All cost centers",
             "noCostCenter": "No cost center",
-            "sourceCredits": "Request logs aren't available for this period, so totals come from billed credits and per-request detail is limited.",
+            "sourceCredits": "This period has no request log, so successes and cost come from billed credits. Per-call detail is limited.",
+            "sourceCreditsAndFailures": "Successes and cost come from billed credits. Failures come from the request log. Per-call detail is limited.",
             "loadError": "We couldn't load the usage report.",
             "total": "Requests",
             "ok": "Successful",

@@ -85,7 +85,7 @@
             "description": "委内瑞拉国民身份查询 — 通过 GET /v2/ve/cedula 按证件号核验 cédula（CCVE）持有人，适用于 KYC 与反欺诈。"
         },
         "colombia_api_vehicle_complete": {
-            "title": "Colombia - Complete Vehicle Information",
+            "title": "哥伦比亚 - 完整车辆信息",
             "description": "获取 comprehensive vehicle information 为 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
@@ -93,7 +93,7 @@
             "description": "通过车牌查询墨西哥车辆信息"
         },
         "feature_passwordless_solution": {
-            "title": "Passwordless Authentication",
+            "title": "无密码身份验证",
             "description": "提供可靠的验证和验证服务。"
         },
         "world_api_interpol": {
@@ -157,7 +157,7 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "feature_data_api": {
-            "title": "Data API",
+            "title": "数据 API",
             "description": "提供可靠的验证和验证服务。"
         },
         "colombia_api_min_trabajo": {
@@ -189,7 +189,7 @@
             "description": "查询哥伦比亚波哥大登记车辆的 Pico y Placa（尾号限行）实时信息。"
         },
         "feature_pdf_generator": {
-            "title": "PDF Report Generator",
+            "title": "PDF 报告生成器",
             "description": "提供可靠的验证和验证服务。"
         },
         "panama_api_identity_full_lookup": {
@@ -285,7 +285,7 @@
             "description": "Check complete judicial history and active legal processes."
         },
         "credit_intent": {
-            "title": "Credit Purchase Intent",
+            "title": "积分购买意向",
             "description": "提供可靠的验证和验证服务。"
         },
         "ip-lookup": {
@@ -297,7 +297,7 @@
             "description": "通过 CC、城市与证件号码查询哥伦比亚法院案件卷宗（Rama Judicial）。"
         },
         "communication_messaging_sms": {
-            "title": "SMS Messaging",
+            "title": "短信",
             "description": "提供可靠的验证和验证服务。"
         },
         "communication_colombia_messaging_whatsapp": {
@@ -313,43 +313,43 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "communication_global_email_otp": {
-            "title": "Email OTP",
+            "title": "电子邮件一次性密码",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_liveness_3d": {
-            "title": "3D Liveness Detection",
+            "title": "3D 活体检测",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_estimate_age_3d": {
-            "title": "3D Age Estimation",
+            "title": "3D 年龄估计",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_check_age_3d": {
-            "title": "3D Age Verification",
+            "title": "3D 年龄核验",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_enrollment_3d": {
-            "title": "3D Biometric Enrollment",
+            "title": "3D 生物识别注册",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_id_scan_only": {
-            "title": "ID Document Scan",
+            "title": "证件扫描",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_liveness_2d": {
-            "title": "2D Liveness Detection",
+            "title": "2D 活体检测",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_estimate_age_2d": {
-            "title": "2D Age Estimation",
+            "title": "2D 年龄估计",
             "description": "提供可靠的验证和验证服务。"
         },
         "biometrics_check_age_2d": {
-            "title": "2D Age Verification",
+            "title": "2D 年龄核验",
             "description": "提供可靠的验证和验证服务。"
         },
         "credit_intent_kyc_passwordless": {
-            "title": "KYC Passwordless Credit Intent",
+            "title": "KYC 无密码积分意向",
             "description": "提供可靠的验证和验证服务。"
         },
         "brasil_api_company_lookup": {
@@ -425,7 +425,7 @@
             "description": "通过 CC / NIT 查询政治公众人物（PEP），用于 AML。"
         },
         "api_autodata_manufacturers": {
-            "title": "Vehicle Manufacturers Database",
+            "title": "车辆制造商数据库",
             "description": "提供可靠的验证和验证服务。"
         },
         "world_api_phone_lookup": {
@@ -445,7 +445,7 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "api_autodata_enginer": {
-            "title": "Vehicle Engine Database",
+            "title": "车辆发动机数据库",
             "description": "提供可靠的验证和验证服务。"
         },
         "colombia_api_rues_full": {
@@ -453,11 +453,11 @@
             "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
         },
         "api_autodata_enginer_code": {
-            "title": "Vehicle Engine Code Lookup",
+            "title": "车辆发动机代码查询",
             "description": "提供可靠的验证和验证服务。"
         },
         "api_autodata_selection": {
-            "title": "Vehicle Selection Database",
+            "title": "车辆选型数据库",
             "description": "提供可靠的验证和验证服务。"
         },
         "colombia_api_sisconmp": {
@@ -465,19 +465,19 @@
             "description": "查询哥伦比亚 SISCONMP 登记的运输与货物相关培训记录。"
         },
         "data_finance_incomestatement": {
-            "title": "Financial - Income Statement",
+            "title": "财务 - 利润表",
             "description": "提供可靠的验证和验证服务。"
         },
         "data_finance_balancesheet": {
-            "title": "Financial - Balance Sheet",
+            "title": "财务 - 资产负债表",
             "description": "提供可靠的验证和验证服务。"
         },
         "data_finance_cashflow": {
-            "title": "Financial - Cash Flow",
+            "title": "财务 - 现金流量表",
             "description": "提供可靠的验证和验证服务。"
         },
         "data_finance_stockprice": {
-            "title": "Financial - Stock Price",
+            "title": "财务 - 股价",
             "description": "提供可靠的验证和验证服务。"
         },
         "paraguay_api_identity_lookup": {
@@ -505,7 +505,7 @@
             "description": "通过证件号码核验加拿大魁北克省驾驶证。"
         },
         "ocr_scan_pro": {
-            "title": "OCR Document Scan Pro",
+            "title": "OCR 文档扫描 Pro",
             "description": "提供可靠的验证和验证服务。"
         },
         "el_salvador_api_identity_lookup": {
@@ -533,7 +533,7 @@
             "description": "通过 Migración Colombia 查询 PEP（Permiso Especial de Permanencia）。"
         },
         "ocr_scan_studio": {
-            "title": "OCR Document Scan Studio",
+            "title": "OCR 文档扫描 Studio",
             "description": "提供可靠的验证和验证服务。"
         },
         "canada_api_company": {
@@ -549,7 +549,7 @@
             "description": "使用 Verifik 的 KYB API 核验墨西哥企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         },
         "face_recognition_compare": {
-            "title": "Face Comparison",
+            "title": "人脸比对",
             "description": "提供可靠的验证和验证服务。"
         },
         "face_recognition_compare_live": {
@@ -569,7 +569,7 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "face_recognition_detect": {
-            "title": "Face Detection",
+            "title": "人脸检测",
             "description": "提供可靠的验证和验证服务。"
         },
         "face_recognition_search_crops": {
@@ -673,7 +673,7 @@
             "description": "通过车牌查询哥伦比亚波哥大登记车辆的事故历史（日期、表单编号、严重程度）。"
         },
         "api_data_sheet_vehicle": {
-            "title": "Vehicle Data Sheet",
+            "title": "车辆数据表",
             "description": "提供可靠的验证和验证服务。"
         },
         "api_data_sheet_vehicle_by-plate_br": {
@@ -685,7 +685,7 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "matpis_appointments": {
-            "title": "MATPIS Appointments",
+            "title": "MATPIS 预约",
             "description": "提供可靠的验证和验证服务。"
         },
         "chile_api_taxpayer_lookup": {
@@ -725,11 +725,11 @@
             "description": "按车牌的 SIMIT 综合数据服务"
         },
         "world_api_passport_entries": {
-            "title": "world api passport entries",
+            "title": "护照出入境记录",
             "description": "提供可靠的验证和验证服务。"
         },
         "validate-document": {
-            "title": "validate-document",
+            "title": "证件核验",
             "description": "提供可靠的验证和验证服务。"
         },
         "costa_rica_api_vehicle": {
@@ -837,11 +837,11 @@
             "description": "使用 Verifik 的 KYB API 核验秘鲁企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         },
         "face_recognition_detect_face": {
-            "title": "Face Detection",
+            "title": "人脸检测",
             "description": "提供可靠的验证和验证服务。"
         },
         "document-liveness": {
-            "title": "Document Liveness Detection",
+            "title": "证件活体检测",
             "description": "提供可靠的验证和验证服务。"
         },
         "colombia_api_inpec": {
@@ -917,7 +917,7 @@
             "description": "通过 GET /v2/co/procuraduria 仅从 Procuraduría 提取姓名（CC、CE、PPT、NIT 或 PEP）。不返回纪律记录。"
         },
         "mexico_api_ine_ocr": {
-            "title": "INE OCR",
+            "title": "墨西哥 INE 证件识别",
             "description": "通过 OCR 从墨西哥 INE 正反面图像中提取个人与证件字段。"
         },
         "mexico_api_ine_validate": {
@@ -935,6 +935,34 @@
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 车辆商业估价",
             "description": "哥伦比亚车牌的交通部（SIBGA）官方商业估价，由 RUNT 数据自动对照。"
+        },
+        "smart_enroll_pyg": {
+            "title": "Smart Enroll 免费版",
+            "description": "Smart Enroll 免费方案，含每月注册与证件扫描额度。"
+        },
+        "smart_enroll_plus": {
+            "title": "Smart Enroll Plus",
+            "description": "Smart Enroll Plus 方案，月度额度更高并包含活体检测。"
+        },
+        "smart_enroll_business": {
+            "title": "Smart Enroll 商业版",
+            "description": "Smart Enroll 商业方案，月度额度最高。"
+        },
+        "smart_access_pyg": {
+            "title": "Smart Access 免费版",
+            "description": "Smart Access 免费方案，含每月邮箱登录额度。"
+        },
+        "smart_access_plus": {
+            "title": "Smart Access Plus",
+            "description": "Smart Access Plus 方案，月度额度更高。"
+        },
+        "smart_access_business": {
+            "title": "Smart Access 商业版",
+            "description": "Smart Access 商业方案，月度额度最高。"
+        },
+        "colombia_api_runt_vehicle_by_plate_only": {
+            "title": "仅凭车牌查询 RUNT 车辆",
+            "description": "仅用车牌查询哥伦比亚 RUNT 车辆，无需车主证件。"
         }
     }
 }

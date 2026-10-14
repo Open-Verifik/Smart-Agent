@@ -15,34 +15,56 @@
     @if (!userClientId) {
         <app-settings-business-account-empty-state hintKey="settings.usageReport.signInHint" (userChange)="onBusinessAccountLinked($event)" />
     } @else {
-        <div class="content-card p-4 mb-4 flex flex-col gap-3">
-            <mat-button-toggle-group [value]="groupBy()" (change)="setGroupBy($event.value)" [disabled]="loading()" class="flex-wrap" [attr.aria-label]="t('settings.usageReport.groupBy')">
+        <div class="content-card usage-filters p-4 mb-4">
+            <mat-button-toggle-group class="usage-filters__choices" [value]="groupBy()" (change)="setGroupBy($event.value)" [disabled]="loading()" [attr.aria-label]="t('settings.usageReport.groupBy')">
                 @for (option of groupings; track option) {
                     <mat-button-toggle [value]="option">{{ t('settings.usageReport.group.' + option) }}</mat-button-toggle>
                 }
             </mat-button-toggle-group>
-            <div class="flex flex-col gap-3 md:flex-row md:items-center">
-                <mat-button-toggle-group [value]="range()" (change)="setRange($event.value)" [disabled]="loading()" class="flex-wrap" [attr.aria-label]="t('settings.usageReport.range')">
+            <div class="usage-filters__period">
+                @if (customWindow(); as window) {
+                    <p class="usage-filters__dates">{{ window.start | date: 'mediumDate' }} – {{ window.end | date: 'mediumDate' }}</p>
+                }
+                <mat-button-toggle-group class="usage-filters__choices" [value]="customWindow() ? null : range()" (change)="setRange($event.value)" [disabled]="loading()" [attr.aria-label]="t('settings.usageReport.range')">
                     @for (option of ranges; track option) {
                         <mat-button-toggle [value]="option">{{ t('settings.usageReport.ranges.' + option) }}</mat-button-toggle>
                     }
                 </mat-button-toggle-group>
-                @if (costCenters().length) {
-                    <mat-select class="md:w-56 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm" [value]="costCenter()" (selectionChange)="setCostCenter($event.value)" [attr.aria-label]="t('settings.usageReport.costCenter')">
-                        <mat-option value="">{{ t('settings.usageReport.allCostCenters') }}</mat-option>
-                        @for (center of costCenters(); track center._id) {
-                            <mat-option [value]="center._id">{{ center.name }} · {{ center.code }}</mat-option>
-                        }
-                        <mat-option value="none">{{ t('settings.usageReport.noCostCenter') }}</mat-option>
-                    </mat-select>
-                }
             </div>
+            @if (costCenters().length) {
+                <mat-select class="usage-filters__center rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm" [value]="costCenter()" (selectionChange)="setCostCenter($event.value)" [attr.aria-label]="t('settings.usageReport.costCenter')">
+                    <mat-option value="">{{ t('settings.usageReport.allCostCenters') }}</mat-option>
+                    @for (center of costCenters(); track center._id) {
+                        <mat-option [value]="center._id">{{ center.name }} · {{ center.code }}</mat-option>
+                    }
+                    <mat-option value="none">{{ t('settings.usageReport.noCostCenter') }}</mat-option>
+                </mat-select>
+            }
         </div>
 
         @if (report()?.source && report()!.source !== 'apiRequests') {
-            <div class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-100" role="status">
-                <mat-icon class="!h-5 !w-5 !text-xl text-amber-600 dark:text-amber-300">receipt_long</mat-icon>
-                <p>{{ t('settings.usageReport.sourceCredits') }}</p>
+            <div class="usage-source-note mb-4" role="status">
+                <div class="usage-source-note__blob usage-source-note__blob--tr" aria-hidden="true"></div>
+                <div class="usage-source-note__blob usage-source-note__blob--bl" aria-hidden="true"></div>
+                <div class="usage-source-note__body">
+                    <span class="usage-source-note__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path
+                                d="M19.5 3.5 18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V2l-1.5 1.5zM19 19c0 .55-.45 1-1 1s-1-.45-1-1v-3H8V5h11v14z"
+                            />
+                            <path d="M9 7h6v2H9zm7 0h2v2h-2zM9 11h6v2H9zm7 0h2v2h-2z" />
+                        </svg>
+                    </span>
+                    <p>
+                        {{
+                            t(
+                                report()!.source === 'credits+failedRequests'
+                                    ? 'settings.usageReport.sourceCreditsAndFailures'
+                                    : 'settings.usageReport.sourceCredits'
+                            )
+                        }}
+                    </p>
+                </div>
             </div>
         }
 

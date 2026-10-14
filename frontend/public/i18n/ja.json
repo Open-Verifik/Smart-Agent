@@ -1270,11 +1270,20 @@
     "home": {
         "usageGlobe": {
             "title": "リクエストの発生元",
-            "subtitle": "過去 30 日間で {{countries}} か国、{{total}} 件のリクエスト",
+            "subtitle": "{{countries}} か国、{{total}} 件のリクエスト",
+            "subtitleUnscoped": "国に属さないサービスへのリクエスト {{total}} 件",
+            "rangeLabel": "期間",
+            "ranges": {
+                "today": "今日",
+                "week": "今週",
+                "month": "今月",
+                "previousMonth": "先月",
+                "year": "今年"
+            },
             "loading": "利用状況を地図に描いています…",
             "error": "利用状況マップを読み込めませんでした。しばらくしてからもう一度お試しください。",
             "emptySubtitle": "最初のリクエストが地図を灯します",
-            "emptyTitle": "過去 30 日間にリクエストはありません",
+            "emptyTitle": "この期間にリクエストはありません",
             "emptyBody": "Postman またはバックエンドから照会すると、照会した国がここに表示されます。",
             "emptyCta": "API を試す",
             "sourceCredits": "請求データ",
@@ -1284,7 +1293,8 @@
             "countries": "上位の国",
             "topServices": "上位のサービス",
             "failedShare": "{{rate}}% 失敗",
-            "global": "グローバル / その他"
+            "global": "国に属さない",
+            "globalHint": "メール OTP、SMS、Smart Enroll など、特定の国の照会ではない API です。"
         },
         "notifications": {
             "openFromEmail": "通知を開いています…"
@@ -4584,7 +4594,8 @@
             "costCenter": "コストセンター",
             "allCostCenters": "すべてのコストセンター",
             "noCostCenter": "コストセンターなし",
-            "sourceCredits": "この期間のリクエストログがないため、合計は請求済みクレジットからで、リクエスト単位の明細は限られます。",
+            "sourceCredits": "この期間のリクエストログがないため、成功数と費用は請求済みクレジットから算出しています。リクエスト単位の明細は限られます。",
+            "sourceCreditsAndFailures": "成功数と費用は請求済みクレジットから、失敗はリクエストログからです。リクエスト単位の明細は限られます。",
             "loadError": "利用レポートを読み込めませんでした。",
             "total": "リクエスト",
             "ok": "成功",

@@ -26,6 +26,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { DateTime } from 'luxon';
 import { firstValueFrom, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
@@ -49,10 +50,12 @@ import {
     HistoryListParams,
     HistoryService,
     HistoryTopSalesRow,
+    HistoryTopSalesTotals,
 } from './history.service';
+import { buildUsageChart } from '../settings/usage-report/usage-report-chart.util';
 import { createdAtRangeParams } from '../settings/usage-history/usage-history-date-params.util';
 import { countryName } from 'app/core/usage/country-geo';
-import { CostCenter, UsageApiService } from 'app/core/usage/usage-api.service';
+import { CostCenter, UsageApiService, UsageReport } from 'app/core/usage/usage-api.service';
 import { HistoryRequestDialogComponent, HistoryRequestDialogResult } from './history-request-dialog.component';
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
@@ -124,6 +127,7 @@ const createSection = (id: HistorySectionId): HistorySectionState => ({
         MatSnackBarModule,
         MatTableModule,
         MatTooltipModule,
+        NgApexchartsModule,
         TranslocoModule,
     ],
     templateUrl: './history.component.html',
@@ -214,6 +218,31 @@ export class HistoryComponent implements OnInit, OnDestroy {
     countryOptions = signal<{ code: string; name: string }[]>([]);
     costCenterOptions = signal<CostCenter[]>([]);
     topEndpoints = signal<HistoryTopSalesRow[]>([]);
+    topTotals = signal<HistoryTopSalesTotals>({ total: 0, ok: 0, failed: 0, costUSD: 0 });
+
+    /** Stacked successful / failed bars for the filtered top endpoints. */
+    readonly endpointChart = computed<ApexOptions | null>(() => {
+        const rows = this.topEndpoints();
+
+        if (!rows.length) return null;
+
+        const report = {
+            groupBy: 'endpoint',
+            groups: rows.map((row) => ({
+                key: this.endpointDisplayName(row),
+                totalRequests: row.total,
+                ok: row.ok,
+                failed: row.failed,
+                timedOut: 0,
+                costUSD: row.costUSD || 0,
+            })),
+        } as UsageReport;
+
+        return buildUsageChart(report, 'endpoint', (group) => group.key || '', document.body.classList.contains('dark'), {
+            ok: this._transloco.translate('settings.usageReport.ok'),
+            failed: this._transloco.translate('settings.usageReport.failed'),
+        });
+    });
     featureCatalog = signal<Record<string, HistoryFeatureMeta>>({});
 
     ngOnInit(): void {
@@ -330,20 +359,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     };
 
     isEndpointSelected = (code: string): boolean => this.serviceFilter === code;
-
-    endpointCardClasses = (code: string): Record<string, boolean> => {
-        const selected = this.isEndpointSelected(code);
-        return {
-            'border-indigo-300': selected,
-            'bg-indigo-50': selected,
-            'dark:border-indigo-700': selected,
-            'dark:bg-indigo-950/30': selected,
-            'border-stone-200/90': !selected,
-            'bg-white': !selected,
-            'dark:border-gray-800': !selected,
-            'dark:bg-gray-900/70': !selected,
-        };
-    };
 
     clearFilters = (): void => {
         this.searchText = '';
@@ -853,12 +868,19 @@ export class HistoryComponent implements OnInit, OnDestroy {
         const range = this._dateRangeForPreset(this.datePreset);
         const params: Record<string, unknown> = { source: 'requests', limit: 5 };
         if (range) Object.assign(params, createdAtRangeParams(range.start, range.end));
+        if (this.countryFilter) params.country = this.countryFilter;
+        if (this.costCenterFilter) params.costCenter = this.costCenterFilter;
         this._historyService.getTopSales(params).subscribe({
-            next: (rows) => {
-                this.topEndpoints.set(rows.slice(0, 5));
+            next: (result) => {
+                this.topTotals.set(result.totals);
+                this.topEndpoints.set(result.rows.slice(0, 5));
                 this._cdr.markForCheck();
             },
-            error: () => this.topEndpoints.set([]),
+            error: () => {
+                this.topTotals.set({ total: 0, ok: 0, failed: 0, costUSD: 0 });
+                this.topEndpoints.set([]);
+                this._cdr.markForCheck();
+            },
         });
     };
 
