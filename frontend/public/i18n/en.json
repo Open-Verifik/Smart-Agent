@@ -1440,7 +1440,12 @@
         "aiModeEditSection": "Edit Section",
         "aiModeAddSection": "Add Section",
         "sectionEditedSuccess": "Section updated successfully via AI!",
-        "sectionsAppendedSuccess": "New sections appended successfully!"
+        "sectionsAppendedSuccess": "New sections appended successfully!",
+        "lineStyle": "Line style",
+        "lineStyleSolid": "Solid",
+        "lineStyleDashed": "Dashed",
+        "lineStyleDotted": "Dotted",
+        "dividerSpacing": "Vertical spacing"
     },
     "guestFeatureAuth": {
         "title": "Sign in required",

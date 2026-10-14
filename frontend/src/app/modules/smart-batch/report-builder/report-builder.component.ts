@@ -1093,6 +1093,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         this.updateSection(section.id, { showRowLines: enabled });
     }
 
+    updateDividerSpacing(section: ReportSection, raw: string): void {
+        this.updateSection(section.id, {
+            style: { ...(section.style ?? {}), padding: raw },
+        });
+    }
+
     sectionTypesForGroup(group: 'content' | 'data' | 'layout'): typeof this.sectionTypes {
         return this.sectionTypes.filter((entry) => entry.group === group && !entry.legacy);
     }

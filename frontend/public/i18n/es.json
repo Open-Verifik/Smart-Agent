@@ -1436,7 +1436,12 @@
         "aiModeEditSection": "Editar Sección",
         "aiModeAddSection": "Agregar Sección",
         "sectionEditedSuccess": "¡Sección actualizada exitosamente con IA!",
-        "sectionsAppendedSuccess": "¡Nuevas secciones agregadas exitosamente!"
+        "sectionsAppendedSuccess": "¡Nuevas secciones agregadas exitosamente!",
+        "lineStyle": "Estilo de línea",
+        "lineStyleSolid": "Sólida",
+        "lineStyleDashed": "Guiones",
+        "lineStyleDotted": "Punteada",
+        "dividerSpacing": "Espaciado vertical"
     },
     "guestFeatureAuth": {
         "title": "Inicio de sesión obligatorio",

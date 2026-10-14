@@ -957,9 +957,10 @@
 
     @if (section.type === 'divider') {
         <hr
-            class="my-4"
+            [style.margin-top.px]="dividerMargin(section)"
+            [style.margin-bottom.px]="dividerMargin(section)"
             style="border: 0; height: 0"
-            [style.border-top]="'1px solid ' + (section.style?.color || '#E5E7EB')"
+            [style.border-top]="dividerBorderTop(section)"
         />
     }
 

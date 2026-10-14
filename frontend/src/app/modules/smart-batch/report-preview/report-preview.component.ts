@@ -3323,9 +3323,22 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** A line shape paints only its stroke: `rowLineWidth` / `rowLineStyle`, colored like a shape fill. */
     lineStroke(section: ReportSection): string {
-        const width = Math.max(1, Math.min(12, Math.round(Number(section.rowLineWidth) || 2)));
+        const width = Math.max(1, Math.min(12, Math.round(Number(section.rowLineWidth) || 1)));
         const style = section.rowLineStyle === 'dashed' || section.rowLineStyle === 'dotted' ? section.rowLineStyle : 'solid';
         return `${width}px ${style} ${this.shapeFill(section)}`;
+    }
+
+    /** A divider section paints a horizontal rule with configurable thickness, style and color. */
+    dividerBorderTop(section: ReportSection): string {
+        const width = Math.max(1, Math.min(12, Math.round(Number(section.rowLineWidth) || 1)));
+        const style = section.rowLineStyle === 'dashed' || section.rowLineStyle === 'dotted' ? section.rowLineStyle : 'solid';
+        return `${width}px ${style} ${section.style?.color || '#E5E7EB'}`;
+    }
+
+    /** Vertical margin (px) on each side of a divider. Falls back to 4px when not configured. */
+    dividerMargin(section: ReportSection): number {
+        const v = Number(section.style?.padding);
+        return Number.isFinite(v) && v >= 0 ? v : 4;
     }
 
     /**
