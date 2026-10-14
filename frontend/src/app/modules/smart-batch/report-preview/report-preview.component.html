@@ -463,7 +463,7 @@
                         [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
                         [class.cursor-grabbing]="draggingSectionId() === section.id"
                         [class.opacity-90]="draggingSectionId() === section.id"
-                        [class.selection-outline]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)"
+                        [class.selection-outline]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section) && !isLayerQuiet('sec:' + section.id)"
                         [style.background-color]="isShapeSection(section) ? null : sectionFrameBackground(section)"
                         [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"
                         [style.border-radius.px]="isShapeSection(section) ? 0 : sectionFrameRadius(section)"
@@ -473,7 +473,7 @@
                         (contextmenu)="onSectionContextMenu(section, $event)"
                         (pointerdown)="onSectionPointerDown(section, $event)"
                     >
-                        @if (clickable() && reorderable() && (selectedSectionId() === section.id || draggingSectionId() === section.id)) {
+                        @if (clickable() && reorderable() && !isLayerQuiet('sec:' + section.id) && (selectedSectionId() === section.id || draggingSectionId() === section.id)) {
                             <div
                                 data-print-hide
                                 data-move-badge
@@ -485,7 +485,7 @@
                                 <mat-icon class="!h-3 !w-3 !text-[12px]" style="pointer-events: none">open_with</mat-icon>
                             </div>
                         }
-                        @if (clickable() && isShapeSection(section) && selectedSectionId() === section.id) {
+                        @if (clickable() && isShapeSection(section) && selectedSectionId() === section.id && !isLayerQuiet('sec:' + section.id)) {
                             <div
                                 data-print-hide
                                 data-section-handle
@@ -529,6 +529,7 @@
                             reorderable() &&
                             hasFreeLayout() &&
                             !isShapeSection(section) &&
+                            !isLayerQuiet('sec:' + section.id) &&
                             selectedSectionId() === section.id &&
                             !selectedCellKey() &&
                             !draggingSectionId()
@@ -741,7 +742,7 @@
 -->
 <!-- Edge handles on the selected cell. `axes` is any of 'x' (grid columns), 'y' (height), 'w' (table column width). -->
 <ng-template #cellResizeHandles let-section="section" let-key="key" let-axes="axes" let-measure="measure">
-    @if (!measure && clickable() && reorderable() && isCellSelected(section, key)) {
+    @if (!measure && clickable() && reorderable() && isCellSelected(section, key) && !isLayerQuiet('sec:' + section.id)) {
         @if (axes.includes('x') || axes.includes('w')) {
             <button
                 type="button"

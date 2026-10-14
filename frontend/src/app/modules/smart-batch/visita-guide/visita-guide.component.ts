@@ -1540,6 +1540,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
      * the page. A selected cell stays put: it lives inside its block's grid.
      */
     private _nudgeSelectedLayout(dx: number, dy: number): boolean {
+        if (this._selectionIsLocked()) return false;
         const page = this._layoutPaperPx();
         const clamp = (value: number, size: number, max: number) =>
             Math.min(Math.max(0, Math.round(value)), Math.max(0, max - size));
@@ -1592,7 +1593,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutSectionClick = (section: ReportSection): void => {
-        if (isReportPageAnchor(section)) return;
+        if (isReportPageAnchor(section) || this.isLayoutLayerLocked(`sec:${section.id}`)) return;
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(section.id);
         const part = this.selectedLayoutCellPart();
@@ -1604,6 +1605,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     };
 
     onLayoutInlineText = (event: ReportInlineTextChange): void => {
+        if (this.isLayoutLayerLocked(`sec:${event.sectionId}`)) return;
         const section = this.layoutSections().find((item) => item.id === event.sectionId);
         if (!section) return;
         this.selectedLayoutSectionId.set(event.sectionId);
@@ -1682,6 +1684,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutSectionFrame(event: { id: string; frame: ReportSectionFrame }): void {
+        if (this.isLayoutLayerLocked(`sec:${event.id}`)) return;
         this.layoutSections.update((list) =>
             list.map((section) => (section.id === event.id ? { ...section, frame: event.frame } : section))
         );
@@ -1689,6 +1692,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     /** A dragged cell edge: column span, height or table column width. One column or 0 px clears it. */
     onLayoutCellSize(event: ReportCellSizeChange): void {
+        if (this.isLayoutLayerLocked(`sec:${event.sectionId}`)) return;
         this._patchLayoutSectionById(event.sectionId, (section) => {
             const override = { ...(section.keyOverrides?.[event.key] ?? {}) };
             if (event.colSpan !== undefined) {
@@ -1812,6 +1816,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectLayoutLayer(layer: LayoutLayerItem): void {
+        if (this.isLayoutLayerLocked(layer.id)) return;
         if (layer.kind === 'section') {
             const section = this.layoutSections().find((item) => item.id === layer.id.slice(4));
             if (!section) return;
@@ -1835,10 +1840,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     toggleLayoutLayerLocked(id: string, event?: Event): void {
         event?.stopPropagation();
+        const locking = !this.isLayoutLayerLocked(id);
         this.layoutLayerFlags.update((flags) => {
             const current = flags[id] ?? {};
             return { ...flags, [id]: { ...current, locked: !current.locked } };
         });
+        if (locking && this._layoutLayerIdOfSelection() === id) this.clearLayoutSelection();
+    }
+
+    private _layoutLayerIdOfSelection(): string | null {
+        const overlay = this.selectedLayoutOverlay();
+        if (overlay) return overlay;
+        const sectionId = this.selectedLayoutSectionId();
+        return sectionId ? `sec:${sectionId}` : null;
+    }
+
+    private _selectionIsLocked(): boolean {
+        const id = this._layoutLayerIdOfSelection();
+        return Boolean(id && this.isLayoutLayerLocked(id));
     }
 
     private _overlayLayerZ(id: string, fallback: number): number {
@@ -1988,6 +2007,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutOverlaySelect(id: ReportOverlayId): void {
+        if (this.isLayoutLayerLocked(id)) return;
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
@@ -2457,7 +2477,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     canCopySelectedLayout(): boolean {
-        return Boolean(this.selectedLayoutSection());
+        return Boolean(this.selectedLayoutSection()) && !this._selectionIsLocked();
     }
 
     copyLayoutContextTarget(): void {
@@ -2710,6 +2730,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutLayerContextMenu(section: ReportSection, event: MouseEvent): void {
+        if (this.isLayoutLayerLocked(`sec:${section.id}`)) return;
         event.preventDefault();
         event.stopPropagation();
         this.onLayoutSectionClick(section);
@@ -2721,6 +2742,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     deleteSelectedLayoutTarget(): void {
+        if (this._selectionIsLocked()) return;
         const overlay = this.selectedLayoutOverlay();
         if (overlay === 'logo') {
             this.clearLogo();
@@ -3690,6 +3712,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             staticContent: kind,
             style: { color: this.primaryColor() },
             frame: this._consumePendingContentFrame(tool.height, tool.width),
+            ...(kind === 'line' ? { rowLineWidth: 1, rowLineStyle: 'solid' as const } : {}),
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
@@ -3821,6 +3844,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                           shape: kind,
                           staticContent: kind,
                           label: tool ? this._transloco.translate(tool.labelKey) : section.label,
+                          ...(kind === 'line' && section.rowLineWidth == null ? { rowLineWidth: 1 } : {}),
+                          ...(kind === 'line' && !section.rowLineStyle ? { rowLineStyle: 'solid' as const } : {}),
                       }
                     : section
             )
@@ -3862,6 +3887,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectedLayoutShowsFormatBar(): boolean {
+        if (this._selectionIsLocked()) return false;
         if (this.selectedLayoutUsesCompactOverlayBar()) return true;
         const section = this.selectedLayoutSection();
         return Boolean(section) && !isReportPageAnchor(section);
@@ -4016,7 +4042,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectedLineWidth(): number {
-        return Math.max(1, Math.min(12, Math.round(Number(this.selectedLayoutSection()?.rowLineWidth) || 2)));
+        return Math.max(1, Math.min(12, Math.round(Number(this.selectedLayoutSection()?.rowLineWidth) || 1)));
     }
 
     selectedLineStyle(): ReportRowLineStyle {
@@ -5157,7 +5183,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _patchSelectedLayout(patch: Partial<ReportSection>): void {
         const id = this.selectedLayoutSectionId();
-        if (!id) return;
+        if (!id || this._selectionIsLocked()) return;
         this.layoutSections.update((list) =>
             list.map((section) => (section.id === id ? { ...section, ...patch } : section))
         );
@@ -5165,7 +5191,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _patchSelectedLayoutStyle(patch: NonNullable<ReportSection['style']>): void {
         const id = this.selectedLayoutSectionId();
-        if (!id) return;
+        if (!id || this._selectionIsLocked()) return;
         this.layoutSections.update((list) =>
             list.map((section) =>
                 section.id === id

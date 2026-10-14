@@ -1827,6 +1827,7 @@
                                         @for (layer of layoutLayers(); track layer.id) {
                                             <div
                                                 cdkDrag
+                                                [cdkDragDisabled]="isLayoutLayerLocked(layer.id)"
                                                 class="flex items-center gap-1 rounded-lg border bg-white px-1 py-1 dark:bg-gray-950"
                                                 [class.border-indigo-400]="isLayoutLayerSelected(layer)"
                                                 [class.bg-indigo-50]="isLayoutLayerSelected(layer)"
@@ -1842,7 +1843,8 @@
                                                 >
                                                 <button
                                                     type="button"
-                                                    class="flex min-w-0 flex-1 items-center gap-1 text-left"
+                                                    class="flex min-w-0 flex-1 items-center gap-1 text-left disabled:cursor-default"
+                                                    [disabled]="isLayoutLayerLocked(layer.id)"
                                                     (click)="selectLayoutLayer(layer)"
                                                 >
                                                     <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-500">{{

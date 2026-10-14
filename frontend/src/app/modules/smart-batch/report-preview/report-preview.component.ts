@@ -249,7 +249,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     layerZ = input<Record<string, number>>({});
     /** Editor-only. Hidden layers stay in the file; they just leave the sheet while designing. */
     hiddenLayerIds = input<string[]>([]);
-    /** Editor-only. A locked layer stays visible and lets clicks reach whatever is behind it. */
+    /** Editor-only. A locked layer stays visible, but it cannot be selected, moved, or edited. */
     lockedLayerIds = input<string[]>([]);
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
@@ -511,6 +511,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     constructor() {
         effect(() => registerReportFonts(this.template()?.customFonts));
+        effect(() => {
+            const editing = this.editingText();
+            if (!editing || !this.lockedLayerIds().includes(`sec:${editing.sectionId}`)) return;
+            untracked(() => this.editingText.set(null));
+        });
 
         // Single effect that tracks every input that influences pagination.
         // Reading the signals here registers the dependency; the actual work
@@ -985,6 +990,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.lockedLayerIds().includes(id);
     }
 
+    private _sectionLocked(section: ReportSection): boolean {
+        return this.isLayerLocked(`sec:${section.id}`);
+    }
+
     /** Locked and hidden layers do not take the click, so the block behind them can be edited. */
     isLayerQuiet(id: string): boolean {
         return this.isLayerHidden(id) || this.isLayerLocked(id);
@@ -1053,6 +1062,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     onSectionActivate(section: ReportSection, event: Event): void {
         event.stopPropagation();
+        if (this._sectionLocked(section)) return;
         if (this._sectionDragMoved) {
             this._sectionDragMoved = false;
             return;
@@ -1130,7 +1140,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     ): void {
         event.preventDefault();
         event.stopPropagation();
-        if (!this.canInlineEdit()) return;
+        if (!this.canInlineEdit() || this._sectionLocked(section)) return;
         const editKind = kind as ReportInlineTextKind;
         this._clearSectionDrag();
         this._flushInlineEdit();
@@ -1237,7 +1247,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     };
 
     onSectionPointerDown(section: ReportSection, event: PointerEvent): void {
-        if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
+        if (!this.clickable() || !this.reorderable() || event.button !== 0 || this._sectionLocked(section)) return;
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
         if (origin?.closest('[data-section-handle]')) return;
@@ -1268,7 +1278,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         event: PointerEvent,
         handle: ReportResizeHandle = 'se'
     ): void {
-        if (!this.clickable() || event.button !== 0) return;
+        if (!this.clickable() || event.button !== 0 || this._sectionLocked(section)) return;
         event.preventDefault();
         event.stopPropagation();
         const frame = this.displayFrame(section);
@@ -1304,7 +1314,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     startSectionRotate(section: ReportSection, event: PointerEvent): void {
-        if (!this.clickable() || event.button !== 0) return;
+        if (!this.clickable() || event.button !== 0 || this._sectionLocked(section)) return;
         event.preventDefault();
         event.stopPropagation();
         const box = (event.currentTarget as HTMLElement).closest('[data-report-section]') as HTMLElement | null;
@@ -2465,7 +2475,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     onSectionContextMenu(section: ReportSection, event: MouseEvent): void {
-        if (!this.clickable() || !this.customContextMenu()) return;
+        if (!this.clickable() || !this.customContextMenu() || this._sectionLocked(section)) return;
         event.preventDefault();
         event.stopPropagation();
         this.sectionClick()?.(section);
@@ -2473,7 +2483,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     onOverlayContextMenu(id: ReportOverlayId, event: MouseEvent): void {
-        if (!this.clickable() || !this.customContextMenu()) return;
+        if (!this.clickable() || !this.customContextMenu() || this.isLayerLocked(id)) return;
         event.preventDefault();
         event.stopPropagation();
         this.overlaySelect.emit(id);
@@ -2526,7 +2536,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     } | null = null;
 
     startHeaderLogoMove(event: PointerEvent, id: string): void {
-        if (!this.clickable() || event.button !== 0) return;
+        if (!this.clickable() || event.button !== 0 || this.isLayerLocked(`hdr:${id}`)) return;
         if ((event.target as HTMLElement | null)?.closest('[data-overlay-handle]')) return;
         event.stopPropagation();
         const placed = placeCompanyLogos(
@@ -2576,7 +2586,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     startHeaderLogoResize(event: PointerEvent, id: string): void {
-        if (!this.clickable() || event.button !== 0) return;
+        if (!this.clickable() || event.button !== 0 || this.isLayerLocked(`hdr:${id}`)) return;
         event.stopPropagation();
         event.preventDefault();
         const logo = (this.template()?.headerLogos ?? []).find((item) => item.id === id);
@@ -2616,7 +2626,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     startMove(event: PointerEvent, target: ReportOverlayId) {
-        if (!this.clickable() || this.isResizing || this.isRotating || event.button !== 0) return;
+        if (!this.clickable() || this.isResizing || this.isRotating || event.button !== 0 || this.isLayerLocked(target)) return;
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-handle]')) return;
 
@@ -2798,7 +2808,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     };
 
     startResize(event: PointerEvent, target: ReportOverlayId = 'signature') {
-        if (event.button !== 0) return;
+        if (event.button !== 0 || this.isLayerLocked(target)) return;
         this.isResizing = true;
         this._setSheetDragging(true);
         this.resizeTarget = target;
@@ -2824,7 +2834,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     startRotate(event: PointerEvent, target: ReportOverlayId) {
-        if (event.button !== 0) return;
+        if (event.button !== 0 || this.isLayerLocked(target)) return;
         const box = (event.currentTarget as HTMLElement).closest('[data-overlay-box]') as HTMLElement | null;
         if (!box) return;
 
@@ -3197,12 +3207,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         event: Event
     ): void {
         event.stopPropagation();
-        if (!this.clickable() || this._sectionDragMoved || this._cellDragMoved) return;
+        if (!this.clickable() || this._sectionDragMoved || this._cellDragMoved || this._sectionLocked(section)) return;
         this.cellSelect.emit({ section, key, part });
     }
 
     onCellContextMenu(section: ReportSection, key: string, event: MouseEvent): void {
-        if (!this.clickable() || !this.customContextMenu()) return;
+        if (!this.clickable() || !this.customContextMenu() || this._sectionLocked(section)) return;
         event.preventDefault();
         event.stopPropagation();
         this.sectionClick()?.(section);
@@ -3211,7 +3221,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     onCellPointerDown(section: ReportSection, key: string, event: PointerEvent): void {
-        if (!this.clickable() || !this.reorderable() || event.button !== 0) return;
+        if (!this.clickable() || !this.reorderable() || event.button !== 0 || this._sectionLocked(section)) return;
         if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
         event.stopPropagation();
         this._clearSectionDrag();
@@ -3304,15 +3314,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             value === 'triangle' ||
             value === 'diamond' ||
             value === 'bullet' ||
-            value === 'icon'
-        ) {
-            return value;
-        }
-        return 'rectangle';
-    }
-
-    /**
-     * `iconSvg` was cleaned by `sanitizeIconSvg` when inserted; the server cleans it
             value === 'icon' ||
             value === 'line'
         ) {
@@ -3474,7 +3475,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
      * its height, `w` sets a table column width.
      */
     startCellResize(section: ReportSection, key: string, axis: 'x' | 'y' | 'w', event: PointerEvent): void {
-        if (!this.clickable() || event.button !== 0) return;
+        if (!this.clickable() || event.button !== 0 || this._sectionLocked(section)) return;
         event.preventDefault();
         event.stopPropagation();
         const cell = (event.currentTarget as HTMLElement | null)?.closest(
