@@ -51,6 +51,8 @@ import {
     HistoryTopSalesRow,
 } from './history.service';
 import { createdAtRangeParams } from '../settings/usage-history/usage-history-date-params.util';
+import { countryName } from 'app/core/usage/country-geo';
+import { CostCenter, UsageApiService } from 'app/core/usage/usage-api.service';
 import { HistoryRequestDialogComponent, HistoryRequestDialogResult } from './history-request-dialog.component';
 
 export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
@@ -133,6 +135,7 @@ const createSection = (id: HistorySectionId): HistorySectionState => ({
 })
 export class HistoryComponent implements OnInit, OnDestroy {
     private _historyService = inject(HistoryService);
+    private _usageApi = inject(UsageApiService);
     private _dialog = inject(MatDialog);
     private _walletService = inject(AgentWalletService);
     private _router = inject(Router);
@@ -206,6 +209,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
     datePreset: DatePreset = 'all';
     searchText = '';
     serviceFilter = '';
+    countryFilter = '';
+    costCenterFilter = '';
+    countryOptions = signal<{ code: string; name: string }[]>([]);
+    costCenterOptions = signal<CostCenter[]>([]);
     topEndpoints = signal<HistoryTopSalesRow[]>([]);
     featureCatalog = signal<Record<string, HistoryFeatureMeta>>({});
 
@@ -232,6 +239,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
         });
         this._route.queryParams.pipe(takeUntil(this._destroy$)).subscribe((params) => {
             const targetMode = params['view'] === 'x402' ? 'x402' : 'credits';
+            const country = /^[A-Za-z]{2}$/.test(params['country'] || '') ? String(params['country']).toUpperCase() : '';
+            if (country !== this.countryFilter) {
+                this.countryFilter = country;
+                this._resetVisiblePages();
+            }
             if (this.mode() !== targetMode) {
                 this.mode.set(targetMode);
                 this._resetVisiblePages();
@@ -240,6 +252,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
             this.loadData();
         });
         this._loadFeatureCatalog();
+        this._loadScopeFilters();
     }
 
     ngOnDestroy(): void {
@@ -248,7 +261,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
 
     get disabledClearFilters(): boolean {
-        return !this.searchText && !this.serviceFilter && this.datePreset === 'all';
+        return !this.searchText && !this.serviceFilter && !this.countryFilter && !this.costCenterFilter && this.datePreset === 'all';
     }
 
     setMode = (mode: 'credits' | 'x402'): void => {
@@ -275,6 +288,16 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
     onServiceFilterChange = (value: string): void => {
         this.serviceFilter = value || '';
+        this._resetVisiblePages();
+        this.loadData();
+    };
+
+    onCountryFilterChange = (value: string): void => {
+        this._router.navigate([], { relativeTo: this._route, queryParams: { country: value || null }, queryParamsHandling: 'merge' });
+    };
+
+    onCostCenterFilterChange = (value: string): void => {
+        this.costCenterFilter = value || '';
         this._resetVisiblePages();
         this.loadData();
     };
@@ -325,6 +348,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
     clearFilters = (): void => {
         this.searchText = '';
         this.serviceFilter = '';
+        this.costCenterFilter = '';
+        if (this.countryFilter) this.onCountryFilterChange('');
         this.datePreset = 'all';
         this.rangeStart.setValue(null, { emitEvent: false });
         this.rangeEnd.setValue(null, { emitEvent: false });
@@ -601,6 +626,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
         };
         if (this.searchText) params.like_code = this.searchText.toLowerCase();
         if (this.serviceFilter) params.where_code = this.serviceFilter;
+        if (this.countryFilter) params.country = this.countryFilter;
+        if (this.costCenterFilter) params.costCenter = this.costCenterFilter;
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
             Object.assign(params, createdAtRangeParams(range.start, range.end));
@@ -779,6 +806,30 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
     private _t = (key: string, params?: Record<string, string | number>): string =>
         this._transloco.translate(key, params);
+
+    /** Countries with traffic in the last 12 months, and the account's cost centers. */
+    private _loadScopeFilters = (): void => {
+        const end = new Date();
+        const start = new Date(end.getFullYear() - 1, end.getMonth(), end.getDate() + 1);
+        const lang = this._transloco.getActiveLang() || 'en';
+
+        this._usageApi
+            .getUsage({ groupBy: 'country', startDate: start.toISOString(), endDate: end.toISOString(), limit: 100 })
+            .pipe(catchError(() => of(null)))
+            .subscribe((report) => {
+                const codes = (report?.groups ?? []).map((group) => group.key).filter((key): key is string => Boolean(key));
+                this.countryOptions.set(codes.map((code) => ({ code, name: countryName(code, lang) })).sort((a, b) => a.name.localeCompare(b.name)));
+                this._cdr.markForCheck();
+            });
+
+        this._usageApi
+            .listCostCenters()
+            .pipe(catchError(() => of([] as CostCenter[])))
+            .subscribe((centers) => {
+                this.costCenterOptions.set(centers);
+                this._cdr.markForCheck();
+            });
+    };
 
     private _loadFeatureCatalog = (): void => {
         this._historyService

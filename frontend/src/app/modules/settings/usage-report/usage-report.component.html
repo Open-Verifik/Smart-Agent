@@ -1,0 +1,126 @@
+<div class="flex flex-col h-full" *transloco="let t">
+    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('settings.usageReport.title') }}</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">{{ t('settings.usageReport.subtitle') }}</p>
+        </div>
+        @if (userClientId) {
+            <button mat-stroked-button class="rounded-lg h-10 shrink-0" [disabled]="exporting() || loading() || !report()" (click)="downloadCsv()">
+                <mat-icon class="mr-1 !h-5 !w-5 !text-xl">download</mat-icon>
+                {{ t(exporting() ? 'settings.usageReport.exporting' : 'settings.usageReport.downloadCsv') }}
+            </button>
+        }
+    </div>
+
+    @if (!userClientId) {
+        <app-settings-business-account-empty-state hintKey="settings.usageReport.signInHint" (userChange)="onBusinessAccountLinked($event)" />
+    } @else {
+        <div class="content-card p-4 mb-4 flex flex-col gap-3">
+            <mat-button-toggle-group [value]="groupBy()" (change)="setGroupBy($event.value)" [disabled]="loading()" class="flex-wrap" [attr.aria-label]="t('settings.usageReport.groupBy')">
+                @for (option of groupings; track option) {
+                    <mat-button-toggle [value]="option">{{ t('settings.usageReport.group.' + option) }}</mat-button-toggle>
+                }
+            </mat-button-toggle-group>
+            <div class="flex flex-col gap-3 md:flex-row md:items-center">
+                <mat-button-toggle-group [value]="range()" (change)="setRange($event.value)" [disabled]="loading()" class="flex-wrap" [attr.aria-label]="t('settings.usageReport.range')">
+                    @for (option of ranges; track option) {
+                        <mat-button-toggle [value]="option">{{ t('settings.usageReport.ranges.' + option) }}</mat-button-toggle>
+                    }
+                </mat-button-toggle-group>
+                @if (costCenters().length) {
+                    <mat-select class="md:w-56 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm" [value]="costCenter()" (selectionChange)="setCostCenter($event.value)" [attr.aria-label]="t('settings.usageReport.costCenter')">
+                        <mat-option value="">{{ t('settings.usageReport.allCostCenters') }}</mat-option>
+                        @for (center of costCenters(); track center._id) {
+                            <mat-option [value]="center._id">{{ center.name }} · {{ center.code }}</mat-option>
+                        }
+                        <mat-option value="none">{{ t('settings.usageReport.noCostCenter') }}</mat-option>
+                    </mat-select>
+                }
+            </div>
+        </div>
+
+        @if (report()?.source && report()!.source !== 'apiRequests') {
+            <div class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-100" role="status">
+                <mat-icon class="!h-5 !w-5 !text-xl text-amber-600 dark:text-amber-300">receipt_long</mat-icon>
+                <p>{{ t('settings.usageReport.sourceCredits') }}</p>
+            </div>
+        }
+
+        @if (loading()) {
+            <div class="flex items-center justify-center py-12"><mat-spinner diameter="32"></mat-spinner></div>
+        } @else if (failed()) {
+            <div class="content-card p-6 text-sm text-red-600 dark:text-red-400" role="alert">{{ t('settings.usageReport.loadError') }}</div>
+        } @else if (report()) {
+            @let data = report()!;
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.total') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.totalRequests | number }}</p>
+                </div>
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.ok') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.ok | number }}</p>
+                </div>
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.failed') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.failed + data.totals.timedOut | number }}</p>
+                </div>
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.cost') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.costUSD | currency: 'USD' : 'symbol' : '1.2-2' }}</p>
+                </div>
+            </div>
+
+            @if (!data.groups.length) {
+                <div class="content-card p-8 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.empty') }}</div>
+            } @else {
+                @if (chart(); as options) {
+                    <div class="content-card p-4 mb-4">
+                        <apx-chart
+                            [chart]="options.chart!"
+                            [series]="options.series!"
+                            [colors]="options.colors!"
+                            [xaxis]="options.xaxis!"
+                            [yaxis]="options.yaxis!"
+                            [plotOptions]="options.plotOptions!"
+                            [dataLabels]="options.dataLabels!"
+                            [grid]="options.grid!"
+                            [legend]="options.legend!"
+                            [tooltip]="options.tooltip!"
+                        ></apx-chart>
+                    </div>
+                }
+                <div class="content-card overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50/50 dark:bg-gray-800/50 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            <tr>
+                                <th class="px-4 py-3 text-left">{{ t('settings.usageReport.group.' + (data.groupBy || 'month')) }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.total') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.ok') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.failed') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.timedOut') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.cost') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700 tabular-nums">
+                            @for (group of data.groups; track group.key) {
+                                <tr>
+                                    <td class="px-4 py-2.5 text-gray-900 dark:text-white max-w-xs truncate" [title]="label(group)">{{ label(group) }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.totalRequests | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.ok | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.failed | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.timedOut | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.costUSD | currency: 'USD' : 'symbol' : '1.2-4' }}</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                {{ t('settings.usageReport.footnote') }}
+                <a class="font-medium text-blue-600 dark:text-blue-400 hover:underline" [href]="docsUrl" target="_blank" rel="noopener">{{ t('settings.usageReport.docs') }}</a>
+            </p>
+        }
+    }
+</div>

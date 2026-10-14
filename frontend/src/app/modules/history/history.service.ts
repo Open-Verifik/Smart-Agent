@@ -45,6 +45,10 @@ export interface HistoryListParams {
     whereGTE_createdAt?: string;
     whereLTE_createdAt?: string;
     historyBucket?: 'all' | 'failed' | 'pending' | 'success';
+    /** ISO-2 country; matched on the `/v2/{country}/` endpoint prefix so older rows are included. */
+    country?: string;
+    /** Cost center id. */
+    costCenter?: string;
 }
 
 export interface HistoryFeatureMeta {
@@ -189,6 +193,8 @@ export class HistoryService {
         historyBucket: params.historyBucket,
         whereGTE_createdAt: params.whereGTE_createdAt,
         whereLTE_createdAt: params.whereLTE_createdAt,
+        prefix_endpoint: params.country ? `/v2/${params.country.toLowerCase()}/` : undefined,
+        where_costCenter: params.costCenter,
     });
 
     private _authHeaders = (): Record<string, string> => {

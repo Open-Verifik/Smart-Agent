@@ -53,6 +53,14 @@ describe('getVerifikDocsUrls', () => {
         );
     });
 
+    it('should localize usage and cost center docs for English and Spanish', () => {
+        expect(getVerifikDocsUrls('en').usageApi).toBe('https://docs.verifik.co/resources/usage/');
+        expect(getVerifikDocsUrls('en').costCenters).toBe('https://docs.verifik.co/resources/cost-centers/');
+        expect(getVerifikDocsUrls('es').usageApi).toBe('https://docs.verifik.co/verifik-es/resources/uso/');
+        expect(getVerifikDocsUrls('es').costCenters).toBe('https://docs.verifik.co/verifik-es/resources/centros-de-costo/');
+        expect(getVerifikDocsUrls('fr').usageApi).toBe('https://docs.verifik.co/resources/usage/');
+    });
+
     it('should prefix docsPageUrl with the environment documentation base', () => {
         expect(docsPageUrl('/smartenroll/resume')).toBe(
             'https://docs.verifik.co/smartenroll/resume'

@@ -34,6 +34,7 @@ import { DashboardData, HomeService } from './home.service';
 import { OnboardingQuestsComponent } from './onboarding-quests/onboarding-quests.component';
 import { OnboardingExplanationModalComponent } from './onboarding-explanation-modal/onboarding-explanation-modal.component';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
+import { UsageGlobeComponent, UsageGlobeService } from './usage-globe/usage-globe.component';
 
 interface ChartTheme {
     tooltipTheme: 'light' | 'dark';
@@ -82,6 +83,7 @@ interface PodiumEntry {
         HomeNotificationBannersComponent,
         HomeGetStartedComponent,
         OnboardingQuestsComponent,
+        UsageGlobeComponent,
     ],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
@@ -170,6 +172,14 @@ export class HomeComponent implements OnInit {
             displayName: this.getApiDisplayName(entry._id),
         }));
     });
+
+    /** Top services this month for the globe panel, from the existing top-sales call. */
+    globeServices = computed<UsageGlobeService[]>(() =>
+        [...(this._homeService.topSalesData() ?? [])]
+            .sort((a, b) => (b.total ?? 0) - (a.total ?? 0))
+            .slice(0, 3)
+            .map((entry) => ({ code: entry._id, label: this.getApiDisplayName(entry._id), count: entry.total ?? 0 }))
+    );
 
     shortcuts: ShortcutItem[] = [
         {

@@ -18,6 +18,32 @@
         </mat-select>
     </mat-form-field>
 
+    <mat-form-field class="w-full" appearance="outline">
+        <mat-label>{{ 'supportTickets.quickChat.newTicket.priority' | transloco }}</mat-label>
+        <mat-select formControlName="priority">
+            @for (p of priorityOptions; track p) {
+                <mat-option [value]="p">{{ 'supportTickets.priority.' + p | transloco }}</mat-option>
+            }
+        </mat-select>
+        <mat-hint>{{ 'supportTickets.quickChat.newTicket.priorityHint' | transloco }}</mat-hint>
+    </mat-form-field>
+
+    @if (isCritical()) {
+        <div
+            class="flex gap-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-100"
+            role="note"
+        >
+            <mat-icon class="icon-size-5 shrink-0" [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>
+            <div>
+                <p class="m-0 font-medium">{{ 'supportTickets.quickChat.newTicket.criticalSlaTitle' | transloco }}</p>
+                <p class="m-0 mt-1 leading-5">{{ 'supportTickets.quickChat.newTicket.criticalSlaBody' | transloco }}</p>
+                <p class="m-0 mt-1 text-xs opacity-80">
+                    {{ 'supportTickets.quickChat.newTicket.supportHours' | transloco: { timezone: supportTimezone } }}
+                </p>
+            </div>
+        </div>
+    }
+
     @if (isSmartCheck()) {
         <mat-form-field class="w-full" appearance="outline">
             <mat-label>{{ 'supportTickets.quickChat.newTicket.ticketSubject' | transloco }}</mat-label>

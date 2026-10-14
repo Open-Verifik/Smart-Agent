@@ -126,6 +126,47 @@
                                             }
                                         </select>
                                     </div>
+
+                                    @if (countryOptions().length || countryFilter) {
+                                        <div class="min-w-[180px]">
+                                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
+                                                {{ t('history.filterCountry') }}
+                                            </label>
+                                            <select
+                                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                                [ngModel]="countryFilter"
+                                                (ngModelChange)="onCountryFilterChange($event)"
+                                                [disabled]="filtersBusy()"
+                                            >
+                                                <option value="">{{ t('history.filterCountryAll') }}</option>
+                                                @for (country of countryOptions(); track country.code) {
+                                                    <option [value]="country.code">{{ country.name }}</option>
+                                                }
+                                                @if (countryFilter && !countryOptions().length) {
+                                                    <option [value]="countryFilter">{{ countryFilter }}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+
+                                    @if (costCenterOptions().length) {
+                                        <div class="min-w-[180px]">
+                                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
+                                                {{ t('history.filterCostCenter') }}
+                                            </label>
+                                            <select
+                                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                                [ngModel]="costCenterFilter"
+                                                (ngModelChange)="onCostCenterFilterChange($event)"
+                                                [disabled]="filtersBusy()"
+                                            >
+                                                <option value="">{{ t('history.filterCostCenterAll') }}</option>
+                                                @for (center of costCenterOptions(); track center._id) {
+                                                    <option [value]="center._id">{{ center.name }} · {{ center.code }}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>

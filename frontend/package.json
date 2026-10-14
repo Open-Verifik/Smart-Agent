@@ -37,6 +37,7 @@
         "ag-grid-angular": "^35.1.0",
         "ag-grid-community": "^35.1.0",
         "apexcharts": "^5.3.6",
+        "cobe": "^2.0.1",
         "ethers": "^6.16.0",
         "handsontable": "^17.0.1",
         "highlight.js": "11.11.1",

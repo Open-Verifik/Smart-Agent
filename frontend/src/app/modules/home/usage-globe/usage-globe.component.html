@@ -1,0 +1,102 @@
+<section class="usage-globe" *transloco="let t">
+    <header class="usage-globe-header">
+        <div class="min-w-0">
+            <h2 class="usage-globe-title">{{ t('home.usageGlobe.title') }}</h2>
+            <p class="usage-globe-subtitle">
+                @if (loading()) {
+                    {{ t('home.usageGlobe.loading') }}
+                } @else if (failed()) {
+                    {{ t('home.usageGlobe.error') }}
+                } @else if (isEmpty()) {
+                    {{ t('home.usageGlobe.emptySubtitle') }}
+                } @else {
+                    {{ t('home.usageGlobe.subtitle', { total: (totalRequests() | number), countries: countryCount() }) }}
+                }
+            </p>
+        </div>
+        <div class="usage-globe-actions">
+            @if (source() !== 'apiRequests' && !loading()) {
+                <span class="usage-globe-chip" [title]="t('home.usageGlobe.sourceCreditsHint')">
+                    <mat-icon class="!h-3.5 !w-3.5 !text-sm">receipt_long</mat-icon>
+                    {{ t('home.usageGlobe.sourceCredits') }}
+                </span>
+            }
+            <a class="usage-globe-link" routerLink="/settings/usage-report">
+                {{ t('home.usageGlobe.openReport') }}
+                <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+            </a>
+        </div>
+    </header>
+
+    <div class="usage-globe-body">
+        <div
+            class="usage-globe-stage"
+            role="img"
+            [attr.aria-label]="t('home.usageGlobe.globeLabel')"
+            (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp()"
+            (pointercancel)="onPointerUp()"
+            (pointerleave)="onPointerUp()"
+        >
+            <canvas #globeCanvas class="usage-globe-canvas"></canvas>
+            @for (row of labelled(); track row.code; let first = $first) {
+                <div
+                    class="usage-globe-label"
+                    [class.usage-globe-label--hub]="first"
+                    [attr.style]="'position-anchor: ' + anchorFor(row.code!) + '; opacity: ' + visibilityFor(row.code!)"
+                >
+                    <span class="usage-globe-label-code">{{ row.code }}</span>
+                    <span>{{ row.total | number }}</span>
+                </div>
+            }
+            @if (loading()) {
+                <div class="usage-globe-overlay"><mat-spinner diameter="28"></mat-spinner></div>
+            }
+        </div>
+
+        <div class="usage-globe-panel">
+            @if (isEmpty() || failed()) {
+                <div class="usage-globe-empty">
+                    <mat-icon class="text-slate-400">travel_explore</mat-icon>
+                    <p class="font-medium text-slate-700 dark:text-slate-200">{{ t('home.usageGlobe.emptyTitle') }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('home.usageGlobe.emptyBody') }}</p>
+                    <a class="usage-globe-link mt-2" routerLink="/postman">{{ t('home.usageGlobe.emptyCta') }}</a>
+                </div>
+            } @else if (!loading()) {
+                <h3 class="usage-globe-panel-title">{{ t('home.usageGlobe.countries') }}</h3>
+                <ol class="usage-globe-list">
+                    @for (row of rows().slice(0, 6); track row.code) {
+                        <li>
+                            <button type="button" class="usage-globe-row" [disabled]="!row.code" (click)="openCountry(row)">
+                                <span class="usage-globe-iso">{{ row.code || '··' }}</span>
+                                <span class="usage-globe-row-main">
+                                    <span class="usage-globe-row-head">
+                                        <span class="truncate">{{ row.name }}</span>
+                                        <span class="usage-globe-row-count">{{ row.total | number }}</span>
+                                    </span>
+                                    <span class="usage-globe-bar"><span [style.width]="barWidth(row)"></span></span>
+                                    @if (row.failed) {
+                                        <span class="usage-globe-row-meta">{{ t('home.usageGlobe.failedShare', { rate: failureRate(row) }) }}</span>
+                                    }
+                                </span>
+                            </button>
+                        </li>
+                    }
+                </ol>
+
+                @if (services().length) {
+                    <h3 class="usage-globe-panel-title mt-5">{{ t('home.usageGlobe.topServices') }}</h3>
+                    <ul class="usage-globe-services">
+                        @for (service of services().slice(0, 3); track service.code) {
+                            <li>
+                                <span class="truncate">{{ service.label }}</span>
+                                <span class="usage-globe-row-count">{{ service.count | number }}</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+        </div>
+    </div>
+</section>

@@ -19,7 +19,8 @@ import { Attachment, AttachmentService } from 'app/core/services/attachment.serv
 import { FileDropZoneComponent } from 'app/shared/file-drop-zone/file-drop-zone.component';
 import { SupportTicketApiPickerComponent } from '../api-picker/support-ticket-api-picker.component';
 import { SupportTicketService } from '../support-ticket.service';
-import type { SupportTicketCategory, SupportTicketFormData } from '../support-ticket.types';
+import { getVerifikAccount } from 'app/modules/settings/utils/settings-business-user.util';
+import type { SupportTicketCategory, SupportTicketFormData, SupportTicketPriority } from '../support-ticket.types';
 
 @Component({
     selector: 'app-support-ticket-create-dialog',
@@ -65,9 +66,16 @@ export class SupportTicketCreateDialogComponent implements OnDestroy {
         { value: 'other', labelKey: 'supportTickets.quickChat.categories.other' },
     ];
 
+    readonly priorityOptions: SupportTicketPriority[] = ['low', 'normal', 'high', 'critical'];
+
+    /** Timezone used for SLA due dates; the account setting wins over the browser zone. */
+    readonly supportTimezone =
+        (getVerifikAccount()?.['supportTimezone'] as string | undefined) || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
     form = this._fb.nonNullable.group({
         title: ['', [Validators.required, Validators.maxLength(200)]],
         category: ['smartCheck' as SupportTicketCategory, Validators.required],
+        priority: ['normal' as SupportTicketPriority, Validators.required],
         subject: [''],
         api: [''],
         message: ['', [Validators.required, Validators.maxLength(20000)]],
@@ -84,6 +92,10 @@ export class SupportTicketCreateDialogComponent implements OnDestroy {
     ngOnDestroy(): void {
         this._unsubscribeAll.next();
         this._unsubscribeAll.complete();
+    }
+
+    isCritical(): boolean {
+        return this.form.controls.priority.getRawValue() === 'critical';
     }
 
     isSmartCheck(): boolean {
@@ -133,6 +145,7 @@ export class SupportTicketCreateDialogComponent implements OnDestroy {
         const payload: SupportTicketFormData = {
             title: v.title.trim(),
             category: v.category as SupportTicketCategory,
+            priority: v.priority,
             threads: [{ message: messageHtml, ...(attachmentIds.length ? { attachments: attachmentIds } : {}) }],
             ...(this.isSmartCheck()
                 ? {

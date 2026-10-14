@@ -1,0 +1,329 @@
+:host {
+    display: block;
+    margin-bottom: 2rem;
+}
+
+.usage-globe {
+    container-type: inline-size;
+    position: relative;
+    overflow: hidden;
+    padding: 1.25rem 1.25rem 1.5rem;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background:
+        radial-gradient(120% 90% at 18% 55%, rgba(99, 102, 241, 0.07), transparent 60%),
+        rgb(255, 255, 255);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+
+    :host-context(.dark) & {
+        border-color: rgba(148, 163, 184, 0.18);
+        background:
+            radial-gradient(120% 90% at 18% 55%, rgba(129, 140, 248, 0.12), transparent 60%),
+            rgb(30, 41, 59);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+}
+
+.usage-globe-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+}
+
+.usage-globe-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgb(15, 23, 42);
+
+    :host-context(.dark) & {
+        color: rgb(248, 250, 252);
+    }
+}
+
+.usage-globe-subtitle {
+    margin-top: 0.2rem;
+    font-size: 0.85rem;
+    color: rgb(100, 116, 139);
+    font-variant-numeric: tabular-nums;
+
+    :host-context(.dark) & {
+        color: rgb(148, 163, 184);
+    }
+}
+
+.usage-globe-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.usage-globe-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    background: rgba(245, 158, 11, 0.12);
+    color: rgb(146, 64, 14);
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    :host-context(.dark) & {
+        background: rgba(245, 158, 11, 0.16);
+        color: rgb(253, 230, 138);
+    }
+}
+
+.usage-globe-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgb(79, 70, 229);
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    :host-context(.dark) & {
+        color: rgb(165, 180, 252);
+    }
+}
+
+.usage-globe-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    margin-top: 1rem;
+    align-items: center;
+
+    @container (min-width: 640px) {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: 2rem;
+    }
+}
+
+.usage-globe-stage {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    aspect-ratio: 1;
+    margin-inline: auto;
+    cursor: grab;
+    touch-action: pan-y;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.usage-globe-canvas {
+    width: 100%;
+    height: 100%;
+    contain: layout paint size;
+}
+
+.usage-globe-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+}
+
+.usage-globe-label {
+    position: absolute;
+    bottom: anchor(top);
+    left: anchor(center);
+    translate: -50% -6px;
+    display: inline-flex;
+    gap: 0.35rem;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(255, 255, 255, 0.92);
+    color: rgb(15, 23, 42);
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.35s ease;
+
+    :host-context(.dark) & {
+        border-color: rgba(148, 163, 184, 0.25);
+        background: rgba(15, 23, 42, 0.85);
+        color: rgb(241, 245, 249);
+    }
+}
+
+.usage-globe-label--hub {
+    border-color: rgba(99, 102, 241, 0.45);
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.18);
+}
+
+.usage-globe-label-code {
+    color: rgb(79, 70, 229);
+
+    :host-context(.dark) & {
+        color: rgb(165, 180, 252);
+    }
+}
+
+/* Without CSS anchor positioning the labels have nowhere to sit; the list carries the numbers. */
+@supports not (anchor-name: --a) {
+    .usage-globe-label {
+        display: none;
+    }
+}
+
+.usage-globe-panel {
+    min-width: 0;
+}
+
+.usage-globe-panel-title {
+    margin-bottom: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(100, 116, 139);
+
+    :host-context(.dark) & {
+        color: rgb(148, 163, 184);
+    }
+}
+
+.usage-globe-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.usage-globe-row {
+    display: flex;
+    width: 100%;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.5rem 0.5rem;
+    border-radius: 10px;
+    text-align: left;
+    transition: background-color 0.15s ease;
+
+    &:not(:disabled):hover,
+    &:focus-visible {
+        background: rgba(99, 102, 241, 0.07);
+    }
+
+    &:focus-visible {
+        outline: 2px solid rgb(99, 102, 241);
+        outline-offset: 1px;
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+}
+
+.usage-globe-iso {
+    flex: none;
+    width: 2rem;
+    padding: 0.15rem 0;
+    border-radius: 6px;
+    background: rgba(148, 163, 184, 0.14);
+    color: rgb(51, 65, 85);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: center;
+
+    :host-context(.dark) & {
+        background: rgba(148, 163, 184, 0.16);
+        color: rgb(226, 232, 240);
+    }
+}
+
+.usage-globe-row-main {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.usage-globe-row-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgb(15, 23, 42);
+
+    :host-context(.dark) & {
+        color: rgb(241, 245, 249);
+    }
+}
+
+.usage-globe-row-count {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.usage-globe-bar {
+    display: block;
+    height: 4px;
+    border-radius: 9999px;
+    background: rgba(148, 163, 184, 0.16);
+    overflow: hidden;
+
+    > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, rgb(129, 140, 248), rgb(79, 70, 229));
+        transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+}
+
+.usage-globe-row-meta {
+    font-size: 0.7rem;
+    color: rgb(148, 163, 184);
+}
+
+.usage-globe-services {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding-inline: 0.5rem;
+        font-size: 0.8rem;
+        color: rgb(51, 65, 85);
+
+        :host-context(.dark) & {
+            color: rgb(203, 213, 225);
+        }
+    }
+}
+
+.usage-globe-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 1rem 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .usage-globe-bar > span,
+    .usage-globe-label {
+        transition: none;
+    }
+}

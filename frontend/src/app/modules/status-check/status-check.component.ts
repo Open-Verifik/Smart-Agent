@@ -23,6 +23,7 @@ import ApexCharts from 'apexcharts';
 import { DateTime } from 'luxon';
 import { catchError, forkJoin, Observable, of, Subject, takeUntil } from 'rxjs';
 import { postmanCountryFlagUi, PostmanCountryFlagUi } from '../postman/postman-country.util';
+import { AvailabilityCardComponent } from './availability-card/availability-card.component';
 import { StatusCheckService } from './status-check.service';
 import {
     AWAITING,
@@ -53,6 +54,7 @@ import {
         MatSelectModule,
         MatOptionModule,
         MatDialogModule,
+        AvailabilityCardComponent,
     ],
     templateUrl: './status-check.component.html',
     styleUrls: ['./status-check.component.scss'],

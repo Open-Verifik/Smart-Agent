@@ -161,6 +161,39 @@
                     </div>
                 </div>
             </div>
+
+            <div class="border-t border-gray-200 p-6 dark:border-gray-800">
+                <div class="mb-6 flex flex-col gap-1">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ 'settings.general.support_timezone' | transloco }}
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        {{ 'settings.general.support_timezone_desc' | transloco }}
+                    </p>
+                </div>
+                <div class="flex max-w-lg flex-col gap-4">
+                    <select
+                        class="h-11 w-full rounded-lg border border-gray-300 bg-gray-50 px-4 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        [(ngModel)]="supportTimezone"
+                    >
+                        @for (zone of timezones; track zone) {
+                            <option [value]="zone">{{ zone }}</option>
+                        }
+                    </select>
+                    <div class="flex justify-end">
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            class="!bg-blue-600 h-11 rounded-lg px-8 text-white hover:!bg-blue-700"
+                            type="button"
+                            (click)="saveSupportTimezone()"
+                            [disabled]="savingTimezone || !userClientId"
+                        >
+                            {{ savingTimezone ? ('settings.general.saving' | transloco) : ('settings.general.update' | transloco) }}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

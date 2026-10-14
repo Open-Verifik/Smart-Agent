@@ -1,4 +1,4 @@
-<div class="home-container">
+<div class="home-container" [class.home-container--signed-in]="isAuthenticated()">
     @if (isAuthenticated()) {
         <app-home-notification-banners></app-home-notification-banners>
     }
@@ -353,6 +353,12 @@
                                 </div>
                             </div>
                         </div>
+                    }
+
+                    @defer (on viewport) {
+                        <app-usage-globe [services]="globeServices()"></app-usage-globe>
+                    } @placeholder {
+                        <div class="usage-globe-placeholder"></div>
                     }
                 } @else {
                     <div class="sign-in-card p-6 text-center">

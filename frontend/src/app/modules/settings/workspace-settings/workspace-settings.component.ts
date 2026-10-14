@@ -25,7 +25,17 @@ import { Subject, takeUntil } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SettingsService, Workspace } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
-import { getBusinessUserClientId } from '../utils/settings-business-user.util';
+import { getBusinessUserClientId, getVerifikAccount } from '../utils/settings-business-user.util';
+
+/**
+ * IANA zones for the account support clock. UTC is the stored default and is not always in Intl's list.
+ * @returns {string[]}
+ */
+function _supportTimezoneOptions(): string[] {
+    const zones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
+
+    return zones.includes('UTC') ? zones : ['UTC', ...zones];
+}
 
 @Component({
     selector: 'app-workspace-settings',
@@ -58,6 +68,9 @@ export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy 
     workspaceLogo: string | null = null;
     isSavingWorkspace = false;
     isDeletingWorkspace = false;
+    supportTimezone = 'UTC';
+    savingTimezone = false;
+    readonly timezones = _supportTimezoneOptions();
 
     /** True when delete-workspace danger zone should be shown (owner; not staff-role user). */
     get showDangerZone(): boolean {
@@ -78,6 +91,7 @@ export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy 
 
     ngOnInit(): void {
         this.loadWorkspaceData();
+        this._loadSupportTimezone();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -90,6 +104,7 @@ export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy 
 
         this.workspaceLoaded = false;
         this.loadWorkspaceData();
+        this._loadSupportTimezone();
     }
 
     get userClientId(): string | undefined {
@@ -100,6 +115,41 @@ export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy 
         this.userChange.emit(account);
         this.workspaceLoaded = false;
         this.loadWorkspaceData();
+        this._loadSupportTimezone();
+    }
+
+    saveSupportTimezone(): void {
+        const clientId = this.userClientId;
+
+        if (!clientId || this.savingTimezone) return;
+
+        this.savingTimezone = true;
+        this._settingsService
+            .updateProfile(clientId, { supportTimezone: this.supportTimezone })
+            .pipe(
+                takeUntil(this._destroy$),
+                finalize(() => {
+                    this.savingTimezone = false;
+                    this._cdr.markForCheck();
+                })
+            )
+            .subscribe({
+                next: () => {
+                    this._snackBar.open(this._translocoService.translate('settings.general.support_timezone_saved'), undefined, { duration: 2500 });
+                },
+                error: () => {
+                    this._snackBar.open(this._translocoService.translate('settings.general.support_timezone_error'), undefined, { duration: 3000 });
+                },
+            });
+    }
+
+    private _loadSupportTimezone(): void {
+        const account = getVerifikAccount() as { supportTimezone?: string } | null;
+        const browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
+        this.supportTimezone = account?.supportTimezone || browserZone;
+
+        if (!this.timezones.includes(this.supportTimezone)) this.supportTimezone = 'UTC';
     }
 
     ngOnDestroy(): void {

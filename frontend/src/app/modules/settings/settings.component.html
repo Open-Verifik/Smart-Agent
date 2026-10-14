@@ -123,6 +123,18 @@
                     (userChange)="onUserChanged($event)"
                 ></app-usage-history>
 
+                <app-usage-report
+                    *ngIf="selectedPanel === 'usage_report'"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
+                ></app-usage-report>
+
+                <app-cost-centers
+                    *ngIf="selectedPanel === 'cost_centers'"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
+                ></app-cost-centers>
+
                 <app-workspace-settings
                     *ngIf="selectedPanel === 'general'"
                     [user]="settingsUser"

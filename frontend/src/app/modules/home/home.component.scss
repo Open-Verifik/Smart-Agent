@@ -24,6 +24,19 @@
     padding: 2rem 1.5rem;
 }
 
+.home-container--signed-in {
+    display: flex;
+    flex-direction: column;
+
+    > :not(.dashboard-shell):not(app-home-notification-banners) {
+        order: 2;
+    }
+
+    > .dashboard-shell {
+        order: 1;
+    }
+}
+
 /* -------------------------------------------------------------------------
  * Dashboard shell — stats/charts on the left, sticky quest rail on the right
  * ------------------------------------------------------------------------- */
@@ -582,6 +595,12 @@
         border-color: rgba(148, 163, 184, 0.18);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     }
+}
+
+/* Reserves the globe card's height so the sparklines do not jump when it loads. */
+.usage-globe-placeholder {
+    min-height: 420px;
+    margin-bottom: 2rem;
 }
 
 .stat-value {
