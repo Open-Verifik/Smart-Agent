@@ -170,14 +170,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     clickable = input<boolean>(false);
     /** Currently selected section ID (for builder highlight) */
     selectedSectionId = input<string | null>(null);
+    /** Other blocks chosen with Shift or Ctrl, moved together with the primary. */
+    selectedSectionIds = input<string[]>([]);
     /** Parameter key selected inside a block */
     selectedCellKey = input<string | null>(null);
     /** Label, value, or whole cell */
     selectedCellPart = input<ReportCellPart | null>(null);
     /** Currently selected overlay (logo, watermark, signature) */
     selectedOverlay = input<ReportOverlayId | null>(null);
-    /** Section click handler (optional) */
-    sectionClick = input<((section: ReportSection) => void) | null>(null);
+    /** Section click handler (optional). `additive` keeps the blocks already chosen. */
+    sectionClick = input<((section: ReportSection, source?: { additive?: boolean }) => void) | null>(null);
     /** When true, right-click emits a custom menu instead of the browser menu. */
     customContextMenu = input<boolean>(false);
     /** When true, holding a block lets the user reorder it on the page. */
@@ -353,6 +355,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         cellKey: string | null;
         cellPart: ReportCellPart;
         host: HTMLElement | null;
+        companions: { id: string; startFrame: ReportSectionFrame }[];
     } | null = null;
     private _sectionDragMoved = false;
     /** A click on a field already selected it; the section click must not clear that ring. */
@@ -410,6 +413,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _pageRectCache: { scrollTop: number; rects: DOMRect[] } | null = null;
     private _alignCache: { key: string; x: number[]; y: number[] } | null = null;
     readonly draggingSectionId = signal<string | null>(null);
+    /** Primary plus the other chosen blocks that follow the same drag. */
+    private readonly _groupDragIds = signal<string[]>([]);
     /** Lines shown while dragging, when an edge or the center lines up with another block. */
     readonly alignmentGuides = signal<{ page: number; axis: 'x' | 'y'; at: number }[]>([]);
     private _sheetDragging = false;
@@ -1069,6 +1074,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
         if ((event.target as HTMLElement | null)?.closest('[data-inline-edit]')) return;
         if (!this.clickable() || !this.sectionClick()) return;
+        const additive =
+            event instanceof MouseEvent && (event.shiftKey || event.ctrlKey || event.metaKey);
+        if (additive) {
+            this.sectionClick()?.(section, { additive: true });
+            return;
+        }
         const host = event.target as HTMLElement | null;
         if (host?.closest('[data-sheet-role="title"]')) {
             this._keepCellSelection = false;
@@ -1267,6 +1278,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             cellKey,
             cellPart,
             host: event.currentTarget as HTMLElement | null,
+            companions: [],
         };
         window.addEventListener('pointermove', this._onWindowSectionMove);
         window.addEventListener('pointerup', this._onWindowSectionUp, true);
@@ -1503,7 +1515,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 /* Window listeners still follow the pointer if capture is unavailable. */
             }
             if (this.editingText()) this.commitInlineEdit();
+            drag.companions = this._dragCompanions(drag.id);
             this.draggingSectionId.set(drag.id);
+            this._groupDragIds.set([drag.id, ...drag.companions.map((mate) => mate.id)]);
             this._setSheetDragging(true);
             document.body.style.userSelect = 'none';
             document.body.style.cursor = 'grabbing';
@@ -1552,7 +1566,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             this._applySectionDrag(drag, event.clientX, event.clientY);
         }
         const live = this.liveFrames();
-        const changedIds = new Set<string>([drag.id, ...this._pinnedIdsThisDrag]);
+        const changedIds = new Set<string>([
+            drag.id,
+            ...drag.companions.map((mate) => mate.id),
+            ...this._pinnedIdsThisDrag,
+        ]);
         const updates = [...changedIds]
             .map((id) => {
                 const frame = live[id];
@@ -1563,6 +1581,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._sectionDrag = null;
         this._pinnedIdsThisDrag.clear();
         this.draggingSectionId.set(null);
+        this._groupDragIds.set([]);
         this.alignmentGuides.set([]);
         this._setSheetDragging(false);
         document.body.style.userSelect = '';
@@ -1666,6 +1685,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const root = this._host.nativeElement as HTMLElement;
         const box = root.querySelector(`[data-overlay-id="${CSS.escape(id)}"]`);
         return box instanceof HTMLElement ? box.getBoundingClientRect() : null;
+    }
+
+    isSectionChosen(section: ReportSection): boolean {
+        if (!this.clickable()) return false;
+        if (this.selectedSectionId() === section.id) return true;
+        return this.selectedSectionIds().includes(section.id);
     }
 
     isTitleSelected(section: ReportSection): boolean {
@@ -1799,7 +1824,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const width = Number(frame.width) > 0 ? Number(frame.width) / scales.x : 0;
         const height = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
         const rotation = this.sectionRotation(section);
-        const dragging = this.draggingSectionId() === section.id;
+        const dragging = this.draggingSectionId() === section.id || this._groupDragIds().includes(section.id);
         const style: Record<string, string> = {
             position: 'absolute',
             left: `${x / scales.x}px`,
@@ -1853,6 +1878,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             startClientY: number;
             startFrame: ReportSectionFrame;
             scrollTopAtStart: number;
+            companions?: { id: string; startFrame: ReportSectionFrame }[];
         },
         clientX: number,
         clientY: number
@@ -1911,6 +1937,24 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             width,
             height,
         };
+        const dx = x - (drag.startFrame.x ?? 0);
+        const dy = y - (drag.startFrame.y ?? 0);
+        const dPage = toPage - (drag.startFrame.page ?? 0);
+        const group: Record<string, ReportSectionFrame> = { [drag.id]: next };
+        for (const mate of drag.companions ?? []) {
+            const start = mate.startFrame;
+            const mateWidth = start.width || 48;
+            const mateHeight = start.height || 48;
+            const keep = 48;
+            const pageW = this.pageWidthPx();
+            const pageH = this.pageHeightPx();
+            group[mate.id] = {
+                ...start,
+                page: Math.max(0, (start.page ?? 0) + dPage),
+                x: Math.min(Math.max(0, (start.x ?? 0) + dx), Math.max(0, pageW - Math.min(mateWidth, keep))),
+                y: Math.min(Math.max(0, (start.y ?? 0) + dy), Math.max(0, pageH - Math.min(mateHeight, keep))),
+            };
+        }
         const prev = this.liveFrames()[drag.id];
         const same =
             prev &&
@@ -1920,15 +1964,35 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             prev.width === next.width &&
             prev.height === next.height;
         if (!same) {
-            this.liveFrames.update((current) => ({ ...current, [drag.id]: next }));
+            this.liveFrames.update((current) => ({ ...current, ...group }));
         }
         if (toPage !== fromPage) {
             this._setPagesIfDifferent(this._pagesFromFrames(this.template().sections || []));
             drag.startFrame = next;
+            for (const mate of drag.companions ?? []) {
+                const placed = group[mate.id];
+                if (placed) mate.startFrame = { ...placed };
+            }
             drag.startClientX = clientX;
             drag.startClientY = clientY;
             drag.scrollTopAtStart = this._dragViewport()?.scrollTop ?? drag.scrollTopAtStart;
         }
+    }
+
+    /** Blocks already chosen, other than the one under the pointer, so a drag keeps them together. */
+    private _dragCompanions(dragId: string): { id: string; startFrame: ReportSectionFrame }[] {
+        const ids = this.selectedSectionIds();
+        if (ids.length < 2 || !ids.includes(dragId)) return [];
+        const sections = this.template().sections ?? [];
+        const mates: { id: string; startFrame: ReportSectionFrame }[] = [];
+        for (const id of ids) {
+            if (id === dragId || this.isLayerLocked(`sec:${id}`)) continue;
+            const section = sections.find((item) => item.id === id);
+            const frame = section ? this.displayFrame(section) : null;
+            if (!frame) continue;
+            mates.push({ id, startFrame: { ...frame } });
+        }
+        return mates;
     }
 
     /**
@@ -2470,6 +2534,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._sectionDrag = null;
         this._pinnedIdsThisDrag.clear();
         this.draggingSectionId.set(null);
+        this._groupDragIds.set([]);
         this.alignmentGuides.set([]);
         this.liveFrames.set({});
     }

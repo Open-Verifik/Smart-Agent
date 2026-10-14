@@ -460,10 +460,11 @@
                         [style.touch-action]="reorderable() ? 'none' : null"
                         [class.mb-3]="!hasFreeLayout()"
                         [class.cursor-pointer]="clickable() && !reorderable()"
+                        [class.select-none]="reorderable()"
                         [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
                         [class.cursor-grabbing]="draggingSectionId() === section.id"
                         [class.opacity-90]="draggingSectionId() === section.id"
-                        [class.selection-outline]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section) && !isLayerQuiet('sec:' + section.id)"
+                        [class.selection-outline]="clickable() && !isLayerQuiet('sec:' + section.id) && ((selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)) || (isSectionChosen(section) && selectedSectionId() !== section.id))"
                         [style.background-color]="isShapeSection(section) ? null : sectionFrameBackground(section)"
                         [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"
                         [style.border-radius.px]="isShapeSection(section) ? 0 : sectionFrameRadius(section)"
@@ -473,7 +474,7 @@
                         (contextmenu)="onSectionContextMenu(section, $event)"
                         (pointerdown)="onSectionPointerDown(section, $event)"
                     >
-                        @if (clickable() && reorderable() && !isLayerQuiet('sec:' + section.id) && (selectedSectionId() === section.id || draggingSectionId() === section.id)) {
+                        @if (clickable() && reorderable() && !isLayerQuiet('sec:' + section.id) && (isSectionChosen(section) || draggingSectionId() === section.id)) {
                             <div
                                 data-print-hide
                                 data-move-badge

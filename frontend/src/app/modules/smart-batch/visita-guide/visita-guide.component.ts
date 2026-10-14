@@ -524,6 +524,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     countrySearchQuery = signal('');
     countrySort = signal<'sources' | 'alpha'>('sources');
     selectedLayoutSectionId = signal<string | null>(null);
+    /** Every block in the current group. The primary id is the one the format bar edits. */
+    selectedLayoutSectionIds = signal<string[]>([]);
+    private readonly _syncLayoutGroup = effect(() => {
+        const id = this.selectedLayoutSectionId();
+        const ids = this.selectedLayoutSectionIds();
+        untracked(() => {
+            if (!id) {
+                if (ids.length) this.selectedLayoutSectionIds.set([]);
+                return;
+            }
+            if (!ids.includes(id)) this.selectedLayoutSectionIds.set([id]);
+        });
+    });
     /** Compact format bar, fixed beside the selection. `opensUp` grows Más opciones above it. */
     layoutFormatAnchor = signal<{ x: number; y: number; opensUp: boolean; room: number } | null>(null);
     layoutFormatExpanded = signal(false);
@@ -1574,27 +1587,52 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return true;
         }
         if (overlay) return false;
-        const section = this.selectedLayoutSection();
-        const frame = section?.frame;
-        if (!section || !frame || this.selectedLayoutCellKey()) return false;
-        this.onLayoutSectionFrame({
-            id: section.id,
-            frame: {
-                ...frame,
-                x: clamp(frame.x + dx, Number(frame.width) || 0, page.width),
-                y: clamp(frame.y + dy, Number(frame.height) || 0, page.height),
-            },
-        });
-        return true;
+        if (this.selectedLayoutCellKey()) return false;
+        const ids = this.selectedLayoutSectionIds();
+        const moving = ids.length ? ids : this.selectedLayoutSectionId() ? [this.selectedLayoutSectionId()!] : [];
+        if (!moving.length) return false;
+        let moved = false;
+        this.layoutSections.update((list) =>
+            list.map((section) => {
+                if (!moving.includes(section.id) || this.isLayoutLayerLocked(`sec:${section.id}`) || !section.frame) {
+                    return section;
+                }
+                moved = true;
+                const frame = section.frame;
+                return {
+                    ...section,
+                    frame: {
+                        ...frame,
+                        x: clamp(frame.x + dx, Number(frame.width) || 0, page.width),
+                        y: clamp(frame.y + dy, Number(frame.height) || 0, page.height),
+                    },
+                };
+            })
+        );
+        return moved;
     }
 
     isLayoutPageAnchor(section: ReportSection): boolean {
         return isReportPageAnchor(section);
     }
 
-    onLayoutSectionClick = (section: ReportSection): void => {
+    onLayoutSectionClick = (section: ReportSection, source?: { additive?: boolean }): void => {
         if (isReportPageAnchor(section) || this.isLayoutLayerLocked(`sec:${section.id}`)) return;
         this.selectedLayoutOverlay.set(null);
+        if (source?.additive) {
+            const primary = this.selectedLayoutSectionId();
+            const current = this.selectedLayoutSectionIds();
+            const base = current.length ? current : primary ? [primary] : [];
+            const without = base.filter((id) => id !== section.id);
+            const ids = base.includes(section.id) ? (without.length ? without : [section.id]) : [...base, section.id];
+            this.selectedLayoutSectionIds.set(ids);
+            this.selectedLayoutSectionId.set(ids.includes(section.id) ? section.id : ids[ids.length - 1]);
+            this.selectedLayoutCellKey.set(null);
+            this.selectedLayoutCellPart.set('cell');
+            this._focusLayoutEditor(section, 'block');
+            return;
+        }
+        this.selectedLayoutSectionIds.set([section.id]);
         this.selectedLayoutSectionId.set(section.id);
         const part = this.selectedLayoutCellPart();
         const control =
@@ -1811,20 +1849,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     isLayoutLayerSelected(layer: LayoutLayerItem): boolean {
-        if (layer.kind === 'section') return this.selectedLayoutSectionId() === layer.id.slice(4);
+        if (layer.kind === 'section') {
+            const id = layer.id.slice(4);
+            return this.selectedLayoutSectionId() === id || this.selectedLayoutSectionIds().includes(id);
+        }
         return this.selectedLayoutOverlay() === layer.id;
     }
 
-    selectLayoutLayer(layer: LayoutLayerItem): void {
+    selectLayoutLayer(layer: LayoutLayerItem, event?: Event): void {
         if (this.isLayoutLayerLocked(layer.id)) return;
+        const additive = event instanceof MouseEvent && (event.shiftKey || event.ctrlKey || event.metaKey);
         if (layer.kind === 'section') {
             const section = this.layoutSections().find((item) => item.id === layer.id.slice(4));
             if (!section) return;
-            this.selectedLayoutOverlay.set(null);
-            this.selectedLayoutSectionId.set(section.id);
-            this.selectedLayoutCellKey.set(null);
-            this.selectedLayoutCellPart.set('cell');
-            this._focusLayoutEditor(section, 'block');
+            this.onLayoutSectionClick(section, additive ? { additive: true } : undefined);
             return;
         }
         this.onLayoutOverlaySelect(layer.id as ReportOverlayId);
@@ -2023,6 +2061,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     clearLayoutSelection(): void {
         this.selectedLayoutSectionId.set(null);
+        this.selectedLayoutSectionIds.set([]);
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutCellPart.set('cell');
@@ -5064,13 +5103,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     removeSelectedLayoutSection(): void {
-        const id = this.selectedLayoutSectionId();
-        if (!id) return;
+        const ids = new Set(this.selectedLayoutSectionIds());
+        const primary = this.selectedLayoutSectionId();
+        if (primary) ids.add(primary);
+        const drop = new Set([...ids].filter((id) => !this.isLayoutLayerLocked(`sec:${id}`)));
+        if (!drop.size) return;
         this.layoutSections.update((list) =>
             this._compactLayoutPages(
-                list.filter((section) => section.id !== id).map((section, index) => ({ ...section, order: index }))
+                list.filter((section) => !drop.has(section.id)).map((section, index) => ({ ...section, order: index }))
             )
         );
+        this.selectedLayoutSectionIds.set([]);
         this.selectedLayoutSectionId.set(null);
         this.layoutEditorKind.set(null);
     }

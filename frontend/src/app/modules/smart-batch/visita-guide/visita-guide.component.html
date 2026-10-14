@@ -1772,6 +1772,7 @@
                                         [customContextMenu]="true"
                                         [reorderable]="true"
                                         [selectedSectionId]="selectedLayoutSectionId()"
+                                        [selectedSectionIds]="selectedLayoutSectionIds()"
                                         [selectedCellKey]="selectedLayoutCellKey()"
                                         [selectedCellPart]="selectedLayoutCellPart()"
                                         [selectedOverlay]="selectedLayoutOverlay()"
@@ -1845,7 +1846,7 @@
                                                     type="button"
                                                     class="flex min-w-0 flex-1 items-center gap-1 text-left disabled:cursor-default"
                                                     [disabled]="isLayoutLayerLocked(layer.id)"
-                                                    (click)="selectLayoutLayer(layer)"
+                                                    (click)="selectLayoutLayer(layer, $event)"
                                                 >
                                                     <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-500">{{
                                                         layer.icon
