@@ -5968,17 +5968,12 @@
         "customDesc": "根据您的需求定制",
         "billedAnnually": "按年计费",
         "currentPlan": "当前计划",
-        "notOptimalForVolume": "按您的用量并非最优",
-        "notOptimalHint": "其他套餐更适合您的使用情况。",
-        "notOptimalCta": "并非最佳选择",
         "addCredits": "添加积分",
         "contactSales": "联系销售",
         "selectPlan": "选择计划",
         "upgrade": "升级",
         "downgrade": "降级",
         "backToCurrentPlan": "返回当前计划",
-        "off": "折扣",
-        "discountDescription": "适用于所有API请求",
         "interval": {
             "month": "月",
             "year": "年"
@@ -6025,8 +6020,6 @@
             "requestsPerYear": "请求/年",
             "perRequest": "每次请求",
             "monthlySpend": "预估月支出",
-            "bestValue": "最适合您的用量",
-            "basePrice": "基础价格：$0.30/请求 — 您的计划折扣可降低成本",
             "estimatedTotal": "应付"
         },
         "estimator": {
@@ -6036,8 +6029,32 @@
             "budgetLabel": "您的目标支出是多少？",
             "budgetPlaceholder": "例如 1000",
             "referenceLabel": "按计划匹配：",
-            "resolvedRequests": "预估用量",
-            "closestFor": "{{plan}} 上最接近的总额"
+            "closestFor": "{{plan}} 上最接近的总额",
+            "usageBaseline": "近 {{months}} 个月实际用量：约 {{requests}} 次请求/月",
+            "resetToUsage": "恢复为我的实际用量"
+        },
+        "zones": {
+            "label": "按月用量推荐的套餐",
+            "tooltip": "{{plan}}：{{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "按您的用量推荐",
+            "fits": "— 约 {{requests}} {{unit}} 的费用：",
+            "savesVs": "比 {{plan}} 节省 ${{amount}}/{{interval}}。",
+            "headroom": "在约 {{requests}} {{unit}} 以内都是最佳选择；超过后 {{plan}} 更便宜。"
+        },
+        "card": {
+            "recommended": "推荐",
+            "includes": "含约 {{requests}} 次请求/月",
+            "pricePerRequestHint": "该套餐折扣后的 SmartCheck 平均单价（基础 $0.30/请求）。具体价格因 API 而异，请查看“比较 API 价格”。",
+            "lowestForVolume": "最适合您的用量",
+            "deltaVsBest": "比 {{plan}} 多 ${{amount}}/{{interval}}",
+            "avgPerRequest": "每次请求实际成本",
+            "avgPerRequestHint": "预估总额除以您每月 {{requests}} 次请求，已计入套餐折扣。",
+            "ratePerRequest": "每次请求单价",
+            "includedRequests": "含约 {{requests}} 次请求/月",
+            "extraRate": "超出部分每次 ${{price}}",
+            "rateDiscountHint": "比基础单价 ${{base}}/请求低 {{percent}}%"
         },
         "apiBreakdown": {
             "button": "比较API价格",

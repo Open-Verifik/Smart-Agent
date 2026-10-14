@@ -25,6 +25,9 @@ export class PlanChangeDialogComponent implements OnInit, OnChanges {
     @Input() isOpen = false;
     @Input() requestsPerMonth = 0;
     @Input() bringBackOffer: BringBackOffer | null = null;
+    /** Monthly extra cost vs the recommended plan at the estimated volume (0 when this is the recommendation). */
+    @Input() costDeltaVsBest = 0;
+    @Input() recommendedPlanName: string | null = null;
 
     @Output() confirm = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
@@ -162,6 +165,8 @@ export class PlanChangeDialogComponent implements OnInit, OnChanges {
             startDate: now,
             endDate: endDate,
             amountByMonth: baseMonthly,
+            effectiveCostPerReq,
+            includedRequests: Number.isFinite(includedRequests) ? includedRequests : null,
             requestsPerMonth: this.requestsPerMonth,
             requestAddOn,
             estimatedTotal: baseMonthly + requestAddOn,

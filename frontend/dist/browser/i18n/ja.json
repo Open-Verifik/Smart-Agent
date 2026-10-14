@@ -5968,17 +5968,12 @@
         "customDesc": "お客様のニーズに合わせて",
         "billedAnnually": "年間一括払い",
         "currentPlan": "現在のプラン",
-        "notOptimalForVolume": "ご利用量には最適ではありません",
-        "notOptimalHint": "別のプランの方がご利用に合っています。",
-        "notOptimalCta": "最適ではありません",
         "addCredits": "クレジット追加",
         "contactSales": "営業に連絡",
         "selectPlan": "プランを選択",
         "upgrade": "アップグレード",
         "downgrade": "ダウングレード",
         "backToCurrentPlan": "現在のプランに戻る",
-        "off": "オフ",
-        "discountDescription": "すべてのAPIリクエストに適用",
         "interval": {
             "month": "月",
             "year": "年"
@@ -6025,8 +6020,6 @@
             "requestsPerYear": "リクエスト/年",
             "perRequest": "リクエストあたり",
             "monthlySpend": "推定月額支出",
-            "bestValue": "ご利用量に最適なプラン",
-            "basePrice": "基本料金: $0.30/リクエスト — プランの割引でコスト削減",
             "estimatedTotal": "お支払い"
         },
         "estimator": {
@@ -6036,8 +6029,32 @@
             "budgetLabel": "目標支出はいくらですか？",
             "budgetPlaceholder": "例: 1000",
             "referenceLabel": "プランに合わせる：",
-            "resolvedRequests": "推定ボリューム",
-            "closestFor": "{{plan}} で最も近い合計"
+            "closestFor": "{{plan}} で最も近い合計",
+            "usageBaseline": "過去{{months}}か月の実績: 約{{requests}}リクエスト/月",
+            "resetToUsage": "実際の利用量に戻す"
+        },
+        "zones": {
+            "label": "月間ボリューム別のおすすめプラン",
+            "tooltip": "{{plan}}: {{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "ご利用量におすすめ",
+            "fits": "— 約{{requests}} {{unit}}の場合の料金:",
+            "savesVs": "{{plan}}と比べて${{amount}}/{{interval}}お得です。",
+            "headroom": "約{{requests}} {{unit}}までは最適です。それを超えると{{plan}}の方が安くなります。"
+        },
+        "card": {
+            "recommended": "おすすめ",
+            "includes": "約{{requests}}リクエスト/月を含む",
+            "pricePerRequestHint": "このプランの割引適用後のSmartCheck平均単価です（基本 $0.30/リクエスト）。正確な料金はAPIごとに異なります。「API料金を比較」をご覧ください。",
+            "lowestForVolume": "ご利用量に最適",
+            "deltaVsBest": "{{plan}}より+${{amount}}/{{interval}}",
+            "avgPerRequest": "1リクエストあたりの実質単価",
+            "avgPerRequestHint": "推定合計を月{{requests}}リクエストで割った金額です（プラン割引適用済み）。",
+            "ratePerRequest": "リクエスト単価",
+            "includedRequests": "約{{requests}}リクエスト/月を含む",
+            "extraRate": "追加リクエストは1件${{price}}",
+            "rateDiscountHint": "基本単価${{base}}/リクエストより{{percent}}%お得"
         },
         "apiBreakdown": {
             "button": "API価格を比較",

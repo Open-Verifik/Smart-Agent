@@ -5942,17 +5942,12 @@
         "customDesc": "Tailored for your needs",
         "billedAnnually": "billed annually",
         "currentPlan": "Current plan",
-        "notOptimalForVolume": "Not optimal at your volume",
-        "notOptimalHint": "A different tier matches your usage better.",
-        "notOptimalCta": "Not the best fit",
         "addCredits": "Add credits",
         "contactSales": "Contact sales",
         "selectPlan": "Select plan",
         "upgrade": "Upgrade",
         "downgrade": "Downgrade",
         "backToCurrentPlan": "Back to current plan",
-        "off": "off",
-        "discountDescription": "On all API requests",
         "interval": {
             "month": "month",
             "year": "year"
@@ -5999,8 +5994,6 @@
             "requestsPerYear": "requests/year",
             "perRequest": "per request",
             "monthlySpend": "est. monthly spend",
-            "bestValue": "Best value for your usage",
-            "basePrice": "Base price: $0.30/request — your plan discount reduces the cost",
             "estimatedTotal": "To pay"
         },
         "estimator": {
@@ -6010,8 +6003,32 @@
             "budgetLabel": "What's your target spend?",
             "budgetPlaceholder": "e.g. 1000",
             "referenceLabel": "Match for plan:",
-            "resolvedRequests": "Estimated volume",
-            "closestFor": "Closest total on {{plan}}"
+            "closestFor": "Closest total on {{plan}}",
+            "usageBaseline": "Your last {{months}} months: ~{{requests}} requests/mo",
+            "resetToUsage": "Reset to my usage"
+        },
+        "zones": {
+            "label": "Recommended plan by monthly volume",
+            "tooltip": "{{plan}}: {{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "Recommended for your volume",
+            "fits": "fits ~{{requests}} {{unit}} for",
+            "savesVs": "You save ${{amount}}/{{interval}} vs {{plan}}.",
+            "headroom": "Stays the best fit up to ~{{requests}} {{unit}}; above that, {{plan}} is cheaper."
+        },
+        "card": {
+            "recommended": "Recommended",
+            "includes": "Includes ~{{requests}} requests/mo",
+            "pricePerRequestHint": "Average SmartCheck rate after this plan's discount (base $0.30/request). Exact prices vary by API; see Compare API prices.",
+            "lowestForVolume": "Best fit for your volume",
+            "deltaVsBest": "+${{amount}}/{{interval}} vs {{plan}}",
+            "avgPerRequest": "Each request costs you",
+            "avgPerRequestHint": "Estimated total divided by your {{requests}} requests/mo, with the plan discount already applied.",
+            "ratePerRequest": "Rate per request",
+            "includedRequests": "~{{requests}} requests included/mo",
+            "extraRate": "${{price}} per extra request",
+            "rateDiscountHint": "{{percent}}% less than the ${{base}} base rate per request"
         },
         "apiBreakdown": {
             "button": "Compare API prices",

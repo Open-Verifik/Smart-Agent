@@ -5968,17 +5968,12 @@
         "customDesc": "필요에 맞게 조정",
         "billedAnnually": "연간 청구",
         "currentPlan": "현재 플랜",
-        "notOptimalForVolume": "사용량에 최적이 아닙니다",
-        "notOptimalHint": "다른 요금제가 사용 패턴에 더 적합합니다.",
-        "notOptimalCta": "가장 적합하지 않음",
         "addCredits": "크레딧 추가",
         "contactSales": "영업팀 문의",
         "selectPlan": "플랜 선택",
         "upgrade": "업그레이드",
         "downgrade": "다운그레이드",
         "backToCurrentPlan": "현재 플랜으로 돌아가기",
-        "off": "할인",
-        "discountDescription": "모든 API 요청에 적용",
         "interval": {
             "month": "월",
             "year": "년"
@@ -6025,8 +6020,6 @@
             "requestsPerYear": "요청/년",
             "perRequest": "요청당",
             "monthlySpend": "예상 월 지출",
-            "bestValue": "사용량에 맞는 최적의 가치",
-            "basePrice": "기본 가격: $0.30/요청 — 플랜 할인으로 비용 절감",
             "estimatedTotal": "결제 금액"
         },
         "estimator": {
@@ -6036,8 +6029,32 @@
             "budgetLabel": "목표 지출은 얼마인가요?",
             "budgetPlaceholder": "예: 1000",
             "referenceLabel": "플랜에 맞추기:",
-            "resolvedRequests": "예상 사용량",
-            "closestFor": "{{plan}}에서 가장 가까운 총액"
+            "closestFor": "{{plan}}에서 가장 가까운 총액",
+            "usageBaseline": "최근 {{months}}개월 실적: 약 {{requests}}건/월",
+            "resetToUsage": "실제 사용량으로 되돌리기"
+        },
+        "zones": {
+            "label": "월간 사용량별 추천 플랜",
+            "tooltip": "{{plan}}: {{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "사용량 기준 추천",
+            "fits": "— 약 {{requests}} {{unit}} 기준 요금:",
+            "savesVs": "{{plan}} 대비 ${{amount}}/{{interval}} 절약됩니다.",
+            "headroom": "약 {{requests}} {{unit}}까지는 가장 적합합니다. 그 이상이면 {{plan}}이(가) 더 저렴합니다."
+        },
+        "card": {
+            "recommended": "추천",
+            "includes": "약 {{requests}}건/월 포함",
+            "pricePerRequestHint": "이 플랜의 할인이 적용된 SmartCheck 평균 단가입니다(기본 $0.30/요청). 정확한 가격은 API마다 다릅니다. 'API 가격 비교'를 확인하세요.",
+            "lowestForVolume": "사용량에 가장 적합",
+            "deltaVsBest": "{{plan}} 대비 +${{amount}}/{{interval}}",
+            "avgPerRequest": "요청당 실제 비용",
+            "avgPerRequestHint": "예상 총액을 월 {{requests}}건으로 나눈 값이며, 플랜 할인이 적용되어 있습니다.",
+            "ratePerRequest": "요청당 요금",
+            "includedRequests": "약 {{requests}}건/월 포함",
+            "extraRate": "추가 요청당 ${{price}}",
+            "rateDiscountHint": "기본 요금 ${{base}}/요청보다 {{percent}}% 저렴"
         },
         "apiBreakdown": {
             "button": "API 가격 비교",

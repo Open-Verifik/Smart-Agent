@@ -5968,17 +5968,12 @@
         "customDesc": "Adaptado às suas necessidades",
         "billedAnnually": "cobrado anualmente",
         "currentPlan": "Plano atual",
-        "notOptimalForVolume": "Não é ideal para o seu volume",
-        "notOptimalHint": "Outro plano combina melhor com o seu uso.",
-        "notOptimalCta": "Não é a melhor opção",
         "addCredits": "Adicionar créditos",
         "contactSales": "Contatar vendas",
         "selectPlan": "Selecionar plano",
         "upgrade": "Fazer upgrade",
         "downgrade": "Fazer downgrade",
         "backToCurrentPlan": "Voltar ao plano atual",
-        "off": "de desconto",
-        "discountDescription": "Em todas as requisições API",
         "interval": {
             "month": "mês",
             "year": "ano"
@@ -6025,8 +6020,6 @@
             "requestsPerYear": "solicitações/ano",
             "perRequest": "por solicitação",
             "monthlySpend": "gasto mensal est.",
-            "bestValue": "Melhor custo-benefício para seu uso",
-            "basePrice": "Preço base: $0.30/solicitação — o desconto do seu plano reduz o custo",
             "estimatedTotal": "A pagar"
         },
         "estimator": {
@@ -6036,8 +6029,32 @@
             "budgetLabel": "Qual é seu orçamento alvo?",
             "budgetPlaceholder": "ex. 1000",
             "referenceLabel": "Calcular para o plano:",
-            "resolvedRequests": "Volume estimado",
-            "closestFor": "Total mais próximo em {{plan}}"
+            "closestFor": "Total mais próximo em {{plan}}",
+            "usageBaseline": "Seus últimos {{months}} meses: ~{{requests}} solicitações/mês",
+            "resetToUsage": "Voltar ao meu uso real"
+        },
+        "zones": {
+            "label": "Plano recomendado por volume mensal",
+            "tooltip": "{{plan}}: {{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "Recomendado para o seu volume",
+            "fits": "cobre ~{{requests}} {{unit}} por",
+            "savesVs": "Você economiza ${{amount}}/{{interval}} em relação a {{plan}}.",
+            "headroom": "Continua sendo a melhor opção até ~{{requests}} {{unit}}; acima disso, {{plan}} fica mais barato."
+        },
+        "card": {
+            "recommended": "Recomendado",
+            "includes": "Inclui ~{{requests}} solicitações/mês",
+            "pricePerRequestHint": "Tarifa média do SmartCheck com o desconto deste plano (base $0.30/solicitação). O preço exato varia por API; veja Comparar preços de API.",
+            "lowestForVolume": "A melhor opção para o seu volume",
+            "deltaVsBest": "+${{amount}}/{{interval}} em relação a {{plan}}",
+            "avgPerRequest": "Cada solicitação sai por",
+            "avgPerRequestHint": "Total estimado dividido pelas suas {{requests}} solicitações/mês, com o desconto do plano já aplicado.",
+            "ratePerRequest": "Tarifa por solicitação",
+            "includedRequests": "~{{requests}} solicitações incluídas/mês",
+            "extraRate": "${{price}} por solicitação adicional",
+            "rateDiscountHint": "{{percent}}% a menos que a tarifa base de ${{base}} por solicitação"
         },
         "apiBreakdown": {
             "button": "Comparar preços de API",

@@ -12,13 +12,17 @@
     [allPlans]="plans"
     [requestsPerMonth]="selectedPlanRequests"
     [bringBackOffer]="bringBackOffer"
+    [costDeltaVsBest]="selectedPlanCostDeltaVsBest"
+    [recommendedPlanName]="selectedPlanRecommendedName"
     (confirm)="confirmPlanChange()"
     (cancel)="cancelPlanChange()"
     (comparePlans)="compareDiscountedPlansFromDialog()"
 >
 </plan-change-dialog>
 
-<div class="subscription-page flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+<div
+    class="subscription-page flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950"
+>
     <!-- Header -->
     <header
         class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
@@ -119,11 +123,12 @@
                             <h2 class="text-base font-semibold text-amber-950 dark:text-amber-50">
                                 {{
                                     'subscriptionPlans.promo.bringBack.titleFirstMonth'
-                                        | transloco
-                                            : { multiplier: bringBackOffer?.multiplier || 2 }
+                                        | transloco: { multiplier: bringBackOffer?.multiplier || 2 }
                                 }}
                             </h2>
-                            <p class="text-sm leading-relaxed text-amber-950/90 dark:text-amber-100/90">
+                            <p
+                                class="text-sm leading-relaxed text-amber-950/90 dark:text-amber-100/90"
+                            >
                                 {{
                                     'subscriptionPlans.promo.bringBack.bodyFirstMonth'
                                         | transloco
@@ -139,8 +144,8 @@
                                         | transloco
                                             : {
                                                   expiresAt:
-                                                      (bringBackOffer?.expiresAt | date: 'medium') ||
-                                                      '',
+                                                      (bringBackOffer?.expiresAt
+                                                          | date: 'medium') || '',
                                               }
                                 }}
                             </p>
@@ -179,8 +184,8 @@
                                     <span
                                         class="text-3xl font-semibold tracking-tight text-stone-950 dark:text-white"
                                         >${{
-                                            (currentSubscription.amount ||
-                                                currentSubscription.subscriptionPlan.amount)
+                                            currentSubscription.amount ||
+                                                currentSubscription.subscriptionPlan.amount
                                                 | number: '1.0-0'
                                         }}</span
                                     >
@@ -206,9 +211,7 @@
                                 >
                                     {{ 'subscriptionPlans.started' | transloco }}
                                 </span>
-                                <p
-                                    class="mt-1 text-sm font-medium text-stone-950 dark:text-white"
-                                >
+                                <p class="mt-1 text-sm font-medium text-stone-950 dark:text-white">
                                     {{ currentSubscription.startDate | date: 'mediumDate' }}
                                 </p>
                             </div>
@@ -220,9 +223,7 @@
                                 >
                                     {{ 'subscriptionPlans.renews' | transloco }}
                                 </span>
-                                <p
-                                    class="mt-1 text-sm font-medium text-stone-950 dark:text-white"
-                                >
+                                <p class="mt-1 text-sm font-medium text-stone-950 dark:text-white">
                                     {{ currentSubscription.endDate | date: 'mediumDate' }}
                                 </p>
                             </div>
@@ -234,7 +235,10 @@
                                 >
                                     {{ 'subscriptionPlans.status' | transloco }}
                                 </span>
-                                <p class="mt-1 text-sm font-medium" *ngIf="currentSubscription.autoRenew">
+                                <p
+                                    class="mt-1 text-sm font-medium"
+                                    *ngIf="currentSubscription.autoRenew"
+                                >
                                     <span class="text-emerald-600 dark:text-emerald-400">
                                         {{ 'subscriptionPlans.statusActive' | transloco }}
                                     </span>
@@ -281,7 +285,9 @@
                             </div>
                         </ng-container>
                         <ng-container
-                            *ngFor="let feature of currentSubscription.subscriptionPlan.changesRight"
+                            *ngFor="
+                                let feature of currentSubscription.subscriptionPlan.changesRight
+                            "
                         >
                             <div
                                 *ngIf="feature.key !== 'OCR'"
@@ -352,7 +358,9 @@
 
                 <!-- Your API prices -->
                 <section
-                    *ngIf="currentSubscription && (myListFeatures.length > 0 || loadingMyListFeatures)"
+                    *ngIf="
+                        currentSubscription && (myListFeatures.length > 0 || loadingMyListFeatures)
+                    "
                     class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6"
                 >
                     <h3 class="text-base font-semibold text-stone-950 dark:text-white">
@@ -408,13 +416,17 @@
                         <div
                             class="mt-4 overflow-x-auto rounded-xl border border-stone-200 dark:border-gray-800"
                         >
-                            <table class="min-w-full divide-y divide-stone-200 dark:divide-gray-800 text-sm">
+                            <table
+                                class="min-w-full divide-y divide-stone-200 dark:divide-gray-800 text-sm"
+                            >
                                 <thead class="bg-stone-50 dark:bg-gray-950">
                                     <tr>
                                         <th
                                             class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
                                         >
-                                            {{ 'subscriptionPlans.apiBreakdown.apiName' | transloco }}
+                                            {{
+                                                'subscriptionPlans.apiBreakdown.apiName' | transloco
+                                            }}
                                         </th>
                                         <th
                                             class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
@@ -430,7 +442,10 @@
                                     class="divide-y divide-stone-200 dark:divide-gray-800 bg-white dark:bg-gray-900/40"
                                 >
                                     <ng-container
-                                        *ngFor="let group of groupedMyListFeatures; trackBy: trackByGroup"
+                                        *ngFor="
+                                            let group of groupedMyListFeatures;
+                                            trackBy: trackByGroup
+                                        "
                                     >
                                         <tr
                                             *ngIf="group.category"
@@ -444,11 +459,16 @@
                                             </td>
                                         </tr>
                                         <tr
-                                            *ngFor="let feature of group.features; trackBy: trackByFeature"
+                                            *ngFor="
+                                                let feature of group.features;
+                                                trackBy: trackByFeature
+                                            "
                                             class="cursor-pointer transition hover:bg-stone-50 dark:hover:bg-gray-950/50"
                                             (click)="openFeatureModal(feature)"
                                         >
-                                            <td class="px-4 py-3 text-stone-900 dark:text-stone-100">
+                                            <td
+                                                class="px-4 py-3 text-stone-900 dark:text-stone-100"
+                                            >
                                                 {{ getFeatureDisplayName(feature) }}
                                             </td>
                                             <td
@@ -517,10 +537,7 @@
                 </div>
 
                 <!-- Loading -->
-                <div
-                    *ngIf="loadingPlans"
-                    class="flex items-center justify-center py-16"
-                >
+                <div *ngIf="loadingPlans" class="flex items-center justify-center py-16">
                     <div
                         class="h-10 w-10 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900 dark:border-gray-800 dark:border-t-white"
                     ></div>
@@ -531,9 +548,7 @@
                     *ngIf="!loadingPlans && plans.length > 0"
                     class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6"
                 >
-                    <div
-                        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div
                             class="inline-flex w-fit rounded-full border border-stone-200 bg-stone-100 p-1 text-xs font-medium dark:border-gray-700 dark:bg-gray-950"
                             role="tablist"
@@ -567,9 +582,35 @@
                                 {{ 'subscriptionPlans.estimator.modeBudget' | transloco }}
                             </button>
                         </div>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ 'subscriptionPlans.requestSlider.basePrice' | transloco }}
-                        </p>
+
+                        <!-- Real usage baseline -->
+                        <div
+                            *ngIf="usageBaselinePerMonth != null"
+                            class="inline-flex flex-wrap items-center gap-2 text-xs"
+                        >
+                            <span
+                                class="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 font-medium text-sky-800 dark:border-sky-900/70 dark:bg-sky-950/40 dark:text-sky-300"
+                            >
+                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">insights</mat-icon>
+                                {{
+                                    'subscriptionPlans.estimator.usageBaseline'
+                                        | transloco
+                                            : {
+                                                  months: usageBaselineMonths,
+                                                  requests:
+                                                      (usageBaselinePerMonth | number: '1.0-0'),
+                                              }
+                                }}
+                            </span>
+                            <button
+                                type="button"
+                                *ngIf="!isAtUsageBaseline"
+                                class="font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-200"
+                                (click)="resetToUsageBaseline()"
+                            >
+                                {{ 'subscriptionPlans.estimator.resetToUsage' | transloco }}
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Requests mode -->
@@ -675,109 +716,166 @@
                             "
                             (input)="onSliderChange($event)"
                         />
+                        <!-- Plan zones: where each plan is the recommendation -->
                         <div
-                            class="mt-2 flex justify-between text-[11px] text-stone-400 dark:text-stone-500"
+                            *ngIf="planZones.length"
+                            class="relative mt-3 h-8"
+                            role="group"
+                            [attr.aria-label]="'subscriptionPlans.zones.label' | transloco"
                         >
-                            <span *ngFor="let tick of sliderTicks">{{ tick }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Resolved summary -->
-                    <div
-                        class="mt-5 flex flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm dark:border-gray-800 dark:bg-gray-950/60"
-                    >
-                        <div class="flex items-center justify-between">
-                            <span class="text-stone-500 dark:text-stone-400">
-                                {{
-                                    'subscriptionPlans.estimator.resolvedRequests' | transloco
-                                }}
-                            </span>
-                            <span class="font-semibold text-stone-950 dark:text-white">
-                                {{ sliderValue | number: '1.0-0' }}
-                                {{
-                                    (selectedInterval === 'year'
-                                        ? 'subscriptionPlans.requestSlider.requestsPerYear'
-                                        : 'subscriptionPlans.requestSlider.requests'
-                                    ) | transloco
-                                }}
-                            </span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between"
-                            *ngIf="estimatorMode === 'budget' && budgetReferencePlan"
-                        >
-                            <span class="text-stone-500 dark:text-stone-400">
-                                {{
-                                    'subscriptionPlans.estimator.closestFor'
-                                        | transloco: { plan: budgetReferencePlan.name }
-                                }}
-                            </span>
-                            <span class="font-semibold text-stone-950 dark:text-white">
-                                ${{ getBudgetAchievedTotal() | number: '1.0-0' }}/{{
-                                    'subscriptionPlans.interval.month' | transloco
-                                }}
-                                <span
-                                    class="ml-1 text-xs font-medium"
-                                    *ngIf="getBudgetDelta() as delta"
-                                    [ngClass]="
-                                        delta > 0
-                                            ? 'text-amber-600 dark:text-amber-400'
-                                            : delta < 0
-                                            ? 'text-emerald-600 dark:text-emerald-400'
-                                            : 'text-stone-500 dark:text-stone-400'
-                                    "
-                                >
-                                    ({{ delta > 0 ? '+' : '' }}${{ delta | number: '1.0-2' }})
-                                </span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Per-plan cost chips -->
-                    <div
-                        *ngIf="!showApiBreakdown && requestsPerMonth > 0 && visiblePlans.length"
-                        class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4"
-                    >
-                        <ng-container *ngFor="let plan of visiblePlans">
-                            <div
-                                class="rounded-xl border p-3 transition"
+                            <button
+                                *ngFor="let zone of planZones; trackBy: trackByZone"
+                                type="button"
+                                class="absolute top-0 flex h-full items-center justify-center overflow-hidden border-l-2 border-white px-1.5 text-[10px] font-semibold uppercase tracking-wide transition first:rounded-l-lg first:border-l-0 last:rounded-r-lg dark:border-gray-900"
+                                [ngStyle]="getZoneStyle(zone)"
                                 [ngClass]="
-                                    plan._id === getBestValuePlanId()
-                                        ? 'border-emerald-500/70 bg-emerald-50/80 dark:border-emerald-400/60 dark:bg-emerald-900/20'
-                                        : isPlanCompetitive(plan)
-                                        ? 'border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/40'
-                                        : 'border-stone-200 bg-stone-100 opacity-60 dark:border-gray-800 dark:bg-gray-950/30'
+                                    isActiveZone(zone)
+                                        ? 'bg-stone-950 text-white dark:bg-white dark:text-gray-950'
+                                        : 'bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-800 dark:bg-gray-800 dark:text-stone-400 dark:hover:bg-gray-700 dark:hover:text-white'
                                 "
+                                [matTooltip]="
+                                    'subscriptionPlans.zones.tooltip'
+                                        | transloco
+                                            : {
+                                                  plan: zone.name,
+                                                  from: formatNumber(toDisplayVolume(zone.from)),
+                                                  to: formatNumber(toDisplayVolume(zone.to)),
+                                              }
+                                "
+                                [attr.aria-pressed]="isActiveZone(zone)"
+                                (click)="selectZone(zone)"
                             >
-                                <div
-                                    class="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400"
+                                <span *ngIf="showZoneLabel(zone)" class="truncate">{{
+                                    zone.name
+                                }}</span>
+                            </button>
+                        </div>
+                        <div
+                            class="mt-1.5 flex justify-between text-[11px] text-stone-400 dark:text-stone-500"
+                        >
+                            <span>0</span>
+                            <span>{{ formatNumber(sliderMax) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Recommendation strip -->
+                    <div
+                        *ngIf="!showApiBreakdown && requestsPerMonth > 0 && recommendedPlan as best"
+                        class="plan-verdict relative mt-5 overflow-hidden rounded-2xl border border-indigo-100/80 text-sm shadow-sm dark:border-indigo-900/40 mb-2"
+                        aria-live="polite"
+                    >
+                        <div
+                            class="plan-verdict__blob plan-verdict__blob--tr"
+                            aria-hidden="true"
+                        ></div>
+                        <div
+                            class="plan-verdict__blob plan-verdict__blob--bl"
+                            aria-hidden="true"
+                        ></div>
+                        <div class="relative z-10 flex items-start gap-3 p-4">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30"
+                            >
+                                <mat-icon class="!h-5 !w-5 !text-xl text-white"
+                                    >auto_awesome</mat-icon
                                 >
-                                    {{ plan.name }}
-                                </div>
-                                <div
-                                    class="mt-1 text-sm font-semibold text-stone-950 dark:text-white"
+                            </div>
+                            <div class="flex min-w-0 flex-col gap-1.5">
+                                <span
+                                    class="inline-flex w-fit items-center rounded-full border border-indigo-500/25 bg-indigo-500/[0.08] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-indigo-600 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300"
                                 >
-                                    ${{ getEffectiveCostPerRequest(plan).toFixed(4) }}
-                                    <span
-                                        class="ml-0.5 text-[11px] font-medium text-stone-500 dark:text-stone-400"
-                                        >/
-                                        {{
-                                            'subscriptionPlans.requestSlider.perRequest'
+                                    {{ 'subscriptionPlans.verdict.label' | transloco }}
+                                </span>
+                                <p class="leading-relaxed text-gray-600 dark:text-slate-300">
+                                    <span class="font-semibold text-stone-950 dark:text-white">{{
+                                        best.name
+                                    }}</span>
+                                    {{
+                                        'subscriptionPlans.verdict.fits'
+                                            | transloco
+                                                : {
+                                                      requests: (sliderValue | number: '1.0-0'),
+                                                      unit:
+                                                          ((selectedInterval === 'year'
+                                                              ? 'subscriptionPlans.requestSlider.requestsPerYear'
+                                                              : 'subscriptionPlans.requestSlider.requests'
+                                                          ) | transloco),
+                                                  }
+                                    }}
+                                    <span class="font-semibold text-stone-950 dark:text-white"
+                                        >${{ getDisplayEstimatedTotal(best) | number: '1.0-0' }}/{{
+                                            'subscriptionPlans.interval.' + selectedInterval
                                                 | transloco
                                         }}</span
                                     >
-                                </div>
-                                <div class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                                    ~${{ getEstimatedTotal(plan) | number: '1.0-0' }}/mo
-                                </div>
-                                <div
-                                    *ngIf="plan._id === getBestValuePlanId()"
-                                    class="mt-2 inline-flex rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white"
+                                    <span class="text-stone-500 dark:text-stone-400"
+                                        >(${{ getEffectiveCostPerRequest(best) | number: '1.2-4' }}
+                                        {{
+                                            'subscriptionPlans.requestSlider.perRequest'
+                                                | transloco
+                                        }})</span
+                                    >.
+                                    <ng-container *ngIf="recommendedSavings as savings">
+                                        {{
+                                            'subscriptionPlans.verdict.savesVs'
+                                                | transloco
+                                                    : {
+                                                          amount: (savings | number: '1.0-0'),
+                                                          interval:
+                                                              ('subscriptionPlans.interval.' +
+                                                                  selectedInterval | transloco),
+                                                          plan: runnerUpPlan?.name,
+                                                      }
+                                        }}
+                                    </ng-container>
+                                </p>
+                                <p
+                                    *ngIf="nextZone as next"
+                                    class="text-xs leading-5 text-stone-500 dark:text-stone-400"
                                 >
-                                    {{ 'subscriptionPlans.requestSlider.bestValue' | transloco }}
-                                </div>
+                                    {{
+                                        'subscriptionPlans.verdict.headroom'
+                                            | transloco
+                                                : {
+                                                      requests:
+                                                          (toDisplayVolume(next.from - 1)
+                                                          | number: '1.0-0'),
+                                                      unit:
+                                                          ((selectedInterval === 'year'
+                                                              ? 'subscriptionPlans.requestSlider.requestsPerYear'
+                                                              : 'subscriptionPlans.requestSlider.requests'
+                                                          ) | transloco),
+                                                      plan: next.name,
+                                                  }
+                                    }}
+                                </p>
+                                <p
+                                    *ngIf="estimatorMode === 'budget' && budgetReferencePlan"
+                                    class="text-xs leading-5 text-stone-500 dark:text-stone-400"
+                                >
+                                    {{
+                                        'subscriptionPlans.estimator.closestFor'
+                                            | transloco: { plan: budgetReferencePlan.name }
+                                    }}:
+                                    <span class="font-semibold text-stone-800 dark:text-stone-100"
+                                        >${{ getBudgetAchievedTotal() | number: '1.0-0' }}/{{
+                                            'subscriptionPlans.interval.month' | transloco
+                                        }}</span
+                                    >
+                                    <span
+                                        class="ml-1 font-medium"
+                                        *ngIf="getBudgetDelta() as delta"
+                                        [ngClass]="
+                                            delta > 0
+                                                ? 'text-amber-600 dark:text-amber-400'
+                                                : 'text-emerald-600 dark:text-emerald-400'
+                                        "
+                                    >
+                                        ({{ delta > 0 ? '+' : '' }}${{ delta | number: '1.0-2' }})
+                                    </span>
+                                </p>
                             </div>
-                        </ng-container>
+                        </div>
                     </div>
 
                     <!-- API breakdown link -->
@@ -798,9 +896,7 @@
                     *ngIf="showApiBreakdown && !loadingPlans"
                     class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6"
                 >
-                    <div
-                        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-                    >
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h3 class="text-base font-semibold text-stone-950 dark:text-white">
                             {{ 'subscriptionPlans.apiBreakdown.title' | transloco }}
                         </h3>
@@ -816,7 +912,10 @@
                         </button>
                     </div>
 
-                    <div *ngIf="loadingFeatures" class="mt-6 flex items-center justify-center py-10">
+                    <div
+                        *ngIf="loadingFeatures"
+                        class="mt-6 flex items-center justify-center py-10"
+                    >
                         <div
                             class="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900 dark:border-gray-800 dark:border-t-white"
                         ></div>
@@ -877,7 +976,10 @@
                                         </th>
                                         <th
                                             class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
-                                            *ngFor="let plan of apiBreakdownPlans; trackBy: trackByPlan"
+                                            *ngFor="
+                                                let plan of apiBreakdownPlans;
+                                                trackBy: trackByPlan
+                                            "
                                         >
                                             {{ plan.name }}
                                         </th>
@@ -887,7 +989,10 @@
                                     class="divide-y divide-stone-200 dark:divide-gray-800 bg-white dark:bg-gray-900/40"
                                 >
                                     <ng-container
-                                        *ngFor="let group of groupedFilteredFeatures; trackBy: trackByGroup"
+                                        *ngFor="
+                                            let group of groupedFilteredFeatures;
+                                            trackBy: trackByGroup
+                                        "
                                     >
                                         <tr
                                             *ngIf="group.category"
@@ -901,21 +1006,30 @@
                                             </td>
                                         </tr>
                                         <tr
-                                            *ngFor="let feature of group.features; trackBy: trackByFeature"
+                                            *ngFor="
+                                                let feature of group.features;
+                                                trackBy: trackByFeature
+                                            "
                                             class="cursor-pointer transition hover:bg-stone-50 dark:hover:bg-gray-950/50"
                                             (click)="openFeatureModal(feature)"
                                         >
-                                            <td class="px-4 py-3 text-stone-900 dark:text-stone-100">
+                                            <td
+                                                class="px-4 py-3 text-stone-900 dark:text-stone-100"
+                                            >
                                                 {{ getFeatureDisplayName(feature) }}
                                             </td>
                                             <td
                                                 class="px-4 py-3 text-right font-medium text-stone-900 dark:text-white"
-                                                *ngFor="let plan of apiBreakdownPlans; trackBy: trackByPlan"
+                                                *ngFor="
+                                                    let plan of apiBreakdownPlans;
+                                                    trackBy: trackByPlan
+                                                "
                                             >
                                                 ${{
-                                                    getCompareTablePriceForApi(feature, plan).toFixed(
-                                                        4
-                                                    )
+                                                    getCompareTablePriceForApi(
+                                                        feature,
+                                                        plan
+                                                    ).toFixed(4)
                                                 }}/req
                                             </td>
                                         </tr>
@@ -953,33 +1067,26 @@
                 <div
                     #plansExploreAnchor
                     *ngIf="!loadingPlans && !showApiBreakdown"
-                    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+                    [ngClass]="visiblePlans.length >= 5 ? 'xl:grid-cols-5' : 'xl:grid-cols-4'"
                 >
                     <ng-container *ngFor="let plan of visiblePlans; trackBy: trackByPlan">
                         <div
-                            class="plan-card relative flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition dark:bg-gray-900/70"
+                            class="plan-card relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md dark:bg-gray-900/70"
                             [ngClass]="{
                                 'border-stone-950 ring-2 ring-stone-950 dark:border-white dark:ring-white':
-                                    plan._id &&
-                                    plan._id === getBestValuePlanId() &&
-                                    requestsPerMonth > 0,
-                                'border-stone-200 dark:border-gray-800':
-                                    !(plan._id && plan._id === getBestValuePlanId() && requestsPerMonth > 0),
-                                'is-not-optimal': !isPlanCompetitive(plan),
+                                    isRecommendedPlan(plan),
+                                'border-stone-200 dark:border-gray-800': !isRecommendedPlan(plan),
                                 'is-current':
-                                    plan.code === currentSubscription?.subscriptionPlan?.code
+                                    plan.code === currentSubscription?.subscriptionPlan?.code,
                             }"
                         >
-                            <!-- Best value badge -->
+                            <!-- Recommended badge -->
                             <span
-                                *ngIf="
-                                    plan._id &&
-                                    plan._id === getBestValuePlanId() &&
-                                    requestsPerMonth > 0
-                                "
-                                class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-stone-950 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm dark:bg-white dark:text-gray-950"
+                                *ngIf="isRecommendedPlan(plan)"
+                                class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-stone-950 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm dark:bg-white dark:text-gray-950"
                             >
-                                {{ 'subscriptionPlans.requestSlider.bestValue' | transloco }}
+                                {{ 'subscriptionPlans.card.recommended' | transloco }}
                             </span>
 
                             <!-- Bring-back 3x first month -->
@@ -989,29 +1096,35 @@
                             >
                                 {{
                                     'subscriptionPlans.promo.bringBack.planBadge'
-                                        | transloco
-                                            : { multiplier: bringBackOffer?.multiplier || 3 }
+                                        | transloco: { multiplier: bringBackOffer?.multiplier || 3 }
                                 }}
-                            </span>
-
-                            <!-- Not optimal badge -->
-                            <span
-                                *ngIf="!isPlanCompetitive(plan)"
-                                class="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white/80 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-stone-500 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80 dark:text-stone-400"
-                            >
-                                <mat-icon class="!h-3 !w-3 !text-[12px]">info</mat-icon>
-                                <span>{{
-                                    'subscriptionPlans.notOptimalForVolume' | transloco
-                                }}</span>
                             </span>
 
                             <!-- Header -->
                             <div class="mb-4">
-                                <h3
-                                    class="text-base font-semibold text-stone-950 dark:text-white"
-                                >
-                                    {{ plan.name }}
-                                </h3>
+                                <div class="flex items-center justify-between gap-2">
+                                    <h3
+                                        class="text-lg font-semibold tracking-tight text-stone-950 dark:text-white"
+                                    >
+                                        {{ plan.name }}
+                                    </h3>
+                                    <span
+                                        *ngIf="getRateDiscountPercent(plan) as percent"
+                                        class="shrink-0 cursor-help rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-300"
+                                        tabindex="0"
+                                        [matTooltip]="
+                                            'subscriptionPlans.card.rateDiscountHint'
+                                                | transloco
+                                                    : {
+                                                          percent: percent,
+                                                          base:
+                                                              (BASE_REQUEST_PRICE
+                                                              | number: '1.2-2'),
+                                                      }
+                                        "
+                                        >−{{ percent }}%</span
+                                    >
+                                </div>
                                 <p
                                     *ngIf="isBringBackPromoPlan(plan)"
                                     class="mt-1 text-xs font-medium text-amber-800 dark:text-amber-300"
@@ -1023,15 +1136,8 @@
                                 </p>
                             </div>
 
-                            <!-- Pricing block (blurred when not optimal) -->
-                            <div
-                                class="plan-card-content"
-                                [ngClass]="{
-                                    'blur-[2px] opacity-50 select-none pointer-events-none':
-                                        !isPlanCompetitive(plan)
-                                }"
-                                [attr.aria-hidden]="!isPlanCompetitive(plan)"
-                            >
+                            <!-- Pricing block -->
+                            <div class="plan-card-content mb-2">
                                 <ng-container
                                     *ngIf="requestsPerMonth <= 0; else planPricingWhenEstimating"
                                 >
@@ -1044,8 +1150,7 @@
                                             class="text-4xl font-bold tracking-tight text-stone-950 dark:text-white"
                                             >{{ plan.amount | number: '1.0-0' }}</span
                                         >
-                                        <span
-                                            class="text-sm text-stone-500 dark:text-stone-400"
+                                        <span class="text-sm text-stone-500 dark:text-stone-400"
                                             >/{{
                                                 'subscriptionPlans.interval.' + plan.interval
                                                     | transloco
@@ -1082,8 +1187,7 @@
                                                 getDisplayEstimatedTotal(plan) | number: '1.0-0'
                                             }}</span
                                         >
-                                        <span
-                                            class="text-sm text-stone-500 dark:text-stone-400"
+                                        <span class="text-sm text-stone-500 dark:text-stone-400"
                                             >/{{
                                                 (selectedInterval === 'year'
                                                     ? 'subscriptionPlans.interval.year'
@@ -1092,41 +1196,129 @@
                                             }}</span
                                         >
                                     </div>
-                                    <p
-                                        class="mt-2 text-xs text-stone-500 dark:text-stone-400"
-                                    >
-                                        ~{{ formatNumber(sliderValue) }}
-                                        {{
-                                            (selectedInterval === 'year'
-                                                ? 'subscriptionPlans.requestSlider.requestsPerYear'
-                                                : 'subscriptionPlans.requestSlider.requests'
-                                            ) | transloco
-                                        }}
-                                    </p>
                                 </ng-template>
 
-                                <!-- Discount chip -->
+                                <!-- Per-request panel -->
                                 <div
-                                    *ngIf="plan.discount?.discount"
-                                    class="mt-4 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs dark:border-emerald-900/70 dark:bg-emerald-950/30"
+                                    class="relative mt-5 overflow-hidden rounded-xl p-4"
+                                    [ngClass]="
+                                        isRecommendedPlan(plan)
+                                            ? 'plan-rate border border-indigo-100/80 dark:border-indigo-900/40'
+                                            : 'bg-stone-50 ring-1 ring-stone-200/70 dark:bg-gray-950/60 dark:ring-gray-800'
+                                    "
                                 >
-                                    <span
-                                        class="font-semibold text-emerald-700 dark:text-emerald-300"
-                                        >{{ getDiscountDisplayText(plan) }}</span
-                                    >
-                                    <span class="text-emerald-700/70 dark:text-emerald-300/70">{{
-                                        'subscriptionPlans.discountDescription' | transloco
-                                    }}</span>
+                                    <ng-container *ngIf="isRecommendedPlan(plan)">
+                                        <div
+                                            class="plan-verdict__blob plan-verdict__blob--tr"
+                                            aria-hidden="true"
+                                        ></div>
+                                        <div
+                                            class="plan-verdict__blob plan-verdict__blob--bl"
+                                            aria-hidden="true"
+                                        ></div>
+                                    </ng-container>
+                                    <div class="relative z-10">
+                                        <span
+                                            class="inline-flex items-center gap-1 text-xs font-medium"
+                                            [ngClass]="
+                                                isRecommendedPlan(plan)
+                                                    ? 'text-indigo-700 dark:text-indigo-300'
+                                                    : 'text-stone-500 dark:text-stone-400'
+                                            "
+                                        >
+                                            {{
+                                                (requestsPerMonth > 0
+                                                    ? 'subscriptionPlans.card.avgPerRequest'
+                                                    : 'subscriptionPlans.card.ratePerRequest'
+                                                ) | transloco
+                                            }}
+                                            <mat-icon
+                                                class="!h-3.5 !w-3.5 cursor-help !text-[14px] opacity-70"
+                                                tabindex="0"
+                                                [matTooltip]="
+                                                    requestsPerMonth > 0
+                                                        ? ('subscriptionPlans.card.avgPerRequestHint'
+                                                          | transloco
+                                                              : {
+                                                                    requests:
+                                                                        (requestsPerMonth
+                                                                        | number: '1.0-0'),
+                                                                })
+                                                        : ('subscriptionPlans.card.pricePerRequestHint'
+                                                          | transloco)
+                                                "
+                                                >info</mat-icon
+                                            >
+                                        </span>
+                                        <div class="mt-1.5 flex items-baseline gap-1">
+                                            <span
+                                                class="text-3xl font-bold tabular-nums tracking-tight text-stone-950 dark:text-white"
+                                                >${{
+                                                    getAverageCostPerRequest(plan) | number: '1.2-3'
+                                                }}</span
+                                            >
+                                            <span
+                                                class="text-sm text-stone-500 dark:text-stone-400"
+                                                >{{
+                                                    'subscriptionPlans.requestSlider.perRequest'
+                                                        | transloco
+                                                }}</span
+                                            >
+                                        </div>
+
+                                        <ul
+                                            class="mt-3 space-y-2 border-t pt-3 text-sm text-stone-700 dark:text-stone-300"
+                                            [ngClass]="
+                                                isRecommendedPlan(plan)
+                                                    ? 'border-indigo-200/70 dark:border-indigo-800/50'
+                                                    : 'border-stone-200/80 dark:border-gray-800'
+                                            "
+                                        >
+                                            <li
+                                                *ngIf="getIncludedRequestsDisplay(plan) as included"
+                                                class="flex gap-2"
+                                            >
+                                                <span
+                                                    class="flex h-5 w-4 shrink-0 items-center justify-center text-emerald-600 dark:text-emerald-400"
+                                                >
+                                                    <mat-icon
+                                                        class="!h-4 !w-4 !text-[16px] !leading-none"
+                                                        >check_circle</mat-icon
+                                                    >
+                                                </span>
+                                                <span class="leading-5">{{
+                                                    'subscriptionPlans.card.includedRequests'
+                                                        | transloco
+                                                            : {
+                                                                  requests:
+                                                                      (included | number: '1.0-0'),
+                                                              }
+                                                }}</span>
+                                            </li>
+                                            <li *ngIf="requestsPerMonth > 0" class="flex gap-2">
+                                                <span
+                                                    class="flex h-5 w-4 shrink-0 items-center justify-center text-stone-400"
+                                                >
+                                                    <mat-icon
+                                                        class="!h-4 !w-4 !text-[16px] !leading-none"
+                                                        >add_circle_outline</mat-icon
+                                                    >
+                                                </span>
+                                                <span class="leading-5">{{
+                                                    'subscriptionPlans.card.extraRate'
+                                                        | transloco
+                                                            : {
+                                                                  price:
+                                                                      (getEffectiveCostPerRequest(
+                                                                          plan
+                                                                      ) | number: '1.2-4'),
+                                                              }
+                                                }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- Optional helper hint when not optimal -->
-                            <p
-                                *ngIf="!isPlanCompetitive(plan)"
-                                class="mt-4 text-xs text-stone-500 dark:text-stone-400"
-                            >
-                                {{ 'subscriptionPlans.notOptimalHint' | transloco }}
-                            </p>
 
                             <!-- CTA -->
                             <button
@@ -1139,38 +1331,36 @@
                                     'bg-stone-950 text-white hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200':
                                         plan.code !== currentSubscription?.subscriptionPlan?.code &&
                                         isPlanCompetitive(plan),
-                                    'cursor-not-allowed border border-stone-200 bg-white text-stone-400 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-500':
+                                    'border border-stone-300 bg-white text-stone-900 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 dark:hover:bg-gray-800':
                                         plan.code !== currentSubscription?.subscriptionPlan?.code &&
-                                        !isPlanCompetitive(plan)
+                                        !isPlanCompetitive(plan),
                                 }"
                                 [disabled]="
-                                    plan.code === currentSubscription?.subscriptionPlan?.code ||
-                                    !isPlanCompetitive(plan)
+                                    plan.code === currentSubscription?.subscriptionPlan?.code
                                 "
                                 (click)="upgradePlan(plan)"
                             >
                                 <ng-container
-                                    *ngIf="plan.code === currentSubscription?.subscriptionPlan?.code"
+                                    *ngIf="
+                                        plan.code === currentSubscription?.subscriptionPlan?.code
+                                    "
                                 >
                                     {{ 'subscriptionPlans.currentPlan' | transloco }}
                                 </ng-container>
                                 <ng-container
-                                    *ngIf="plan.code !== currentSubscription?.subscriptionPlan?.code"
+                                    *ngIf="
+                                        plan.code !== currentSubscription?.subscriptionPlan?.code
+                                    "
                                 >
-                                    <ng-container *ngIf="!isPlanCompetitive(plan)">
-                                        {{ 'subscriptionPlans.notOptimalCta' | transloco }}
-                                    </ng-container>
-                                    <ng-container *ngIf="isPlanCompetitive(plan)">
-                                        <ng-container *ngIf="!currentSubscription">{{
-                                            'subscriptionPlans.selectPlan' | transloco
-                                        }}</ng-container>
-                                        <ng-container *ngIf="currentSubscription">
-                                            {{
-                                                plan.isDowngrade
-                                                    ? ('subscriptionPlans.downgrade' | transloco)
-                                                    : ('subscriptionPlans.upgrade' | transloco)
-                                            }}
-                                        </ng-container>
+                                    <ng-container *ngIf="!currentSubscription">{{
+                                        'subscriptionPlans.selectPlan' | transloco
+                                    }}</ng-container>
+                                    <ng-container *ngIf="currentSubscription">
+                                        {{
+                                            plan.isDowngrade
+                                                ? ('subscriptionPlans.downgrade' | transloco)
+                                                : ('subscriptionPlans.upgrade' | transloco)
+                                        }}
                                     </ng-container>
                                 </ng-container>
                             </button>
@@ -1313,7 +1503,7 @@
                 </span>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="text-2xl font-bold tracking-tight text-stone-950 dark:text-white">
-                        {{ (selectedFeatureForModal.price ?? 0) | number: '1.2-4' }}
+                        {{ selectedFeatureForModal.price ?? 0 | number: '1.2-4' }}
                     </span>
                     <span
                         class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
