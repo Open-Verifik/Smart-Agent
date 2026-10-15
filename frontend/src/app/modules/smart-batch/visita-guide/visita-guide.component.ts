@@ -3848,7 +3848,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.documentHover.set(null);
     }
 
-    onDocumentViewportWheel(event: WheelEvent): void {
+    onDocumentViewportWheel(event: WheelEvent, viewport: HTMLElement): void {
+        if (event.ctrlKey || event.metaKey) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.documentHover.set(this._eventOverPaper(event) ? 'paper' : 'page');
+            this._zoomDocumentAt(viewport, event, event.deltaY > 0 ? -0.1 : 0.1);
+            return;
+        }
         if (!this._eventOverPaper(event)) {
             this.documentHover.set('page');
             return;
@@ -3856,14 +3863,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         event.preventDefault();
         event.stopPropagation();
         this.documentHover.set('paper');
-        if (event.ctrlKey || event.metaKey) {
-            this.nudgeDocumentZoom(event.deltaY > 0 ? -0.1 : 0.1);
-            return;
-        }
-        const viewport = event.currentTarget as HTMLElement | null;
-        if (!viewport) return;
         viewport.scrollTop += event.deltaY;
         viewport.scrollLeft += event.deltaX;
+    }
+
+    /** Ctrl + wheel grows or shrinks the sheet and keeps the point under the pointer. */
+    private _zoomDocumentAt(viewport: HTMLElement, event: WheelEvent, delta: number): void {
+        const current = this.documentZoom();
+        const next = Math.min(2, Math.max(0.5, Math.round((current + delta) * 10) / 10));
+        if (next === current) return;
+        const stack = viewport.querySelector('[data-report-zoom-stack]') as HTMLElement | null;
+        const before = stack?.getBoundingClientRect();
+        const localX = before && current ? (event.clientX - before.left) / current : 0;
+        const localY = before && current ? (event.clientY - before.top) / current : 0;
+        const pointerX = event.clientX;
+        const pointerY = event.clientY;
+        this.documentZoom.set(next);
+        if (!stack) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const after = stack.getBoundingClientRect();
+                viewport.scrollLeft += after.left - (pointerX - localX * next);
+                viewport.scrollTop += after.top - (pointerY - localY * next);
+            });
+        });
     }
 
     private _eventOverPaper(event: Event): boolean {
@@ -3875,13 +3898,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._documentViewportAbort?.abort();
         const abort = new AbortController();
         this._documentViewportAbort = abort;
-        const root = this._host.nativeElement as HTMLElement;
-        root.querySelectorAll('[data-document-viewport]').forEach((node) => {
-            node.addEventListener('wheel', (event) => this.onDocumentViewportWheel(event as WheelEvent), {
-                passive: false,
-                signal: abort.signal,
-            });
-        });
+        document.addEventListener(
+            'wheel',
+            (event) => {
+                if (this.step() !== 'layout') return;
+                const target = event.target;
+                if (!(target instanceof Element)) return;
+                const viewport = target.closest('[data-document-viewport]');
+                if (!(viewport instanceof HTMLElement)) return;
+                this.onDocumentViewportWheel(event, viewport);
+            },
+            { passive: false, capture: true, signal: abort.signal }
+        );
     }
 
     addPageSheet(afterPage?: number): void {
