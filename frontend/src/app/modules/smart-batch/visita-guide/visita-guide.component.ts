@@ -1872,6 +1872,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return Boolean(this.layoutLayerFlags()[id]?.locked);
     }
 
+    selectedLayoutLayerId(): string | null {
+        return this._layoutLayerIdOfSelection();
+    }
+
     isLayoutLayerSelected(layer: LayoutLayerItem): boolean {
         if (layer.kind === 'section') {
             const id = layer.id.slice(4);

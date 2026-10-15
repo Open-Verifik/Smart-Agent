@@ -4212,6 +4212,25 @@
                     >expand_more</mat-icon
                 >
             </button>
+            @if (selectedLayoutLayerId(); as layerId) {
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                <button
+                    type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                    [attr.aria-pressed]="isLayoutLayerLocked(layerId)"
+                    [attr.aria-label]="
+                        t(isLayoutLayerLocked(layerId) ? 'visitaGuide.layoutLayerUnlock' : 'visitaGuide.layoutLayerLock')
+                    "
+                    [matTooltip]="
+                        t(isLayoutLayerLocked(layerId) ? 'visitaGuide.layoutLayerUnlock' : 'visitaGuide.layoutLayerLock')
+                    "
+                    (click)="toggleLayoutLayerLocked(layerId, $event)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">{{
+                        isLayoutLayerLocked(layerId) ? 'lock' : 'lock_open'
+                    }}</mat-icon>
+                </button>
+            }
             </div>
             <div class="layout-format-more" [class.is-open]="layoutFormatExpanded()">
                 <div class="layout-format-more-clip">

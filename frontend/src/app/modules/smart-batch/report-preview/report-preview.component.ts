@@ -4106,7 +4106,67 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             if (dst) this._pinPrintedBox(src, dst, source);
         });
         this._pinPrintedLayoutFromModel(clone, pageIndex);
+        this._relaxPrintedHugText(source, clone);
         this._stickPrintedChrome(clone);
+    }
+
+    /**
+     * Title and free text shrink to the words on the sheet. Freezing that
+     * exact width for Puppeteer wraps the last word, because the PDF font
+     * is a fraction wider than the editor measurement.
+     */
+    private _relaxPrintedHugText(source: HTMLElement, clone: HTMLElement): void {
+        source.querySelectorAll('[data-report-section]').forEach((node) => {
+            const src = node as HTMLElement;
+            const type = src.getAttribute('data-section-type');
+            if (type !== 'header' && type !== 'text') return;
+            const id = src.getAttribute('data-section-id');
+            const dst = id
+                ? (clone.querySelector(`[data-section-id="${CSS.escape(id)}"]`) as HTMLElement | null)
+                : null;
+            if (!dst || !src.offsetWidth) return;
+            const parent = (src.offsetParent as HTMLElement | null) ?? source;
+            const parentW = parent.clientWidth || source.clientWidth || 1;
+            dst.style.height = 'auto';
+            dst.style.maxHeight = 'none';
+            dst.style.overflow = 'visible';
+            if (this._printedTextIsOneLine(src)) {
+                dst.style.width = 'max-content';
+                dst.style.maxWidth = 'none';
+                dst.style.whiteSpace = 'nowrap';
+                dst.querySelectorAll('h2, p, span, div').forEach((child) => {
+                    const el = child as HTMLElement;
+                    el.style.whiteSpace = 'nowrap';
+                    el.style.width = 'max-content';
+                    el.style.maxWidth = 'none';
+                    el.style.minWidth = '0';
+                });
+                return;
+            }
+            const slack = 8;
+            const boxW = src.offsetWidth;
+            dst.style.width = `${((boxW + slack) / parentW) * 100}%`;
+            dst.style.maxWidth = 'none';
+            dst.querySelectorAll('h2, p, span, div').forEach((child) => {
+                const el = child as HTMLElement;
+                for (const prop of ['width', 'maxWidth'] as const) {
+                    const value = parseFloat(el.style[prop]);
+                    if (!Number.isFinite(value) || value <= 0 || value > boxW + 1) continue;
+                    el.style[prop] = `${value + slack}px`;
+                }
+            });
+        });
+    }
+
+    private _printedTextIsOneLine(src: HTMLElement): boolean {
+        const raw = src.textContent || '';
+        if (/[\r\n]/.test(raw)) return false;
+        const probe = (src.querySelector('[data-sheet-text]') as HTMLElement | null) ?? src;
+        const style = getComputedStyle(probe);
+        const fontSize = parseFloat(style.fontSize) || 16;
+        const line = parseFloat(style.lineHeight);
+        const linePx = Number.isFinite(line) ? line : fontSize * 1.4;
+        return probe.offsetHeight <= linePx * 1.6;
     }
 
     /** When the live sheet has no layout box (hidden tab), pin from saved frames. */
