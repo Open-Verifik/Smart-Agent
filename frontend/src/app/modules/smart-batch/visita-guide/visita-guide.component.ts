@@ -553,6 +553,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
     readonly layoutFormatAligns: ReportTextAlign[] = ['left', 'center', 'right'];
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
+    /** Keep the matching layer in sight when a block is chosen on the sheet. */
+    private readonly _revealSelectedLayer = effect(() => {
+        const overlay = this.selectedLayoutOverlay();
+        const sectionId = this.selectedLayoutSectionId();
+        const id = overlay || (sectionId ? `sec:${sectionId}` : null);
+        if (!id) return;
+        untracked(() => this._scrollLayoutLayerIntoView(id));
+    });
     /** Paint order for stamps and logos. Blocks and sheet images keep theirs on the model. */
     layoutOverlayZ = signal<Record<string, number>>({});
     /** Hide and lock are editing aids. They are not written into the PDF. */
@@ -1511,6 +1519,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const target = event.target as HTMLElement | null;
         if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
         if (this.layoutEditorSuppressed()) return;
+        if (this._typeIntoSelectedText(event)) return;
         if (event.key === 'Delete') {
             event.preventDefault();
             this.deleteSelectedLayoutTarget();
@@ -1546,6 +1555,21 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             event.preventDefault();
             this.copySelectedLayoutSection();
         }
+    }
+
+    /** Enter or a letter opens the selected title or text and writes on the sheet. */
+    private _typeIntoSelectedText(event: KeyboardEvent): boolean {
+        if (event.ctrlKey || event.metaKey || event.altKey) return false;
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('button, a, [role="button"]')) return false;
+        if (this.selectedLayoutSectionIds().length > 1) return false;
+        const section = this.selectedLayoutSection();
+        if (!section || (section.type !== 'header' && section.type !== 'text') || this.selectedLayoutCellKey()) return false;
+        const character = event.key.length === 1 ? event.key : undefined;
+        if (event.key !== 'Enter' && !character) return false;
+        event.preventDefault();
+        setTimeout(() => this._layoutEditorPreview?.beginInlineEdit(section.id, character));
+        return true;
     }
 
     /**
@@ -1854,6 +1878,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return this.selectedLayoutSectionId() === id || this.selectedLayoutSectionIds().includes(id);
         }
         return this.selectedLayoutOverlay() === layer.id;
+    }
+
+    private _scrollLayoutLayerIntoView(id: string): void {
+        requestAnimationFrame(() => {
+            const row = this._host.nativeElement.querySelector(
+                `[data-layout-layer="${CSS.escape(id)}"]`
+            ) as HTMLElement | null;
+            row?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        });
     }
 
     selectLayoutLayer(layer: LayoutLayerItem, event?: Event): void {
@@ -2185,7 +2218,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _formatRoles(): ReportTextRole[] {
         const roles = this.selectedLayoutTextRoles();
-        return roles.length ? roles : ['title'];
+        if (!roles.length) return ['title'];
+        const part = this.selectedLayoutCellPart();
+        const wholeBlock = !this.selectedLayoutCellKey() && part === 'cell' && roles.length > 1;
+        if (wholeBlock) return roles;
+        if (part === 'label' || part === 'value' || part === 'title') {
+            const match = roles.filter((role) => role === part);
+            if (match.length) return match;
+        }
+        return [roles[0]];
+    }
+
+    /** A whole block writes the same text style onto its labels and its values. */
+    private _rolesSharingEdit(role: ReportTextRole): ReportTextRole[] {
+        const roles = this.selectedLayoutTextRoles();
+        const wholeBlock = !this.selectedLayoutCellKey() && this.selectedLayoutCellPart() === 'cell' && roles.length > 1;
+        if (wholeBlock && roles.includes(role)) return roles;
+        return [role];
     }
 
     layoutFormatAlign(): ReportTextAlign {
@@ -3709,7 +3758,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
+        this.selectedLayoutSectionIds.set([section.id]);
         this._focusLayoutEditor(section, 'block');
+        setTimeout(() => this._layoutEditorPreview?.beginInlineEdit(section.id));
     }
 
     addTextBlock(): void {
@@ -3724,7 +3775,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
+        this.selectedLayoutSectionIds.set([section.id]);
         this._focusLayoutEditor(section, 'block');
+        setTimeout(() => this._layoutEditorPreview?.beginInlineEdit(section.id));
     }
 
     addDividerBlock(): void {
@@ -4158,14 +4211,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutTextRoles(): ReportTextRole[] {
         if (!this.selectedLayoutShowsTypography()) return [];
         const cellKey = this.selectedLayoutCellKey();
-        if (!cellKey && this.selectedLayoutCellPart() === 'title') return ['title'];
+        const part = this.selectedLayoutCellPart();
+        if (!cellKey && part === 'title') return ['title'];
+        if (!cellKey && part === 'label') return ['label'];
+        if (!cellKey && part === 'value') return ['value'];
         if (cellKey) {
-            const part = this.selectedLayoutCellPart();
             if (part === 'label') return ['label'];
             if (part === 'value') return ['value'];
             return ['label', 'value'];
         }
-        if (this.selectedLayoutShowsParams()) return ['title', 'label', 'value'];
+        // The whole block formats its labels and its values together.
+        if (this.selectedLayoutShowsParams()) return ['label', 'value'];
         return ['title'];
     }
 
@@ -4249,7 +4305,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     setLayoutRoleFontFamily(role: ReportTextRole, value: string): void {
-        this._patchSelectedLayoutRole(role, { fontFamily: value });
+        for (const item of this._rolesSharingEdit(role)) this._patchSelectedLayoutRole(item, { fontFamily: value });
     }
 
     /** Add, remove or pick template fonts; `role` gets the picked font when given. */
@@ -4282,27 +4338,35 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     setLayoutRoleFontSize(role: ReportTextRole, value: string | number): void {
         const size = Number(value);
         if (!Number.isFinite(size)) return;
-        this._patchSelectedLayoutRole(role, { fontSize: Math.max(8, Math.min(72, Math.round(size))) });
+        for (const item of this._rolesSharingEdit(role)) {
+            this._patchSelectedLayoutRole(item, { fontSize: Math.max(8, Math.min(72, Math.round(size))) });
+        }
     }
 
     setLayoutRoleAlign(role: ReportTextRole, align: ReportTextAlign): void {
-        this._patchSelectedLayoutRole(role, { textAlign: align });
+        for (const item of this._rolesSharingEdit(role)) this._patchSelectedLayoutRole(item, { textAlign: align });
     }
 
     setLayoutRoleBold(role: ReportTextRole, enabled: boolean): void {
-        this._patchSelectedLayoutRole(role, { fontWeight: enabled ? 'bold' : 'normal' });
+        for (const item of this._rolesSharingEdit(role)) {
+            this._patchSelectedLayoutRole(item, { fontWeight: enabled ? 'bold' : 'normal' });
+        }
     }
 
     setLayoutRoleItalic(role: ReportTextRole, enabled: boolean): void {
-        this._patchSelectedLayoutRole(role, { fontStyle: enabled ? 'italic' : 'normal' });
+        for (const item of this._rolesSharingEdit(role)) {
+            this._patchSelectedLayoutRole(item, { fontStyle: enabled ? 'italic' : 'normal' });
+        }
     }
 
     setLayoutRoleUnderline(role: ReportTextRole, enabled: boolean): void {
-        this._patchSelectedLayoutRole(role, { textDecoration: enabled ? 'underline' : 'none' });
+        for (const item of this._rolesSharingEdit(role)) {
+            this._patchSelectedLayoutRole(item, { textDecoration: enabled ? 'underline' : 'none' });
+        }
     }
 
     setLayoutRoleColor(role: ReportTextRole, value: string): void {
-        this._patchSelectedLayoutRole(role, { color: value });
+        for (const item of this._rolesSharingEdit(role)) this._patchSelectedLayoutRole(item, { color: value });
     }
 
     private _patchSelectedLayoutRole(role: ReportTextRole, patch: ReportTextRoleStyle): void {

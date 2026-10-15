@@ -115,6 +115,18 @@ export function reportPaperSizePx(
                 outline-offset: 6px;
                 border-radius: 6px;
             }
+            .selection-outline.selection-outline-tight {
+                outline-offset: 2px;
+                border-radius: 4px;
+            }
+            textarea.hug-field {
+                display: inline-block;
+                field-sizing: content;
+                width: auto;
+                min-width: 1ch;
+                white-space: pre-wrap;
+                vertical-align: top;
+            }
             [data-overlay-handle],
             [data-section-handle],
             [data-cell-handle],
@@ -512,6 +524,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _suppressInlineBlur = false;
     /** Text the editor opened with; leaving it untouched must not pin live data as fixed text. */
     private _inlineSeedValue = '';
+    /** Double-click selects the whole phrase so the next key replaces it. */
+    private _selectAllOnFocus = false;
     readonly liveFrames = signal<Record<string, ReportSectionFrame>>({});
 
     constructor() {
@@ -1081,6 +1095,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         const host = event.target as HTMLElement | null;
+        const fieldPart = host?.closest('[data-field-part]')?.getAttribute('data-field-part');
+        if (fieldPart === 'label' || fieldPart === 'value') {
+            this._keepCellSelection = false;
+            this.cellSelect.emit({ section, key: null, part: fieldPart });
+            this.sectionClick()!(section);
+            return;
+        }
         if (host?.closest('[data-sheet-role="title"]')) {
             this._keepCellSelection = false;
             this.cellSelect.emit({ section, key: null, part: 'title' });
@@ -1104,6 +1125,60 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
         this.cellSelect.emit({ section, key: null, part: 'cell' });
         this.sectionClick()!(section);
+    }
+
+    /** Title and free text are edited on the sheet. A click only selects them. */
+    isCanvasText(kind: string): boolean {
+        return kind === 'title' || kind === 'body' || kind === 'itemTitle';
+    }
+
+    onSheetTextPointerDown(kind: string, event: Event): void {
+        if (!this.isCanvasText(kind)) event.stopPropagation();
+    }
+
+    onSheetTextClick(
+        section: ReportSection,
+        kind: string,
+        event: Event,
+        key?: string,
+        fallback = ''
+    ): void {
+        if (this.isCanvasText(kind)) return;
+        this.startInlineEdit(section, kind, event, key, fallback);
+    }
+
+    onSheetTextDoubleClick(
+        section: ReportSection,
+        kind: string,
+        event: Event,
+        key?: string,
+        fallback = ''
+    ): void {
+        if (!this.isCanvasText(kind)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this._selectAllOnFocus = true;
+        this.startInlineEdit(section, kind, event, key, fallback);
+    }
+
+    /** Open the words of a title or text block, ready to replace or to type the first character. */
+    beginInlineEdit(sectionId: string, replaceWith?: string): void {
+        const section = (this.template().sections ?? []).find((item) => item.id === sectionId);
+        if (!section || this._sectionLocked(section) || !this.canInlineEdit()) return;
+        const kind: ReportInlineTextKind = section.type === 'text' ? 'body' : 'title';
+        this._clearSectionDrag();
+        this._flushInlineEdit();
+        this._suppressInlineBlur = true;
+        this.sectionClick()?.(section);
+        this.cellSelect.emit({ section, key: null, part: kind === 'title' ? 'title' : 'cell' });
+        this._inlineSeedValue = this._inlineSeed(section, kind);
+        this.inlineDraft.set(replaceWith ?? this._inlineSeedValue);
+        this._selectAllOnFocus = replaceWith == null;
+        this.editingText.set({ sectionId: section.id, kind });
+        queueMicrotask(() => {
+            this._suppressInlineBlur = false;
+            this._focusInlineEditor();
+        });
     }
 
     canInlineEdit(measure?: boolean): boolean {
@@ -1158,7 +1233,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._suppressInlineBlur = true;
         this.sectionClick()?.(section);
         const onTitle = Boolean((event.target as HTMLElement | null)?.closest('[data-sheet-role="title"]'));
-        if ((editKind === 'cellLabel' || editKind === 'cellValue') && key) {
+        if (section.type === 'field' && (editKind === 'title' || editKind === 'cellValue' || editKind === 'cellLabel')) {
+            this.cellSelect.emit({
+                section,
+                key: null,
+                part: editKind === 'cellValue' ? 'value' : 'label',
+            });
+        } else if ((editKind === 'cellLabel' || editKind === 'cellValue') && key) {
             this.cellSelect.emit({
                 section,
                 key: key.split('#')[0],
@@ -1181,17 +1262,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     onInlineDraftInput(event: Event): void {
-        this.inlineDraft.set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
+        const el = event.target as HTMLInputElement | HTMLTextAreaElement;
+        this.inlineDraft.set(el.value);
+        this._fitInlineEditor(el);
+        if (el.classList.contains('hug-field')) this._scheduleContentFit();
     }
 
     onInlineKeydown(event: KeyboardEvent, multiline: boolean): void {
         if (event.key === 'Escape') {
             event.preventDefault();
-            this._suppressInlineBlur = true;
-            this.editingText.set(null);
-            queueMicrotask(() => {
-                this._suppressInlineBlur = false;
-            });
+            this.commitInlineEdit();
             return;
         }
         if (event.key === 'Enter' && (!multiline || event.ctrlKey || event.metaKey)) {
@@ -1244,10 +1324,30 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (attempt < 5) requestAnimationFrame(() => this._focusInlineEditor(attempt + 1));
             return;
         }
-        if (document.activeElement === el) return;
         el.focus();
-        const end = el.value.length;
-        el.setSelectionRange(end, end);
+        if (this._selectAllOnFocus) {
+            el.select();
+            this._selectAllOnFocus = false;
+        } else {
+            const end = el.value.length;
+            el.setSelectionRange(end, end);
+        }
+        this._fitInlineEditor(el);
+    }
+
+    private _fitInlineEditor(el: HTMLInputElement | HTMLTextAreaElement): void {
+        if (!(el instanceof HTMLTextAreaElement)) return;
+        if (el.classList.contains('hug-field')) {
+            const sizing = getComputedStyle(el).getPropertyValue('field-sizing').trim();
+            if (sizing !== 'content') {
+                const cap = parseFloat(el.style.maxWidth) || 0;
+                el.style.width = '0px';
+                const grown = Math.max(8, el.scrollWidth);
+                el.style.width = `${cap > 0 ? Math.min(cap, grown) : grown}px`;
+            }
+        }
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
     }
 
     /** A press anywhere else on the sheet closes the editor, even when that press keeps focus. */
@@ -1262,7 +1362,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-box]') || origin?.closest('[data-overlay-handle]')) return;
         if (origin?.closest('[data-section-handle]')) return;
-        if (origin?.closest('[data-inline-edit]') || origin?.closest('[data-sheet-text]')) return;
+        if (origin?.closest('[data-inline-edit]')) return;
+        const textKind = origin?.closest('[data-sheet-text]')?.getAttribute('data-text-kind');
+        if (textKind && textKind !== 'title' && textKind !== 'body' && textKind !== 'itemTitle') return;
         const cellKey = origin?.closest('[data-report-cell]')?.getAttribute('data-cell-key') ?? null;
         const rawPart = origin?.closest('[data-cell-part]')?.getAttribute('data-cell-part');
         const cellPart: ReportCellPart = rawPart === 'label' || rawPart === 'value' ? rawPart : 'cell';
@@ -1673,8 +1775,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const title = section.querySelector('[data-sheet-role="title"]');
             if (title instanceof HTMLElement) return title.getBoundingClientRect();
         }
+        if (!cellKey && (part === 'label' || part === 'value')) {
+            const piece = section.querySelector(`[data-field-part="${part}"]`);
+            if (piece instanceof HTMLElement) return piece.getBoundingClientRect();
+        }
         if (cellKey) {
             const cell = section.querySelector(`[data-cell-key="${CSS.escape(cellKey)}"]`);
+            if (part === 'label' || part === 'value') {
+                const piece = cell?.querySelector(`[data-cell-part="${part}"]`);
+                if (piece instanceof HTMLElement) return piece.getBoundingClientRect();
+            }
             if (cell instanceof HTMLElement) return cell.getBoundingClientRect();
         }
         return section.getBoundingClientRect();
@@ -1691,6 +1801,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!this.clickable()) return false;
         if (this.selectedSectionId() === section.id) return true;
         return this.selectedSectionIds().includes(section.id);
+    }
+
+    isFieldPartSelected(section: ReportSection, part: 'label' | 'value'): boolean {
+        return (
+            this.clickable() &&
+            section.type === 'field' &&
+            this.selectedSectionId() === section.id &&
+            !this.selectedCellKey() &&
+            this.selectedCellPart() === part
+        );
     }
 
     isTitleSelected(section: ReportSection): boolean {
@@ -1825,17 +1945,40 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const height = Number(frame.height) > 0 ? Number(frame.height) / scales.y : 0;
         const rotation = this.sectionRotation(section);
         const dragging = this.draggingSectionId() === section.id || this._groupDragIds().includes(section.id);
+        const hug = this.hugsText(section);
         const style: Record<string, string> = {
             position: 'absolute',
-            left: `${x / scales.x}px`,
             top: `${y / scales.y}px`,
-            width: width ? `${width}px` : '100%',
             marginBottom: '0px',
             zIndex: dragging ? '100000' : String(this.layerZIndex(`sec:${section.id}`, this._sectionZIndex(section))),
             pointerEvents: this._sectionPointer(section),
         };
         if (this.isLayerHidden(`sec:${section.id}`)) style['visibility'] = 'hidden';
         if (dragging) style['willChange'] = 'left, top, width, height';
+        if (hug) {
+            const align = this.roleTextAlign(section, 'title');
+            const boxW = Number(frame.width) > 0 ? Number(frame.width) : 0;
+            if (!rotation && align === 'center' && boxW) {
+                style['left'] = `${(x + boxW / 2) / scales.x}px`;
+                style['transform'] = 'translateX(-50%)';
+            } else if (!rotation && align === 'right' && boxW) {
+                style['left'] = `${(x + boxW) / scales.x}px`;
+                style['transform'] = 'translateX(-100%)';
+            } else {
+                style['left'] = `${x / scales.x}px`;
+                if (rotation) {
+                    style['transform'] = `rotate(${rotation}deg)`;
+                    style['transform-origin'] = 'center center';
+                }
+            }
+            style['width'] = 'max-content';
+            style['height'] = 'auto';
+            style['max-width'] = `${this.textHugMaxCss(section)}px`;
+            style['overflow'] = 'visible';
+            return style;
+        }
+        style['left'] = `${x / scales.x}px`;
+        style['width'] = width ? `${width}px` : '100%';
         const clipToFrame = section.type === 'image';
         if (height) {
             if (clipToFrame || section.type === 'shape') style['height'] = `${height}px`;
@@ -1869,6 +2012,32 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     isShapeSection(section: ReportSection): boolean {
         return section.type === 'shape';
+    }
+
+    /** Title and free text keep a box the size of the words, not the frame they were dropped in. */
+    hugsText(section: ReportSection): boolean {
+        return section.type === 'header' || section.type === 'text';
+    }
+
+    /** Widest the words may grow before they wrap, in layout pixels. */
+    textHugMaxCss(section: ReportSection): number {
+        const scale = this._scaleFactors.x || 1;
+        const page = this.pageWidthPx() / scale;
+        const inset = PAGE_INSET_PX / scale;
+        const frame = this.displayFrame(section);
+        const x = (Number(frame?.x) || 0) / scale;
+        const w = (Number(frame?.width) || 0) / scale;
+        const align = this.roleTextAlign(section, 'title');
+        let room = page - inset * 2;
+        if (align === 'center') {
+            const center = x + w / 2;
+            room = 2 * Math.min(Math.max(0, center - inset), Math.max(0, page - inset - center));
+        } else if (align === 'right') {
+            room = x + w - inset;
+        } else {
+            room = page - inset - x;
+        }
+        return Math.max(32, Math.floor(room));
     }
 
     private _applySectionDrag(
@@ -2379,7 +2548,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 const id = el.dataset['sectionId'];
                 if (!id) return;
                 const section = byId.get(id);
-                if (!section || this._locksFrameHeight(section) || !frames.has(id)) return;
+                if (!section || this._locksFrameHeight(section) || this.hugsText(section) || !frames.has(id)) return;
                 const natural = this._contentBoxHeight(el);
                 if (!natural) return;
                 const chosen = Number(frames.get(id)?.minHeight) || 0;
@@ -2395,7 +2564,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 return [{ id, height, current, page: frame.page ?? 0, y: frame.y ?? 0 }];
             })
             .sort((left, right) => left.page - right.page || left.y - right.y);
-        if (!growing.length) return;
         for (const item of growing) {
             const frame = frames.get(item.id);
             if (!frame) continue;
@@ -2421,6 +2589,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 (prev.page ?? 0) !== (frame.page ?? 0);
             if (changed) updates.push({ id, frame });
         }
+        for (const hug of this._huggingTextFrameUpdates(frames)) {
+            const index = updates.findIndex((item) => item.id === hug.id);
+            if (index >= 0) updates[index] = hug;
+            else updates.push(hug);
+        }
         if (!updates.length) return;
         // A one-item frame update raises that block. Height fitting is not a
         // selection, so pair it with another frame and leave the stack alone.
@@ -2430,6 +2603,55 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (other && otherFrame) updates.push({ id: other.id, frame: { ...otherFrame } });
         }
         this.sectionFramesChange.emit(updates);
+    }
+
+    /**
+     * Header and text blocks shrink to the words. Center and right text keep
+     * the edge they were aligned to, so a short title does not jump sideways.
+     */
+    private _huggingTextFrameUpdates(
+        frames: Map<string, ReportSectionFrame>
+    ): { id: string; frame: ReportSectionFrame }[] {
+        const scales = this._scaleFactors;
+        const updates: { id: string; frame: ReportSectionFrame }[] = [];
+        const pages = this._reportPages?.toArray() ?? [];
+        for (const pageRef of pages) {
+            pageRef.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
+                const el = node as HTMLElement;
+                const id = el.dataset['sectionId'];
+                const type = el.dataset['sectionType'];
+                if (!id || (type !== 'header' && type !== 'text')) return;
+                const section = (this.template().sections ?? []).find((item) => item.id === id);
+                const stored = section ? this.displayFrame(section) : null;
+                const frame = (id && frames.get(id)) || stored;
+                if (!section || !frame || !stored || !el.offsetWidth || !el.offsetHeight) return;
+                const placed = this._sectionCssBox(el);
+                const inner = el.closest('[data-report-page-inner]');
+                let cssX = placed.x;
+                const align = this.roleTextAlign(section, 'title');
+                const shifted =
+                    !this.sectionRotation(section) &&
+                    inner != null &&
+                    el.offsetParent === inner &&
+                    (align === 'center' || align === 'right');
+                if (shifted && align === 'center') cssX -= placed.width / 2;
+                else if (shifted) cssX -= placed.width;
+                const x = Math.round(cssX * scales.x);
+                const width = Math.max(1, Math.round(placed.width * scales.x));
+                const height = Math.max(1, Math.round(placed.height * scales.y));
+                const changed =
+                    Math.abs((Number(stored.x) || 0) - x) > 2 ||
+                    Math.abs((Number(stored.width) || 0) - width) > 2 ||
+                    Math.abs((Number(stored.height) || 0) - height) > 2 ||
+                    Math.abs((Number(stored.y) || 0) - (Number(frame.y) || 0)) > 1 ||
+                    stored.minHeight != null;
+                if (!changed) return;
+                const next: ReportSectionFrame = { ...frame, x, width, height };
+                delete next.minHeight;
+                updates.push({ id, frame: next });
+            });
+        }
+        return updates;
     }
 
     /**
