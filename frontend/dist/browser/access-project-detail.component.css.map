@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-access/projects/project-detail/access-project-detail.component.scss"],
+  "sourcesContent": [":host {\r\n    display: block;\r\n}\r\n\r\n.preview-container {\r\n    height: 800px;\r\n    display: flex;\r\n    flex-direction: column;\r\n    overflow: hidden;\r\n\r\n    access-sign-in-preview {\r\n        flex: 1;\r\n        min-height: 0;\r\n        display: block;\r\n    }\r\n}\r\n"],
+  "mappings": ";AAAA;AACI,WAAA;;AAGJ,CAAA;AACI,UAAA;AACA,WAAA;AACA,kBAAA;AACA,YAAA;;AAEA,CANJ,kBAMI;AACI,QAAA;AACA,cAAA;AACA,WAAA;;",
+  "names": []
+}

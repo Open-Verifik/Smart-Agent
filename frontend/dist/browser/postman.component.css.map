@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/postman/postman.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: absolute;\n                inset: 0;\n                display: flex;\n                flex-direction: column;\n                min-width: 0;\n                min-height: 0;\n                overflow: hidden;\n            }\n\n            .postman-flag-scroller {\n                scrollbar-width: none;\n                -ms-overflow-style: none;\n            }\n\n            .postman-flag-scroller::-webkit-scrollbar {\n                display: none;\n                width: 0;\n                height: 0;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACA,SAAA;AACA,WAAA;AACA,kBAAA;AACA,aAAA;AACA,cAAA;AACA,YAAA;;AAGJ,CAAA;AACI,mBAAA;AACA,sBAAA;;AAGJ,CALA,qBAKA;AACI,WAAA;AACA,SAAA;AACA,UAAA;;",
+  "names": []
+}

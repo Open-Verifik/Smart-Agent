@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-enroll/biometrics-api/biometrics-api.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex: 1 1 auto;\n                width: 100%;\n                min-width: 0;\n                min-height: 0;\n                height: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,QAAA,EAAA,EAAA;AACA,SAAA;AACA,aAAA;AACA,cAAA;AACA,UAAA;;",
+  "names": []
+}

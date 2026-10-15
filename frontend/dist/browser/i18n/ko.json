@@ -485,6 +485,8 @@
         "layoutLayerHide": "숨기기",
         "layoutLayerShow": "표시",
         "layoutLayerLock": "잠금",
+        "layoutLockSelection": "선택 잠금",
+        "layoutDeleteSelection": "선택 삭제",
         "layoutLayerUnlock": "잠금 해제",
         "layoutLayerEmpty": "이 시트에는 아직 요소가 없습니다.",
         "layoutLayerImage": "이미지",

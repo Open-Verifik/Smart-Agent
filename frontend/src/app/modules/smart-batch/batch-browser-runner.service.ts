@@ -32,7 +32,11 @@ export class BatchBrowserRunnerService {
         batch: SmartBatch,
         steps: BatchStep[],
         onBatch: (next: SmartBatch) => void,
-        onError?: (error: unknown) => void
+        onError?: (error: unknown) => void,
+        hooks?: {
+            onStepStart?: (info: { step: BatchStep; rowIndex: number }) => void;
+            onStepComplete?: (info: { step: BatchStep; rowIndex: number; ok: boolean }) => void;
+        }
     ): Promise<void> {
         const batchId = batch._id;
         if (!batchId || this.running()) return;
@@ -48,7 +52,7 @@ export class BatchBrowserRunnerService {
         try {
             for (const row of pending) {
                 if (this._abort) return;
-                current = await this._runRow(batchId, row, steps, current, onBatch);
+                current = await this._runRow(batchId, row, steps, current, onBatch, hooks);
             }
         } catch (error) {
             onError?.(error);
@@ -118,7 +122,11 @@ export class BatchBrowserRunnerService {
         row: SmartBatchRow,
         steps: BatchStep[],
         batch: SmartBatch,
-        onBatch: (next: SmartBatch) => void
+        onBatch: (next: SmartBatch) => void,
+        hooks?: {
+            onStepStart?: (info: { step: BatchStep; rowIndex: number }) => void;
+            onStepComplete?: (info: { step: BatchStep; rowIndex: number; ok: boolean }) => void;
+        }
     ): Promise<SmartBatch> {
         const enabled = steps.filter((step) => step.enabled !== false).sort((a, b) => a.sequence - b.sequence);
         const results: Record<number, unknown> = { ...(row.results || {}) };
@@ -128,7 +136,9 @@ export class BatchBrowserRunnerService {
         for (const step of enabled) {
             if (this._abort) return batch;
             if (results[step.sequence] != null) continue;
+            hooks?.onStepStart?.({ step, rowIndex: row.rowIndex });
             const outcome = await this._invokeStep(step, row.inputData || {}, results);
+            hooks?.onStepComplete?.({ step, rowIndex: row.rowIndex, ok: outcome.ok });
             creditsSpent += outcome.credits;
             if (outcome.ok) {
                 results[step.sequence] = outcome.body;

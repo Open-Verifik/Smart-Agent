@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-batch/report-emoji-picker-dialog.component.ts"],
+  "sourcesContent": ["\n            .emoji-cell {\n                display: flex;\n                align-items: center;\n                justify-content: center;\n                height: 2.75rem;\n                border-radius: 0.75rem;\n                border: 1px solid transparent;\n            }\n            .emoji-cell:hover:not(:disabled) {\n                border-color: rgb(165 180 252);\n                background: rgb(238 242 255);\n            }\n            .emoji-cell:disabled {\n                opacity: 0.4;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,WAAA;AACA,eAAA;AACA,mBAAA;AACA,UAAA;AACA,iBAAA;AACA,UAAA,IAAA,MAAA;;AAEJ,CARA,UAQA,MAAA,KAAA;AACI,gBAAA,IAAA,GAAA,EAAA,GAAA,EAAA;AACA,cAAA,IAAA,GAAA,EAAA,GAAA,EAAA;;AAEJ,CAZA,UAYA;AACI,WAAA;;",
+  "names": []
+}

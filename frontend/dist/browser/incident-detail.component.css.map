@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-monitor/incidents/incident-detail/incident-detail.component.scss"],
+  "sourcesContent": ["incident-detail {\r\n    display: block;\r\n}\r\n\r\n.timeline-connector {\r\n    width: 2px;\r\n    flex-shrink: 0;\r\n}\r\n"],
+  "mappings": ";AAAA;AACI,WAAA;;AAGJ,CAAA;AACI,SAAA;AACA,eAAA;;",
+  "names": []
+}

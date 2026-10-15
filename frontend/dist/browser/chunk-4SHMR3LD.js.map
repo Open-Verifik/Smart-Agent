@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/client-settings/override-conditions.ts"],
+  "sourcesContent": ["export interface OverrideConditionsSnapshot {\r\n    requiresSmartEnrollSubscription?: boolean;\r\n    requiresSmartAccessSubscription?: boolean;\r\n    requiresHumanAuthnSubscription?: boolean;\r\n    staffSeatLimit?: number | null;\r\n}\r\n\r\nexport interface ClientSettingsOverrideSnapshot {\r\n    overrideConditions?: OverrideConditionsSnapshot;\r\n}\r\n\r\nexport const requiresSmartEnrollSubscription = (\r\n    settings?: ClientSettingsOverrideSnapshot | null\r\n): boolean => settings?.overrideConditions?.requiresSmartEnrollSubscription !== false;\r\n\r\nexport const requiresSmartAccessSubscription = (\r\n    settings?: ClientSettingsOverrideSnapshot | null\r\n): boolean => settings?.overrideConditions?.requiresSmartAccessSubscription !== false;\r\n\r\nexport const requiresHumanAuthnSubscription = (\r\n    settings?: ClientSettingsOverrideSnapshot | null\r\n): boolean => settings?.overrideConditions?.requiresHumanAuthnSubscription !== false;\r\n"],
+  "mappings": ";AAWO,IAAM,kCAAkC,CAC3C,aACU,UAAU,oBAAoB,oCAAoC;AAEzE,IAAM,kCAAkC,CAC3C,aACU,UAAU,oBAAoB,oCAAoC;AAEzE,IAAM,iCAAiC,CAC1C,aACU,UAAU,oBAAoB,mCAAmC;",
+  "names": []
+}

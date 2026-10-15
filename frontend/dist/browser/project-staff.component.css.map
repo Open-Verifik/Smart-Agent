@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-enroll/projects/project-staff/project-staff.component.scss"],
+  "sourcesContent": [":host {\r\n    display: block;\r\n}\r\n\r\n.invite-row.is-selected {\r\n    background: rgb(238 242 255 / 0.5);\r\n}\r\n\r\n:host-context(.dark) .invite-row.is-selected {\r\n    background: rgb(30 27 75 / 0.2);\r\n}\r\n"],
+  "mappings": ";AAAA;AACI,WAAA;;AAGJ,CAAA,UAAA,CAAA;AACI,cAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;;AAGJ,cAAA,CAAA,MAAA,CAJA,UAIA,CAJA;AAKI,cAAA,KAAA,EAAA,EAAA,EAAA,EAAA,EAAA,EAAA;;",
+  "names": []
+}

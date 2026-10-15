@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-batch/report-builder-preview-data.service.ts"],
+  "sourcesContent": ["import { Injectable, signal } from '@angular/core';\r\nimport { SampleReportData } from './smart-report.service';\r\n\r\n/**\r\n * Passes preview data from report viewer to report builder when navigating.\r\n * Router state can be unreliable (getCurrentNavigation() may be null), so this\r\n * service provides a reliable bridge.\r\n */\r\n@Injectable({\r\n    providedIn: 'root',\r\n})\r\nexport class ReportBuilderPreviewDataService {\r\n    /** Data to use when opening report builder from report viewer */\r\n    private _pendingPreviewData = signal<SampleReportData | null>(null);\r\n\r\n    /** Set preview data before navigating to report builder */\r\n    setPendingPreviewData(data: SampleReportData): void {\r\n        this._pendingPreviewData.set(data);\r\n    }\r\n\r\n    /** Consume and return pending preview data (clears after read) */\r\n    consumePendingPreviewData(): SampleReportData | null {\r\n        const data = this._pendingPreviewData();\r\n        this._pendingPreviewData.set(null);\r\n        return data;\r\n    }\r\n}\r\n"],
+  "mappings": ";;;;;;;;AAWM,IAAO,kCAAP,MAAO,iCAA+B;EAH5C,cAAA;AAKY,SAAA,sBAAsB,OAAgC,IAAI;;;EAGlE,sBAAsB,MAAsB;AACxC,SAAK,oBAAoB,IAAI,IAAI;EACrC;;EAGA,4BAAyB;AACrB,UAAM,OAAO,KAAK,oBAAmB;AACrC,SAAK,oBAAoB,IAAI,IAAI;AACjC,WAAO;EACX;;;uCAdS,kCAA+B;IAAA;EAAA;;4EAA/B,kCAA+B,SAA/B,iCAA+B,WAAA,YAF5B,OAAM,CAAA;EAAA;;;sEAET,iCAA+B,CAAA;UAH3C;WAAW;MACR,YAAY;KACf;;;",
+  "names": []
+}
