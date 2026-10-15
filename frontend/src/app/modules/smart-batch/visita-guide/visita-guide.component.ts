@@ -1606,14 +1606,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Arrow keys move the selected block or overlay by sheet px, kept inside
-     * the page. A selected cell stays put: it lives inside its block's grid.
+     * Arrow keys move the selected block or overlay by sheet px.
+     * Same edge as a drag: 48px stay on the sheet, and the box stops at the left and top.
+     * A selected cell stays put: it lives inside its block's grid.
      */
     private _nudgeSelectedLayout(dx: number, dy: number): boolean {
         if (this._selectionIsLocked()) return false;
         const page = this._layoutPaperPx();
+        const keep = 48;
         const clamp = (value: number, size: number, max: number) =>
-            Math.min(Math.max(0, Math.round(value)), Math.max(0, max - size));
+            Math.min(Math.max(0, Math.round(value)), Math.max(0, max - Math.min(Math.max(0, size), keep)));
         const sectionIds = [...this.selectedLayoutSectionIds()];
         const overlayIds = [...this.selectedLayoutOverlayIds()];
         const primaryOverlay = this.selectedLayoutOverlay();
