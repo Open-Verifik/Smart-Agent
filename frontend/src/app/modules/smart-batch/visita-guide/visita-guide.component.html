@@ -3791,7 +3791,18 @@
             (click)="$event.stopPropagation()"
         >
             <div data-format-toolbar class="flex items-center gap-0.5">
-            @if (selectedLayoutUsesCompactOverlayBar()) {
+            @if (selectedLayoutCount() > 1) {
+                <button
+                    type="button"
+                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutLockSelection')"
+                    [matTooltip]="t('visitaGuide.layoutLockSelection')"
+                    (click)="lockSelectedLayoutItems($event)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">lock</mat-icon>
+                    {{ t('visitaGuide.layoutLockSelection') }}
+                </button>
+            } @else if (selectedLayoutUsesCompactOverlayBar()) {
                 @if (selectedLayoutOverlay() === 'watermark') {
                     <button
                         type="button"
@@ -4238,6 +4249,7 @@
                 </button>
             }
             }
+            @if (selectedLayoutCount() <= 1) {
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -4258,7 +4270,7 @@
                     >expand_more</mat-icon
                 >
             </button>
-            @if (selectedLayoutLayerId(); as layerId) {
+                @if (selectedLayoutLayerId(); as layerId) {
                 <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
                 <button
                     type="button"
@@ -4276,8 +4288,10 @@
                         isLayoutLayerLocked(layerId) ? 'lock' : 'lock_open'
                     }}</mat-icon>
                 </button>
+                }
             }
             </div>
+            @if (selectedLayoutCount() <= 1) {
             <div class="layout-format-more" [class.is-open]="layoutFormatExpanded()">
                 <div class="layout-format-more-clip">
                 <div
@@ -5162,6 +5176,7 @@
                 </div>
                 </div>
             </div>
+            }
         </div>
     }
     @if (layoutContextMenu(); as menu) {

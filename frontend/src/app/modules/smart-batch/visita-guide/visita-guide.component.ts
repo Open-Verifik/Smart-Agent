@@ -2068,6 +2068,38 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    selectedLayoutCount(): number {
+        const sections = this.selectedLayoutSectionIds();
+        const overlays = this.selectedLayoutOverlayIds();
+        const primary = this.selectedLayoutLayerId();
+        const ids = new Set<string>([
+            ...sections.map((id) => `sec:${id}`),
+            ...overlays,
+            ...(primary ? [primary] : []),
+        ]);
+        return ids.size;
+    }
+
+    /** Lock every block, image, stamp and logo in the current selection. */
+    lockSelectedLayoutItems(event?: Event): void {
+        event?.stopPropagation();
+        const ids = [
+            ...this.selectedLayoutSectionIds().map((id) => `sec:${id}`),
+            ...this.selectedLayoutOverlayIds(),
+        ];
+        const primary = this.selectedLayoutLayerId();
+        if (primary && !ids.includes(primary)) ids.push(primary);
+        if (!ids.length) return;
+        this.layoutLayerFlags.update((flags) => {
+            const next = { ...flags };
+            for (const id of ids) {
+                next[id] = { ...(next[id] ?? {}), locked: true };
+            }
+            return next;
+        });
+        this.clearLayoutSelection();
+    }
+
     toggleLayoutLayerLocked(id: string, event?: Event): void {
         event?.stopPropagation();
         const locking = !this.isLayoutLayerLocked(id);

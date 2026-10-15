@@ -685,6 +685,7 @@
         "layoutLayerHide": "Ocultar",
         "layoutLayerShow": "Mostrar",
         "layoutLayerLock": "Bloquear",
+        "layoutLockSelection": "Bloquear selección",
         "layoutLayerUnlock": "Desbloquear",
         "layoutLayerEmpty": "La hoja todavía no tiene elementos.",
         "layoutLayerImage": "Imagen",
