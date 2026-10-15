@@ -27,7 +27,7 @@ import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, table
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
 import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
-import { fontHeadMarkup, registerReportFonts } from '../report-fonts.util';
+import { availableFontWeights, fontHeadMarkup, fontWeightStep, nearestFontWeight, registerReportFonts, ReportFontWeight } from '../report-fonts.util';
 import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
@@ -265,6 +265,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     hiddenLayerIds = input<string[]>([]);
     /** Editor-only. A locked layer stays visible, but it cannot be selected, moved, or edited. */
     lockedLayerIds = input<string[]>([]);
+    /** Editor-only. Locates a locked layer on the sheet without unlocking it. */
+    peekedLayerId = input<string | null>(null);
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding = input<number>(0);
@@ -882,7 +884,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     headerLogoBorder(id: string): string {
-        return this.isOverlaySelected(this.headerOverlayId(id)) ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+        return this._overlayOutline(this.headerOverlayId(id), '2px dashed rgba(99, 102, 241, 0.85)');
     }
 
     headerOverlayId(id: string): ReportOverlayId {
@@ -939,7 +941,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     sheetImageBorder(id: string): string {
-        return this.isOverlaySelected(this.sheetOverlayId(id)) ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+        return this._overlayOutline(this.sheetOverlayId(id), '2px dashed rgba(99, 102, 241, 0.85)');
     }
 
     private _sheetImageId(target: ReportOverlayId | null): string | null {
@@ -978,15 +980,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     get logoOverlayBorder(): string {
-        return this.isOverlaySelected('logo') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+        return this._overlayOutline('logo', '2px dashed rgba(99, 102, 241, 0.85)');
     }
 
     get watermarkOverlayBorder(): string {
-        return this.isOverlaySelected('watermark') ? '2px dashed rgba(217, 119, 6, 0.9)' : 'none';
+        return this._overlayOutline('watermark', '2px dashed rgba(217, 119, 6, 0.9)');
     }
 
     get signatureOverlayBorder(): string {
-        return this.isOverlaySelected('signature') ? '2px dashed rgba(99, 102, 241, 0.85)' : 'none';
+        return this._overlayOutline('signature', '2px dashed rgba(99, 102, 241, 0.85)');
+    }
+
+    private _overlayOutline(id: ReportOverlayId, outline: string): string {
+        return this.isOverlaySelected(id) || this.isLayerPeeked(id) ? outline : 'none';
     }
 
     isOverlaySelected(id: ReportOverlayId): boolean {
@@ -1007,6 +1013,50 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     isLayerLocked(id: string): boolean {
         return this.lockedLayerIds().includes(id);
+    }
+
+    isLayerPeeked(id: string): boolean {
+        return this.clickable() && this.peekedLayerId() === id;
+    }
+
+    /** Hidden layers stay off the sheet, except while the layers panel is locating one. */
+    layerVisibility(id: string): string | null {
+        return this.isLayerHidden(id) && !this.isLayerPeeked(id) ? 'hidden' : null;
+    }
+
+    /** A hidden layer stays faint while the panel is only locating it. */
+    layerPeekOpacity(id: string): number | null {
+        return this.isLayerPeeked(id) && this.isLayerHidden(id) ? 0.55 : null;
+    }
+
+    layerPaintZ(id: string, fallback: number): number {
+        if (this.isLayerPeeked(id)) return 100000;
+        return this.layerZIndex(id, fallback);
+    }
+
+    showsSectionOutline(section: ReportSection): boolean {
+        if (!this.clickable()) return false;
+        if (this.isLayerPeeked(`sec:${section.id}`)) return true;
+        if (this.isLayerQuiet(`sec:${section.id}`)) return false;
+        if (this.isSectionChosen(section) && this.selectedSectionId() !== section.id) return true;
+        return (
+            this.selectedSectionId() === section.id &&
+            !this.selectedCellKey() &&
+            this.selectedCellPart() !== 'title' &&
+            this.selectedCellPart() !== 'label' &&
+            this.selectedCellPart() !== 'value' &&
+            !this.isShapeSection(section)
+        );
+    }
+
+    revealLayer(id: string): void {
+        const selector = id.startsWith('sec:')
+            ? `[data-section-id="${CSS.escape(id.slice(4))}"]`
+            : `[data-overlay-id="${CSS.escape(id)}"]`;
+        const node = (this._host.nativeElement as HTMLElement).querySelector(selector);
+        if (node instanceof HTMLElement) {
+            node.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+        }
     }
 
     private _sectionLocked(section: ReportSection): boolean {
@@ -1953,7 +2003,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             zIndex: dragging ? '100000' : String(this.layerZIndex(`sec:${section.id}`, this._sectionZIndex(section))),
             pointerEvents: this._sectionPointer(section),
         };
-        if (this.isLayerHidden(`sec:${section.id}`)) style['visibility'] = 'hidden';
+        if (this.isLayerHidden(`sec:${section.id}`) && !this.isLayerPeeked(`sec:${section.id}`)) style['visibility'] = 'hidden';
+        if (this.isLayerPeeked(`sec:${section.id}`)) style['zIndex'] = '100000';
+        if (this.isLayerPeeked(`sec:${section.id}`) && this.isLayerHidden(`sec:${section.id}`)) style['opacity'] = '0.55';
         if (dragging) style['willChange'] = 'left, top, width, height';
         if (hug) {
             const align = this.roleTextAlign(section, 'title');
@@ -3566,7 +3618,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         role: 'label' | 'value',
         tableKey: string,
         column?: string
-    ): { fontFamily: string; fontSize: number; fontWeight: string; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
+    ): { fontFamily: string; fontSize: number; fontWeight: ReportFontWeight; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
         const base = resolveTextRole(section, role, this.primaryColor(), tableKey);
         if (!column) return base;
         const columnKey = tableColumnPath(tableKey, column);
@@ -3945,8 +3997,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return resolveTextRole(section, role, this.primaryColor(), key).fontSize;
     }
 
-    roleFontWeight(section: ReportSection, role: ReportTextRole, key?: string): 'normal' | 'bold' {
-        return resolveTextRole(section, role, this.primaryColor(), key).fontWeight;
+    roleFontWeight(section: ReportSection, role: ReportTextRole, key?: string): number {
+        const resolved = resolveTextRole(section, role, this.primaryColor(), key);
+        return nearestFontWeight(
+            availableFontWeights(resolved.fontFamily, this.template()?.customFonts ?? []),
+            fontWeightStep(resolved.fontWeight)
+        );
     }
 
     roleFontStyle(section: ReportSection, role: ReportTextRole, key?: string): 'normal' | 'italic' {

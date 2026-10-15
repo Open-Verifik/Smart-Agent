@@ -19,6 +19,7 @@ import {
     MAX_FONT_FILE_BYTES,
     readFontFile,
     registerReportFonts,
+    weightFromFontName,
     ReportCustomFont,
     sanitizeCustomFonts,
 } from './report-fonts.util';
@@ -295,7 +296,12 @@ export class ReportFontDialogComponent implements OnInit {
                 this.error.set('reportFonts.invalidFile');
                 return;
             }
-            this._add({ family, source: 'file', url: await readFontFile(file) });
+            this._add({
+                family,
+                source: 'file',
+                url: await readFontFile(file),
+                weights: [weightFromFontName(file.name)],
+            });
             this.uploadFamily.set('');
         });
     }

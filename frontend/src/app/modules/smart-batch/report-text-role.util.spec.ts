@@ -46,6 +46,18 @@ describe('resolveTextRole', () => {
         expect(saved.style?.valueStyle?.fontWeight).toBe('normal');
     });
 
+    it('keeps a numeric weight the font actually has', () => {
+        const block: ReportSection = {
+            id: 'titulo',
+            type: 'header',
+            order: 0,
+            style: { titleStyle: { fontWeight: 500 }, fontWeight: 500 },
+        };
+        const saved = materializeSectionTypography(block, '#4F46E5');
+        expect(saved.style?.titleStyle?.fontWeight).toBe(500);
+        expect(saved.style?.fontWeight).toBe(500);
+    });
+
     it('keeps a title the designer set to regular weight', () => {
         const block: ReportSection = {
             id: 'titulo',

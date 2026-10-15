@@ -1220,6 +1220,17 @@
         "fontMono": "Monoespaciada",
         "normal": "Normal",
         "bold": "Negrita",
+        "fontWeights": {
+            "100": "Fino",
+            "200": "Extra fino",
+            "300": "Ligero",
+            "400": "Normal",
+            "500": "Medio",
+            "600": "Seminegrita",
+            "700": "Negrita",
+            "800": "Extra negrita",
+            "900": "Negro"
+        },
         "textColor": "Color de texto",
         "blockBorder": "Mostrar borde del bloque",
         "blockBorderColor": "Color del borde",

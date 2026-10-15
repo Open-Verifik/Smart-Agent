@@ -1,5 +1,5 @@
 import { ReportKeyOverride, ReportSection, ReportTextRole, ReportTextRoleStyle } from './smart-report.service';
-import { REPORT_FONT_STACKS, ReportTextAlign } from './report-fonts.util';
+import { isReportFontWeight, REPORT_FONT_STACKS, ReportFontWeight, ReportTextAlign } from './report-fonts.util';
 import { collectLayoutSheetItems, valueAtDataPath } from './report-param-entries.util';
 import { defaultRowLineMark } from './report-row-line.util';
 import { isReportTextCase, ReportTextCase } from './report-text-case.util';
@@ -7,7 +7,7 @@ import { isReportTextCase, ReportTextCase } from './report-text-case.util';
 export type ResolvedTextRoleStyle = {
     fontFamily: string;
     fontSize: number;
-    fontWeight: 'normal' | 'bold';
+    fontWeight: ReportFontWeight;
     fontStyle: 'normal' | 'italic';
     textDecoration: 'none' | 'underline';
     textAlign: ReportTextAlign;
@@ -62,12 +62,13 @@ export const resolveTextRole = (
 
     const size = Number(nested?.fontSize ?? (role === 'title' ? style?.fontSize : undefined));
     const align = nested?.textAlign ?? (role === 'title' ? style?.textAlign : undefined);
+    const rawWeight = nested?.fontWeight || (role === 'title' ? style?.fontWeight : undefined) || defaultWeight;
 
     return {
         fontFamily:
             nested?.fontFamily || (role === 'title' ? style?.fontFamily : undefined) || DEFAULT_FAMILY,
         fontSize: Number.isFinite(size) && size > 0 ? size : defaultSize,
-        fontWeight: nested?.fontWeight || (role === 'title' ? style?.fontWeight : undefined) || defaultWeight,
+        fontWeight: isReportFontWeight(rawWeight) ? rawWeight : defaultWeight,
         fontStyle:
             nested?.fontStyle ||
             (role === 'title' ? style?.fontStyle : undefined) ||

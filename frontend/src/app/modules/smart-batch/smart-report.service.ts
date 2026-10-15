@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
-import type { ReportCustomFont } from './report-fonts.util';
+import type { ReportCustomFont, ReportFontWeight } from './report-fonts.util';
 import type { ReportValueRule } from './report-value-rules.util';
 
 export type ReportSectionType =
@@ -94,7 +94,7 @@ export interface ReportHeaderLogo {
 
 export interface ReportTextRoleStyle {
     fontSize?: number;
-    fontWeight?: 'normal' | 'bold';
+    fontWeight?: ReportFontWeight;
     fontStyle?: 'normal' | 'italic';
     textDecoration?: 'none' | 'underline';
     fontFamily?: string;
@@ -207,7 +207,7 @@ export interface ReportSection {
 
     style?: {
         fontSize?: number;
-        fontWeight?: 'normal' | 'bold';
+        fontWeight?: ReportFontWeight;
         fontStyle?: 'normal' | 'italic';
         textDecoration?: 'none' | 'underline';
         fontFamily?: string;
@@ -343,6 +343,12 @@ export interface SmartReportTemplate {
 
     /** Fonts loaded for this template (Google Fonts, remote URL or uploaded file). */
     customFonts?: ReportCustomFont[];
+
+    /** Per-layer lock and hide. Keys match the layers panel (`sec:id`, `img:id`, `hdr:id`, overlays). */
+    layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean }>;
+
+    /** Paint order for watermark, signature, logo and header logos. */
+    layoutOverlayZ?: Record<string, number>;
 
     /** Company logos locked to the header band and repeated on every page. */
     headerLogos?: ReportHeaderLogo[];

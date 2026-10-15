@@ -42,8 +42,9 @@
                 @if (watermarkPattern() === 'single') {
                     <div
                         class="pointer-events-none absolute inset-0 overflow-hidden"
-                        [style.z-index]="layerZIndex('watermark', 900)"
-                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
+                        [style.z-index]="layerPaintZ('watermark', 900)"
+                        [style.visibility]="layerVisibility('watermark')"
+                        [style.opacity]="layerPeekOpacity('watermark')"
                     >
                         <div
                             data-overlay-box
@@ -114,9 +115,13 @@
                     </div>
                 } @else {
                     <div
+                        data-overlay-id="watermark"
                         class="pointer-events-none absolute inset-0 overflow-hidden"
-                        [style.z-index]="layerZIndex('watermark', 900)"
-                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
+                        [style.z-index]="layerPaintZ('watermark', 900)"
+                        [style.visibility]="layerVisibility('watermark')"
+                        [style.opacity]="layerPeekOpacity('watermark')"
+                        [style.outline]="isLayerPeeked('watermark') ? '2px dashed rgba(217, 119, 6, 0.9)' : null"
+                        [style.outline-offset.px]="6"
                         style="
                             display: grid;
                             grid-template-columns: repeat(3, 1fr);
@@ -154,8 +159,9 @@
             @if (signatureEnabled() && signatureImage() && pageIndex === (signaturePage() || 0)) {
                 <div
                     class="absolute inset-0 pointer-events-none"
-                    [style.z-index]="layerZIndex('signature', 120)"
-                    [style.visibility]="isLayerHidden('signature') ? 'hidden' : null"
+                    [style.z-index]="layerPaintZ('signature', 120)"
+                    [style.visibility]="layerVisibility('signature')"
+                    [style.opacity]="layerPeekOpacity('signature')"
                 >
                     <div
                         data-overlay-box
@@ -210,8 +216,9 @@
                 @for (logo of headerLogoViews(); track logo.id) {
                     <div
                         class="pointer-events-none absolute inset-0"
-                        [style.z-index]="layerZIndex(headerOverlayId(logo.id), 850)"
-                        [style.visibility]="isLayerHidden(headerOverlayId(logo.id)) ? 'hidden' : null"
+                        [style.z-index]="layerPaintZ(headerOverlayId(logo.id), 850)"
+                        [style.visibility]="layerVisibility(headerOverlayId(logo.id))"
+                        [style.opacity]="layerPeekOpacity(headerOverlayId(logo.id))"
                     >
                         <div
                             data-overlay-box
@@ -271,8 +278,9 @@
             @if (isFirst && logoEnabled() && logoUrl() && !headerLogoViews().length) {
                 <div
                     class="absolute inset-0 pointer-events-none"
-                    [style.z-index]="layerZIndex('logo', 80)"
-                    [style.visibility]="isLayerHidden('logo') ? 'hidden' : null"
+                    [style.z-index]="layerPaintZ('logo', 80)"
+                    [style.visibility]="layerVisibility('logo')"
+                    [style.opacity]="layerPeekOpacity('logo')"
                 >
                     <div
                         data-overlay-box
@@ -336,8 +344,9 @@
                             class="absolute inset-0 pointer-events-none"
                             data-sheet-image
                             [attr.data-sheet-image-page]="image.page ?? 0"
-                            [style.z-index]="layerZIndex(sheetOverlayId(image.id), image.zIndex || 48)"
-                            [style.visibility]="isLayerHidden(sheetOverlayId(image.id)) ? 'hidden' : null"
+                            [style.z-index]="layerPaintZ(sheetOverlayId(image.id), image.zIndex || 48)"
+                            [style.visibility]="layerVisibility(sheetOverlayId(image.id))"
+                            [style.opacity]="layerPeekOpacity(sheetOverlayId(image.id))"
                         >
                             <div
                                 data-overlay-box
@@ -464,7 +473,7 @@
                         [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
                         [class.cursor-grabbing]="draggingSectionId() === section.id"
                         [class.opacity-90]="draggingSectionId() === section.id"
-                        [class.selection-outline]="clickable() && !isLayerQuiet('sec:' + section.id) && ((selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && selectedCellPart() !== 'label' && selectedCellPart() !== 'value' && !isShapeSection(section)) || (isSectionChosen(section) && selectedSectionId() !== section.id))"
+                        [class.selection-outline]="showsSectionOutline(section)"
                         [class.selection-outline-tight]="hugsText(section)"
                         [style.background-color]="isShapeSection(section) ? null : sectionFrameBackground(section)"
                         [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"

@@ -83,7 +83,7 @@ import {
     type LayoutParamGroup,
     type LayoutSheetItem,
 } from '../report-param-entries.util';
-import { customFontStack, REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, registerReportFonts, ReportCustomFont, ReportTextAlign, sanitizeCustomFonts } from '../report-fonts.util';
+import { availableFontWeights, boldFontWeight, customFontStack, discoverGoogleFontWeights, discoverStylesheetWeights, fontNeedsWeightProbe, fontWeightCatalog, fontWeightStep, nearestFontWeight, registerReportFonts, regularFontWeight, REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportCustomFont, ReportFontWeightStep, ReportTextAlign, sanitizeCustomFonts, storedFontWeight, weightFromFontName } from '../report-fonts.util';
 import { ReportFontDialogComponent, ReportFontDialogData, ReportFontDialogResult } from '../report-font-dialog.component';
 import { materializeSectionTypography, resolveTextRole } from '../report-text-role.util';
 import { REPORT_TEXT_CASES, ReportTextCase } from '../report-text-case.util';
@@ -565,6 +565,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     layoutOverlayZ = signal<Record<string, number>>({});
     /** Hide and lock are editing aids. They are not written into the PDF. */
     layoutLayerFlags = signal<Record<string, { hidden?: boolean; locked?: boolean }>>({});
+    /** Locked layer the pointer is locating on the sheet. A click keeps it after the pointer leaves. */
+    peekedLayoutLayerId = signal<string | null>(null);
+    private pinnedLockedLayerId = signal<string | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
     selectedLayoutCellPart = signal<ReportCellPart>('cell');
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
@@ -689,6 +692,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     });
     private readonly _customFontsEffect = effect(() => registerReportFonts(this.customFonts()));
+    private readonly _probedFontFamilies = new Set<string>();
+    private readonly _discoverFontWeights = effect(() => {
+        const fonts = sanitizeCustomFonts(this.customFonts());
+        const catalog = fontWeightCatalog();
+        const seed: Record<string, ReportFontWeightStep[]> = {};
+        const pending: ReportCustomFont[] = [];
+        for (const font of fonts) {
+            const key = font.family.toLowerCase();
+            if (catalog[key]?.length) continue;
+            if (font.weights?.length) {
+                seed[key] = [...font.weights];
+                continue;
+            }
+            if (fontNeedsWeightProbe(font)) pending.push(font);
+            else if (font.source === 'file') seed[key] = [400];
+        }
+        if (!Object.keys(seed).length && !pending.length) return;
+        untracked(() => {
+            if (Object.keys(seed).length) fontWeightCatalog.update((current) => ({ ...current, ...seed }));
+            void this._probeFontWeights(pending);
+        });
+    });
     hoveredEndpoint = signal<AppFeature | null>(null);
     endpointHoverVisible = signal(false);
     endpointHoverLeft = signal(0);
@@ -1642,6 +1667,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutSectionClick = (section: ReportSection, source?: { additive?: boolean }): void => {
         if (isReportPageAnchor(section) || this.isLayoutLayerLocked(`sec:${section.id}`)) return;
+        this._clearLockedLayerPeek();
         this.selectedLayoutOverlay.set(null);
         if (source?.additive) {
             const primary = this.selectedLayoutSectionId();
@@ -1877,11 +1903,39 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     isLayoutLayerSelected(layer: LayoutLayerItem): boolean {
+        if (this.peekedLayoutLayerId() === layer.id) return true;
         if (layer.kind === 'section') {
             const id = layer.id.slice(4);
             return this.selectedLayoutSectionId() === id || this.selectedLayoutSectionIds().includes(id);
         }
         return this.selectedLayoutOverlay() === layer.id;
+    }
+
+    onLockedLayerHover(layer: LayoutLayerItem, inside: boolean): void {
+        if (!this.isLayoutLayerLocked(layer.id)) return;
+        if (inside) {
+            this.peekedLayoutLayerId.set(layer.id);
+            this._revealLockedLayer(layer.id);
+            return;
+        }
+        if (this.peekedLayoutLayerId() === layer.id) {
+            this.peekedLayoutLayerId.set(this.pinnedLockedLayerId());
+        }
+    }
+
+    private _pinLockedLayer(layer: LayoutLayerItem): void {
+        this.pinnedLockedLayerId.set(layer.id);
+        this.peekedLayoutLayerId.set(layer.id);
+        this._revealLockedLayer(layer.id);
+    }
+
+    private _clearLockedLayerPeek(): void {
+        this.pinnedLockedLayerId.set(null);
+        this.peekedLayoutLayerId.set(null);
+    }
+
+    private _revealLockedLayer(id: string): void {
+        requestAnimationFrame(() => this._layoutEditorPreview?.revealLayer(id));
     }
 
     private _scrollLayoutLayerIntoView(id: string): void {
@@ -1894,7 +1948,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectLayoutLayer(layer: LayoutLayerItem, event?: Event): void {
-        if (this.isLayoutLayerLocked(layer.id)) return;
+        if (this.isLayoutLayerLocked(layer.id)) {
+            this._pinLockedLayer(layer);
+            return;
+        }
+        this._clearLockedLayerPeek();
         const additive = event instanceof MouseEvent && (event.shiftKey || event.ctrlKey || event.metaKey);
         if (layer.kind === 'section') {
             const section = this.layoutSections().find((item) => item.id === layer.id.slice(4));
@@ -1921,6 +1979,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return { ...flags, [id]: { ...current, locked: !current.locked } };
         });
         if (locking && this._layoutLayerIdOfSelection() === id) this.clearLayoutSelection();
+        if (locking) {
+            this.peekedLayoutLayerId.set(id);
+            this._revealLockedLayer(id);
+        }
+        if (!locking && (this.pinnedLockedLayerId() === id || this.peekedLayoutLayerId() === id)) {
+            this._clearLockedLayerPeek();
+        }
     }
 
     private _layoutLayerIdOfSelection(): string | null {
@@ -2083,6 +2148,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutOverlaySelect(id: ReportOverlayId): void {
         if (this.isLayoutLayerLocked(id)) return;
+        this._clearLockedLayerPeek();
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
@@ -2097,6 +2163,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     clearLayoutSelection(): void {
+        this._clearLockedLayerPeek();
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutSectionIds.set([]);
         this.selectedLayoutOverlay.set(null);
@@ -4299,7 +4366,29 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     layoutRoleIsBold(role: ReportTextRole): boolean {
-        return this._layoutRole(role).fontWeight === 'bold';
+        return this.layoutRoleWeight(role) >= 600;
+    }
+
+    layoutRoleWeight(role: ReportTextRole): number {
+        const stored = fontWeightStep(this._layoutRole(role).fontWeight);
+        return nearestFontWeight(this.layoutRoleFontWeights(role), stored);
+    }
+
+    layoutRoleFontWeights(role: ReportTextRole): ReportFontWeightStep[] {
+        fontWeightCatalog();
+        return availableFontWeights(this.layoutRoleFontFamily(role), this.customFonts());
+    }
+
+    layoutFormatWeight(): number {
+        return this.layoutRoleWeight(this._formatRoles()[0]);
+    }
+
+    layoutFormatWeights(): ReportFontWeightStep[] {
+        return this.layoutRoleFontWeights(this._formatRoles()[0]);
+    }
+
+    setLayoutFormatWeight(weight: number): void {
+        for (const role of this._formatRoles()) this.setLayoutRoleFontWeight(role, weight);
     }
 
     layoutRoleIsItalic(role: ReportTextRole): boolean {
@@ -4315,7 +4404,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     setLayoutRoleFontFamily(role: ReportTextRole, value: string): void {
-        for (const item of this._rolesSharingEdit(role)) this._patchSelectedLayoutRole(item, { fontFamily: value });
+        for (const item of this._rolesSharingEdit(role)) {
+            const current = fontWeightStep(this._layoutRole(item).fontWeight);
+            const snapped = nearestFontWeight(availableFontWeights(value, this.customFonts()), current);
+            this._patchSelectedLayoutRole(item, {
+                fontFamily: value,
+                ...(snapped === current ? {} : { fontWeight: storedFontWeight(snapped) }),
+            });
+        }
     }
 
     /** Add, remove or pick template fonts; `role` gets the picked font when given. */
@@ -4358,9 +4454,49 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     setLayoutRoleBold(role: ReportTextRole, enabled: boolean): void {
+        const weights = availableFontWeights(this.layoutRoleFontFamily(role), this.customFonts());
+        this.setLayoutRoleFontWeight(role, enabled ? boldFontWeight(weights) : regularFontWeight(weights));
+    }
+
+    setLayoutRoleFontWeight(role: ReportTextRole, weight: number): void {
+        const snapped = nearestFontWeight(
+            availableFontWeights(this.layoutRoleFontFamily(role), this.customFonts()),
+            Number(weight)
+        );
         for (const item of this._rolesSharingEdit(role)) {
-            this._patchSelectedLayoutRole(item, { fontWeight: enabled ? 'bold' : 'normal' });
+            this._patchSelectedLayoutRole(item, { fontWeight: storedFontWeight(snapped) });
         }
+    }
+
+    private async _probeFontWeights(fonts: ReportCustomFont[]): Promise<void> {
+        const todo = fonts.filter((font) => {
+            const key = font.family.toLowerCase();
+            if (this._probedFontFamilies.has(key)) return false;
+            this._probedFontFamilies.add(key);
+            return true;
+        });
+        if (!todo.length) return;
+        const entries = await Promise.all(
+            todo.map(async (font) => {
+                const weights =
+                    font.source === 'google'
+                        ? await discoverGoogleFontWeights(font.family)
+                        : await discoverStylesheetWeights(font.url);
+                return [font.family.toLowerCase(), weights] as const;
+            })
+        );
+        fontWeightCatalog.update((current) => {
+            const next = { ...current };
+            for (const [key, weights] of entries) next[key] = weights;
+            return next;
+        });
+        this._state.customFonts.update((list) =>
+            list.map((font) => {
+                const weights = entries.find(([key]) => key === font.family.toLowerCase())?.[1];
+                if (!weights?.length || font.weights?.length) return font;
+                return { ...font, weights };
+            })
+        );
     }
 
     setLayoutRoleItalic(role: ReportTextRole, enabled: boolean): void {
@@ -6153,6 +6289,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             sheetImages: cloneReportValue(this.sheetImages()),
             customFonts: cloneReportValue(this.customFonts()),
             headerLogos: cloneReportValue(this.headerLogos()),
+            layoutLayerFlags: cloneReportValue(this.layoutLayerFlags()),
+            layoutOverlayZ: { ...this.layoutOverlayZ() },
             sections: cloneReportValue(this.layoutSections()).map((section) =>
                 materializeSectionTypography(section, this.primaryColor(), this.previewData())
             ),
@@ -6352,6 +6490,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.headerLogos.set(headerLogos);
         this._state.sheetImages.set(cloneReportValue(Array.isArray(template.sheetImages) ? template.sheetImages : []));
         this._state.customFonts.set(sanitizeCustomFonts(template.customFonts));
+        if (force || template.layoutLayerFlags) {
+            this.layoutLayerFlags.set(cloneReportValue(template.layoutLayerFlags ?? {}));
+        }
+        if (force || template.layoutOverlayZ) {
+            this.layoutOverlayZ.set({ ...(template.layoutOverlayZ ?? {}) });
+        }
         if (force || template.legend) this._state.legend.set(template.legend || '');
         if (force || template.legendPosition) {
             this._state.legendPosition.set(template.legendPosition ?? 'left');
