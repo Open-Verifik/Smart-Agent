@@ -2411,9 +2411,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         let x = rect.left + rect.width / 2 - toolbarWidth / 2;
         x = Math.min(Math.max(8, x), Math.max(8, window.innerWidth - barWidth - 8));
         const margin = 8;
-        let toolbarY = rect.bottom + margin;
+        const gap = 28;
+        let toolbarY = rect.bottom + gap;
         if (toolbarY + toolbarHeight > window.innerHeight - margin) {
-            toolbarY = Math.max(margin, rect.top - toolbarHeight - margin);
+            toolbarY = Math.max(margin, rect.top - toolbarHeight - gap);
         }
         const roomBelow = Math.max(0, window.innerHeight - margin - (toolbarY + toolbarHeight));
         const roomAbove = Math.max(0, toolbarY - margin);
@@ -4225,6 +4226,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return ['title'];
     }
 
+    layoutFormatPart(): 'label' | 'value' | null {
+        const part = this.selectedLayoutCellPart();
+        return part === 'label' || part === 'value' ? part : null;
+    }
+
     layoutRoleTitleKey(role: ReportTextRole): string {
         if (this._selectionIsTableText()) {
             if (role === 'label') return 'visitaGuide.layoutTableHeaders';
@@ -4248,10 +4254,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     layoutRolePanelClass(role: ReportTextRole): string {
         if (role === 'label') {
-            return 'mt-3 rounded-xl border border-lime-300 bg-lime-50 p-3 dark:border-lime-800 dark:bg-lime-950/40';
+            return 'mt-3 rounded-xl border border-lime-500 bg-lime-50 p-3 dark:border-lime-500 dark:bg-lime-950/40';
         }
         if (role === 'value') {
-            return 'mt-3 rounded-xl border border-orange-300 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-950/40';
+            return 'mt-3 rounded-xl border border-orange-400 bg-orange-50 p-3 dark:border-orange-400 dark:bg-orange-950/40';
         }
         return 'mt-3 rounded-xl border border-cyan-300 bg-cyan-50 p-3 dark:border-cyan-800 dark:bg-cyan-950/40';
     }

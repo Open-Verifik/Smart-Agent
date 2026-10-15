@@ -4023,6 +4023,22 @@
                 }
             } @else if (selectedLayoutSection()?.type === 'image' || selectedLayoutSection()?.type === 'spacer') {
             } @else {
+            @if (layoutFormatPart(); as part) {
+                <span
+                    class="mr-1 flex h-7 items-center gap-1 rounded-md border px-1.5 text-[11px] font-semibold"
+                    [ngClass]="
+                        part === 'label'
+                            ? 'border-lime-500 bg-lime-100 text-lime-800 dark:bg-lime-950/60 dark:text-lime-200'
+                            : 'border-orange-400 bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-200'
+                    "
+                >
+                    <span
+                        class="h-2.5 w-2.5 shrink-0 rounded-sm"
+                        [ngClass]="part === 'label' ? 'bg-lime-500' : 'bg-orange-400'"
+                    ></span>
+                    {{ t(layoutRoleTitleKey(part)) }}
+                </span>
+            }
             @for (align of layoutFormatAligns; track align) {
                 <button
                     type="button"
@@ -4567,7 +4583,32 @@
                         }
                     }
                     @for (role of selectedLayoutTextRoles(); track role) {
-                        <p class="mt-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                        <div
+                            class="mt-2 rounded-lg border px-2 py-2"
+                            [ngClass]="
+                                role === 'label'
+                                    ? 'border-lime-500 bg-lime-50 dark:border-lime-500 dark:bg-lime-950/40'
+                                    : role === 'value'
+                                      ? 'border-orange-400 bg-orange-50 dark:border-orange-400 dark:bg-orange-950/40'
+                                      : 'border-transparent px-0 py-0'
+                            "
+                        >
+                        <p
+                            class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider"
+                            [ngClass]="
+                                role === 'label'
+                                    ? 'text-lime-800 dark:text-lime-200'
+                                    : role === 'value'
+                                      ? 'text-orange-800 dark:text-orange-200'
+                                      : 'text-stone-400'
+                            "
+                        >
+                            @if (role === 'label' || role === 'value') {
+                                <span
+                                    class="h-2.5 w-2.5 shrink-0 rounded-sm"
+                                    [ngClass]="role === 'label' ? 'bg-lime-500' : 'bg-orange-400'"
+                                ></span>
+                            }
                             {{ t(layoutRoleTitleKey(role)) }}
                         </p>
                         <div class="mt-1 flex items-center justify-between gap-2">
@@ -4607,6 +4648,7 @@
                             (ngModelChange)="setLayoutRoleColor(role, $event)"
                             [ariaLabel]="t(layoutRoleTitleKey(role))"
                         />
+                        </div>
                     }
                     @if (selectedLayoutCellKey()) {
                         <p class="mt-3 truncate text-[11px] font-semibold uppercase tracking-wider text-violet-700">
