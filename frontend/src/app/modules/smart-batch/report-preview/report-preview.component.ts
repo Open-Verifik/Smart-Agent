@@ -4002,21 +4002,25 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         role: 'label' | 'value',
         tableKey: string,
         column?: string
-    ): { fontFamily: string; fontSize: number; fontWeight: ReportFontWeight; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
+    ): { fontFamily: string; fontSize: number; fontWeight: number; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
         const base = resolveTextRole(section, role, this.primaryColor(), tableKey);
-        if (!column) return base;
+        const fonts = this.template()?.customFonts ?? [];
+        const snap = (family: string, weight: ReportFontWeight): number =>
+            nearestFontWeight(availableFontWeights(family, fonts), fontWeightStep(weight));
+        if (!column) return { ...base, fontWeight: snap(base.fontFamily, base.fontWeight) };
         const columnKey = tableColumnPath(tableKey, column);
         const nested =
             role === 'label'
                 ? section.keyOverrides?.[columnKey]?.labelStyle
                 : section.keyOverrides?.[columnKey]?.valueStyle;
-        if (!nested) return base;
+        if (!nested) return { ...base, fontWeight: snap(base.fontFamily, base.fontWeight) };
         const size = Number(nested.fontSize);
         const align = nested.textAlign;
+        const fontFamily = nested.fontFamily || base.fontFamily;
         return {
-            fontFamily: nested.fontFamily || base.fontFamily,
+            fontFamily,
             fontSize: Number.isFinite(size) && size > 0 ? size : base.fontSize,
-            fontWeight: nested.fontWeight || base.fontWeight,
+            fontWeight: snap(fontFamily, nested.fontWeight || base.fontWeight),
             fontStyle: nested.fontStyle || base.fontStyle,
             textDecoration: nested.textDecoration || base.textDecoration,
             textAlign:

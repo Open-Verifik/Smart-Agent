@@ -1392,6 +1392,7 @@
             @if (section.label) {
                 <span
                     class="tracking-wide"
+                    [style.font-family]="roleFontFamily(section, 'label')"
                     [style.font-size.px]="roleFontSize(section, 'label')"
                     [style.font-weight]="roleFontWeight(section, 'label')"
                     [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
@@ -1405,6 +1406,7 @@
             }
             <span
                 class="inline-flex items-center rounded-full border px-2.5 py-0.5"
+                [style.font-family]="roleFontFamily(section, 'value')"
                 [style.font-size.px]="roleFontSize(section, 'value')"
                 [style.font-weight]="roleFontWeight(section, 'value')"
                 [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
