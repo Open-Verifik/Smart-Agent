@@ -1745,7 +1745,7 @@
                 data-sheet-text
                 [attr.data-text-kind]="kind"
                 data-value-rule
-                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap"
+                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
                 [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
                 [style.color]="rule.color || null"
                 [style.background-color]="rule.backgroundColor || null"
@@ -1761,7 +1761,7 @@
             <span
                 data-sheet-text
                 [attr.data-text-kind]="kind"
-                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap"
+                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
                 [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
                 (pointerdown)="onSheetTextPointerDown(kind, $event)"
                 (click)="onSheetTextClick(section, kind, $event, key, fallback)"
