@@ -375,6 +375,24 @@ export interface SmartReportTemplate {
     updatedAt?: string;
 }
 
+/** Same paint order the layout editor uses, so a saved template previews with every layer. */
+export const templateLayerZ = (template: SmartReportTemplate): Record<string, number> => {
+    const map: Record<string, number> = {};
+    for (const [id, z] of Object.entries(template.layoutOverlayZ ?? {})) {
+        const value = Number(z);
+        if (Number.isFinite(value) && value > 0) map[id] = value;
+    }
+    for (const section of template.sections ?? []) {
+        const z = Number(section.style?.zIndex);
+        if (section.id && Number.isFinite(z) && z > 0) map[`sec:${section.id}`] = z;
+    }
+    (template.sheetImages ?? []).forEach((image, index) => {
+        const z = Number(image.zIndex);
+        map[`img:${image.id}`] = Number.isFinite(z) && z > 0 ? z : 48 + index;
+    });
+    return map;
+};
+
 const SYSTEM_TEMPLATE_FIELDS = [
     'type',
     'systemKey',

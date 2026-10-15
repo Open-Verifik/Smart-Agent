@@ -690,6 +690,7 @@
         "layoutLayerShow": "Show",
         "layoutLayerLock": "Lock",
         "layoutLockSelection": "Lock selection",
+        "layoutDeleteSelection": "Delete selection",
         "layoutLayerUnlock": "Unlock",
         "layoutLayerEmpty": "This sheet has no elements yet.",
         "layoutLayerImage": "Image",

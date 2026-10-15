@@ -2100,6 +2100,36 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.clearLayoutSelection();
     }
 
+    /** Remove every unlocked block, image, stamp and logo in the current selection. */
+    deleteSelectedLayoutItems(event?: Event): void {
+        event?.stopPropagation();
+        const sectionIds = new Set(this.selectedLayoutSectionIds());
+        const primarySection = this.selectedLayoutSectionId();
+        if (primarySection) sectionIds.add(primarySection);
+        const drop = new Set([...sectionIds].filter((id) => !this.isLayoutLayerLocked(`sec:${id}`)));
+        if (drop.size) {
+            this.layoutSections.update((list) =>
+                this._compactLayoutPages(
+                    list
+                        .filter((section) => !drop.has(section.id))
+                        .map((section, index) => ({ ...section, order: index }))
+                )
+            );
+        }
+        const overlays = new Set(this.selectedLayoutOverlayIds());
+        const primaryOverlay = this.selectedLayoutOverlay();
+        if (primaryOverlay) overlays.add(primaryOverlay);
+        for (const id of overlays) {
+            if (this.isLayoutLayerLocked(id)) continue;
+            if (id === 'logo') this.clearLogo();
+            else if (id === 'watermark') this.setWatermarkEnabled(false);
+            else if (id === 'signature') this.clearSignature();
+            else if (id.startsWith('img:')) this.clearSheetImage(id.slice(4));
+            else if (id.startsWith('hdr:')) this.removeHeaderLogo(id.slice(4));
+        }
+        this.clearLayoutSelection();
+    }
+
     toggleLayoutLayerLocked(id: string, event?: Event): void {
         event?.stopPropagation();
         const locking = !this.isLayoutLayerLocked(id);

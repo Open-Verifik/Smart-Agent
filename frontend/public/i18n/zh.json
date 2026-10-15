@@ -486,6 +486,7 @@
         "layoutLayerShow": "显示",
         "layoutLayerLock": "锁定",
         "layoutLockSelection": "锁定所选",
+        "layoutDeleteSelection": "删除所选",
         "layoutLayerUnlock": "解锁",
         "layoutLayerEmpty": "此纸面还没有任何元素。",
         "layoutLayerImage": "图片",

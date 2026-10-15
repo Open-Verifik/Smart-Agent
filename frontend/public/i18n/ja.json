@@ -486,6 +486,7 @@
         "layoutLayerShow": "表示",
         "layoutLayerLock": "ロック",
         "layoutLockSelection": "選択をロック",
+        "layoutDeleteSelection": "選択を削除",
         "layoutLayerUnlock": "ロック解除",
         "layoutLayerEmpty": "このシートにはまだ要素がありません。",
         "layoutLayerImage": "画像",

@@ -16,7 +16,7 @@ import { ReportTemplateThumbComponent } from './report-template-thumb.component'
 import { getCountryFlag as flagForCountry } from './smart-batch-country.util';
 import { SmartBatchInputModeService } from './smart-batch-input-mode.service';
 import { BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './smart-batch.service';
-import { BatchConfigurationRef, SampleReportData, SmartReportService, SmartReportTemplate } from './smart-report.service';
+import { BatchConfigurationRef, SampleReportData, SmartReportService, SmartReportTemplate, templateLayerZ } from './smart-report.service';
 import { SmartTemplateTransferService, TemplateImportError } from './smart-template-transfer.service';
 
 @Component({
@@ -148,6 +148,10 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         if (gen !== this._previewGen) return;
         this.previewTemplate.set(template);
         this.previewLoading.set(false);
+    }
+
+    previewLayerZ(template: SmartReportTemplate): Record<string, number> {
+        return templateLayerZ(template);
     }
 
     private _sampleFromTemplate(template: SmartReportTemplate | null): Record<string, any> {

@@ -294,6 +294,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Library cards: first sheet only, no off-screen measurement. */
     thumbnailMode = input<boolean>(false);
 
+    /** Opened template preview: every row, column, icon and image, not a sample. */
+    fullContent = input<boolean>(false);
+
     // Output
     @Output() signaturePositionChange = new EventEmitter<{ x: number; y: number; page?: number }>();
     @Output() signatureSizeChange = new EventEmitter<{ width: number; height: number }>();
@@ -3957,18 +3960,18 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             }
         }
 
-        return keys
-            .filter((key) => !hidden.has(key))
-            .slice(0, section.maxColumns || 6)
-            .map((key) => ({ key, label: this._humanize(key) }));
+        const columns = keys.filter((key) => !hidden.has(key));
+        const capped = this.fullContent() ? columns : columns.slice(0, section.maxColumns || 6);
+        return capped.map((key) => ({ key, label: this._humanize(key) }));
     }
 
     /** Two rows are enough to show shape without reproducing the document. */
     structuralSampleRows(section: ReportSection): string[][] {
         const columns = this.structuralColumns(section);
+        const records = this.structuralRecords(section);
+        const shown = this.fullContent() ? records : records.slice(0, 2);
 
-        return this.structuralRecords(section)
-            .slice(0, 2)
+        return shown
             .map((record) =>
                 columns.map((column) => {
                     const value = record[column.key];

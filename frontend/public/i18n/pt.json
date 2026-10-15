@@ -486,6 +486,7 @@
         "layoutLayerShow": "Mostrar",
         "layoutLayerLock": "Bloquear",
         "layoutLockSelection": "Bloquear seleção",
+        "layoutDeleteSelection": "Excluir seleção",
         "layoutLayerUnlock": "Desbloquear",
         "layoutLayerEmpty": "Esta folha ainda não tem elementos.",
         "layoutLayerImage": "Imagem",

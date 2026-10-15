@@ -486,6 +486,7 @@
         "layoutLayerShow": "Afficher",
         "layoutLayerLock": "Verrouiller",
         "layoutLockSelection": "Verrouiller la sélection",
+        "layoutDeleteSelection": "Supprimer la sélection",
         "layoutLayerUnlock": "Déverrouiller",
         "layoutLayerEmpty": "Cette feuille ne contient encore aucun élément.",
         "layoutLayerImage": "Image",
