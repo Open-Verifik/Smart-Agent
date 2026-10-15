@@ -576,6 +576,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     /** Locked layer the pointer is locating on the sheet. A click keeps it after the pointer leaves. */
     peekedLayoutLayerId = signal<string | null>(null);
     private pinnedLockedLayerId = signal<string | null>(null);
+    /** Locked layer chosen from the sheet. The row stays selected and the sheet is left alone. */
+    private heldLockedLayerId = signal<string | null>(null);
     selectedLayoutCellKey = signal<string | null>(null);
     selectedLayoutCellPart = signal<ReportCellPart>('cell');
     layoutEditorKind = signal<'page' | 'block' | 'overlay' | null>(null);
@@ -1978,7 +1980,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     isLayoutLayerSelected(layer: LayoutLayerItem): boolean {
-        if (this.peekedLayoutLayerId() === layer.id) return true;
+        if (this.heldLockedLayerId() === layer.id || this.peekedLayoutLayerId() === layer.id) return true;
         if (layer.kind === 'section') {
             const id = layer.id.slice(4);
             return this.selectedLayoutSectionId() === id || this.selectedLayoutSectionIds().includes(id);
@@ -1999,6 +2001,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _pinLockedLayer(layer: LayoutLayerItem): void {
+        this.heldLockedLayerId.set(null);
         this.pinnedLockedLayerId.set(layer.id);
         this.peekedLayoutLayerId.set(layer.id);
         this._revealLockedLayer(layer.id);
@@ -2007,6 +2010,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _clearLockedLayerPeek(): void {
         this.pinnedLockedLayerId.set(null);
         this.peekedLayoutLayerId.set(null);
+        this.heldLockedLayerId.set(null);
     }
 
     private _revealLockedLayer(id: string): void {
@@ -2020,6 +2024,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             ) as HTMLElement | null;
             row?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         });
+    }
+
+    onLockedLayerLocate(id: string): void {
+        const layer = this.layoutLayers().find((item) => item.id === id);
+        if (!layer || !this.isLayoutLayerLocked(layer.id)) return;
+        this.selectedLayoutSectionId.set(null);
+        this.selectedLayoutSectionIds.set([]);
+        this.selectedLayoutOverlay.set(null);
+        this.selectedLayoutOverlayIds.set([]);
+        this.selectedLayoutCellKey.set(null);
+        this.selectedLayoutCellPart.set('cell');
+        this._followCellPart = false;
+        if (this.layoutFormatExpanded()) this.layoutFormatExpanded.set(false);
+        if (this.layoutEditorKind() && this.layoutEditorKind() !== 'page') this.closeLayoutEditor();
+        this.pinnedLockedLayerId.set(null);
+        this.peekedLayoutLayerId.set(null);
+        this.heldLockedLayerId.set(layer.id);
+        this._scrollLayoutLayerIntoView(layer.id);
     }
 
     selectLayoutLayer(layer: LayoutLayerItem, event?: Event): void {
@@ -2058,7 +2080,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.peekedLayoutLayerId.set(id);
             this._revealLockedLayer(id);
         }
-        if (!locking && (this.pinnedLockedLayerId() === id || this.peekedLayoutLayerId() === id)) {
+        if (!locking && (this.pinnedLockedLayerId() === id || this.peekedLayoutLayerId() === id || this.heldLockedLayerId() === id)) {
             this._clearLockedLayerPeek();
         }
     }

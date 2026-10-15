@@ -311,6 +311,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() headerLogoSizeChange = new EventEmitter<{ id: string; width: number; height: number }>();
     @Output() sheetImageChange = new EventEmitter<ReportSheetImage>();
     @Output() overlaySelect = new EventEmitter<ReportOverlayId>();
+    @Output() lockedLayerLocate = new EventEmitter<string>();
     @Output() backgroundClick = new EventEmitter<void>();
     @Output() sectionContextMenu = new EventEmitter<{ section: ReportSection; x: number; y: number }>();
     @Output() overlayContextMenu = new EventEmitter<{ overlay: ReportOverlayId; x: number; y: number }>();
@@ -614,6 +615,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._measureSections.changes.subscribe(() => this._scheduleMeasurement());
         this._reportPages.changes.subscribe(() => this._scheduleMeasurement());
         this._scheduleMeasurement();
+        this._host.nativeElement.addEventListener('pointerdown', this._onLockedLayerPointerDown, true);
         this._host.nativeElement.addEventListener('pointerdown', this._onMarqueePointerDownCapture, true);
     }
 
@@ -1131,6 +1133,60 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.backgroundClick.emit();
+    }
+
+    /** A click on a locked element names that layer. The element stays locked. */
+    private _onLockedLayerPointerDown = (event: PointerEvent): void => {
+        if (!this.clickable() || this.thumbnailMode() || this.printCapture() || event.button !== 0) return;
+        const origin = event.target as HTMLElement | null;
+        if (origin?.closest('[data-section-handle], [data-overlay-handle], [data-cell-handle], [data-inline-edit], [data-move-badge]')) {
+            return;
+        }
+        const id = this._topSheetLayerAt(event.clientX, event.clientY);
+        if (!id || !this.isLayerLocked(id)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.lockedLayerLocate.emit(id);
+    };
+
+    private _topSheetLayerAt(x: number, y: number): string | null {
+        const root = this._host.nativeElement as HTMLElement;
+        let best: { id: string; z: number } | null = null;
+        const consider = (node: HTMLElement, id: string): void => {
+            if (this.isLayerHidden(id) && !this.isLayerPeeked(id)) return;
+            const style = getComputedStyle(node);
+            if (style.display === 'none' || style.visibility === 'hidden') return;
+            const rect = node.getBoundingClientRect();
+            if (rect.width < 1 || rect.height < 1) return;
+            if (x < rect.left || y < rect.top || x > rect.right || y > rect.bottom) return;
+            const z = this._paintedZ(node);
+            if (!best || z >= best.z) best = { id, z };
+        };
+        root.querySelectorAll('[data-report-section]').forEach((node) => {
+            if (!(node instanceof HTMLElement)) return;
+            const sectionId = node.getAttribute('data-section-id');
+            if (!sectionId) return;
+            const section = (this.template()?.sections ?? []).find((item) => item.id === sectionId);
+            if (!section || this.isPageAnchor(section)) return;
+            consider(node, `sec:${sectionId}`);
+        });
+        root.querySelectorAll('[data-overlay-box]').forEach((node) => {
+            if (!(node instanceof HTMLElement)) return;
+            const overlayId = node.getAttribute('data-overlay-id');
+            if (overlayId) consider(node, overlayId);
+        });
+        return best?.id ?? null;
+    }
+
+    private _paintedZ(node: HTMLElement): number {
+        let el: HTMLElement | null = node;
+        const root = this._host.nativeElement;
+        while (el && el !== root) {
+            const z = Number(getComputedStyle(el).zIndex);
+            if (Number.isFinite(z)) return z;
+            el = el.parentElement;
+        }
+        return 0;
     }
 
     private _onMarqueePointerDownCapture = (event: PointerEvent): void => {
@@ -3696,6 +3752,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this._host.nativeElement.removeEventListener('pointerdown', this._onLockedLayerPointerDown, true);
         this._host.nativeElement.removeEventListener('pointerdown', this._onMarqueePointerDownCapture, true);
         this._removeMarqueeEl();
         this.stopResize();
