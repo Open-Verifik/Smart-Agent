@@ -203,6 +203,60 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
 
         <!-- Layout mode expanded -->
         <ng-container *ngIf="postman.useLayoutSidebar() && !collapsed">
+          <div *ngIf="pinnedEndpoints().length" class="mb-2 border-b border-slate-200 pb-2 dark:border-slate-700">
+            <div class="truncate px-3 py-2 text-xs font-bold uppercase text-slate-500">
+              {{ 'postman.sidebar.pinned' | transloco }}
+            </div>
+            <div
+              *ngFor="let endpoint of pinnedEndpoints(); trackBy: trackByEndpoint"
+              class="group/row relative flex items-center rounded-md hover:bg-slate-200 dark:hover:bg-slate-800"
+              [class.bg-blue-100]="selectedEndpoint()?.id === endpoint.id"
+              [class.dark:bg-blue-900]="selectedEndpoint()?.id === endpoint.id"
+            >
+              <a
+                [routerLink]="['/postman']"
+                [queryParams]="endpoint.code ? { code: endpoint.code } : {}"
+                queryParamsHandling="merge"
+                routerLinkActive="bg-blue-100 dark:bg-blue-900"
+                [routerLinkActiveOptions]="{ exact: false }"
+                (click)="select(endpoint)"
+                class="flex min-w-0 flex-1 items-center rounded-md px-3 py-2 pr-14 text-left text-sm text-inherit no-underline"
+              >
+                <span
+                  class="mr-2 flex w-10 flex-shrink-0 items-center justify-center rounded px-1 py-0.5 text-[10px] font-bold"
+                  [ngClass]="{
+                    'bg-green-100 text-green-700': endpoint.method === 'GET',
+                    'bg-yellow-100 text-yellow-700': endpoint.method === 'POST',
+                    'bg-blue-100 text-blue-700': endpoint.method === 'PUT',
+                    'bg-red-100 text-red-700': endpoint.method === 'DELETE',
+                  }"
+                >
+                  {{ endpoint.method }}
+                </span>
+                <postman-endpoint-label
+                  class="min-w-0 flex-1 select-text"
+                  [country]="endpoint.country"
+                  [title]="endpointDisplayCopy(endpoint).title"
+                  [tooltipTitle]="endpointDisplayCopy(endpoint).fullTitle"
+                  [preformatted]="true"
+                  size="sm"
+                  [maxLines]="2"
+                />
+              </a>
+              <postman-endpoint-actions
+                *ngIf="endpoint.code"
+                [endpoint]="endpoint"
+                [isSelected]="selectedEndpoint()?.id === endpoint.id"
+                [pinned]="true"
+                [pinTitle]="endpointDisplayCopy(endpoint).title"
+                [showMoveSection]="hasMoveTargets(endpoint)"
+                [moveOptions]="folderMenuOptionsFiltered(endpoint)"
+                (moveEndpoint)="onMoveEndpoint($event)"
+                (renameEndpoint)="openRenameEndpoint($event)"
+                (pinEndpoint)="onToggleEndpointPin($event)"
+              />
+            </div>
+          </div>
           <div cdkDropListGroup>
             <postman-sidebar-folder
               [nodes]="layoutTreeRoots()"
@@ -218,6 +272,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
               (selectEndpoint)="select($event)"
               (moveEndpoint)="onMoveEndpoint($event)"
               (renameEndpoint)="openRenameEndpoint($event)"
+              (pinEndpoint)="onToggleEndpointPin($event)"
             />
           </div>
 
@@ -264,7 +319,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                     routerLinkActive="bg-blue-100 dark:bg-blue-900"
                     [routerLinkActiveOptions]="{ exact: false }"
                     (click)="select(endpoint)"
-                    class="flex min-w-0 flex-1 items-center px-3 py-2 pr-7 text-sm text-left no-underline text-inherit rounded-md"
+                    class="flex min-w-0 flex-1 items-center px-3 py-2 pr-14 text-sm text-left no-underline text-inherit rounded-md"
                   >
                     <span
                       class="text-[10px] font-bold rounded px-1 py-0.5 flex-shrink-0 mr-2 w-10 flex items-center justify-center"
@@ -291,10 +346,13 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                     *ngIf="endpoint.code"
                     [endpoint]="endpoint"
                     [isSelected]="selectedEndpoint()?.id === endpoint.id"
+                    [pinned]="postman.isEndpointPinned(endpoint)"
+                    [pinTitle]="endpointDisplayCopy(endpoint).title"
                     [showMoveSection]="hasMoveTargets(endpoint)"
                     [moveOptions]="folderMenuOptionsFiltered(endpoint)"
                     (moveEndpoint)="onMoveEndpoint($event)"
                     (renameEndpoint)="openRenameEndpoint($event)"
+                    (pinEndpoint)="onToggleEndpointPin($event)"
                   />
                 </div>
               </div>
@@ -472,7 +530,7 @@ export class SidebarComponent {
       if (!folder) {
         break;
       }
-      if (folder.name?.toLowerCase().includes(query)) {
+      if (!folder.isSystem && folder.name?.toLowerCase().includes(query)) {
         return true;
       }
       const parent = folder.parentFolder;
@@ -512,10 +570,24 @@ export class SidebarComponent {
       }
       map.get(fid)!.push(ep);
     }
-    const folders = this.postman.layoutFolders();
+    const folders = this.postman.layoutFolders().filter((folder) => !folder.isSystem);
     const roots = buildFolderTree(folders, map, '');
     const searching = Boolean(this.searchQuery().trim());
     return searching ? pruneFolderTree(roots) : roots;
+  });
+
+  pinnedEndpoints = computed(() => {
+    const folderId = this.postman.pinnedFolderId();
+    if (!folderId) {
+      return [];
+    }
+    return this.filteredEndpoints()
+      .filter((endpoint) => endpoint.postmanFolderId === folderId)
+      .sort(
+        (a, b) =>
+          (a.layoutSortOrder ?? 0) - (b.layoutSortOrder ?? 0) ||
+          (a.label || '').localeCompare(b.label || ''),
+      );
   });
 
   libraryCategories = computed(() => {
@@ -710,6 +782,13 @@ export class SidebarComponent {
             error: (e) => console.error(e),
           });
       });
+  }
+
+  onToggleEndpointPin(endpoint: ApiEndpoint): void {
+    this.postman.toggleEndpointPin(endpoint).subscribe({
+      next: () => this.postman.loadExplorerData(),
+      error: (error) => console.error(error),
+    });
   }
 
   onMoveEndpoint(payload: { endpoint: ApiEndpoint; folderId: string | null }) {

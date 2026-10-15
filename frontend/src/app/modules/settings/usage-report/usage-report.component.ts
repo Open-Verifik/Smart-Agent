@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -30,7 +29,6 @@ export type UsageRangeId = 'last_30_days' | 'this_month' | 'last_month' | 'last_
         CommonModule,
         FormsModule,
         MatButtonModule,
-        MatButtonToggleModule,
         MatIconModule,
         MatProgressSpinnerModule,
         MatSelectModule,
@@ -65,6 +63,8 @@ export class UsageReportComponent implements OnChanges {
     readonly loading = signal(false);
     readonly exporting = signal(false);
     readonly failed = signal(false);
+
+    readonly period = computed(() => this.customWindow() || this._bounds(this.range()));
 
     readonly chart = computed<ApexOptions | null>(() => {
         const report = this.report();

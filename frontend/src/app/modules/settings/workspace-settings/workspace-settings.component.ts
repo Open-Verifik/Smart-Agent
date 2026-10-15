@@ -15,6 +15,7 @@ import {
     ViewEncapsulation,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,15 +28,58 @@ import { SettingsService, Workspace } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId, getVerifikAccount } from '../utils/settings-business-user.util';
 
-/**
- * IANA zones for the account support clock. UTC is the stored default and is not always in Intl's list.
- * @returns {string[]}
- */
-function _supportTimezoneOptions(): string[] {
-    const zones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
+type SupportTimezoneOption = {
+    id: string;
+    offset: string;
+    minutes: number;
+    search: string;
+};
 
-    return zones.includes('UTC') ? zones : ['UTC', ...zones];
-}
+/**
+ * Current UTC offset for an IANA zone, such as UTC-5 or UTC+5:30.
+ * @param {string} zone
+ * @returns {{ offset: string, minutes: number }}
+ */
+const _zoneOffset = (zone: string): { offset: string; minutes: number } => {
+    let raw = 'GMT';
+
+    try {
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' }).formatToParts(new Date());
+
+        raw = parts.find((part) => part.type === 'timeZoneName')?.value || 'GMT';
+    } catch {
+        raw = 'GMT';
+    }
+
+    const match = /(?:GMT|UTC)([+-])(\d{1,2})(?::(\d{2}))?/.exec(raw);
+
+    if (!match) return { offset: 'UTC+0', minutes: 0 };
+
+    const sign = match[1] === '-' ? -1 : 1;
+    const hours = Number(match[2]);
+    const mins = Number(match[3] || 0);
+    const clock = match[3] ? `${hours}:${match[3]}` : String(hours);
+
+    return { offset: `UTC${match[1]}${clock}`, minutes: sign * (hours * 60 + mins) };
+};
+
+/**
+ * IANA zones for the account support clock, labeled with the current offset and sorted west to east.
+ * @returns {SupportTimezoneOption[]}
+ */
+const _supportTimezoneOptions = (): SupportTimezoneOption[] => {
+    const zones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
+    const ids = zones.includes('UTC') ? zones : ['UTC', ...zones];
+
+    return ids
+        .map((id) => {
+            const { offset, minutes } = _zoneOffset(id);
+            const readable = id.replaceAll('_', ' ');
+
+            return { id, offset, minutes, search: `${offset} ${id} ${readable}`.toLowerCase() };
+        })
+        .sort((left, right) => left.minutes - right.minutes || left.id.localeCompare(right.id));
+};
 
 @Component({
     selector: 'app-workspace-settings',
@@ -43,6 +87,7 @@ function _supportTimezoneOptions(): string[] {
     imports: [
         CommonModule,
         FormsModule,
+        MatAutocompleteModule,
         MatButtonModule,
         MatIconModule,
         MatSnackBarModule,
@@ -69,8 +114,10 @@ export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy 
     isSavingWorkspace = false;
     isDeletingWorkspace = false;
     supportTimezone = 'UTC';
+    timezoneInputText = 'UTC+0 · UTC';
     savingTimezone = false;
     readonly timezones = _supportTimezoneOptions();
+    filteredTimezones = this.timezones;
 
     /** True when delete-workspace danger zone should be shown (owner; not staff-role user). */
     get showDangerZone(): boolean {
@@ -149,8 +196,49 @@ export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy 
 
         this.supportTimezone = account?.supportTimezone || browserZone;
 
-        if (!this.timezones.includes(this.supportTimezone)) this.supportTimezone = 'UTC';
+        if (!this.timezones.some((zone) => zone.id === this.supportTimezone)) this.supportTimezone = 'UTC';
+
+        this.timezoneInputText = this.timezoneLabel(this.supportTimezone);
+        this.filteredTimezones = this.timezones;
     }
+
+    /**
+     * Label shown in the field: the offset first, then the zone name.
+     * @param {string} value
+     * @returns {string}
+     */
+    timezoneLabel = (value: string): string => {
+        const zone = this.timezones.find((item) => item.id === value);
+
+        return zone ? `${zone.offset} · ${zone.id}` : value;
+    };
+
+    /**
+     * Narrow the list as the account types a city or an offset such as -5.
+     * @param {string} value
+     */
+    onTimezoneInput = (value: string): void => {
+        this.timezoneInputText = value;
+        const query = value.trim().toLowerCase().replaceAll('_', ' ');
+
+        this.filteredTimezones = query ? this.timezones.filter((zone) => zone.search.includes(query)) : this.timezones;
+        this._cdr.markForCheck();
+    };
+
+    /**
+     * Keep the IANA id for save, and show the offset label in the field.
+     * @param {MatAutocompleteSelectedEvent} event
+     */
+    selectTimezone = (event: MatAutocompleteSelectedEvent): void => {
+        const id = String(event.option.value || '');
+
+        if (!this.timezones.some((zone) => zone.id === id)) return;
+
+        this.supportTimezone = id;
+        this.timezoneInputText = this.timezoneLabel(id);
+        this.filteredTimezones = this.timezones;
+        this._cdr.markForCheck();
+    };
 
     ngOnDestroy(): void {
         this._destroy$.next();

@@ -1,33 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    inject,
-    signal,
-} from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { getVerifikDocsUrls } from 'app/core/docs/verifik-docs-urls';
-import { COUNTRY_CENTROIDS, countryName } from 'app/core/usage/country-geo';
+import { countryName } from 'app/core/usage/country-geo';
 import { CostCenter, UsageApiService } from 'app/core/usage/usage-api.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
-
-const CODE_PATTERN = /^[A-Za-z0-9_.-]+$/;
+import { CostCenterDialogComponent, CostCenterDialogData, CostCenterDialogResult } from './cost-center-dialog.component';
 
 /**
  * Settings → Cost centers. Requests are tagged with a center via the `x-cost-center` header,
@@ -38,13 +23,10 @@ const CODE_PATTERN = /^[A-Za-z0-9_.-]+$/;
     standalone: true,
     imports: [
         CommonModule,
-        ReactiveFormsModule,
         MatButtonModule,
-        MatFormFieldModule,
+        MatDialogModule,
         MatIconModule,
-        MatInputModule,
         MatProgressSpinnerModule,
-        MatSelectModule,
         MatSnackBarModule,
         MatTooltipModule,
         TranslocoModule,
@@ -60,31 +42,13 @@ export class CostCentersComponent implements OnChanges {
     private readonly _api = inject(UsageApiService);
     private readonly _snack = inject(MatSnackBar);
     private readonly _transloco = inject(TranslocoService);
-    private readonly _fb = inject(FormBuilder);
+    private readonly _dialog = inject(MatDialog);
 
     readonly centers = signal<CostCenter[]>([]);
     readonly loading = signal(false);
-    readonly saving = signal(false);
-    readonly editingId = signal<string | null>(null);
-    readonly formOpen = signal(false);
-    readonly errorKey = signal<string | null>(null);
-
-    readonly form = this._fb.nonNullable.group({
-        name: ['', [Validators.required, Validators.maxLength(120)]],
-        code: ['', [Validators.required, Validators.maxLength(60), Validators.pattern(CODE_PATTERN)]],
-        country: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}$/)]],
-    });
 
     get userClientId(): string | undefined {
         return getBusinessUserClientId(this.user);
-    }
-
-    get countries(): { code: string; name: string }[] {
-        const lang = this._transloco.getActiveLang() || 'en';
-
-        return Object.keys(COUNTRY_CENTROIDS)
-            .map((code) => ({ code, name: countryName(code, lang) }))
-            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     get docsUrl(): string {
@@ -122,48 +86,41 @@ export class CostCentersComponent implements OnChanges {
         });
     }
 
-    openCreate(): void {
-        this.editingId.set(null);
-        this.errorKey.set(null);
-        this.form.reset({ name: '', code: '', country: '' });
-        this.formOpen.set(true);
-    }
+    /**
+     * Open the create dialog.
+     */
+    openCreate = (): void => {
+        this._openDialog();
+    };
 
-    openEdit(center: CostCenter): void {
-        this.editingId.set(center._id);
-        this.errorKey.set(null);
-        this.form.reset({ name: center.name, code: center.code, country: center.country });
-        this.formOpen.set(true);
-    }
+    /**
+     * Open the same dialog with this center filled in.
+     * @param {CostCenter} center
+     */
+    openEdit = (center: CostCenter): void => {
+        this._openDialog(center);
+    };
 
-    cancel(): void {
-        this.formOpen.set(false);
-        this.editingId.set(null);
-    }
+    /**
+     * @param {CostCenter} [center]
+     */
+    private _openDialog(center?: CostCenter): void {
+        this._dialog
+            .open<CostCenterDialogComponent, CostCenterDialogData | null, CostCenterDialogResult>(CostCenterDialogComponent, {
+                width: '880px',
+                maxWidth: '94vw',
+                maxHeight: '90vh',
+                autoFocus: false,
+                panelClass: 'cost-center-dialog-panel',
+                data: center ? { id: center._id, name: center.name, code: center.code, country: center.country } : null,
+            })
+            .afterClosed()
+            .subscribe((result) => {
+                if (!result) return;
 
-    save(): void {
-        if (this.form.invalid || this.saving()) {
-            this.form.markAllAsTouched();
-            return;
-        }
-
-        const input = { ...this.form.getRawValue(), code: this.form.getRawValue().code.trim() };
-        const id = this.editingId();
-        const request$ = id ? this._api.updateCostCenter(id, input) : this._api.createCostCenter(input);
-
-        this.saving.set(true);
-        request$.subscribe({
-            next: () => {
-                this.saving.set(false);
-                this.cancel();
-                this._toast(id ? 'settings.costCenters.updated' : 'settings.costCenters.created');
+                this._toast(result === 'updated' ? 'settings.costCenters.updated' : 'settings.costCenters.created');
                 this.load();
-            },
-            error: (error: HttpErrorResponse) => {
-                this.saving.set(false);
-                this.errorKey.set(error?.error?.message === 'cost_center_code_taken' ? 'settings.costCenters.codeTaken' : 'settings.costCenters.saveError');
-            },
-        });
+            });
     }
 
     toggleActive(center: CostCenter): void {

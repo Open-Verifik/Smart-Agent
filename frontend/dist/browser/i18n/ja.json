@@ -4579,6 +4579,17 @@
             "updated": "コストセンターを更新しました",
             "deactivated": "コストセンターを無効にしました",
             "reactivated": "コストセンターを再度有効にしました",
+            "modalEyebrow": "グローバル運用",
+            "modalLead": "国やチームごとにラベルを付け、以降のリクエストを分けます。",
+            "whyTitle": "作る理由",
+            "whyBody": "複数の国で運用している場合、各リクエストにその運用を載せられます。",
+            "whyCountry": "国やチームごとに 1 つ。例: スペイン運用。",
+            "whySplit": "利用と請求が、その運用をアカウントの残りから分けます。",
+            "whyAssign": "以降のリクエストは x-cost-center ヘッダー、トークンの既定値、またはその国の有効なセンター 1 つから受け取ります。",
+            "editWhyTitle": "変更すると",
+            "editNote": "保存はそれ以降のリクエストだけに影響します。すでに刻まれた履歴は当時のセンターのままです。",
+            "countryInvalid": "一覧から国を選んでください。",
+            "countryNone": "一致する国がありません。",
             "signInHint": "メールまたは電話でサインインしてコストセンターを管理します。"
         },
         "usageReport": {
@@ -5281,6 +5292,12 @@
             "splitVertical": "垂直分割",
             "splitHorizontal": "水平分割"
         },
+        "flags": {
+            "pin": "{{country}}をピン留め",
+            "unpin": "{{country}}のピンを外す",
+            "scrollLeft": "前の国を表示",
+            "scrollRight": "ほかの国を表示"
+        },
         "sidebar": {
             "title": "APIエクスプローラー",
             "search": "エンドポイントを検索...",
@@ -5289,6 +5306,9 @@
             "collapse": "サイドバーを折りたたむ",
             "expand": "サイドバーを展開",
             "library": "ライブラリ",
+            "pinned": "ピン留め",
+            "pinEndpoint": "{{name}}をピン留め",
+            "unpinEndpoint": "{{name}}のピンを外す",
             "layoutActions": "フォルダ",
             "newFolder": "新規フォルダ",
             "newFolderTitle": "新規フォルダ",
@@ -5752,7 +5772,8 @@
         "filterDateToday": "今日",
         "filterDateThisWeek": "今週",
         "filterDateThisMonth": "今月",
-        "filterDateCustom": "カスタム",
+        "filterDateLastMonth": "先月",
+        "filterDateCustom": "日付を指定",
         "dateRange": "期間",
         "dateStart": "開始",
         "dateEnd": "終了",

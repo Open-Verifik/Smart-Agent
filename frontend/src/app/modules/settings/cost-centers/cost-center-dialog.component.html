@@ -1,0 +1,90 @@
+<div class="cc-dialog" *transloco="let t">
+    <form class="cc-dialog__form" [formGroup]="form" (ngSubmit)="save()">
+        <button mat-icon-button type="button" class="cc-dialog__close" mat-dialog-close [attr.aria-label]="t('settings.costCenters.cancel')">
+            <mat-icon>close</mat-icon>
+        </button>
+        <span class="cc-dialog__eyebrow">{{ t('settings.costCenters.modalEyebrow') }}</span>
+        <h2>{{ t(editing ? 'settings.costCenters.editTitle' : 'settings.costCenters.createTitle') }}</h2>
+        <p class="cc-dialog__lead">{{ t('settings.costCenters.modalLead') }}</p>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ t('settings.costCenters.name') }}</mat-label>
+            <input matInput formControlName="name" maxlength="120" autocomplete="off" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ t('settings.costCenters.code') }}</mat-label>
+            <input matInput formControlName="code" maxlength="60" autocomplete="off" spellcheck="false" />
+            <mat-hint>{{ t('settings.costCenters.codeHint') }}</mat-hint>
+            @if (form.controls.code.hasError('pattern') && form.controls.code.touched) {
+                <mat-error>{{ t('settings.costCenters.codeInvalid') }}</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ t('settings.costCenters.country') }}</mat-label>
+            <input
+                matInput
+                formControlName="country"
+                [matAutocomplete]="countryAuto"
+                (focus)="onCountryFocus($event)"
+                (blur)="onCountryBlur()"
+                autocomplete="off"
+            />
+            <mat-autocomplete #countryAuto="matAutocomplete" [displayWith]="displayCountry" panelClass="cc-country-panel" autoActiveFirstOption>
+                @for (country of filteredCountries(); track country.code) {
+                    <mat-option [value]="country.code">{{ country.name }} ({{ country.code }})</mat-option>
+                }
+                @if (!filteredCountries().length) {
+                    <mat-option disabled>{{ t('settings.costCenters.countryNone') }}</mat-option>
+                }
+            </mat-autocomplete>
+            @if (form.controls.country.invalid && form.controls.country.touched) {
+                <mat-error>{{ t('settings.costCenters.countryInvalid') }}</mat-error>
+            }
+        </mat-form-field>
+
+        @if (errorKey()) {
+            <p class="cc-dialog__error" role="alert">{{ t(errorKey()!) }}</p>
+        }
+
+        <div class="cc-dialog__actions">
+            <button mat-stroked-button type="button" mat-dialog-close>{{ t('settings.costCenters.cancel') }}</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+                {{ t(saving() ? 'settings.costCenters.saving' : 'settings.costCenters.save') }}
+            </button>
+        </div>
+    </form>
+
+    <aside class="cc-dialog__aside">
+        @if (!editing) {
+            <div class="cc-dialog__heading">
+                <span>01</span>
+                <div>
+                    <h3>{{ t('settings.costCenters.whyTitle') }}</h3>
+                    <p>{{ t('settings.costCenters.whyBody') }}</p>
+                </div>
+            </div>
+            <ol>
+                <li>
+                    <mat-icon>public</mat-icon>
+                    <span>{{ t('settings.costCenters.whyCountry') }}</span>
+                </li>
+                <li>
+                    <mat-icon>receipt_long</mat-icon>
+                    <span>{{ t('settings.costCenters.whySplit') }}</span>
+                </li>
+                <li>
+                    <mat-icon>alt_route</mat-icon>
+                    <span>{{ t('settings.costCenters.whyAssign') }}</span>
+                </li>
+            </ol>
+        } @else {
+            <div class="cc-dialog__heading">
+                <span>01</span>
+                <div>
+                    <h3>{{ t('settings.costCenters.editWhyTitle') }}</h3>
+                    <p>{{ t('settings.costCenters.editNote') }}</p>
+                </div>
+            </div>
+        }
+    </aside>
+</div>

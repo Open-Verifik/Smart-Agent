@@ -75,41 +75,45 @@
                                     </button>
                                 </div>
 
-                                <div class="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
-                                    <div class="flex flex-col gap-3">
-                                        <mat-button-toggle-group
-                                            [value]="datePreset"
-                                            (change)="onDatePresetChange($event.value)"
-                                            [disabled]="filtersBusy()"
-                                            class="rounded-xl"
-                                        >
-                                            @for (preset of datePresets; track preset) {
-                                                <mat-button-toggle [value]="preset">{{ t(datePresetKey(preset)) }}</mat-button-toggle>
-                                            }
-                                        </mat-button-toggle-group>
-                                        @if (datePreset === 'custom') {
-                                            <mat-form-field appearance="outline" class="history-date-range w-full sm:w-80" subscriptSizing="dynamic">
-                                                <mat-label>{{ t('history.dateRange') }}</mat-label>
-                                                <mat-date-range-input [rangePicker]="picker">
-                                                    <input
-                                                        matStartDate
-                                                        [formControl]="rangeStart"
-                                                        (dateChange)="onCustomRangeChange()"
-                                                        [placeholder]="t('history.dateStart')"
-                                                    />
-                                                    <input
-                                                        matEndDate
-                                                        [formControl]="rangeEnd"
-                                                        (dateChange)="onCustomRangeChange()"
-                                                        [placeholder]="t('history.dateEnd')"
-                                                    />
-                                                </mat-date-range-input>
-                                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                                                <mat-date-range-picker #picker></mat-date-range-picker>
-                                            </mat-form-field>
+                                <div class="history-date-panel">
+                                    <span class="history-date-panel__title">{{ t('history.dateRange') }}</span>
+                                    <div class="history-date-panel__chips" role="group" [attr.aria-label]="t('history.dateRange')">
+                                        @for (preset of datePresets; track preset) {
+                                            <button
+                                                type="button"
+                                                class="history-date-chip"
+                                                [class.history-date-chip--active]="datePreset === preset"
+                                                [attr.aria-pressed]="datePreset === preset"
+                                                [disabled]="filtersBusy()"
+                                                (click)="onDatePresetChange(preset)"
+                                            >
+                                                {{ t(datePresetKey(preset)) }}
+                                            </button>
                                         }
                                     </div>
+                                    @if (datePreset === 'custom') {
+                                    <mat-form-field appearance="outline" class="history-date-range" subscriptSizing="dynamic">
+                                        <mat-date-range-input [rangePicker]="picker" [disabled]="filtersBusy()">
+                                            <input
+                                                matStartDate
+                                                [formControl]="rangeStart"
+                                                (dateChange)="onCustomRangeChange()"
+                                                [placeholder]="t('history.dateStart')"
+                                            />
+                                            <input
+                                                matEndDate
+                                                [formControl]="rangeEnd"
+                                                (dateChange)="onCustomRangeChange()"
+                                                [placeholder]="t('history.dateEnd')"
+                                            />
+                                        </mat-date-range-input>
+                                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-date-range-picker #picker></mat-date-range-picker>
+                                    </mat-form-field>
+                                    }
+                                </div>
 
+                                <div class="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-end">
                                     <div class="min-w-[220px] flex-1">
                                         <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
                                             {{ t('history.filterService') }}

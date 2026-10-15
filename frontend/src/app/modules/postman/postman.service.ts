@@ -47,6 +47,9 @@ import {
 } from './postman.types';
 import { applyPostmanSandboxParamDefaults } from './sandbox';
 
+/** Stored folder name for pinned endpoints. The sidebar never shows this label. */
+export const PINNED_FOLDER_NAME = '__pinned';
+
 import { TranslocoService } from '@jsverse/transloco';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
 import { environment } from 'environments/environment';
@@ -59,6 +62,7 @@ import {
     map,
     of,
     skip,
+    switchMap,
     tap,
     throwError,
 } from 'rxjs';
@@ -98,6 +102,9 @@ export class PostmanService {
     }
 
     layoutFolders = signal<PostmanFolderDto[]>([]);
+    readonly pinnedFolderId = computed(
+        () => this.layoutFolders().find((folder) => folder.isSystem && folder.name === PINNED_FOLDER_NAME)?._id ?? null
+    );
     layoutEndpointsRaw = signal<PostmanEndpointRowDto[]>([]);
     layoutLoaded = signal(false);
     layoutLoading = signal(false);
@@ -470,6 +477,21 @@ export class PostmanService {
         };
     }
 
+    private _pinnedFolder(): PostmanFolderDto | undefined {
+        return this.layoutFolders().find((folder) => folder.isSystem && folder.name === PINNED_FOLDER_NAME);
+    }
+
+    /**
+     * @param {string} folderId
+     */
+    private _nextPinnedSortOrder(folderId: string): number {
+        return (
+            this.layoutEndpointsRaw()
+                .filter((row) => row.folder === folderId)
+                .reduce((max, row) => Math.max(max, row.sortOrder ?? 0), 0) + 1
+        );
+    }
+
     private _normalizeFolderDto(f: PostmanFolderDto): PostmanFolderDto {
         return {
             ...f,
@@ -771,7 +793,7 @@ export class PostmanService {
 
     /** Flatten folders depth-first for “Move to” menus (label with indent). */
     flattenFoldersForMenu(): { id: string; label: string }[] {
-        const folders = this.layoutFolders();
+        const folders = this.layoutFolders().filter((folder) => !folder.isSystem);
         const roots = folders
             .filter((f) => f.parentFolder == null || f.parentFolder === '')
             .sort(
@@ -798,14 +820,72 @@ export class PostmanService {
         return result;
     }
 
-    createFolder(name: string, parentFolder?: string | null): Observable<unknown> {
+    createFolder(
+        name: string,
+        parentFolder?: string | null,
+        options?: { isSystem?: boolean }
+    ): Observable<{ data: PostmanFolderDto }> {
         const body: Record<string, unknown> = { name: name.trim() };
         if (parentFolder) {
             body['parentFolder'] = parentFolder;
         }
-        return this._httpClient.post(`${this._apiUrl()}/v2/postman/folders`, body, {
+        if (options?.isSystem) {
+            body['isSystem'] = true;
+        }
+        return this._httpClient.post<{ data: PostmanFolderDto }>(`${this._apiUrl()}/v2/postman/folders`, body, {
             headers: this._authHeaders(),
         });
+    }
+
+    /**
+     * Finds the hidden pin folder, or creates it and reloads the layout.
+     */
+    ensurePinnedFolder(): Observable<PostmanFolderDto> {
+        const existing = this._pinnedFolder();
+        if (existing) {
+            return of(existing);
+        }
+        return this.createFolder(PINNED_FOLDER_NAME, null, { isSystem: true }).pipe(
+            switchMap((response) => {
+                const created = this._normalizeFolderDto(response.data);
+                this.layoutFolders.set([...this.layoutFolders(), created]);
+                return this._fetchLayout().pipe(
+                    tap((layout) => {
+                        if (layout) {
+                            this._applyLayoutPayload(layout);
+                        }
+                    }),
+                    map(() => this._pinnedFolder() ?? created)
+                );
+            })
+        );
+    }
+
+    /**
+     * Moves an endpoint into the hidden pin folder, or back to the Library.
+     * @param {ApiEndpoint} endpoint
+     */
+    toggleEndpointPin(endpoint: ApiEndpoint): Observable<unknown> {
+        const folder = this._pinnedFolder();
+        if (folder && endpoint.postmanFolderId === folder._id) {
+            return this.upsertEndpointLayout(endpoint, { folder: null });
+        }
+        return this.ensurePinnedFolder().pipe(
+            switchMap((pinned) =>
+                this.upsertEndpointLayout(endpoint, {
+                    folder: pinned._id,
+                    sortOrder: this._nextPinnedSortOrder(pinned._id),
+                })
+            )
+        );
+    }
+
+    /**
+     * @param {ApiEndpoint} endpoint
+     */
+    isEndpointPinned(endpoint: ApiEndpoint): boolean {
+        const folderId = this.pinnedFolderId();
+        return Boolean(folderId && endpoint.postmanFolderId === folderId);
     }
 
     updateFolder(

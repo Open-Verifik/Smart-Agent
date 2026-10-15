@@ -4549,6 +4549,17 @@
             "updated": "Centro de costo actualizado",
             "deactivated": "Centro de costo desactivado",
             "reactivated": "Centro de costo reactivado",
+            "modalEyebrow": "Operaciones globales",
+            "modalLead": "Dale a cada país o equipo su propia etiqueta para separar las solicitudes siguientes.",
+            "whyTitle": "Por qué crear uno",
+            "whyBody": "Si operas en más de un país, cada solicitud puede llevar la operación que la originó.",
+            "whyCountry": "Un centro por país o equipo, como la operación de España.",
+            "whySplit": "El uso y las facturas separan esa operación del resto de la cuenta.",
+            "whyAssign": "Una solicitud posterior lo recibe por el header x-cost-center, el valor por defecto del token, o el único centro activo de ese país.",
+            "editWhyTitle": "Qué cambia al guardar",
+            "editNote": "Un cambio solo afecta las solicitudes hechas después. El historial ya marcado conserva el centro que tenía.",
+            "countryInvalid": "Elige un país de la lista.",
+            "countryNone": "Ningún país coincide con esa búsqueda.",
             "signInHint": "Inicia sesión con tu correo o teléfono para administrar los centros de costo."
         },
         "usageReport": {
@@ -5263,6 +5274,12 @@
             "splitVertical": "División Vertical",
             "splitHorizontal": "División Horizontal"
         },
+        "flags": {
+            "pin": "Fijar {{country}}",
+            "unpin": "Quitar {{country}}",
+            "scrollLeft": "Ver países anteriores",
+            "scrollRight": "Ver más países"
+        },
         "sidebar": {
             "title": "Explorador de API",
             "search": "Buscar endpoints...",
@@ -5271,6 +5288,9 @@
             "collapse": "Contraer barra lateral",
             "expand": "Expandir barra lateral",
             "library": "Biblioteca",
+            "pinned": "Fijados",
+            "pinEndpoint": "Fijar {{name}}",
+            "unpinEndpoint": "Quitar {{name}}",
             "layoutActions": "Carpetas",
             "newFolder": "Nueva carpeta",
             "newFolderTitle": "Nueva carpeta",
@@ -5735,7 +5755,8 @@
         "filterDateToday": "Hoy",
         "filterDateThisWeek": "Esta semana",
         "filterDateThisMonth": "Este mes",
-        "filterDateCustom": "Personalizado",
+        "filterDateLastMonth": "Mes pasado",
+        "filterDateCustom": "Fechas personalizadas",
         "dateRange": "Rango de fechas",
         "dateStart": "Inicio",
         "dateEnd": "Fin",

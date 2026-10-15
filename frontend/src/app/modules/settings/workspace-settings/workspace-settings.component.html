@@ -172,14 +172,27 @@
                     </p>
                 </div>
                 <div class="flex max-w-lg flex-col gap-4">
-                    <select
+                    <input
+                        type="search"
                         class="h-11 w-full rounded-lg border border-gray-300 bg-gray-50 px-4 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                        [(ngModel)]="supportTimezone"
-                    >
-                        @for (zone of timezones; track zone) {
-                            <option [value]="zone">{{ zone }}</option>
+                        [value]="timezoneInputText"
+                        (input)="onTimezoneInput($any($event.target).value)"
+                        [matAutocomplete]="timezoneAuto"
+                        [placeholder]="'settings.general.support_timezone_placeholder' | transloco"
+                        autocomplete="off"
+                        [attr.aria-label]="'settings.general.support_timezone' | transloco"
+                    />
+                    <mat-autocomplete #timezoneAuto="matAutocomplete" (optionSelected)="selectTimezone($event)">
+                        @for (zone of filteredTimezones; track zone.id) {
+                            <mat-option [value]="zone.id">
+                                <span class="inline-block w-20 font-semibold tabular-nums">{{ zone.offset }}</span>
+                                <span>{{ zone.id }}</span>
+                            </mat-option>
                         }
-                    </select>
+                        @if (!filteredTimezones.length) {
+                            <mat-option disabled>{{ 'settings.general.support_timezone_none' | transloco }}</mat-option>
+                        }
+                    </mat-autocomplete>
                     <div class="flex justify-end">
                         <button
                             mat-flat-button

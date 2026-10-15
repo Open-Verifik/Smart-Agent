@@ -4553,6 +4553,17 @@
             "updated": "Cost center updated",
             "deactivated": "Cost center deactivated",
             "reactivated": "Cost center reactivated",
+            "modalEyebrow": "Global operations",
+            "modalLead": "Give each country or team its own label so later requests can be split.",
+            "whyTitle": "Why add one",
+            "whyBody": "If you operate in more than one country, each request can carry the operation that made it.",
+            "whyCountry": "One center per country or team, such as Spain operations.",
+            "whySplit": "Usage and invoices then separate that operation from the rest of the account.",
+            "whyAssign": "A later request gets it from the x-cost-center header, the token default, or the one active center for that country.",
+            "editWhyTitle": "What a change does",
+            "editNote": "Saving only affects requests made after this. History already stamped keeps the center it had.",
+            "countryInvalid": "Choose a country from the list.",
+            "countryNone": "No countries match that search.",
             "signInHint": "Sign in with your email or phone to manage cost centers."
         },
         "usageReport": {
@@ -5267,6 +5278,12 @@
             "splitVertical": "Split Vertical",
             "splitHorizontal": "Split Horizontal"
         },
+        "flags": {
+            "pin": "Pin {{country}}",
+            "unpin": "Unpin {{country}}",
+            "scrollLeft": "Show previous countries",
+            "scrollRight": "Show more countries"
+        },
         "sidebar": {
             "title": "API Explorer",
             "search": "Search endpoints...",
@@ -5275,6 +5292,9 @@
             "collapse": "Collapse sidebar",
             "expand": "Expand sidebar",
             "library": "Library",
+            "pinned": "Pinned",
+            "pinEndpoint": "Pin {{name}}",
+            "unpinEndpoint": "Unpin {{name}}",
             "layoutActions": "Folder layout",
             "newFolder": "New folder",
             "newFolderTitle": "New folder",
@@ -5771,7 +5791,8 @@
         "filterDateToday": "Today",
         "filterDateThisWeek": "This week",
         "filterDateThisMonth": "This month",
-        "filterDateCustom": "Custom",
+        "filterDateLastMonth": "Last month",
+        "filterDateCustom": "Custom dates",
         "dateRange": "Date range",
         "dateStart": "Start",
         "dateEnd": "End",

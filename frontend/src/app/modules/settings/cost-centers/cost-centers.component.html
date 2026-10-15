@@ -4,7 +4,7 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('settings.costCenters.title') }}</h1>
             <p class="mt-2 text-gray-600 dark:text-gray-400">{{ t('settings.costCenters.subtitle') }}</p>
         </div>
-        @if (userClientId && !formOpen()) {
+        @if (userClientId) {
             <button mat-flat-button color="primary" class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-lg px-6 h-10" (click)="openCreate()">
                 <mat-icon class="mr-2 !h-5 !w-5 !text-xl">add</mat-icon>
                 {{ t('settings.costCenters.add') }}
@@ -15,45 +15,6 @@
     @if (!userClientId) {
         <app-settings-business-account-empty-state hintKey="settings.costCenters.signInHint" (userChange)="onBusinessAccountLinked($event)" />
     } @else {
-        @if (formOpen()) {
-            <form class="content-card p-6 mb-6" [formGroup]="form" (ngSubmit)="save()">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-                    {{ t(editingId() ? 'settings.costCenters.editTitle' : 'settings.costCenters.createTitle') }}
-                </h2>
-                <div class="grid gap-4 md:grid-cols-3">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>{{ t('settings.costCenters.name') }}</mat-label>
-                        <input matInput formControlName="name" maxlength="120" autocomplete="off" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>{{ t('settings.costCenters.code') }}</mat-label>
-                        <input matInput formControlName="code" maxlength="60" autocomplete="off" spellcheck="false" />
-                        <mat-hint>{{ t('settings.costCenters.codeHint') }}</mat-hint>
-                        @if (form.controls.code.hasError('pattern')) {
-                            <mat-error>{{ t('settings.costCenters.codeInvalid') }}</mat-error>
-                        }
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>{{ t('settings.costCenters.country') }}</mat-label>
-                        <mat-select formControlName="country">
-                            @for (country of countries; track country.code) {
-                                <mat-option [value]="country.code">{{ country.name }} ({{ country.code }})</mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                @if (errorKey()) {
-                    <p class="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">{{ t(errorKey()!) }}</p>
-                }
-                <div class="mt-5 flex justify-end gap-2">
-                    <button mat-stroked-button type="button" (click)="cancel()">{{ t('settings.costCenters.cancel') }}</button>
-                    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
-                        {{ t(saving() ? 'settings.costCenters.saving' : 'settings.costCenters.save') }}
-                    </button>
-                </div>
-            </form>
-        }
-
         @if (loading()) {
             <div class="flex items-center justify-center py-12"><mat-spinner diameter="32"></mat-spinner></div>
         } @else if (!centers().length) {

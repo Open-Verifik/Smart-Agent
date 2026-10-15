@@ -15,32 +15,69 @@
     @if (!userClientId) {
         <app-settings-business-account-empty-state hintKey="settings.usageReport.signInHint" (userChange)="onBusinessAccountLinked($event)" />
     } @else {
-        <div class="content-card usage-filters p-4 mb-4">
-            <mat-button-toggle-group class="usage-filters__choices" [value]="groupBy()" (change)="setGroupBy($event.value)" [disabled]="loading()" [attr.aria-label]="t('settings.usageReport.groupBy')">
-                @for (option of groupings; track option) {
-                    <mat-button-toggle [value]="option">{{ t('settings.usageReport.group.' + option) }}</mat-button-toggle>
+        <section class="usage-filters mb-4">
+            <div class="usage-filters__stack">
+                <div class="usage-filters__field">
+                    <span class="usage-filters__label">{{ t('settings.usageReport.groupBy') }}</span>
+                    <div class="usage-filters__chips" role="group" [attr.aria-label]="t('settings.usageReport.groupBy')">
+                        @for (option of groupings; track option) {
+                            <button
+                                type="button"
+                                class="usage-filters__chip"
+                                [class.usage-filters__chip--active]="groupBy() === option"
+                                [attr.aria-pressed]="groupBy() === option"
+                                [disabled]="loading()"
+                                (click)="setGroupBy(option)"
+                            >
+                                {{ t('settings.usageReport.group.' + option) }}
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (costCenters().length) {
+                    <div class="usage-filters__field usage-filters__field--center">
+                        <label class="usage-filters__label" for="usage-report-cost-center">{{ t('settings.usageReport.costCenter') }}</label>
+                        <mat-select
+                            id="usage-report-cost-center"
+                            class="usage-filters__center"
+                            [value]="costCenter()"
+                            (selectionChange)="setCostCenter($event.value)"
+                            [disabled]="loading()"
+                            [attr.aria-label]="t('settings.usageReport.costCenter')"
+                        >
+                            <mat-option value="">{{ t('settings.usageReport.allCostCenters') }}</mat-option>
+                            @for (center of costCenters(); track center._id) {
+                                <mat-option [value]="center._id">{{ center.name }} · {{ center.code }}</mat-option>
+                            }
+                            <mat-option value="none">{{ t('settings.usageReport.noCostCenter') }}</mat-option>
+                        </mat-select>
+                    </div>
                 }
-            </mat-button-toggle-group>
-            <div class="usage-filters__period">
-                @if (customWindow(); as window) {
-                    <p class="usage-filters__dates">{{ window.start | date: 'mediumDate' }} – {{ window.end | date: 'mediumDate' }}</p>
-                }
-                <mat-button-toggle-group class="usage-filters__choices" [value]="customWindow() ? null : range()" (change)="setRange($event.value)" [disabled]="loading()" [attr.aria-label]="t('settings.usageReport.range')">
-                    @for (option of ranges; track option) {
-                        <mat-button-toggle [value]="option">{{ t('settings.usageReport.ranges.' + option) }}</mat-button-toggle>
-                    }
-                </mat-button-toggle-group>
+
+                <div class="usage-filters__date-panel">
+                    <span class="usage-filters__date-title">{{ t('settings.usageReport.range') }}</span>
+                    <div class="usage-filters__chips" role="group" [attr.aria-label]="t('settings.usageReport.range')">
+                        @for (option of ranges; track option) {
+                            <button
+                                type="button"
+                                class="usage-filters__chip"
+                                [class.usage-filters__chip--active]="!customWindow() && range() === option"
+                                [attr.aria-pressed]="!customWindow() && range() === option"
+                                [disabled]="loading()"
+                                (click)="setRange(option)"
+                            >
+                                {{ t('settings.usageReport.ranges.' + option) }}
+                            </button>
+                        }
+                    </div>
+                    <div class="usage-filters__dates">
+                        <span>{{ period().start | date: 'mediumDate' }} – {{ period().end | date: 'mediumDate' }}</span>
+                        <mat-icon aria-hidden="true">calendar_today</mat-icon>
+                    </div>
+                </div>
             </div>
-            @if (costCenters().length) {
-                <mat-select class="usage-filters__center rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm" [value]="costCenter()" (selectionChange)="setCostCenter($event.value)" [attr.aria-label]="t('settings.usageReport.costCenter')">
-                    <mat-option value="">{{ t('settings.usageReport.allCostCenters') }}</mat-option>
-                    @for (center of costCenters(); track center._id) {
-                        <mat-option [value]="center._id">{{ center.name }} · {{ center.code }}</mat-option>
-                    }
-                    <mat-option value="none">{{ t('settings.usageReport.noCostCenter') }}</mat-option>
-                </mat-select>
-            }
-        </div>
+        </section>
 
         @if (report()?.source && report()!.source !== 'apiRequests') {
             <div class="usage-source-note mb-4" role="status">

@@ -5157,6 +5157,12 @@
             "splitVertical": "Séparation Verticale",
             "splitHorizontal": "Séparation Horizontale"
         },
+        "flags": {
+            "pin": "Épingler {{country}}",
+            "unpin": "Désépingler {{country}}",
+            "scrollLeft": "Voir les pays précédents",
+            "scrollRight": "Voir plus de pays"
+        },
         "sidebar": {
             "title": "Explorateur API",
             "search": "Rechercher endpoints...",
@@ -5165,6 +5171,9 @@
             "collapse": "Réduire barre latérale",
             "expand": "Agrandir barre latérale",
             "library": "Bibliothèque",
+            "pinned": "Épinglés",
+            "pinEndpoint": "Épingler {{name}}",
+            "unpinEndpoint": "Désépingler {{name}}",
             "layoutActions": "Dossiers",
             "newFolder": "Nouveau dossier",
             "newFolderTitle": "Nouveau dossier",
@@ -5625,7 +5634,8 @@
         "filterDateToday": "Aujourd'hui",
         "filterDateThisWeek": "Cette semaine",
         "filterDateThisMonth": "Ce mois",
-        "filterDateCustom": "Personnalisé",
+        "filterDateLastMonth": "Mois dernier",
+        "filterDateCustom": "Dates personnalisées",
         "dateRange": "Plage de dates",
         "dateStart": "Début",
         "dateEnd": "Fin",

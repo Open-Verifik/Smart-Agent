@@ -4579,6 +4579,17 @@
             "updated": "成本中心已更新",
             "deactivated": "成本中心已停用",
             "reactivated": "成本中心已重新启用",
+            "modalEyebrow": "全球运营",
+            "modalLead": "为每个国家或团队单独加标签，以便拆分之后的请求。",
+            "whyTitle": "为什么要创建",
+            "whyBody": "如果您在多个国家运营，每次请求都可以带上发起它的那次运营。",
+            "whyCountry": "每个国家或团队一个，例如西班牙运营。",
+            "whySplit": "用量和账单就会把该运营与账户的其余部分分开。",
+            "whyAssign": "之后的请求通过 x-cost-center 请求头、令牌默认值，或该国家唯一的启用中心获得它。",
+            "editWhyTitle": "更改会怎样",
+            "editNote": "保存只影响之后的请求。已经打上标记的历史仍保留当时的成本中心。",
+            "countryInvalid": "请从列表中选择一个国家。",
+            "countryNone": "没有匹配的国家。",
             "signInHint": "使用邮箱或手机登录以管理成本中心。"
         },
         "usageReport": {
@@ -5281,6 +5292,12 @@
             "splitVertical": "垂直分割",
             "splitHorizontal": "水平分割"
         },
+        "flags": {
+            "pin": "固定{{country}}",
+            "unpin": "取消固定{{country}}",
+            "scrollLeft": "查看前面的国家",
+            "scrollRight": "查看更多国家"
+        },
         "sidebar": {
             "title": "API 浏览器",
             "search": "搜索端点...",
@@ -5289,6 +5306,9 @@
             "collapse": "折叠侧边栏",
             "expand": "展开侧边栏",
             "library": "资源库",
+            "pinned": "已固定",
+            "pinEndpoint": "固定{{name}}",
+            "unpinEndpoint": "取消固定{{name}}",
             "layoutActions": "文件夹",
             "newFolder": "新建文件夹",
             "newFolderTitle": "新建文件夹",
@@ -5753,7 +5773,8 @@
         "filterDateToday": "今天",
         "filterDateThisWeek": "本周",
         "filterDateThisMonth": "本月",
-        "filterDateCustom": "自定义",
+        "filterDateLastMonth": "上月",
+        "filterDateCustom": "自定义日期",
         "dateRange": "日期范围",
         "dateStart": "开始",
         "dateEnd": "结束",

@@ -139,6 +139,7 @@ import {
           (selectEndpoint)="selectEndpoint.emit($event)"
           (moveEndpoint)="moveEndpoint.emit($event)"
           (renameEndpoint)="renameEndpoint.emit($event)"
+          (pinEndpoint)="pinEndpoint.emit($event)"
         />
 
         <div
@@ -182,7 +183,7 @@ import {
               routerLinkActive="bg-blue-100 dark:bg-blue-900"
               [routerLinkActiveOptions]="{ exact: false }"
               (click)="selectEndpoint.emit(endpoint)"
-              class="flex min-w-0 flex-1 items-center px-2 py-1.5 pr-7 text-sm text-left no-underline text-inherit rounded-md"
+              class="flex min-w-0 flex-1 items-center px-2 py-1.5 pr-14 text-sm text-left no-underline text-inherit rounded-md"
             >
             <span
               class="text-[10px] font-bold rounded px-1 py-0.5 flex-shrink-0 mr-2 w-10 flex items-center justify-center"
@@ -210,10 +211,13 @@ import {
             *ngIf="!sidebarCollapsed && endpoint.code"
             [endpoint]="endpoint"
             [isSelected]="selectedEndpoint?.id === endpoint.id"
+            [pinned]="isEndpointPinned(endpoint)"
+            [pinTitle]="endpointDisplayCopy(endpoint).title"
             [showMoveSection]="hasMoveTargets(endpoint)"
             [moveOptions]="folderMenuOptionsFiltered(endpoint)"
             (moveEndpoint)="moveEndpoint.emit($event)"
             (renameEndpoint)="renameEndpoint.emit($event)"
+            (pinEndpoint)="pinEndpoint.emit($event)"
           />
           </div>
         </div>
@@ -243,6 +247,7 @@ export class PostmanSidebarFolderComponent {
   @Output() selectEndpoint = new EventEmitter<ApiEndpoint>();
   @Output() moveEndpoint = new EventEmitter<{ endpoint: ApiEndpoint; folderId: string | null }>();
   @Output() renameEndpoint = new EventEmitter<ApiEndpoint>();
+  @Output() pinEndpoint = new EventEmitter<ApiEndpoint>();
 
   folderMenuOptionsFiltered(endpoint: ApiEndpoint): { id: string; label: string }[] {
     const cur = endpoint.postmanFolderId ?? null;
@@ -285,6 +290,10 @@ export class PostmanSidebarFolderComponent {
 
   isFolderCollapsed(folderId: string): boolean {
     return this.collapsedFolderIds.has(folderId);
+  }
+
+  isEndpointPinned(endpoint: ApiEndpoint): boolean {
+    return this._postman.isEndpointPinned(endpoint);
   }
 
   endpointDisplayCopy(endpoint: ApiEndpoint) {

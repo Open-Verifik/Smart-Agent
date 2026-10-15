@@ -4579,6 +4579,17 @@
             "updated": "비용 센터를 업데이트했습니다",
             "deactivated": "비용 센터를 비활성화했습니다",
             "reactivated": "비용 센터를 다시 활성화했습니다",
+            "modalEyebrow": "글로벌 운영",
+            "modalLead": "국가나 팀마다 라벨을 두어 이후 요청을 나눕니다.",
+            "whyTitle": "왜 만드나요",
+            "whyBody": "둘 이상의 국가에서 운영하면 각 요청이 그 요청을 만든 운영을 담을 수 있습니다.",
+            "whyCountry": "국가나 팀마다 하나씩, 예를 들어 스페인 운영.",
+            "whySplit": "사용량과 청구서가 그 운영을 계정의 나머지와 분리합니다.",
+            "whyAssign": "이후 요청은 x-cost-center 헤더, 토큰 기본값, 또는 그 국가의 활성 센터 하나에서 받습니다.",
+            "editWhyTitle": "변경하면",
+            "editNote": "저장은 이후 요청에만 적용됩니다. 이미 표시된 기록은 그때의 센터를 유지합니다.",
+            "countryInvalid": "목록에서 국가를 선택하세요.",
+            "countryNone": "일치하는 국가가 없습니다.",
             "signInHint": "이메일이나 전화로 로그인해 비용 센터를 관리하세요."
         },
         "usageReport": {
@@ -5281,6 +5292,12 @@
             "splitVertical": "수직 분할",
             "splitHorizontal": "수평 분할"
         },
+        "flags": {
+            "pin": "{{country}} 고정",
+            "unpin": "{{country}} 고정 해제",
+            "scrollLeft": "이전 국가 보기",
+            "scrollRight": "더 많은 국가 보기"
+        },
         "sidebar": {
             "title": "API 탐색기",
             "search": "엔드포인트 검색...",
@@ -5289,6 +5306,9 @@
             "collapse": "사이드바 접기",
             "expand": "사이드바 펼치기",
             "library": "라이브러리",
+            "pinned": "고정됨",
+            "pinEndpoint": "{{name}} 고정",
+            "unpinEndpoint": "{{name}} 고정 해제",
             "layoutActions": "폴더",
             "newFolder": "새 폴더",
             "newFolderTitle": "새 폴더",
@@ -5753,7 +5773,8 @@
         "filterDateToday": "오늘",
         "filterDateThisWeek": "이번 주",
         "filterDateThisMonth": "이번 달",
-        "filterDateCustom": "사용자 지정",
+        "filterDateLastMonth": "지난달",
+        "filterDateCustom": "날짜 직접 선택",
         "dateRange": "날짜 범위",
         "dateStart": "시작",
         "dateEnd": "종료",

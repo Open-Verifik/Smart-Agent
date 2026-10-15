@@ -4579,6 +4579,17 @@
             "updated": "Centro de custo atualizado",
             "deactivated": "Centro de custo desativado",
             "reactivated": "Centro de custo reativado",
+            "modalEyebrow": "Operações globais",
+            "modalLead": "Dê a cada país ou equipe o próprio rótulo para separar as solicitações seguintes.",
+            "whyTitle": "Por que criar um",
+            "whyBody": "Se você opera em mais de um país, cada solicitação pode levar a operação que a originou.",
+            "whyCountry": "Um centro por país ou equipe, como a operação da Espanha.",
+            "whySplit": "O uso e as faturas separam essa operação do resto da conta.",
+            "whyAssign": "Uma solicitação seguinte o recebe pelo header x-cost-center, o padrão do token ou o único centro ativo daquele país.",
+            "editWhyTitle": "O que uma alteração faz",
+            "editNote": "Salvar só afeta solicitações feitas depois. O histórico já marcado mantém o centro que tinha.",
+            "countryInvalid": "Escolha um país da lista.",
+            "countryNone": "Nenhum país corresponde a essa busca.",
             "signInHint": "Entre com e-mail ou telefone para gerenciar os centros de custo."
         },
         "usageReport": {
@@ -5281,6 +5292,12 @@
             "splitVertical": "Divisão Vertical",
             "splitHorizontal": "Divisão Horizontal"
         },
+        "flags": {
+            "pin": "Fixar {{country}}",
+            "unpin": "Desafixar {{country}}",
+            "scrollLeft": "Ver países anteriores",
+            "scrollRight": "Ver mais países"
+        },
         "sidebar": {
             "title": "Explorador de API",
             "search": "Pesquisar endpoints...",
@@ -5289,6 +5306,9 @@
             "collapse": "Recolher barra lateral",
             "expand": "Expandir barra lateral",
             "library": "Biblioteca",
+            "pinned": "Fixados",
+            "pinEndpoint": "Fixar {{name}}",
+            "unpinEndpoint": "Desafixar {{name}}",
             "layoutActions": "Pastas",
             "newFolder": "Nova pasta",
             "newFolderTitle": "Nova pasta",
@@ -5753,7 +5773,8 @@
         "filterDateToday": "Hoje",
         "filterDateThisWeek": "Esta semana",
         "filterDateThisMonth": "Este mês",
-        "filterDateCustom": "Personalizado",
+        "filterDateLastMonth": "Mês passado",
+        "filterDateCustom": "Datas personalizadas",
         "dateRange": "Intervalo de datas",
         "dateStart": "Início",
         "dateEnd": "Fim",

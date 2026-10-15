@@ -12,7 +12,6 @@ import {
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -58,7 +57,7 @@ import { countryName } from 'app/core/usage/country-geo';
 import { CostCenter, UsageApiService, UsageReport } from 'app/core/usage/usage-api.service';
 import { HistoryRequestDialogComponent, HistoryRequestDialogResult } from './history-request-dialog.component';
 
-export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
+export type DatePreset = 'all' | 'custom' | 'last_month' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
 export type HistoryStatus = 'failed' | 'pending' | 'success';
 export type HistorySectionId = HistoryStatus | 'x402';
@@ -115,7 +114,6 @@ const createSection = (id: HistorySectionId): HistorySectionState => ({
         ReactiveFormsModule,
         RouterLink,
         MatButtonModule,
-        MatButtonToggleModule,
         MatDatepickerModule,
         MatFormFieldModule,
         MatIconModule,
@@ -191,7 +189,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         },
     };
 
-    readonly datePresets: DatePreset[] = ['all', 'today', 'this_week', 'this_month', 'custom'];
+    readonly datePresets: DatePreset[] = ['today', 'this_week', 'this_month', 'last_month', 'custom'];
     readonly pageSizeOptions = [10, 25, 50];
     readonly rangeStart = new FormControl<DateTime | null>(null);
     readonly rangeEnd = new FormControl<DateTime | null>(null);
@@ -333,20 +331,23 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
     onDatePresetChange = (value: DatePreset): void => {
         this.datePreset = value;
-        if (value !== 'custom') {
-            this.rangeStart.setValue(null, { emitEvent: false });
-            this.rangeEnd.setValue(null, { emitEvent: false });
-            this._resetVisiblePages();
-            this.loadData();
+        if (value === 'custom') {
+            this._cdr.markForCheck();
             return;
         }
-        this._cdr.markForCheck();
+
+        this.rangeStart.setValue(null, { emitEvent: false });
+        this.rangeEnd.setValue(null, { emitEvent: false });
+        this._resetVisiblePages();
+        this.loadData();
     };
 
     onCustomRangeChange = (): void => {
         const start = this.rangeStart.value;
         const end = this.rangeEnd.value;
         if (!start?.isValid || !end?.isValid) return;
+
+        this.datePreset = 'custom';
         this._resetVisiblePages();
         this.loadData();
     };
@@ -536,6 +537,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
             today: 'history.filterDateToday',
             this_week: 'history.filterDateThisWeek',
             this_month: 'history.filterDateThisMonth',
+            last_month: 'history.filterDateLastMonth',
             custom: 'history.filterDateCustom',
         };
         return keys[preset];
@@ -657,6 +659,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (preset === 'today') return { start: now.startOf('day'), end: now.endOf('day') };
         if (preset === 'this_week') return { start: now.startOf('week'), end: now.endOf('week') };
         if (preset === 'this_month') return { start: now.startOf('month'), end: now.endOf('month') };
+        if (preset === 'last_month') {
+            const start = now.minus({ months: 1 }).startOf('month');
+            return { start, end: start.endOf('month') };
+        }
         return null;
     };
 
