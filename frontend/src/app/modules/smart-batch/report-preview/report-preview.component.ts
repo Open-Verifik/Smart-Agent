@@ -1224,7 +1224,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (!id || seenSections.has(id) || this.isLayerQuiet(`sec:${id}`)) return;
             const section = (this.template().sections ?? []).find((item) => item.id === id);
             if (!section || this.isPageAnchor(section)) return;
-            if (!this._rectsOverlap(node.getBoundingClientRect(), box)) return;
+            const bounds = node.getBoundingClientRect();
+            if (!this._rectsOverlap(bounds, box) || this._marqueeInside(bounds, box)) return;
             seenSections.add(id);
             sectionIds.push(id);
         });
@@ -1232,7 +1233,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (!(node instanceof HTMLElement)) return;
             const id = node.getAttribute('data-overlay-id');
             if (!id || seenOverlays.has(id) || this.isLayerQuiet(id)) return;
-            if (!this._rectsOverlap(node.getBoundingClientRect(), box)) return;
+            const bounds = node.getBoundingClientRect();
+            if (!this._rectsOverlap(bounds, box) || this._marqueeInside(bounds, box)) return;
             seenOverlays.add(id);
             overlayIds.push(id as ReportOverlayId);
         });
@@ -1299,6 +1301,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     private _rectsOverlap(left: DOMRect, right: DOMRect): boolean {
         return left.right >= right.left && left.left <= right.right && left.bottom >= right.top && left.top <= right.bottom;
+    }
+
+    /** The shaded area sits inside this object, so the object behind stays put. */
+    private _marqueeInside(element: DOMRect, marquee: DOMRect): boolean {
+        return element.left < marquee.left && element.top < marquee.top && element.right > marquee.right && element.bottom > marquee.bottom;
     }
 
     private _swallowNextClick(): void {
