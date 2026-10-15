@@ -14,6 +14,8 @@
     [style.width]="pageWidthCss()"
     [style.transform]="zoomInnerTransform()"
     [style.transform-origin]="'top left'"
+    [class.is-marquee]="marqueeMode()"
+    [class.is-grabbing]="sheetGrabbing()"
     (click)="onPaperClick($event)"
     (contextmenu)="onPaperContextMenu($event)"
 >
@@ -50,7 +52,7 @@
                             data-overlay-box
                             data-overlay-id="watermark"
                             class="absolute flex items-center justify-center"
-                            [class.cursor-move]="isOverlaySelected('watermark')"
+                            [class.cursor-move]="isOverlayChosen('watermark')"
                             [class.cursor-pointer]="clickable() && isFirst && !isOverlaySelected('watermark')"
                             [class.layer-quiet]="isLayerQuiet('watermark')"
                         [class.pointer-events-auto]="clickable() && isFirst && !isLayerQuiet('watermark')"
@@ -167,7 +169,7 @@
                         data-overlay-box
                         data-overlay-id="signature"
                         class="absolute"
-                        [class.cursor-move]="isOverlaySelected('signature')"
+                        [class.cursor-move]="isOverlayChosen('signature')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('signature')"
                         [class.layer-quiet]="isLayerQuiet('signature')"
                         [class.pointer-events-auto]="clickable() && !isLayerQuiet('signature')"
@@ -286,7 +288,7 @@
                         data-overlay-box
                         data-overlay-id="logo"
                         class="absolute"
-                        [class.cursor-move]="isOverlaySelected('logo')"
+                        [class.cursor-move]="isOverlayChosen('logo')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('logo')"
                         [class.layer-quiet]="isLayerQuiet('logo')"
                         [class.pointer-events-auto]="clickable() && !isLayerQuiet('logo')"
@@ -352,7 +354,7 @@
                                 data-overlay-box
                                 [attr.data-overlay-id]="sheetOverlayId(image.id)"
                                 class="absolute"
-                                [class.cursor-move]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.cursor-move]="isOverlayChosen(sheetOverlayId(image.id))"
                                 [class.cursor-pointer]="clickable() && !isOverlaySelected(sheetOverlayId(image.id))"
                                 [class.layer-quiet]="isLayerQuiet(sheetOverlayId(image.id))"
                                 [class.pointer-events-auto]="clickable() && !isLayerQuiet(sheetOverlayId(image.id))"

@@ -772,10 +772,12 @@
         "layoutParamMoveDown": "Move down",
         "layoutNoParams": "This block has no data to show or hide.",
         "toolLabel": {
+            "select": "Select",
             "icons": "Icons",
             "emoji": "Emojis"
         },
         "toolHint": {
+            "select": "Drag to shade an area. Everything inside moves together",
             "title": "Add a large heading",
             "text": "Add a text paragraph",
             "divider": "Add a separator line",

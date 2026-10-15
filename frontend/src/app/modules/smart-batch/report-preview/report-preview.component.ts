@@ -145,6 +145,22 @@ export function reportPaperSizePx(
                 opacity: 0;
                 pointer-events: none;
             }
+            .is-marquee [data-report-page],
+            .is-marquee [data-report-page] * {
+                cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M16 4v24M4 16h24' stroke='%23fff' stroke-width='4.2' stroke-linecap='round'/%3E%3Cpath d='M16 4v24M4 16h24' stroke='%23111827' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") 16 16, crosshair !important;
+            }
+            .is-marquee.is-grabbing [data-report-page],
+            .is-marquee.is-grabbing [data-report-page] * {
+                cursor: grabbing !important;
+            }
+            .marquee-box {
+                position: fixed;
+                z-index: 100000;
+                border: 1px solid rgb(67 56 202);
+                background: rgba(79, 70, 229, 0.28);
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+                pointer-events: none;
+            }
         `,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -267,6 +283,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     lockedLayerIds = input<string[]>([]);
     /** Editor-only. Locates a locked layer on the sheet without unlocking it. */
     peekedLayerId = input<string | null>(null);
+    /** Drag a rectangle to choose several blocks and images, then move that group together. */
+    marqueeMode = input(false);
+    /** Overlays chosen together with the blocks. */
+    selectedOverlayIds = input<ReportOverlayId[]>([]);
 
     /** Extra top padding (canonical 96 DPI px) added to the section content area. */
     bodyTopPadding = input<number>(0);
@@ -297,6 +317,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     @Output() paperContextMenu = new EventEmitter<{ x: number; y: number }>();
     @Output() sectionReorder = new EventEmitter<{ fromId: string; toIndex: number }>();
     @Output() sectionFramesChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }[]>();
+    @Output() boxSelectionChange = new EventEmitter<{ sectionIds: string[]; overlayIds: ReportOverlayId[] }>();
+    @Output() groupOverlayMove = new EventEmitter<{ id: ReportOverlayId; x: number; y: number; page?: number }[]>();
     @Output() sectionFrameChange = new EventEmitter<{ id: string; frame: ReportSectionFrame }>();
     @Output() sectionRotationChange = new EventEmitter<{ id: string; rotation: number }>();
     @Output() cellSelect = new EventEmitter<{
@@ -370,8 +392,22 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         cellPart: ReportCellPart;
         host: HTMLElement | null;
         companions: { id: string; startFrame: ReportSectionFrame }[];
+        overlayMates: { id: ReportOverlayId; x: number; y: number; page: number; width: number; height: number }[];
     } | null = null;
     private _sectionDragMoved = false;
+    private _marquee: {
+        pointerId: number;
+        startX: number;
+        startY: number;
+        additive: boolean;
+        active: boolean;
+    } | null = null;
+    private _marqueeEl: HTMLDivElement | null = null;
+    private _groupShift: {
+        startPage: number;
+        sections: { id: string; startFrame: ReportSectionFrame }[];
+        overlays: { id: ReportOverlayId; x: number; y: number; page: number; width: number; height: number }[];
+    } | null = null;
     /** A click on a field already selected it; the section click must not clear that ring. */
     private _keepCellSelection = false;
     private _cellDrag: {
@@ -432,6 +468,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Lines shown while dragging, when an edge or the center lines up with another block. */
     readonly alignmentGuides = signal<{ page: number; axis: 'x' | 'y'; at: number }[]>([]);
     private _sheetDragging = false;
+    readonly sheetGrabbing = signal(false);
+    readonly marqueeRect = signal<{ left: number; top: number; width: number; height: number } | null>(null);
     readonly freeLayout = computed(() => {
         if (Object.keys(this.liveFrames()).length > 0) return true;
         return (this.template().sections ?? []).some((section) => Boolean(section.frame));
@@ -440,6 +478,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _setSheetDragging(active: boolean): void {
         if (this._sheetDragging === active) return;
         this._sheetDragging = active;
+        this.sheetGrabbing.set(active);
         if (active) {
             this._lockedViewScale = this._readViewScale();
             this._lockedPointerScale = this._readPointerScale();
@@ -575,6 +614,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this._measureSections.changes.subscribe(() => this._scheduleMeasurement());
         this._reportPages.changes.subscribe(() => this._scheduleMeasurement());
         this._scheduleMeasurement();
+        this._host.nativeElement.addEventListener('pointerdown', this._onMarqueePointerDownCapture, true);
     }
 
     /** First paper card; used as the canonical scale + drag/resize anchor. */
@@ -992,7 +1032,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     private _overlayOutline(id: ReportOverlayId, outline: string): string {
-        return this.isOverlaySelected(id) || this.isLayerPeeked(id) ? outline : 'none';
+        return this.isOverlayChosen(id) || this.isLayerPeeked(id) ? outline : 'none';
+    }
+
+    isOverlayChosen(id: ReportOverlayId): boolean {
+        return this.clickable() && (this.selectedOverlay() === id || this.selectedOverlayIds().includes(id));
     }
 
     isOverlaySelected(id: ReportOverlayId): boolean {
@@ -1087,6 +1131,183 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.backgroundClick.emit();
+    }
+
+    private _onMarqueePointerDownCapture = (event: PointerEvent): void => {
+        this.onMarqueePointerDown(event);
+    };
+
+    onMarqueePointerDown(event: PointerEvent): void {
+        if (!this.marqueeMode() || !this.clickable() || event.button !== 0) return;
+        const origin = event.target as HTMLElement | null;
+        if (origin?.closest('[data-section-handle], [data-overlay-handle], [data-cell-handle], [data-inline-edit], [data-move-badge]')) {
+            return;
+        }
+        const hit = this._hitSelectable(origin);
+        if (hit && this._hitIsSelected(hit)) return;
+        event.stopPropagation();
+        event.preventDefault();
+        this._marquee = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            additive: event.shiftKey || event.ctrlKey || event.metaKey,
+            active: false,
+        };
+        try {
+            (event.currentTarget as HTMLElement | null)?.setPointerCapture?.(event.pointerId);
+        } catch {
+            /* the host may already have released the pointer */
+        }
+        window.addEventListener('pointermove', this._onMarqueeMove);
+        window.addEventListener('pointerup', this._onMarqueeUp, true);
+        window.addEventListener('pointercancel', this._onMarqueeUp, true);
+    }
+
+    private _onMarqueeMove = (event: PointerEvent): void => {
+        const drag = this._marquee;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const width = Math.abs(event.clientX - drag.startX);
+        const height = Math.abs(event.clientY - drag.startY);
+        if (!drag.active && width < 4 && height < 4) return;
+        drag.active = true;
+        event.preventDefault();
+        this._paintMarquee({
+            left: Math.min(drag.startX, event.clientX),
+            top: Math.min(drag.startY, event.clientY),
+            width,
+            height,
+        });
+    };
+
+    private _onMarqueeUp = (event: PointerEvent): void => {
+        const drag = this._marquee;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        window.removeEventListener('pointermove', this._onMarqueeMove);
+        window.removeEventListener('pointerup', this._onMarqueeUp, true);
+        window.removeEventListener('pointercancel', this._onMarqueeUp, true);
+        try {
+            this._host.nativeElement.releasePointerCapture(event.pointerId);
+        } catch {
+            /* the pointer was already released */
+        }
+        const rect = this.marqueeRect();
+        this._marquee = null;
+        this._removeMarqueeEl();
+        if (!drag.active || !rect) {
+            const at = document.elementFromPoint(drag.startX, drag.startY) as HTMLElement | null;
+            const clicked = this._hitSelectable(at);
+            if (!clicked) {
+                if (!drag.additive) this.boxSelectionChange.emit({ sectionIds: [], overlayIds: [] });
+                return;
+            }
+            this._emitBoxSelection(
+                clicked.kind === 'section' ? [clicked.id] : [],
+                clicked.kind === 'overlay' ? [clicked.id as ReportOverlayId] : [],
+                drag.additive
+            );
+            return;
+        }
+        this._finishMarquee(rect, drag.additive);
+        this._swallowNextClick();
+    };
+
+    private _finishMarquee(rect: { left: number; top: number; width: number; height: number }, additive: boolean): void {
+        const box = new DOMRect(rect.left, rect.top, rect.width, rect.height);
+        const sectionIds: string[] = [];
+        const overlayIds: ReportOverlayId[] = [];
+        const seenSections = new Set<string>();
+        const seenOverlays = new Set<string>();
+        this._host.nativeElement.querySelectorAll('[data-report-section]').forEach((node) => {
+            if (!(node instanceof HTMLElement)) return;
+            const id = node.getAttribute('data-section-id');
+            if (!id || seenSections.has(id) || this.isLayerQuiet(`sec:${id}`)) return;
+            const section = (this.template().sections ?? []).find((item) => item.id === id);
+            if (!section || this.isPageAnchor(section)) return;
+            if (!this._rectsOverlap(node.getBoundingClientRect(), box)) return;
+            seenSections.add(id);
+            sectionIds.push(id);
+        });
+        this._host.nativeElement.querySelectorAll('[data-overlay-box]').forEach((node) => {
+            if (!(node instanceof HTMLElement)) return;
+            const id = node.getAttribute('data-overlay-id');
+            if (!id || seenOverlays.has(id) || this.isLayerQuiet(id)) return;
+            if (!this._rectsOverlap(node.getBoundingClientRect(), box)) return;
+            seenOverlays.add(id);
+            overlayIds.push(id as ReportOverlayId);
+        });
+        this._emitBoxSelection(sectionIds, overlayIds, additive);
+    }
+
+    private _emitBoxSelection(sectionIds: string[], overlayIds: ReportOverlayId[], additive: boolean): void {
+        if (!additive) {
+            this.boxSelectionChange.emit({ sectionIds, overlayIds });
+            return;
+        }
+        this.boxSelectionChange.emit({
+            sectionIds: [...new Set([...this.selectedSectionIds(), ...sectionIds])],
+            overlayIds: [...new Set([...this.selectedOverlayIds(), ...overlayIds])],
+        });
+    }
+
+    private _hitSelectable(origin: HTMLElement | null): { kind: 'section' | 'overlay'; id: string } | null {
+        const sectionEl = origin?.closest('[data-report-section]') as HTMLElement | null;
+        const sectionId = sectionEl?.getAttribute('data-section-id');
+        if (sectionId && !this.isLayerQuiet(`sec:${sectionId}`)) {
+            const section = (this.template().sections ?? []).find((item) => item.id === sectionId);
+            if (section && !this.isPageAnchor(section)) return { kind: 'section', id: sectionId };
+        }
+        const overlayEl = origin?.closest('[data-overlay-box]') as HTMLElement | null;
+        const overlayId = overlayEl?.getAttribute('data-overlay-id');
+        if (overlayId && !this.isLayerQuiet(overlayId)) return { kind: 'overlay', id: overlayId };
+        return null;
+    }
+
+    private _hitIsSelected(hit: { kind: 'section' | 'overlay'; id: string }): boolean {
+        if (hit.kind === 'section') {
+            return this.selectedSectionId() === hit.id || this.selectedSectionIds().includes(hit.id);
+        }
+        return this.selectedOverlay() === hit.id || this.selectedOverlayIds().includes(hit.id as ReportOverlayId);
+    }
+
+    private _paintMarquee(rect: { left: number; top: number; width: number; height: number }): void {
+        this.marqueeRect.set(rect);
+        let el = this._marqueeEl;
+        if (!el) {
+            el = document.createElement('div');
+            el.setAttribute('data-report-marquee', '');
+            el.style.position = 'fixed';
+            el.style.zIndex = '2147483000';
+            el.style.pointerEvents = 'none';
+            el.style.border = '1px solid rgb(67, 56, 202)';
+            el.style.background = 'rgba(79, 70, 229, 0.28)';
+            el.style.boxShadow = 'inset 0 0 0 1px rgba(255, 255, 255, 0.45)';
+            document.body.appendChild(el);
+            this._marqueeEl = el;
+        }
+        el.style.left = `${rect.left}px`;
+        el.style.top = `${rect.top}px`;
+        el.style.width = `${rect.width}px`;
+        el.style.height = `${rect.height}px`;
+    }
+
+    private _removeMarqueeEl(): void {
+        this._marqueeEl?.remove();
+        this._marqueeEl = null;
+        this.marqueeRect.set(null);
+    }
+
+    private _rectsOverlap(left: DOMRect, right: DOMRect): boolean {
+        return left.right >= right.left && left.left <= right.right && left.bottom >= right.top && left.top <= right.bottom;
+    }
+
+    private _swallowNextClick(): void {
+        const stop = (event: Event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            window.removeEventListener('click', stop, true);
+        };
+        window.addEventListener('click', stop, true);
     }
 
     onPaperContextMenu(event: MouseEvent): void {
@@ -1431,6 +1652,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             cellPart,
             host: event.currentTarget as HTMLElement | null,
             companions: [],
+            overlayMates: [],
         };
         window.addEventListener('pointermove', this._onWindowSectionMove);
         window.addEventListener('pointerup', this._onWindowSectionUp, true);
@@ -1668,6 +1890,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             }
             if (this.editingText()) this.commitInlineEdit();
             drag.companions = this._dragCompanions(drag.id);
+            drag.overlayMates = this.selectedSectionIds().includes(drag.id) ? this._groupOverlayMates() : [];
             this.draggingSectionId.set(drag.id);
             this._groupDragIds.set([drag.id, ...drag.companions.map((mate) => mate.id)]);
             this._setSheetDragging(true);
@@ -2100,6 +2323,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             startFrame: ReportSectionFrame;
             scrollTopAtStart: number;
             companions?: { id: string; startFrame: ReportSectionFrame }[];
+            overlayMates?: { id: ReportOverlayId; x: number; y: number; page: number; width: number; height: number }[];
         },
         clientX: number,
         clientY: number
@@ -2187,12 +2411,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!same) {
             this.liveFrames.update((current) => ({ ...current, ...group }));
         }
+        this._moveOverlayMates(drag.overlayMates, dx, dy, dPage);
         if (toPage !== fromPage) {
             this._setPagesIfDifferent(this._pagesFromFrames(this.template().sections || []));
             drag.startFrame = next;
             for (const mate of drag.companions ?? []) {
                 const placed = group[mate.id];
                 if (placed) mate.startFrame = { ...placed };
+            }
+            for (const mate of drag.overlayMates ?? []) {
+                const clamped = this._clampOverlay(mate.x + dx, mate.y + dy, mate.width, mate.height);
+                mate.x = clamped.x;
+                mate.y = clamped.y;
+                if (mate.id === 'signature' || mate.id.startsWith('img:')) mate.page = Math.max(0, mate.page + dPage);
             }
             drag.startClientX = clientX;
             drag.startClientY = clientY;
@@ -2214,6 +2445,119 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             mates.push({ id, startFrame: { ...frame } });
         }
         return mates;
+    }
+
+    private _selectedSectionStarts(): { id: string; startFrame: ReportSectionFrame }[] {
+        const sections = this.template().sections ?? [];
+        const mates: { id: string; startFrame: ReportSectionFrame }[] = [];
+        for (const id of this.selectedSectionIds()) {
+            if (this.isLayerLocked(`sec:${id}`)) continue;
+            const section = sections.find((item) => item.id === id);
+            const frame = section ? this.displayFrame(section) : null;
+            if (!frame) continue;
+            mates.push({ id, startFrame: { ...frame } });
+        }
+        return mates;
+    }
+
+    private _groupOverlayMates(except?: string): {
+        id: ReportOverlayId;
+        x: number;
+        y: number;
+        page: number;
+        width: number;
+        height: number;
+    }[] {
+        const ids = new Set<string>(this.selectedOverlayIds());
+        const primary = this.selectedOverlay();
+        if (primary) ids.add(primary);
+        if (except) ids.delete(except);
+        const mates: {
+            id: ReportOverlayId;
+            x: number;
+            y: number;
+            page: number;
+            width: number;
+            height: number;
+        }[] = [];
+        for (const id of ids) {
+            if (id.startsWith('hdr:') || this.isLayerLocked(id)) continue;
+            const origin = this._overlayOrigin(id as ReportOverlayId);
+            if (origin) mates.push(origin);
+        }
+        return mates;
+    }
+
+    private _overlayOrigin(id: ReportOverlayId): {
+        id: ReportOverlayId;
+        x: number;
+        y: number;
+        page: number;
+        width: number;
+        height: number;
+    } | null {
+        if (id === 'logo') {
+            return { id, x: this.logoX(), y: this.logoY(), page: 0, width: this.logoWidth(), height: this.logoHeight() };
+        }
+        if (id === 'watermark') {
+            return {
+                id,
+                x: this.watermarkX(),
+                y: this.watermarkY(),
+                page: 0,
+                width: this.watermarkWidth(),
+                height: this.watermarkHeight(),
+            };
+        }
+        if (id === 'signature') {
+            return {
+                id,
+                x: this.signatureX(),
+                y: this.signatureY(),
+                page: this.signaturePage() || 0,
+                width: this.signatureWidth(),
+                height: this.signatureHeight(),
+            };
+        }
+        const image = this._sheetImage(this._sheetImageId(id));
+        if (!image) return null;
+        return { id, x: image.x, y: image.y, page: image.page ?? 0, width: image.width, height: image.height };
+    }
+
+    private _shiftGroupSections(dx: number, dy: number, dPage: number): void {
+        const shift = this._groupShift;
+        if (!shift?.sections.length || (dx === 0 && dy === 0 && dPage === 0)) return;
+        const group: Record<string, ReportSectionFrame> = {};
+        for (const mate of shift.sections) {
+            const start = mate.startFrame;
+            const width = start.width || 48;
+            const height = start.height || 48;
+            const clamped = this._clampOverlay((start.x ?? 0) + dx, (start.y ?? 0) + dy, width, height);
+            group[mate.id] = {
+                ...start,
+                page: Math.max(0, (start.page ?? 0) + dPage),
+                x: clamped.x,
+                y: clamped.y,
+            };
+        }
+        this.liveFrames.update((current) => ({ ...current, ...group }));
+    }
+
+    private _moveOverlayMates(
+        mates: { id: ReportOverlayId; x: number; y: number; page: number; width: number; height: number }[] | undefined,
+        dx: number,
+        dy: number,
+        dPage: number
+    ): void {
+        if (!mates?.length || (dx === 0 && dy === 0 && dPage === 0)) return;
+        this.groupOverlayMove.emit(
+            mates.map((mate) => {
+                const page =
+                    mate.id === 'signature' || mate.id.startsWith('img:') ? Math.max(0, mate.page + dPage) : mate.page;
+                const clamped = this._clampOverlay(mate.x + dx, mate.y + dy, mate.width, mate.height);
+                return { id: mate.id, x: clamped.x, y: clamped.y, page };
+            })
+        );
     }
 
     /**
@@ -2969,6 +3313,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const origin = event.target as HTMLElement | null;
         if (origin?.closest('[data-overlay-handle]')) return;
 
+        const keepGroup = this.selectedOverlay() === target || this.selectedOverlayIds().includes(target);
+        if (keepGroup) {
+            const sections = this._selectedSectionStarts();
+            const overlays = this._groupOverlayMates(target);
+            const image = this._sheetImage(this._sheetImageId(target));
+            const startPage =
+                target === 'signature' ? this.signaturePage() || 0 : image ? image.page ?? 0 : 0;
+            this._groupShift = sections.length || overlays.length ? { startPage, sections, overlays } : null;
+        } else {
+            this._groupShift = null;
+        }
         this.overlaySelect.emit(target);
         this.isMoving = true;
         this._setSheetDragging(true);
@@ -3110,6 +3465,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                         : undefined,
             };
         }
+        if (this._groupShift) {
+            const dx = payload.x - this.startMoveX;
+            const dy = payload.y - this.startMoveY;
+            const dPage = payload.page == null ? 0 : (payload.page ?? this._movePage) - this._groupShift.startPage;
+            this._shiftGroupSections(dx, dy, dPage);
+            this._moveOverlayMates(this._groupShift.overlays, dx, dy, dPage);
+        }
         const extraId = this._sheetImageId(this.moveTarget);
         const extra = this._sheetImage(extraId);
         if (this.moveTarget === 'logo') {
@@ -3138,6 +3500,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const payload = this.pendingMove;
             this.pendingMove = null;
             this._emitMove(payload);
+        }
+        const shift = this._groupShift;
+        this._groupShift = null;
+        if (shift?.sections.length) {
+            const live = this.liveFrames();
+            const updates = shift.sections
+                .map((mate) => {
+                    const frame = live[mate.id];
+                    return frame ? { id: mate.id, frame } : null;
+                })
+                .filter((item): item is { id: string; frame: ReportSectionFrame } => Boolean(item));
+            if (updates.length) this.sectionFramesChange.emit(updates);
+            this.liveFrames.set({});
         }
         this.moveTarget = null;
         this._overlayGrab = null;
@@ -3314,6 +3689,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this._host.nativeElement.removeEventListener('pointerdown', this._onMarqueePointerDownCapture, true);
+        this._removeMarqueeEl();
         this.stopResize();
         this.stopRotate();
         this.stopMove();

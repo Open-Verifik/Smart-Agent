@@ -1517,6 +1517,24 @@
                                 <button
                                     type="button"
                                     class="layout-tool"
+                                    [class.is-active]="layoutMarqueeActive()"
+                                    [class.ring-2]="layoutMarqueeActive()"
+                                    [class.ring-indigo-400]="layoutMarqueeActive()"
+                                    [matTooltip]="t('visitaGuide.toolHint.select')"
+                                    [attr.aria-label]="t('visitaGuide.toolLabel.select')"
+                                    [attr.aria-pressed]="layoutMarqueeActive()"
+                                    (click)="toggleLayoutMarquee()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 3.5v17M3.5 12h17" stroke="#111827" stroke-width="1.8" stroke-linecap="round" />
+                                        <circle cx="12" cy="12" r="1.35" fill="#4f46e5" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.toolLabel.select') }}</span>
+                                </button>
+                                <span class="mx-1 h-8 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
+                                <button
+                                    type="button"
+                                    class="layout-tool"
                                     [matTooltip]="t('visitaGuide.toolHint.title')"
                                     [attr.aria-label]="t('visitaGuide.layoutAddTitle')"
                                     (click)="addTitleBlock()"
@@ -1777,6 +1795,8 @@
                                         [selectedCellKey]="selectedLayoutCellKey()"
                                         [selectedCellPart]="selectedLayoutCellPart()"
                                         [selectedOverlay]="selectedLayoutOverlay()"
+                                        [selectedOverlayIds]="selectedLayoutOverlayIds()"
+                                        [marqueeMode]="layoutMarqueeActive()"
                                         [sectionClick]="onLayoutSectionClick"
                                         (cellSelect)="onLayoutCellSelect($event)"
                                         (cellContextMenu)="onLayoutCellContextMenu($event)"
@@ -1794,6 +1814,8 @@
                                         (removePage)="removeLastPageSheet()"
                                         (sheetDragChange)="onSheetDragChange($event)"
                                         (backgroundClick)="dismissLayoutSurfaceEditor()"
+                                        (boxSelectionChange)="onLayoutBoxSelection($event)"
+                                        (groupOverlayMove)="onLayoutGroupOverlayMove($event)"
                                         (logoPositionChange)="onLayoutLogoPositionChange($event)"
                                         (logoSizeChange)="onLayoutLogoSizeChange($event)"
                                         (logoRotationChange)="onLayoutLogoRotationChange($event)"

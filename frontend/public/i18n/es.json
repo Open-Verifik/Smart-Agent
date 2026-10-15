@@ -768,10 +768,12 @@
         "layoutParamMoveDown": "Bajar",
         "layoutNoParams": "Este bloque no tiene datos para mostrar u ocultar.",
         "toolLabel": {
+            "select": "Selección",
             "icons": "Íconos",
             "emoji": "Emojis"
         },
         "toolHint": {
+            "select": "Arrastra para sombrear un área. Lo que quede dentro se mueve junto",
             "title": "Agregar un título grande",
             "text": "Agregar un párrafo de texto",
             "divider": "Agregar una línea separadora",

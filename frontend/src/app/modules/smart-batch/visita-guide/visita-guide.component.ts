@@ -541,11 +541,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     layoutFormatAnchor = signal<{ x: number; y: number; opensUp: boolean; room: number } | null>(null);
     layoutFormatExpanded = signal(false);
     layoutShapesOpen = signal(false);
+    /** Marquee tool: drag a rectangle to choose several elements, then move them together. */
+    layoutMarqueeActive = signal(false);
     /** Below the button, or above it when the viewport has no room underneath. */
     readonly layoutShapesMenuPositions: ConnectedPosition[] = [
         { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 6 },
         { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -6 },
     ];
+
+    toggleLayoutMarquee(): void {
+        this.layoutMarqueeActive.update((active) => !active);
+    }
 
     toggleLayoutShapesMenu(event: Event): void {
         event.stopPropagation();
@@ -553,6 +559,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
     readonly layoutFormatAligns: ReportTextAlign[] = ['left', 'center', 'right'];
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
+    /** Images, stamps and logos chosen together with the blocks. */
+    selectedLayoutOverlayIds = signal<ReportOverlayId[]>([]);
     /** Keep the matching layer in sight when a block is chosen on the sheet. */
     private readonly _revealSelectedLayer = effect(() => {
         const overlay = this.selectedLayoutOverlay();
@@ -1606,6 +1614,61 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const page = this._layoutPaperPx();
         const clamp = (value: number, size: number, max: number) =>
             Math.min(Math.max(0, Math.round(value)), Math.max(0, max - size));
+        const sectionIds = [...this.selectedLayoutSectionIds()];
+        const overlayIds = [...this.selectedLayoutOverlayIds()];
+        const primaryOverlay = this.selectedLayoutOverlay();
+        if (primaryOverlay && !overlayIds.includes(primaryOverlay)) overlayIds.push(primaryOverlay);
+        if (sectionIds.length + overlayIds.length > 1) {
+            let moved = false;
+            if (sectionIds.length) {
+                this.layoutSections.update((list) =>
+                    list.map((section) => {
+                        if (!sectionIds.includes(section.id) || this.isLayoutLayerLocked(`sec:${section.id}`) || !section.frame) {
+                            return section;
+                        }
+                        moved = true;
+                        const frame = section.frame;
+                        return {
+                            ...section,
+                            frame: {
+                                ...frame,
+                                x: clamp(frame.x + dx, Number(frame.width) || 0, page.width),
+                                y: clamp(frame.y + dy, Number(frame.height) || 0, page.height),
+                            },
+                        };
+                    })
+                );
+            }
+            for (const id of overlayIds) {
+                if (this.isLayoutLayerLocked(id) || id.startsWith('hdr:')) continue;
+                if (id === 'logo') {
+                    this.onLayoutLogoPositionChange({
+                        x: clamp(this.logoX() + dx, this.logoWidth(), page.width),
+                        y: clamp(this.logoY() + dy, this.logoHeight(), page.height),
+                    });
+                    moved = true;
+                } else if (id === 'watermark') {
+                    this.onLayoutWatermarkPositionChange({ x: this.watermarkX() + dx, y: this.watermarkY() + dy });
+                    moved = true;
+                } else if (id === 'signature') {
+                    this.onLayoutSignaturePositionChange({
+                        x: clamp(this.signatureX() + dx, this.signatureWidth(), page.width),
+                        y: clamp(this.signatureY() + dy, this.signatureHeight(), page.height),
+                    });
+                    moved = true;
+                } else if (id.startsWith('img:')) {
+                    const image = this.sheetImages().find((item) => item.id === id.slice(4));
+                    if (!image) continue;
+                    this.onLayoutSheetImageChange({
+                        ...image,
+                        x: clamp(image.x + dx, image.width, page.width),
+                        y: clamp(image.y + dy, image.height, page.height),
+                    });
+                    moved = true;
+                }
+            }
+            return moved;
+        }
         const overlay = this.selectedLayoutOverlay();
         if (overlay === 'logo') {
             this.onLayoutLogoPositionChange({
@@ -1668,7 +1731,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     onLayoutSectionClick = (section: ReportSection, source?: { additive?: boolean }): void => {
         if (isReportPageAnchor(section) || this.isLayoutLayerLocked(`sec:${section.id}`)) return;
         this._clearLockedLayerPeek();
+        const grouped =
+            !source?.additive &&
+            this.selectedLayoutSectionIds().includes(section.id) &&
+            this.selectedLayoutSectionIds().length + this.selectedLayoutOverlayIds().length > 1;
+        if (grouped) {
+            this.selectedLayoutSectionId.set(section.id);
+            this.selectedLayoutOverlay.set(null);
+            return;
+        }
         this.selectedLayoutOverlay.set(null);
+        this.selectedLayoutOverlayIds.set([]);
         if (source?.additive) {
             const primary = this.selectedLayoutSectionId();
             const current = this.selectedLayoutSectionIds();
@@ -1908,7 +1981,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const id = layer.id.slice(4);
             return this.selectedLayoutSectionId() === id || this.selectedLayoutSectionIds().includes(id);
         }
-        return this.selectedLayoutOverlay() === layer.id;
+        return this.selectedLayoutOverlay() === layer.id || this.selectedLayoutOverlayIds().includes(layer.id as ReportOverlayId);
     }
 
     onLockedLayerHover(layer: LayoutLayerItem, inside: boolean): void {
@@ -2146,9 +2219,72 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    onLayoutBoxSelection(event: { sectionIds: string[]; overlayIds: ReportOverlayId[] }): void {
+        this._clearLockedLayerPeek();
+        const sections = event.sectionIds.filter((id) => !this.isLayoutLayerLocked(`sec:${id}`));
+        const overlays = event.overlayIds.filter((id) => !this.isLayoutLayerLocked(id));
+        this.selectedLayoutCellKey.set(null);
+        this.selectedLayoutCellPart.set('cell');
+        if (!sections.length && !overlays.length) {
+            this.clearLayoutSelection();
+            return;
+        }
+        if (sections.length) {
+            this.selectedLayoutSectionIds.set(sections);
+            this.selectedLayoutSectionId.set(sections[0]);
+            this.selectedLayoutOverlay.set(null);
+        } else {
+            this.selectedLayoutSectionId.set(null);
+            this.selectedLayoutSectionIds.set([]);
+            this.selectedLayoutOverlay.set(overlays[0] ?? null);
+        }
+        this.selectedLayoutOverlayIds.set(overlays);
+    }
+
+    onLayoutGroupOverlayMove(updates: { id: ReportOverlayId; x: number; y: number; page?: number }[]): void {
+        const page = this._layoutPaperPx();
+        const clamp = (value: number, size: number, max: number) =>
+            Math.min(Math.max(0, Math.round(value)), Math.max(0, max - size));
+        for (const update of updates) {
+            if (update.id === 'logo') {
+                this.onLayoutLogoPositionChange({
+                    x: clamp(update.x, this.logoWidth(), page.width),
+                    y: clamp(update.y, this.logoHeight(), page.height),
+                });
+            } else if (update.id === 'watermark') {
+                this.onLayoutWatermarkPositionChange(update);
+            } else if (update.id === 'signature') {
+                this.onLayoutSignaturePositionChange({
+                    x: clamp(update.x, this.signatureWidth(), page.width),
+                    y: clamp(update.y, this.signatureHeight(), page.height),
+                    page: update.page,
+                });
+            } else if (update.id.startsWith('img:')) {
+                const image = this.sheetImages().find((item) => item.id === update.id.slice(4));
+                if (!image) continue;
+                this.onLayoutSheetImageChange({
+                    ...image,
+                    x: clamp(update.x, image.width, page.width),
+                    y: clamp(update.y, image.height, page.height),
+                    page: update.page ?? image.page ?? 0,
+                });
+            }
+        }
+    }
+
     onLayoutOverlaySelect(id: ReportOverlayId): void {
         if (this.isLayoutLayerLocked(id)) return;
         this._clearLockedLayerPeek();
+        const chosen = this.selectedLayoutOverlay() === id || this.selectedLayoutOverlayIds().includes(id);
+        const groupSize = this.selectedLayoutSectionIds().length + Math.max(this.selectedLayoutOverlayIds().length, chosen ? 1 : 0);
+        if (chosen && groupSize > 1) {
+            this.selectedLayoutOverlay.set(id);
+            if (!this.selectedLayoutOverlayIds().includes(id)) {
+                this.selectedLayoutOverlayIds.update((list) => [...list, id]);
+            }
+            return;
+        }
+        this.selectedLayoutOverlayIds.set([id]);
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutOverlay.set(id);
@@ -2167,6 +2303,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(null);
         this.selectedLayoutSectionIds.set([]);
         this.selectedLayoutOverlay.set(null);
+        this.selectedLayoutOverlayIds.set([]);
         this.selectedLayoutCellKey.set(null);
         this.selectedLayoutCellPart.set('cell');
         this._followCellPart = false;
