@@ -4477,6 +4477,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
 .print-sheet [data-report-top-chrome]{position:absolute;left:0;right:0;top:0;width:100%;bottom:auto}
 .print-sheet + .print-sheet{break-before:page;page-break-before:always}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.print-sheet h1,.print-sheet h2,.print-sheet h3,.print-sheet h4,.print-sheet h5,.print-sheet h6,.print-sheet p{margin:0}
 </style></head><body>${sheets.join('')}</body></html>`;
     }
 
@@ -4555,9 +4556,10 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
     }
 
     /**
-     * Title and free text shrink to the words on the sheet. Freezing that
-     * exact width for Puppeteer wraps the last word, because the PDF font
-     * is a fraction wider than the editor measurement.
+     * Title and free text shrink to the words on the sheet. The print document
+     * has no Tailwind reset, so an h2 or p would regain its browser margin and
+     * drop below the coordinate saved on the sheet. The box also stays wide
+     * enough that the PDF face does not wrap a line the author did not break.
      */
     private _relaxPrintedHugText(source: HTMLElement, clone: HTMLElement): void {
         source.querySelectorAll('[data-report-section]').forEach((node) => {
@@ -4568,49 +4570,27 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             const dst = id
                 ? (clone.querySelector(`[data-section-id="${CSS.escape(id)}"]`) as HTMLElement | null)
                 : null;
-            if (!dst || !src.offsetWidth) return;
-            const parent = (src.offsetParent as HTMLElement | null) ?? source;
-            const parentW = parent.clientWidth || source.clientWidth || 1;
+            if (!dst) return;
+            const broken = /[\r\n]/.test(src.innerText || src.textContent || '');
+            const flow = broken ? 'pre' : 'nowrap';
+            dst.style.margin = '0';
             dst.style.height = 'auto';
             dst.style.maxHeight = 'none';
             dst.style.overflow = 'visible';
-            if (this._printedTextIsOneLine(src)) {
-                dst.style.width = 'max-content';
-                dst.style.maxWidth = 'none';
-                dst.style.whiteSpace = 'nowrap';
-                dst.querySelectorAll('h2, p, span, div').forEach((child) => {
-                    const el = child as HTMLElement;
-                    el.style.whiteSpace = 'nowrap';
-                    el.style.width = 'max-content';
-                    el.style.maxWidth = 'none';
-                    el.style.minWidth = '0';
-                });
-                return;
-            }
-            const slack = 8;
-            const boxW = src.offsetWidth;
-            dst.style.width = `${((boxW + slack) / parentW) * 100}%`;
+            dst.style.width = 'max-content';
             dst.style.maxWidth = 'none';
-            dst.querySelectorAll('h2, p, span, div').forEach((child) => {
+            dst.style.whiteSpace = flow;
+            dst.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div').forEach((child) => {
                 const el = child as HTMLElement;
-                for (const prop of ['width', 'maxWidth'] as const) {
-                    const value = parseFloat(el.style[prop]);
-                    if (!Number.isFinite(value) || value <= 0 || value > boxW + 1) continue;
-                    el.style[prop] = `${value + slack}px`;
-                }
+                el.style.margin = '0';
+                el.style.whiteSpace = flow;
+                el.style.width = 'max-content';
+                el.style.maxWidth = 'none';
+                el.style.minWidth = '0';
+                el.style.overflowWrap = 'normal';
+                el.style.wordBreak = 'normal';
             });
         });
-    }
-
-    private _printedTextIsOneLine(src: HTMLElement): boolean {
-        const raw = src.textContent || '';
-        if (/[\r\n]/.test(raw)) return false;
-        const probe = (src.querySelector('[data-sheet-text]') as HTMLElement | null) ?? src;
-        const style = getComputedStyle(probe);
-        const fontSize = parseFloat(style.fontSize) || 16;
-        const line = parseFloat(style.lineHeight);
-        const linePx = Number.isFinite(line) ? line : fontSize * 1.4;
-        return probe.offsetHeight <= linePx * 1.6;
     }
 
     /** When the live sheet has no layout box (hidden tab), pin from saved frames. */
@@ -4783,7 +4763,12 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         let css = '';
         for (const key of keys) {
             const value = computed.getPropertyValue(key).trim();
-            if (!value || skip.has(value)) continue;
+            if (!value || skip.has(value)) {
+                if ((key === 'margin' || key === 'padding') && (value === '0px' || value === '0')) {
+                    css += `${key}:0;`;
+                }
+                continue;
+            }
             if (key === 'transform' || key === 'transform-origin') continue;
             if (
                 key === 'background-image' &&

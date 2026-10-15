@@ -10,6 +10,7 @@ import {
     OnDestroy,
     OnInit,
     signal,
+    viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -130,6 +131,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private readonly _livePreview = viewChild<ReportPreviewComponent>('livePreview');
 
     // Route params
     configId = signal<string | null>(null);
@@ -997,6 +999,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     ): Promise<void> {
         try {
             const report = await this._ensureReport(templateId, batchId);
+            const printHtml = result.sendAll ? '' : this._livePreview()?.exportPrintHtml() || '';
             this._reportService
                 .sendReportEmail(report._id!, {
                     recipients: result.recipients,
@@ -1004,6 +1007,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     language: 'es',
                     engine: this._pdfEngine(),
                     ...(result.sendAll ? { sendAll: true } : { rowIndex: currentRowIndex }),
+                    ...(printHtml ? { printHtml } : {}),
                 })
                 .subscribe({
                     next: (res) => {

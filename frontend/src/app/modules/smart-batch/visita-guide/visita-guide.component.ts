@@ -5884,6 +5884,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const engine = this.pdfEngine() === 'pdfkit' ? 'pdfkit' : 'puppeteer';
             const batchId = this._state.batchId();
             const rowIndex = Number(this.previewData()['rowIndex']);
+            const printHtml = _printHtmlOverride ?? (await this._printHtmlForCurrentRecord());
             if (batchId) {
                 const report = await firstValueFrom(
                     this._reports.createReport({
@@ -5896,6 +5897,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     this._reports.generateReport(report._id!, {
                         engine,
                         ...(Number.isFinite(rowIndex) ? { rowIndex } : {}),
+                        ...(printHtml ? { printHtml } : {}),
                     })
                 );
                 if (!result.pdf?.buffer) throw new Error('pdf');
@@ -5910,6 +5912,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const blob = await firstValueFrom(
                 this._reports.downloadTemplateSample(template._id, {
                     sampleData: this.previewData(),
+                    ...(printHtml ? { printHtml } : {}),
                 })
             );
             const url = URL.createObjectURL(blob);
