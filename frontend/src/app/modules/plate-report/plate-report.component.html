@@ -1,0 +1,165 @@
+<ng-container *transloco="let t">
+    <section class="plate-report">
+        <div class="plate-report__card">
+            <p class="plate-report__kicker">Verifik</p>
+            <h1>{{ t('plateReport.title') }}</h1>
+            <p class="plate-report__lead">{{ t('plateReport.subtitle') }}</p>
+
+            @if (phase() === 'form') {
+                @if (signedIn()) {
+                    <p class="plate-report__note">{{ t('plateReport.signedIn') }}</p>
+                }
+                @if (pendingNotice()) {
+                    <p class="plate-report__note">{{ t('plateReport.pendingNotice') }}</p>
+                }
+
+                <form (ngSubmit)="submitForm()">
+                    <label class="plate-report__field">
+                        <span>{{ t('plateReport.name') }}</span>
+                        <input
+                            [ngModel]="personName()"
+                            (ngModelChange)="personName.set($event)"
+                            name="name"
+                            autocomplete="name"
+                            [placeholder]="t('plateReport.namePlaceholder')"
+                            [disabled]="busy()"
+                        />
+                    </label>
+
+                    <label class="plate-report__field">
+                        <span>{{ t('plateReport.plate') }}</span>
+                        <input
+                            [ngModel]="plate()"
+                            (ngModelChange)="plate.set($event)"
+                            name="plate"
+                            autocomplete="off"
+                            autocapitalize="characters"
+                            [placeholder]="t('plateReport.platePlaceholder')"
+                            [disabled]="busy()"
+                        />
+                    </label>
+
+                    <label class="plate-report__field">
+                        <span>{{ t('plateReport.country') }}</span>
+                        <select
+                            [ngModel]="countryCode()"
+                            (ngModelChange)="countryCode.set($event)"
+                            name="country"
+                            [disabled]="busy()"
+                        >
+                            @for (country of countries; track country.countryCode) {
+                                <option [value]="country.countryCode">
+                                    {{ country.flag }} {{ country.name }} ({{ country.dialCode }})
+                                </option>
+                            }
+                        </select>
+                    </label>
+
+                    <label class="plate-report__field">
+                        <span>{{ t('plateReport.phone') }}</span>
+                        <input
+                            [ngModel]="phone()"
+                            (ngModelChange)="phone.set($event)"
+                            name="phone"
+                            type="tel"
+                            inputmode="tel"
+                            autocomplete="tel"
+                            [placeholder]="t('plateReport.phonePlaceholder')"
+                            [disabled]="busy()"
+                        />
+                    </label>
+
+                    <label class="plate-report__field">
+                        <span>{{ t('plateReport.email') }}</span>
+                        <input
+                            [ngModel]="contact()"
+                            (ngModelChange)="contact.set($event)"
+                            name="contact"
+                            type="email"
+                            inputmode="email"
+                            autocomplete="email"
+                            [placeholder]="t('plateReport.emailPlaceholder')"
+                            [disabled]="busy()"
+                        />
+                    </label>
+
+                    @if (fieldError(); as key) {
+                        <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+                    }
+                    @if (errorKey(); as key) {
+                        <p class="plate-report__error" role="alert">
+                            {{ t(key) }}
+                            @if (errorDetail()) {
+                                <span>{{ errorDetail() }}</span>
+                            }
+                        </p>
+                    }
+
+                    <button mat-flat-button color="primary" type="submit" class="plate-report__submit" [disabled]="busy()">
+                        @if (busy()) {
+                            <mat-spinner diameter="18"></mat-spinner>
+                        }
+                        {{ pendingNotice() ? t('plateReport.continuePending') : t('plateReport.continue') }}
+                    </button>
+                </form>
+            }
+
+            @if (phase() === 'working') {
+                <div class="plate-report__status" role="status">
+                    <mat-spinner diameter="36"></mat-spinner>
+                    <h2>{{ t('plateReport.workingTitle') }}</h2>
+                    <p>{{ t(statusKey()) }}</p>
+                </div>
+            }
+
+            @if (phase() === 'payment') {
+                <h2>{{ t('plateReport.paymentTitle') }}</h2>
+                @if (estimate(); as quote) {
+                    <p class="plate-report__lead">
+                        {{
+                            t('plateReport.paymentBody', {
+                                required: quote.totalCredits,
+                                available: quote.availableCredits,
+                            })
+                        }}
+                    </p>
+                } @else {
+                    <p class="plate-report__lead">{{ t('plateReport.paymentBodyUnknown') }}</p>
+                }
+                @if (errorKey(); as key) {
+                    <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+                }
+                <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="pay()" [disabled]="busy()">
+                    @if (busy()) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                    }
+                    {{ t('plateReport.pay') }}
+                </button>
+                <a class="plate-report__link" routerLink="/add-credits">{{ t('plateReport.openPayments') }}</a>
+            }
+
+            @if (phase() === 'ready') {
+                <h2>{{ t('plateReport.readyTitle') }}</h2>
+                <p class="plate-report__lead">{{ t('plateReport.readyBody') }}</p>
+                @if (partial()) {
+                    <p class="plate-report__note">{{ t('plateReport.partial') }}</p>
+                }
+                @if (emailSent()) {
+                    <p class="plate-report__note">{{ t('plateReport.emailSent', { email: deliveryEmail() }) }}</p>
+                }
+                @if (errorKey(); as key) {
+                    <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+                }
+                <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="download()">
+                    {{ t('plateReport.download') }}
+                </button>
+                @if (deliveryEmail()) {
+                    <button mat-stroked-button type="button" class="plate-report__submit" (click)="sendEmail()" [disabled]="busy()">
+                        {{ t('plateReport.sendEmail') }}
+                    </button>
+                }
+                <button mat-button type="button" (click)="reset()">{{ t('plateReport.newReport') }}</button>
+            }
+        </div>
+    </section>
+</ng-container>

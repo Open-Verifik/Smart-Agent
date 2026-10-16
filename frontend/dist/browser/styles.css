@@ -27674,6 +27674,9 @@ iframe[title="Veri \2014  Verifik AI"] {
 .border-8 {
   border-width: 8px !important;
 }
+.border-\[2\.5px\] {
+  border-width: 2.5px !important;
+}
 .\!border-b {
   border-bottom-width: 1px !important;
 }
@@ -28954,6 +28957,9 @@ iframe[title="Veri \2014  Verifik AI"] {
 .bg-sky-50 {
   --tw-bg-opacity: 1 !important;
   background-color: rgb(240 249 255 / var(--tw-bg-opacity, 1)) !important;
+}
+.bg-sky-50\/80 {
+  background-color: rgb(240 249 255 / 0.8) !important;
 }
 .bg-sky-500 {
   --tw-bg-opacity: 1 !important;
@@ -30867,6 +30873,13 @@ iframe[title="Veri \2014  Verifik AI"] {
 .text-sky-800 {
   --tw-text-opacity: 1 !important;
   color: rgb(7 89 133 / var(--tw-text-opacity, 1)) !important;
+}
+.text-sky-900 {
+  --tw-text-opacity: 1 !important;
+  color: rgb(12 74 110 / var(--tw-text-opacity, 1)) !important;
+}
+.text-sky-900\/90 {
+  color: rgb(12 74 110 / 0.9) !important;
 }
 .text-sky-950 {
   --tw-text-opacity: 1 !important;
@@ -35225,6 +35238,9 @@ iframe[title="Veri \2014  Verifik AI"] {
 .dark\:text-sky-100:where(.dark, .dark *) {
   --tw-text-opacity: 1 !important;
   color: rgb(224 242 254 / var(--tw-text-opacity, 1)) !important;
+}
+.dark\:text-sky-100\/90:where(.dark, .dark *) {
+  color: rgb(224 242 254 / 0.9) !important;
 }
 .dark\:text-sky-200:where(.dark, .dark *) {
   --tw-text-opacity: 1 !important;

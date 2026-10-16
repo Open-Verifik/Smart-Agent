@@ -4,24 +4,24 @@ import {
 import {
   AttachmentService,
   FileDropZoneComponent
-} from "./chunk-ZDMPZ75L.js";
+} from "./chunk-VLAF74HM.js";
 import {
   FuseSplashScreenService
-} from "./chunk-Q3XPOPVL.js";
-import "./chunk-CKO7ESGX.js";
+} from "./chunk-A3OI5NK7.js";
+import "./chunk-TDJ6KSLH.js";
 import {
   getBusinessUserClientId,
   resolveStaffSeatLimit
 } from "./chunk-LTIXDJKI.js";
 import {
   SettingsService
-} from "./chunk-YRVPYELH.js";
+} from "./chunk-PSMTU6G4.js";
 import {
   MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
   MatAutocomplete,
   MatAutocompleteModule,
   MatAutocompleteTrigger
-} from "./chunk-BMJYCS3E.js";
+} from "./chunk-FJ4CXUS4.js";
 import {
   extractClientSettingsPayload
 } from "./chunk-FY4LH25C.js";
@@ -33,11 +33,11 @@ import {
   DateAdapter,
   MAT_DATE_FORMATS,
   MAT_DATE_LOCALE
-} from "./chunk-LA674MUO.js";
+} from "./chunk-XGUHZE77.js";
 import {
   MatSlideToggle,
   MatSlideToggleModule
-} from "./chunk-VRPAX6NT.js";
+} from "./chunk-YJBIUVPR.js";
 import {
   AllCommunityModule,
   ModuleRegistry
@@ -45,40 +45,40 @@ import {
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-3UVNKVOK.js";
+} from "./chunk-IFYEUXEK.js";
 import {
   AppNotificationsService,
   OnboardingService,
   QuickChatService,
   openNotificationCta,
   shouldShowNotificationCta
-} from "./chunk-WU24EV7T.js";
+} from "./chunk-ANRZLBDB.js";
 import {
   getVerifikDocsUrls
 } from "./chunk-K5VHWW66.js";
 import {
   MatDividerModule
-} from "./chunk-I2SDAPHJ.js";
+} from "./chunk-TEME6LW2.js";
 import {
   FuseMediaWatcherService
-} from "./chunk-B5O2X5UD.js";
+} from "./chunk-SBRI74OE.js";
 import {
   FUSE_CONFIG,
   FuseConfigService
-} from "./chunk-2RJMRCF6.js";
+} from "./chunk-G3ZZ3J2Z.js";
 import {
   FuseConfirmationService
-} from "./chunk-6S3OR2XF.js";
+} from "./chunk-KFR5LC4M.js";
 import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger
-} from "./chunk-C3RXWDTM.js";
+} from "./chunk-YJ6YLDQV.js";
 import {
   AccountEnvironmentService
-} from "./chunk-33SZVW2I.js";
-import "./chunk-YWEXSZKQ.js";
+} from "./chunk-SKDOP6B7.js";
+import "./chunk-XMOWS3RD.js";
 import {
   cloneDeep_default,
   compact_default,
@@ -88,28 +88,28 @@ import {
 import {
   MatSnackBar,
   MatSnackBarModule
-} from "./chunk-O4LKJP5L.js";
+} from "./chunk-TXEVGTMX.js";
 import {
   AgentWalletService
-} from "./chunk-UO34MIWZ.js";
+} from "./chunk-W4ECYUYB.js";
 import "./chunk-H3UX3NVF.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-NRO2XGZE.js";
+} from "./chunk-FTSXFXXU.js";
 import {
   MatCheckbox,
   MatCheckboxModule
-} from "./chunk-SE6MSEYG.js";
-import "./chunk-KRS47QLN.js";
+} from "./chunk-2HNEWPD3.js";
+import "./chunk-4J4GSXOK.js";
 import "./chunk-ZUERA2CK.js";
 import {
   AuthModalComponent
-} from "./chunk-RKG2MQOF.js";
-import "./chunk-QDHC3TI3.js";
+} from "./chunk-LHH4KRD7.js";
+import "./chunk-4U26N45P.js";
 import {
   WalletEncryptionService
-} from "./chunk-W2APQW4E.js";
+} from "./chunk-WIGHP2N4.js";
 import "./chunk-JURKDGMK.js";
 import {
   MatOptgroup,
@@ -117,15 +117,15 @@ import {
   MatOptionModule,
   MatSelect,
   MatSelectModule
-} from "./chunk-DW2XB3R4.js";
+} from "./chunk-RM2644J3.js";
 import {
   CdkTextareaAutosize,
   MatInput,
   MatInputModule,
   TextFieldModule
-} from "./chunk-WXNXCCYE.js";
-import "./chunk-BYQUUNDI.js";
-import "./chunk-PDLCCGUT.js";
+} from "./chunk-AICPTZP5.js";
+import "./chunk-VURK6DEU.js";
+import "./chunk-E7WYNRWC.js";
 import {
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
   MatError,
@@ -133,10 +133,10 @@ import {
   MatFormFieldModule,
   MatLabel,
   MatPrefix
-} from "./chunk-GG23NHUM.js";
+} from "./chunk-HWNQWMK7.js";
 import {
   fuseAnimations
-} from "./chunk-UHJF7ZWF.js";
+} from "./chunk-NCAN4EJO.js";
 import {
   AUTO_STYLE,
   AnimationBuilder,
@@ -147,29 +147,29 @@ import {
   sequence,
   style,
   ɵPRE_STYLE
-} from "./chunk-Z6ZOBWNK.js";
+} from "./chunk-YY5TJM45.js";
 import {
   AuthApiService
-} from "./chunk-A4N7R4VF.js";
+} from "./chunk-TG6L3SEN.js";
 import {
   AuthService
-} from "./chunk-64R62RHA.js";
+} from "./chunk-UDAOI32F.js";
 import {
   UserService
-} from "./chunk-6VQY5BEJ.js";
+} from "./chunk-K4AG7N5H.js";
 import {
   HttpWrapperService
-} from "./chunk-F5BVEUVX.js";
+} from "./chunk-BCBZJBUY.js";
 import {
   SessionService
-} from "./chunk-V36MHRLI.js";
+} from "./chunk-GH366QKW.js";
 import {
   AuthUtils
 } from "./chunk-EVWXSBKG.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
-} from "./chunk-CTAWHRE6.js";
+} from "./chunk-UUIVQBYS.js";
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -178,27 +178,27 @@ import {
   MatDialogModule,
   MatDialogRef,
   MatDialogTitle
-} from "./chunk-WKFG3L4B.js";
+} from "./chunk-M5KDIZH5.js";
 import "./chunk-OIBNGD5S.js";
 import {
   Overlay,
   ScrollStrategyOptions
-} from "./chunk-7FACNXV2.js";
+} from "./chunk-WOW6NB5H.js";
 import {
   MatButton,
   MatButtonModule,
   MatIconButton,
   coerceBooleanProperty
-} from "./chunk-NBA3XD53.js";
+} from "./chunk-YSJP7SXK.js";
 import {
   MatIcon,
   MatIconModule,
   MatIconRegistry
-} from "./chunk-EIYDU75T.js";
+} from "./chunk-CQIQSUBU.js";
 import {
   MATERIAL_SANITY_CHECKS,
   Platform
-} from "./chunk-IXSC6NFZ.js";
+} from "./chunk-J762DGD5.js";
 import {
   DefaultValueAccessor,
   FormBuilder,
@@ -213,14 +213,14 @@ import {
   ReactiveFormsModule,
   UntypedFormControl,
   Validators
-} from "./chunk-5EV2TUYF.js";
+} from "./chunk-DVRFI3SJ.js";
 import {
   TranslocoModule,
   TranslocoPipe,
   TranslocoService,
   provideTransloco,
   takeUntilDestroyed
-} from "./chunk-VENEX45A.js";
+} from "./chunk-R5W3A6HI.js";
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -230,7 +230,7 @@ import {
   RouterOutlet,
   provideRouter,
   withInMemoryScrolling
-} from "./chunk-DM2XPT7T.js";
+} from "./chunk-HYFP557I.js";
 import {
   environment
 } from "./chunk-KTYFS5OT.js";
@@ -365,7 +365,7 @@ import {
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2,
   ɵɵviewQuery
-} from "./chunk-I5BUD46C.js";
+} from "./chunk-PNPEHISK.js";
 import {
   __async,
   __objRest,
@@ -24960,15 +24960,15 @@ var appRoutes = [
   // Bridge route for SSO authentication (no layout wrapper)
   {
     path: "bridge",
-    loadChildren: () => import("./chunk-EJ6QHX4W.js").then((m) => m.default)
+    loadChildren: () => import("./chunk-EU6666YP.js").then((m) => m.default)
   },
   {
     path: "proposal",
-    loadChildren: () => import("./chunk-2GLK3HGT.js").then((m) => m.default)
+    loadChildren: () => import("./chunk-AWSYB5MC.js").then((m) => m.default)
   },
   {
     path: "pay/return",
-    loadComponent: () => import("./chunk-KDX6WBPK.js").then((m) => m.PaymentReturnComponent)
+    loadComponent: () => import("./chunk-3P7FRFWA.js").then((m) => m.PaymentReturnComponent)
   },
   // Redirect empty path to '/home'
   { path: "", pathMatch: "full", redirectTo: "home" },
@@ -24982,67 +24982,67 @@ var appRoutes = [
     children: [
       {
         path: "home",
-        loadChildren: () => import("./chunk-LC5FFVGU.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-ZGU3SV3C.js").then((m) => m.default)
       },
       {
         path: "chat",
-        loadChildren: () => import("./chunk-TU4E6OLV.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-3RQIBNOB.js").then((m) => m.default)
       },
       {
         path: "postman",
-        loadChildren: () => import("./chunk-OH7RUJIX.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-3PMW23I2.js").then((m) => m.default)
       },
       {
         path: "check-list",
-        loadChildren: () => import("./chunk-WPHCIXNZ.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-NVKLMM5Z.js").then((m) => m.default)
       },
       {
         path: "zelf-id",
-        loadChildren: () => import("./chunk-Z7ZZJ7HA.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-BT6IWFQI.js").then((m) => m.default)
       },
       {
         path: "history",
-        loadChildren: () => import("./chunk-T4LW4R3E.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-ZJEWITWV.js").then((m) => m.default)
       },
       {
         path: "settings",
-        loadChildren: () => import("./chunk-KJS5D7GW.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-VG4ZCFUK.js").then((m) => m.default)
       },
       {
         path: "smart-batch",
-        loadChildren: () => import("./chunk-STGTHNVB.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-4GS57H5Y.js").then((m) => m.default)
       },
       {
         path: "smart-fleet",
-        loadChildren: () => import("./chunk-LCRCRJO4.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-Q77UPVUH.js").then((m) => m.default)
       },
       {
         path: "subscription-plans",
-        loadChildren: () => import("./chunk-5SMYLY4L.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-KUVCBOD4.js").then((m) => m.default)
       },
       {
         path: "add-credits",
-        loadChildren: () => import("./chunk-3ZVD4KJM.js").then((m) => m.ADD_CREDITS_ROUTES)
+        loadChildren: () => import("./chunk-NOLI6EIM.js").then((m) => m.ADD_CREDITS_ROUTES)
       },
       {
         path: "smart-access",
-        loadChildren: () => import("./chunk-ROAJ3VB6.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-46XRLKOH.js").then((m) => m.default)
       },
       {
         path: "smart-enroll",
-        loadChildren: () => import("./chunk-MZZBKM2N.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-7ADP3DCD.js").then((m) => m.default)
       },
       {
         path: "human-authn",
-        loadChildren: () => import("./chunk-AJB5F2KX.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-FBWNFKSA.js").then((m) => m.default)
       },
       {
         path: "smart-monitor",
-        loadChildren: () => import("./chunk-IJKL25JD.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-R3XWCA7V.js").then((m) => m.default)
       },
       {
         path: "smart-tools",
-        loadChildren: () => import("./chunk-U4SWBTCM.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-7OVTWTF4.js").then((m) => m.default)
       }
     ]
   },

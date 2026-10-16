@@ -1,0 +1,170 @@
+:host {
+    display: block;
+    min-height: 100%;
+    background:
+        radial-gradient(900px 420px at 0% -10%, rgba(37, 99, 235, 0.12), transparent 55%),
+        linear-gradient(180deg, rgb(248, 250, 252) 0%, rgb(241, 245, 249) 100%);
+}
+
+:host-context(.dark) {
+    background:
+        radial-gradient(900px 420px at 0% -10%, rgba(59, 130, 246, 0.18), transparent 55%),
+        linear-gradient(180deg, rgb(15, 23, 42) 0%, rgb(2, 6, 23) 100%);
+}
+
+.plate-report {
+    max-width: 32rem;
+    margin: 0 auto;
+    padding: 1.25rem 1rem 3rem;
+}
+
+.plate-report__card {
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1.25rem;
+    padding: 1.5rem 1.25rem 1.75rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+:host-context(.dark) .plate-report__card {
+    background: rgb(15, 23, 42);
+    border-color: rgba(148, 163, 184, 0.2);
+    color: #e2e8f0;
+}
+
+.plate-report__kicker {
+    margin: 0 0 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(37, 99, 235);
+}
+
+h1,
+h2 {
+    margin: 0;
+    font-size: 1.65rem;
+    line-height: 1.2;
+    font-weight: 650;
+}
+
+h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.plate-report__lead {
+    margin: 0.6rem 0 1.25rem;
+    color: rgb(71, 85, 105);
+    line-height: 1.5;
+}
+
+:host-context(.dark) .plate-report__lead {
+    color: rgb(148, 163, 184);
+}
+
+.plate-report__note {
+    margin: 0 0 1rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.8rem;
+    background: rgb(239, 246, 255);
+    color: rgb(30, 64, 175);
+    line-height: 1.45;
+}
+
+.plate-report__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.9rem;
+    font-weight: 600;
+}
+
+.plate-report__field input,
+.plate-report__field select {
+    min-height: 3rem;
+    border-radius: 0.8rem;
+    border: 1px solid rgb(203, 213, 225);
+    padding: 0 0.9rem;
+    font: inherit;
+    font-weight: 500;
+    background: #fff;
+}
+
+:host-context(.dark) .plate-report__field input,
+:host-context(.dark) .plate-report__field select {
+    background: rgb(15, 23, 42);
+    color: #e2e8f0;
+    border-color: rgb(71, 85, 105);
+}
+
+.plate-report__switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+}
+
+.plate-report__switch button {
+    min-height: 2.75rem;
+    border-radius: 999px;
+    border: 1px solid rgb(203, 213, 225);
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+}
+
+.plate-report__switch button.is-active {
+    background: rgb(37, 99, 235);
+    border-color: rgb(37, 99, 235);
+    color: #fff;
+}
+
+.plate-report__submit {
+    width: 100%;
+    min-height: 3rem;
+    margin-top: 0.4rem;
+    border-radius: 0.9rem !important;
+}
+
+.plate-report__row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+}
+
+.plate-report__error {
+    margin: 0 0 0.8rem;
+    color: rgb(190, 18, 60);
+    line-height: 1.4;
+}
+
+.plate-report__error span {
+    display: block;
+    font-size: 0.85rem;
+}
+
+.plate-report__status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0 0.25rem;
+}
+
+.plate-report__link {
+    display: inline-block;
+    margin-top: 0.9rem;
+    color: rgb(37, 99, 235);
+}
+
+@media (min-width: 720px) {
+    .plate-report {
+        padding-top: 2.5rem;
+    }
+
+    .plate-report__card {
+        padding: 2rem 1.75rem 2rem;
+    }
+}

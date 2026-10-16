@@ -63,6 +63,14 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 link: '/smart-batch',
             },
             {
+                id: 'plate-report',
+                title: 'nav.plate_report',
+                subtitle: 'nav.plate_report_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:truck',
+                link: '/reporte-placa',
+            },
+            {
                 id: 'history',
                 title: 'nav.history',
                 subtitle: 'nav.history_subtitle',
@@ -418,6 +426,14 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:queue-list',
                 link: '/smart-batch',
+            },
+            {
+                id: 'plate-report',
+                title: 'nav.plate_report',
+                subtitle: 'nav.plate_report_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:truck',
+                link: '/reporte-placa',
             },
             {
                 id: 'history',

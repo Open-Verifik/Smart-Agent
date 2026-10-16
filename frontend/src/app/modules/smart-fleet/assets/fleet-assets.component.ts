@@ -44,6 +44,8 @@ import {
     fleetReportPercentFromStage,
     isFleetBatchServerManaged,
     nextPendingStepForRow,
+    consultDoneCount,
+    PreparedFleetReport,
     progressPollTerminalStatus,
     stepFeatureLabel,
 } from './fleet-report-progress';
@@ -388,13 +390,14 @@ export class FleetAssetsComponent implements OnInit {
         if (!asset?._id || !template._id || this.reportingAssetId() || this.bulkWorking()) return;
 
         this.reportingAssetId.set(asset._id);
-        const { hub, ref } = this._openReportProgressDialog(this.assetLabel(asset));
+        const { hub, ref } = this._openReportProgressDialog(this.assetLabel(asset), 1);
 
         try {
             const ready = await this._generateForAssets(template, [asset], undefined, hub);
 
             if (!ready) {
-                ref.close();
+                if (ref.getState() === 0) ref.close();
+
                 return;
             }
 
@@ -566,7 +569,7 @@ export class FleetAssetsComponent implements OnInit {
         const bulkTitle = this._transloco.translate('smartFleet.assets.reportProgressBulkTitle', {
             count: assets.length,
         });
-        const { hub, ref } = this._openReportProgressDialog(bulkTitle);
+        const { hub, ref } = this._openReportProgressDialog(bulkTitle, assets.length);
 
         try {
             const ready = await this._generateForAssets(
@@ -580,7 +583,8 @@ export class FleetAssetsComponent implements OnInit {
             );
 
             if (!ready) {
-                ref.close();
+                if (ref.getState() === 0) ref.close();
+
                 return;
             }
 
@@ -744,41 +748,33 @@ export class FleetAssetsComponent implements OnInit {
      * Same Smart Batch path as one vehicle: create the rows, run the template's
      * steps, then keep one report so each vehicle can be downloaded on its own.
      */
-    private _openReportProgressDialog(title: string): {
+    private _openReportProgressDialog(title: string, vehicleCount: number): {
         hub: FleetReportProgressHub;
         ref: MatDialogRef<FleetReportProgressDialogComponent>;
     } {
         const hub = new FleetReportProgressHub();
 
         hub.title.set(title);
-        hub.setPercent(2);
-        hub.beginStep('smartFleet.assets.reportProgressLoadTemplate');
+        hub.vehicleCount.set(vehicleCount);
+        hub.phase.set('estimate');
+        hub.estimateLoading.set(true);
 
         const ref = this._dialog.open(FleetReportProgressDialogComponent, {
             disableClose: true,
-            width: '440px',
-            maxWidth: '95vw',
+            width: '540px',
+            maxWidth: '96vw',
+            panelClass: 'fleet-report-progress-dialog-panel',
             data: { hub },
         });
 
         return { hub, ref };
     }
 
-    private async _generateForAssets(
+    private async _prepareFleetReportBatch(
         template: SmartReportTemplate,
-        assets: FleetAsset[],
-        onProgress?: (progress: { stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number }) => void,
-        hub?: FleetReportProgressHub
-    ): Promise<{ credits: number } | null> {
+        assets: FleetAsset[]
+    ): Promise<PreparedFleetReport | null> {
         if (!template._id || !assets.length) return null;
-
-        const total = assets.length;
-        const notify = (stage: 'prepare' | 'consult' | 'pdf' | 'save', done = 0) => {
-            onProgress?.({ stage, done, total });
-            hub?.setPercent(fleetReportPercentFromStage(stage, done, total));
-        };
-
-        notify('prepare', 0);
 
         const full = await firstValueFrom(this._reports.getTemplate(template._id));
         const configId = this._configIdOf(full);
@@ -790,13 +786,11 @@ export class FleetAssetsComponent implements OnInit {
             return null;
         }
 
-        hub?.beginStep('smartFleet.assets.reportProgressLoadBatch');
-
         const configuration = await firstValueFrom(this._batches.getConfiguration(configId));
         const config = configuration.data;
         const steps = (config?.steps || []).filter((step) => step.enabled !== false);
 
-        hub?.beginStep('smartFleet.assets.reportProgressCreateBatch');
+        if (!config || !steps.length) return null;
 
         const batchName = (
             assets.length === 1
@@ -815,17 +809,42 @@ export class FleetAssetsComponent implements OnInit {
 
         if (!batchId) throw new Error('batch');
 
-        hub?.beginStep('smartFleet.assets.reportProgressCheckCredits');
-
         const estimate = await firstValueFrom(this._batches.getBatchEstimate(batchId));
 
-        if (estimate.data?.sufficientCredits === false) {
-            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsCredits'), undefined, {
-                duration: 4000,
-            });
-            return null;
-        }
+        if (!estimate.data) throw new Error('estimate');
 
+        return {
+            batchId,
+            batchName,
+            config,
+            steps,
+            estimate: estimate.data,
+            template,
+        };
+    }
+
+    private async _discardFleetReportBatch(batchId: string): Promise<void> {
+        try {
+            await firstValueFrom(this._batches.cancelSmartBatch(batchId));
+        } catch (err) {
+            console.error('[SmartFleet] discard report batch error', err);
+        }
+    }
+
+    private async _executeFleetReportBatch(
+        prepared: PreparedFleetReport,
+        assets: FleetAsset[],
+        onProgress?: (progress: { stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number }) => void,
+        hub?: FleetReportProgressHub
+    ): Promise<{ credits: number } | null> {
+        const { batchId, batchName, config, steps, template } = prepared;
+        const total = assets.length;
+        const notify = (stage: 'prepare' | 'consult' | 'pdf' | 'save', done = 0) => {
+            onProgress?.({ stage, done, total });
+            hub?.setPercent(fleetReportPercentFromStage(stage, done, total));
+        };
+
+        hub?.setPercent(5);
         hub?.beginStep('smartFleet.assets.reportProgressStartConsult');
 
         notify('consult', 0);
@@ -887,6 +906,50 @@ export class FleetAssetsComponent implements OnInit {
         await this._saveReports(assets, { reportId, templateName: template.name, createdAt }, hub);
 
         return { credits };
+    }
+
+    private async _generateForAssets(
+        template: SmartReportTemplate,
+        assets: FleetAsset[],
+        onProgress?: (progress: { stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number }) => void,
+        hub?: FleetReportProgressHub
+    ): Promise<{ credits: number } | null> {
+        if (!template._id || !assets.length) return null;
+
+        let prepared: PreparedFleetReport | null = null;
+
+        try {
+            prepared = await this._prepareFleetReportBatch(template, assets);
+        } finally {
+            hub?.estimateLoading.set(false);
+        }
+
+        if (!prepared) return null;
+
+        hub?.estimate.set(prepared.estimate);
+
+        if (!hub) {
+            if (prepared.estimate.sufficientCredits === false) {
+                this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsCredits'), undefined, {
+                    duration: 4000,
+                });
+                await this._discardFleetReportBatch(prepared.batchId);
+
+                return null;
+            }
+
+            return this._executeFleetReportBatch(prepared, assets, onProgress);
+        }
+
+        const confirmed = await hub.waitForCostConfirm();
+
+        if (!confirmed) {
+            await this._discardFleetReportBatch(prepared.batchId);
+
+            return null;
+        }
+
+        return this._executeFleetReportBatch(prepared, assets, onProgress, hub);
     }
 
     private _reportDoneMessage(key: string, credits: number): string {
@@ -1056,27 +1119,42 @@ export class FleetAssetsComponent implements OnInit {
         total = 0
     ): Promise<string> {
         const started = Date.now();
-        let lastEndpointKey = '';
         let idlePolls = 0;
 
         while (Date.now() - started < waitMs) {
-            const progress = await firstValueFrom(this._batches.getBatchProgress(batchId));
+            const [progress, batchRes] = await Promise.all([
+                firstValueFrom(this._batches.getBatchProgress(batchId)),
+                firstValueFrom(this._batches.getSmartBatch(batchId)),
+            ]);
             const payload = progress.data;
-            const rowTotal = payload?.totalRows || total;
-            const pending = payload?.pendingRows;
-            const done =
-                rowTotal && typeof pending === 'number'
-                    ? Math.max(0, rowTotal - pending)
-                    : (payload?.completedRows ?? 0) + (payload?.partialRows ?? 0) + (payload?.failedRows ?? 0);
+            const liveBatch = batchRes.data;
+            const { done, total: rowTotal } = consultDoneCount(liveBatch, payload, total, steps);
 
             onDone?.(done);
 
-            const terminal = progressPollTerminalStatus(payload);
+            const terminal = progressPollTerminalStatus(payload, liveBatch, steps);
 
             if (terminal) return terminal;
 
+            let endpointLabel = '';
+
+            if (steps.length && liveBatch?.rows?.length) {
+                const activeRow =
+                    liveBatch.rows.find((row) => row.status === 'processing') ??
+                    liveBatch.rows.find((row) => row.status === 'pending');
+                const step = activeRow ? nextPendingStepForRow(activeRow, steps) : null;
+
+                if (step) endpointLabel = stepFeatureLabel(step);
+            }
+
             if (hub && rowTotal) {
-                hub.pulseStep('smartFleet.assets.reportProgressAsyncRows', { done, total: rowTotal });
+                hub.pulseStep('smartFleet.assets.reportProgressAsyncRows', {
+                    done,
+                    total: rowTotal,
+                    detail: endpointLabel
+                        ? ` · ${this._transloco.translate('smartFleet.assets.reportProgressAsyncConsulting', { endpoint: endpointLabel })}`
+                        : '',
+                });
             }
 
             if (payload?.serverSide === false && done === 0) {
@@ -1086,45 +1164,10 @@ export class FleetAssetsComponent implements OnInit {
             }
 
             if (idlePolls >= 3 && steps.length && payload?.serverSide === false) {
-                const batch = (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
-
                 hub?.setRunMode('sync');
                 hub?.beginStep('smartFleet.assets.reportProgressSyncInTab');
 
-                return this._runBatchInBrowser(batch, steps, assets, onDone, hub);
-            }
-
-            if (hub && steps.length) {
-                try {
-                    const batch = await firstValueFrom(this._batches.getSmartBatch(batchId));
-                    const rows = batch.data?.rows || [];
-                    const activeRow =
-                        rows.find((row) => row.status === 'processing') ??
-                        rows.find((row) => row.status === 'pending');
-                    const step = activeRow ? nextPendingStepForRow(activeRow, steps) : null;
-
-                    if (activeRow && step) {
-                        const endpoint = stepFeatureLabel(step);
-                        const endpointKey = `${activeRow.rowIndex}:${step.sequence}`;
-
-                        if (endpointKey !== lastEndpointKey) {
-                            lastEndpointKey = endpointKey;
-                            const asset = assets[activeRow.rowIndex] ?? assets[0];
-                            const vehicle = asset ? this.assetLabel(asset) : '';
-
-                            if (assets.length > 1 && vehicle) {
-                                hub.pulseStep('smartFleet.assets.reportProgressAsyncEndpointRow', {
-                                    endpoint,
-                                    vehicle,
-                                });
-                            } else {
-                                hub.pulseStep('smartFleet.assets.reportProgressAsyncEndpoint', { endpoint });
-                            }
-                        }
-                    }
-                } catch (err) {
-                    console.error('[SmartFleet] async batch poll rows error', err);
-                }
+                return this._runBatchInBrowser(liveBatch, steps, assets, onDone, hub);
             }
 
             await new Promise((resolve) => setTimeout(resolve, 2000));

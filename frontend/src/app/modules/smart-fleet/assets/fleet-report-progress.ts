@@ -1,11 +1,25 @@
 import { signal } from '@angular/core';
 import {
+    BatchConfiguration,
     BatchStep,
     SmartBatch,
     SmartBatchExecutor,
+    SmartBatchEstimate,
     SmartBatchProgress,
     SmartBatchRow,
 } from 'app/modules/smart-batch/smart-batch.service';
+import { SmartReportTemplate } from 'app/modules/smart-batch/smart-report.service';
+
+export interface PreparedFleetReport {
+    batchId: string;
+    batchName: string;
+    config: BatchConfiguration;
+    steps: BatchStep[];
+    estimate: SmartBatchEstimate;
+    template: SmartReportTemplate;
+}
+
+export type FleetReportDialogPhase = 'estimate' | 'run' | 'done';
 
 export type FleetReportRunMode = 'sync' | 'async';
 
@@ -21,6 +35,10 @@ export interface FleetReportLogItem {
 /** Live state for the fleet report progress dialog. */
 export class FleetReportProgressHub {
     readonly title = signal('');
+    readonly phase = signal<FleetReportDialogPhase>('estimate');
+    readonly estimateLoading = signal(false);
+    readonly estimate = signal<SmartBatchEstimate | null>(null);
+    readonly vehicleCount = signal(1);
     readonly runMode = signal<FleetReportRunMode | null>(null);
     readonly runModeHintKey = signal('');
     readonly items = signal<FleetReportLogItem[]>([]);
@@ -30,6 +48,32 @@ export class FleetReportProgressHub {
     readonly errorMessage = signal<string | null>(null);
 
     private _seq = 0;
+    private _confirmResolve?: (confirmed: boolean) => void;
+
+    waitForCostConfirm(): Promise<boolean> {
+        return new Promise((resolve) => {
+            this._confirmResolve = resolve;
+        });
+    }
+
+    canConfirmEstimate(): boolean {
+        const estimate = this.estimate();
+
+        return Boolean(estimate?.sufficientCredits !== false);
+    }
+
+    confirmRun(): void {
+        if (!this.canConfirmEstimate()) return;
+
+        this.phase.set('run');
+        this._confirmResolve?.(true);
+        this._confirmResolve = undefined;
+    }
+
+    cancelEstimate(): void {
+        this._confirmResolve?.(false);
+        this._confirmResolve = undefined;
+    }
 
     setRunMode(mode: FleetReportRunMode): void {
         this.runMode.set(mode);
@@ -88,6 +132,7 @@ export class FleetReportProgressHub {
     finish(): void {
         this.completeActiveStep();
         this.setPercent(100);
+        this.phase.set('done');
         this.finished.set(true);
         this.success.set(true);
     }
@@ -154,14 +199,98 @@ export function batchConsultTerminalStatus(batch: SmartBatch | null | undefined)
     return rows.some((row) => row.status !== 'completed') ? 'partial' : 'completed';
 }
 
-export function progressPollTerminalStatus(progress: SmartBatchProgress | null | undefined): string | null {
+export function rowHasAllStepResults(row: SmartBatchRow, steps: BatchStep[]): boolean {
+    const enabled = steps.filter((step) => step.enabled !== false);
+
+    if (!enabled.length) return false;
+
+    const results = row.results || {};
+
+    return enabled.every(
+        (step) => results[step.sequence] != null || results[String(step.sequence)] != null
+    );
+}
+
+/** Row finished by status or by having every enabled step result (server sometimes lags on status). */
+export function batchRowsFinished(batch: SmartBatch | null | undefined, steps: BatchStep[]): boolean {
+    const rows = batch?.rows || [];
+
+    if (!rows.length) return false;
+
+    return rows.every((row) => {
+        if (row.status === 'completed' || row.status === 'partial' || row.status === 'failed') return true;
+
+        return rowHasAllStepResults(row, steps);
+    });
+}
+
+export function consultDoneCount(
+    batch: SmartBatch | null | undefined,
+    progress: SmartBatchProgress | null | undefined,
+    totalFallback: number,
+    steps: BatchStep[] = []
+): { done: number; total: number } {
+    const rows = batch?.rows || [];
+    const total = rows.length || progress?.totalRows || progress?.run?.totalItems || totalFallback || 0;
+
+    if (rows.length) {
+        const done = rows.filter((row) => {
+            if (row.status === 'completed' || row.status === 'partial' || row.status === 'failed') return true;
+
+            return steps.length ? rowHasAllStepResults(row, steps) : false;
+        }).length;
+
+        return { done, total };
+    }
+
+    const pending = progress?.pendingRows;
+
+    if (typeof pending === 'number' && progress?.totalRows) {
+        return { done: Math.max(0, progress.totalRows - pending), total: progress.totalRows };
+    }
+
+    const run = progress?.run;
+
+    if (run?.totalItems) {
+        return {
+            done: (run.completedItems ?? 0) + (run.failedItems ?? 0) + (run.partialItems ?? 0),
+            total: run.totalItems,
+        };
+    }
+
+    return {
+        done:
+            (progress?.completedRows ?? 0) + (progress?.partialRows ?? 0) + (progress?.failedRows ?? 0),
+        total,
+    };
+}
+
+export function progressPollTerminalStatus(
+    progress: SmartBatchProgress | null | undefined,
+    batch?: SmartBatch | null,
+    steps: BatchStep[] = []
+): string | null {
+    if (batch?.rows?.length) {
+        const awaiting = batch.rows.some((row) => row.status === 'pending' || row.status === 'processing');
+
+        if (!awaiting || (steps.length && batchRowsFinished(batch, steps))) {
+            return batchConsultTerminalStatus(batch);
+        }
+    }
+
     if (!progress) return null;
 
     const status = progress.status;
 
     if (status === 'completed' || status === 'failed' || status === 'cancelled') return status;
 
-    const total = progress.totalRows ?? 0;
+    const run = progress.run;
+
+    if (run?.status === 'completed' || run?.status === 'failed' || run?.status === 'cancelled') {
+        return status || run.status;
+    }
+
+    const total = progress.totalRows ?? run?.totalItems ?? 0;
 
     if (!total) return null;
 
@@ -174,6 +303,12 @@ export function progressPollTerminalStatus(progress: SmartBatchProgress | null |
 
     if (settled >= total) return status || 'completed';
 
+    if (run?.totalItems) {
+        const runSettled = (run.completedItems ?? 0) + (run.failedItems ?? 0) + (run.partialItems ?? 0);
+
+        if (runSettled >= run.totalItems) return status || 'completed';
+    }
+
     return null;
 }
 
@@ -182,10 +317,28 @@ export function nextPendingStepForRow(row: SmartBatchRow, steps: BatchStep[]): B
     const results = row.results || {};
 
     for (const step of enabled) {
-        if (results[step.sequence] == null) return step;
+        if (results[step.sequence] == null && results[String(step.sequence)] == null) return step;
     }
 
     return null;
+}
+
+/**
+ * Lookup credits bill at the same numeric USD list price used when purchasing balance.
+ */
+export function fleetLookupCreditsAsUsd(credits: number): number {
+    const value = Number(credits);
+
+    return Number.isFinite(value) ? value : 0;
+}
+
+export function formatFleetLookupUsd(credits: number): string {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(fleetLookupCreditsAsUsd(credits));
 }
 
 export function stepFeatureLabel(step: { appFeature?: unknown }): string {

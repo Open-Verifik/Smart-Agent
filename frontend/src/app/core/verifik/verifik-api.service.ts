@@ -55,6 +55,21 @@ export class VerifikApiService {
     }
 
     /**
+     * Advance an app registration. `skipKYC` finishes a basic account when the
+     * flow does not require identity capture, and returns a token that
+     * project-login can exchange.
+     */
+    syncAppRegistration(
+        token: string,
+        id: string,
+        body: { step: string; status?: string }
+    ): Observable<any> {
+        return this._httpClient.put(`${this._apiUrl}/v2/app-registrations/${id}/sync`, body, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+    }
+
+    /**
      * Send OTP (Email/Phone)
      * POST /v2/{type}-validations/app-registration
      * Requires Bearer Token of App Registration

@@ -581,20 +581,20 @@
                     <p *ngIf="bulkSkippedCount()" class="text-xs text-stone-500">
                         {{ 'smartFleet.assets.bulkSkipped' | transloco: { count: bulkSkippedCount() } }}
                     </p>
-                    <div *ngIf="bulkProgress() as progress" class="flex flex-col gap-1.5">
-                        <div class="flex items-center justify-between text-xs font-medium text-stone-600 dark:text-stone-300">
+                    <div *ngIf="bulkProgress() as progress" class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between text-sm font-medium text-stone-600 dark:text-stone-300">
                             <span>{{ 'smartFleet.assets.bulkStage_' + progress.stage | transloco }}</span>
                             <span *ngIf="progress.stage === 'consult'">
                                 {{ 'smartFleet.assets.bulkProgressCount' | transloco: { done: progress.done, total: progress.total } }}
                             </span>
                         </div>
-                        <div class="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
+                        <div class="h-2.5 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
                             <div
                                 class="h-full rounded-full bg-sky-500 transition-all duration-500"
                                 [style.width.%]="bulkProgressPercent()"
                             ></div>
                         </div>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                        <p class="text-sm text-stone-500 dark:text-stone-400">
                             {{ 'smartFleet.assets.bulkLockedHint' | transloco }}
                         </p>
                     </div>

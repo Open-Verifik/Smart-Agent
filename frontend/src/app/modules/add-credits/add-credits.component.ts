@@ -33,6 +33,7 @@ import {
     BoldOpenOrder,
     PaymentService,
 } from './services/payment.service';
+import { hasPlateReportDraft } from '../plate-report/plate-report.draft';
 
 export type AddCreditsSidebarPlanTier = {
     plan: SubscriptionPlan;
@@ -140,6 +141,9 @@ export class AddCreditsComponent implements OnInit {
     hasBillingSetup = signal(false);
 
     showBillingRequiredModal = false;
+
+    /** A plate report left this page to buy the credits it still needs. */
+    plateReportPending = signal(hasPlateReportDraft());
 
     /** Enables purchase/add-card when billing questionnaire is satisfied. */
     billingActionsAllowed = computed(

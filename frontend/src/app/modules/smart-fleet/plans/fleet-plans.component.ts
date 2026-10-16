@@ -17,6 +17,7 @@ import {
 import { SubscriptionService } from 'app/modules/subscription-plans/subscription.service';
 import { environment } from 'environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { formatFleetLookupUsd } from '../assets/fleet-report-progress';
 import { FleetNavComponent } from '../fleet-nav.component';
 import { FleetPlanOverview, FleetPlanTier, FleetPlanTierKey, SmartFleetService } from '../smart-fleet.service';
 
@@ -95,6 +96,8 @@ export class FleetPlansComponent implements OnInit {
     monthlyTotal = computed(() => this.slots() * Number(this.tier()?.amount ?? 0));
     planMonthlyTotal = computed(() => (this.plan()?.assetLimit ?? 0) * Number(this.plan()?.amount ?? 0));
     monitoringCredits = computed(() => this.slots() * (this.overview()?.projectedMonthlyCredits?.creditsPerAsset ?? 0));
+    creditBreakdown = computed(() => this.overview()?.projectedMonthlyCredits?.breakdown ?? []);
+    reportsCreditsMonth = computed(() => this.reports()?.credits ?? 0);
 
     /** Same tier and slot count as today: nothing to buy. */
     isUnchanged = computed(
@@ -129,6 +132,14 @@ export class FleetPlansComponent implements OnInit {
     tierStartingPrice(key: FleetPlanTierKey): number {
         const tier = this._tierOf(key);
         return tier ? tier.minAssets * Number(tier.amount ?? 0) : 0;
+    }
+
+    creditsPerAssetMonth(): number {
+        return this.overview()?.projectedMonthlyCredits?.creditsPerAsset ?? 0;
+    }
+
+    formatUsd(credits: number): string {
+        return formatFleetLookupUsd(credits);
     }
 
     cardLogo(brand?: string | null): string {
