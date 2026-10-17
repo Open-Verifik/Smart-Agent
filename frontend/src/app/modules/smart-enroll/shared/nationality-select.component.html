@@ -1,0 +1,59 @@
+<div class="nationality-select" [class.nationality-select--dialog]="variant() === 'dialog'" [class.nationality-select--invalid]="showError">
+    <mat-select
+        panelClass="nationality-select-panel"
+        disableOptionCentering
+        [id]="inputId()"
+        [disabled]="disabled"
+        [value]="value || null"
+        [placeholder]="'smartEnrollDemos.personForm.nationalityPlaceholder' | transloco"
+        [attr.aria-invalid]="showError"
+        (selectionChange)="select($event.value)"
+        (openedChange)="onOpened($event)"
+    >
+        <mat-select-trigger>
+            @if (selected; as country) {
+                <span class="nationality-select__value">
+                    {{ country.name | transloco }}
+                    <span class="nationality-select__code">{{ country.code | uppercase }}</span>
+                </span>
+            } @else if (value) {
+                {{ value }}
+            }
+        </mat-select-trigger>
+
+        <div class="nationality-select__search-wrap" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
+            <input
+                #searchInput
+                type="text"
+                class="nationality-select__search"
+                autocomplete="off"
+                [value]="query"
+                [placeholder]="'smartEnrollDemos.personForm.nationalitySearch' | transloco"
+                [attr.aria-label]="'smartEnrollDemos.personForm.nationalitySearch' | transloco"
+                (input)="onQuery($event)"
+                (keydown)="onSearchKeydown($event)"
+            />
+        </div>
+
+        @if (showLegacy) {
+            <mat-option [value]="value">{{ value }}</mat-option>
+        }
+
+        @for (country of visibleCountries; track country.code) {
+            <mat-option [value]="country.code.toUpperCase()">
+                <span class="nationality-select__value">
+                    {{ country.name | transloco }}
+                    <span class="nationality-select__code">{{ country.code | uppercase }}</span>
+                </span>
+            </mat-option>
+        }
+
+        @if (!visibleCountries.length && !showLegacy) {
+            <mat-option disabled>{{ 'smartEnrollDemos.personForm.nationalityNoMatches' | transloco }}</mat-option>
+        }
+    </mat-select>
+
+    @if (showError) {
+        <p class="nationality-select__error">{{ 'smartEnrollDemos.personForm.nationalityInvalid' | transloco }}</p>
+    }
+</div>

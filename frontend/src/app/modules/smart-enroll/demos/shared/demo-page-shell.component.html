@@ -3,13 +3,17 @@
         <nav class="mb-6 text-sm text-on-surface-variant" aria-label="Breadcrumb">
             <ol class="flex flex-wrap items-center gap-1.5">
                 <li>
-                    <a routerLink="/smart-enroll/collections" class="hover:text-primary transition-colors">
-                        Smart Enroll
+                    <a [routerLink]="sectionLink" class="hover:text-primary transition-colors">
+                        @if (sectionLabelKey) {
+                            {{ sectionLabelKey | transloco }}
+                        } @else {
+                            Smart Enroll
+                        }
                     </a>
                 </li>
                 <li aria-hidden="true">/</li>
                 <li>
-                    <a routerLink="/smart-enroll/demos" class="hover:text-primary transition-colors">
+                    <a [routerLink]="demosLink" class="hover:text-primary transition-colors">
                         {{ 'smartEnrollDemos.hub.title' | transloco }}
                     </a>
                 </li>

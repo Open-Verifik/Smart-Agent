@@ -121,12 +121,12 @@ export class SetupBasicSetupComponent {
     addCountry(country: CountryOption): void {
         const values = new Set(this.allowedCountries);
         if (country.country === 'All') {
-            this.form.get('allowedCountries')?.setValue(['All']);
+            this._setAllowedCountries(['All']);
             return;
         }
         if (values.has('All')) values.delete('All');
         values.add(country.country);
-        this.form.get('allowedCountries')?.setValue(Array.from(values));
+        this._setAllowedCountries(Array.from(values));
     }
 
     onAllowedCountryPicked(event: MatAutocompleteSelectedEvent): void {
@@ -140,7 +140,14 @@ export class SetupBasicSetupComponent {
     removeCountry(country: string): void {
         const values = new Set(this.allowedCountries);
         values.delete(country);
-        this.form.get('allowedCountries')?.setValue(Array.from(values));
+        this._setAllowedCountries(Array.from(values));
+    }
+
+    /** `setValue` updates the list without marking the form dirty, so Continue would skip the save. */
+    private _setAllowedCountries(countries: string[]): void {
+        const control = this.form?.get('allowedCountries');
+        control?.setValue(countries);
+        control?.markAsDirty();
     }
 
     countryLabel(country: string): string {

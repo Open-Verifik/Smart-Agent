@@ -9,27 +9,43 @@
 />
 
 <app-demo-page-shell>
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.deletePerson.heroTitleResult' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.deletePerson.heroTitleForm' | transloco }}
-            }
-        </h2>
-        <p class="text-on-surface-variant">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.deletePerson.heroSubtitleResult' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.deletePerson.heroSubtitleForm' | transloco }}
-            }
-        </p>
-    </div>
+    @if (step === 'form' && authChecked) {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.manage' | transloco"
+            [title]="'smartEnrollDemos.deletePerson.heroTitleForm' | transloco"
+            [subtitle]="'smartEnrollDemos.deletePerson.heroSubtitleForm' | transloco"
+            [chipLabel]="'smartEnrollDemos.demoStage.personTitle' | transloco"
+            [chipValue]="selectedPersonChip"
+        />
+    } @else {
+        <div class="mb-8">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.deletePerson.heroTitleResult' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.deletePerson.heroTitleForm' | transloco }}
+                }
+            </h2>
+            <p class="text-on-surface-variant">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.deletePerson.heroSubtitleResult' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.deletePerson.heroSubtitleForm' | transloco }}
+                }
+            </p>
+        </div>
+    }
 
     @if (!authChecked) {
         <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else if (step === 'form') {
         <form (ngSubmit)="handleSubmit()" class="space-y-5">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.personTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.deleteHelp' | transloco"
+            >
+            <div class="space-y-5">
             <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-4 space-y-2 text-sm text-on-surface-variant">
                 <p [innerHTML]="'smartEnrollDemos.deletePerson.fullDeleteRich' | transloco"></p>
                 <p [innerHTML]="'smartEnrollDemos.deletePerson.partialDeleteRich' | transloco"></p>
@@ -121,6 +137,8 @@
                     {{ error }}
                 </div>
             }
+            </div>
+            </app-demo-stage-card>
 
             <button
                 type="submit"

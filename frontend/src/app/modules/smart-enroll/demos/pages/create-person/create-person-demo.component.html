@@ -1,116 +1,124 @@
 <app-demo-page-shell>
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.createPerson.heroTitleResult' | transloco }}
-            } @else if (step === 'conflict') {
-                {{ 'smartEnrollDemos.createPerson.heroTitleConflict' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.createPerson.heroTitleForm' | transloco }}
-            }
-        </h2>
-        <p class="text-on-surface-variant">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.createPerson.heroSubtitleResult' | transloco }}
-            } @else if (step === 'conflict') {
-                {{ 'smartEnrollDemos.createPerson.heroSubtitleConflict' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.createPerson.heroSubtitleForm' | transloco }}
-            }
-        </p>
-    </div>
+    @if (step === 'form' && authChecked) {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.enroll' | transloco"
+            [title]="'smartEnrollDemos.createPerson.heroTitleForm' | transloco"
+            [subtitle]="'smartEnrollDemos.createPerson.heroSubtitleForm' | transloco"
+            [chipLabel]="'smartEnrollDemos.createPerson.nationalityLabel' | transloco"
+            [chipValue]="nationalityChip"
+        />
+    } @else {
+        <div class="mb-8">
+            <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.createPerson.heroTitleResult' | transloco }}
+                } @else if (step === 'conflict') {
+                    {{ 'smartEnrollDemos.createPerson.heroTitleConflict' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.createPerson.heroTitleForm' | transloco }}
+                }
+            </h2>
+            <p class="text-on-surface-variant">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.createPerson.heroSubtitleResult' | transloco }}
+                } @else if (step === 'conflict') {
+                    {{ 'smartEnrollDemos.createPerson.heroSubtitleConflict' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.createPerson.heroSubtitleForm' | transloco }}
+                }
+            </p>
+        </div>
+    }
 
     @if (!authChecked) {
         <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else if (step === 'form') {
-        <form (ngSubmit)="handleSubmit()" class="space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-name">
-                        {{ 'smartEnrollDemos.createPerson.fullNameLabel' | transloco }}
-                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                    </label>
-                    <input
-                        id="p-name"
-                        type="text"
-                        required
-                        [(ngModel)]="name"
-                        name="name"
-                        [placeholder]="'smartEnrollDemos.createPerson.namePlaceholder' | transloco"
-                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60 transition-colors"
-                    />
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-gender">
-                        {{ 'smartEnrollDemos.createPerson.genderLabel' | transloco }}
-                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                    </label>
-                    <select
-                        id="p-gender"
-                        [(ngModel)]="gender"
-                        name="gender"
-                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary/60 transition-colors"
-                    >
-                        <option value="M">{{ 'smartEnrollDemos.common.male' | transloco }}</option>
-                        <option value="F">{{ 'smartEnrollDemos.common.female' | transloco }}</option>
-                    </select>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-dob">
-                        {{ 'smartEnrollDemos.createPerson.dobLabel' | transloco }}
-                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                    </label>
-                    <input
-                        id="p-dob"
-                        type="date"
-                        required
-                        [(ngModel)]="dob"
-                        name="dob"
-                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary/60 transition-colors"
-                    />
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-nat">
-                        {{ 'smartEnrollDemos.createPerson.nationalityLabel' | transloco }}
-                    </label>
-                    <input
-                        id="p-nat"
-                        type="text"
-                        [(ngModel)]="nationality"
-                        name="nationality"
-                        [placeholder]="'smartEnrollDemos.createPerson.nationalityPlaceholder' | transloco"
-                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60 transition-colors"
-                    />
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-col">
-                    {{ 'smartEnrollDemos.createPerson.collectionsLabel' | transloco }}
-                    <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                </label>
-                @if (collectionsError) {
-                    <div class="mb-2 text-sm text-error flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm">error_outline</span>
-                        {{ collectionsError }}
+        <form (ngSubmit)="handleSubmit()" class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.personForm.identityTitle' | transloco"
+                [help]="'smartEnrollDemos.personForm.identityHelp' | transloco"
+            >
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="p-name">
+                            {{ 'smartEnrollDemos.createPerson.fullNameLabel' | transloco }}
+                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                        </label>
+                        <input
+                            id="p-name"
+                            type="text"
+                            required
+                            [(ngModel)]="name"
+                            name="name"
+                            [placeholder]="'smartEnrollDemos.createPerson.namePlaceholder' | transloco"
+                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant/50 focus:border-primary/60"
+                        />
                     </div>
-                }
-                <app-collection-multi-select
-                    labelId="p-col"
-                    [items]="collectionItems"
-                    [selectedIds]="selectedCollectionIds"
-                    (selectedIdsChange)="selectedCollectionIds = $event"
-                    [loading]="collectionsLoading"
-                    [emptySlot]="noCollectionsEmptySlot"
-                />
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-on-surface mb-1.5">
-                    {{ 'smartEnrollDemos.createPerson.faceImagesLabel' | transloco }}
-                    <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
-                </label>
-                <div class="space-y-5 mb-3">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="p-gender">
+                            {{ 'smartEnrollDemos.createPerson.genderLabel' | transloco }}
+                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                        </label>
+                        <select
+                            id="p-gender"
+                            [(ngModel)]="gender"
+                            name="gender"
+                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary/60"
+                        >
+                            <option value="M">{{ 'smartEnrollDemos.common.male' | transloco }}</option>
+                            <option value="F">{{ 'smartEnrollDemos.common.female' | transloco }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="p-dob">
+                            {{ 'smartEnrollDemos.createPerson.dobLabel' | transloco }}
+                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                        </label>
+                        <input
+                            id="p-dob"
+                            type="date"
+                            required
+                            [(ngModel)]="dob"
+                            name="dob"
+                            class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary/60"
+                        />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="p-nat">
+                            {{ 'smartEnrollDemos.createPerson.nationalityLabel' | transloco }}
+                        </label>
+                        <app-nationality-select inputId="p-nat" name="nationality" [(ngModel)]="nationality" />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-semibold text-on-surface" for="p-col">
+                            {{ 'smartEnrollDemos.createPerson.collectionsLabel' | transloco }}
+                            <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                        </label>
+                        @if (collectionsError) {
+                            <div class="mb-2 flex items-center gap-1.5 text-sm text-error">
+                                <span class="material-symbols-outlined text-sm">error_outline</span>
+                                {{ collectionsError }}
+                            </div>
+                        }
+                        <app-collection-multi-select
+                            labelId="p-col"
+                            [items]="collectionItems"
+                            [selectedIds]="selectedCollectionIds"
+                            (selectedIdsChange)="selectedCollectionIds = $event"
+                            [loading]="collectionsLoading"
+                            [emptySlot]="noCollectionsEmptySlot"
+                        />
+                    </div>
+                </div>
+            </app-demo-stage-card>
+
+            <app-demo-stage-card
+                number="02"
+                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
+            >
+                <div class="mb-3 space-y-5">
                     <app-demo-choose-one-callout
                         [description]="'smartEnrollDemos.createPerson.chooseOneDescription' | transloco"
                     />
@@ -153,7 +161,7 @@
                     </section>
                 </div>
                 @if (previews.length > 0) {
-                    <div class="flex flex-wrap gap-2 mb-3">
+                    <div class="mb-3 flex flex-wrap gap-2">
                         @for (preview of previews; track $index) {
                             <app-demo-raster-image
                                 [src]="preview"
@@ -173,17 +181,18 @@
                     class="hidden"
                     (change)="onFilesSelected($event)"
                 />
-            </div>
+            </app-demo-stage-card>
+
             @if (error) {
-                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
+                <div class="flex items-center gap-2 rounded-lg border border-error/20 bg-error-container/20 px-4 py-3 text-sm text-error xl:col-span-2">
                     <span class="material-symbols-outlined text-sm">error_outline</span>
                     {{ error }}
                 </div>
             }
             <button
                 type="submit"
-                [disabled]="!images.length || !selectedCollectionIds.length || collectionsLoading"
-                class="demo-btn-primary"
+                [disabled]="!images.length || !selectedCollectionIds.length || collectionsLoading || nationalityBlocked"
+                class="demo-btn-primary xl:col-span-2"
             >
                 {{ 'smartEnrollDemos.createPerson.submit' | transloco }}
             </button>

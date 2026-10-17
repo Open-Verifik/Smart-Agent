@@ -10,6 +10,7 @@ import { AuthUtils } from 'app/core/auth/auth.utils';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
+import { environment } from 'environments/environment';
 import { firstValueFrom, take } from 'rxjs';
 
 /**
@@ -155,7 +156,7 @@ import { firstValueFrom, take } from 'rxjs';
 
                     <div class="space-y-4">
                         <a
-                            href="https://app.verifik.co"
+                            [href]="verifikUrl()"
                             target="_blank"
                             class="block w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:shadow-lg hover:shadow-indigo-200/50 text-white font-bold rounded-2xl transition-all text-sm uppercase tracking-widest text-center shadow-md"
                         >
@@ -202,9 +203,11 @@ export class BridgeComponent implements OnInit {
     status = signal<'loading' | 'success' | 'error' | 'no_token'>('loading');
     errorMessage = signal<string>('');
     countdown = signal<number>(3);
+    verifikUrl = signal<string>(environment.appUrl);
 
     ngOnInit() {
         void this.runBridge();
+        console.log('[Bridge] Verifik URL:', this.verifikUrl());
     }
 
     private async runBridge() {

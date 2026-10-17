@@ -20,6 +20,8 @@ import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-opt
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
 import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
@@ -40,6 +42,8 @@ const emptySlot = (): FaceSlot => ({ preview: null, b64: null });
         FormsModule,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoStageHeroComponent,
+        DemoStageCardComponent,
         DemoChooseOneCalloutComponent,
         DemoCaptureOptionHeadingComponent,
         DemoOrDividerComponent,

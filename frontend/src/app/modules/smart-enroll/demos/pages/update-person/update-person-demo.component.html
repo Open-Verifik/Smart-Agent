@@ -1,26 +1,41 @@
 <app-demo-page-shell>
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.updatePerson.heroTitleResult' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.updatePerson.heroTitleForm' | transloco }}
-            }
-        </h2>
-        <p class="text-on-surface-variant">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.updatePerson.heroSubtitleResult' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.updatePerson.heroSubtitleForm' | transloco }}
-            }
-        </p>
-    </div>
+    @if (step === 'form' && authChecked) {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.manage' | transloco"
+            [title]="'smartEnrollDemos.updatePerson.heroTitleForm' | transloco"
+            [subtitle]="'smartEnrollDemos.updatePerson.heroSubtitleForm' | transloco"
+            [chipLabel]="'smartEnrollDemos.demoStage.personTitle' | transloco"
+            [chipValue]="name || ('smartEnrollDemos.demoStage.notSet' | transloco)"
+        />
+    } @else {
+        <div class="mb-8">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.updatePerson.heroTitleResult' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.updatePerson.heroTitleForm' | transloco }}
+                }
+            </h2>
+            <p class="text-on-surface-variant">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.updatePerson.heroSubtitleResult' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.updatePerson.heroSubtitleForm' | transloco }}
+                }
+            </p>
+        </div>
+    }
 
     @if (!authChecked) {
         <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else if (step === 'form') {
-        <form (ngSubmit)="handleSubmit()" class="space-y-5">
-            <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-4 space-y-3">
+        <form (ngSubmit)="handleSubmit()" class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.personTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.personHelp' | transloco"
+            >
+            <div class="space-y-3">
                 <label class="block text-sm font-semibold text-on-surface" id="up-person-label">
                     {{ 'smartEnrollDemos.updatePerson.personLabel' | transloco }}
                     <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
@@ -47,7 +62,14 @@
                     </p>
                 }
             </div>
+            </app-demo-stage-card>
 
+            <app-demo-stage-card
+                number="02"
+                [title]="'smartEnrollDemos.demoStage.profileTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.profileHelp' | transloco"
+            >
+            <div class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                     <label class="block text-sm font-semibold text-on-surface mb-1.5" for="up-name">
@@ -99,14 +121,7 @@
                     <label class="block text-sm font-semibold text-on-surface mb-1.5" for="up-nationality">
                         {{ 'smartEnrollDemos.updatePerson.nationalityLabel' | transloco }}
                     </label>
-                    <input
-                        id="up-nationality"
-                        type="text"
-                        [(ngModel)]="nationality"
-                        name="nationality"
-                        [placeholder]="'smartEnrollDemos.updatePerson.nationalityPlaceholder' | transloco"
-                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary/60"
-                    />
+                    <app-nationality-select inputId="up-nationality" name="nationality" [(ngModel)]="nationality" />
                 </div>
             </div>
 
@@ -143,6 +158,8 @@
                     [emptySlot]="noCollectionsLoadedSlot"
                 />
             </div>
+            </div>
+            </app-demo-stage-card>
 
             @if (submitError) {
                 <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
@@ -153,8 +170,8 @@
 
             <button
                 type="submit"
-                [disabled]="!selectedPersonId?.trim() || !selectedCollectionIds.length || collectionsLoading || loadingPerson || personsLoading"
-                class="demo-btn-primary"
+                [disabled]="!selectedPersonId?.trim() || !selectedCollectionIds.length || collectionsLoading || loadingPerson || personsLoading || nationalityBlocked"
+                class="demo-btn-primary xl:col-span-2"
             >
                 {{ 'smartEnrollDemos.updatePerson.saveChanges' | transloco }}
             </button>

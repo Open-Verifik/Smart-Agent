@@ -1,18 +1,32 @@
 <app-demo-page-shell>
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            {{ (result ? 'smartEnrollDemos.detectFace.heroTitleComplete' : 'smartEnrollDemos.detectFace.heroTitleInitial') | transloco }}
-        </h2>
-        <p class="text-on-surface-variant">
-            {{ (result ? 'smartEnrollDemos.detectFace.heroSubtitleComplete' : 'smartEnrollDemos.detectFace.heroSubtitleInitial') | transloco }}
-        </p>
-    </div>
+    @if (!authChecked) {
+        <div class="mb-8">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                {{ 'smartEnrollDemos.detectFace.heroTitleInitial' | transloco }}
+            </h2>
+            <p class="text-on-surface-variant">
+                {{ 'smartEnrollDemos.detectFace.heroSubtitleInitial' | transloco }}
+            </p>
+        </div>
+    } @else {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.detection' | transloco"
+            [title]="(result ? 'smartEnrollDemos.detectFace.heroTitleComplete' : 'smartEnrollDemos.detectFace.heroTitleInitial') | transloco"
+            [subtitle]="(result ? 'smartEnrollDemos.detectFace.heroSubtitleComplete' : 'smartEnrollDemos.detectFace.heroSubtitleInitial') | transloco"
+        />
+    }
 
     @if (!authChecked) {
         <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else {
         <div class="space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.settingsTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.settingsHelp' | transloco"
+            >
+            <div class="grid grid-cols-1 gap-5">
                 <div>
                     <label class="block text-sm font-semibold text-on-surface mb-1.5">
                         {{ 'smartEnrollDemos.detectFace.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
@@ -27,7 +41,14 @@
                     </select>
                 </div>
             </div>
+            </app-demo-stage-card>
 
+            <app-demo-stage-card
+                number="02"
+                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
+            >
+            <div class="space-y-5">
             @if (!image) {
                 <div class="space-y-5">
                     <app-demo-choose-one-callout [description]="'smartEnrollDemos.detectFace.chooseOneDescription' | transloco" />
@@ -70,6 +91,10 @@
                     {{ error }}
                 </div>
             }
+
+            </div>
+            </app-demo-stage-card>
+        </div>
 
             @if (result) {
                 <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6 space-y-3">

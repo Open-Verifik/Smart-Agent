@@ -15102,15 +15102,15 @@
               "dateOfBirth": "19-11-1997",
               "documentNumber": "74687367",
               "documentType": "DNI",
-              "expeditionDate": "03-03-2025",
-              "expirationDate": "03-03-2033",
+              "expeditionDate": "not_available",
+              "expirationDate": "not_available",
               "firstName": "FELIPE",
               "fullName": "FELIPE TRUJILLO HERNANDEZ",
               "lastName": "TRUJILLO HERNANDEZ",
-              "photo": "/9j/4AAQSkZJRgABAgAAAQABAAD/2wBD...v8ADSGiigD/2Q==",
+              "photo": "not_available",
               "sex": "M",
-              "ubigeoReniec": "020208",
-              "verificationDigit": "2"
+              "ubigeoReniec": "not_available",
+              "verificationDigit": "not_available"
             },
             "signature": {
               "dateTime": "April 16, 2025 2:44 PM",

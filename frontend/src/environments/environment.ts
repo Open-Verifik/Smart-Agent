@@ -8,7 +8,7 @@ const localDefaults = {
     smartAgentUrl: 'http://localhost:3060',
     apiUrl: 'http://localhost:3001',
     documentationBaseUrl: 'https://docs.verifik.co',
-    appUrl: 'http://localhost:3006',
+    appUrl: 'https://verifik.app',
     projectId: '6266193db77ccc8111730c90',
     loginProjectFlowId: '658ed28b0990f300134d7b78',
     kycBaseUrl: 'https://access.app',

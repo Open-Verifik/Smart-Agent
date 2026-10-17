@@ -1,0 +1,13 @@
+<header class="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+    <div class="max-w-2xl">
+        <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-on-surface-variant">{{ eyebrow }}</p>
+        <h2 class="mt-1 text-3xl font-black tracking-tight text-on-surface">{{ title }}</h2>
+        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">{{ subtitle }}</p>
+    </div>
+    @if (chipLabel) {
+        <div class="flex w-full max-w-xs flex-col rounded-xl border border-outline-variant/40 bg-surface-container px-4 py-3 sm:w-auto sm:items-end">
+            <span class="text-[0.62rem] font-semibold uppercase tracking-[0.08em] text-on-surface-variant">{{ chipLabel }}</span>
+            <strong class="mt-0.5 text-sm text-on-surface">{{ chipValue }}</strong>
+        </div>
+    }
+</header>

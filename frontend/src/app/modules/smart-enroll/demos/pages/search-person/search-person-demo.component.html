@@ -1,12 +1,20 @@
 <app-demo-page-shell>
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            {{ (result ? 'smartEnrollDemos.searchPerson.heroTitleComplete' : 'smartEnrollDemos.searchPerson.heroTitleInitial') | transloco }}
-        </h2>
-        <p class="text-on-surface-variant">
-            {{ (result ? 'smartEnrollDemos.searchPerson.heroSubtitleComplete' : 'smartEnrollDemos.searchPerson.heroSubtitleInitial') | transloco }}
-        </p>
-    </div>
+    @if (result || !authChecked) {
+        <div class="mb-8">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                {{ (result ? 'smartEnrollDemos.searchPerson.heroTitleComplete' : 'smartEnrollDemos.searchPerson.heroTitleInitial') | transloco }}
+            </h2>
+            <p class="text-on-surface-variant">
+                {{ (result ? 'smartEnrollDemos.searchPerson.heroSubtitleComplete' : 'smartEnrollDemos.searchPerson.heroSubtitleInitial') | transloco }}
+            </p>
+        </div>
+    } @else {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.search' | transloco"
+            [title]="'smartEnrollDemos.searchPerson.heroTitleInitial' | transloco"
+            [subtitle]="'smartEnrollDemos.searchPerson.heroSubtitleInitial' | transloco"
+        />
+    }
 
     @if (!authChecked) {
         <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
@@ -25,8 +33,13 @@
         </div>
     } @else {
         <div class="space-y-5">
-            <div class="bg-surface-container-low border border-outline-variant/15 rounded-2xl p-5 shadow-sm w-full">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.settingsTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.settingsHelp' | transloco"
+            >
+                <div class="grid grid-cols-1 gap-6">
                     <div class="flex flex-col">
                         <label class="block text-sm font-semibold text-on-surface mb-1.5">
                             {{ 'smartEnrollDemos.searchPerson.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
@@ -62,8 +75,13 @@
                         />
                     </div>
                 </div>
-            </div>
+            </app-demo-stage-card>
 
+            <app-demo-stage-card
+                number="02"
+                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
+            >
             <div class="space-y-5">
                 <app-demo-choose-one-callout [description]="'smartEnrollDemos.searchPerson.chooseOneDescription' | transloco" />
                 <section aria-labelledby="search-person-camera-heading">
@@ -80,6 +98,8 @@
                     <app-demo-upload-image-button (clicked)="triggerFilePicker()" [primaryText]="images.length ? ('smartEnrollDemos.common.imagesAddMore' | transloco: { count: images.length }) : ('smartEnrollDemos.common.uploadFaceImages' | transloco)" [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco" icon="add_photo_alternate" />
                 </section>
             </div>
+            </app-demo-stage-card>
+        </div>
 
             @if (previews.length > 0) {
                 <div class="flex flex-wrap gap-2">

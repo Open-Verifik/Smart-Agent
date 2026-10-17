@@ -15,6 +15,8 @@ import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import { fileToBase64 } from '../../services/biometrics-demo.util';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
@@ -44,6 +46,8 @@ type ProofMode = 'paste' | 'qr';
         NgClass,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoStageHeroComponent,
+        DemoStageCardComponent,
         DemoRelatedDocsSectionComponent,
         DemoUploadImageButtonComponent,
         DemoRasterImageComponent,
@@ -197,7 +201,7 @@ export class HumanidPreviewDemoComponent implements OnInit {
     }
 
     backToDemos(): void {
-        void this._router.navigate(['/smart-enroll/demos']);
+        void this._router.navigate(['/human-authn/demos']);
     }
 
     private buildRelatedDocs(): DemoRelatedDocItem[] {

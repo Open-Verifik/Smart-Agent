@@ -1,17 +1,32 @@
 <app-demo-page-shell>
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            {{ (result ? 'smartEnrollDemos.verifyFace.heroTitleComplete' : 'smartEnrollDemos.verifyFace.heroTitleInitial') | transloco }}
-        </h2>
-        <p class="text-on-surface-variant">
-            {{ (result ? 'smartEnrollDemos.verifyFace.heroSubtitleComplete' : 'smartEnrollDemos.verifyFace.heroSubtitleInitial') | transloco }}
-        </p>
-    </div>
+    @if (!authChecked) {
+        <div class="mb-8">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                {{ 'smartEnrollDemos.verifyFace.heroTitleInitial' | transloco }}
+            </h2>
+            <p class="text-on-surface-variant">
+                {{ 'smartEnrollDemos.verifyFace.heroSubtitleInitial' | transloco }}
+            </p>
+        </div>
+    } @else {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.comparison' | transloco"
+            [title]="(result ? 'smartEnrollDemos.verifyFace.heroTitleComplete' : 'smartEnrollDemos.verifyFace.heroTitleInitial') | transloco"
+            [subtitle]="(result ? 'smartEnrollDemos.verifyFace.heroSubtitleComplete' : 'smartEnrollDemos.verifyFace.heroSubtitleInitial') | transloco"
+        />
+    }
 
     @if (!authChecked) {
         <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else {
         <div class="space-y-5">
+        <div class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.personTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.verifyHelp' | transloco"
+            >
+            <div class="space-y-5">
             <div>
                 <label class="block text-sm font-semibold text-on-surface mb-1.5" for="verify-person-id">
                     {{ 'smartEnrollDemos.verifyFace.personIdLabel' | transloco }}
@@ -51,7 +66,14 @@
                     <input type="text" [(ngModel)]="collectionId" name="collectionId" [placeholder]="'smartEnrollDemos.verifyFace.optionalPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60" />
                 </div>
             </div>
+            </div>
+            </app-demo-stage-card>
 
+            <app-demo-stage-card
+                number="02"
+                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
+            >
             <div class="space-y-5">
                 <app-demo-choose-one-callout [description]="'smartEnrollDemos.verifyFace.chooseOneDescription' | transloco" />
                 <section aria-labelledby="verify-face-camera-heading">
@@ -89,6 +111,9 @@
                     {{ error }}
                 </div>
             }
+
+            </app-demo-stage-card>
+        </div>
 
             @if (result) {
                 <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6 space-y-3">
