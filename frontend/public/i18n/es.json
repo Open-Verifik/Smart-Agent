@@ -4016,6 +4016,24 @@
                 }
             },
             "integrations": {
+                "enrollmentClient": {
+                    "title": "Experiencia de inscripción",
+                    "subtitle": "Elige la página que abre el enlace publicado.",
+                    "legacy": "Inscripción actual (/sign-up)",
+                    "v2": "Inscripción nueva (/verify)",
+                    "blocked": "La inscripción nueva permanece apagada mientras el proyecto necesite:",
+                    "blockers": {
+                        "business": "Verificación de empresa o KYB",
+                        "extraFields": "Campos de perfil adicionales",
+                        "backgroundCheck": "Verificación de antecedentes",
+                        "nameCheck": "Verificación de nombre",
+                        "screening": "Listas de control",
+                        "zeroKnowledge": "Prueba de conocimiento cero",
+                        "taxInformation": "Información fiscal",
+                        "representatives": "Representantes legales",
+                        "signature": "Firma o formulario adicional"
+                    }
+                },
                 "redirect": {
                     "title": "URL de redirección",
                     "subtitle": "Dónde enviar al cliente cuando termine la inscripción.",

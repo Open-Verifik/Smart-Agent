@@ -3552,6 +3552,24 @@
                 }
             },
             "integrations": {
+                "enrollmentClient": {
+                    "title": "Enrollment experience",
+                    "subtitle": "Choose the page customers open from the published link.",
+                    "legacy": "Current enrollment (/sign-up)",
+                    "v2": "New enrollment (/verify)",
+                    "blocked": "The new enrollment stays off until this project no longer needs:",
+                    "blockers": {
+                        "business": "Business or KYB verification",
+                        "extraFields": "Extra profile fields",
+                        "backgroundCheck": "Background check",
+                        "nameCheck": "Name check",
+                        "screening": "Screening",
+                        "zeroKnowledge": "Zero-knowledge proof",
+                        "taxInformation": "Tax information",
+                        "representatives": "Legal representatives",
+                        "signature": "Signature or extra form"
+                    }
+                },
                 "redirect": {
                     "title": "Redirect URL",
                     "subtitle": "Where to send the customer once enrollment finishes.",

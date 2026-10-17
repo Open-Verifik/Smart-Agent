@@ -12,6 +12,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { requiresSmartEnrollSubscription } from 'app/core/client-settings/override-conditions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
+import { enrollmentSegment, readEnrollmentClient } from '../enrollment-client.util';
 import { DateTime } from 'luxon';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -153,7 +154,9 @@ export class ProjectListComponent implements OnInit {
      */
     liveEnrollmentUrl(project: EnrollProject): string {
         const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
-        return `${base}/sign-up/${project._id}`;
+        const segment = enrollmentSegment(readEnrollmentClient(this.currentFlow(project)));
+
+        return `${base}/${segment}/${project._id}`;
     }
 
     openLiveEnrollment(project: EnrollProject, event?: Event): void {

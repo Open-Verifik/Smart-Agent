@@ -31,6 +31,7 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 
 import { environment } from 'environments/environment';
+import { enrollmentBlockers, enrollmentSegment, readEnrollmentClient } from '../enrollment-client.util';
 import {
     ADDRESS_PATTERN,
     CITY_NAME_PATTERN,
@@ -384,7 +385,10 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return Array.from(out);
     }
 
+    private _savedEnrollmentClient = '';
+
     private _initProjectFlowForm(target: string, currentData: any): FormGroup {
+        this._savedEnrollmentClient = currentData?.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : '';
         const rawBizStyle = currentData?.signUpForm?.businessBasicInfoStyle;
         const businessBasicInfoStyleNormalized: 'name' | 'name_number' =
             rawBizStyle === 'name_number'
@@ -399,6 +403,9 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             target: [target, [Validators.required]],
             type: ['onboarding', [Validators.required]],
             version: [currentData?.version ?? 3, [Validators.required]],
+            onboardingSettings: this._formBuilder.group({
+                enrollmentClient: [currentData?.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : ''],
+            }),
             business: this._formBuilder.group(
                 {
                     attemptLimit: [currentData?.business?.attemptLimit || 3, [Validators.required, Validators.min(1), Validators.max(5)]],
@@ -538,6 +545,24 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return null;
     };
 
+    private _enrollmentClientPayload(projectFlowData: any): any {
+        if (!projectFlowData) return projectFlowData;
+
+        const selected = projectFlowData.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : '';
+        const blockers = enrollmentBlockers(projectFlowData);
+        const { onboardingSettings, ...rest } = projectFlowData;
+
+        if (selected === 'v2' && !blockers.length) {
+            return { ...rest, onboardingSettings: { enrollmentClient: 'v2' } };
+        }
+
+        if ((selected === 'v2' && blockers.length) || this._savedEnrollmentClient === 'v2') {
+            return { ...rest, onboardingSettings: { enrollmentClient: 'legacy' } };
+        }
+
+        return rest;
+    }
+
     private _pickV3SignUpFormPayload(
         signUpForm: Record<string, unknown> | null | undefined,
         target: string
@@ -558,7 +583,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
      */
     private _prepareProjectFlowData(data: any): Project<SmartEnrollProjectFlow> {
         const { dataProtection, branding, projectFlow: projectFlowData, ...restProject } = data;
-        const { steps, business, documents, liveness, signUpForm, representatives, integrations, ...restProjectFlow } = projectFlowData;
+        const { steps, business, documents, liveness, signUpForm, representatives, integrations, ...restProjectFlow } =
+            this._enrollmentClientPayload(projectFlowData);
 
         const formData: any = restProject;
 
@@ -937,7 +963,12 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             (environment as any).production && (environment as any).kycBaseUrl
                 ? (environment as any).kycBaseUrl
                 : (environment as any).sandBoxKYCBaseUrl || (environment as any).kycBaseUrl || `${origin}`;
-        const url = `${baseUrl}/sign-up/${this.projectId}`;
+        const client = readEnrollmentClient({
+            onboardingSettings: { enrollmentClient: this.form.get('projectFlow.onboardingSettings.enrollmentClient')?.value },
+        });
+        const blocked = enrollmentBlockers(this.form.get('projectFlow')?.getRawValue?.() || this.form.get('projectFlow')?.value);
+        const segment = blocked.length ? 'sign-up' : enrollmentSegment(client);
+        const url = `${baseUrl}/${segment}/${this.projectId}`;
         window.open(url, '_blank');
     }
 
