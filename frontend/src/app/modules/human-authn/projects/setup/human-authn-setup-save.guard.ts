@@ -7,6 +7,8 @@ import {
     RouterStateSnapshot,
 } from '@angular/router';
 import { Observable } from 'rxjs';
+import type { SmartAccessLeaveAction } from 'app/modules/smart-access/projects/setup/leave-dialog/smart-access-leave-dialog.component';
+import { progressForDraftLeave, progressForValidNavigation } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { HumanAuthnSetupHostComponent } from './human-authn-setup-host.component';
 
 @Injectable({ providedIn: 'root' })
@@ -31,30 +33,95 @@ export class HumanAuthnSetupSaveGuard implements CanDeactivate<HumanAuthnSetupHo
         const currentStepIsValid = component.isFormValidForStep(currentStepIndex);
 
         if (navigatingAway && !currentStepIsValid) {
-            return new Observable<boolean>((observer) => {
-                component.confirmNavigation().afterClosed().subscribe((action) => {
-                    observer.next(action === 'confirmed');
-                    observer.complete();
-                });
-            });
+            return this._confirmLeave(component, currentStepIndex);
         }
 
         if (navigatingBack) {
-            return currentStepIsValid ? this._triggerSave(component, nextStepIndex) : true;
+            return currentStepIsValid ? this._triggerSave(component, currentStepIndex, nextStepIndex) : true;
         }
 
-        return currentStepIsValid ? this._triggerSave(component, nextStepIndex) : false;
+        return currentStepIsValid ? this._triggerSave(component, currentStepIndex, nextStepIndex) : false;
+    }
+
+    private _confirmLeave(component: HumanAuthnSetupHostComponent, stepIndex: number): Observable<boolean> {
+        return new Observable<boolean>((observer) => {
+            component.confirmNavigation().afterClosed().subscribe((action: SmartAccessLeaveAction | undefined) => {
+                if (action === 'discard') {
+                    component.form?.markAsPristine();
+                    observer.next(true);
+                    observer.complete();
+                    return;
+                }
+                if (action !== 'save') {
+                    observer.next(false);
+                    observer.complete();
+                    return;
+                }
+                this._saveDraftAndLeave(component, stepIndex, observer);
+            });
+        });
+    }
+
+    private _saveDraftAndLeave(
+        component: HumanAuthnSetupHostComponent,
+        stepIndex: number,
+        observer: { next: (value: boolean) => void; complete: () => void }
+    ): void {
+        const progress = progressForDraftLeave(stepIndex, component.savedLastStep());
+        let emitted = false;
+        component.saveDraft(progress).subscribe({
+            next: (response) => {
+                emitted = true;
+                this._ngZone.run(() => {
+                    component.saving.set(false);
+                    component.rememberWizardProgress(progress, 'draft');
+                    if ((!component.projectId || component.projectId === 'new') && response?.data?._id) {
+                        component.updateProjectId(response.data._id);
+                    }
+                    component.form?.markAsPristine();
+                    observer.next(true);
+                    observer.complete();
+                });
+            },
+            error: (error) => {
+                emitted = true;
+                this._showSaveError(error);
+                this._ngZone.run(() => {
+                    component.saving.set(false);
+                    observer.next(false);
+                    observer.complete();
+                });
+            },
+            complete: () => {
+                if (emitted) return;
+                this._ngZone.run(() => {
+                    component.saving.set(false);
+                    observer.next(false);
+                    observer.complete();
+                });
+            },
+        });
     }
 
     private _triggerSave(
         component: HumanAuthnSetupHostComponent,
+        currentStepIndex: number,
         nextStepIndex: number | null
     ): Observable<boolean> {
+        const progress = progressForValidNavigation(
+            currentStepIndex,
+            nextStepIndex,
+            component.savedLastStep(),
+            component.steps.length
+        );
         return new Observable<boolean>((observer) => {
-            component.saveProject().subscribe({
+            let emitted = false;
+            component.saveProject(progress).subscribe({
                 next: (response) => {
+                    emitted = true;
                     this._ngZone.run(() => {
                         component.saving.set(false);
+                        component.rememberWizardProgress(progress);
                         if ((!component.projectId || component.projectId === 'new') && response?.data?._id) {
                             const newId = response.data._id;
                             component.updateProjectId(newId);
@@ -63,6 +130,8 @@ export class HumanAuthnSetupSaveGuard implements CanDeactivate<HumanAuthnSetupHo
                             observer.complete();
                             if (nextStepIndex !== null && !isNaN(nextStepIndex)) {
                                 this._router.navigate(['/human-authn/projects', newId, 'setup', nextStepIndex]);
+                            } else {
+                                this._router.navigate(['/human-authn/projects']);
                             }
                             return;
                         }
@@ -72,9 +141,16 @@ export class HumanAuthnSetupSaveGuard implements CanDeactivate<HumanAuthnSetupHo
                     });
                 },
                 error: (error) => {
-                    this._snack.open(error?.error?.message || error?.message || 'Error', 'Close', {
-                        duration: 3000,
+                    emitted = true;
+                    this._showSaveError(error);
+                    this._ngZone.run(() => {
+                        component.saving.set(false);
+                        observer.next(false);
+                        observer.complete();
                     });
+                },
+                complete: () => {
+                    if (emitted) return;
                     this._ngZone.run(() => {
                         component.saving.set(false);
                         observer.next(false);
@@ -83,6 +159,10 @@ export class HumanAuthnSetupSaveGuard implements CanDeactivate<HumanAuthnSetupHo
                 },
             });
         });
+    }
+
+    private _showSaveError(error: { error?: { message?: string }; message?: string }): void {
+        this._snack.open(error?.error?.message || error?.message || 'Error', 'Close', { duration: 3000 });
     }
 
     private _getStepFromState(state: RouterStateSnapshot): number | null {

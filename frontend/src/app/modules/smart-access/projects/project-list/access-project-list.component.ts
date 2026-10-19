@@ -14,6 +14,7 @@ import { environment } from 'environments/environment';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { requiresSmartAccessSubscription } from 'app/core/client-settings/override-conditions';
 import { smartAccessLoginFlow } from '../login-flow.util';
+import { isIncompleteSmartAccessWizard, resumeStepIndex } from '../setup/smart-access-setup-draft.util';
 import type { AccessProject, AccessProjectFlow } from '../smart-access-projects.types';
 import type { EnrollProjectMember } from '../../../smart-enroll/projects/smart-enroll-projects.types';
 import { SmartAccessProjectsService } from '../smart-access-projects.service';
@@ -93,6 +94,21 @@ export class AccessProjectListComponent implements OnInit {
     openProject(project: AccessProject, event?: Event): void {
         event?.stopPropagation();
         void this._router.navigate(['/smart-access/projects', project._id]);
+    }
+
+    /** Incomplete drafts reopen the wizard on the step that was saved. */
+    openProjectOrResume(project: AccessProject, event?: Event): void {
+        event?.stopPropagation();
+        if (!isIncompleteSmartAccessWizard(project)) {
+            this.openProject(project);
+            return;
+        }
+        void this._router.navigate([
+            '/smart-access/projects',
+            project._id,
+            'setup',
+            resumeStepIndex(project),
+        ]);
     }
 
     openRecords(project: AccessProject, event?: Event): void {

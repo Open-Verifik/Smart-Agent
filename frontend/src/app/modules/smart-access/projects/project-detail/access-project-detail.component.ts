@@ -10,6 +10,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { Subscription } from 'rxjs';
 import { smartAccessLoginFlow } from '../login-flow.util';
+import { isIncompleteSmartAccessWizard, resumeStepIndex } from '../setup/smart-access-setup-draft.util';
 import type { AccessProject, SmartAccessLoginSettings, SmartAccessSecurity, SmartAccessFlowIntegrations } from '../smart-access-projects.types';
 import { SmartAccessProjectsService } from '../smart-access-projects.service';
 import { AccessSignInPreviewComponent } from '../setup/preview/access-sign-in-preview.component';
@@ -81,6 +82,8 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
     previewForm = signal<FormGroup | null>(null);
 
     flow = computed(() => smartAccessLoginFlow(this.project()));
+
+    incompleteWizard = computed(() => isIncompleteSmartAccessWizard(this.project()));
 
     loginActive = computed(() => {
         const f = this.flow();
@@ -190,6 +193,10 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
         const id = this.project()?._id;
         if (!id) return;
         void this._router.navigate(['/smart-access/projects', id, 'setup', step]);
+    }
+
+    continueSetup(): void {
+        this.openSetup(resumeStepIndex(this.project()));
     }
 
     openRecords(): void {

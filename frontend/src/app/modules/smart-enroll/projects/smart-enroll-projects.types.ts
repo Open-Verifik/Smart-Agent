@@ -92,6 +92,9 @@ export interface EnrollProject {
     target?: 'personal' | 'business';
     branding?: EnrollProjectBranding;
     dataProtection?: EnrollProjectDataProtection;
+    status?: string;
+    currentStep?: number;
+    lastStep?: number;
     projectFlows?: EnrollProjectFlow[];
     projectMembers?: EnrollProjectMember[];
     client?: EnrollClientRef | string;

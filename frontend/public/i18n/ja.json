@@ -1593,6 +1593,52 @@
             "unsavedChanges": "未保存の変更",
             "unsavedChangesMessage": "保存せずにこのステップを離れますか？",
             "exitWithoutSaving": "保存せずに離れる",
+            "draft_name": "無題のプロジェクト",
+            "continue_setup": "設定を続ける",
+            "leave": {
+                "chooseTitle": "操作を選択",
+                "chooseHelp": "この選択で、プロジェクトを下書きのままにするかが決まります。",
+                "howTitle": "仕組み",
+                "howHelp": "選択は残す内容を変えます。完了済みの手順は変わりません。",
+                "recommended": "推奨",
+                "selectedPath": "選択した経路",
+                "flowEntered": "入力済み",
+                "options": {
+                    "save": {
+                        "title": "保存して終了",
+                        "body": "ここまでに入力した内容を保存して、このモジュールを離れます。",
+                        "benefit1": "進捗が残ります",
+                        "benefit2": "プロジェクトは下書きのままです",
+                        "benefit3": "この手順から再開できます",
+                        "howTitle": "下書きとして保存",
+                        "howBody": "入力済みの項目を保存し、プロジェクトを未完了として扱います。",
+                        "result": "プロジェクトを開き直すと、同じ内容を再入力せずに続けられます。",
+                        "flowOutcome": "下書きを保存"
+                    },
+                    "discard": {
+                        "title": "保存せずに離れる",
+                        "body": "今すぐ離れ、まだ保存していない変更を破棄します。",
+                        "benefit1": "未保存の変更は破棄されます",
+                        "benefit2": "以前の保存内容はそのままです",
+                        "benefit3": "このモジュールを離れます",
+                        "howTitle": "未保存の変更を破棄",
+                        "howBody": "まだ保存していない情報だけが破棄されます。",
+                        "result": "すでに保存したプロジェクトは引き続き利用できます。",
+                        "flowOutcome": "変更を破棄"
+                    },
+                    "cancel": {
+                        "title": "キャンセル",
+                        "body": "この手順に残り、編集を続けます。",
+                        "benefit1": "ウィザードに残ります",
+                        "benefit2": "何も破棄されません",
+                        "benefit3": "新しい内容はまだ保存されません",
+                        "howTitle": "設定に残る",
+                        "howBody": "編集中の手順のままウィザードを開いておきます。",
+                        "result": "フォームの入力を続けられます。",
+                        "flowOutcome": "ここに残る"
+                    }
+                }
+            },
             "steps": {
                 "basic": "プロジェクト詳細",
                 "signup": "登録フォーム",
@@ -3682,6 +3728,52 @@
             "unsaved_changes": "未保存の変更",
             "unsaved_changes_message": "保存せずに移動しますか？",
             "exit_without_saving": "保存せずに退出",
+            "draft_name": "無題のプロジェクト",
+            "continue_setup": "設定を続ける",
+            "leave": {
+                "chooseTitle": "操作を選択",
+                "chooseHelp": "この選択で、プロジェクトを下書きのままにするかが決まります。",
+                "howTitle": "仕組み",
+                "howHelp": "選択は残す内容を変えます。完了済みの手順は変わりません。",
+                "recommended": "推奨",
+                "selectedPath": "選択した経路",
+                "flowEntered": "入力済み",
+                "options": {
+                    "save": {
+                        "title": "保存して終了",
+                        "body": "ここまでに入力した内容を保存して、このモジュールを離れます。",
+                        "benefit1": "進捗が残ります",
+                        "benefit2": "プロジェクトは下書きのままです",
+                        "benefit3": "この手順から再開できます",
+                        "howTitle": "下書きとして保存",
+                        "howBody": "入力済みの項目を保存し、プロジェクトを未完了として扱います。",
+                        "result": "プロジェクトを開き直すと、同じ内容を再入力せずに続けられます。",
+                        "flowOutcome": "下書きを保存"
+                    },
+                    "discard": {
+                        "title": "保存せずに離れる",
+                        "body": "今すぐ離れ、まだ保存していない変更を破棄します。",
+                        "benefit1": "未保存の変更は破棄されます",
+                        "benefit2": "以前の保存内容はそのままです",
+                        "benefit3": "このモジュールを離れます",
+                        "howTitle": "未保存の変更を破棄",
+                        "howBody": "まだ保存していない情報だけが破棄されます。",
+                        "result": "すでに保存したプロジェクトは引き続き利用できます。",
+                        "flowOutcome": "変更を破棄"
+                    },
+                    "cancel": {
+                        "title": "キャンセル",
+                        "body": "この手順に残り、編集を続けます。",
+                        "benefit1": "ウィザードに残ります",
+                        "benefit2": "何も破棄されません",
+                        "benefit3": "新しい内容はまだ保存されません",
+                        "howTitle": "設定に残る",
+                        "howBody": "編集中の手順のままウィザードを開いておきます。",
+                        "result": "フォームの入力を続けられます。",
+                        "flowOutcome": "ここに残る"
+                    }
+                }
+            },
             "stub": {
                 "title": "ステップ",
                 "placeholder": "このステップはウィザードの今後のフェーズで接続されます。"
@@ -4326,6 +4418,52 @@
             "unsaved_changes": "未保存の変更",
             "unsaved_changes_message": "未保存の変更があります。保存せずに離れますか？",
             "exit_without_saving": "保存せずに離れる",
+            "draft_name": "無題のプロジェクト",
+            "continue_setup": "設定を続ける",
+            "leave": {
+                "chooseTitle": "操作を選択",
+                "chooseHelp": "この選択で、プロジェクトを下書きのままにするかが決まります。",
+                "howTitle": "仕組み",
+                "howHelp": "選択は残す内容を変えます。完了済みの手順は変わりません。",
+                "recommended": "推奨",
+                "selectedPath": "選択した経路",
+                "flowEntered": "入力済み",
+                "options": {
+                    "save": {
+                        "title": "保存して終了",
+                        "body": "ここまでに入力した内容を保存して、このモジュールを離れます。",
+                        "benefit1": "進捗が残ります",
+                        "benefit2": "プロジェクトは下書きのままです",
+                        "benefit3": "この手順から再開できます",
+                        "howTitle": "下書きとして保存",
+                        "howBody": "入力済みの項目を保存し、プロジェクトを未完了として扱います。",
+                        "result": "プロジェクトを開き直すと、同じ内容を再入力せずに続けられます。",
+                        "flowOutcome": "下書きを保存"
+                    },
+                    "discard": {
+                        "title": "保存せずに離れる",
+                        "body": "今すぐ離れ、まだ保存していない変更を破棄します。",
+                        "benefit1": "未保存の変更は破棄されます",
+                        "benefit2": "以前の保存内容はそのままです",
+                        "benefit3": "このモジュールを離れます",
+                        "howTitle": "未保存の変更を破棄",
+                        "howBody": "まだ保存していない情報だけが破棄されます。",
+                        "result": "すでに保存したプロジェクトは引き続き利用できます。",
+                        "flowOutcome": "変更を破棄"
+                    },
+                    "cancel": {
+                        "title": "キャンセル",
+                        "body": "この手順に残り、編集を続けます。",
+                        "benefit1": "ウィザードに残ります",
+                        "benefit2": "何も破棄されません",
+                        "benefit3": "新しい内容はまだ保存されません",
+                        "howTitle": "設定に残る",
+                        "howBody": "編集中の手順のままウィザードを開いておきます。",
+                        "result": "フォームの入力を続けられます。",
+                        "flowOutcome": "ここに残る"
+                    }
+                }
+            },
             "steps": {
                 "basic": "基本情報",
                 "login_methods": "ログイン方法",

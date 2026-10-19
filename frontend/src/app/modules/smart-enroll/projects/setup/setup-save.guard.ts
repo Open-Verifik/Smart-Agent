@@ -9,6 +9,8 @@ import {
 import { Observable } from 'rxjs';
 
 import { SetupHostComponent } from './setup-host.component';
+import type { SmartAccessLeaveAction } from 'app/modules/smart-access/projects/setup/leave-dialog/smart-access-leave-dialog.component';
+import { progressForDraftLeave, progressForValidNavigation } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 
 /**
  * Persists the wizard's current step before navigating away.
@@ -42,18 +44,7 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
         const currentStepIsValid = component.isFormValidForStep(currentStepIndex);
 
         if (navigatingAway && !currentStepIsValid) {
-            return new Observable<boolean>((observer) => {
-                const dialogRef = component.confirmNavigation();
-                dialogRef.afterClosed().subscribe((action) => {
-                    if (action !== 'confirmed') {
-                        observer.next(false);
-                        observer.complete();
-                        return;
-                    }
-                    observer.next(true);
-                    observer.complete();
-                });
-            });
+            return this._confirmLeave(component, currentStepIndex);
         }
 
         if (navigatingBack) {
@@ -67,18 +58,85 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
             : false;
     }
 
+    private _confirmLeave(component: SetupHostComponent, stepIndex: number): Observable<boolean> {
+        return new Observable<boolean>((observer) => {
+            component.confirmNavigation().afterClosed().subscribe((action: SmartAccessLeaveAction | undefined) => {
+                if (action === 'discard') {
+                    component.form?.markAsPristine();
+                    observer.next(true);
+                    observer.complete();
+                    return;
+                }
+                if (action !== 'save') {
+                    observer.next(false);
+                    observer.complete();
+                    return;
+                }
+                this._saveDraftAndLeave(component, stepIndex, observer);
+            });
+        });
+    }
+
+    private _saveDraftAndLeave(
+        component: SetupHostComponent,
+        stepIndex: number,
+        observer: { next: (value: boolean) => void; complete: () => void }
+    ): void {
+        const progress = progressForDraftLeave(stepIndex, component.savedLastStep());
+        let emitted = false;
+        component.saveDraft(progress).subscribe({
+            next: (response) => {
+                emitted = true;
+                this._ngZone.run(() => {
+                    component.saving.set(false);
+                    component.rememberWizardProgress(progress, 'draft');
+                    if ((!component.projectId || component.projectId === 'new') && response?.data?._id) {
+                        component.updateProjectId(response.data._id);
+                    }
+                    component.form?.markAsPristine();
+                    observer.next(true);
+                    observer.complete();
+                });
+            },
+            error: (error) => {
+                emitted = true;
+                this._showSaveError(error);
+                this._ngZone.run(() => {
+                    component.saving.set(false);
+                    observer.next(false);
+                    observer.complete();
+                });
+            },
+            complete: () => {
+                if (emitted) return;
+                this._ngZone.run(() => {
+                    component.saving.set(false);
+                    observer.next(false);
+                    observer.complete();
+                });
+            },
+        });
+    }
+
     private _triggerSave(
         component: SetupHostComponent,
-        _currentStepIndex: number,
+        currentStepIndex: number,
         nextStepIndex: number | null
     ): Observable<boolean> {
+        const progress = progressForValidNavigation(
+            currentStepIndex,
+            nextStepIndex,
+            component.savedLastStep(),
+            component.steps.length
+        );
         return new Observable<boolean>((observer) => {
             let emitted = false;
-            component.saveProject().subscribe({
+            component.saveProject(progress).subscribe({
                 next: (response) => {
                     emitted = true;
                     this._ngZone.run(() => {
                         component.saving.set(false);
+                        component.rememberWizardProgress(progress);
 
                         if (
                             (!component.projectId || component.projectId === 'new') &&
@@ -114,11 +172,7 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
                 },
                 error: (error) => {
                     emitted = true;
-                    const msg =
-                        error?.error?.message ||
-                        error?.message ||
-                        'smartEnrollProjects.setup.api_error';
-                    this._snack.open(msg, 'Close', { duration: 3000 });
+                    this._showSaveError(error);
                     this._ngZone.run(() => {
                         component.saving.set(false);
                         observer.next(false);
@@ -135,6 +189,11 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
                 },
             });
         });
+    }
+
+    private _showSaveError(error: { error?: { message?: string }; message?: string }): void {
+        const msg = error?.error?.message || error?.message || 'smartEnrollProjects.setup.api_error';
+        this._snack.open(msg, 'Close', { duration: 3000 });
     }
 
     private _resolveCurrentStepIndex(

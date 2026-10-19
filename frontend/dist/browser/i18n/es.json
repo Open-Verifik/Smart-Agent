@@ -1579,6 +1579,52 @@
             "unsavedChanges": "Cambios sin guardar",
             "unsavedChangesMessage": "¿Salir de este paso sin guardar?",
             "exitWithoutSaving": "Salir sin guardar",
+            "draft_name": "Proyecto sin título",
+            "continue_setup": "Continuar configuración",
+            "leave": {
+                "chooseTitle": "Elige qué hacer",
+                "chooseHelp": "Esta selección decide si el proyecto queda como borrador.",
+                "howTitle": "Cómo funciona",
+                "howHelp": "La opción cambia lo que se conserva, no los pasos que ya completaste.",
+                "recommended": "Recomendado",
+                "selectedPath": "Ruta seleccionada",
+                "flowEntered": "Datos ingresados",
+                "options": {
+                    "save": {
+                        "title": "Guardar y salir",
+                        "body": "Guarda todo lo ingresado hasta ahora y sal de este módulo.",
+                        "benefit1": "El progreso se conserva",
+                        "benefit2": "El proyecto queda en borrador",
+                        "benefit3": "Retomas en este paso",
+                        "howTitle": "Guardado como borrador",
+                        "howBody": "Verifik guarda los campos que ya completaste y marca el proyecto como incompleto.",
+                        "result": "Al volver a abrir el proyecto puedes continuar sin diligenciar esta información otra vez.",
+                        "flowOutcome": "Borrador guardado"
+                    },
+                    "discard": {
+                        "title": "Salir sin guardar",
+                        "body": "Sal ahora y descarta los cambios que aún no están guardados.",
+                        "benefit1": "Se descartan los cambios sin guardar",
+                        "benefit2": "Lo ya guardado se mantiene",
+                        "benefit3": "Sales de este módulo",
+                        "howTitle": "Se descartan los cambios",
+                        "howBody": "Solo se pierde la información que todavía no se había guardado.",
+                        "result": "Un proyecto que ya habías guardado sigue disponible.",
+                        "flowOutcome": "Cambios descartados"
+                    },
+                    "cancel": {
+                        "title": "Cancelar",
+                        "body": "Quédate en este paso y sigue editando.",
+                        "benefit1": "Permaneces en el asistente",
+                        "benefit2": "No se descarta nada",
+                        "benefit3": "Aún no se guarda nada nuevo",
+                        "howTitle": "Seguir en la configuración",
+                        "howBody": "El asistente permanece abierto en el paso que estás editando.",
+                        "result": "Puedes seguir diligenciando el formulario.",
+                        "flowOutcome": "Te quedas aquí"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Detalles del proyecto",
                 "signup": "Formulario de alta",
@@ -3651,6 +3697,52 @@
             "unsaved_changes": "Cambios sin guardar",
             "unsaved_changes_message": "¿Salir sin guardar los cambios?",
             "exit_without_saving": "Salir sin guardar",
+            "draft_name": "Proyecto sin título",
+            "continue_setup": "Continuar configuración",
+            "leave": {
+                "chooseTitle": "Elige qué hacer",
+                "chooseHelp": "Esta selección decide si el proyecto queda como borrador.",
+                "howTitle": "Cómo funciona",
+                "howHelp": "La opción cambia lo que se conserva, no los pasos que ya completaste.",
+                "recommended": "Recomendado",
+                "selectedPath": "Ruta seleccionada",
+                "flowEntered": "Datos ingresados",
+                "options": {
+                    "save": {
+                        "title": "Guardar y salir",
+                        "body": "Guarda todo lo ingresado hasta ahora y sal de este módulo.",
+                        "benefit1": "El progreso se conserva",
+                        "benefit2": "El proyecto queda en borrador",
+                        "benefit3": "Retomas en este paso",
+                        "howTitle": "Guardado como borrador",
+                        "howBody": "Verifik guarda los campos que ya completaste y marca el proyecto como incompleto.",
+                        "result": "Al volver a abrir el proyecto puedes continuar sin diligenciar esta información otra vez.",
+                        "flowOutcome": "Borrador guardado"
+                    },
+                    "discard": {
+                        "title": "Salir sin guardar",
+                        "body": "Sal ahora y descarta los cambios que aún no están guardados.",
+                        "benefit1": "Se descartan los cambios sin guardar",
+                        "benefit2": "Lo ya guardado se mantiene",
+                        "benefit3": "Sales de este módulo",
+                        "howTitle": "Se descartan los cambios",
+                        "howBody": "Solo se pierde la información que todavía no se había guardado.",
+                        "result": "Un proyecto que ya habías guardado sigue disponible.",
+                        "flowOutcome": "Cambios descartados"
+                    },
+                    "cancel": {
+                        "title": "Cancelar",
+                        "body": "Quédate en este paso y sigue editando.",
+                        "benefit1": "Permaneces en el asistente",
+                        "benefit2": "No se descarta nada",
+                        "benefit3": "Aún no se guarda nada nuevo",
+                        "howTitle": "Seguir en la configuración",
+                        "howBody": "El asistente permanece abierto en el paso que estás editando.",
+                        "result": "Puedes seguir diligenciando el formulario.",
+                        "flowOutcome": "Te quedas aquí"
+                    }
+                }
+            },
             "stub": {
                 "title": "Paso",
                 "placeholder": "Este paso se conectará en fases futuras del asistente."
@@ -4296,6 +4388,52 @@
             "unsaved_changes": "Cambios sin guardar",
             "unsaved_changes_message": "Tienes cambios sin guardar. ¿Salir sin guardar?",
             "exit_without_saving": "Salir sin guardar",
+            "draft_name": "Proyecto sin título",
+            "continue_setup": "Continuar configuración",
+            "leave": {
+                "chooseTitle": "Elige qué hacer",
+                "chooseHelp": "Esta selección decide si el proyecto queda como borrador.",
+                "howTitle": "Cómo funciona",
+                "howHelp": "La opción cambia lo que se conserva, no los pasos que ya completaste.",
+                "recommended": "Recomendado",
+                "selectedPath": "Ruta seleccionada",
+                "flowEntered": "Datos ingresados",
+                "options": {
+                    "save": {
+                        "title": "Guardar y salir",
+                        "body": "Guarda todo lo ingresado hasta ahora y sal de este módulo.",
+                        "benefit1": "El progreso se conserva",
+                        "benefit2": "El proyecto queda en borrador",
+                        "benefit3": "Retomas en este paso",
+                        "howTitle": "Guardado como borrador",
+                        "howBody": "Verifik guarda los campos que ya completaste y marca el proyecto como incompleto.",
+                        "result": "Al volver a abrir el proyecto puedes continuar sin diligenciar esta información otra vez.",
+                        "flowOutcome": "Borrador guardado"
+                    },
+                    "discard": {
+                        "title": "Salir sin guardar",
+                        "body": "Sal ahora y descarta los cambios que aún no están guardados.",
+                        "benefit1": "Se descartan los cambios sin guardar",
+                        "benefit2": "Lo ya guardado se mantiene",
+                        "benefit3": "Sales de este módulo",
+                        "howTitle": "Se descartan los cambios",
+                        "howBody": "Solo se pierde la información que todavía no se había guardado.",
+                        "result": "Un proyecto que ya habías guardado sigue disponible.",
+                        "flowOutcome": "Cambios descartados"
+                    },
+                    "cancel": {
+                        "title": "Cancelar",
+                        "body": "Quédate en este paso y sigue editando.",
+                        "benefit1": "Permaneces en el asistente",
+                        "benefit2": "No se descarta nada",
+                        "benefit3": "Aún no se guarda nada nuevo",
+                        "howTitle": "Seguir en la configuración",
+                        "howBody": "El asistente permanece abierto en el paso que estás editando.",
+                        "result": "Puedes seguir diligenciando el formulario.",
+                        "flowOutcome": "Te quedas aquí"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Básicos",
                 "login_methods": "Métodos de acceso",

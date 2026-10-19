@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -10,9 +10,15 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Observable, Subject, of, takeUntil, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { FuseConfirmationService } from '@fuse/services/confirmation';
-import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 import { STRICT_URL_PATTERN } from 'app/shared/validators/validation-patterns';
+import {
+    SmartAccessLeaveDialogComponent,
+    type SmartAccessLeaveAction,
+} from 'app/modules/smart-access/projects/setup/leave-dialog/smart-access-leave-dialog.component';
+import {
+    draftProjectName,
+    type WizardProgress,
+} from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { DEFAULT_PHONE_COUNTRY_CODE } from 'app/core/constants/phone-country-codes.constant';
 import { SetupFormFactory } from 'app/modules/smart-enroll/projects/setup/setup-form.factory';
 import { HumanAuthnDetailsStepComponent } from './steps/details-step.component';
@@ -58,7 +64,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
     private _cdr = inject(ChangeDetectorRef);
     private _snack = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
-    private _confirm = inject(FuseConfirmationService);
+    private _dialog = inject(MatDialog);
     private _unsub$ = new Subject<void>();
 
     form!: FormGroup;
@@ -95,6 +101,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                         this._failLoad();
                         return;
                     }
+                    this._setup.setProject(project);
                     this._initForm(project);
                     this._hydrated = true;
                 },
@@ -126,6 +133,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
             target: ['personal'],
             version: [3],
             currentStep: [this.stepIndex + 1],
+            lastStep: [Number(project?.lastStep ?? 0)],
             allowedCountries: [project.allowedCountries || [], Validators.required],
             contactEmail: [project.contactEmail || '', [Validators.required, Validators.email]],
             defaultLanguage: [project.defaultLanguage || 'en', Validators.required],
@@ -217,15 +225,43 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
         return keys.every((key) => !this.form.get(key)?.invalid);
     };
 
-    confirmNavigation(): MatDialogRef<FuseConfirmationDialogComponent> {
-        return this._confirm.open({
-            title: this._transloco.translate('humanAuthnProjects.setup.unsavedChanges'),
-            message: this._transloco.translate('humanAuthnProjects.setup.unsavedChangesMessage'),
-            actions: {
-                confirm: { show: true, label: this._transloco.translate('humanAuthnProjects.setup.exitWithoutSaving') },
-                cancel: { show: true, label: this._transloco.translate('cancel') },
-            },
+    confirmNavigation(): MatDialogRef<SmartAccessLeaveDialogComponent, SmartAccessLeaveAction> {
+        return this._dialog.open(SmartAccessLeaveDialogComponent, {
+            autoFocus: 'dialog',
+            data: { i18nPrefix: 'humanAuthnProjects.setup.leave' },
+            maxWidth: '96vw',
+            panelClass: 'smart-access-leave-dialog-panel',
+            width: 'min(920px, calc(100vw - 1.5rem))',
         });
+    }
+
+    savedLastStep(): number {
+        const fromProject = Number(this._setup.project?.lastStep ?? 0);
+        const fromForm = Number(this.form?.get('lastStep')?.value ?? 0);
+        const projectStep = Number.isFinite(fromProject) ? fromProject : 0;
+        const formStep = Number.isFinite(fromForm) ? fromForm : 0;
+        return Math.max(projectStep, formStep);
+    }
+
+    rememberWizardProgress(progress: WizardProgress, status?: string): void {
+        this._setup.setProject({
+            ...(this._setup.project || {}),
+            currentStep: progress.currentStep,
+            lastStep: progress.lastStep,
+            ...(status ? { status } : {}),
+        });
+        this.form?.get('currentStep')?.setValue(progress.currentStep, { emitEvent: false });
+        this.form?.get('lastStep')?.setValue(progress.lastStep, { emitEvent: false });
+    }
+
+    saveDraft(progress: WizardProgress): Observable<{ data: any }> {
+        if (!this._hydrated || !this.form || this.saving()) return of();
+        this.saving.set(true);
+        const payload = this._prepareDraftData(this.form.getRawValue(), progress);
+        const request$ = this.projectId !== 'new'
+            ? this._setup.updateProject(this.projectId, payload)
+            : this._setup.createProject(payload);
+        return request$.pipe(catchError((err) => throwError(() => err)));
     }
 
     nextStep(): void {
@@ -251,10 +287,13 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
         this._router.navigate(['/human-authn/projects', this.projectId, 'setup', step]);
     }
 
-    saveProject(): Observable<{ data: any }> {
+    saveProject(progress?: WizardProgress): Observable<{ data: any }> {
         if (!this._hydrated || !this.form || this.saving() || !this.isFormValidForStep(this.stepIndex)) return of();
         this.saving.set(true);
-        const payload = this._preparePayload(this.form.getRawValue());
+        const payload = {
+            ...this._preparePayload(this.form.getRawValue()),
+            ...(progress ? { currentStep: progress.currentStep, lastStep: progress.lastStep } : {}),
+        };
         const request$ = this.projectId !== 'new'
             ? this._setup.updateProject(this.projectId, payload)
             : this._setup.createProject(payload);
@@ -268,6 +307,29 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
 
     documentsFormGroup(): FormGroup {
         return this.form.get('projectFlow.documents') as FormGroup;
+    }
+
+    /**
+     * Stores the project identity without the current step's flow section.
+     * Create seeds a draft HumanAuthn flow on the server; an update leaves the saved flow in place.
+     */
+    private _prepareDraftData(value: any, progress: WizardProgress): Record<string, unknown> {
+        const language = `${value?.defaultLanguage || 'en'}`;
+        return {
+            allowedCountries: Array.isArray(value?.allowedCountries) ? value.allowedCountries : [],
+            branding: value?.branding,
+            contactEmail: `${value?.contactEmail ?? ''}`,
+            currentStep: progress.currentStep,
+            dataProtection: value?.dataProtection,
+            defaultLanguage: language || 'en',
+            lastStep: progress.lastStep,
+            name: draftProjectName(value?.name, this._transloco.translate('humanAuthnProjects.setup.draft_name')),
+            privacyUrl: `${value?.privacyUrl ?? ''}`,
+            status: 'draft',
+            target: 'personal',
+            termsAndConditionsUrl: `${value?.termsAndConditionsUrl ?? ''}`,
+            version: 3,
+        };
     }
 
     private _flowIdentity(projectFlow: any): Record<string, unknown> {

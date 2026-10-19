@@ -13,6 +13,7 @@ import { map } from 'rxjs/operators';
 
 import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
 import { documentFailureReasonKey, livenessFailureReasonKey } from '../app-registration-record.utils';
+import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type {
     AppRegistrationFunnel,
@@ -107,6 +108,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private _sectionSub?: Subscription;
 
     project = signal<EnrollProject | null>(null);
+    incompleteWizard = computed(() => isIncompleteSmartAccessWizard(this.project(), 6));
     loading = signal(true);
     errorKey = signal<string | null>(null);
     section = signal<string | null>(null);
@@ -441,6 +443,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         const id = this.project()?._id;
         if (!id) return;
         this._router.navigate(['/smart-enroll/projects', id, 'setup', step]);
+    }
+
+    continueSetup(): void {
+        this.openSetup(resumeStepIndex(this.project(), 6));
     }
 
     clearSection(): void {

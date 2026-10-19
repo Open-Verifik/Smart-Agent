@@ -1,0 +1,103 @@
+<ng-container *transloco="let t">
+    <div class="leave-dialog">
+        <div class="leave-decision">
+            <section class="leave-choices">
+                <div class="section-heading">
+                    <span>01</span>
+                    <div>
+                        <h3>{{ t(key('chooseTitle')) }}</h3>
+                        <p>{{ t(key('chooseHelp')) }}</p>
+                    </div>
+                </div>
+
+                <div class="leave-options" role="radiogroup" [attr.aria-label]="t(key('chooseTitle'))">
+                    @for (choice of choices; track choice.id) {
+                        <button
+                            type="button"
+                            role="radio"
+                            class="leave-option"
+                            [class.leave-option--selected]="selected() === choice.id"
+                            [attr.aria-checked]="selected() === choice.id"
+                            (click)="select(choice.id)"
+                        >
+                            <span class="leave-option__icon">
+                                <mat-icon>{{ choice.icon }}</mat-icon>
+                            </span>
+                            <span class="leave-option__content">
+                                <span class="leave-option__title">
+                                    <strong>{{ t(key('options.' + choice.id + '.title')) }}</strong>
+                                    @if (choice.recommended) {
+                                        <small>{{ t(key('recommended')) }}</small>
+                                    }
+                                </span>
+                                <span class="leave-option__body">
+                                    {{ t(key('options.' + choice.id + '.body')) }}
+                                </span>
+                                <span class="leave-option__benefits">
+                                    <span>
+                                        <mat-icon>check</mat-icon>
+                                        {{ t(key('options.' + choice.id + '.benefit1')) }}
+                                    </span>
+                                    <span>
+                                        <mat-icon>check</mat-icon>
+                                        {{ t(key('options.' + choice.id + '.benefit2')) }}
+                                    </span>
+                                    <span>
+                                        <mat-icon>check</mat-icon>
+                                        {{ t(key('options.' + choice.id + '.benefit3')) }}
+                                    </span>
+                                </span>
+                            </span>
+                            <mat-icon class="leave-option__check">
+                                {{ selected() === choice.id ? 'check_circle' : 'radio_button_unchecked' }}
+                            </mat-icon>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <aside class="leave-explainer" aria-live="polite">
+                <div class="section-heading section-heading--light">
+                    <span>02</span>
+                    <div>
+                        <h3>{{ t(key('howTitle')) }}</h3>
+                        <p>{{ t(key('howHelp')) }}</p>
+                    </div>
+                </div>
+
+                <div class="leave-flow">
+                    <div class="leave-flow__node">
+                        <mat-icon>edit_note</mat-icon>
+                        <span>{{ t(key('flowEntered')) }}</span>
+                    </div>
+                    <span class="leave-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                    <div class="leave-flow__node leave-flow__node--mid">
+                        <mat-icon>{{ selected() === 'save' ? 'save' : selected() === 'discard' ? 'logout' : 'undo' }}</mat-icon>
+                        <span>{{ t(key('options.' + selected() + '.title')) }}</span>
+                    </div>
+                    <span class="leave-flow__line"><mat-icon>arrow_forward</mat-icon></span>
+                    <div class="leave-flow__node leave-flow__node--outcome">
+                        <mat-icon>{{ outcomeIcon(selected()) }}</mat-icon>
+                        <span>{{ t(key('options.' + selected() + '.flowOutcome')) }}</span>
+                    </div>
+                </div>
+
+                <div class="leave-result">
+                    <span class="leave-result__label">{{ t(key('selectedPath')) }}</span>
+                    <h4>{{ t(key('options.' + selected() + '.howTitle')) }}</h4>
+                    <p>{{ t(key('options.' + selected() + '.howBody')) }}</p>
+                    <div class="leave-result__note">
+                        <mat-icon>info</mat-icon>
+                        <span>{{ t(key('options.' + selected() + '.result')) }}</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="leave-footer">
+            <button mat-flat-button type="button" class="leave-footer__confirm" (click)="confirm()">
+                {{ t(key('options.' + selected() + '.title')) }}
+            </button>
+        </footer>
+    </div>
+</ng-container>

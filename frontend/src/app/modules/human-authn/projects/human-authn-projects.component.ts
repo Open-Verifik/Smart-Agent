@@ -18,6 +18,7 @@ import {
     HumanAuthnProjectMember,
     HumanAuthnProjectsService,
 } from './human-authn-projects.service';
+import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 
 @Component({
     selector: 'app-human-authn-projects',
@@ -127,7 +128,12 @@ export class HumanAuthnProjectsComponent implements OnInit {
 
     openProject(project: HumanAuthnProject, event?: Event): void {
         event?.stopPropagation();
-        this._router.navigate(['/human-authn/projects', project._id, 'setup', '0']);
+        const step = isIncompleteSmartAccessWizard(project, 7) ? resumeStepIndex(project, 7) : 0;
+        this._router.navigate(['/human-authn/projects', project._id, 'setup', String(step)]);
+    }
+
+    isIncomplete(project: HumanAuthnProject): boolean {
+        return isIncompleteSmartAccessWizard(project, 7);
     }
 
     openHistory(event?: Event): void {

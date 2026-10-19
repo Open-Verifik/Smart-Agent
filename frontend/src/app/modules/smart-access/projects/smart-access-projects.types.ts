@@ -43,6 +43,11 @@ export interface AccessProjectFlow {
 /** Project list row with at least one `login` v3 flow. */
 export interface AccessProject extends Omit<EnrollProject, 'projectFlows'> {
     projectFlows?: AccessProjectFlow[];
+    status?: string;
+    /** Wizard step to reopen. `4` means the setup wizard was finished. */
+    currentStep?: number;
+    /** Highest step reached. `0` means this project predates draft resume. */
+    lastStep?: number;
 }
 
 export interface AppLoginRow {

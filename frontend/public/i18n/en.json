@@ -1583,6 +1583,52 @@
             "unsavedChanges": "Unsaved changes",
             "unsavedChangesMessage": "Leave this step without saving?",
             "exitWithoutSaving": "Leave without saving",
+            "draft_name": "Untitled project",
+            "continue_setup": "Continue setup",
+            "leave": {
+                "chooseTitle": "Choose what to do",
+                "chooseHelp": "This selection decides whether the project stays as a draft.",
+                "howTitle": "How this works",
+                "howHelp": "The choice changes what is kept, not the steps you already finished.",
+                "recommended": "Recommended",
+                "selectedPath": "Selected path",
+                "flowEntered": "Details entered",
+                "options": {
+                    "save": {
+                        "title": "Save and exit",
+                        "body": "Store everything entered so far and leave this module.",
+                        "benefit1": "Progress is kept",
+                        "benefit2": "Project stays a draft",
+                        "benefit3": "Resume on this step",
+                        "howTitle": "Saved as a draft",
+                        "howBody": "Verifik stores the fields you have filled and marks the project incomplete.",
+                        "result": "Reopen the project to continue without entering this information again.",
+                        "flowOutcome": "Draft saved"
+                    },
+                    "discard": {
+                        "title": "Exit without saving",
+                        "body": "Leave now and drop changes that are not saved yet.",
+                        "benefit1": "Unsaved edits are discarded",
+                        "benefit2": "Earlier saves stay as they are",
+                        "benefit3": "You leave this module",
+                        "howTitle": "Unsaved changes are dropped",
+                        "howBody": "Only information that has not been saved is discarded.",
+                        "result": "A project you already saved remains available.",
+                        "flowOutcome": "Changes dropped"
+                    },
+                    "cancel": {
+                        "title": "Cancel",
+                        "body": "Stay on this step and keep editing.",
+                        "benefit1": "You remain in the wizard",
+                        "benefit2": "Nothing is discarded",
+                        "benefit3": "Nothing new is saved yet",
+                        "howTitle": "Stay in setup",
+                        "howBody": "The wizard stays open on the step you are editing.",
+                        "result": "You can keep filling in the form.",
+                        "flowOutcome": "Stay here"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Project details",
                 "signup": "Sign-up form",
@@ -3187,6 +3233,52 @@
             "unsaved_changes": "Unsaved changes",
             "unsaved_changes_message": "You have unsaved changes. Are you sure you want to leave without saving?",
             "exit_without_saving": "Exit without saving",
+            "draft_name": "Untitled project",
+            "continue_setup": "Continue setup",
+            "leave": {
+                "chooseTitle": "Choose what to do",
+                "chooseHelp": "This selection decides whether the project stays as a draft.",
+                "howTitle": "How this works",
+                "howHelp": "The choice changes what is kept, not the steps you already finished.",
+                "recommended": "Recommended",
+                "selectedPath": "Selected path",
+                "flowEntered": "Details entered",
+                "options": {
+                    "save": {
+                        "title": "Save and exit",
+                        "body": "Store everything entered so far and leave this module.",
+                        "benefit1": "Progress is kept",
+                        "benefit2": "Project stays a draft",
+                        "benefit3": "Resume on this step",
+                        "howTitle": "Saved as a draft",
+                        "howBody": "Verifik stores the fields you have filled and marks the project incomplete.",
+                        "result": "Reopen the project to continue without entering this information again.",
+                        "flowOutcome": "Draft saved"
+                    },
+                    "discard": {
+                        "title": "Exit without saving",
+                        "body": "Leave now and drop changes that are not saved yet.",
+                        "benefit1": "Unsaved edits are discarded",
+                        "benefit2": "Earlier saves stay as they are",
+                        "benefit3": "You leave this module",
+                        "howTitle": "Unsaved changes are dropped",
+                        "howBody": "Only information that has not been saved is discarded.",
+                        "result": "A project you already saved remains available.",
+                        "flowOutcome": "Changes dropped"
+                    },
+                    "cancel": {
+                        "title": "Cancel",
+                        "body": "Stay on this step and keep editing.",
+                        "benefit1": "You remain in the wizard",
+                        "benefit2": "Nothing is discarded",
+                        "benefit3": "Nothing new is saved yet",
+                        "howTitle": "Stay in setup",
+                        "howBody": "The wizard stays open on the step you are editing.",
+                        "result": "You can keep filling in the form.",
+                        "flowOutcome": "Stay here"
+                    }
+                }
+            },
             "stub": {
                 "title": "Step",
                 "placeholder": "This step is wired in upcoming phases of the wizard."
@@ -4300,6 +4392,52 @@
             "unsaved_changes": "Unsaved changes",
             "unsaved_changes_message": "You have unsaved changes. Are you sure you want to leave without saving?",
             "exit_without_saving": "Exit without saving",
+            "draft_name": "Untitled project",
+            "continue_setup": "Continue setup",
+            "leave": {
+                "chooseTitle": "Choose what to do",
+                "chooseHelp": "This selection decides whether the project stays as a draft.",
+                "howTitle": "How this works",
+                "howHelp": "The choice changes what is kept, not the steps you already finished.",
+                "recommended": "Recommended",
+                "selectedPath": "Selected path",
+                "flowEntered": "Details entered",
+                "options": {
+                    "save": {
+                        "title": "Save and exit",
+                        "body": "Store everything entered so far and leave this module.",
+                        "benefit1": "Progress is kept",
+                        "benefit2": "Project stays a draft",
+                        "benefit3": "Resume on this step",
+                        "howTitle": "Saved as a draft",
+                        "howBody": "Verifik stores the fields you have filled and marks the project incomplete.",
+                        "result": "Reopen the project to continue without entering this information again.",
+                        "flowOutcome": "Draft saved"
+                    },
+                    "discard": {
+                        "title": "Exit without saving",
+                        "body": "Leave now and drop changes that are not saved yet.",
+                        "benefit1": "Unsaved edits are discarded",
+                        "benefit2": "Earlier saves stay as they are",
+                        "benefit3": "You leave this module",
+                        "howTitle": "Unsaved changes are dropped",
+                        "howBody": "Only information that has not been saved is discarded.",
+                        "result": "A project you already saved remains available.",
+                        "flowOutcome": "Changes dropped"
+                    },
+                    "cancel": {
+                        "title": "Cancel",
+                        "body": "Stay on this step and keep editing.",
+                        "benefit1": "You remain in the wizard",
+                        "benefit2": "Nothing is discarded",
+                        "benefit3": "Nothing new is saved yet",
+                        "howTitle": "Stay in setup",
+                        "howBody": "The wizard stays open on the step you are editing.",
+                        "result": "You can keep filling in the form.",
+                        "flowOutcome": "Stay here"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Basics",
                 "login_methods": "Login methods",

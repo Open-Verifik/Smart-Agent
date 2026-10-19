@@ -1593,6 +1593,52 @@
             "unsavedChanges": "未保存的更改",
             "unsavedChangesMessage": "不保存就离开此步骤？",
             "exitWithoutSaving": "不保存离开",
+            "draft_name": "未命名项目",
+            "continue_setup": "继续设置",
+            "leave": {
+                "chooseTitle": "选择如何处理",
+                "chooseHelp": "此选择决定项目是否作为草稿保留。",
+                "howTitle": "如何运作",
+                "howHelp": "选择会改变保留的内容，不会改变已完成的步骤。",
+                "recommended": "推荐",
+                "selectedPath": "所选路径",
+                "flowEntered": "已填写内容",
+                "options": {
+                    "save": {
+                        "title": "保存并离开",
+                        "body": "保存目前已填写的全部内容，然后离开此模块。",
+                        "benefit1": "进度会被保留",
+                        "benefit2": "项目保持为草稿",
+                        "benefit3": "可从当前步骤继续",
+                        "howTitle": "保存为草稿",
+                        "howBody": "Verifik 会保存已填写的字段，并将项目标为未完成。",
+                        "result": "再次打开项目时，无需重新填写这些信息即可继续。",
+                        "flowOutcome": "草稿已保存"
+                    },
+                    "discard": {
+                        "title": "不保存并离开",
+                        "body": "立即离开，并丢弃尚未保存的更改。",
+                        "benefit1": "未保存的更改会被丢弃",
+                        "benefit2": "此前已保存的内容保留",
+                        "benefit3": "离开此模块",
+                        "howTitle": "丢弃未保存的更改",
+                        "howBody": "只会丢失尚未保存的信息。",
+                        "result": "已经保存过的项目仍然可用。",
+                        "flowOutcome": "更改已丢弃"
+                    },
+                    "cancel": {
+                        "title": "取消",
+                        "body": "留在当前步骤并继续编辑。",
+                        "benefit1": "留在设置向导中",
+                        "benefit2": "不会丢弃任何内容",
+                        "benefit3": "新内容尚未保存",
+                        "howTitle": "继续设置",
+                        "howBody": "向导会停留在你正在编辑的步骤。",
+                        "result": "你可以继续填写表单。",
+                        "flowOutcome": "留在这里"
+                    }
+                }
+            },
             "steps": {
                 "basic": "项目详情",
                 "signup": "注册表单",
@@ -3682,6 +3728,52 @@
             "unsaved_changes": "未保存的更改",
             "unsaved_changes_message": "不保存就离开吗？",
             "exit_without_saving": "不保存离开",
+            "draft_name": "未命名项目",
+            "continue_setup": "继续设置",
+            "leave": {
+                "chooseTitle": "选择如何处理",
+                "chooseHelp": "此选择决定项目是否作为草稿保留。",
+                "howTitle": "如何运作",
+                "howHelp": "选择会改变保留的内容，不会改变已完成的步骤。",
+                "recommended": "推荐",
+                "selectedPath": "所选路径",
+                "flowEntered": "已填写内容",
+                "options": {
+                    "save": {
+                        "title": "保存并离开",
+                        "body": "保存目前已填写的全部内容，然后离开此模块。",
+                        "benefit1": "进度会被保留",
+                        "benefit2": "项目保持为草稿",
+                        "benefit3": "可从当前步骤继续",
+                        "howTitle": "保存为草稿",
+                        "howBody": "Verifik 会保存已填写的字段，并将项目标为未完成。",
+                        "result": "再次打开项目时，无需重新填写这些信息即可继续。",
+                        "flowOutcome": "草稿已保存"
+                    },
+                    "discard": {
+                        "title": "不保存并离开",
+                        "body": "立即离开，并丢弃尚未保存的更改。",
+                        "benefit1": "未保存的更改会被丢弃",
+                        "benefit2": "此前已保存的内容保留",
+                        "benefit3": "离开此模块",
+                        "howTitle": "丢弃未保存的更改",
+                        "howBody": "只会丢失尚未保存的信息。",
+                        "result": "已经保存过的项目仍然可用。",
+                        "flowOutcome": "更改已丢弃"
+                    },
+                    "cancel": {
+                        "title": "取消",
+                        "body": "留在当前步骤并继续编辑。",
+                        "benefit1": "留在设置向导中",
+                        "benefit2": "不会丢弃任何内容",
+                        "benefit3": "新内容尚未保存",
+                        "howTitle": "继续设置",
+                        "howBody": "向导会停留在你正在编辑的步骤。",
+                        "result": "你可以继续填写表单。",
+                        "flowOutcome": "留在这里"
+                    }
+                }
+            },
             "stub": {
                 "title": "步骤",
                 "placeholder": "此步骤将在向导的后续阶段中接入。"
@@ -4326,6 +4418,52 @@
             "unsaved_changes": "有未保存的更改",
             "unsaved_changes_message": "您有未保存的更改。确定要不保存就离开吗？",
             "exit_without_saving": "不保存并离开",
+            "draft_name": "未命名项目",
+            "continue_setup": "继续设置",
+            "leave": {
+                "chooseTitle": "选择如何处理",
+                "chooseHelp": "此选择决定项目是否作为草稿保留。",
+                "howTitle": "如何运作",
+                "howHelp": "选择会改变保留的内容，不会改变已完成的步骤。",
+                "recommended": "推荐",
+                "selectedPath": "所选路径",
+                "flowEntered": "已填写内容",
+                "options": {
+                    "save": {
+                        "title": "保存并离开",
+                        "body": "保存目前已填写的全部内容，然后离开此模块。",
+                        "benefit1": "进度会被保留",
+                        "benefit2": "项目保持为草稿",
+                        "benefit3": "可从当前步骤继续",
+                        "howTitle": "保存为草稿",
+                        "howBody": "Verifik 会保存已填写的字段，并将项目标为未完成。",
+                        "result": "再次打开项目时，无需重新填写这些信息即可继续。",
+                        "flowOutcome": "草稿已保存"
+                    },
+                    "discard": {
+                        "title": "不保存并离开",
+                        "body": "立即离开，并丢弃尚未保存的更改。",
+                        "benefit1": "未保存的更改会被丢弃",
+                        "benefit2": "此前已保存的内容保留",
+                        "benefit3": "离开此模块",
+                        "howTitle": "丢弃未保存的更改",
+                        "howBody": "只会丢失尚未保存的信息。",
+                        "result": "已经保存过的项目仍然可用。",
+                        "flowOutcome": "更改已丢弃"
+                    },
+                    "cancel": {
+                        "title": "取消",
+                        "body": "留在当前步骤并继续编辑。",
+                        "benefit1": "留在设置向导中",
+                        "benefit2": "不会丢弃任何内容",
+                        "benefit3": "新内容尚未保存",
+                        "howTitle": "继续设置",
+                        "howBody": "向导会停留在你正在编辑的步骤。",
+                        "result": "你可以继续填写表单。",
+                        "flowOutcome": "留在这里"
+                    }
+                }
+            },
             "steps": {
                 "basic": "基本信息",
                 "login_methods": "登录方式",

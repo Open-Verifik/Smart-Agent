@@ -28,7 +28,9 @@ import { Observable, Subject, of, takeUntil, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { FuseConfirmationService } from '@fuse/services/confirmation';
-import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
+
+import { SmartAccessLeaveDialogComponent, type SmartAccessLeaveAction } from 'app/modules/smart-access/projects/setup/leave-dialog/smart-access-leave-dialog.component';
+import { draftProjectName, type WizardProgress } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 
 import { environment } from 'environments/environment';
 import {
@@ -606,6 +608,42 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return formData;
     }
 
+    /**
+     * Snapshot that can be stored before the current step is valid.
+     * The onboarding flow stays a draft so the project remains on the Smart Enroll list.
+     */
+    private _prepareDraftData(
+        data: any,
+        progress: WizardProgress
+    ): Partial<Project> & {
+        projectFlow: { status: 'draft'; target: 'personal' | 'business'; type: 'onboarding'; version: 3 };
+        projectFlowType: 'onboarding';
+    } {
+        const target = data?.target === 'business' ? 'business' : 'personal';
+        return {
+            allowedCountries: Array.isArray(data?.allowedCountries) ? data.allowedCountries : [],
+            branding: data?.branding,
+            contactEmail: `${data?.contactEmail ?? ''}`,
+            currentStep: progress.currentStep,
+            dataProtection: data?.dataProtection,
+            defaultLanguage: data?.defaultLanguage || 'en',
+            lastStep: progress.lastStep,
+            name: draftProjectName(data?.name, this._t('smartEnrollProjects.setup.draft_name')),
+            privacyUrl: `${data?.privacyUrl ?? ''}`,
+            projectFlow: {
+                status: 'draft',
+                target,
+                type: 'onboarding',
+                version: 3,
+            },
+            projectFlowType: 'onboarding',
+            status: 'draft',
+            target,
+            termsAndConditionsUrl: `${data?.termsAndConditionsUrl ?? ''}`,
+            version: 3,
+        };
+    }
+
     // ---------------------------------------------------------------------------
     // Toggle helpers — copied verbatim
     // ---------------------------------------------------------------------------
@@ -865,15 +903,45 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return true;
     };
 
-    confirmNavigation(): MatDialogRef<FuseConfirmationDialogComponent> {
-        return this._confirm.open({
-            title: this._t('smartEnrollProjects.setup.unsaved_changes'),
-            message: this._t('smartEnrollProjects.setup.unsaved_changes_message'),
-            actions: {
-                confirm: { show: true, label: this._t('smartEnrollProjects.setup.exit_without_saving') },
-                cancel: { show: true, label: this._t('cancel') },
-            },
+    confirmNavigation(): MatDialogRef<SmartAccessLeaveDialogComponent, SmartAccessLeaveAction> {
+        return this._dialog.open(SmartAccessLeaveDialogComponent, {
+            autoFocus: 'dialog',
+            data: { i18nPrefix: 'smartEnrollProjects.setup.leave' },
+            maxWidth: '96vw',
+            panelClass: 'smart-access-leave-dialog-panel',
+            width: 'min(920px, calc(100vw - 1.5rem))',
         });
+    }
+
+    savedLastStep(): number {
+        const fromProject = Number(this.project?.lastStep ?? 0);
+        const fromForm = Number(this.form?.get('lastStep')?.value ?? 0);
+        const projectStep = Number.isFinite(fromProject) ? fromProject : 0;
+        const formStep = Number.isFinite(fromForm) ? fromForm : 0;
+        return Math.max(projectStep, formStep);
+    }
+
+    /** Keeps the in-memory project and form aligned with the step just stored. */
+    rememberWizardProgress(progress: WizardProgress, status?: Project['status']): void {
+        this.project = {
+            ...this.project,
+            currentStep: progress.currentStep,
+            lastStep: progress.lastStep,
+            ...(status ? { status } : {}),
+        } as Project;
+        this.form?.get('currentStep')?.setValue(progress.currentStep, { emitEvent: false });
+        this.form?.get('lastStep')?.setValue(progress.lastStep, { emitEvent: false });
+    }
+
+    saveDraft(progress: WizardProgress): Observable<{ data: Project }> {
+        if (this.saving() || !this.form) return of();
+        this.saving.set(true);
+        const formValue = this.form.getRawValue ? this.form.getRawValue() : this.form.value;
+        const preparedData = this._prepareDraftData(formValue, progress);
+        const observable = this.project?._id
+            ? this._setup.updateProject(this.project._id, preparedData)
+            : this._setup.createProject(preparedData);
+        return observable.pipe(catchError((err) => throwError(() => err)));
     }
 
     nextStep(): void {
@@ -909,7 +977,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         this._router.navigate(['/smart-enroll/projects', this.projectId, 'setup', this.stepIndex - 1]);
     }
 
-    saveProject(): Observable<{ data: Project }> {
+    saveProject(progress?: WizardProgress): Observable<{ data: Project }> {
         if (this.saving() || !this.isFormValidForStep(this.stepIndex)) return of();
         this.saving.set(true);
 
@@ -917,6 +985,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         const preparedData = {
             ...this._prepareProjectFlowData(formValue),
             projectFlowType: 'onboarding' as const,
+            ...(progress ? { currentStep: progress.currentStep, lastStep: progress.lastStep } : {}),
         };
 
         const observable = this.project?._id

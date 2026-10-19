@@ -206,5 +206,7 @@ export type AccessProjectLike = {
     version?: number;
     identifier?: string;
     status?: string;
+    currentStep?: number;
+    lastStep?: number;
     projectFlows?: AccessProjectFlow[];
 };

@@ -1565,6 +1565,52 @@
             "unsavedChanges": "Modifications non enregistrées",
             "unsavedChangesMessage": "Quitter cette étape sans enregistrer ?",
             "exitWithoutSaving": "Quitter sans enregistrer",
+            "draft_name": "Projet sans titre",
+            "continue_setup": "Continuer la configuration",
+            "leave": {
+                "chooseTitle": "Choisissez une action",
+                "chooseHelp": "Ce choix décide si le projet reste un brouillon.",
+                "howTitle": "Comment ça marche",
+                "howHelp": "Le choix change ce qui est conservé, pas les étapes déjà terminées.",
+                "recommended": "Recommandé",
+                "selectedPath": "Chemin sélectionné",
+                "flowEntered": "Données saisies",
+                "options": {
+                    "save": {
+                        "title": "Enregistrer et quitter",
+                        "body": "Enregistre tout ce qui a été saisi jusqu’ici et quitte ce module.",
+                        "benefit1": "La progression est conservée",
+                        "benefit2": "Le projet reste un brouillon",
+                        "benefit3": "Reprise à cette étape",
+                        "howTitle": "Enregistré comme brouillon",
+                        "howBody": "Verifik conserve les champs déjà remplis et marque le projet comme incomplet.",
+                        "result": "Rouvrez le projet pour continuer sans ressaisir ces informations.",
+                        "flowOutcome": "Brouillon enregistré"
+                    },
+                    "discard": {
+                        "title": "Quitter sans enregistrer",
+                        "body": "Quittez maintenant et abandonnez les changements non enregistrés.",
+                        "benefit1": "Les modifications non enregistrées sont perdues",
+                        "benefit2": "Les enregistrements précédents restent",
+                        "benefit3": "Vous quittez ce module",
+                        "howTitle": "Les changements sont abandonnés",
+                        "howBody": "Seules les informations qui n’avaient pas encore été enregistrées sont perdues.",
+                        "result": "Un projet déjà enregistré reste disponible.",
+                        "flowOutcome": "Changements abandonnés"
+                    },
+                    "cancel": {
+                        "title": "Annuler",
+                        "body": "Restez sur cette étape et continuez à modifier.",
+                        "benefit1": "Vous restez dans l’assistant",
+                        "benefit2": "Rien n’est abandonné",
+                        "benefit3": "Rien de nouveau n’est encore enregistré",
+                        "howTitle": "Rester dans la configuration",
+                        "howBody": "L’assistant reste ouvert sur l’étape que vous modifiez.",
+                        "result": "Vous pouvez continuer à remplir le formulaire.",
+                        "flowOutcome": "Vous restez ici"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Détails du projet",
                 "signup": "Formulaire d’inscription",
@@ -3644,6 +3690,52 @@
             "unsaved_changes": "Modifications non enregistrées",
             "unsaved_changes_message": "Quitter sans enregistrer ?",
             "exit_without_saving": "Quitter sans enregistrer",
+            "draft_name": "Projet sans titre",
+            "continue_setup": "Continuer la configuration",
+            "leave": {
+                "chooseTitle": "Choisissez une action",
+                "chooseHelp": "Ce choix décide si le projet reste un brouillon.",
+                "howTitle": "Comment ça marche",
+                "howHelp": "Le choix change ce qui est conservé, pas les étapes déjà terminées.",
+                "recommended": "Recommandé",
+                "selectedPath": "Chemin sélectionné",
+                "flowEntered": "Données saisies",
+                "options": {
+                    "save": {
+                        "title": "Enregistrer et quitter",
+                        "body": "Enregistre tout ce qui a été saisi jusqu’ici et quitte ce module.",
+                        "benefit1": "La progression est conservée",
+                        "benefit2": "Le projet reste un brouillon",
+                        "benefit3": "Reprise à cette étape",
+                        "howTitle": "Enregistré comme brouillon",
+                        "howBody": "Verifik conserve les champs déjà remplis et marque le projet comme incomplet.",
+                        "result": "Rouvrez le projet pour continuer sans ressaisir ces informations.",
+                        "flowOutcome": "Brouillon enregistré"
+                    },
+                    "discard": {
+                        "title": "Quitter sans enregistrer",
+                        "body": "Quittez maintenant et abandonnez les changements non enregistrés.",
+                        "benefit1": "Les modifications non enregistrées sont perdues",
+                        "benefit2": "Les enregistrements précédents restent",
+                        "benefit3": "Vous quittez ce module",
+                        "howTitle": "Les changements sont abandonnés",
+                        "howBody": "Seules les informations qui n’avaient pas encore été enregistrées sont perdues.",
+                        "result": "Un projet déjà enregistré reste disponible.",
+                        "flowOutcome": "Changements abandonnés"
+                    },
+                    "cancel": {
+                        "title": "Annuler",
+                        "body": "Restez sur cette étape et continuez à modifier.",
+                        "benefit1": "Vous restez dans l’assistant",
+                        "benefit2": "Rien n’est abandonné",
+                        "benefit3": "Rien de nouveau n’est encore enregistré",
+                        "howTitle": "Rester dans la configuration",
+                        "howBody": "L’assistant reste ouvert sur l’étape que vous modifiez.",
+                        "result": "Vous pouvez continuer à remplir le formulaire.",
+                        "flowOutcome": "Vous restez ici"
+                    }
+                }
+            },
             "stub": {
                 "title": "Étape",
                 "placeholder": "Cette étape sera connectée dans les phases futures de l'assistant."
@@ -4285,6 +4377,52 @@
             "unsaved_changes": "Unsaved changes",
             "unsaved_changes_message": "You have unsaved changes. Are you sure you want to leave without saving?",
             "exit_without_saving": "Exit without saving",
+            "draft_name": "Projet sans titre",
+            "continue_setup": "Continuer la configuration",
+            "leave": {
+                "chooseTitle": "Choisissez une action",
+                "chooseHelp": "Ce choix décide si le projet reste un brouillon.",
+                "howTitle": "Comment ça marche",
+                "howHelp": "Le choix change ce qui est conservé, pas les étapes déjà terminées.",
+                "recommended": "Recommandé",
+                "selectedPath": "Chemin sélectionné",
+                "flowEntered": "Données saisies",
+                "options": {
+                    "save": {
+                        "title": "Enregistrer et quitter",
+                        "body": "Enregistre tout ce qui a été saisi jusqu’ici et quitte ce module.",
+                        "benefit1": "La progression est conservée",
+                        "benefit2": "Le projet reste un brouillon",
+                        "benefit3": "Reprise à cette étape",
+                        "howTitle": "Enregistré comme brouillon",
+                        "howBody": "Verifik conserve les champs déjà remplis et marque le projet comme incomplet.",
+                        "result": "Rouvrez le projet pour continuer sans ressaisir ces informations.",
+                        "flowOutcome": "Brouillon enregistré"
+                    },
+                    "discard": {
+                        "title": "Quitter sans enregistrer",
+                        "body": "Quittez maintenant et abandonnez les changements non enregistrés.",
+                        "benefit1": "Les modifications non enregistrées sont perdues",
+                        "benefit2": "Les enregistrements précédents restent",
+                        "benefit3": "Vous quittez ce module",
+                        "howTitle": "Les changements sont abandonnés",
+                        "howBody": "Seules les informations qui n’avaient pas encore été enregistrées sont perdues.",
+                        "result": "Un projet déjà enregistré reste disponible.",
+                        "flowOutcome": "Changements abandonnés"
+                    },
+                    "cancel": {
+                        "title": "Annuler",
+                        "body": "Restez sur cette étape et continuez à modifier.",
+                        "benefit1": "Vous restez dans l’assistant",
+                        "benefit2": "Rien n’est abandonné",
+                        "benefit3": "Rien de nouveau n’est encore enregistré",
+                        "howTitle": "Rester dans la configuration",
+                        "howBody": "L’assistant reste ouvert sur l’étape que vous modifiez.",
+                        "result": "Vous pouvez continuer à remplir le formulaire.",
+                        "flowOutcome": "Vous restez ici"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Basics",
                 "login_methods": "Login methods",

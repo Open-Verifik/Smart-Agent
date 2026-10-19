@@ -30,6 +30,7 @@ import type {
     EnrollProjectFlow,
     EnrollProjectMember,
 } from '../smart-enroll-projects.types';
+import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 
 @Component({
     selector: 'project-list',
@@ -119,6 +120,21 @@ export class ProjectListComponent implements OnInit {
     openProject(project: EnrollProject, event?: Event): void {
         event?.stopPropagation();
         this._router.navigate(['/smart-enroll/projects', project._id]);
+    }
+
+    /** Incomplete drafts reopen the wizard on the step that was saved. */
+    openProjectOrResume(project: EnrollProject, event?: Event): void {
+        event?.stopPropagation();
+        if (!isIncompleteSmartAccessWizard(project, 6)) {
+            this.openProject(project);
+            return;
+        }
+        void this._router.navigate([
+            '/smart-enroll/projects',
+            project._id,
+            'setup',
+            resumeStepIndex(project, 6),
+        ]);
     }
 
     openRecords(project: EnrollProject, event?: Event): void {

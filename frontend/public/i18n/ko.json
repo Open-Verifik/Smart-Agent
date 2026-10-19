@@ -1593,6 +1593,52 @@
             "unsavedChanges": "저장되지 않은 변경 사항",
             "unsavedChangesMessage": "저장하지 않고 이 단계를 나갈까요?",
             "exitWithoutSaving": "저장하지 않고 나가기",
+            "draft_name": "제목 없는 프로젝트",
+            "continue_setup": "설정 계속하기",
+            "leave": {
+                "chooseTitle": "진행 방법 선택",
+                "chooseHelp": "이 선택에 따라 프로젝트가 초안으로 유지됩니다.",
+                "howTitle": "작동 방식",
+                "howHelp": "선택은 보관할 내용을 바꾸며, 이미 끝낸 단계는 바꾸지 않습니다.",
+                "recommended": "권장",
+                "selectedPath": "선택한 경로",
+                "flowEntered": "입력한 정보",
+                "options": {
+                    "save": {
+                        "title": "저장하고 나가기",
+                        "body": "지금까지 입력한 내용을 저장하고 이 모듈을 떠납니다.",
+                        "benefit1": "진행 상황이 유지됩니다",
+                        "benefit2": "프로젝트는 초안으로 남습니다",
+                        "benefit3": "이 단계에서 다시 시작합니다",
+                        "howTitle": "초안으로 저장",
+                        "howBody": "입력한 필드를 저장하고 프로젝트를 미완료로 표시합니다.",
+                        "result": "프로젝트를 다시 열면 같은 정보를 다시 입력하지 않고 계속할 수 있습니다.",
+                        "flowOutcome": "초안 저장"
+                    },
+                    "discard": {
+                        "title": "저장하지 않고 나가기",
+                        "body": "지금 나가고 아직 저장하지 않은 변경을 버립니다.",
+                        "benefit1": "저장하지 않은 변경은 버려집니다",
+                        "benefit2": "이전에 저장한 내용은 유지됩니다",
+                        "benefit3": "이 모듈을 떠납니다",
+                        "howTitle": "저장하지 않은 변경 삭제",
+                        "howBody": "아직 저장되지 않은 정보만 버려집니다.",
+                        "result": "이미 저장한 프로젝트는 그대로 사용할 수 있습니다.",
+                        "flowOutcome": "변경 삭제"
+                    },
+                    "cancel": {
+                        "title": "취소",
+                        "body": "이 단계에 남아서 계속 편집합니다.",
+                        "benefit1": "마법사에 남습니다",
+                        "benefit2": "아무것도 버리지 않습니다",
+                        "benefit3": "새 내용은 아직 저장되지 않습니다",
+                        "howTitle": "설정에 남기",
+                        "howBody": "편집 중인 단계에서 마법사가 계속 열려 있습니다.",
+                        "result": "양식 작성을 계속할 수 있습니다.",
+                        "flowOutcome": "여기에 남기"
+                    }
+                }
+            },
             "steps": {
                 "basic": "프로젝트 세부정보",
                 "signup": "가입 양식",
@@ -3682,6 +3728,52 @@
             "unsaved_changes": "저장되지 않은 변경사항",
             "unsaved_changes_message": "저장하지 않고 이동하시겠습니까?",
             "exit_without_saving": "저장하지 않고 나가기",
+            "draft_name": "제목 없는 프로젝트",
+            "continue_setup": "설정 계속하기",
+            "leave": {
+                "chooseTitle": "진행 방법 선택",
+                "chooseHelp": "이 선택에 따라 프로젝트가 초안으로 유지됩니다.",
+                "howTitle": "작동 방식",
+                "howHelp": "선택은 보관할 내용을 바꾸며, 이미 끝낸 단계는 바꾸지 않습니다.",
+                "recommended": "권장",
+                "selectedPath": "선택한 경로",
+                "flowEntered": "입력한 정보",
+                "options": {
+                    "save": {
+                        "title": "저장하고 나가기",
+                        "body": "지금까지 입력한 내용을 저장하고 이 모듈을 떠납니다.",
+                        "benefit1": "진행 상황이 유지됩니다",
+                        "benefit2": "프로젝트는 초안으로 남습니다",
+                        "benefit3": "이 단계에서 다시 시작합니다",
+                        "howTitle": "초안으로 저장",
+                        "howBody": "입력한 필드를 저장하고 프로젝트를 미완료로 표시합니다.",
+                        "result": "프로젝트를 다시 열면 같은 정보를 다시 입력하지 않고 계속할 수 있습니다.",
+                        "flowOutcome": "초안 저장"
+                    },
+                    "discard": {
+                        "title": "저장하지 않고 나가기",
+                        "body": "지금 나가고 아직 저장하지 않은 변경을 버립니다.",
+                        "benefit1": "저장하지 않은 변경은 버려집니다",
+                        "benefit2": "이전에 저장한 내용은 유지됩니다",
+                        "benefit3": "이 모듈을 떠납니다",
+                        "howTitle": "저장하지 않은 변경 삭제",
+                        "howBody": "아직 저장되지 않은 정보만 버려집니다.",
+                        "result": "이미 저장한 프로젝트는 그대로 사용할 수 있습니다.",
+                        "flowOutcome": "변경 삭제"
+                    },
+                    "cancel": {
+                        "title": "취소",
+                        "body": "이 단계에 남아서 계속 편집합니다.",
+                        "benefit1": "마법사에 남습니다",
+                        "benefit2": "아무것도 버리지 않습니다",
+                        "benefit3": "새 내용은 아직 저장되지 않습니다",
+                        "howTitle": "설정에 남기",
+                        "howBody": "편집 중인 단계에서 마법사가 계속 열려 있습니다.",
+                        "result": "양식 작성을 계속할 수 있습니다.",
+                        "flowOutcome": "여기에 남기"
+                    }
+                }
+            },
             "stub": {
                 "title": "단계",
                 "placeholder": "이 단계는 마법사의 향후 단계에서 연결됩니다."
@@ -4326,6 +4418,52 @@
             "unsaved_changes": "저장되지 않은 변경 사항",
             "unsaved_changes_message": "저장되지 않은 변경 사항이 있습니다. 저장하지 않고 나가시겠습니까?",
             "exit_without_saving": "저장하지 않고 나가기",
+            "draft_name": "제목 없는 프로젝트",
+            "continue_setup": "설정 계속하기",
+            "leave": {
+                "chooseTitle": "진행 방법 선택",
+                "chooseHelp": "이 선택에 따라 프로젝트가 초안으로 유지됩니다.",
+                "howTitle": "작동 방식",
+                "howHelp": "선택은 보관할 내용을 바꾸며, 이미 끝낸 단계는 바꾸지 않습니다.",
+                "recommended": "권장",
+                "selectedPath": "선택한 경로",
+                "flowEntered": "입력한 정보",
+                "options": {
+                    "save": {
+                        "title": "저장하고 나가기",
+                        "body": "지금까지 입력한 내용을 저장하고 이 모듈을 떠납니다.",
+                        "benefit1": "진행 상황이 유지됩니다",
+                        "benefit2": "프로젝트는 초안으로 남습니다",
+                        "benefit3": "이 단계에서 다시 시작합니다",
+                        "howTitle": "초안으로 저장",
+                        "howBody": "입력한 필드를 저장하고 프로젝트를 미완료로 표시합니다.",
+                        "result": "프로젝트를 다시 열면 같은 정보를 다시 입력하지 않고 계속할 수 있습니다.",
+                        "flowOutcome": "초안 저장"
+                    },
+                    "discard": {
+                        "title": "저장하지 않고 나가기",
+                        "body": "지금 나가고 아직 저장하지 않은 변경을 버립니다.",
+                        "benefit1": "저장하지 않은 변경은 버려집니다",
+                        "benefit2": "이전에 저장한 내용은 유지됩니다",
+                        "benefit3": "이 모듈을 떠납니다",
+                        "howTitle": "저장하지 않은 변경 삭제",
+                        "howBody": "아직 저장되지 않은 정보만 버려집니다.",
+                        "result": "이미 저장한 프로젝트는 그대로 사용할 수 있습니다.",
+                        "flowOutcome": "변경 삭제"
+                    },
+                    "cancel": {
+                        "title": "취소",
+                        "body": "이 단계에 남아서 계속 편집합니다.",
+                        "benefit1": "마법사에 남습니다",
+                        "benefit2": "아무것도 버리지 않습니다",
+                        "benefit3": "새 내용은 아직 저장되지 않습니다",
+                        "howTitle": "설정에 남기",
+                        "howBody": "편집 중인 단계에서 마법사가 계속 열려 있습니다.",
+                        "result": "양식 작성을 계속할 수 있습니다.",
+                        "flowOutcome": "여기에 남기"
+                    }
+                }
+            },
             "steps": {
                 "basic": "기본 정보",
                 "login_methods": "로그인 방법",
