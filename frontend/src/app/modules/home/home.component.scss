@@ -28,12 +28,20 @@
     display: flex;
     flex-direction: column;
 
-    > :not(.dashboard-shell):not(app-home-notification-banners) {
-        order: 2;
+    > .home-welcome {
+        order: 0;
+    }
+
+    > app-home-notification-banners {
+        order: 1;
     }
 
     > .dashboard-shell {
-        order: 1;
+        order: 2;
+    }
+
+    > :not(.home-welcome):not(app-home-notification-banners):not(.dashboard-shell) {
+        order: 3;
     }
 }
 
