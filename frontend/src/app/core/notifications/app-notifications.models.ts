@@ -72,7 +72,12 @@ export interface InboxPagination {
 export interface InboxListResponse {
     data: InboxItem[];
     pagination: InboxPagination;
-    meta?: { unreadCount?: number };
+    meta?: {
+        unreadCount?: number;
+        revision?: string;
+        cacheForMs?: number;
+        unchanged?: boolean;
+    };
 }
 
 export interface InboxSyncResult {
@@ -93,4 +98,6 @@ export interface InboxQueryParams {
     includeUnreadCount?: '0' | '1';
     /** When set (e.g. `inbox`), limits list/count to that display surface. */
     surface?: string;
+    /** Last revision this client already has. Matching revisions skip a reload. */
+    revision?: string;
 }

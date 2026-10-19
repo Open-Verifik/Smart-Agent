@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { SessionService } from 'app/core/services/session.service';
-import { switchMap, tap } from 'rxjs';
+import { tap } from 'rxjs';
 
 import { AppNotificationsService } from './app-notifications.service';
 import { InboxItem } from './app-notifications.models';
@@ -39,9 +39,8 @@ export class BlockingNotificationService {
 
         const generation = ++this._queueGeneration;
         this._notifications
-            .syncInbox()
+            .getActiveModals()
             .pipe(
-                switchMap(() => this._notifications.getActiveModals()),
                 tap((res) => {
                     if (generation !== this._queueGeneration) return;
                     const rows = res.data || [];

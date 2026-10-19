@@ -317,7 +317,6 @@ export class HomeComponent implements OnInit {
         this.isAuthenticated.set(this._sessionService.hasValidAuthentication());
 
         if (this.isAuthenticated()) {
-            this._appNotificationsService.syncInbox('smart_agent').subscribe();
             this._handleOpenNotificationsQueryParam();
 
             this._onboardingService.verifyAllTasks().subscribe({

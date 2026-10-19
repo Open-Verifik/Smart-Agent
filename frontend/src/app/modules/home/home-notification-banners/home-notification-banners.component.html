@@ -1,25 +1,76 @@
 @if (banners().length) {
 <div class="home-banners">
 @for (banner of banners(); track trackById($index, banner)) {
-    <section class="home-banner">
-        <span class="home-banner__icon" aria-hidden="true">
-            <mat-icon [svgIcon]="categoryIcon(banner.category)"></mat-icon>
-        </span>
-        <div class="home-banner__copy">
-            <h2 class="home-banner__title">{{ banner.content.title }}</h2>
-            @if (banner.content.summary) {
-                <p class="home-banner__summary">{{ banner.content.summary }}</p>
-            }
-            @if (showCta(banner)) {
-                <button mat-stroked-button type="button" (click)="openCta(banner)">
-                    {{ banner.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}
-                </button>
-            }
+    <section class="home-banner" [attr.data-category]="banner.category">
+        <span class="home-banner__blob home-banner__blob--tr" aria-hidden="true"></span>
+        <span class="home-banner__blob home-banner__blob--bl" aria-hidden="true"></span>
+        <div class="home-banner__main">
+            <span class="home-banner__icon" aria-hidden="true">
+                <mat-icon [svgIcon]="categoryIcon(banner.category)"></mat-icon>
+            </span>
+            <div class="home-banner__copy">
+                <span class="home-banner__pill">{{ categoryLabelKey(banner.category) | transloco }}</span>
+                <h2 class="home-banner__title">{{ banner.content.title }}</h2>
+                @if (banner.content.summary) {
+                    <p class="home-banner__summary">{{ banner.content.summary }}</p>
+                }
+                @if (banner.interactionMode === 'accept' && banner.legal?.url) {
+                    <a
+                        class="home-banner__legal"
+                        [href]="banner.legal.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ 'appNotifications.inbox.legalLink' | transloco }}
+                    </a>
+                    <mat-checkbox
+                        class="home-banner__legal-check"
+                        [checked]="isLegalAccepted(banner)"
+                        (change)="toggleLegalAccepted(banner, $event.checked)"
+                    >
+                        {{ 'appNotifications.inbox.legalAcceptCheckbox' | transloco }}
+                    </mat-checkbox>
+                }
+                @if (actionErrorId() === banner.notificationId) {
+                    <p class="home-banner__error" role="alert">
+                        {{ 'appNotifications.inbox.errors.action' | transloco }}
+                    </p>
+                }
+                @if (showActions(banner)) {
+                    <div class="home-banner__actions">
+                        @if (showCta(banner)) {
+                            <button class="home-banner__cta" type="button" (click)="openCta(banner)">
+                                {{ banner.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}
+                            </button>
+                        }
+                        @if (showAcknowledge(banner)) {
+                            <button
+                                class="home-banner__primary"
+                                type="button"
+                                [disabled]="isBusy(banner)"
+                                (click)="acknowledgeBanner(banner)"
+                            >
+                                {{ 'appNotifications.inbox.actions.acknowledge' | transloco }}
+                            </button>
+                        }
+                        @if (showAccept(banner)) {
+                            <button
+                                class="home-banner__primary"
+                                type="button"
+                                [disabled]="acceptDisabled(banner)"
+                                (click)="acceptBanner(banner)"
+                            >
+                                {{ 'appNotifications.inbox.actions.accept' | transloco }}
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
         </div>
         <button
             class="home-banner__dismiss"
             type="button"
-            [disabled]="dismissingId() === banner.notificationId"
+            [disabled]="isBusy(banner)"
             [attr.aria-label]="'appNotifications.banners.dismissAria' | transloco"
             (click)="dismissBanner(banner)"
         >

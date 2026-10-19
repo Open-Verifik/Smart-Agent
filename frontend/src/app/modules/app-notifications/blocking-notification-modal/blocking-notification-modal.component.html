@@ -4,6 +4,16 @@
     @if (item.content.summary) {
         <p class="text-secondary mb-3 text-sm">{{ item.content.summary }}</p>
     }
+    @if (detailLoading() && !item.content.body) {
+        <div class="flex justify-center py-6" role="status">
+            <mat-spinner diameter="28"></mat-spinner>
+        </div>
+    }
+    @if (detailError()) {
+        <p class="mb-3 text-sm text-red-600 dark:text-red-400" role="alert">
+            {{ detailError()! | transloco }}
+        </p>
+    }
     @if (item.content.body) {
         <div
             class="blocking-modal-body prose prose-sm dark:prose-invert max-w-none text-sm"

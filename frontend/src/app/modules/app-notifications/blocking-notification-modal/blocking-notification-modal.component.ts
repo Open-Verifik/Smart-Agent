@@ -51,10 +51,29 @@ export class BlockingNotificationModalComponent {
     private readonly _router = inject(Router);
     private readonly _quickChat = inject(QuickChatService);
 
-    readonly item = this._data.item;
+    readonly viewItem = signal<InboxItem>(this._data.item);
+    readonly detailLoading = signal(true);
+    readonly detailError = signal<string | null>(null);
     actionBusy = signal(false);
     actionError = signal<string | null>(null);
     legalAccepted = signal(false);
+
+    get item(): InboxItem {
+        return this.viewItem();
+    }
+
+    constructor() {
+        this._notifications.show(this._data.item.notificationId).subscribe({
+            next: (response) => {
+                if (response.data) this.viewItem.set(response.data);
+                this.detailLoading.set(false);
+            },
+            error: () => {
+                this.detailLoading.set(false);
+                this.detailError.set('appNotifications.inbox.errors.loadDetail');
+            },
+        });
+    }
 
     safeBodyHtml(body: string): SafeHtml {
         return trustNotificationBodyHtml(this._sanitizer, body);

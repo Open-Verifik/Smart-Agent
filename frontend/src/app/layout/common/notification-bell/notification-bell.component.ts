@@ -65,6 +65,9 @@ export class NotificationBellComponent implements OnDestroy {
     readonly opened = signal(false);
     readonly canUseApi = signal(false);
     readonly expandedId = signal<string | null>(null);
+    readonly detailItem = signal<InboxItem | null>(null);
+    readonly detailLoading = signal(false);
+    readonly detailError = signal<string | null>(null);
     readonly actionId = signal<string | null>(null);
     readonly rowErrorId = signal<string | null>(null);
     readonly legalAccepted = signal(false);
@@ -77,11 +80,7 @@ export class NotificationBellComponent implements OnDestroy {
         return count > 99 ? '99+' : String(count);
     });
 
-    readonly selectedItem = computed(() => {
-        const id = this.expandedId();
-        if (!id) return null;
-        return this.items().find((item) => item.notificationId === id) ?? null;
-    });
+    readonly selectedItem = computed(() => this.detailItem());
 
     constructor() {
         this._notifications.openBell$
@@ -163,21 +162,36 @@ export class NotificationBellComponent implements OnDestroy {
 
     openDetail(item: InboxItem): void {
         this.expandedId.set(item.notificationId);
+        this.detailItem.set(item);
+        this.detailLoading.set(true);
+        this.detailError.set(null);
         this.expandedImageSrc.set(null);
         this.rowErrorId.set(null);
         this.legalAccepted.set(false);
-        if (item.interactionMode === 'seen_required' && item.receipt?.isUnread) {
-            this._notifications
-                .markSeen(item.notificationId)
-                .pipe(takeUntil(this._unsubscribeAll))
-                .subscribe({
-                    next: () => this._notifications.noteSeenLocally(item.notificationId),
-                });
-        }
+        this._notifications
+            .show(item.notificationId)
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe({
+                next: (response) => {
+                    if (this.expandedId() !== item.notificationId) return;
+                    const loaded = response.data ?? item;
+                    this.detailItem.set(loaded);
+                    this.detailLoading.set(false);
+                    this._markSeenIfRequired(loaded);
+                },
+                error: () => {
+                    if (this.expandedId() !== item.notificationId) return;
+                    this.detailLoading.set(false);
+                    this.detailError.set('appNotifications.inbox.errors.loadDetail');
+                },
+            });
     }
 
     closeDetail(): void {
         this.expandedId.set(null);
+        this.detailItem.set(null);
+        this.detailLoading.set(false);
+        this.detailError.set(null);
         this.expandedImageSrc.set(null);
         this.rowErrorId.set(null);
         this.legalAccepted.set(false);
@@ -317,13 +331,36 @@ export class NotificationBellComponent implements OnDestroy {
         request.pipe(takeUntil(this._unsubscribeAll)).subscribe({
             next: () => {
                 this.actionId.set(null);
-                if (this.expandedId() === notificationId) this.expandedId.set(null);
+                if (this.expandedId() === notificationId) this.closeDetail();
             },
             error: () => {
                 this.actionId.set(null);
                 this.rowErrorId.set(notificationId);
             },
         });
+    }
+
+    private _markSeenIfRequired(item: InboxItem): void {
+        if (item.interactionMode !== 'seen_required' || !item.receipt?.isUnread) return;
+        this._notifications
+            .markSeen(item.notificationId)
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe({
+                next: () => {
+                    this._notifications.noteSeenLocally(item.notificationId);
+                    this.detailItem.update((current) => {
+                        if (!current || current.notificationId !== item.notificationId) return current;
+                        return {
+                            ...current,
+                            receipt: {
+                                ...current.receipt,
+                                isUnread: false,
+                                firstSeenAt: current.receipt.firstSeenAt || new Date().toISOString(),
+                            },
+                        };
+                    });
+                },
+            });
     }
 
     private _refreshAuth(): void {

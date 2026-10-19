@@ -65,6 +65,16 @@
                     @if (item.content.summary) {
                         <p class="notification-bell__detail-summary">{{ item.content.summary }}</p>
                     }
+                    @if (detailLoading() && !item.content.body) {
+                        <div class="notification-bell__empty" role="status">
+                            <mat-spinner diameter="28"></mat-spinner>
+                        </div>
+                    }
+                    @if (detailError()) {
+                        <p class="notification-bell__empty" role="alert">
+                            {{ detailError()! | transloco }}
+                        </p>
+                    }
                     @if (item.content.body) {
                         <div
                             class="notification-bell__body"
