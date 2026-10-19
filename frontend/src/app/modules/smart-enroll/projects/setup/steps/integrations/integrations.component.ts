@@ -13,6 +13,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { STRICT_URL_PATTERN } from 'app/shared/validators/validation-patterns';
 import { EnrollmentBlocker, enrollmentBlockers } from '../../../enrollment-client.util';
+import { VerifyStylePickerComponent } from '../../../verify-style-picker.component';
 import { SetupService } from '../../setup.service';
 
 /**
@@ -34,6 +35,7 @@ import { SetupService } from '../../setup.service';
         MatSelectModule,
         MatSnackBarModule,
         TranslocoModule,
+        VerifyStylePickerComponent,
     ],
     templateUrl: './integrations.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +70,11 @@ export class SetupIntegrationsComponent implements OnInit {
 
     get enrollmentClientControl(): FormControl | null {
         return (this.form?.get('projectFlow.onboardingSettings.enrollmentClient') as FormControl) || null;
+    }
+
+    /** Saved verification look. Empty means unset, so nothing is written back. */
+    get verifyStyleControl(): FormControl | null {
+        return (this.form?.get('projectFlow.onboardingSettings.verifyStyle') as FormControl) || null;
     }
 
     get enrollmentBlockerKeys(): EnrollmentBlocker[] {

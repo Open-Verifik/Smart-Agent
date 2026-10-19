@@ -31,7 +31,7 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 
 import { environment } from 'environments/environment';
-import { enrollmentBlockers, enrollmentSegment, readEnrollmentClient } from '../enrollment-client.util';
+import { enrollmentBlockers, enrollmentSegment, readEnrollmentClient, savedVerifyStyle } from '../enrollment-client.util';
 import {
     ADDRESS_PATTERN,
     CITY_NAME_PATTERN,
@@ -405,6 +405,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             version: [currentData?.version ?? 3, [Validators.required]],
             onboardingSettings: this._formBuilder.group({
                 enrollmentClient: [currentData?.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : ''],
+                verifyStyle: [savedVerifyStyle(currentData?.onboardingSettings?.verifyStyle)],
             }),
             business: this._formBuilder.group(
                 {
@@ -549,18 +550,20 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         if (!projectFlowData) return projectFlowData;
 
         const selected = projectFlowData.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : '';
+        const style = savedVerifyStyle(projectFlowData.onboardingSettings?.verifyStyle);
         const blockers = enrollmentBlockers(projectFlowData);
-        const { onboardingSettings, ...rest } = projectFlowData;
+        const rest = { ...projectFlowData };
 
-        if (selected === 'v2' && !blockers.length) {
-            return { ...rest, onboardingSettings: { enrollmentClient: 'v2' } };
-        }
+        delete rest.onboardingSettings;
 
-        if ((selected === 'v2' && blockers.length) || this._savedEnrollmentClient === 'v2') {
-            return { ...rest, onboardingSettings: { enrollmentClient: 'legacy' } };
-        }
+        const settings: Record<string, string> = {};
 
-        return rest;
+        if (selected === 'v2' && !blockers.length) settings.enrollmentClient = 'v2';
+        else if ((selected === 'v2' && blockers.length) || this._savedEnrollmentClient === 'v2') settings.enrollmentClient = 'legacy';
+        if (style) settings.verifyStyle = style;
+        if (!Object.keys(settings).length) return rest;
+
+        return { ...rest, onboardingSettings: settings };
     }
 
     private _pickV3SignUpFormPayload(
@@ -627,6 +630,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             formData.projectFlow = { ...restProjectFlow, integrations };
         } else if (this.stepIndex === 5) {
             formData.branding = branding;
+            if (restProjectFlow.onboardingSettings) formData.projectFlow = { onboardingSettings: restProjectFlow.onboardingSettings };
         }
 
         return formData;

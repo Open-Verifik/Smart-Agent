@@ -4023,6 +4023,20 @@
                         "signature": "Signature ou formulaire supplémentaire"
                     }
                 },
+                "verifyStyle": {
+                    "title": "Apparence de la vérification",
+                    "subtitle": "Le client voit ceci sur la nouvelle inscription. Sans choix, cette page utilise Forêt. L’inscription actuelle ne change pas.",
+                    "sample": "Continuer",
+                    "unset": "Non choisi",
+                    "names": {
+                        "a": "Forêt",
+                        "b": "Éditorial",
+                        "c": "Papier",
+                        "d": "Coffre",
+                        "e": "Porcelaine",
+                        "f": "Carnet"
+                    }
+                },
                 "redirect": {
                     "title": "URL de redirection",
                     "subtitle": "Où envoyer le client une fois l’inscription terminée.",

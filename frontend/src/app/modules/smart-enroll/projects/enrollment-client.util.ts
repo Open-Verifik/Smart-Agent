@@ -37,6 +37,15 @@ interface FlowShape {
     onboardingSettings?: { enrollmentClient?: string; requiresSignature?: boolean };
 }
 
+const VERIFY_STYLE_IDS = ['a', 'b', 'c', 'd', 'e', 'f'];
+
+/** Keeps a saved look. An empty or unknown value stays empty so nothing is written back. */
+export const savedVerifyStyle = (value: unknown): string => {
+    const id = String(value || '').trim().toLowerCase();
+
+    return VERIFY_STYLE_IDS.includes(id) ? id : '';
+};
+
 export const readEnrollmentClient = (flow: { onboardingSettings?: unknown } | null | undefined): EnrollmentClient => {
     const settings = flow?.onboardingSettings as { enrollmentClient?: string } | undefined;
 

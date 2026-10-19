@@ -4034,6 +4034,20 @@
                         "signature": "Firma o formulario adicional"
                     }
                 },
+                "verifyStyle": {
+                    "title": "Apariencia de la verificación",
+                    "subtitle": "El cliente ve esto en la inscripción nueva. Si no eliges una, esa página usa Bosque. La inscripción actual no cambia.",
+                    "sample": "Continuar",
+                    "unset": "Sin elegir",
+                    "names": {
+                        "a": "Bosque",
+                        "b": "Editorial",
+                        "c": "Papel",
+                        "d": "Bóveda",
+                        "e": "Porcelana",
+                        "f": "Cuaderno"
+                    }
+                },
                 "redirect": {
                     "title": "URL de redirección",
                     "subtitle": "Dónde enviar al cliente cuando termine la inscripción.",
