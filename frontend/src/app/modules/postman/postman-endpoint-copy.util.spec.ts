@@ -437,7 +437,7 @@ describe('postman-endpoint-copy.util', () => {
             const result = resolveAboutOverview({
                 endpoint: {
                     code: 'colombia_api_driver',
-                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    description: 'Verify Colombian driver license status and validity using official records.',
                     docs: {
                         en: { overview: enOverview },
                     },
@@ -456,7 +456,7 @@ describe('postman-endpoint-copy.util', () => {
             const result = resolveAboutOverview({
                 endpoint: {
                     code: 'colombia_api_driver',
-                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    description: 'Verify Colombian driver license status and validity using official records.',
                     docs: {
                         en: { overview: enOverview },
                         es: {
@@ -480,7 +480,7 @@ describe('postman-endpoint-copy.util', () => {
             const result = resolveAboutOverview({
                 endpoint: {
                     code: 'colombia_api_driver',
-                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    description: 'Verify Colombian driver license status and validity using official records.',
                     docs: {
                         en: { overview: enOverview },
                         fr: { overview: frOverview },
@@ -497,7 +497,7 @@ describe('postman-endpoint-copy.util', () => {
             const result = resolveAboutOverview({
                 endpoint: {
                     code: 'colombia_api_driver',
-                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    description: 'Verify Colombian driver license status and validity using official records.',
                     docs: {
                         en: { overview: enOverview },
                     },
@@ -517,7 +517,7 @@ describe('postman-endpoint-copy.util', () => {
             const result = resolveAboutOverview({
                 endpoint: {
                     code: 'colombia_api_driver',
-                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    description: 'Verify Colombian driver license status and validity using official records.',
                     docs: {
                         es: { overview: esOverview },
                     },
@@ -536,7 +536,7 @@ describe('postman-endpoint-copy.util', () => {
             const result = resolveAboutOverview({
                 endpoint: {
                     code: 'colombia_api_driver',
-                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    description: 'Verify Colombian driver license status and validity using official records.',
                     docs: {
                         es: { overview: enOverview },
                     },
