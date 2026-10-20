@@ -39,9 +39,35 @@
         "changeFieldsPrompt": "¿Quieres cambiar estos campos?",
         "changeFieldsAction": "Haz clic aquí",
         "changeCountry": "Cambiar",
+        "governmentCheckTitle": "Verificación con el gobierno",
+        "governmentCheckLinked": "Este escaneo lee la foto y luego llama a {{name}}.",
+        "governmentCheckMissing": "Este escaneo solo lee la foto. Conecta una verificación con el gobierno para validarla.",
+        "governmentCheckSetup": "Configurar verificación",
+        "costOcr": "OCR",
+        "costSmartCheck": "SmartCheck",
+        "costTotal": "Total",
+        "nameMatch": {
+            "firstName": "Nombre",
+            "lastName": "Apellido",
+            "fullName": "Nombre completo",
+            "ocrColumn": "Extracción OCR",
+            "sourceColumn": "Fuente oficial",
+            "verdictExact": "Coincidencia exacta",
+            "verdictClose": "Coincidencia cercana",
+            "verdictMismatch": "Baja coincidencia"
+        },
         "wizard": {
             "moveToFront": "Mover al frente",
-            "moveToBack": "Mover al reverso"
+            "moveToBack": "Mover al reverso",
+            "sendLiteral": "Enviar {{value}}",
+            "endpointCost": "{{cost}} créditos",
+            "openPostman": "Postman",
+            "openDocs": "Documentación",
+            "changeEndpoint": "Cambiar endpoint",
+            "callPreviewTitle": "Llamada tras la extracción",
+            "fromField": "desde {{field}}",
+            "unmappedRequired": "Falta asignar",
+            "smartCheckHint": "Vincula cualquier endpoint de este país. No tiene que usar el código de este documento."
         }
     }
 }

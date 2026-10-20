@@ -31,24 +31,112 @@
                         </span>
                     </div>
                 </article>
+            } @else if (showAllEndpoints) {
+                <p class="field-card__body">{{ 'smartScan.wizard.smartCheckHint' | transloco }}</p>
+                <div class="endpoint-cards">
+                    <button
+                        type="button"
+                        class="field-card endpoint-card"
+                        [class.field-card--ready]="!wizard.selectedFeatureId"
+                        (click)="pickFeature('')"
+                    >
+                        <span class="field-card__icon"><mat-icon>crop_portrait</mat-icon></span>
+                        <span class="field-card__content">
+                            <span class="field-card__title">
+                                <strong>{{ 'smartScan.wizard.skipSmartCheck' | transloco }}</strong>
+                            </span>
+                        </span>
+                    </button>
+                    @for (feature of wizard.features; track feature._id) {
+                        <article class="field-card endpoint-card" [class.field-card--ready]="wizard.selectedFeatureId === feature._id">
+                            <button type="button" class="endpoint-card__hit" (click)="pickFeature(feature._id)">
+                                <span class="field-card__icon"><mat-icon>verified</mat-icon></span>
+                                <span class="field-card__content">
+                                    <span class="field-card__title">
+                                        <strong>{{ feature.name }}</strong>
+                                    </span>
+                                    @if (feature.url) {
+                                        <span class="endpoint-card__url">{{ feature.url }}</span>
+                                    }
+                                    <span class="endpoint-card__cost">
+                                        {{ 'smartScan.wizard.endpointCost' | transloco: { cost: featureCost(feature) } }}
+                                    </span>
+                                </span>
+                            </button>
+                            <div class="endpoint-card__links">
+                                <a
+                                    class="text-button"
+                                    [href]="postmanUrl(feature)"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    {{ 'smartScan.wizard.openPostman' | transloco }} ↗
+                                </a>
+                                @if (docsUrl(feature); as docs) {
+                                    <a
+                                        class="text-button"
+                                        [href]="docs"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        (click)="$event.stopPropagation()"
+                                    >
+                                        {{ 'smartScan.wizard.openDocs' | transloco }} ↗
+                                    </a>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
             } @else {
-                <article class="field-card" [class.field-card--ready]="!!wizard.selectedFeatureId">
-                    <span class="field-card__icon"><mat-icon>verified</mat-icon></span>
+                @if (wizard.selectedFeature; as feature) {
+                    <article class="field-card endpoint-card field-card--ready">
+                        <div class="endpoint-card__hit endpoint-card__hit--static">
+                            <span class="field-card__icon"><mat-icon>verified</mat-icon></span>
+                            <div class="field-card__content">
+                                <span class="field-card__title">
+                                    <strong>{{ feature.name }}</strong>
+                                </span>
+                                @if (feature.url) {
+                                    <span class="endpoint-card__url">{{ feature.url }}</span>
+                                }
+                                <span class="endpoint-card__cost">
+                                    {{ 'smartScan.wizard.endpointCost' | transloco: { cost: featureCost(feature) } }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="endpoint-card__links">
+                            <a class="text-button" [href]="postmanUrl(feature)" target="_blank" rel="noopener noreferrer">
+                                {{ 'smartScan.wizard.openPostman' | transloco }} ↗
+                            </a>
+                            @if (docsUrl(feature); as docs) {
+                                <a class="text-button" [href]="docs" target="_blank" rel="noopener noreferrer">
+                                    {{ 'smartScan.wizard.openDocs' | transloco }} ↗
+                                </a>
+                            }
+                        </div>
+                    </article>
+                    <div class="endpoint-switch">
+                        @if (wizard.features.length > 1) {
+                            <button mat-stroked-button type="button" (click)="openEndpointList($event)">
+                                {{ 'smartScan.wizard.changeEndpoint' | transloco }}
+                            </button>
+                        }
+                        <button type="button" class="text-button" (click)="clearEndpoint($event)">
+                            {{ 'smartScan.wizard.skipSmartCheck' | transloco }}
+                        </button>
+                    </div>
+                }
+            }
+
+            @if (wizard.selectedFeature) {
+                <article class="field-card">
+                    <span class="field-card__icon"><mat-icon>account_tree</mat-icon></span>
                     <div class="field-card__content">
                         <span class="field-card__title">
-                            <strong>{{ 'smartScan.wizard.smartCheck' | transloco }}</strong>
+                            <strong>{{ 'smartScan.wizard.mapDependency' | transloco }}</strong>
                         </span>
-                        <span class="field-card__body">{{ 'smartScan.wizard.smartCheckHint' | transloco }}</span>
-                        <mat-form-field appearance="outline" class="input-stack" subscriptSizing="dynamic">
-                            <mat-label>{{ 'smartScan.wizard.smartCheck' | transloco }}</mat-label>
-                            <mat-select [ngModel]="wizard.selectedFeatureId" (ngModelChange)="wizard.onFeatureChange($event)">
-                                <mat-option value="">{{ 'smartScan.wizard.skipSmartCheck' | transloco }}</mat-option>
-                                @for (feature of wizard.features; track feature._id) {
-                                    <mat-option [value]="feature._id">{{ feature.name }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                        @for (dependency of wizard.selectedFeature?.dependencies || []; track dependency.field) {
+                        @for (dependency of wizard.featureDependencies(wizard.selectedFeature); track dependency.field) {
                             <div class="input-grid">
                                 <p class="dependency-name">
                                     {{ dependency.field }}
@@ -60,6 +148,11 @@
                                     <mat-label>{{ 'smartScan.wizard.mapDependency' | transloco }}</mat-label>
                                     <mat-select [(ngModel)]="wizard.fieldMap[dependency.field]">
                                         <mat-option value="">—</mat-option>
+                                        @for (value of wizard.dependencyEnums(dependency); track value) {
+                                            <mat-option [value]="'literal:' + value">
+                                                {{ 'smartScan.wizard.sendLiteral' | transloco: { value: value } }}
+                                            </mat-option>
+                                        }
                                         @for (key of wizard.mapKeys; track key) {
                                             <mat-option [value]="key">{{ key }}</mat-option>
                                         }
@@ -76,18 +169,62 @@
             <div class="section-heading section-heading--light">
                 <span>02</span>
                 <div>
-                    <h3>{{ 'smartScan.wizard.' + copyKey + '.explainTitle' | transloco }}</h3>
+                    <h3>
+                        {{
+                            (wizard.selectedFeature
+                                ? 'smartScan.wizard.callPreviewTitle'
+                                : 'smartScan.wizard.' + copyKey + '.explainTitle') | transloco
+                        }}
+                    </h3>
                     <p>{{ 'smartScan.wizard.' + copyKey + '.explainHelp' | transloco }}</p>
                 </div>
             </div>
-            <div class="explainer-notes">
-                @for (note of notes; track note) {
-                    <article>
-                        <mat-icon>info</mat-icon>
-                        <p>{{ 'smartScan.wizard.' + copyKey + '.' + note | transloco }}</p>
-                    </article>
-                }
-            </div>
+            @if (wizard.selectedFeature; as feature) {
+                <div class="call-preview">
+                    <div class="call-preview__head">
+                        <strong>{{ feature.name }}</strong>
+                        <span>{{ 'smartScan.wizard.endpointCost' | transloco: { cost: featureCost(feature) } }}</span>
+                    </div>
+                    @if (feature.url) {
+                        <p class="call-preview__route">
+                            <span>{{ feature.method || 'GET' }}</span>
+                            <code>{{ feature.url }}</code>
+                        </p>
+                    }
+                    <div class="call-preview__params">
+                        @for (dependency of wizard.featureDependencies(feature); track dependency.field) {
+                            @let source = dependencySource(dependency.field);
+                            <div class="call-preview__row" [class.call-preview__row--warn]="source.kind === 'missing' && dependency.required">
+                                <code>{{ dependency.field }}</code>
+                                @if (source.kind === 'literal') {
+                                    <span class="call-preview__pill">"{{ source.value }}"</span>
+                                } @else if (source.kind === 'field') {
+                                    <span>{{ 'smartScan.wizard.fromField' | transloco: { field: source.value } }}</span>
+                                } @else if (dependency.required) {
+                                    <span class="call-preview__warn">{{ 'smartScan.wizard.unmappedRequired' | transloco }}</span>
+                                } @else {
+                                    <span>—</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="explainer-notes">
+                        <article>
+                            <mat-icon>info</mat-icon>
+                            <p>{{ 'smartScan.wizard.' + copyKey + '.noteSkip' | transloco }}</p>
+                        </article>
+                    </div>
+                </div>
+            } @else {
+                <div class="explainer-notes">
+                    @for (note of notes; track note) {
+                        <article>
+                            <mat-icon>info</mat-icon>
+                            <p>{{ 'smartScan.wizard.' + copyKey + '.' + note | transloco }}</p>
+                        </article>
+                    }
+                </div>
+            }
         </aside>
     </div>
 </div>

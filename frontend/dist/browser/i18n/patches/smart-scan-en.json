@@ -39,9 +39,35 @@
         "changeFieldsPrompt": "Want to change these fields?",
         "changeFieldsAction": "Click here",
         "changeCountry": "Change",
+        "governmentCheckTitle": "Government check",
+        "governmentCheckLinked": "This scan reads the photo, then calls {{name}}.",
+        "governmentCheckMissing": "This scan only reads the photo. Connect a government check to validate it.",
+        "governmentCheckSetup": "Set up a government check",
+        "costOcr": "OCR",
+        "costSmartCheck": "SmartCheck",
+        "costTotal": "Total",
+        "nameMatch": {
+            "firstName": "First name",
+            "lastName": "Last name",
+            "fullName": "Full name",
+            "ocrColumn": "OCR extraction",
+            "sourceColumn": "Government source",
+            "verdictExact": "Exact match",
+            "verdictClose": "Close match",
+            "verdictMismatch": "Low match"
+        },
         "wizard": {
             "moveToFront": "Move to front",
-            "moveToBack": "Move to back"
+            "moveToBack": "Move to back",
+            "sendLiteral": "Send {{value}}",
+            "endpointCost": "{{cost}} credits",
+            "openPostman": "Postman",
+            "openDocs": "Docs",
+            "changeEndpoint": "Change endpoint",
+            "callPreviewTitle": "Call after extraction",
+            "fromField": "from {{field}}",
+            "unmappedRequired": "Needs a field",
+            "smartCheckHint": "Link any government endpoint from this country. It does not have to use this document's code."
         }
     }
 }

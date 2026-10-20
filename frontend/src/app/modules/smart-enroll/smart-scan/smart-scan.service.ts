@@ -126,7 +126,7 @@ export class SmartScanService {
     getDocumentTypesByCode(code: string) {
         return this._httpClient
             .get<{ data: DocumentType[] }>(`${this.apiUrl}/v2/document-types`, {
-                params: { where_code: code, where_status: 'active', limit: '10' },
+                params: this.withFeaturePopulate({ where_code: code, where_status: 'active', limit: '10' }),
                 headers: this.authHeaders,
             })
             .pipe(
@@ -200,7 +200,7 @@ export class SmartScanService {
 
         return this._httpClient
             .get<{ data: DocumentType[] }>(`${this.apiUrl}/v2/document-types`, {
-                params,
+                params: this.withFeaturePopulate(params),
                 headers: this.authHeaders,
             })
             .pipe(
@@ -253,6 +253,7 @@ export class SmartScanService {
 
     getDocumentType(id: string) {
         return this._httpClient.get<{ data: DocumentType | null }>(`${this.apiUrl}/v2/document-types/${id}`, {
+            params: this.withFeaturePopulate({}),
             headers: this.authHeaders,
         });
     }
@@ -282,15 +283,29 @@ export class SmartScanService {
     }
 
     getSmartCheckFeatures(country: string) {
+        const trimmed = country.trim();
+        const titled = trimmed.replace(/\b\w/g, (char) => char.toUpperCase());
+        const countries = [...new Set([trimmed, trimmed.toLowerCase(), trimmed.toUpperCase(), titled])].filter(Boolean);
+
         return this._httpClient.get<{ data: AppFeatureOption[] }>(`${this.apiUrl}/v2/app-features/my-list`, {
             params: {
-                where_country: country,
-                where_smartCheckEnabled: 'true',
+                where_country: countries.join(','),
                 where_isAvailable: 'true',
                 limit: '200',
             },
             headers: this.authHeaders,
         });
+    }
+
+    /**
+     * Includes the linked government endpoint name and URL on each document type.
+     */
+    private withFeaturePopulate(params: Record<string, string>): Record<string, string> {
+        return {
+            ...params,
+            'populates[]': 'appFeature',
+            populateSelects: JSON.stringify({ appFeature: 'code name url' }),
+        };
     }
 
     identifyDocumentFields(image: string, backImage?: string) {
@@ -309,6 +324,7 @@ export class SmartScanService {
         const body: Record<string, string> = {
             documentType,
             image,
+            includeCost: 'true',
         };
         if (backImage) {
             body['backImage'] = backImage;
@@ -318,12 +334,18 @@ export class SmartScanService {
         }
 
         return this._httpClient
-            .post<{ data: ScanResult }>(`${this.apiUrl}/v2/ocr/scan-agent`, body, {
+            .post<{ data: ScanResult; creditsCharged?: number }>(`${this.apiUrl}/v2/ocr/scan-agent`, body, {
                 headers: { ...this.authHeaders, 'Content-Type': 'application/json' },
             })
             .pipe(
                 tap((response) => {
-                    this.scanResult.set(response.data ?? null);
+                    const result = response.data
+                        ? {
+                              ...response.data,
+                              creditsCharged: response.creditsCharged ?? response.data.creditsCharged,
+                          }
+                        : null;
+                    this.scanResult.set(result);
                 }),
                 catchError((err) => {
                     console.error('Error scanning document:', err);

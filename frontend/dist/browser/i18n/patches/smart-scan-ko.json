@@ -39,9 +39,35 @@
         "changeFieldsPrompt": "이 항목을 바꾸시겠어요?",
         "changeFieldsAction": "여기를 클릭",
         "changeCountry": "변경",
+        "governmentCheckTitle": "정부 확인",
+        "governmentCheckLinked": "이 스캔은 사진을 읽은 다음 {{name}}을 호출합니다.",
+        "governmentCheckMissing": "이 스캔은 사진만 읽습니다. 정부 확인을 연결해 검증하세요.",
+        "governmentCheckSetup": "정부 확인 설정",
+        "costOcr": "OCR",
+        "costSmartCheck": "SmartCheck",
+        "costTotal": "합계",
+        "nameMatch": {
+            "firstName": "이름",
+            "lastName": "성",
+            "fullName": "전체 이름",
+            "ocrColumn": "OCR 추출",
+            "sourceColumn": "정부 기록",
+            "verdictExact": "정확히 일치",
+            "verdictClose": "유사 일치",
+            "verdictMismatch": "낮은 일치"
+        },
         "wizard": {
             "moveToFront": "앞면으로 이동",
-            "moveToBack": "뒷면으로 이동"
+            "moveToBack": "뒷면으로 이동",
+            "sendLiteral": "{{value}} 전송",
+            "endpointCost": "{{cost}} 크레딧",
+            "openPostman": "Postman",
+            "openDocs": "문서",
+            "changeEndpoint": "엔드포인트 변경",
+            "callPreviewTitle": "추출 후 호출",
+            "fromField": "{{field}}에서",
+            "unmappedRequired": "필드 필요",
+            "smartCheckHint": "이 나라의 정부 엔드포인트를 연결할 수 있습니다. 문서 코드가 달라도 선택할 수 있습니다."
         }
     }
 }

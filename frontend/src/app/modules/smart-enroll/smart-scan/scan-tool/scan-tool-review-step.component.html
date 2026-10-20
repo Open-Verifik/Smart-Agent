@@ -36,6 +36,42 @@
             {{ (requiresBackSide() ? 'smartScan.backRequired' : 'smartScan.onePhoto') | transloco }}
         </span>
 
+        @if (linkedFeature(); as feature) {
+            <section class="gov-check-banner gov-check-banner--linked">
+                <span class="gov-check-banner__blob gov-check-banner__blob--tr" aria-hidden="true"></span>
+                <span class="gov-check-banner__blob gov-check-banner__blob--bl" aria-hidden="true"></span>
+                <span class="gov-check-banner__icon" aria-hidden="true">
+                    <mat-icon>verified</mat-icon>
+                </span>
+                <div class="gov-check-banner__copy">
+                    <span class="gov-check-banner__pill">{{ 'smartScan.governmentCheckTitle' | transloco }}</span>
+                    <p class="gov-check-banner__title">
+                        {{ 'smartScan.governmentCheckLinked' | transloco: { name: feature.name } }}
+                    </p>
+                    @if (feature.url) {
+                        <code class="gov-check-banner__url">{{ feature.url }}</code>
+                    }
+                </div>
+            </section>
+        } @else {
+            <section class="gov-check-banner">
+                <span class="gov-check-banner__blob gov-check-banner__blob--tr" aria-hidden="true"></span>
+                <span class="gov-check-banner__blob gov-check-banner__blob--bl" aria-hidden="true"></span>
+                <span class="gov-check-banner__icon" aria-hidden="true">
+                    <mat-icon>verified</mat-icon>
+                </span>
+                <div class="gov-check-banner__copy">
+                    <span class="gov-check-banner__pill">{{ 'smartScan.governmentCheckTitle' | transloco }}</span>
+                    <p class="gov-check-banner__title">
+                        {{ 'smartScan.governmentCheckMissing' | transloco }}
+                    </p>
+                </div>
+                <button type="button" class="gov-check-banner__cta" (click)="connectCheck.emit()">
+                    {{ 'smartScan.governmentCheckSetup' | transloco }}
+                </button>
+            </section>
+        }
+
         <div
             class="grid grid-cols-1 gap-0 divide-y divide-stone-100 overflow-hidden rounded-2xl border border-stone-200/90 lg:grid-cols-2 lg:divide-x lg:divide-y-0 dark:divide-gray-800 dark:border-gray-700"
         >

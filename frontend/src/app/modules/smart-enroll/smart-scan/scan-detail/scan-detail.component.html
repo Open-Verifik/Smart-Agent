@@ -252,8 +252,8 @@
                         </button>
                     </div>
 
-                    <div class="p-6 md:p-8">
-                        @if (showRawJson) {
+                    @if (showRawJson) {
+                        <div class="p-6 md:p-8">
                             <div class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700">
                                 <div
                                     class="flex items-center justify-between border-b border-stone-200/90 bg-stone-100/80 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-800/50"
@@ -274,7 +274,80 @@
                                     class="m-0 max-h-96 select-text overflow-auto bg-stone-50/80 p-4 font-mono text-xs dark:bg-gray-950/50"
                                 ><code class="language-json hljs block" [innerHTML]="highlightedJson"></code></pre>
                             </div>
-                        } @else {
+                        </div>
+                    } @else if (resolvedSmartCheck && scanAsResult) {
+                        @let result = scanAsResult!;
+                        <div class="scan-results-decision">
+                            <section class="scan-results-record space-y-6">
+                                <div class="results-section-heading">
+                                    <span>01</span>
+                                    <div>
+                                        <h4>{{ 'smartScan.extractedFields' | transloco }}</h4>
+                                        <p>{{ (singlePhoto ? 'smartScan.onePhotoHelp' : 'smartScan.resultsSidesHelp') | transloco }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    @if (scan.url) {
+                                        <div class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50">
+                                            <button
+                                                type="button"
+                                                class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                                (click)="openImagePreview(scan.url, scan.documentType)"
+                                            >
+                                                <img [src]="scan.url" alt="Document front" class="max-h-72 w-full object-contain" />
+                                            </button>
+                                        </div>
+                                    }
+                                    @if (scan.backUrl) {
+                                        <div class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50">
+                                            <button
+                                                type="button"
+                                                class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                                (click)="openImagePreview(scan.backUrl, scan.documentType)"
+                                            >
+                                                <img [src]="scan.backUrl" alt="Document back" class="max-h-56 w-full object-contain" />
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="space-y-3">
+                                    <barcode-validation-panel [validation]="barcodeValidation()" />
+                                    @for (section of extractionSections(); track section.id) {
+                                        @if (section.fields.length) {
+                                            <div class="space-y-2">
+                                                @if (section.labelKey) {
+                                                    <h4 class="text-xs font-medium uppercase tracking-wider text-stone-400 dark:text-stone-500">
+                                                        {{ section.labelKey | transloco }}
+                                                    </h4>
+                                                }
+                                                <div class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700">
+                                                    @for (f of section.fields; track f.key; let i = $index) {
+                                                        <div
+                                                            class="flex justify-between gap-4 px-4 py-3"
+                                                            [ngClass]="{ 'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0 }"
+                                                        >
+                                                            <span class="text-sm font-medium text-stone-500 dark:text-stone-400">{{ f.key }}</span>
+                                                            <span class="break-all text-right text-sm font-medium text-stone-900 dark:text-white">{{ f.value }}</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </section>
+
+                            <aside class="scan-results-explainer">
+                                <scan-tool-smart-check-result
+                                    [scanResult]="result"
+                                    [documentType]="documentType"
+                                />
+                            </aside>
+                        </div>
+                    } @else {
+                        <div class="p-6 md:p-8">
                             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 <div class="space-y-4">
                                     @if (scan.url) {
@@ -333,8 +406,8 @@
                                     }
                                 </div>
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
 
                 <div class="flex justify-end">

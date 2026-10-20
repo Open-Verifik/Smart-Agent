@@ -334,10 +334,31 @@ export class DocumentTypeWizardComponent implements OnInit {
     onFeatureChange(featureId: string) {
         this.selectedFeatureId = featureId;
         this.fieldMap = {};
-        for (const dependency of this.selectedFeature?.dependencies || []) {
+        for (const dependency of this.featureDependencies(this.selectedFeature)) {
+            const fixed = this.dependencyEnums(dependency);
+            if (fixed.length === 1) {
+                this.fieldMap[dependency.field] = `literal:${fixed[0]}`;
+                continue;
+            }
             const match = this.mapKeys.find((key) => key === dependency.field);
             if (match) this.fieldMap[dependency.field] = match;
         }
+    }
+
+    /**
+     * Values the endpoint accepts as a constant, such as CCPA for documentType.
+     */
+    dependencyEnums(dependency: { enum?: string[] | null }): string[] {
+        if (!Array.isArray(dependency.enum)) return [];
+        return dependency.enum.map((value) => String(value).trim()).filter(Boolean);
+    }
+
+    /**
+     * Dependencies the catalog actually returned as a list.
+     */
+    featureDependencies(feature?: AppFeatureOption): NonNullable<AppFeatureOption['dependencies']> {
+        if (!feature || !Array.isArray(feature.dependencies)) return [];
+        return feature.dependencies;
     }
 
     private persistProgress(nextIndex: number) {
@@ -387,7 +408,11 @@ export class DocumentTypeWizardComponent implements OnInit {
         this._scanService.getSmartCheckFeatures(this.country).subscribe({
             next: (response) => {
                 const rows = Array.isArray(response.data) ? response.data : [];
-                this.features = rows.filter((feature) => feature.smartCheckEnabled);
+                const country = this.country.trim().toLowerCase();
+                this.features = rows
+                    .filter((feature) => !country || (feature.country || '').trim().toLowerCase() === country)
+                    .sort((left, right) => this.featureRank(left) - this.featureRank(right) || left.name.localeCompare(right.name));
+                this.applyLiteralDefaults();
                 this.featuresLoading = false;
                 this._cdr.markForCheck();
             },
@@ -406,11 +431,8 @@ export class DocumentTypeWizardComponent implements OnInit {
         }
 
         const smartCheckFieldMap = (this.selectedFeature?.dependencies || [])
-            .map((dependency) => ({
-                dependencyField: dependency.field,
-                mapKey: this.fieldMap[dependency.field] || '',
-            }))
-            .filter((row) => row.mapKey);
+            .map((dependency) => this.fieldMapRow(dependency.field))
+            .filter((row) => row.mapKey || row.literal);
 
         this.saving = true;
         this._scanService
@@ -475,7 +497,9 @@ export class DocumentTypeWizardComponent implements OnInit {
         this.selectedFeatureId = this.featureId(documentType.appFeature);
         this.fieldMap = {};
         for (const row of documentType.smartCheckFieldMap || []) {
-            if (row.dependencyField && row.mapKey) this.fieldMap[row.dependencyField] = row.mapKey;
+            if (!row.dependencyField) continue;
+            if (row.literal) this.fieldMap[row.dependencyField] = `literal:${row.literal}`;
+            else if (row.mapKey) this.fieldMap[row.dependencyField] = row.mapKey;
         }
         if (this.steps[this.stepIndex] === 'smartCheck') this.loadFeatures();
     }
@@ -724,5 +748,40 @@ export class DocumentTypeWizardComponent implements OnInit {
         if (!value) return '';
         if (typeof value === 'string') return value;
         return value._id || '';
+    }
+
+    /**
+     * A dependency with one accepted code, such as CCPA, is sent as that code unless the user chose a field.
+     */
+    private applyLiteralDefaults() {
+        for (const dependency of this.featureDependencies(this.selectedFeature)) {
+            if (this.fieldMap[dependency.field]) continue;
+            const fixed = this.dependencyEnums(dependency);
+            if (fixed.length !== 1) continue;
+            this.fieldMap[dependency.field] = `literal:${fixed[0]}`;
+        }
+    }
+
+    private fieldMapRow(field: string): { dependencyField: string; mapKey: string; literal: string } {
+        const chosen = this.fieldMap[field] || '';
+        if (chosen.startsWith('literal:')) {
+            return { dependencyField: field, mapKey: '', literal: chosen.slice('literal:'.length) };
+        }
+        return { dependencyField: field, mapKey: chosen, literal: '' };
+    }
+
+    /**
+     * Identity checks and endpoints that already name this document code come first.
+     * Every other endpoint for the country stays in the list.
+     */
+    private featureRank(feature: AppFeatureOption): number {
+        const code = this.code.trim().toUpperCase();
+        const dependencies = this.featureDependencies(feature);
+        const enums = dependencies.flatMap((dependency) => this.dependencyEnums(dependency).map((value) => value.toUpperCase()));
+        if (code && enums.includes(code)) return 0;
+        const identity =
+            feature.baseCategory === 'identity' ||
+            dependencies.some((dependency) => dependency.field === 'documentNumber' || dependency.field === 'documentType');
+        return identity ? 1 : 2;
     }
 }

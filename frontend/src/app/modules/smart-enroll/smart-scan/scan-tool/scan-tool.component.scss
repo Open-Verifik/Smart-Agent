@@ -145,3 +145,75 @@
 .doc-type-card {
     /* No 3D flip - we toggle between front/back images directly */
 }
+
+.scan-results-decision {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+
+    @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.scan-results-record,
+.scan-results-explainer {
+    padding: 1.75rem;
+}
+
+.scan-results-explainer {
+    background: #1c1917;
+    color: #fafaf9;
+}
+
+.results-section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+
+    > span {
+        display: grid;
+        flex: 0 0 1.8rem;
+        width: 1.8rem;
+        height: 1.8rem;
+        place-items: center;
+        border-radius: 999px;
+        background: #292524;
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 750;
+    }
+
+    h4 {
+        margin: 0;
+        color: #292524;
+        font-size: 0.95rem;
+        font-weight: 680;
+    }
+
+    p {
+        margin: 0.25rem 0 0;
+        color: #78716c;
+        font-size: 0.72rem;
+        line-height: 1.45;
+    }
+}
+
+:host-context(.dark) {
+    .scan-results-explainer {
+        background: #020617;
+    }
+
+    .results-section-heading {
+        > span {
+            background: #334155;
+        }
+
+        h4 {
+            color: #f8fafc;
+        }
+
+        p {
+            color: #94a3b8;
+        }
+    }
+}

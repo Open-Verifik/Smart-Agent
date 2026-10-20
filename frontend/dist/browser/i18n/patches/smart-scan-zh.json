@@ -39,9 +39,35 @@
         "changeFieldsPrompt": "想更改这些字段吗？",
         "changeFieldsAction": "点击这里",
         "changeCountry": "更改",
+        "governmentCheckTitle": "政府核验",
+        "governmentCheckLinked": "此次扫描会读取照片，然后调用 {{name}}。",
+        "governmentCheckMissing": "此次扫描只读取照片。连接政府核验以完成校验。",
+        "governmentCheckSetup": "设置政府核验",
+        "costOcr": "OCR",
+        "costSmartCheck": "SmartCheck",
+        "costTotal": "总计",
+        "nameMatch": {
+            "firstName": "名",
+            "lastName": "姓",
+            "fullName": "全名",
+            "ocrColumn": "OCR 提取",
+            "sourceColumn": "政府记录",
+            "verdictExact": "完全匹配",
+            "verdictClose": "接近匹配",
+            "verdictMismatch": "匹配度低"
+        },
         "wizard": {
             "moveToFront": "移到正面",
-            "moveToBack": "移到背面"
+            "moveToBack": "移到背面",
+            "sendLiteral": "发送 {{value}}",
+            "endpointCost": "{{cost}} 积分",
+            "openPostman": "Postman",
+            "openDocs": "文档",
+            "changeEndpoint": "更换接口",
+            "callPreviewTitle": "提取后的调用",
+            "fromField": "来自 {{field}}",
+            "unmappedRequired": "需选择字段",
+            "smartCheckHint": "可以链接该国的任意政府接口。文档代码不必与接口代码相同。"
         }
     }
 }

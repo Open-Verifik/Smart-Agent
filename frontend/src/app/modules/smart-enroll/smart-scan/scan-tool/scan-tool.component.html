@@ -42,21 +42,32 @@
 
         <ol class="mb-8 flex flex-col gap-2 sm:flex-row sm:flex-wrap" [attr.aria-label]="'smartScan.toolTitle' | transloco">
             @for (s of flowStepDefs; track s.id; let i = $index) {
-                <li
-                    class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border px-3 py-2"
-                    [ngClass]="{
-                        'border-stone-900 bg-stone-900 text-white dark:border-stone-100 dark:bg-stone-100 dark:text-stone-900':
-                            isFlowStepCurrent(s.id),
-                        'border-stone-200 bg-white text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200':
-                            isFlowStepDone(s.id),
-                        'border-stone-200/80 bg-stone-50 text-stone-400 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-500':
-                            !isFlowStepCurrent(s.id) && !isFlowStepDone(s.id),
-                    }"
-                >
-                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[11px] font-bold"
-                        [ngClass]="isFlowStepCurrent(s.id) ? 'bg-white text-stone-900 dark:bg-stone-900 dark:text-white' : 'bg-stone-200 text-stone-700 dark:bg-gray-800 dark:text-stone-200'"
-                    >{{ i + 1 }}</span>
-                    <span class="truncate text-sm font-medium">{{ s.labelKey | transloco }}</span>
+                <li class="flex min-w-0 flex-1">
+                    <button
+                        type="button"
+                        class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border px-3 py-2 text-left enabled:cursor-pointer disabled:cursor-default"
+                        [disabled]="!canOpenFlowStep(s.id)"
+                        [attr.aria-current]="isFlowStepCurrent(s.id) ? 'step' : null"
+                        (click)="goToFlowStep(s.id)"
+                        [ngClass]="{
+                            'border-stone-900 bg-stone-900 text-white dark:border-stone-100 dark:bg-stone-100 dark:text-stone-900':
+                                isFlowStepCurrent(s.id),
+                            'border-stone-200 bg-white text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200':
+                                isFlowStepDone(s.id),
+                            'border-stone-200/80 bg-stone-50 text-stone-400 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-500':
+                                !isFlowStepCurrent(s.id) && !isFlowStepDone(s.id),
+                        }"
+                    >
+                        <span
+                            class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[11px] font-bold"
+                            [ngClass]="
+                                isFlowStepCurrent(s.id)
+                                    ? 'bg-white text-stone-900 dark:bg-stone-900 dark:text-white'
+                                    : 'bg-stone-200 text-stone-700 dark:bg-gray-800 dark:text-stone-200'
+                            "
+                        >{{ i + 1 }}</span>
+                        <span class="truncate text-sm font-medium">{{ s.labelKey | transloco }}</span>
+                    </button>
                 </li>
             }
         </ol>
@@ -515,6 +526,7 @@
                 (changeDocument)="backToSelect()"
                 (proceed)="proceedToUpload()"
                 (changeFields)="changeSelectedFields()"
+                (connectCheck)="connectGovernmentCheck()"
             />
         }
 
@@ -890,13 +902,107 @@
                     </div>
                 </div>
 
-                <div class="space-y-6 p-6 md:p-8">
-                    @if (showRawJson) {
+                @if (showRawJson) {
+                    <div class="p-6 md:p-8">
                         <pre
                             class="max-h-96 overflow-auto rounded-2xl border border-stone-200/90 bg-stone-100/80 p-4 font-mono text-xs dark:border-gray-700 dark:bg-gray-900/60"
                             >{{ scanResult() | json }}</pre
                         >
-                    } @else {
+                    </div>
+                } @else if (smartCheck && scanResult()) {
+                    @let result = scanResult()!;
+                    <div class="scan-results-decision">
+                        <section class="scan-results-record space-y-6">
+                            <div class="results-section-heading">
+                                <span>01</span>
+                                <div>
+                                    <h4>{{ 'smartScan.extractedFields' | transloco }}</h4>
+                                    <p>{{ (requiresBackSide ? 'smartScan.backPhotoHelp' : 'smartScan.onePhotoHelp') | transloco }}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                @if (result.url) {
+                                    <div
+                                        class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                            (click)="openImagePreview(result.url, selectedDocType()?.name)"
+                                        >
+                                            <img
+                                                [src]="result.url"
+                                                alt="Document front"
+                                                class="max-h-72 w-full object-contain"
+                                            />
+                                        </button>
+                                    </div>
+                                }
+                                @if (result.backUrl) {
+                                    <div
+                                        class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                            (click)="openImagePreview(result.backUrl, selectedDocType()?.name)"
+                                        >
+                                            <img
+                                                [src]="result.backUrl"
+                                                alt="Document back"
+                                                class="max-h-56 w-full object-contain"
+                                            />
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="space-y-3">
+                                @for (section of extractionSections(); track section.id) {
+                                    @if (section.fields.length) {
+                                        <div class="space-y-2">
+                                            @if (section.labelKey) {
+                                                <h5 class="text-sm font-medium text-stone-500 dark:text-stone-400">
+                                                    {{ section.labelKey | transloco }}
+                                                </h5>
+                                            }
+                                            <div
+                                                class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700"
+                                            >
+                                                @for (f of section.fields; track f.key; let i = $index) {
+                                                    <div
+                                                        class="flex justify-between gap-4 px-4 py-3"
+                                                        [ngClass]="{
+                                                            'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0,
+                                                        }"
+                                                    >
+                                                        <span
+                                                            class="text-sm font-medium text-stone-500 dark:text-stone-400"
+                                                            >{{ f.key }}</span
+                                                        >
+                                                        <span
+                                                            class="break-all text-right text-sm font-medium text-stone-900 dark:text-white"
+                                                            >{{ f.value }}</span
+                                                        >
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </section>
+
+                        <aside class="scan-results-explainer">
+                            <scan-tool-smart-check-result
+                                [scanResult]="result"
+                                [documentType]="selectedDocType()"
+                            />
+                        </aside>
+                    </div>
+                } @else {
+                    <div class="space-y-6 p-6 md:p-8">
                         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                             <div class="space-y-4">
                                 @if (scanResult()?.url) {
@@ -936,32 +1042,6 @@
                             </div>
 
                             <div class="space-y-3">
-                                @if (smartCheck) {
-                                    <div
-                                        class="rounded-2xl border border-stone-200/90 p-4 dark:border-gray-700"
-                                    >
-                                        <h4 class="font-semibold text-stone-900 dark:text-white">
-                                            {{ 'smartScan.smartCheckResult' | transloco }}
-                                        </h4>
-                                        <p class="mt-1 text-sm text-stone-600 dark:text-stone-300">
-                                            {{ 'smartScan.smartCheckStatus.' + smartCheck.status | transloco }}
-                                            @if (smartCheck.featureCode) {
-                                                <span> · {{ smartCheck.featureCode }}</span>
-                                            }
-                                        </p>
-                                        @if (smartCheck.reason === 'missing_dependencies') {
-                                            <p class="mt-2 text-sm text-amber-800 dark:text-amber-200">
-                                                {{ 'smartScan.smartCheckMissing' | transloco }}
-                                                {{ smartCheck.missing?.join(', ') }}
-                                            </p>
-                                        }
-                                        @if (smartCheck.error?.message) {
-                                            <p class="mt-2 text-sm text-red-700 dark:text-red-300">
-                                                {{ smartCheck.error?.message }}
-                                            </p>
-                                        }
-                                    </div>
-                                }
                                 <h4 class="font-semibold text-stone-900 dark:text-white">
                                     {{ 'smartScan.extractedFields' | transloco }}
                                 </h4>
@@ -1002,8 +1082,8 @@
                                 }
                             </div>
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
         }
     </div>

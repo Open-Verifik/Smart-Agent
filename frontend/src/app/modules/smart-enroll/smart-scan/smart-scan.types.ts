@@ -31,6 +31,16 @@ export interface DocumentValidation {
     project?: string | DocumentValidationProjectRef;
     projectFlow?: string | { _id: string };
     appRegistration?: string | DocumentValidationAppRegistrationRef | null;
+    cost?: ScanCostBreakdown | null;
+    creditsCharged?: number;
+    smartCheck?: SmartCheckResult | null;
+    scoreValidation?: (Partial<SmartCheckResult> & { ocrCreditsCharged?: number; creditsCharged?: number }) | null;
+}
+
+export interface ScanCostBreakdown {
+    ocr?: number;
+    smartCheck?: number;
+    total?: number;
 }
 
 /**
@@ -81,8 +91,8 @@ export interface DocumentType {
     backImage?: string;
     version?: string | null;
     client?: string | null;
-    appFeature?: string | { _id?: string } | null;
-    smartCheckFieldMap?: Array<{ mapKey?: string; dependencyField?: string }>;
+    appFeature?: string | { _id?: string; code?: string; name?: string; url?: string } | null;
+    smartCheckFieldMap?: Array<{ mapKey?: string; dependencyField?: string; literal?: string }>;
     promptTemplate?: PromptTemplate;
 }
 
@@ -141,6 +151,11 @@ export interface SmartCheckResult {
     reason?: string;
     missing?: string[];
     featureCode?: string;
+    featureName?: string;
+    featureUrl?: string;
+    method?: string;
+    params?: Record<string, unknown>;
+    creditsCharged?: number;
     httpStatus?: number;
     data?: unknown;
     error?: { code?: string; message?: string } | null;
@@ -150,9 +165,14 @@ export interface AppFeatureOption {
     _id: string;
     code: string;
     name: string;
+    url?: string;
+    method?: string;
+    description?: string;
+    price?: number;
     country?: string;
+    baseCategory?: string;
     smartCheckEnabled?: boolean;
-    dependencies?: Array<{ field: string; required?: boolean; type?: string }>;
+    dependencies?: Array<{ field: string; required?: boolean; type?: string; enum?: string[] | null }>;
 }
 
 export interface ScanResult {
@@ -165,6 +185,8 @@ export interface ScanResult {
     status?: string;
     url?: string;
     backUrl?: string;
+    cost?: ScanCostBreakdown | null;
+    creditsCharged?: number;
     smartCheck?: SmartCheckResult | null;
     fieldMapping?: {
         front?: Record<string, boolean>;

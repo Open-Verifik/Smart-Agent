@@ -18,12 +18,16 @@ import {
 } from '../../projects/barcode-validation-panel.component';
 import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
 import { ScanDeleteConfirmDialogComponent } from '../scan-delete-confirm-dialog.component';
+import { ScanToolSmartCheckResultComponent } from '../scan-tool/scan-tool-smart-check-result.component';
 import { SmartScanService } from '../smart-scan.service';
 import {
     resolveEnrollmentRecordLink,
     type DocumentClassification,
+    type DocumentType,
     type DocumentTypeField,
     type DocumentValidation,
+    type ScanResult,
+    type SmartCheckResult,
 } from '../smart-scan.types';
 
 @Component({
@@ -37,6 +41,7 @@ import {
         MatIconModule,
         MatMenuModule,
         BarcodeValidationPanelComponent,
+        ScanToolSmartCheckResultComponent,
         MatProgressSpinnerModule,
         TranslocoModule,
     ],
@@ -54,6 +59,7 @@ export class ScanDetailComponent implements OnInit {
     private _domSanitizer = inject(DomSanitizer);
 
     scan: DocumentValidation | null = null;
+    documentType: DocumentType | null = null;
     templateFields: DocumentTypeField[] = [];
     loading = true;
     errorMessage: string | null = null;
@@ -78,6 +84,7 @@ export class ScanDetailComponent implements OnInit {
                 this.showClassificationReason = cls ? !cls.isMatch : false;
                 this.loading = false;
                 this.loadTemplateFields();
+                this.loadDocumentTypeMeta();
                 this._cdr.markForCheck();
             },
             error: () => {
@@ -86,6 +93,72 @@ export class ScanDetailComponent implements OnInit {
                 this._cdr.markForCheck();
             },
         });
+    }
+
+    get resolvedSmartCheck(): SmartCheckResult | null {
+        if (!this.scan) return null;
+        if (this.scan.smartCheck?.status) {
+            const { creditsCharged: _c, ...clean } = this.scan.smartCheck;
+            return clean;
+        }
+        const score = this.scan.scoreValidation as Record<string, unknown> | null | undefined;
+        if (!score || typeof score !== 'object') return null;
+        if (typeof score['status'] === 'string') {
+            const { creditsCharged: _c, ocrCreditsCharged: _o, ...clean } = score;
+            return clean as unknown as SmartCheckResult;
+        }
+        if (
+            score['fullName'] ||
+            score['firstName'] ||
+            score['lastName'] ||
+            Array.isArray(score['arrayName'])
+        ) {
+            return {
+                status: 'completed',
+                data: score,
+            };
+        }
+        return null;
+    }
+
+    get resolvedCost(): { ocr: number; smartCheck: number; total: number } | null {
+        if (!this.scan) return null;
+        if (this.scan.cost && (this.scan.cost.ocr != null || this.scan.cost.smartCheck != null)) {
+            const ocr = this.scan.cost.ocr || 0;
+            const smartCheck = this.scan.cost.smartCheck || 0;
+            return {
+                ocr,
+                smartCheck,
+                total: this.scan.cost.total ?? Number((ocr + smartCheck).toFixed(6)),
+            };
+        }
+        const score = this.scan.scoreValidation;
+        const ocr = this.scan.creditsCharged ?? score?.ocrCreditsCharged;
+        const smartCheck = this.scan.smartCheck?.creditsCharged ?? score?.creditsCharged;
+        if (ocr == null && smartCheck == null) return null;
+        return {
+            ocr: ocr || 0,
+            smartCheck: smartCheck || 0,
+            total: Number(((ocr || 0) + (smartCheck || 0)).toFixed(6)),
+        };
+    }
+
+    get scanAsResult(): ScanResult | null {
+        if (!this.scan) return null;
+        const cost = this.resolvedCost;
+        return {
+            _id: this.scan._id,
+            documentType: this.scan.documentType,
+            documentNumber: this.scan.documentNumber,
+            OCRExtraction: this.scan.OCRExtraction,
+            status: this.scan.status,
+            url: this.scan.url,
+            backUrl: this.scan.backUrl,
+            cost,
+            creditsCharged: cost?.ocr,
+            smartCheck: this.resolvedSmartCheck,
+            fieldMapping: this.scan.fieldMapping,
+        };
     }
 
     goBack() {
@@ -211,6 +284,22 @@ export class ScanDetailComponent implements OnInit {
         ];
     }
 
+    private loadDocumentTypeMeta() {
+        const code = this.scan?.documentType;
+        if (!code) return;
+
+        this._scanService.getDocumentTypesByCode(code).subscribe({
+            next: (types) => {
+                const owned = types.find((type) => type.client);
+                this.documentType = owned || types[0] || null;
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.documentType = null;
+            },
+        });
+    }
+
     private loadTemplateFields() {
         const mapping = this.scan?.fieldMapping;
         if ((mapping?.front && Object.keys(mapping.front).length) || (mapping?.back && Object.keys(mapping.back).length)) return;
@@ -275,9 +364,20 @@ export class ScanDetailComponent implements OnInit {
     }
 
     get formattedJson(): string {
-        return this.scan?.OCRExtraction != null
-            ? JSON.stringify(this.scan.OCRExtraction, null, 2)
-            : '';
+        if (!this.scan) return '';
+        const cost = this.resolvedCost;
+        const smartCheck = this.resolvedSmartCheck;
+        if (!smartCheck && !cost) {
+            return this.scan.OCRExtraction != null
+                ? JSON.stringify(this.scan.OCRExtraction, null, 2)
+                : '';
+        }
+        const payload: Record<string, unknown> = {
+            OCRExtraction: this.scan.OCRExtraction,
+        };
+        if (smartCheck) payload['smartCheck'] = smartCheck;
+        if (cost) payload['cost'] = cost;
+        return JSON.stringify(payload, null, 2);
     }
 
     get highlightedJson(): string {

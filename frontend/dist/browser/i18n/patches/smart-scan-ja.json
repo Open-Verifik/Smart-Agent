@@ -39,9 +39,35 @@
         "changeFieldsPrompt": "これらの項目を変更しますか？",
         "changeFieldsAction": "こちら",
         "changeCountry": "変更",
+        "governmentCheckTitle": "政府照合",
+        "governmentCheckLinked": "このスキャンは写真を読み取り、その後 {{name}} を呼び出します。",
+        "governmentCheckMissing": "このスキャンは写真を読むだけです。政府の照合を接続して検証してください。",
+        "governmentCheckSetup": "政府照合を設定",
+        "costOcr": "OCR",
+        "costSmartCheck": "SmartCheck",
+        "costTotal": "合計",
+        "nameMatch": {
+            "firstName": "名",
+            "lastName": "姓",
+            "fullName": "氏名",
+            "ocrColumn": "OCR 抽出",
+            "sourceColumn": "政府記録",
+            "verdictExact": "完全一致",
+            "verdictClose": "ほぼ一致",
+            "verdictMismatch": "不一致"
+        },
         "wizard": {
             "moveToFront": "表面へ移動",
-            "moveToBack": "裏面へ移動"
+            "moveToBack": "裏面へ移動",
+            "sendLiteral": "{{value}} を送信",
+            "endpointCost": "{{cost}} クレジット",
+            "openPostman": "Postman",
+            "openDocs": "ドキュメント",
+            "changeEndpoint": "エンドポイントを変更",
+            "callPreviewTitle": "読み取り後の呼び出し",
+            "fromField": "{{field}} から",
+            "unmappedRequired": "未設定",
+            "smartCheckHint": "この国の政府エンドポイントをリンクできます。文書コードが一致しなくても選べます。"
         }
     }
 }

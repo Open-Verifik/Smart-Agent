@@ -28,6 +28,13 @@ export class ScanToolReviewStepComponent {
     readonly changeDocument = output<void>();
     readonly proceed = output<void>();
     readonly changeFields = output<void>();
+    readonly connectCheck = output<void>();
+
+    linkedFeature(): { name: string; url: string } | null {
+        const feature = this.documentType().appFeature;
+        if (!feature || typeof feature === 'string' || !feature.name) return null;
+        return { name: feature.name, url: feature.url || '' };
+    }
 
     /**
      * Opens the sample photo full screen so it can be zoomed.
