@@ -22,5 +22,50 @@
                 }
             }
         }
+    },
+    "smartScan": {
+        "journeyEyebrow": "Smart Scan",
+        "currentChoice": "Elección actual",
+        "choiceNone": "Ningún documento seleccionado",
+        "choiceCatalog": "Ver todos los países",
+        "recentCount": "{{count}} tipos recientes",
+        "stepSelectTitle": "Elige el documento",
+        "stepSelectHelp": "Empieza por un tipo que esta cuenta ya escanea. El catálogo completo está debajo cuando necesites otro país o documento.",
+        "stepReviewTitle": "Revisa lo que se va a leer",
+        "stepReviewHelp": "Estos son los campos que el escaneo va a pedir. El frente y el reverso van separados, así un nombre que aparece en los dos lados no parece duplicado.",
+        "stepUploadTitle": "Agrega la foto",
+        "stepUploadHelp": "Sube el lado que contiene los campos que acabas de revisar. La segunda foto se pide solo cuando el documento tiene reverso.",
+        "stepResultsTitle": "Lee la extracción",
+        "stepResultsHelp": "Los valores se agrupan según el lado de donde salieron. Un documento de una sola cara queda en un solo grupo.",
+        "yourDocumentsTitle": "Documentos que usas",
+        "yourDocumentsHelp": "Estos son los tipos que esta cuenta ha escaneado más recientemente. Si tienes tu propia lista de campos, esa es la que se usa.",
+        "yourDocumentsEmpty": "Aún no hay escaneos. Elige un documento del catálogo de abajo.",
+        "allDocumentsTitle": "Todos los demás tipos de documento",
+        "allDocumentsHelp": "Elige un país y luego un tipo. Este es el catálogo completo, incluidos los documentos que no has escaneado.",
+        "lastUsed": "Último uso",
+        "yourFields": "Tus campos",
+        "verifikFields": "Campos de Verifik",
+        "useMyFields": "Usar mis campos",
+        "onePhoto": "Una foto. Solo el frente.",
+        "onePhotoHelp": "Este documento es una sola imagen. Solo se lee el frente y no se pide foto del reverso.",
+        "frontPhotoTitle": "Foto del frente",
+        "frontPhotoHelp": "Campos que se leen del frente del documento.",
+        "backPhotoTitle": "Foto del reverso",
+        "backPhotoHelp": "Campos que se leen del reverso. Sube el reverso solo cuando el documento lo tiene.",
+        "backRequired": "Se requiere foto del reverso",
+        "uploadTwoSides": "Este documento necesita dos fotos. Primero el frente y después el reverso.",
+        "stageLabel": "Paso {{number}}",
+        "scanAnotherSame": "Escanear otro {{code}}",
+        "templateUsed": "Plantilla usada",
+        "templateCurrent": "Este escaneo no guardó una plantilla. Los campos que ves son los de la plantilla actual de este tipo de documento.",
+        "resultsSidesHelp": "Los valores del frente y del reverso van aparte, incluidos los nombres que aparecen en los dos lados.",
+        "moreActions": "Más",
+        "changeFieldsPrompt": "¿Quieres cambiar estos campos?",
+        "changeFieldsAction": "Haz clic aquí",
+        "changeCountry": "Cambiar",
+        "wizard": {
+            "moveToFront": "Mover al frente",
+            "moveToBack": "Mover al reverso"
+        }
     }
 }

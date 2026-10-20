@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
@@ -15,6 +16,7 @@ import {
     BarcodeValidationPanelComponent,
     type CedulaBarcodeValidation,
 } from '../../projects/barcode-validation-panel.component';
+import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
 import { ScanDeleteConfirmDialogComponent } from '../scan-delete-confirm-dialog.component';
 import { SmartScanService } from '../smart-scan.service';
 import {
@@ -33,6 +35,7 @@ import {
         MatButtonModule,
         MatDialogModule,
         MatIconModule,
+        MatMenuModule,
         BarcodeValidationPanelComponent,
         MatProgressSpinnerModule,
         TranslocoModule,
@@ -87,6 +90,34 @@ export class ScanDetailComponent implements OnInit {
 
     goBack() {
         this._router.navigate(['/smart-enroll/smart-scan/list']);
+    }
+
+    scanAnother(): void {
+        const code = this.scan?.documentType;
+        if (!code) return;
+        this._router.navigate(['/smart-enroll/smart-scan/new'], { queryParams: { documentType: code } });
+    }
+
+    /**
+     * Opens the document photo full screen so it can be zoomed.
+     */
+    openImagePreview(imageSrc: string | undefined, title?: string): void {
+        if (!imageSrc) return;
+        this._dialog.open(ImagePreviewDialogComponent, {
+            data: { imageSrc, title },
+            panelClass: 'image-preview-dialog-panel',
+            width: '100%',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            height: '100%',
+        });
+    }
+
+    get singlePhoto(): boolean {
+        const template = this.scan?.scanTemplate;
+        if (template) return !template.requiresBackSide;
+        const back = this.scan?.fieldMapping?.back;
+        return !this.scan?.backUrl && !back;
     }
 
     confirmDelete(): void {
@@ -166,11 +197,11 @@ export class ScanDetailComponent implements OnInit {
         if (!front.size && !back.size) return [{ id: 'all', labelKey: '', fields: rows }];
 
         return [
-            { id: 'front', labelKey: 'smartScan.frontSideFields', fields: rows.filter((row) => front.has(row.key)) },
+            { id: 'front', labelKey: 'smartScan.frontPhotoTitle', fields: rows.filter((row) => front.has(row.key)) },
             {
                 id: 'back',
-                labelKey: 'smartScan.backSideFields',
-                fields: rows.filter((row) => back.has(row.key) && !front.has(row.key)),
+                labelKey: 'smartScan.backPhotoTitle',
+                fields: this.singlePhoto ? [] : rows.filter((row) => back.has(row.key)),
             },
             {
                 id: 'other',

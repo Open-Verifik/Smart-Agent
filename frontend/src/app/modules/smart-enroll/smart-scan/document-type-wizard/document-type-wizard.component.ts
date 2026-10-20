@@ -1,32 +1,35 @@
 import { CommonModule, Location } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { SmartScanService } from '../smart-scan.service';
 import type { AppFeatureOption, DocumentType, DocumentTypeField, PromptTemplate } from '../smart-scan.types';
+import { DocumentTypeWizardDetailsComponent } from './document-type-wizard-details.component';
+import { DocumentTypeWizardFieldsComponent } from './document-type-wizard-fields.component';
+import { DocumentTypeWizardSidesComponent } from './document-type-wizard-sides.component';
+import { DocumentTypeWizardSmartCheckComponent } from './document-type-wizard-smart-check.component';
+import { DOCUMENT_TYPE_WIZARD } from './document-type-wizard.token';
 
 @Component({
     selector: 'document-type-wizard',
     standalone: true,
     imports: [
         CommonModule,
-        FormsModule,
         RouterModule,
         MatButtonModule,
-        MatFormFieldModule,
         MatIconModule,
-        MatInputModule,
         MatProgressSpinnerModule,
-        MatSelectModule,
         TranslocoModule,
+        DocumentTypeWizardDetailsComponent,
+        DocumentTypeWizardSidesComponent,
+        DocumentTypeWizardFieldsComponent,
+        DocumentTypeWizardSmartCheckComponent,
     ],
+    providers: [{ provide: DOCUMENT_TYPE_WIZARD, useExisting: DocumentTypeWizardComponent }],
     templateUrl: './document-type-wizard.component.html',
     styleUrls: ['./document-type-wizard.component.scss'],
 })
@@ -37,6 +40,9 @@ export class DocumentTypeWizardComponent implements OnInit {
     private _scanService = inject(SmartScanService);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
+    /** True after replaceState swaps /document-type/new for /document-type/:id without remounting. */
+    private urlRewritten = false;
 
     readonly steps = ['details', 'sides', 'fields', 'smartCheck'] as const;
     readonly categories = [
@@ -66,6 +72,7 @@ export class DocumentTypeWizardComponent implements OnInit {
     frontImage = '';
     backImage = '';
     fields: DocumentTypeField[] = [this.emptyField(0)];
+    expandedField: DocumentTypeField | null = null;
     documentTypeId = '';
     defaultTemplateId = '';
 
@@ -83,13 +90,22 @@ export class DocumentTypeWizardComponent implements OnInit {
         if (id) {
             this.openedAsEdit = true;
             this.documentTypeId = id;
+            this.bindStepToUrl();
             this.loadForEdit(id);
+            return;
+        }
+        const forkId = this._route.snapshot.queryParamMap.get('fork');
+        if (forkId) {
+            this.bindStepToUrl();
+            this.loadFork(forkId);
             return;
         }
         this.country = this._route.snapshot.queryParamMap.get('country') || '';
         if (!this.country) {
             this._router.navigate(['/smart-enroll/smart-scan/new']);
+            return;
         }
+        this.bindStepToUrl();
     }
 
     get selectedFeature(): AppFeatureOption | undefined {
@@ -150,35 +166,6 @@ export class DocumentTypeWizardComponent implements OnInit {
         return this.fields.filter((field) => field.name.trim() && field.mapKey.trim()).length;
     }
 
-    get choiceLabel(): string {
-        if (this.stepIndex === 0) return this.countryLabel;
-        if (this.stepIndex === 1) {
-            return this._transloco.translate(
-                this.requiresBackSide ? 'smartScan.wizard.bothSides' : 'smartScan.wizard.frontOnly'
-            );
-        }
-        if (this.stepIndex === 2) {
-            return this._transloco.translate('smartScan.wizard.fieldsStep.choice', { count: this.filledFieldCount });
-        }
-        return this.selectedFeature?.name || this._transloco.translate('smartScan.wizard.skipSmartCheck');
-    }
-
-    get stepCopyKey(): string {
-        return ['details', 'sidesStep', 'fieldsStep', 'smartCheckStep'][this.stepIndex] || 'details';
-    }
-
-    get explainerNotes(): string[] {
-        const notes: Record<string, string[]> = {
-            details: ['noteCountry', 'noteCode', 'noteCategory'],
-            sidesStep: ['noteFront', 'noteBack', 'noteImages'],
-            fieldsStep: ['noteMapKey', 'notePage', 'notePrivate'],
-            smartCheckStep: ['noteOptional', 'noteMap', 'noteSkip'],
-        };
-        return (notes[this.stepCopyKey] || []).map((note) =>
-            this._transloco.translate(`smartScan.wizard.${this.stepCopyKey}.${note}`)
-        );
-    }
-
     canGoNext(): boolean {
         if (this.saving || this.loading) return false;
         if (this.stepIndex === 0) return Boolean(this.name.trim() && this.code.trim() && this.category);
@@ -195,8 +182,7 @@ export class DocumentTypeWizardComponent implements OnInit {
             this.backToScan();
             return;
         }
-        this.stepIndex -= 1;
-        this.errorMessage = '';
+        this.writeStep(this.stepIndex - 1);
     }
 
     nextStep() {
@@ -213,8 +199,61 @@ export class DocumentTypeWizardComponent implements OnInit {
     }
 
     backToScan() {
-        this._router.navigate(['/smart-enroll/smart-scan/new'], {
-            queryParams: this.country ? { country: this.country } : {},
+        const queryParams: Record<string, string> = {};
+        if (this.country) queryParams['country'] = this.country;
+        if (this.documentTypeId && this.code.trim()) queryParams['documentType'] = this.code.trim();
+        this._router.navigate(['/smart-enroll/smart-scan/new'], { queryParams });
+    }
+
+    private loadFork(id: string) {
+        this.loading = true;
+        this._scanService.getDocumentType(id).subscribe({
+            next: (response) => {
+                const documentType = response?.data;
+                if (!documentType || documentType.client) {
+                    if (documentType?.client) {
+                        this._router.navigate(['/smart-enroll/smart-scan/document-type', documentType._id]);
+                        return;
+                    }
+                    this.backToScan();
+                    return;
+                }
+                this.prefillFromSystem(documentType);
+            },
+            error: () => this.backToScan(),
+        });
+    }
+
+    private prefillFromSystem(documentType: DocumentType) {
+        this.applyLoadedType(documentType);
+        this.documentTypeId = '';
+        this._scanService.getPromptTemplates(documentType._id).subscribe({
+            next: (response) => {
+                const rows = Array.isArray(response.data) ? response.data : [];
+                const template = rows[0];
+                if (template?.fields?.length) this.fields = this.copyFields(template.fields);
+                this.requiresBackSide = template?.requiresBackSide ?? Boolean(documentType.backImage);
+                this.openOwnedCopyOrStay(documentType.code);
+            },
+            error: () => this.openOwnedCopyOrStay(documentType.code),
+        });
+    }
+
+    private openOwnedCopyOrStay(code: string) {
+        this._scanService.getDocumentTypes(this.country, true).subscribe({
+            next: () => {
+                const owned = this._scanService.documentTypes().find((type) => type.code === code && type.client);
+                if (owned) {
+                    this._router.navigate(['/smart-enroll/smart-scan/document-type', owned._id]);
+                    return;
+                }
+                this.loading = false;
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.loading = false;
+                this._cdr.markForCheck();
+            },
         });
     }
 
@@ -246,13 +285,50 @@ export class DocumentTypeWizardComponent implements OnInit {
         reader.readAsDataURL(file);
     }
 
-    addField(target: DocumentTypeField[] = this.fields) {
-        target.push(this.emptyField(0));
+    get frontFields(): DocumentTypeField[] {
+        return this.fields.filter((field) => field.page !== 1);
     }
 
-    removeField(target: DocumentTypeField[], index: number) {
-        if (target.length === 1) return;
-        target.splice(index, 1);
+    get backFields(): DocumentTypeField[] {
+        return this.fields.filter((field) => field.page === 1);
+    }
+
+    /**
+     * Adds a field on the given side and opens it for editing.
+     */
+    addField(page: 0 | 1): void {
+        const field = this.emptyField(page);
+        this.fields.push(field);
+        this.expandedField = field;
+    }
+
+    /**
+     * Opens one field and closes whichever field was open.
+     */
+    toggleField(field: DocumentTypeField): void {
+        this.expandedField = this.expandedField === field ? null : field;
+    }
+
+    /**
+     * Moves a field between the front and back boxes.
+     */
+    moveField(field: DocumentTypeField, page: 0 | 1): void {
+        field.page = page;
+    }
+
+    removeField(field: DocumentTypeField): void {
+        if (this.fields.length === 1) return;
+        const index = this.fields.indexOf(field);
+        if (index < 0) return;
+        this.fields.splice(index, 1);
+        if (this.expandedField === field) this.expandedField = null;
+    }
+
+    fieldLabel(field: DocumentTypeField, index: number): string {
+        const name = field.name.trim();
+        if (name) return name;
+        const title = this._transloco.translate('smartScan.wizard.fieldsStep.fieldTitle');
+        return `${title} ${index + 1}`;
     }
 
     onFeatureChange(featureId: string) {
@@ -294,7 +370,15 @@ export class DocumentTypeWizardComponent implements OnInit {
                     this.rememberDocumentUrl();
                     this.afterOwnedSave(nextIndex);
                 },
-                error: (err) => this.fail(err),
+                error: (err) => {
+                    const message = err?.error?.message || err?.message || '';
+                    if (String(message).includes('code_already_exists')) {
+                        this.saving = false;
+                        this.openOwnedCopyOrStay(this.code.trim());
+                        return;
+                    }
+                    this.fail(err);
+                },
             });
     }
 
@@ -393,6 +477,7 @@ export class DocumentTypeWizardComponent implements OnInit {
         for (const row of documentType.smartCheckFieldMap || []) {
             if (row.dependencyField && row.mapKey) this.fieldMap[row.dependencyField] = row.mapKey;
         }
+        if (this.steps[this.stepIndex] === 'smartCheck') this.loadFeatures();
     }
 
     private loadOwnedTemplates(documentTypeId: string, documentName: string) {
@@ -469,11 +554,18 @@ export class DocumentTypeWizardComponent implements OnInit {
 
     private rememberDocumentUrl() {
         if (!this.documentTypeId) return;
-        const url = this._router.serializeUrl(
-            this._router.createUrlTree(['/smart-enroll/smart-scan/document-type', this.documentTypeId])
-        );
+        const url = this.documentUrl(this.steps[this.stepIndex]);
         this._location.replaceState(url);
         this.openedAsEdit = true;
+        if (!this._route.snapshot.paramMap.get('id')) this.urlRewritten = true;
+    }
+
+    private documentUrl(step: string): string {
+        return this._router.serializeUrl(
+            this._router.createUrlTree(['/smart-enroll/smart-scan/document-type', this.documentTypeId], {
+                queryParams: { step },
+            })
+        );
     }
 
     private adoptSavedImages(documentType: DocumentType | null | undefined) {
@@ -533,9 +625,89 @@ export class DocumentTypeWizardComponent implements OnInit {
     }
 
     private moveToStep(index: number) {
+        this.writeStep(index);
+    }
+
+    /**
+     * Keeps the visible step aligned with ?step=, including browser back and forward.
+     * Reading the param never saves the document.
+     */
+    private bindStepToUrl() {
+        this._route.queryParamMap.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((params) => {
+            if (this.urlRewritten) return;
+            this.syncStepFromParam(params.get('step'));
+        });
+
+        const locationSub = this._location.subscribe(() => {
+            if (!this.urlRewritten) return;
+            const index = this.stepIndexFromParam(this.stepFromLocation());
+            this.applyStep(index ?? 0);
+        });
+        this._destroyRef.onDestroy(() => locationSub.unsubscribe());
+    }
+
+    private syncStepFromParam(step: string | null) {
+        const index = this.stepIndexFromParam(step);
+        if (index == null) {
+            this.writeStep(0, { replaceUrl: true });
+            return;
+        }
+        this.applyStep(index);
+    }
+
+    private stepIndexFromParam(step: string | null): number | null {
+        if (!step) return null;
+        const index = (this.steps as readonly string[]).indexOf(step);
+        if (!this.canOpenStep(index)) return null;
+        return index;
+    }
+
+    private canOpenStep(index: number): boolean {
+        if (index < 0 || index >= this.steps.length) return false;
+        if (this._route.snapshot.paramMap.get('id') || this.documentTypeId) return true;
+        return index === 0;
+    }
+
+    private stepFromLocation(): string | null {
+        const path = this._location.path();
+        const query = path.includes('?') ? path.slice(path.indexOf('?') + 1) : '';
+        return new URLSearchParams(query).get('step');
+    }
+
+    private writeStep(index: number, options?: { replaceUrl?: boolean }) {
+        if (!this.canOpenStep(index)) return;
+        const step = this.steps[index];
+
+        if (this.urlRewritten && this.documentTypeId) {
+            const url = this.documentUrl(step);
+            const current = this._location.path().split('#')[0];
+            if (current !== url) {
+                if (options?.replaceUrl) this._location.replaceState(url);
+                else this._location.go(url);
+            }
+            this.applyStep(index);
+            return;
+        }
+
+        if (this._route.snapshot.queryParamMap.get('step') === step) {
+            this.applyStep(index);
+            return;
+        }
+
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { step },
+            queryParamsHandling: 'merge',
+            replaceUrl: options?.replaceUrl ?? false,
+        });
+    }
+
+    private applyStep(index: number) {
+        if (index === this.stepIndex) return;
         this.stepIndex = index;
         this.errorMessage = '';
-        if (this.steps[index] === 'smartCheck') this.loadFeatures();
+        if (this.steps[index] === 'smartCheck' && this.country) this.loadFeatures();
+        this._cdr.markForCheck();
     }
 
     private copyFields(fields: DocumentTypeField[] | undefined): DocumentTypeField[] {

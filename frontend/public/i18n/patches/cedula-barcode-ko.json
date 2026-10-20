@@ -8,5 +8,50 @@
                 }
             }
         }
+    },
+    "smartScan": {
+        "journeyEyebrow": "Smart Scan",
+        "currentChoice": "현재 선택",
+        "choiceNone": "선택한 문서 없음",
+        "choiceCatalog": "모든 국가 보기",
+        "recentCount": "최근 유형 {{count}}개",
+        "stepSelectTitle": "문서 선택",
+        "stepSelectHelp": "이 계정에서 이미 스캔한 유형부터 시작합니다. 다른 국가나 문서가 필요하면 아래 전체 목록을 사용하세요.",
+        "stepReviewTitle": "읽을 항목 확인",
+        "stepReviewHelp": "스캔이 요청할 항목입니다. 앞면과 뒷면은 따로 표시되므로, 양쪽에 있는 이름은 중복이 아닙니다.",
+        "stepUploadTitle": "사진 추가",
+        "stepUploadHelp": "방금 확인한 항목이 있는 면을 업로드하세요. 뒷면이 있는 문서만 두 번째 사진을 요청합니다.",
+        "stepResultsTitle": "추출 결과 보기",
+        "stepResultsHelp": "값은 읽어 온 면별로 묶입니다. 한 면만 있는 문서는 한 그룹으로 남습니다.",
+        "yourDocumentsTitle": "사용 중인 문서",
+        "yourDocumentsHelp": "이 계정이 최근에 스캔한 유형입니다. 직접 만든 항목 목록이 있으면 그 목록을 사용합니다.",
+        "yourDocumentsEmpty": "아직 스캔이 없습니다. 아래 목록에서 문서를 선택하세요.",
+        "allDocumentsTitle": "그 밖의 문서 유형",
+        "allDocumentsHelp": "국가를 고른 다음 유형을 고릅니다. 아직 스캔하지 않은 문서를 포함한 전체 목록입니다.",
+        "lastUsed": "마지막 사용",
+        "yourFields": "내 항목",
+        "verifikFields": "Verifik 항목",
+        "useMyFields": "내 항목 사용",
+        "onePhoto": "사진 한 장. 앞면만.",
+        "onePhotoHelp": "이 문서는 이미지 한 장입니다. 앞면만 읽고 뒷면 사진은 필요하지 않습니다.",
+        "frontPhotoTitle": "앞면 사진",
+        "frontPhotoHelp": "문서 앞면에서 읽는 항목입니다.",
+        "backPhotoTitle": "뒷면 사진",
+        "backPhotoHelp": "뒷면에서 읽는 항목입니다. 뒷면이 있는 문서만 업로드하세요.",
+        "backRequired": "뒷면 사진 필요",
+        "uploadTwoSides": "이 문서는 사진 두 장이 필요합니다. 앞면을 먼저, 그다음 뒷면입니다.",
+        "stageLabel": "{{number}}단계",
+        "scanAnotherSame": "다른 {{code}} 스캔",
+        "templateUsed": "사용한 템플릿",
+        "templateCurrent": "이 스캔에는 템플릿이 저장되지 않았습니다. 보이는 항목은 이 문서 유형의 현재 템플릿입니다.",
+        "resultsSidesHelp": "앞면과 뒷면 값은 따로 나열됩니다. 양쪽에 있는 이름도 각 면에 남습니다.",
+        "moreActions": "더보기",
+        "changeFieldsPrompt": "이 항목을 바꾸시겠어요?",
+        "changeFieldsAction": "여기를 클릭",
+        "changeCountry": "변경",
+        "wizard": {
+            "moveToFront": "앞면으로 이동",
+            "moveToBack": "뒷면으로 이동"
+        }
     }
 }

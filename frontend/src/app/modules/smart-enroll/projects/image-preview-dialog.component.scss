@@ -53,6 +53,12 @@
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     background: #0c0a09;
+    cursor: grab;
+    touch-action: none;
+
+    &:active {
+        cursor: grabbing;
+    }
 }
 
 .image-preview-dialog__img {

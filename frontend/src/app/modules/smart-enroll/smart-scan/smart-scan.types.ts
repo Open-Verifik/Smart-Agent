@@ -22,6 +22,9 @@ export interface DocumentValidation {
         front?: Record<string, boolean>;
         back?: Record<string, boolean>;
     };
+    requiresBackSide?: boolean;
+    template?: string | { _id?: string };
+    scanTemplate?: ScanTemplateSummary | null;
     createdAt?: string;
     updatedAt?: string;
     client?: string;
@@ -81,6 +84,22 @@ export interface DocumentType {
     appFeature?: string | { _id?: string } | null;
     smartCheckFieldMap?: Array<{ mapKey?: string; dependencyField?: string }>;
     promptTemplate?: PromptTemplate;
+}
+
+export interface ScanTemplateSummary {
+    _id?: string;
+    name: string;
+    owned: boolean;
+    requiresBackSide: boolean;
+    fields: DocumentTypeField[];
+    source: 'saved' | 'current';
+}
+
+export interface RecentDocumentType {
+    lastUsedAt: string;
+    country: string;
+    owned: boolean;
+    documentType: DocumentType;
 }
 
 export interface DocumentTypeField {

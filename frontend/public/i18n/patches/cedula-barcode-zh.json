@@ -8,5 +8,50 @@
                 }
             }
         }
+    },
+    "smartScan": {
+        "journeyEyebrow": "Smart Scan",
+        "currentChoice": "当前选择",
+        "choiceNone": "尚未选择证件",
+        "choiceCatalog": "查看所有国家",
+        "recentCount": "{{count}} 个最近类型",
+        "stepSelectTitle": "选择证件",
+        "stepSelectHelp": "先从该账户已经扫描过的类型开始。需要其他国家或证件时，使用下面的完整目录。",
+        "stepReviewTitle": "核对将读取的字段",
+        "stepReviewHelp": "这些是扫描会提取的字段。正面和背面分开显示，同一名称出现在两面时并不是重复。",
+        "stepUploadTitle": "添加照片",
+        "stepUploadHelp": "上传刚才核对过的那一面。只有证件有背面时才会要求第二张照片。",
+        "stepResultsTitle": "查看提取结果",
+        "stepResultsHelp": "字段值按所在面分组。只有一面的证件保持在同一组。",
+        "yourDocumentsTitle": "你在用的证件",
+        "yourDocumentsHelp": "这些是该账户最近扫描过的类型。如果已有自己的字段列表，扫描会使用那一份。",
+        "yourDocumentsEmpty": "还没有扫描。请从下面的目录中选择证件。",
+        "allDocumentsTitle": "其他证件类型",
+        "allDocumentsHelp": "先选国家，再选类型。这里是完整目录，包括尚未扫描过的证件。",
+        "lastUsed": "上次使用",
+        "yourFields": "你的字段",
+        "verifikFields": "Verifik 字段",
+        "useMyFields": "使用我的字段",
+        "onePhoto": "一张照片。仅正面。",
+        "onePhotoHelp": "这份证件只有一张图片。只读取正面，不需要背面照片。",
+        "frontPhotoTitle": "正面照片",
+        "frontPhotoHelp": "从证件正面读取的字段。",
+        "backPhotoTitle": "背面照片",
+        "backPhotoHelp": "从证件背面读取的字段。只有证件有背面时才上传。",
+        "backRequired": "需要背面照片",
+        "uploadTwoSides": "这份证件需要两张照片。先上传正面，再上传背面。",
+        "stageLabel": "第 {{number}} 步",
+        "scanAnotherSame": "再扫描一份 {{code}}",
+        "templateUsed": "使用的模板",
+        "templateCurrent": "这次扫描没有保存模板。显示的字段是该证件类型当前的模板。",
+        "resultsSidesHelp": "正面和背面的值分开列出，两面都有的名称也会分别保留。",
+        "moreActions": "更多",
+        "changeFieldsPrompt": "想更改这些字段吗？",
+        "changeFieldsAction": "点击这里",
+        "changeCountry": "更改",
+        "wizard": {
+            "moveToFront": "移到正面",
+            "moveToBack": "移到背面"
+        }
     }
 }

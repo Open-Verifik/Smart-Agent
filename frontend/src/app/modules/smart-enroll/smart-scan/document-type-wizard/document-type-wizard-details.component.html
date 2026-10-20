@@ -1,0 +1,110 @@
+<div class="wizard-screen">
+    <header class="wizard-hero">
+        <div>
+            <span class="wizard-hero__eyebrow">{{ 'smartScan.wizard.' + copyKey + '.eyebrow' | transloco }}</span>
+            <h2>{{ 'smartScan.wizard.' + copyKey + '.title' | transloco }}</h2>
+            <p>{{ 'smartScan.wizard.' + copyKey + '.subtitle' | transloco }}</p>
+        </div>
+        <div class="wizard-hero__choice">
+            <span>{{ 'smartScan.wizard.' + copyKey + '.choiceLabel' | transloco }}</span>
+            <strong>{{ wizard.countryLabel }}</strong>
+        </div>
+    </header>
+
+    <div class="wizard-decision">
+        <section class="wizard-form">
+            <div class="section-heading">
+                <span>01</span>
+                <div>
+                    <h3>{{ 'smartScan.wizard.details.sectionTitle' | transloco }}</h3>
+                    <p>{{ 'smartScan.wizard.details.sectionHelp' | transloco }}</p>
+                </div>
+            </div>
+            <article class="field-card" [class.field-card--ready]="wizard.identityReady">
+                <span class="field-card__icon"><mat-icon>badge</mat-icon></span>
+                <div class="field-card__content">
+                    <span class="field-card__title">
+                        <strong>{{ 'smartScan.wizard.details.identityTitle' | transloco }}</strong>
+                        <small>{{ 'smartScan.wizard.details.required' | transloco }}</small>
+                    </span>
+                    <span class="field-card__body">{{ 'smartScan.wizard.details.identityBody' | transloco }}</span>
+                    <div class="input-stack">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.wizard.name' | transloco }}</mat-label>
+                            <input matInput [(ngModel)]="wizard.name" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.wizard.code' | transloco }}</mat-label>
+                            <input matInput [ngModel]="wizard.code" (ngModelChange)="wizard.onCodeInput($event)" />
+                        </mat-form-field>
+                    </div>
+                </div>
+            </article>
+            <article class="field-card" [class.field-card--ready]="!!wizard.category">
+                <span class="field-card__icon"><mat-icon>category</mat-icon></span>
+                <div class="field-card__content">
+                    <span class="field-card__title">
+                        <strong>{{ 'smartScan.wizard.details.classificationTitle' | transloco }}</strong>
+                    </span>
+                    <span class="field-card__body">{{ 'smartScan.wizard.details.classificationBody' | transloco }}</span>
+                    <div class="input-grid">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.wizard.category' | transloco }}</mat-label>
+                            <mat-select [(ngModel)]="wizard.category">
+                                @for (item of wizard.categories; track item) {
+                                    <mat-option [value]="item">{{ 'smartScan.categories.' + item | transloco }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.wizard.version' | transloco }}</mat-label>
+                            <input matInput [(ngModel)]="wizard.version" />
+                        </mat-form-field>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <aside class="wizard-explainer">
+            <div class="section-heading section-heading--light">
+                <span>02</span>
+                <div>
+                    <h3>{{ 'smartScan.wizard.' + copyKey + '.explainTitle' | transloco }}</h3>
+                    <p>{{ 'smartScan.wizard.' + copyKey + '.explainHelp' | transloco }}</p>
+                </div>
+            </div>
+            <div class="explainer-notes">
+                @for (note of notes; track note) {
+                    <article>
+                        <mat-icon>info</mat-icon>
+                        <p>{{ 'smartScan.wizard.' + copyKey + '.' + note | transloco }}</p>
+                    </article>
+                }
+            </div>
+        </aside>
+    </div>
+
+    <section class="wizard-facts">
+        <article>
+            <span class="fact-icon fact-icon--code"><mat-icon>tag</mat-icon></span>
+            <div>
+                <strong>{{ 'smartScan.wizard.details.factCodeTitle' | transloco }}</strong>
+                <p>{{ 'smartScan.wizard.details.factCodeBody' | transloco }}</p>
+            </div>
+        </article>
+        <article>
+            <span class="fact-icon fact-icon--country"><mat-icon>public</mat-icon></span>
+            <div>
+                <strong>{{ 'smartScan.wizard.details.factCountryTitle' | transloco }}</strong>
+                <p>{{ 'smartScan.wizard.details.factCountryBody' | transloco }}</p>
+            </div>
+        </article>
+        <article>
+            <span class="fact-icon fact-icon--private"><mat-icon>lock</mat-icon></span>
+            <div>
+                <strong>{{ 'smartScan.wizard.details.factPrivateTitle' | transloco }}</strong>
+                <p>{{ 'smartScan.wizard.details.factPrivateBody' | transloco }}</p>
+            </div>
+        </article>
+    </section>
+</div>

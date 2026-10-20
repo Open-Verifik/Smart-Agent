@@ -11,6 +11,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,8 +21,16 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
+import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
 import { SmartScanService } from '../smart-scan.service';
-import type { DocumentType, DocumentClassification, DocumentTypeField, SmartCheckResult } from '../smart-scan.types';
+import { ScanToolReviewStepComponent } from './scan-tool-review-step.component';
+import type {
+    DocumentType,
+    DocumentClassification,
+    DocumentTypeField,
+    RecentDocumentType,
+    SmartCheckResult,
+} from '../smart-scan.types';
 
 type ScanToolStep = 'select' | 'preview' | 'upload' | 'results';
 
@@ -52,6 +61,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
         FormsModule,
         RouterModule,
         MatButtonModule,
+        MatDialogModule,
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
@@ -60,6 +70,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
         MatMenuModule,
         MatProgressSpinnerModule,
         TranslocoModule,
+        ScanToolReviewStepComponent,
     ],
     templateUrl: './scan-tool.component.html',
     styleUrls: ['./scan-tool.component.scss'],
@@ -75,10 +86,12 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _location = inject(Location);
     private _transloco = inject(TranslocoService);
+    private _dialog = inject(MatDialog);
 
     step: ScanToolStep = 'select';
 
     selectedCountry = '';
+    countryPickerOpen = false;
     searchQuery = '';
     selectedCategory = '';
     countries: string[] = [];
@@ -86,6 +99,9 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     documentTypesLoading = false;
     showMine = false;
     flippedCardId: string | null = null;
+    recentTypes: RecentDocumentType[] = [];
+    recentLoading = false;
+    private requestedCode = '';
 
     private _countriesSub: Subscription | null = null;
     private _documentTypesSub: Subscription | null = null;
@@ -124,7 +140,9 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this._scanService.resetScanState();
         this._scanService.documentTypes.set([]);
+        this.requestedCode = (this._route.snapshot.queryParamMap.get('documentType') || '').trim();
         const requestedCountry = this._route.snapshot.queryParamMap.get('country') || '';
+        this.loadRecentTypes();
         this._countriesSub = this._scanService.getDocumentTypeCountries().subscribe({
             next: (countries) => {
                 this.countries = countries;
@@ -144,6 +162,107 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this._countriesSub?.unsubscribe();
         this._documentTypesSub?.unsubscribe();
+    }
+
+    get stepTitleKey(): string {
+        const titles: Record<ScanToolStep, string> = {
+            select: 'smartScan.stepSelectTitle',
+            preview: 'smartScan.stepReviewTitle',
+            upload: 'smartScan.stepUploadTitle',
+            results: 'smartScan.stepResultsTitle',
+        };
+        return titles[this.step];
+    }
+
+    get stepHelpKey(): string {
+        const help: Record<ScanToolStep, string> = {
+            select: 'smartScan.stepSelectHelp',
+            preview: 'smartScan.stepReviewHelp',
+            upload: 'smartScan.stepUploadHelp',
+            results: 'smartScan.stepResultsHelp',
+        };
+        return help[this.step];
+    }
+
+    get choiceLabel(): string {
+        const selected = this.selectedDocType();
+        if (!selected) return this._transloco.translate('smartScan.choiceNone');
+        return `${selected.code} — ${selected.name}`;
+    }
+
+    get choiceDetail(): string {
+        if (this.step === 'upload' || this.step === 'preview' || this.step === 'results') {
+            return this._transloco.translate(this.requiresBackSide ? 'smartScan.backRequired' : 'smartScan.onePhoto');
+        }
+        if (this.recentTypes.length) {
+            return this._transloco.translate('smartScan.recentCount', { count: this.recentTypes.length });
+        }
+        return this._transloco.translate('smartScan.choiceCatalog');
+    }
+
+    formatLastUsed(value: string | undefined): string {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+    }
+
+    /**
+     * Opens the document photo full screen so it can be zoomed.
+     */
+    openImagePreview(imageSrc: string | undefined, title?: string): void {
+        if (!imageSrc) return;
+        this._dialog.open(ImagePreviewDialogComponent, {
+            data: { imageSrc, title },
+            panelClass: 'image-preview-dialog-panel',
+            width: '100%',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            height: '100%',
+        });
+    }
+
+    useMyFields(documentType: DocumentType, event?: Event) {
+        event?.stopPropagation();
+        this._router.navigate(['/smart-enroll/smart-scan/document-type/new'], {
+            queryParams: { fork: documentType._id },
+        });
+    }
+
+    private loadRecentTypes() {
+        this.recentLoading = true;
+        this._scanService.getRecentDocumentTypes().subscribe({
+            next: (rows) => {
+                this.recentTypes = rows;
+                this.recentLoading = false;
+                if (this.requestedCode) this.openRequestedType(this.requestedCode);
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.recentLoading = false;
+                if (this.requestedCode) this.openRequestedType(this.requestedCode);
+                this._cdr.markForCheck();
+            },
+        });
+    }
+
+    private openRequestedType(code: string) {
+        const recent = this.recentTypes.find((row) => row.documentType?.code === code);
+        if (recent?.documentType) {
+            this.requestedCode = '';
+            this.selectDocumentType(recent.documentType);
+            return;
+        }
+
+        this._scanService.getDocumentTypesByCode(code).subscribe({
+            next: (types) => {
+                const owned = types.find((type) => type.client);
+                const chosen = owned || types[0];
+                this.requestedCode = '';
+                if (chosen) this.selectDocumentType(chosen);
+                this._cdr.markForCheck();
+            },
+        });
     }
 
     getFlag(country: string): string {
@@ -179,10 +298,18 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         }
 
         this.selectedCountry = country;
+        this.countryPickerOpen = false;
         this.selectedCategory = '';
         this.searchQuery = '';
         this.flippedCardId = null;
         this.loadDocumentTypes(country);
+    }
+
+    /**
+     * Shows every country again without clearing the current choice.
+     */
+    openCountryPicker(): void {
+        this.countryPickerOpen = true;
     }
 
     toggleCategory(category: string) {
@@ -331,6 +458,19 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         const tpl = this._scanService.selectedPromptTemplate();
         if (!tpl?.fields) return [];
         return tpl.fields.filter((f) => f.page === 1);
+    }
+
+    /**
+     * Opens the field editor for an owned type, or starts a copy of a Verifik type.
+     */
+    changeSelectedFields(): void {
+        const documentType = this.selectedDocType();
+        if (!documentType) return;
+        if (documentType.client) {
+            this.editDocumentType(documentType);
+            return;
+        }
+        this.useMyFields(documentType);
     }
 
     proceedToUpload() {
@@ -490,11 +630,11 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         if (!front.size && !back.size) return [{ id: 'all', labelKey: '', fields: rows }];
 
         return [
-            { id: 'front', labelKey: 'smartScan.frontSideFields', fields: rows.filter((row) => front.has(row.key)) },
+            { id: 'front', labelKey: 'smartScan.frontPhotoTitle', fields: rows.filter((row) => front.has(row.key)) },
             {
                 id: 'back',
-                labelKey: 'smartScan.backSideFields',
-                fields: rows.filter((row) => back.has(row.key) && !front.has(row.key)),
+                labelKey: 'smartScan.backPhotoTitle',
+                fields: this.requiresBackSide ? rows.filter((row) => back.has(row.key)) : [],
             },
             {
                 id: 'other',

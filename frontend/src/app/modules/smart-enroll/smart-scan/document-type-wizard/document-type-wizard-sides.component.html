@@ -1,0 +1,103 @@
+<div class="wizard-screen">
+    <header class="wizard-hero">
+        <div>
+            <span class="wizard-hero__eyebrow">{{ 'smartScan.wizard.' + copyKey + '.eyebrow' | transloco }}</span>
+            <h2>{{ 'smartScan.wizard.' + copyKey + '.title' | transloco }}</h2>
+            <p>{{ 'smartScan.wizard.' + copyKey + '.subtitle' | transloco }}</p>
+        </div>
+        <div class="wizard-hero__choice">
+            <span>{{ 'smartScan.wizard.' + copyKey + '.choiceLabel' | transloco }}</span>
+            <strong>{{
+                (wizard.requiresBackSide ? 'smartScan.wizard.bothSides' : 'smartScan.wizard.frontOnly') | transloco
+            }}</strong>
+        </div>
+    </header>
+
+    <div class="wizard-decision">
+        <section class="wizard-form">
+            <div class="section-heading">
+                <span>01</span>
+                <div>
+                    <h3>{{ 'smartScan.wizard.sidesStep.sectionTitle' | transloco }}</h3>
+                    <p>{{ 'smartScan.wizard.sidesStep.sectionHelp' | transloco }}</p>
+                </div>
+            </div>
+            <div class="side-choices">
+                <button
+                    type="button"
+                    class="side-choice"
+                    [class.side-choice--ready]="!wizard.requiresBackSide"
+                    (click)="wizard.onRequiresBackSideChange(false)"
+                >
+                    <mat-icon>crop_portrait</mat-icon>
+                    <strong>{{ 'smartScan.wizard.frontOnly' | transloco }}</strong>
+                    <span>{{ 'smartScan.wizard.sidesStep.frontBody' | transloco }}</span>
+                </button>
+                <button
+                    type="button"
+                    class="side-choice"
+                    [class.side-choice--ready]="wizard.requiresBackSide"
+                    (click)="wizard.onRequiresBackSideChange(true)"
+                >
+                    <mat-icon>flip</mat-icon>
+                    <strong>{{ 'smartScan.wizard.bothSides' | transloco }}</strong>
+                    <span>{{ 'smartScan.wizard.sidesStep.backBody' | transloco }}</span>
+                </button>
+            </div>
+            <article class="field-card" [class.field-card--ready]="!!wizard.frontImage">
+                <span class="field-card__icon"><mat-icon>image</mat-icon></span>
+                <div class="field-card__content">
+                    <span class="field-card__title">
+                        <strong>{{ 'smartScan.wizard.frontImage' | transloco }}</strong>
+                        <small>{{ 'smartScan.wizard.details.required' | transloco }}</small>
+                    </span>
+                    <label class="image-drop">
+                        @if (wizard.frontImage) {
+                            <img class="image-drop__preview" [src]="wizard.frontImage" alt="" />
+                        } @else {
+                            <mat-icon>upload</mat-icon>
+                        }
+                        <input type="file" accept="image/*" (change)="wizard.onImageSelected($event, 'front')" />
+                    </label>
+                </div>
+            </article>
+            @if (wizard.requiresBackSide) {
+                <article class="field-card" [class.field-card--ready]="!!wizard.backImage">
+                    <span class="field-card__icon"><mat-icon>flip</mat-icon></span>
+                    <div class="field-card__content">
+                        <span class="field-card__title">
+                            <strong>{{ 'smartScan.wizard.backImage' | transloco }}</strong>
+                            <small>{{ 'smartScan.wizard.details.required' | transloco }}</small>
+                        </span>
+                        <label class="image-drop">
+                            @if (wizard.backImage) {
+                                <img class="image-drop__preview" [src]="wizard.backImage" alt="" />
+                            } @else {
+                                <mat-icon>upload</mat-icon>
+                            }
+                            <input type="file" accept="image/*" (change)="wizard.onImageSelected($event, 'back')" />
+                        </label>
+                    </div>
+                </article>
+            }
+        </section>
+
+        <aside class="wizard-explainer">
+            <div class="section-heading section-heading--light">
+                <span>02</span>
+                <div>
+                    <h3>{{ 'smartScan.wizard.' + copyKey + '.explainTitle' | transloco }}</h3>
+                    <p>{{ 'smartScan.wizard.' + copyKey + '.explainHelp' | transloco }}</p>
+                </div>
+            </div>
+            <div class="explainer-notes">
+                @for (note of notes; track note) {
+                    <article>
+                        <mat-icon>info</mat-icon>
+                        <p>{{ 'smartScan.wizard.' + copyKey + '.' + note | transloco }}</p>
+                    </article>
+                }
+            </div>
+        </aside>
+    </div>
+</div>

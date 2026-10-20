@@ -44,18 +44,8 @@
                                 {{ 'smartScan.viewEnrollmentRecord' | transloco }}
                             </a>
                         }
-                        <button
-                            mat-stroked-button
-                            color="warn"
-                            type="button"
-                            class="rounded-full"
-                            [disabled]="deleteLoading"
-                            (click)="confirmDelete()"
-                        >
-                            @if (deleteLoading) {
-                                <mat-spinner class="mr-2 inline-block" diameter="18"></mat-spinner>
-                            }
-                            {{ 'smartScan.deleteScan' | transloco }}
+                        <button mat-flat-button color="primary" type="button" class="rounded-full" (click)="scanAnother()">
+                            {{ 'smartScan.scanAnotherSame' | transloco: { code: scan.documentType } }}
                         </button>
                     </div>
                 }
@@ -101,6 +91,29 @@
                     }
                     <span class="ml-auto text-sm text-stone-500 dark:text-stone-400">{{ formatDate(scan.createdAt) }}</span>
                 </div>
+
+                <section class="rounded-3xl border border-stone-200/90 bg-white p-5 dark:border-gray-700 dark:bg-gray-900/50 md:p-6">
+                    <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-stone-400">
+                        {{ 'smartScan.templateUsed' | transloco }}
+                    </p>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                            {{ scan.scanTemplate?.name || scan.documentType }}
+                        </h2>
+                        <span class="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-stone-600 dark:bg-gray-800 dark:text-stone-300">
+                            {{ (scan.scanTemplate?.owned ? 'smartScan.yourFields' : 'smartScan.verifikFields') | transloco }}
+                        </span>
+                        <span class="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-stone-600 dark:bg-gray-800 dark:text-stone-300">
+                            {{ (singlePhoto ? 'smartScan.onePhoto' : 'smartScan.backRequired') | transloco }}
+                        </span>
+                    </div>
+                    <p class="mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">
+                        {{ (singlePhoto ? 'smartScan.onePhotoHelp' : 'smartScan.backPhotoHelp') | transloco }}
+                    </p>
+                    @if (scan.scanTemplate?.source === 'current') {
+                        <p class="mt-2 text-xs text-stone-400">{{ 'smartScan.templateCurrent' | transloco }}</p>
+                    }
+                </section>
 
                 <div class="scan-detail-panel">
                     @if (getClassification(); as classification) {
@@ -266,12 +279,24 @@
                                 <div class="space-y-4">
                                     @if (scan.url) {
                                         <div class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50">
-                                            <img [src]="scan.url" alt="Document front" class="max-h-80 w-full object-contain" />
+                                            <button
+                                                type="button"
+                                                class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                                (click)="openImagePreview(scan.url, scan.documentType)"
+                                            >
+                                                <img [src]="scan.url" alt="Document front" class="max-h-80 w-full object-contain" />
+                                            </button>
                                         </div>
                                     }
                                     @if (scan.backUrl) {
                                         <div class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50">
-                                            <img [src]="scan.backUrl" alt="Document back" class="max-h-60 w-full object-contain" />
+                                            <button
+                                                type="button"
+                                                class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                                (click)="openImagePreview(scan.backUrl, scan.documentType)"
+                                            >
+                                                <img [src]="scan.backUrl" alt="Document back" class="max-h-60 w-full object-contain" />
+                                            </button>
                                         </div>
                                     }
                                 </div>
@@ -281,6 +306,9 @@
                                     <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                                         {{ 'smartScan.extractedFields' | transloco }}
                                     </h3>
+                                    <p class="text-xs text-stone-500">
+                                        {{ (singlePhoto ? 'smartScan.onePhotoHelp' : 'smartScan.resultsSidesHelp') | transloco }}
+                                    </p>
                                     @for (section of extractionSections(); track section.id) {
                                         @if (section.fields.length) {
                                             <div class="space-y-2">
@@ -307,6 +335,27 @@
                             </div>
                         }
                     </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="rounded-full !text-stone-500"
+                        [matMenuTriggerFor]="scanActions"
+                        [disabled]="deleteLoading"
+                    >
+                        @if (deleteLoading) {
+                            <mat-spinner class="mr-2 inline-block" diameter="18"></mat-spinner>
+                        }
+                        {{ 'smartScan.moreActions' | transloco }}
+                    </button>
+                    <mat-menu #scanActions="matMenu">
+                        <button mat-menu-item type="button" (click)="confirmDelete()">
+                            <mat-icon>delete</mat-icon>
+                            <span>{{ 'smartScan.deleteScan' | transloco }}</span>
+                        </button>
+                    </mat-menu>
                 </div>
             </div>
         }

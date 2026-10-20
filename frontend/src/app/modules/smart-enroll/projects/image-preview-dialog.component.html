@@ -43,7 +43,14 @@
             </button>
         </div>
     </div>
-    <div class="image-preview-dialog__viewport">
+    <div
+        #viewport
+        class="image-preview-dialog__viewport"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp()"
+        (pointercancel)="onPointerUp()"
+    >
         <img
             [src]="data.imageSrc"
             alt=""

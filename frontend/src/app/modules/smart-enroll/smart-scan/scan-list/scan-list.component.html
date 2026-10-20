@@ -1,20 +1,20 @@
-<div class="flex flex-col flex-auto min-w-0">
-    <!-- Header -->
+<div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
     <div
-        class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent"
+        class="border-b border-stone-200/90 bg-white/90 px-6 py-8 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 sm:px-10"
     >
         <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center font-medium text-xs text-secondary leading-none">
-                <a routerLink="/chat" class="cursor-pointer text-primary-500 hover:underline">Verifik</a>
-                <mat-icon class="icon-size-4 mx-2 text-secondary" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+            <div class="flex flex-wrap items-center font-medium text-xs leading-none text-stone-500">
+                <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
+                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
                 <span class="cursor-default">{{ 'nav.smart_scan' | transloco }}</span>
             </div>
-            <div class="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-stone-400">{{ 'smartScan.journeyEyebrow' | transloco }}</p>
+                    <h2 class="mt-1 text-3xl font-semibold tracking-tight text-stone-900 dark:text-white">
                         {{ 'smartScan.title' | transloco }}
                     </h2>
-                    <p class="mt-1 text-secondary">{{ 'smartScan.subtitle' | transloco }}</p>
+                    <p class="mt-1 text-sm text-stone-500">{{ 'smartScan.subtitle' | transloco }}</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <mat-button-toggle-group

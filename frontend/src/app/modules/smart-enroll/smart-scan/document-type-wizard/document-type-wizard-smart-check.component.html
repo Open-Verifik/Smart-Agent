@@ -1,0 +1,93 @@
+<div class="wizard-screen">
+    <header class="wizard-hero">
+        <div>
+            <span class="wizard-hero__eyebrow">{{ 'smartScan.wizard.' + copyKey + '.eyebrow' | transloco }}</span>
+            <h2>{{ 'smartScan.wizard.' + copyKey + '.title' | transloco }}</h2>
+            <p>{{ 'smartScan.wizard.' + copyKey + '.subtitle' | transloco }}</p>
+        </div>
+        <div class="wizard-hero__choice">
+            <span>{{ 'smartScan.wizard.' + copyKey + '.choiceLabel' | transloco }}</span>
+            <strong>{{ wizard.selectedFeature?.name || ('smartScan.wizard.skipSmartCheck' | transloco) }}</strong>
+        </div>
+    </header>
+
+    <div class="wizard-decision">
+        <section class="wizard-form">
+            <div class="section-heading">
+                <span>01</span>
+                <div>
+                    <h3>{{ 'smartScan.wizard.smartCheckStep.sectionTitle' | transloco }}</h3>
+                    <p>{{ 'smartScan.wizard.smartCheckStep.sectionHelp' | transloco }}</p>
+                </div>
+            </div>
+            @if (wizard.featuresLoading) {
+                <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+            } @else if (!wizard.features.length) {
+                <article class="field-card">
+                    <span class="field-card__icon"><mat-icon>travel_explore</mat-icon></span>
+                    <div class="field-card__content">
+                        <span class="field-card__title">
+                            <strong>{{ 'smartScan.wizard.noSmartCheck' | transloco }}</strong>
+                        </span>
+                    </div>
+                </article>
+            } @else {
+                <article class="field-card" [class.field-card--ready]="!!wizard.selectedFeatureId">
+                    <span class="field-card__icon"><mat-icon>verified</mat-icon></span>
+                    <div class="field-card__content">
+                        <span class="field-card__title">
+                            <strong>{{ 'smartScan.wizard.smartCheck' | transloco }}</strong>
+                        </span>
+                        <span class="field-card__body">{{ 'smartScan.wizard.smartCheckHint' | transloco }}</span>
+                        <mat-form-field appearance="outline" class="input-stack" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.wizard.smartCheck' | transloco }}</mat-label>
+                            <mat-select [ngModel]="wizard.selectedFeatureId" (ngModelChange)="wizard.onFeatureChange($event)">
+                                <mat-option value="">{{ 'smartScan.wizard.skipSmartCheck' | transloco }}</mat-option>
+                                @for (feature of wizard.features; track feature._id) {
+                                    <mat-option [value]="feature._id">{{ feature.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        @for (dependency of wizard.selectedFeature?.dependencies || []; track dependency.field) {
+                            <div class="input-grid">
+                                <p class="dependency-name">
+                                    {{ dependency.field }}
+                                    @if (dependency.required) {
+                                        <span>*</span>
+                                    }
+                                </p>
+                                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                                    <mat-label>{{ 'smartScan.wizard.mapDependency' | transloco }}</mat-label>
+                                    <mat-select [(ngModel)]="wizard.fieldMap[dependency.field]">
+                                        <mat-option value="">—</mat-option>
+                                        @for (key of wizard.mapKeys; track key) {
+                                            <mat-option [value]="key">{{ key }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        }
+                    </div>
+                </article>
+            }
+        </section>
+
+        <aside class="wizard-explainer">
+            <div class="section-heading section-heading--light">
+                <span>02</span>
+                <div>
+                    <h3>{{ 'smartScan.wizard.' + copyKey + '.explainTitle' | transloco }}</h3>
+                    <p>{{ 'smartScan.wizard.' + copyKey + '.explainHelp' | transloco }}</p>
+                </div>
+            </div>
+            <div class="explainer-notes">
+                @for (note of notes; track note) {
+                    <article>
+                        <mat-icon>info</mat-icon>
+                        <p>{{ 'smartScan.wizard.' + copyKey + '.' + note | transloco }}</p>
+                    </article>
+                }
+            </div>
+        </aside>
+    </div>
+</div>

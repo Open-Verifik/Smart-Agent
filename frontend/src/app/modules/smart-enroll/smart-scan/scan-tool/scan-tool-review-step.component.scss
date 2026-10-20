@@ -1,0 +1,17 @@
+:host {
+    display: block;
+}
+
+.scan-tool-panel {
+    @apply bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden dark:bg-gray-900/50 dark:border-gray-700;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.scan-tool-strip {
+    @apply flex items-center gap-3 p-4 rounded-2xl border border-stone-200/90 bg-stone-50/80 dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+:host ::ng-deep .scan-tool-mat-btn-pill.mat-mdc-unelevated-button,
+:host ::ng-deep .scan-tool-mat-btn-pill.mat-mdc-outlined-button {
+    border-radius: 9999px;
+}

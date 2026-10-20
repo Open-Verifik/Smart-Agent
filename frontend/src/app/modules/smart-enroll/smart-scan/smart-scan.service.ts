@@ -16,6 +16,7 @@ import type {
     DocumentValidation,
     DocumentValidationResponse,
     PromptTemplate,
+    RecentDocumentType,
     ScanResult,
 } from './smart-scan.types';
 
@@ -105,6 +106,35 @@ export class SmartScanService {
                     return throwError(() => err);
                 }),
                 finalize(() => this.loading.set(false))
+            );
+    }
+
+    getRecentDocumentTypes() {
+        return this._httpClient
+            .get<{ data: RecentDocumentType[] }>(`${this.apiUrl}/v2/document-validations/recent-document-types`, {
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((response) => (Array.isArray(response.data) ? response.data : [])),
+                catchError((err) => {
+                    console.error('Error fetching recent document types:', err);
+                    return of([] as RecentDocumentType[]);
+                })
+            );
+    }
+
+    getDocumentTypesByCode(code: string) {
+        return this._httpClient
+            .get<{ data: DocumentType[] }>(`${this.apiUrl}/v2/document-types`, {
+                params: { where_code: code, where_status: 'active', limit: '10' },
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((response) => (Array.isArray(response.data) ? response.data : [])),
+                catchError((err) => {
+                    console.error('Error fetching document type by code:', err);
+                    return of([] as DocumentType[]);
+                })
             );
     }
 
