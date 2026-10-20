@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — 驾驶证",
-            "description": "在哥伦比亚 RUNT 中按身份证件查询驾驶证状态、类别与有效期等信息。"
+            "description": "在哥伦比亚按身份证件查询驾驶证状态、类别与有效期等信息。"
         },
         "peru_api_vehicle": {
             "title": "车辆（号牌）",
@@ -182,7 +182,7 @@
         },
         "colombia_api_vehicle": {
             "title": "RUNT — 车辆(基本登记)",
-            "description": "通过哥伦比亚 RUNT 使用车牌与车主证件查询车辆登记与基本特征。"
+            "description": "在哥伦比亚使用车牌与车主证件查询车辆登记与基本特征。"
         },
         "colombia_api_pico_placa": {
             "title": "波哥大 — Pico y Placa",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — 按车牌查询车辆（完整）",
-            "description": "通过哥伦比亚 RUNT 使用车牌与车主证件查询车辆完整历史与技术报告。"
+            "description": "在哥伦比亚使用车牌与车主证件查询车辆完整历史与技术报告。"
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — 按 VIN 查询车辆",
-            "description": "通过哥伦比亚 RUNT 使用车辆识别代号（VIN）查询完整历史与技术信息。"
+            "description": "在哥伦比亚使用车辆识别代号（VIN）查询官方登记数据及完整历史与技术信息。"
         },
         "peru_identity_extra_lookup": {
             "title": "秘鲁 - 国民身份证验证",
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — 按车牌查询车辆（简化）",
-            "description": "通过哥伦比亚 RUNT 使用车牌与车主证件号查询核心车辆信息。"
+            "description": "在哥伦比亚使用车牌与车主证件号查询核心车辆信息。"
         },
         "canada_api_driver_license_quebec": {
             "title": "魁北克 — 驾驶证",
@@ -594,7 +594,7 @@
         },
         "colombia_api_runt_owners": {
             "title": "哥伦比亚 - 车辆所有者(RUNT)",
-            "description": "Verify vehicle ownership and registered owners through the RUNT system."
+            "description": "根据官方车辆登记信息核验车辆所有权与登记车主。"
         },
         "colombia_api_vehicle_owners": {
             "title": "哥伦比亚 - 车辆所有人历史",
@@ -934,7 +934,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 车辆商业估价",
-            "description": "哥伦比亚车牌的交通部（SIBGA）官方商业估价，由 RUNT 数据自动对照。"
+            "description": "哥伦比亚车牌的官方商业估价，基于全国车辆登记数据。"
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll 免费版",
@@ -962,7 +962,7 @@
         },
         "colombia_api_runt_vehicle_by_plate_only": {
             "title": "仅凭车牌查询 RUNT 车辆",
-            "description": "仅用车牌查询哥伦比亚 RUNT 车辆，无需车主证件。"
+            "description": "仅用车牌查询哥伦比亚车辆，无需车主证件。"
         }
     }
 }

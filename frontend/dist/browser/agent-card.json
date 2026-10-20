@@ -28,8 +28,8 @@
     "registeredAt": "2026-01-24T16:34:05.462Z"
   },
   "ai": {
-    "model": "Google Gemini 2.5 Flash Lite",
-    "provider": "Google",
+    "model": "Verifik AI",
+    "provider": "Verifik",
     "capabilities": ["natural-language-understanding", "tool-calling", "conversation-context"]
   },
   "payment": {
