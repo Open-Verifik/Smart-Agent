@@ -686,6 +686,25 @@
                         </div>
                     }
 
+                    @if (offersColombianBarcodeValidation() && (backFile || requiresBackSide)) {
+                        <div
+                            class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200/90 bg-stone-50/80 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/40"
+                        >
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-semibold text-stone-900 dark:text-white">
+                                    {{ 'smartScan.colombianBarcode.title' | transloco }}
+                                </p>
+                                <p class="mt-0.5 text-xs text-stone-600 dark:text-stone-300">
+                                    {{ 'smartScan.colombianBarcode.subtitle' | transloco }}
+                                </p>
+                            </div>
+                            <mat-slide-toggle
+                                [(ngModel)]="colombianBarcodeValidation"
+                                color="primary"
+                            ></mat-slide-toggle>
+                        </div>
+                    }
+
                     <div class="flex flex-wrap gap-3 pt-2">
                         <button
                             mat-flat-button
@@ -959,6 +978,7 @@
                             </div>
 
                             <div class="space-y-3">
+                                <barcode-validation-panel [validation]="barcodeValidation()" />
                                 @for (section of extractionSections(); track section.id) {
                                     @if (section.fields.length) {
                                         <div class="space-y-2">
@@ -1042,6 +1062,7 @@
                             </div>
 
                             <div class="space-y-3">
+                                <barcode-validation-panel [validation]="barcodeValidation()" />
                                 <h4 class="font-semibold text-stone-900 dark:text-white">
                                     {{ 'smartScan.extractedFields' | transloco }}
                                 </h4>

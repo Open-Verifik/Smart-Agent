@@ -27,6 +27,8 @@ import {
 
 export const COLOMBIA_CEDULA_ENDPOINT_CODE = 'colombia_api_identity_lookup';
 
+export const COLOMBIA_CEDULA_BARCODE_ENDPOINT_CODE = 'colombia_api_cedula_barcode';
+
 export const COLOMBIA_PROCURADURIA_ENDPOINT_CODE = 'colombia_api_identity_lookup_procuraduria';
 
 export const COLOMBIA_PEP_ENDPOINT_CODE = 'colombia_pep_lookup';
@@ -770,6 +772,30 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         documentTypeByCode: {
             [COLOMBIA_RETHUS_ENDPOINT_CODE]: 'CC',
         },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_CEDULA_BARCODE_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                documentNumber: 'cedula-back.jpg',
+                fullName: 'Decode barcode — sample back image',
+                paramOverrides: {
+                    backImage: 'https://example.com/cedula-back.jpg',
+                    documentType: 'CC',
+                },
+            },
+            {
+                profileKey: '409-missing-backImage',
+                documentNumber: 'missing-back',
+                fullName: '409 — Missing backImage',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    backImage: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: 'cedula-back.jpg',
         showProfileMeta: false,
     },
     [COLOMBIA_ADRES_ENDPOINT_CODE]: {
