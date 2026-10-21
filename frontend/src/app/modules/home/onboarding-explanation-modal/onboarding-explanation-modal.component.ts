@@ -159,8 +159,8 @@ export class OnboardingExplanationModalComponent implements OnInit {
 
     private readonly _techMap: Record<string, TaskTechnicalInfo> = {
         test_smartcheck: {
-            method: 'POST',
-            endpoint: 'https://api.verifik.co/v2/postman/run',
+            method: 'GET',
+            endpoint: 'https://api.verifik.co/v2/co/cedula',
             icon: 'terminal',
             gradient: 'from-blue-500 to-indigo-600',
         },
@@ -184,7 +184,7 @@ export class OnboardingExplanationModalComponent implements OnInit {
         },
         test_liveness_demo: {
             method: 'POST',
-            endpoint: 'https://api.verifik.co/v2/biometrics/liveness',
+            endpoint: 'https://api.verifik.co/v2/face-recognition/liveness',
             icon: 'face',
             gradient: 'from-violet-500 to-purple-600',
         },
@@ -208,13 +208,13 @@ export class OnboardingExplanationModalComponent implements OnInit {
         },
         subscribe_smart_access: {
             method: 'POST',
-            endpoint: 'https://api.verifik.co/v2/subscriptions',
+            endpoint: 'https://api.verifik.co/v2/subscription-plans/:id/subscribe',
             icon: 'subscriptions',
             gradient: 'from-rose-500 to-red-600',
         },
         subscribe_smart_enroll: {
             method: 'POST',
-            endpoint: 'https://api.verifik.co/v2/subscriptions',
+            endpoint: 'https://api.verifik.co/v2/subscription-plans/:id/subscribe',
             icon: 'subscriptions',
             gradient: 'from-rose-500 to-red-600',
         },
@@ -226,7 +226,7 @@ export class OnboardingExplanationModalComponent implements OnInit {
         },
         complete_kyc: {
             method: 'POST',
-            endpoint: 'https://api.verifik.co/v2/kyc/verify',
+            endpoint: 'https://api.verifik.co/v2/credit-intents/kyc-passwordless',
             icon: 'verified_user',
             gradient: 'from-cyan-500 to-blue-600',
         },

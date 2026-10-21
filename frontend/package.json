@@ -28,7 +28,6 @@
         "@angular/platform-browser": "19.2.18",
         "@angular/platform-browser-dynamic": "19.2.18",
         "@angular/router": "19.2.18",
-        "@handsontable/angular": "^16.2.0",
         "@handsontable/angular-wrapper": "^17.0.1",
         "@jsverse/transloco": "7.5.1",
         "@stripe/stripe-js": "^4.10.0",
