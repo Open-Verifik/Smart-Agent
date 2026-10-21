@@ -1,0 +1,124 @@
+.picker {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 28px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
+        repeating-linear-gradient(90deg, #163300 0 12px, #9fe870 12px 24px, #000814 24px 36px, #adff02 36px 48px, #151581 48px 60px, #f2f2f2 60px 72px);
+    background-size: auto, 72px 8px;
+    background-repeat: no-repeat, repeat-x;
+    background-position: 0 0, 0 0;
+    border: 1px solid #d6d3d1;
+}
+
+:host-context(.dark) .picker {
+    background:
+        linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(17, 24, 39, 0.94)),
+        repeating-linear-gradient(90deg, #9fe870 0 12px, #1c6cff 12px 24px, #adff02 24px 36px);
+    background-size: auto, 36px 8px;
+    background-repeat: no-repeat, repeat-x;
+    border-color: #374151;
+}
+
+h2 {
+    margin: 8px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #57534e;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.choice {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.choice.on {
+    border-color: #111827;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px #111827;
+}
+
+.swatch {
+    display: grid;
+    place-items: center;
+    min-height: 132px;
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.mini {
+    display: flex;
+    width: 100%;
+    min-height: 108px;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.sample-title {
+    font-size: 28px;
+    line-height: 0.95;
+}
+
+.sample-button {
+    align-self: flex-start;
+    padding: 6px 12px;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.letter {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.unset {
+    font-weight: 600;
+}
+
+@media (min-width: 720px) {
+    .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

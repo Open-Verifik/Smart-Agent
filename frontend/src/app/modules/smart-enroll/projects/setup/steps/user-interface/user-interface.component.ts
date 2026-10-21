@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, inject } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -9,6 +9,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Attachment } from 'app/core/services/attachment.service';
 import { FileDropZoneComponent } from 'app/shared/file-drop-zone/file-drop-zone.component';
 import { SwatchPickerComponent } from 'app/shared/swatch-picker/swatch-picker.component';
+import { VerifyStylePickerComponent } from '../../../verify-style-picker.component';
 
 const HALF_MEGABYTE = 0.5 * 1024 * 1024;
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -33,6 +34,7 @@ const TWO_MEGABYTES = 2 * 1024 * 1024;
         TranslocoModule,
         FileDropZoneComponent,
         SwatchPickerComponent,
+        VerifyStylePickerComponent,
     ],
     templateUrl: './user-interface.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -87,6 +89,10 @@ export class SetupUserInterfaceComponent {
 
     get brandingFormGroup(): FormGroup | null {
         return (this.form?.get('branding') as FormGroup) || null;
+    }
+
+    get verifyStyleControl(): FormControl | null {
+        return (this.form?.get('projectFlow.onboardingSettings.verifyStyle') as FormControl) || null;
     }
 
     imageValue(forControl: 'logo' | 'image'): string | null {

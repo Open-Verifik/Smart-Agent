@@ -1,0 +1,46 @@
+<ng-container *transloco="let t">
+    <section class="picker">
+        <header>
+            <h2>{{ t('smartEnrollProjects.setup.integrations.verifyStyle.title') }}</h2>
+            <p>{{ t('smartEnrollProjects.setup.integrations.verifyStyle.subtitle') }}</p>
+        </header>
+        <div class="grid" role="radiogroup" [attr.aria-label]="t('smartEnrollProjects.setup.integrations.verifyStyle.title')">
+            <button
+                *ngFor="let style of styles"
+                type="button"
+                role="radio"
+                class="choice"
+                [class.on]="selected() === style.id"
+                [attr.aria-checked]="selected() === style.id"
+                (click)="choose(style.id)"
+            >
+                <span class="swatch" [style.background]="style.page">
+                    <span class="mini" [style.background]="style.card" [style.border]="style.id === 'f' ? '1px solid #000' : '0'">
+                        <span
+                            class="sample-title"
+                            [style.color]="style.ink"
+                            [style.fontFamily]="style.titleFont"
+                            [style.fontWeight]="style.titleWeight"
+                            [style.textTransform]="style.titleTransform"
+                            [style.letterSpacing]="style.titleTracking"
+                            >Aa</span
+                        >
+                        <span
+                            class="sample-button"
+                            [style.background]="style.button"
+                            [style.color]="style.buttonText"
+                            [style.borderRadius]="style.buttonRadius"
+                            [style.border]="style.buttonBorder"
+                            >{{ t('smartEnrollProjects.setup.integrations.verifyStyle.sample') }}</span
+                        >
+                    </span>
+                </span>
+                <span class="caption">
+                    <span class="letter">{{ style.id }}</span>
+                    {{ t('smartEnrollProjects.setup.integrations.verifyStyle.names.' + style.id) }}
+                </span>
+            </button>
+        </div>
+        <p class="unset" *ngIf="!selected()">{{ t('smartEnrollProjects.setup.integrations.verifyStyle.unset') }}</p>
+    </section>
+</ng-container>
