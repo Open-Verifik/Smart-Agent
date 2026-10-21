@@ -32,7 +32,7 @@ import {
 } from './postman-include-cost.util';
 import {
     applyMexicoLicenseTripleInputToEndpoint,
-    ensureMexicoLicenseDocumentTypeForSend,
+    prepareMexicoLicenseEndpoint,
 } from './postman-mexico-license-input.util';
 import {
     getPostmanRequestValidationIssues,
@@ -1007,7 +1007,7 @@ export class PostmanService {
     }
 
     sendRequest(endpoint: ApiEndpoint) {
-        const prepared = ensureMexicoLicenseDocumentTypeForSend(
+        const prepared = prepareMexicoLicenseEndpoint(
             applyMexicoLicenseTripleInputToEndpoint(endpoint)
         );
         const postDraft =

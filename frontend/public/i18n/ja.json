@@ -5518,6 +5518,10 @@
                 "otherParameters": "その他のパラメータ",
                 "requiredFieldLegend": "* 必須項目",
                 "includeCostDescription": "true の場合、レスポンスにクレジット情報ブロック（credits, creditsCharged, charged, featureCode）が含まれます。省略するには false にするか、この行を削除してください。",
+                "mexicoLicenseDocumentTypeCurpDescription": "この検索グループでは CURP に固定されます。",
+                "mexicoLicenseDocumentTypeCedulaDescription": "この検索グループでは免許番号タイプに固定されます。",
+                "mexicoLicenseCurpNumberDescription": "18 文字の CURP。",
+                "mexicoLicenseCedulaNumberDescription": "専門免許番号。",
                 "pickValue": "[{{values}}] から値を選択してください",
                 "sexoFemale": "女性（FEMENINO）",
                 "sexoMale": "男性（MASCULINO）"

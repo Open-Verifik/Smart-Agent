@@ -15,6 +15,11 @@ export const isMexicoLicenseTripleInputEndpoint = (code?: string | null): boolea
 
 export type MexicoLicenseInputMode = 'curp' | 'cedula' | 'name' | 'none';
 
+export type MexicoLicenseUiState = {
+    curpDocumentNumber: string;
+    cedulaDocumentNumber: string;
+};
+
 const DOCUMENT_TYPE_FIELD = 'documentType';
 const DOCUMENT_NUMBER_FIELD = 'documentNumber';
 const FIRST_NAME_FIELD = 'firstName';
@@ -29,14 +34,42 @@ const isEffectivelyEmpty = (value: unknown): boolean => {
     return PAIR_VALUE_PLACEHOLDERS.has(normalized.toLowerCase());
 };
 
+const paramValue = (endpoint: ApiEndpoint | null | undefined, key: string): string => {
+    const row = endpoint?.params?.find((p) => p.key === key);
+    return String(row?.value ?? '').trim();
+};
+
+const normalizeDocumentType = (value: unknown): string =>
+    String(value ?? '').trim().toUpperCase();
+
+export const emptyMexicoLicenseUi = (): MexicoLicenseUiState => ({
+    curpDocumentNumber: '',
+    cedulaDocumentNumber: '',
+});
+
+export const resolveMexicoLicenseUi = (endpoint: ApiEndpoint): MexicoLicenseUiState => {
+    if (endpoint.mexicoLicenseUi) {
+        return {
+            curpDocumentNumber: endpoint.mexicoLicenseUi.curpDocumentNumber ?? '',
+            cedulaDocumentNumber: endpoint.mexicoLicenseUi.cedulaDocumentNumber ?? '',
+        };
+    }
+    const documentType = normalizeDocumentType(paramValue(endpoint, DOCUMENT_TYPE_FIELD));
+    const documentNumber = paramValue(endpoint, DOCUMENT_NUMBER_FIELD);
+    if (documentType === 'CEDULA' && documentNumber) {
+        return { curpDocumentNumber: '', cedulaDocumentNumber: documentNumber };
+    }
+    if (documentNumber) {
+        return { curpDocumentNumber: documentNumber, cedulaDocumentNumber: '' };
+    }
+    return emptyMexicoLicenseUi();
+};
+
 const rowValue = (row: Record<string, unknown>, field: string): unknown => {
     const lower = field.toLowerCase();
     const key = Object.keys(row).find((k) => k.toLowerCase() === lower);
     return key ? row[key] : undefined;
 };
-
-const normalizeDocumentType = (value: unknown): string =>
-    String(value ?? '').trim().toUpperCase();
 
 /**
  * Canonical dependency metadata for Mexico professional / health-worker license lookups.
@@ -49,14 +82,14 @@ export const MEXICO_LICENSE_TRIPLE_INPUT_DEPENDENCIES: PostmanDependencyMeta[] =
         required: false,
         dependencyGroup: '1',
         enum: ['CURP', 'CEDULA'],
-        description: 'CURP or license number type. Set automatically when you use a document group.',
+        description: 'Document type for the active document group.',
     },
     {
         field: DOCUMENT_NUMBER_FIELD,
         type: 'String',
         required: false,
         dependencyGroup: '1',
-        description: 'CURP (18 characters) or professional license number.',
+        description: 'CURP or professional license number for the active document group.',
     },
     {
         field: FIRST_NAME_FIELD,
@@ -73,6 +106,57 @@ export const MEXICO_LICENSE_TRIPLE_INPUT_DEPENDENCIES: PostmanDependencyMeta[] =
         description: 'Surnames. Required together with firstName.',
     },
 ];
+
+export const getMexicoLicenseActiveMode = (endpoint: ApiEndpoint): MexicoLicenseInputMode => {
+    const ui = resolveMexicoLicenseUi(endpoint);
+    const firstName = paramValue(endpoint, FIRST_NAME_FIELD);
+    const lastName = paramValue(endpoint, LAST_NAME_FIELD);
+    const nameActive = !isEffectivelyEmpty(firstName) || !isEffectivelyEmpty(lastName);
+    const curpActive = !isEffectivelyEmpty(ui.curpDocumentNumber);
+    const cedulaActive = !isEffectivelyEmpty(ui.cedulaDocumentNumber);
+
+    if (nameActive) return 'name';
+    if (curpActive && cedulaActive) return 'none';
+    if (curpActive) return 'curp';
+    if (cedulaActive) return 'cedula';
+    return 'none';
+};
+
+/** Sync staged group values onto wire params used for validation and HTTP send. */
+export const prepareMexicoLicenseEndpoint = (endpoint: ApiEndpoint): ApiEndpoint => {
+    if (!isMexicoLicenseTripleInputEndpoint(endpoint.code) || !endpoint.params?.length) {
+        return endpoint;
+    }
+
+    const ui = resolveMexicoLicenseUi(endpoint);
+    const mode = getMexicoLicenseActiveMode(endpoint);
+    const params = endpoint.params.map((param) => ({ ...param }));
+
+    const setValue = (key: string, value: string) => {
+        const row = params.find((p) => p.key === key);
+        if (row) row.value = value;
+    };
+
+    if (mode === 'name') {
+        setValue(DOCUMENT_TYPE_FIELD, '');
+        setValue(DOCUMENT_NUMBER_FIELD, '');
+    } else if (mode === 'curp') {
+        setValue(DOCUMENT_TYPE_FIELD, 'CURP');
+        setValue(DOCUMENT_NUMBER_FIELD, ui.curpDocumentNumber);
+    } else if (mode === 'cedula') {
+        setValue(DOCUMENT_TYPE_FIELD, 'CEDULA');
+        setValue(DOCUMENT_NUMBER_FIELD, ui.cedulaDocumentNumber);
+    } else {
+        setValue(DOCUMENT_TYPE_FIELD, '');
+        setValue(DOCUMENT_NUMBER_FIELD, '');
+    }
+
+    return {
+        ...endpoint,
+        mexicoLicenseUi: ui,
+        params,
+    };
+};
 
 export const applyMexicoLicenseTripleInputToEndpoint = (endpoint: ApiEndpoint): ApiEndpoint => {
     if (!isMexicoLicenseTripleInputEndpoint(endpoint.code)) {
@@ -91,11 +175,13 @@ export const applyMexicoLicenseTripleInputToEndpoint = (endpoint: ApiEndpoint): 
               };
           })
         : [];
-    return {
+    const withMeta = {
         ...endpoint,
         dependencies,
         params,
+        mexicoLicenseUi: endpoint.mexicoLicenseUi ?? resolveMexicoLicenseUi({ ...endpoint, params }),
     };
+    return prepareMexicoLicenseEndpoint(withMeta);
 };
 
 export const detectMexicoLicenseInputMode = (
@@ -127,7 +213,6 @@ export const getMexicoLicenseTripleParamLayout = (
     const findRow = (key: string): PostmanParamRowRef | undefined =>
         allRows.find((row) => row.param.key === key);
 
-    const documentNumberRow = findRow(DOCUMENT_NUMBER_FIELD);
     const firstNameRow = findRow(FIRST_NAME_FIELD);
     const lastNameRow = findRow(LAST_NAME_FIELD);
 
@@ -144,8 +229,8 @@ export const getMexicoLicenseTripleParamLayout = (
 
     return {
         kind: 'mexicoLicenseTriple',
-        curpRows: documentNumberRow ? [documentNumberRow] : [],
-        cedulaRows: documentNumberRow ? [documentNumberRow] : [],
+        curpRows: [],
+        cedulaRows: [],
         nameRows,
         otherRows,
     };
@@ -158,23 +243,25 @@ export type MexicoLicenseValidationIssue = {
 };
 
 export const getMexicoLicenseTripleValidationIssues = (
-    row: Record<string, unknown>,
+    endpoint: ApiEndpoint,
     stepLabel: string
 ): MexicoLicenseValidationIssue[] => {
+    const prepared = prepareMexicoLicenseEndpoint(endpoint);
+    const ui = resolveMexicoLicenseUi(prepared);
+    const row: Record<string, unknown> = {};
+    for (const param of prepared.params ?? []) {
+        if (param.key) row[param.key] = param.value;
+    }
+
     const issues: MexicoLicenseValidationIssue[] = [];
+    const curpFilled = !isEffectivelyEmpty(ui.curpDocumentNumber);
+    const cedulaFilled = !isEffectivelyEmpty(ui.cedulaDocumentNumber);
     const firstName = rowValue(row, FIRST_NAME_FIELD);
     const lastName = rowValue(row, LAST_NAME_FIELD);
-    const documentNumber = rowValue(row, DOCUMENT_NUMBER_FIELD);
-    const documentType = normalizeDocumentType(rowValue(row, DOCUMENT_TYPE_FIELD));
-
     const nameFilled =
         !isEffectivelyEmpty(firstName) || !isEffectivelyEmpty(lastName);
-    const documentFilled = !isEffectivelyEmpty(documentNumber);
-    const typeFilled = !isEffectivelyEmpty(documentType);
 
-    const mode = detectMexicoLicenseInputMode(row);
-
-    if (nameFilled && documentFilled) {
+    if (curpFilled && cedulaFilled) {
         issues.push({
             field: DOCUMENT_NUMBER_FIELD,
             translationKey: 'createBatch.validationXorBothModes',
@@ -182,6 +269,17 @@ export const getMexicoLicenseTripleValidationIssues = (
         });
         return issues;
     }
+
+    if (nameFilled && (curpFilled || cedulaFilled)) {
+        issues.push({
+            field: DOCUMENT_NUMBER_FIELD,
+            translationKey: 'createBatch.validationXorBothModes',
+            translationParams: { step: stepLabel },
+        });
+        return issues;
+    }
+
+    const mode = detectMexicoLicenseInputMode(row);
 
     if (mode === 'none') {
         issues.push({
@@ -207,141 +305,114 @@ export const getMexicoLicenseTripleValidationIssues = (
                 translationParams: { field: LAST_NAME_FIELD, step: stepLabel },
             });
         }
-        if (typeFilled) {
-            issues.push({
-                field: DOCUMENT_TYPE_FIELD,
-                translationKey: 'createBatch.validationLeakFullNameWhenDocument',
-                translationParams: { step: stepLabel, field: DOCUMENT_TYPE_FIELD },
-            });
-        }
         return issues;
     }
 
-    if (!documentFilled) {
-        issues.push({
-            field: DOCUMENT_NUMBER_FIELD,
-            translationKey: 'postman.requestEditor.validation.fieldRequired',
-            translationParams: { field: DOCUMENT_NUMBER_FIELD, step: stepLabel },
-        });
-        return issues;
-    }
-
-    if (mode === 'curp') {
-        if (documentType && documentType !== 'CURP') {
+    if (mode === 'curp' || mode === 'cedula') {
+        const documentNumber = rowValue(row, DOCUMENT_NUMBER_FIELD);
+        if (isEffectivelyEmpty(documentNumber)) {
             issues.push({
-                field: DOCUMENT_TYPE_FIELD,
-                translationKey: 'postman.requestEditor.validation.invalidEnum',
-                translationParams: {
-                    field: DOCUMENT_TYPE_FIELD,
-                    value: documentType,
-                    expected: 'CURP',
-                },
+                field: DOCUMENT_NUMBER_FIELD,
+                translationKey: 'postman.requestEditor.validation.fieldRequired',
+                translationParams: { field: DOCUMENT_NUMBER_FIELD, step: stepLabel },
             });
         }
-        if (!isEffectivelyEmpty(firstName) || !isEffectivelyEmpty(lastName)) {
-            issues.push({
-                field: FIRST_NAME_FIELD,
-                translationKey: 'createBatch.validationLeakFullNameWhenDocument',
-                translationParams: { step: stepLabel, field: FIRST_NAME_FIELD },
-            });
-        }
-        return issues;
-    }
-
-    if (mode === 'cedula') {
-        if (documentType && documentType !== 'CEDULA') {
-            issues.push({
-                field: DOCUMENT_TYPE_FIELD,
-                translationKey: 'postman.requestEditor.validation.invalidEnum',
-                translationParams: {
-                    field: DOCUMENT_TYPE_FIELD,
-                    value: documentType,
-                    expected: 'CEDULA',
-                },
-            });
-        }
-        if (!isEffectivelyEmpty(firstName) || !isEffectivelyEmpty(lastName)) {
-            issues.push({
-                field: FIRST_NAME_FIELD,
-                translationKey: 'createBatch.validationLeakFullNameWhenDocument',
-                translationParams: { step: stepLabel, field: FIRST_NAME_FIELD },
-            });
-        }
-        return issues;
     }
 
     return issues;
 };
 
-export const ensureMexicoLicenseDocumentTypeForSend = (
-    endpoint: ApiEndpoint
+export const ensureMexicoLicenseDocumentTypeForSend = (endpoint: ApiEndpoint): ApiEndpoint =>
+    prepareMexicoLicenseEndpoint(endpoint);
+
+export const setMexicoLicenseCurpNumber = (
+    endpoint: ApiEndpoint,
+    value: string
 ): ApiEndpoint => {
-    if (!isMexicoLicenseTripleInputEndpoint(endpoint.code) || !endpoint.params?.length) {
-        return endpoint;
-    }
-    const row: Record<string, unknown> = {};
-    for (const param of endpoint.params) {
-        if (param.key) row[param.key] = param.value;
-    }
-    const mode = detectMexicoLicenseInputMode(row);
-    if (mode !== 'curp' && mode !== 'cedula') {
-        return endpoint;
-    }
-    const expectedType = mode === 'cedula' ? 'CEDULA' : 'CURP';
-    const params = endpoint.params.map((param) =>
-        param.key === DOCUMENT_TYPE_FIELD ? { ...param, value: expectedType } : param
-    );
-    return { ...endpoint, params };
+    const ui: MexicoLicenseUiState = {
+        curpDocumentNumber: value,
+        cedulaDocumentNumber: '',
+    };
+    const params = (endpoint.params ?? []).map((param) => {
+        if (param.key === FIRST_NAME_FIELD || param.key === LAST_NAME_FIELD) {
+            return { ...param, value: '' };
+        }
+        return param;
+    });
+    return prepareMexicoLicenseEndpoint({ ...endpoint, params, mexicoLicenseUi: ui });
 };
 
-/** Apply documentType and clear opposing fields when the user edits a Mexico license param group. */
+export const setMexicoLicenseCedulaNumber = (
+    endpoint: ApiEndpoint,
+    value: string
+): ApiEndpoint => {
+    const ui: MexicoLicenseUiState = {
+        curpDocumentNumber: '',
+        cedulaDocumentNumber: value,
+    };
+    const params = (endpoint.params ?? []).map((param) => {
+        if (param.key === FIRST_NAME_FIELD || param.key === LAST_NAME_FIELD) {
+            return { ...param, value: '' };
+        }
+        return param;
+    });
+    return prepareMexicoLicenseEndpoint({ ...endpoint, params, mexicoLicenseUi: ui });
+};
+
+/** @deprecated Use setMexicoLicenseCurpNumber / setMexicoLicenseCedulaNumber */
 export const applyMexicoLicenseParamEdit = (
     endpoint: ApiEndpoint,
     fieldKey: string,
     mode: MexicoLicenseInputMode
 ): ApiEndpoint => {
-    if (!endpoint.params?.length) return endpoint;
-
-    const params = endpoint.params.map((param) => ({ ...param }));
-
-    const setValue = (key: string, value: string) => {
-        const row = params.find((p) => p.key === key);
-        if (row) row.value = value;
-    };
-
     if (mode === 'curp' && fieldKey === DOCUMENT_NUMBER_FIELD) {
-        setValue(DOCUMENT_TYPE_FIELD, 'CURP');
-        setValue(FIRST_NAME_FIELD, '');
-        setValue(LAST_NAME_FIELD, '');
-    } else if (mode === 'cedula' && fieldKey === DOCUMENT_NUMBER_FIELD) {
-        setValue(DOCUMENT_TYPE_FIELD, 'CEDULA');
-        setValue(FIRST_NAME_FIELD, '');
-        setValue(LAST_NAME_FIELD, '');
-    } else if (mode === 'name' && (fieldKey === FIRST_NAME_FIELD || fieldKey === LAST_NAME_FIELD)) {
-        setValue(DOCUMENT_TYPE_FIELD, '');
-        setValue(DOCUMENT_NUMBER_FIELD, '');
+        return setMexicoLicenseCurpNumber(endpoint, paramValue(endpoint, DOCUMENT_NUMBER_FIELD));
     }
-
-    return { ...endpoint, params };
+    if (mode === 'cedula' && fieldKey === DOCUMENT_NUMBER_FIELD) {
+        return setMexicoLicenseCedulaNumber(endpoint, paramValue(endpoint, DOCUMENT_NUMBER_FIELD));
+    }
+    if (mode === 'name' && (fieldKey === FIRST_NAME_FIELD || fieldKey === LAST_NAME_FIELD)) {
+        const params = (endpoint.params ?? []).map((param) => {
+            if (param.key === DOCUMENT_TYPE_FIELD || param.key === DOCUMENT_NUMBER_FIELD) {
+                return { ...param, value: '' };
+            }
+            return param;
+        });
+        return prepareMexicoLicenseEndpoint({
+            ...endpoint,
+            params,
+            mexicoLicenseUi: emptyMexicoLicenseUi(),
+        });
+    }
+    return endpoint;
 };
 
 export const clearMexicoLicenseInputMode = (
     endpoint: ApiEndpoint,
     mode: MexicoLicenseInputMode
 ): ApiEndpoint => {
-    if (!endpoint.params?.length) return endpoint;
-    const params = endpoint.params.map((param) => {
-        if (mode === 'curp' || mode === 'cedula') {
-            if (param.key === DOCUMENT_NUMBER_FIELD || param.key === DOCUMENT_TYPE_FIELD) {
-                return { ...param, value: '' };
-            }
-        }
-        if (mode === 'name') {
+    const ui = resolveMexicoLicenseUi(endpoint);
+    if (mode === 'curp') {
+        ui.curpDocumentNumber = '';
+    } else if (mode === 'cedula') {
+        ui.cedulaDocumentNumber = '';
+    } else if (mode === 'name') {
+        const params = (endpoint.params ?? []).map((param) => {
             if (param.key === FIRST_NAME_FIELD || param.key === LAST_NAME_FIELD) {
                 return { ...param, value: '' };
             }
-        }
-        return param;
-    });
-    return { ...endpoint, params };
+            return param;
+        });
+        return prepareMexicoLicenseEndpoint({ ...endpoint, params, mexicoLicenseUi: ui });
+    }
+    return prepareMexicoLicenseEndpoint({ ...endpoint, mexicoLicenseUi: ui });
+};
+
+export const mexicoLicenseGroupIsInactive = (
+    endpoint: ApiEndpoint | null | undefined,
+    group: MexicoLicenseInputMode
+): boolean => {
+    if (!endpoint || group === 'none') return false;
+    const active = getMexicoLicenseActiveMode(endpoint);
+    return active !== 'none' && active !== group;
 };

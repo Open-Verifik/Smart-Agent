@@ -5383,6 +5383,10 @@
                 "otherParameters": "Autres paramètres",
                 "requiredFieldLegend": "* Champ obligatoire",
                 "includeCostDescription": "Lorsque la valeur est true, la réponse inclut un bloc de crédits (credits, creditsCharged, charged, featureCode). Définissez false ou supprimez cette ligne pour l'omettre.",
+                "mexicoLicenseDocumentTypeCurpDescription": "Fixé sur CURP pour ce groupe de recherche.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "Fixé sur le type de licence professionnelle pour ce groupe de recherche.",
+                "mexicoLicenseCurpNumberDescription": "CURP de 18 caractères.",
+                "mexicoLicenseCedulaNumberDescription": "Numéro de licence professionnelle.",
                 "pickValue": "Choisissez une valeur parmi [{{values}}]",
                 "sexoFemale": "Féminin (FEMENINO)",
                 "sexoMale": "Masculin (MASCULINO)"

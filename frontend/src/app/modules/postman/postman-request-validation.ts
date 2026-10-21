@@ -715,7 +715,7 @@ export const getPostmanRequestValidationIssues = (
     );
 
     if (isMexicoLicenseTripleInputEndpoint(endpoint.code)) {
-        issues.push(...getMexicoLicenseTripleValidationIssues(input, stepLabel));
+        issues.push(...getMexicoLicenseTripleValidationIssues(endpoint, stepLabel));
         for (const p of endpoint.params ?? []) {
             if (!isClientVisibleBatchDependencyField(p.key)) continue;
             if (p.key === 'documentType') continue;

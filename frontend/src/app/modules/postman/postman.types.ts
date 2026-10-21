@@ -145,6 +145,14 @@ export interface ApiEndpoint {
     docs?: EndpointDocs;
     /** Copy of app-feature `dependencies` for grouped / conditional / date validation (GET + POST). */
     dependencies?: PostmanDependencyMeta[];
+    /**
+     * Explorer-only staging for Mexico license triple-input endpoints (CURP vs license number).
+     * Only the active group's value is synced onto `documentNumber` for send/validation.
+     */
+    mexicoLicenseUi?: {
+        curpDocumentNumber: string;
+        cedulaDocumentNumber: string;
+    };
 }
 
 /** Single param row with stable index for templates (e.g. removeParam). */

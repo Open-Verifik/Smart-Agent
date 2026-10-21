@@ -5518,6 +5518,10 @@
                 "otherParameters": "其他参数",
                 "requiredFieldLegend": "* 必填字段",
                 "includeCostDescription": "为 true 时，响应会包含积分信息块（credits、creditsCharged、charged、featureCode）。设为 false 或删除此行即可省略。",
+                "mexicoLicenseDocumentTypeCurpDescription": "此搜索组固定为 CURP。",
+                "mexicoLicenseDocumentTypeCedulaDescription": "此搜索组固定为执照号码类型。",
+                "mexicoLicenseCurpNumberDescription": "18 位 CURP。",
+                "mexicoLicenseCedulaNumberDescription": "专业执照号码。",
                 "pickValue": "请从 [{{values}}] 中选择一个值",
                 "sexoFemale": "女（FEMENINO）",
                 "sexoMale": "男（MASCULINO）"

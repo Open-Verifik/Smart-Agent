@@ -5531,6 +5531,10 @@
                 "otherParameters": "Other parameters",
                 "requiredFieldLegend": "* Required field",
                 "includeCostDescription": "When true, the response includes a credits block (credits, creditsCharged, charged, featureCode). Set to false or delete this row to omit it.",
+                "mexicoLicenseDocumentTypeCurpDescription": "Fixed to CURP for this search group.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "Fixed to license number type for this search group.",
+                "mexicoLicenseCurpNumberDescription": "18-character CURP.",
+                "mexicoLicenseCedulaNumberDescription": "Professional license number.",
                 "pickValue": "Pick a value from [{{values}}]"
             },
             "headers": {

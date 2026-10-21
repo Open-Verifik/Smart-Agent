@@ -5518,6 +5518,10 @@
                 "otherParameters": "기타 매개변수",
                 "requiredFieldLegend": "* 필수 항목",
                 "includeCostDescription": "true이면 응답에 크레딧 정보 블록(credits, creditsCharged, charged, featureCode)이 포함됩니다. 생략하려면 false로 설정하거나 이 행을 삭제하세요.",
+                "mexicoLicenseDocumentTypeCurpDescription": "이 검색 그룹에서는 CURP로 고정됩니다.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "이 검색 그룹에서는 면허 번호 유형으로 고정됩니다.",
+                "mexicoLicenseCurpNumberDescription": "18자 CURP.",
+                "mexicoLicenseCedulaNumberDescription": "전문 면허 번호.",
                 "pickValue": "[{{values}}] 중에서 값을 선택하세요",
                 "sexoFemale": "여성 (FEMENINO)",
                 "sexoMale": "남성 (MASCULINO)"

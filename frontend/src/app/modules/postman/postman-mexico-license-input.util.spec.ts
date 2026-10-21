@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { ApiEndpoint } from './postman.types';
-import {
-    applyMexicoLicenseParamEdit,
-    detectMexicoLicenseInputMode,
-    ensureMexicoLicenseDocumentTypeForSend,
-    getMexicoLicenseTripleParamLayout,
-    getMexicoLicenseTripleValidationIssues,
-} from './postman-mexico-license-input.util';
 import { getPostmanRequestValidationIssues, getPostmanXorParamLayout } from './postman-request-validation';
+import {
+    getMexicoLicenseTripleValidationIssues,
+    prepareMexicoLicenseEndpoint,
+    resolveMexicoLicenseUi,
+    setMexicoLicenseCedulaNumber,
+    setMexicoLicenseCurpNumber,
+} from './postman-mexico-license-input.util';
 
-const mexicoEndpoint = (params: ApiEndpoint['params']): ApiEndpoint =>
+const mexicoEndpoint = (params: ApiEndpoint['params'], ui?: ApiEndpoint['mexicoLicenseUi']): ApiEndpoint =>
     ({
         id: 'mx-hw',
         label: 'Health Worker',
@@ -17,6 +17,7 @@ const mexicoEndpoint = (params: ApiEndpoint['params']): ApiEndpoint =>
         method: 'GET',
         url: 'https://api.verifik.co/v2/mx/health-worker',
         params,
+        ...(ui ? { mexicoLicenseUi: ui } : {}),
     }) as ApiEndpoint;
 
 describe('Mexico license triple input layout', () => {
@@ -34,14 +35,8 @@ describe('Mexico license triple input layout', () => {
         if (layout.kind !== 'mexicoLicenseTriple') return;
         expect(layout.nameRows.map((r) => r.param.key)).toEqual(['firstName', 'lastName']);
         expect(layout.otherRows.map((r) => r.param.key)).toEqual(['includeCost']);
-    });
-
-    it('orders groups as CURP, license number, then name in the template layout', () => {
-        const layout = getMexicoLicenseTripleParamLayout(mexicoEndpoint(params));
-        expect(layout.kind).toBe('mexicoLicenseTriple');
-        if (layout.kind !== 'mexicoLicenseTriple') return;
-        expect(layout.curpRows[0]?.param.key).toBe('documentNumber');
-        expect(layout.cedulaRows[0]?.param.key).toBe('documentNumber');
+        expect(layout.curpRows).toEqual([]);
+        expect(layout.cedulaRows).toEqual([]);
     });
 });
 
@@ -53,32 +48,36 @@ describe('Mexico license validation and send params', () => {
         { key: 'lastName', value: '', type: 'string', required: false },
     ];
 
-    it('accepts CURP mode with document number only before send normalization', () => {
-        const ep = mexicoEndpoint(
-            baseParams.map((p) =>
-                p.key === 'documentNumber'
-                    ? { ...p, value: 'LOPE900501HDFGRN01' }
-                    : p
-            )
-        );
-        let edited = applyMexicoLicenseParamEdit(ep, 'documentNumber', 'curp');
-        expect(detectMexicoLicenseInputMode({ documentNumber: 'LOPE900501HDFGRN01', documentType: 'CURP' })).toBe(
-            'curp'
-        );
-        edited = ensureMexicoLicenseDocumentTypeForSend(edited);
-        expect(edited.params?.find((p) => p.key === 'documentType')?.value).toBe('CURP');
-        expect(getPostmanRequestValidationIssues(edited, null)).toEqual([]);
+    it('keeps independent CURP and license staging values in the UI state', () => {
+        let ep = mexicoEndpoint(baseParams);
+        ep = setMexicoLicenseCurpNumber(ep, 'LOPE900501HDFGRN01');
+        expect(resolveMexicoLicenseUi(ep).curpDocumentNumber).toBe('LOPE900501HDFGRN01');
+        expect(resolveMexicoLicenseUi(ep).cedulaDocumentNumber).toBe('');
+
+        ep = setMexicoLicenseCedulaNumber(ep, '10000001');
+        expect(resolveMexicoLicenseUi(ep).curpDocumentNumber).toBe('');
+        expect(resolveMexicoLicenseUi(ep).cedulaDocumentNumber).toBe('10000001');
     });
 
-    it('accepts license number mode with CEDULA type', () => {
-        const ep = mexicoEndpoint(
-            baseParams.map((p) => {
-                if (p.key === 'documentType') return { ...p, value: 'CEDULA' };
-                if (p.key === 'documentNumber') return { ...p, value: '10000001' };
-                return p;
-            })
+    it('syncs only the active CURP group onto wire params for send', () => {
+        const ep = setMexicoLicenseCurpNumber(
+            mexicoEndpoint(baseParams),
+            'LOPE900501HDFGRN01'
         );
-        expect(getPostmanRequestValidationIssues(ep, null)).toEqual([]);
+        const prepared = prepareMexicoLicenseEndpoint(ep);
+        expect(prepared.params?.find((p) => p.key === 'documentType')?.value).toBe('CURP');
+        expect(prepared.params?.find((p) => p.key === 'documentNumber')?.value).toBe(
+            'LOPE900501HDFGRN01'
+        );
+        expect(getPostmanRequestValidationIssues(prepared, null)).toEqual([]);
+    });
+
+    it('syncs only the active license group onto wire params for send', () => {
+        const ep = setMexicoLicenseCedulaNumber(mexicoEndpoint(baseParams), '10000001');
+        const prepared = prepareMexicoLicenseEndpoint(ep);
+        expect(prepared.params?.find((p) => p.key === 'documentType')?.value).toBe('CEDULA');
+        expect(prepared.params?.find((p) => p.key === 'documentNumber')?.value).toBe('10000001');
+        expect(getPostmanRequestValidationIssues(prepared, null)).toEqual([]);
     });
 
     it('accepts name mode without document fields', () => {
@@ -87,19 +86,26 @@ describe('Mexico license validation and send params', () => {
                 if (p.key === 'firstName') return { ...p, value: 'ANA' };
                 if (p.key === 'lastName') return { ...p, value: 'LOPEZ RUIZ' };
                 return p;
-            })
+            }),
+            { curpDocumentNumber: '', cedulaDocumentNumber: '' }
         );
-        expect(getPostmanRequestValidationIssues(ep, null)).toEqual([]);
+        expect(getPostmanRequestValidationIssues(prepareMexicoLicenseEndpoint(ep), null)).toEqual(
+            []
+        );
     });
 
     it('rejects mixing document number and name fields', () => {
-        const row = {
-            documentType: 'CURP',
-            documentNumber: 'LOPE900501HDFGRN01',
-            firstName: 'ANA',
-            lastName: '',
-        };
-        const issues = getMexicoLicenseTripleValidationIssues(row, 'API');
+        const ep = mexicoEndpoint(
+            baseParams.map((p) => {
+                if (p.key === 'firstName') return { ...p, value: 'ANA' };
+                return p;
+            }),
+            {
+                curpDocumentNumber: 'LOPE900501HDFGRN01',
+                cedulaDocumentNumber: '',
+            }
+        );
+        const issues = getMexicoLicenseTripleValidationIssues(ep, 'API');
         expect(issues.map((i) => i.translationKey)).toContain('createBatch.validationXorBothModes');
     });
 });
