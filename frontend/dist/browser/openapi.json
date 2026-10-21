@@ -921,6 +921,100 @@
         ]
       }
     },
+    "/api/co/cedula/barcode": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_cedula_barcode",
+        "summary": "Colombia - Cédula back barcode",
+        "description": "Read and decode the PDF417 barcode on the back of a Colombian cédula (CC). Optionally cross-check decoded fields against document number, name, gender, date of birth, and blood type. POST /v2/co/cedula/barcode.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.2"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "backImage": {
+                    "type": "string",
+                    "description": "Back of the cédula as a public HTTPS URL or base64 data URL."
+                  },
+                  "documentType": {
+                    "type": "string",
+                    "description": "Document type (default CC).",
+                    "enum": [
+                      "CC"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Optional cross-check: document number from the front."
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "description": "Optional cross-check: first name(s)."
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "description": "Optional cross-check: last name(s)."
+                  },
+                  "gender": {
+                    "type": "string",
+                    "description": "Optional cross-check: gender (M/F)."
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "description": "Optional cross-check: date of birth."
+                  },
+                  "bloodType": {
+                    "type": "string",
+                    "description": "Optional cross-check: blood type."
+                  },
+                  "barcodeReadAttempts": {
+                    "type": "number",
+                    "description": "Optional retry count for barcode decode (server default when omitted)."
+                  }
+                },
+                "required": [
+                  "backImage"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/co/adres": {
       "post": {
         "tags": [

@@ -317,7 +317,13 @@ export class SmartScanService {
         });
     }
 
-    scanDocument(documentType: string, image: string, backImage?: string, promptTemplateId?: string) {
+    scanDocument(
+        documentType: string,
+        image: string,
+        backImage?: string,
+        promptTemplateId?: string,
+        colombianBarcodeValidation?: boolean
+    ) {
         this.scanLoading.set(true);
         this.scanResult.set(null);
 
@@ -331,6 +337,9 @@ export class SmartScanService {
         }
         if (promptTemplateId) {
             body['promptTemplateId'] = promptTemplateId;
+        }
+        if (colombianBarcodeValidation) {
+            body['colombianBarcodeValidation'] = 'true';
         }
 
         return this._httpClient

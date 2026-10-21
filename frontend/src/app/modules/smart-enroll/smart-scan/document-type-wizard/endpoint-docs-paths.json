@@ -70,6 +70,7 @@
   "v2/co/bogota/vehicle/fines": "vehicle-validation/colombia/bogota-vehicle-fines",
   "v2/co/bogota/vehicle/tax": "vehicle-validation/colombia/bogota-taxes",
   "v2/co/cedula": "identity-validation/colombia/colombian-citizen",
+  "v2/co/cedula/barcode": "identity-validation/colombia/colombian-cedula-barcode",
   "v2/co/cedula/by-name": "identity-validation/colombia/colombian-citizen-by-name",
   "v2/co/cedula/extra": "identity-validation/colombia/colombian-citizen-with-extra-data",
   "v2/co/cedula/premium": "identity-validation/colombia/colombian-cedula-premium",

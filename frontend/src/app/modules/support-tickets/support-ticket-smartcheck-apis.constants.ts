@@ -65,6 +65,13 @@ export const SUPPORT_TICKET_SMARTCHECK_APIS: SupportTicketSmartCheckApi[] = [
             },
             {
                 type: "identity",
+                value: "colombia_api_cedula_barcode",
+                label: "data-api.colombia_api_cedula_barcode",
+                endpoint: "POST /v2/co/cedula/barcode",
+                country: "Colombia",
+            },
+            {
+                type: "identity",
                 value: "colombia_api_identity_lookup_procuraduria",
                 label: "data-api.colombia_api_identity_lookup_procuraduria",
                 endpoint: "GET /v2/co/procuraduria",
