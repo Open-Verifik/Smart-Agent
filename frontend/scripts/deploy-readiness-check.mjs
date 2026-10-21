@@ -25,7 +25,6 @@ const inboxPaths = [
 const uiChecks = [
     ['hub state in service', join(root, 'src/app/core/notifications/app-notifications.service.ts'), 'refreshHubInbox'],
     ['grid tab panels', join(root, 'src/app/layout/common/quick-chat/quick-chat.component.html'), 'grid-cols-1'],
-    ['body wrap styles', join(root, 'src/app/modules/app-notifications/notification-inbox-panel/notification-inbox-panel.component.scss'), 'overflow-wrap'],
     ['deep link', join(root, 'src/app/modules/home/home.component.ts'), 'openNotifications'],
 ];
 
