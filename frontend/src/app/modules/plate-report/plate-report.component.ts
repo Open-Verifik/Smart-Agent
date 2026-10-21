@@ -27,7 +27,15 @@ import {
 import { SmartReportService } from '../smart-batch/smart-report.service';
 import { defaultSystemKey } from '../smart-batch/visita-guide/visita-guide.catalog';
 import { SubscriptionService } from '../subscription-plans/subscription.service';
-import { clearPlateReportDraft, readPlateReportDraft, writePlateReportDraft } from './plate-report.draft';
+import { FleetAsset, SmartFleetService, savedReportsOf } from '../smart-fleet/smart-fleet.service';
+import {
+    clearPlateReportDraft,
+    clearSavedPlateReport,
+    readPlateReportDraft,
+    readSavedPlateReport,
+    writePlateReportDraft,
+    writeSavedPlateReport,
+} from './plate-report.draft';
 import {
     PlateReportChannel,
     isValidEmail,
@@ -69,6 +77,7 @@ export class PlateReportComponent implements OnInit {
     private _countries = inject(CountryService);
     private _batches = inject(SmartBatchService);
     private _reports = inject(SmartReportService);
+    private _fleet = inject(SmartFleetService);
     private _runner = inject(BatchBrowserRunnerService);
     private _credits = inject(CreditsService);
     private _payment = inject(PaymentService);
@@ -104,6 +113,10 @@ export class PlateReportComponent implements OnInit {
     readonly partial = signal(false);
     readonly emailSent = signal(false);
     readonly pendingNotice = signal(false);
+    /** The report on screen was already generated earlier, so nothing new was charged. */
+    readonly reusedReport = signal(false);
+    /** The report reference was stored on the account's vehicle. */
+    readonly savedOnAccount = signal(false);
 
     constructor() {
         inject(DestroyRef).onDestroy(() => {
@@ -220,6 +233,10 @@ export class PlateReportComponent implements OnInit {
         this.errorKey.set(null);
         try {
             await this._ensureBasicAccount();
+
+            // A plate already reported on this account is served from what was saved: no payment, no new lookup.
+            if (await this._reuseSavedReport()) return;
+
             this.phase.set('payment');
         } catch (error) {
             this._showError('plateReport.genericError', error);
@@ -334,6 +351,8 @@ export class PlateReportComponent implements OnInit {
         this.partial.set(false);
         this.emailSent.set(false);
         this.pendingNotice.set(false);
+        this.reusedReport.set(false);
+        this.savedOnAccount.set(false);
         this.errorKey.set(null);
         this.fieldError.set(null);
         this.phase.set('form');
@@ -483,8 +502,92 @@ export class PlateReportComponent implements OnInit {
             this._pdfBase64 = await this._blobToBase64(blob);
         }
         if (!this._pdfBase64) throw new Error('pdf');
+
+        // Keep it before showing it: the client must be able to download it later without paying again.
+        await this._saveGeneratedReport(this._reportId);
+
+        this.reusedReport.set(false);
         clearPlateReportDraft();
         this.phase.set('ready');
+    }
+
+    /**
+     * Stores the report on the account's vehicle (same place Smart Fleet reads from) and keeps a local copy
+     * of the reference. A failure here never blocks the PDF the client already paid for.
+     */
+    private async _saveGeneratedReport(reportId: string): Promise<void> {
+        const plate = this.plate();
+        this.savedOnAccount.set(false);
+        if (!plate || !reportId) return;
+
+        const entry = { reportId, rowIndex: 0, createdAt: new Date().toISOString() };
+
+        writeSavedPlateReport({ plate, ...entry });
+
+        try {
+            const asset = (await this._findVehicle(plate)) ?? (await this._createVehicle(plate));
+            if (!asset?._id) return;
+
+            await firstValueFrom(this._fleet.saveAssetReport(asset, entry));
+            this.savedOnAccount.set(true);
+        } catch (error) {
+            console.error('[PlateReport] could not save the report on the account', error);
+        }
+    }
+
+    /** Returns true when a previously generated report for this plate was loaded. */
+    private async _reuseSavedReport(): Promise<boolean> {
+        const plate = this.plate();
+        if (!plate || !this._session.isTokenValid()) return false;
+
+        this.workingStep.set('pdf');
+
+        let saved: { reportId: string; rowIndex: number } | null = null;
+
+        try {
+            const asset = await this._findVehicle(plate);
+            saved = (asset ? savedReportsOf(asset)[0] : null) ?? readSavedPlateReport(plate);
+        } catch (error) {
+            console.error('[PlateReport] could not look for a saved report', error);
+            saved = readSavedPlateReport(plate);
+        }
+
+        if (!saved) return false;
+
+        try {
+            const blob = await firstValueFrom(this._reports.downloadReport(saved.reportId, saved.rowIndex));
+            const base64 = await this._blobToBase64(blob);
+            if (!base64) throw new Error('pdf');
+
+            this._reportId = saved.reportId;
+            this._pdfBase64 = base64;
+            this.reusedReport.set(true);
+            this.savedOnAccount.set(true);
+            clearPlateReportDraft();
+            this.phase.set('ready');
+
+            return true;
+        } catch (error) {
+            // The stored report is gone or unreadable, so a fresh one has to be generated.
+            console.error('[PlateReport] saved report could not be loaded', error);
+            clearSavedPlateReport(plate);
+
+            return false;
+        }
+    }
+
+    private async _findVehicle(plate: string): Promise<FleetAsset | null> {
+        const response = await firstValueFrom(this._fleet.findAssets({ search: plate, perPage: 20 }));
+
+        return (response.data ?? []).find((asset) => normalizePlate(asset.plate ?? '') === plate) ?? null;
+    }
+
+    private async _createVehicle(plate: string): Promise<FleetAsset | null> {
+        // Not monitored: this is only the place the report lives. The backend keeps inactive vehicles
+        // out of the plan's slot limit, so no recurring checks start and no slot is used.
+        const vehicle: FleetAsset = { country: 'co', type: 'vehicle', plate, isActive: false };
+
+        return (await firstValueFrom(this._fleet.createAsset(vehicle))).data ?? null;
     }
 
     private async _resolveTemplateId(): Promise<string> {

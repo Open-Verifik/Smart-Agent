@@ -117,6 +117,11 @@
             @if (phase() === 'ready') {
                 <h2>{{ t('plateReport.readyTitle') }}</h2>
                 <p class="plate-report__lead">{{ t('plateReport.readyBody') }}</p>
+                @if (reusedReport()) {
+                    <p class="plate-report__note">{{ t('plateReport.reused') }}</p>
+                } @else if (savedOnAccount()) {
+                    <p class="plate-report__note">{{ t('plateReport.savedNotice') }}</p>
+                }
                 @if (partial()) {
                     <p class="plate-report__note">{{ t('plateReport.partial') }}</p>
                 }

@@ -49,6 +49,10 @@ import {
     progressPollTerminalStatus,
     stepFeatureLabel,
 } from './fleet-report-progress';
+import {
+    FleetReportPdfPreviewData,
+    FleetReportPdfPreviewDialogComponent,
+} from './fleet-report-pdf-preview-dialog.component';
 import { FleetTemplatePreviewDialogComponent } from './fleet-template-preview-dialog.component';
 import { FleetVehicleIconComponent } from './fleet-vehicle-icon.component';
 import {
@@ -389,6 +393,13 @@ export class FleetAssetsComponent implements OnInit {
 
         if (!asset?._id || !template._id || this.reportingAssetId() || this.bulkWorking()) return;
 
+        // Already reported: show what was saved instead of running (and charging) the lookup again.
+        if (this.readyReport(asset)) {
+            this.previewVehicleReport(asset);
+
+            return;
+        }
+
         this.reportingAssetId.set(asset._id);
         const { hub, ref } = this._openReportProgressDialog(this.assetLabel(asset), 1);
 
@@ -419,6 +430,45 @@ export class FleetAssetsComponent implements OnInit {
         if (!asset._id) return null;
 
         return this.readyReports()[asset._id] ?? savedReportsOf(asset)[0] ?? null;
+    }
+
+    /**
+     * A vehicle is reported once: the first time the lookup runs and is charged, every later time the saved
+     * PDF is shown. With a report the PDF icon shows it; without one it opens the template menu.
+     */
+    onReportIcon(asset: FleetAsset, trigger: MatMenuTrigger): void {
+        if (this.readyReport(asset)) {
+            this.previewVehicleReport(asset);
+
+            return;
+        }
+
+        this.reportTarget.set(asset);
+        this.rememberReportMenu(trigger);
+    }
+
+    previewVehicleReport(asset: FleetAsset): void {
+        const ready = this.readyReport(asset);
+
+        if (!ready || this.reportingAssetId() || this.bulkWorking()) return;
+
+        this._dialog.open<FleetReportPdfPreviewDialogComponent, FleetReportPdfPreviewData>(
+            FleetReportPdfPreviewDialogComponent,
+            {
+                data: {
+                    reportId: ready.reportId,
+                    rowIndex: ready.rowIndex ?? 0,
+                    title: this.assetLabel(asset),
+                    subtitle: ready.templateName,
+                    fileName: fleetReportFileName(asset, ready.templateName),
+                },
+                autoFocus: false,
+                width: '960px',
+                maxWidth: '96vw',
+                height: '90vh',
+                maxHeight: '96vh',
+            }
+        );
     }
 
     async downloadVehicleReport(asset: FleetAsset): Promise<void> {
@@ -497,7 +547,7 @@ export class FleetAssetsComponent implements OnInit {
             this.bulkSelected.set(
                 Object.fromEntries(
                     this.bulkAssets()
-                        .filter((asset) => asset._id && assetMatchesTemplate(asset, steps))
+                        .filter((asset) => asset._id && !this.readyReport(asset) && assetMatchesTemplate(asset, steps))
                         .map((asset) => [asset._id!, true])
                 )
             );
@@ -508,7 +558,8 @@ export class FleetAssetsComponent implements OnInit {
         }
     }
 
-    bulkCompatible(): FleetAsset[] {
+    /** Vehicles the template applies to, whether or not they already have a report. */
+    private _bulkMatching(): FleetAsset[] {
         const steps = this.bulkSteps();
 
         if (!this.bulkTemplateId() || !this.bulkReady()) return [];
@@ -516,10 +567,21 @@ export class FleetAssetsComponent implements OnInit {
         return this.bulkAssets().filter((asset) => assetMatchesTemplate(asset, steps));
     }
 
+    /** Vehicles that can still be reported: they apply to the template and have no report yet. */
+    bulkCompatible(): FleetAsset[] {
+        return this._bulkMatching().filter((asset) => !this.readyReport(asset));
+    }
+
+    /** Vehicles left out because the template does not apply to them. */
     bulkSkippedCount(): number {
         if (!this.bulkTemplateId() || !this.bulkReady()) return 0;
 
-        return this.bulkAssets().length - this.bulkCompatible().length;
+        return this.bulkAssets().length - this._bulkMatching().length;
+    }
+
+    /** Vehicles left out because they were already reported, so they are not generated or charged again. */
+    bulkAlreadyReportedCount(): number {
+        return this._bulkMatching().length - this.bulkCompatible().length;
     }
 
     bulkKindLabels(): string[] {

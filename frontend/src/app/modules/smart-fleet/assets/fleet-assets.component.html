@@ -575,11 +575,14 @@
                             <span class="truncate text-stone-500" *ngIf="asset.nickname">{{ asset.nickname }}</span>
                         </label>
                     </div>
-                    <p *ngIf="bulkReady() && !bulkCompatible().length" class="text-sm text-stone-500">
+                    <p *ngIf="bulkReady() && !bulkCompatible().length && !bulkAlreadyReportedCount()" class="text-sm text-stone-500">
                         {{ 'smartFleet.assets.bulkEmpty' | transloco }}
                     </p>
                     <p *ngIf="bulkSkippedCount()" class="text-xs text-stone-500">
                         {{ 'smartFleet.assets.bulkSkipped' | transloco: { count: bulkSkippedCount() } }}
+                    </p>
+                    <p *ngIf="bulkAlreadyReportedCount()" class="text-xs text-stone-500">
+                        {{ 'smartFleet.assets.bulkAlreadyReported' | transloco: { count: bulkAlreadyReportedCount() } }}
                     </p>
                     <div *ngIf="bulkProgress() as progress" class="flex flex-col gap-2">
                         <div class="flex items-center justify-between text-sm font-medium text-stone-600 dark:text-stone-300">
@@ -757,12 +760,12 @@
                                         mat-icon-button
                                         type="button"
                                         #assetReportMenu="matMenuTrigger"
-                                        [matMenuTriggerFor]="reportMenu"
-                                        (click)="reportTarget.set(asset); rememberReportMenu(assetReportMenu)"
+                                        [matMenuTriggerFor]="readyReport(asset) ? null : reportMenu"
+                                        (click)="onReportIcon(asset, assetReportMenu)"
                                         [disabled]="bulkWorking() || reportingAssetId() === asset._id"
                                         [matTooltip]="
                                             (readyReport(asset)
-                                                ? 'smartFleet.assets.reportRegenerate'
+                                                ? 'smartFleet.assets.reportView'
                                                 : 'smartFleet.assets.generateReport'
                                             ) | transloco
                                         "
