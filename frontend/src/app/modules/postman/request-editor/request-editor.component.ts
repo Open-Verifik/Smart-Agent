@@ -1335,6 +1335,12 @@ export class RequestEditorComponent {
                         value: profile.vin ?? profile.documentNumber,
                     };
                 }
+                if (param.key === 'folio') {
+                    return {
+                        ...param,
+                        value: profile.folio ?? profile.documentNumber,
+                    };
+                }
                 if (param.key === 'documentType' && defaultDocumentType) {
                     return { ...param, value: defaultDocumentType };
                 }

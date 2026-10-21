@@ -924,6 +924,18 @@
             "title": "멕시코 — INE 검증",
             "description": "CIC, OCR 또는 clave de elector로 멕시코 유권자 신분증(INE)을 선거인명부에 대해 검증합니다."
         },
+        "mexico_api_cedula_profesional": {
+            "title": "멕시코 — 전문 면허",
+            "description": "CURP, 면허 번호 또는 이름으로 멕시코 전문 면허를 조회합니다. CURP를 먼저 직접 대조하고, 직접 일치가 없으면 보유자의 공식 이름으로 추가 비용 없이 정확히 대조합니다."
+        },
+        "mexico_api_health_worker": {
+            "title": "멕시코 — 보건 전문가 면허",
+            "description": "의학, 간호, 정신의학, 산과, 물리치료, 검안을 포함해 멕시코 보건 관련 전문 면허 보유 여부를 확인합니다. 보건 외 면허만 있으면 404를 반환합니다."
+        },
+        "mexico_api_siged_certificado": {
+            "title": "멕시코 — 학업 증명서 (folio)",
+            "description": "folio로 멕시코 전자 학업 증명서를 검증합니다. fullName 또는 CURP를 보낼 수 있으며, 불일치하면 409 name_mismatch를 반환합니다. 둘 다 보내면 CURP가 우선합니다."
+        },
         "colombia_api_copnia_license": {
             "title": "콜롬비아 — 등록 번호로 COPNIA 면허 조회",
             "description": "GET /v2/co/copnia/matricula로 COPNIA 전문 면허를 등록 번호(matrícula)로 조회합니다."

@@ -87,6 +87,26 @@ export const applyPostmanSandboxParamDefaults = (
     const codeFasecoldaParam = endpoint.params.find((p) => p.key === 'codeFasecolda');
     const businessParam = endpoint.params.find((p) => p.key === 'business');
     const fullNameParam = endpoint.params.find((p) => p.key === 'fullName');
+    const folioParam = endpoint.params.find((p) => p.key === 'folio');
+
+    if (folioParam && !docNumberParam && !processNumberParam && !plateParam && !vinParam) {
+        if (folioParam.value?.trim()) {
+            return;
+        }
+
+        const resolvedFolio = documentNumber ?? config.defaultFolio ?? config.defaultDocumentNumber;
+        folioParam.value = resolvedFolio;
+        const profile =
+            config.profiles.find(
+                (p) =>
+                    p.folio === resolvedFolio ||
+                    p.paramOverrides?.folio === resolvedFolio ||
+                    p.documentNumber === resolvedFolio
+            ) ?? config.profiles[0];
+        applySandboxParamValue(endpoint.params, 'fullName', profile?.paramOverrides?.fullName);
+        applySandboxParamValue(endpoint.params, 'curp', profile?.paramOverrides?.curp);
+        return;
+    }
 
     if (businessParam && !docNumberParam && !processNumberParam && !plateParam && !vinParam) {
         if (businessParam.value?.trim()) {

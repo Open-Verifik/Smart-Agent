@@ -924,6 +924,18 @@
             "title": "メキシコ — INE 検証",
             "description": "CIC、OCR、または clave de elector を使い、メキシコ有権者証（INE）を選挙人名簿に対して検証します。"
         },
+        "mexico_api_cedula_profesional": {
+            "title": "メキシコ — 専門免許",
+            "description": "CURP、免許番号、または氏名でメキシコの専門免許を照会します。まず CURP を直接照合し、直接一致がない場合は追加料金なしで所持者の公式氏名を完全一致で使います。"
+        },
+        "mexico_api_health_worker": {
+            "title": "メキシコ — 医療従事者の免許",
+            "description": "医学、看護、精神医学、産科、理学療法、検眼を含むメキシコの医療関連専門免許の有無を確認します。医療以外の免許しかない場合は 404 を返します。"
+        },
+        "mexico_api_siged_certificado": {
+            "title": "メキシコ — 学業証明書（folio）",
+            "description": "folio でメキシコの電子学業証明書を検証します。fullName または CURP を送れます。不一致の場合は 409 name_mismatch を返します。両方送った場合は CURP が優先されます。"
+        },
         "colombia_api_copnia_license": {
             "title": "コロンビア — 登録番号で COPNIA 免許を照会",
             "description": "GET /v2/co/copnia/matricula で COPNIA 専門免許を登録番号（matrícula）から照会します。"

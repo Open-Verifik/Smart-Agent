@@ -9057,7 +9057,8 @@
       "group": "biometrics",
       "method": "POST",
       "url": "v2/ocr/scan-gpt",
-      "description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
+      "description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows. When documentType is CC or DRCC, OCRExtraction.documentClassification says whether the photo matches. isMatch is false when a driver's license is sent as a cédula, or a cédula as a license. The request still returns 200. In Smart Agent (https://ai.verifik.co) the same scan can continue into a SmartCheck, such as the Colombian cédula lookup, using the number OCR read.",
+      "descriptionES": "OCR con GPT para documentos de identidad. Envía una imagen y recibe campos estructurados (nombres, números de documento, fechas) y el texto extraído. Si documentType es CC o DRCC, OCRExtraction.documentClassification indica si la foto coincide. isMatch es false cuando se envía una licencia como cédula, o una cédula como licencia. La petición sigue respondiendo 200. En Smart Agent (https://ai.verifik.co) el mismo escaneo puede continuar en un SmartCheck, como la consulta de cédula colombiana, con el número que leyó el OCR.",
       "price": 0.07,
       "isAvailable": true,
       "catalogHidden": false,
@@ -18421,6 +18422,219 @@
             "code": "MissingParameter",
             "message": "missing documentNumber\n"
           }
+        }
+      ]
+    },
+    {
+      "code": "mexico_api_cedula_profesional",
+      "name": "Mexico — Professional License",
+      "nameES": "México — Cédula profesional",
+      "country": "Mexico",
+      "category": "identity",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/mx/cedula-profesional",
+      "description": "Look up a Mexican professional license by CURP, license number, or name.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer <token>" }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "1",
+            "description": "CURP or CEDULA. Required together with documentNumber.",
+            "enum": ["CURP", "CEDULA"]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "1",
+            "description": "CURP or professional license number."
+          },
+          {
+            "field": "firstName",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "2",
+            "description": "Given name. Required together with lastName."
+          },
+          {
+            "field": "lastName",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "2",
+            "description": "Surnames. Required together with firstName."
+          }
+        ],
+        "documentedParams": [
+          { "field": "documentType", "description": "CURP or CEDULA." },
+          { "field": "documentNumber", "description": "CURP or professional license number." },
+          { "field": "firstName", "description": "Given name for an exact-name search." },
+          { "field": "lastName", "description": "Surnames for an exact-name search." }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CURP",
+              "documentNumber": "LOPE900501HDFGRN01",
+              "firstName": "ANA",
+              "lastName": "LOPEZ RUIZ",
+              "fullName": "ANA LOPEZ RUIZ",
+              "matchMethod": "curp",
+              "ambiguous": false,
+              "cedulas": []
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": { "code": "NotFound", "message": "Record not found" }
+        }
+      ],
+      "smartBatchSuccessWhen": [{ "httpStatus": 404, "responseCodes": ["NotFound"] }]
+    },
+    {
+      "code": "mexico_api_health_worker",
+      "name": "Mexico — Health Worker License",
+      "nameES": "México — Licencia de profesionista de salud",
+      "country": "Mexico",
+      "category": "identity",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/mx/health-worker",
+      "description": "Validate that a person holds a Mexican health-related professional license.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer <token>" }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "1",
+            "description": "CURP or CEDULA. Required together with documentNumber.",
+            "enum": ["CURP", "CEDULA"]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "1",
+            "description": "CURP or professional license number."
+          },
+          {
+            "field": "firstName",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "2",
+            "description": "Given name. Required together with lastName."
+          },
+          {
+            "field": "lastName",
+            "type": "String",
+            "required": false,
+            "dependencyGroup": "2",
+            "description": "Surnames. Required together with firstName."
+          }
+        ],
+        "documentedParams": [
+          { "field": "documentType", "description": "CURP or CEDULA." },
+          { "field": "documentNumber", "description": "CURP or professional license number." },
+          { "field": "firstName", "description": "Given name for an exact-name search." },
+          { "field": "lastName", "description": "Surnames for an exact-name search." }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CURP",
+              "documentNumber": "LOPE900501HDFGRN01",
+              "fullName": "ANA LOPEZ RUIZ",
+              "isHealthWorker": true,
+              "nonHealthCount": 1
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": { "code": "NotFound", "message": "Record not found" }
+        }
+      ],
+      "smartBatchSuccessWhen": [{ "httpStatus": 404, "responseCodes": ["NotFound"] }]
+    },
+    {
+      "code": "mexico_api_siged_certificado",
+      "name": "Mexico — Education Certificate (folio)",
+      "nameES": "México — Certificado de estudios (folio)",
+      "country": "Mexico",
+      "category": "identity",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/mx/siged/certificado",
+      "description": "Validate a Mexican electronic education certificate by folio. When fullName and CURP are both sent, CURP wins.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer <token>" }
+      ],
+      "input": {
+        "dependencies": [
+          { "field": "folio", "type": "String", "required": true, "description": "Certificate folio." },
+          { "field": "fullName", "type": "String", "required": false, "description": "Expected holder name." },
+          { "field": "curp", "type": "String", "required": false, "description": "Expected holder CURP. Wins over fullName." }
+        ],
+        "documentedParams": [
+          { "field": "folio", "description": "Certificate folio." },
+          { "field": "fullName", "description": "Optional expected holder name." },
+          { "field": "curp", "description": "Optional expected CURP. Wins over fullName." }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "folio": "SIGED10000001",
+              "fullName": "ANA LOPEZ RUIZ",
+              "curp": "LOPE900501HDFGRN01",
+              "status": "VIGENTE"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": { "code": "NotFound", "message": "Record not found" }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": { "code": "Conflict", "message": "name_mismatch" }
         }
       ]
     },

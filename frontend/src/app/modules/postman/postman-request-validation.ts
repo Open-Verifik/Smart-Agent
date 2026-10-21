@@ -49,8 +49,21 @@ const getRowCellRaw = (row: Record<string, unknown>, field: string): unknown => 
     return k ? row[k] : undefined;
 };
 
-const NAME_MODE_TRIGGER_FIELDS = new Set(['fullName', 'primerNombre', 'primerApellido']);
-const NAME_MODE_REQUIRED_FIELDS = ['fullName', 'primerNombre', 'primerApellido', 'fecha'] as const;
+const NAME_MODE_TRIGGER_FIELDS = new Set([
+    'fullName',
+    'primerNombre',
+    'primerApellido',
+    'firstName',
+    'lastName',
+]);
+const NAME_MODE_REQUIRED_FIELDS = [
+    'fullName',
+    'primerNombre',
+    'primerApellido',
+    'fecha',
+    'firstName',
+    'lastName',
+] as const;
 const SEXO_FIELD = 'sexo';
 const SERIAL_FIELD = 'serial';
 
@@ -736,6 +749,8 @@ const NAME_FIELD_ORDER = [
     'segundoApellido',
     'sexo',
     'fecha',
+    'firstName',
+    'lastName',
 ];
 
 /**
