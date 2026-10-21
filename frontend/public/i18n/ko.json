@@ -5518,6 +5518,10 @@
                 "otherParameters": "기타 매개변수",
                 "requiredFieldLegend": "* 필수 항목",
                 "includeCostDescription": "true이면 응답에 크레딧 정보 블록(credits, creditsCharged, charged, featureCode)이 포함됩니다. 생략하려면 false로 설정하거나 이 행을 삭제하세요.",
+                "mexicoLicenseDocumentTypeCurpDescription": "이 검색 그룹에서는 CURP로 고정됩니다.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "이 검색 그룹에서는 면허 번호 유형으로 고정됩니다.",
+                "mexicoLicenseCurpNumberDescription": "18자 CURP.",
+                "mexicoLicenseCedulaNumberDescription": "전문 면허 번호.",
                 "pickValue": "[{{values}}] 중에서 값을 선택하세요",
                 "sexoFemale": "여성 (FEMENINO)",
                 "sexoMale": "남성 (MASCULINO)"
@@ -5570,7 +5574,8 @@
                 "invalidEnum": "\"{{field}}\"에 대해 \"{{value}}\"는 유효하지 않습니다. 허용: {{expected}}.",
                 "invalidJsonBody": "본문은 유효한 JSON이어야 합니다.",
                 "pathSegmentRequired": "URL 경로 세그먼트 \"{{segment}}\"는 필수입니다.",
-                "groupedModesBodyWithSerial": "한 가지 방식만 사용하세요: 이름으로 검색하거나, 문서 번호(필요하면 성별 포함)로 검색하거나, 민사등록 일련번호로 검색합니다. 같은 요청에서 방식을 섞지 마세요."
+                "groupedModesBodyWithSerial": "한 가지 방식만 사용하세요: 이름으로 검색하거나, 문서 번호(필요하면 성별 포함)로 검색하거나, 민사등록 일련번호로 검색합니다. 같은 요청에서 방식을 섞지 마세요.",
+                "mexicoLicenseModesBody": "그룹은 하나만 사용하세요. CURP와 문서 번호, 면허 번호와 문서 유형, 또는 문서 필드 없이 이름과 성입니다. 같은 요청에서 그룹을 섞지 마세요."
             },
             "sandboxProfiles": {
                 "title": "Sandbox 테스트 프로필",
@@ -9294,6 +9299,10 @@
         "searchModeOptionFullName": "옵션 A — 전체 이름으로 검색",
         "searchModeOptionDocument": "옵션 B — 문서로 검색",
         "searchModeOptionSerial": "옵션 C — 일련번호로 검색",
+        "searchModesIntroMexicoLicense": "입력 그룹은 하나만 사용하세요. CURP와 문서 번호, 전문 면허 번호, 또는 이름과 성입니다. 같은 요청에서 그룹을 섞지 마세요.",
+        "searchModeOptionCurp": "그룹 1 — CURP로 검색",
+        "searchModeOptionLicenseNumber": "그룹 2 — 면허 번호로 검색",
+        "searchModeOptionNameMexico": "그룹 3 — 이름으로 검색",
         "dateOfBirthConditionalHint": "문서 \"documentType\"이 다음 중 하나일 때 해당 행에서 \"dateOfBirth\" 열이 필요합니다: {{values}}",
         "fieldConditional": "조건부",
         "fieldConditionalDetail": "{{whenField}}가 다음 중 하나일 때 필수입니다: {{values}}.",
