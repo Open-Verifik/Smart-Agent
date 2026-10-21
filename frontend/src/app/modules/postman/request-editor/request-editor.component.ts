@@ -23,6 +23,15 @@ import { SubscriptionService } from '../../subscription-plans/subscription.servi
 import { PostmanService } from '../postman.service';
 import { ApiEndpoint } from '../postman.types';
 import {
+    clearMexicoLicenseInputMode,
+    MexicoLicenseInputMode,
+    mexicoLicenseGroupIsInactive as isMexicoLicenseGroupInactiveUtil,
+    prepareMexicoLicenseEndpoint,
+    resolveMexicoLicenseUi,
+    setMexicoLicenseCedulaNumber,
+    setMexicoLicenseCurpNumber,
+} from '../postman-mexico-license-input.util';
+import {
     endpointShowsGroupedRequestGuidance,
     getPostmanDependencyGuidanceKind,
     filterVisibleXorDocumentRows,
@@ -442,6 +451,13 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                         'postman.requestEditor.validation.documentFieldsGuidanceBody'
                                                             | transloco
                                                     }}
+                                                } @else if (
+                                                    dependencyGuidanceKind() === 'mexicoLicenseTriple'
+                                                ) {
+                                                    {{
+                                                        'postman.requestEditor.validation.mexicoLicenseModesBody'
+                                                            | transloco
+                                                    }}
                                                 } @else if (xorGuidanceHasSerial()) {
                                                     {{
                                                         'postman.requestEditor.validation.groupedModesBodyWithSerial'
@@ -507,6 +523,180 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
                             @if (postmanXorParamLayout(); as L) {
                                 @switch (L.kind) {
+                                    @case ('mexicoLicenseTriple') {
+                                        <p
+                                            class="text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+                                        >
+                                            {{
+                                                'createBatch.searchModesIntroMexicoLicense'
+                                                    | transloco
+                                            }}
+                                        </p>
+                                        <div class="flex flex-col gap-4">
+                                            <div
+                                                class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                                            >
+                                                <h5
+                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                >
+                                                    {{
+                                                        'createBatch.searchModeOptionCurp'
+                                                            | transloco
+                                                    }}
+                                                </h5>
+                                                <ng-container
+                                                    *ngTemplateOutlet="
+                                                        mexicoLicenseParamGroupHeader
+                                                    "
+                                                ></ng-container>
+                                                <div
+                                                    class="space-y-2"
+                                                    [class.pointer-events-none]="
+                                                        isMexicoLicenseGroupInactive('curp')
+                                                    "
+                                                    [class.opacity-50]="
+                                                        isMexicoLicenseGroupInactive('curp')
+                                                    "
+                                                >
+                                                    <ng-container
+                                                        *ngTemplateOutlet="
+                                                            mexicoLicenseFixedTypeRow;
+                                                            context: {
+                                                                typeValue: 'CURP',
+                                                                descriptionKey:
+                                                                    'postman.requestEditor.params.mexicoLicenseDocumentTypeCurpDescription',
+                                                            }
+                                                        "
+                                                    ></ng-container>
+                                                    <ng-container
+                                                        *ngTemplateOutlet="
+                                                            mexicoLicenseNumberRow;
+                                                            context: {
+                                                                mode: 'curp',
+                                                                value: mexicoLicenseCurpNumber(),
+                                                                descriptionKey:
+                                                                    'postman.requestEditor.params.mexicoLicenseCurpNumberDescription',
+                                                            }
+                                                        "
+                                                    ></ng-container>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                                            >
+                                                <h5
+                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                >
+                                                    {{
+                                                        'createBatch.searchModeOptionLicenseNumber'
+                                                            | transloco
+                                                    }}
+                                                </h5>
+                                                <ng-container
+                                                    *ngTemplateOutlet="
+                                                        mexicoLicenseParamGroupHeader
+                                                    "
+                                                ></ng-container>
+                                                <div
+                                                    class="space-y-2"
+                                                    [class.pointer-events-none]="
+                                                        isMexicoLicenseGroupInactive('cedula')
+                                                    "
+                                                    [class.opacity-50]="
+                                                        isMexicoLicenseGroupInactive('cedula')
+                                                    "
+                                                >
+                                                    <ng-container
+                                                        *ngTemplateOutlet="
+                                                            mexicoLicenseFixedTypeRow;
+                                                            context: {
+                                                                typeValue: 'CEDULA',
+                                                                descriptionKey:
+                                                                    'postman.requestEditor.params.mexicoLicenseDocumentTypeCedulaDescription',
+                                                            }
+                                                        "
+                                                    ></ng-container>
+                                                    <ng-container
+                                                        *ngTemplateOutlet="
+                                                            mexicoLicenseNumberRow;
+                                                            context: {
+                                                                mode: 'cedula',
+                                                                value: mexicoLicenseCedulaNumber(),
+                                                                descriptionKey:
+                                                                    'postman.requestEditor.params.mexicoLicenseCedulaNumberDescription',
+                                                            }
+                                                        "
+                                                    ></ng-container>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                                            >
+                                                <h5
+                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                >
+                                                    {{
+                                                        'createBatch.searchModeOptionNameMexico'
+                                                            | transloco
+                                                    }}
+                                                </h5>
+                                                <ng-container
+                                                    *ngTemplateOutlet="
+                                                        mexicoLicenseParamGroupHeader
+                                                    "
+                                                ></ng-container>
+                                                <div
+                                                    class="space-y-2"
+                                                    [class.pointer-events-none]="
+                                                        isMexicoLicenseGroupInactive('name')
+                                                    "
+                                                    [class.opacity-50]="
+                                                        isMexicoLicenseGroupInactive('name')
+                                                    "
+                                                >
+                                                    @for (item of L.nameRows; track item.index) {
+                                                        <ng-container
+                                                            *ngTemplateOutlet="
+                                                                postmanParamRow;
+                                                                context: {
+                                                                    $implicit: item,
+                                                                    xOrOptionRow: true,
+                                                                    mexicoLicenseMode: 'name',
+                                                                }
+                                                            "
+                                                        ></ng-container>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if (L.otherRows.length) {
+                                            <div class="space-y-2 pt-2">
+                                                <h4
+                                                    class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400"
+                                                >
+                                                    {{
+                                                        'postman.requestEditor.params.otherParameters'
+                                                            | transloco
+                                                    }}
+                                                </h4>
+                                                <ng-container
+                                                    *ngTemplateOutlet="
+                                                        mexicoLicenseParamGroupHeader
+                                                    "
+                                                ></ng-container>
+                                                <div class="space-y-2">
+                                                    @for (item of L.otherRows; track item.index) {
+                                                        <ng-container
+                                                            *ngTemplateOutlet="
+                                                                postmanParamRow;
+                                                                context: { $implicit: item }
+                                                            "
+                                                        ></ng-container>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
                                     @case ('xor') {
                                         <p
                                             class="text-sm leading-relaxed text-slate-600 dark:text-slate-400"
@@ -880,10 +1070,101 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
         </div>
 
         <ng-template
+            #mexicoLicenseFixedTypeRow
+            let-typeValue="typeValue"
+            let-descriptionKey="descriptionKey"
+        >
+            <div class="flex gap-2 items-center">
+                <div
+                    class="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-100/80 dark:border-slate-600 dark:bg-slate-800/80 opacity-90"
+                >
+                    <input
+                        class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm text-slate-600 outline-none dark:text-slate-300"
+                        [value]="'documentType'"
+                        readonly
+                    />
+                </div>
+                <div class="flex flex-1 min-w-0 flex-col gap-1">
+                    <input
+                        class="w-full min-w-0 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-200"
+                        [value]="typeValue"
+                        readonly
+                    />
+                </div>
+                <p
+                    class="flex-1 min-w-0 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 leading-snug"
+                >
+                    {{ descriptionKey | transloco }}
+                </p>
+                <div class="w-8"></div>
+            </div>
+        </ng-template>
+
+        <ng-template
+            #mexicoLicenseNumberRow
+            let-mode="mode"
+            let-value="value"
+            let-descriptionKey="descriptionKey"
+        >
+            <div class="flex gap-2 items-center">
+                <div
+                    class="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+                >
+                    <input
+                        class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none dark:text-slate-100"
+                        [value]="'documentNumber'"
+                        readonly
+                    />
+                </div>
+                <div class="flex flex-1 min-w-0 flex-col gap-1">
+                    <input
+                        class="w-full min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                        [ngModel]="value"
+                        (ngModelChange)="onMexicoLicenseDocumentNumberChange(mode, $event)"
+                        [placeholder]="
+                            'postman.requestEditor.params.valuePlaceholder' | transloco
+                        "
+                    />
+                </div>
+                <p
+                    class="flex-1 min-w-0 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 leading-snug"
+                >
+                    {{ descriptionKey | transloco }}
+                </p>
+                <button
+                    mat-icon-button
+                    type="button"
+                    (click)="clearMexicoLicenseGroup(mode)"
+                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500"
+                >
+                    <mat-icon class="icon-size-4">delete</mat-icon>
+                </button>
+            </div>
+        </ng-template>
+
+        <ng-template #mexicoLicenseParamGroupHeader>
+            <div
+                class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+            >
+                <div class="flex-1">
+                    {{ 'postman.requestEditor.params.key' | transloco }}
+                </div>
+                <div class="flex-1">
+                    {{ 'postman.requestEditor.params.value' | transloco }}
+                </div>
+                <div class="flex-1">
+                    {{ 'postman.requestEditor.params.description' | transloco }}
+                </div>
+                <div class="w-8"></div>
+            </div>
+        </ng-template>
+
+        <ng-template
             #postmanParamRow
             let-item
             let-xOrOptionRow="xOrOptionRow"
             let-showXorDocumentTypePlaceholder="showXorDocumentTypePlaceholder"
+            let-mexicoLicenseMode="mexicoLicenseMode"
         >
             <div class="flex gap-2 items-center">
                 <div
@@ -917,8 +1198,11 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             "
                             [ngModel]="item.param.value"
                             (ngModelChange)="
-                                item.param.value = coerceParamValue(item.param.key, $event);
-                                onRequestInputsChanged()
+                                onParamValueChange(
+                                    item,
+                                    coerceParamValue(item.param.key, $event),
+                                    mexicoLicenseMode
+                                )
                             "
                         >
                             @if (
@@ -958,8 +1242,11 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             "
                             [ngModel]="item.param.value"
                             (ngModelChange)="
-                                item.param.value = coerceParamValue(item.param.key, $event);
-                                onRequestInputsChanged()
+                                onParamValueChange(
+                                    item,
+                                    coerceParamValue(item.param.key, $event),
+                                    mexicoLicenseMode
+                                )
                             "
                             [placeholder]="
                                 'postman.requestEditor.params.valuePlaceholder' | transloco
@@ -1001,7 +1288,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                 }
                 <button
                     mat-icon-button
-                    (click)="onDeleteParamRow(item, xOrOptionRow)"
+                    (click)="onDeleteParamRow(item, xOrOptionRow, mexicoLicenseMode)"
                     class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500"
                 >
                     <mat-icon class="icon-size-4">delete</mat-icon>
@@ -1442,6 +1729,18 @@ export class RequestEditorComponent {
 
     readonly postmanXorParamLayout = computed(() => getPostmanXorParamLayout(this.endpoint()));
 
+    readonly mexicoLicenseCurpNumber = computed(() => {
+        this._validationInputsTick();
+        const ep = this.endpoint();
+        return ep ? resolveMexicoLicenseUi(ep).curpDocumentNumber : '';
+    });
+
+    readonly mexicoLicenseCedulaNumber = computed(() => {
+        this._validationInputsTick();
+        const ep = this.endpoint();
+        return ep ? resolveMexicoLicenseUi(ep).cedulaDocumentNumber : '';
+    });
+
     readonly documentTypeConditionalDobValues = computed(() => {
         this._validationInputsTick();
         const ep = this.endpoint();
@@ -1833,7 +2132,72 @@ export class RequestEditorComponent {
         this.onRequestInputsChanged();
     }
 
-    onDeleteParamRow(item: PostmanParamRowRef, xOrOptionRow?: boolean): void {
+    isMexicoLicenseGroupInactive(group: MexicoLicenseInputMode): boolean {
+        return isMexicoLicenseGroupInactiveUtil(this.endpoint(), group);
+    }
+
+    onMexicoLicenseDocumentNumberChange(
+        mode: 'curp' | 'cedula',
+        value: string
+    ): void {
+        this._postmanService.selectedEndpoint.update((ep) => {
+            if (!ep) return ep;
+            return mode === 'curp'
+                ? setMexicoLicenseCurpNumber(ep, value)
+                : setMexicoLicenseCedulaNumber(ep, value);
+        });
+        this.onRequestInputsChanged();
+    }
+
+    clearMexicoLicenseGroup(mode: MexicoLicenseInputMode): void {
+        if (mode === 'none') return;
+        this._postmanService.selectedEndpoint.update((ep) => {
+            if (!ep) return ep;
+            return clearMexicoLicenseInputMode(ep, mode);
+        });
+        this.onRequestInputsChanged();
+    }
+
+    onParamValueChange(
+        item: PostmanParamRowRef,
+        value: string,
+        mexicoLicenseMode?: MexicoLicenseInputMode
+    ): void {
+        this._postmanService.selectedEndpoint.update((ep) => {
+            if (!ep?.params || item.index < 0 || item.index >= ep.params.length) return ep;
+            if (ep.params[item.index] !== item.param) return ep;
+            const params = ep.params.map((p, i) =>
+                i === item.index ? { ...p, value } : p
+            );
+            let next: ApiEndpoint = { ...ep, params };
+            if (mexicoLicenseMode === 'name') {
+                next = prepareMexicoLicenseEndpoint({
+                    ...next,
+                    mexicoLicenseUi: {
+                        curpDocumentNumber: '',
+                        cedulaDocumentNumber: '',
+                    },
+                });
+            }
+            return next;
+        });
+        this.onRequestInputsChanged();
+    }
+
+    onDeleteParamRow(
+        item: PostmanParamRowRef,
+        xOrOptionRow?: boolean,
+        mexicoLicenseMode?: MexicoLicenseInputMode
+    ): void {
+        if (mexicoLicenseMode && mexicoLicenseMode !== 'none') {
+            this._postmanService.selectedEndpoint.update((ep) => {
+                if (!ep) return ep;
+                const cleared = clearMexicoLicenseInputMode(ep, mexicoLicenseMode);
+                return cleared;
+            });
+            this.onRequestInputsChanged();
+            return;
+        }
         if (xOrOptionRow) {
             this.clearXorParamRow(item);
             return;

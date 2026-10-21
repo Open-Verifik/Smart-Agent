@@ -31,6 +31,10 @@ import {
     resolvePostmanIncludeCostForSend,
 } from './postman-include-cost.util';
 import {
+    applyMexicoLicenseTripleInputToEndpoint,
+    prepareMexicoLicenseEndpoint,
+} from './postman-mexico-license-input.util';
+import {
     getPostmanRequestValidationIssues,
     getPostmanXorGroupMetadata,
 } from './postman-request-validation';
@@ -618,7 +622,7 @@ export class PostmanService {
                 created.docs = cachedDocs;
             }
         }
-        return mergeParamsFromDocs(created);
+        return applyMexicoLicenseTripleInputToEndpoint(mergeParamsFromDocs(created));
     }
 
     private _toPostmanDependencyMeta(rawDeps: any[]): PostmanDependencyMeta[] {
@@ -971,10 +975,11 @@ export class PostmanService {
             applyPostmanSandboxParamDefaults(endpointCopy);
         }
 
-        const withCost =
+        const withCost = applyMexicoLicenseTripleInputToEndpoint(
             this.paymentMethod() === 'credits'
                 ? ensurePostmanIncludeCostParam(endpointCopy)
-                : removePostmanIncludeCostParam(endpointCopy);
+                : removePostmanIncludeCostParam(endpointCopy)
+        );
 
         this.selectedEndpoint.set(withCost);
         this.response.set(null);
@@ -982,13 +987,13 @@ export class PostmanService {
         this.hydrateEndpointDetails(withCost).subscribe((hydrated) => {
             this.selectedEndpoint.update((current) => {
                 if (!current || !this._isSameEndpoint(current, hydrated)) return current;
-                return {
+                return applyMexicoLicenseTripleInputToEndpoint({
                     ...current,
                     ...hydrated,
                     headers: current.headers?.length ? current.headers : hydrated.headers,
                     params: this._mergeEndpointParams(current.params, hydrated.params),
                     body: current.body ?? hydrated.body,
-                };
+                });
             });
             if (!hydrated.docs) return;
             this.endpoints.update((list) =>
@@ -1002,15 +1007,18 @@ export class PostmanService {
     }
 
     sendRequest(endpoint: ApiEndpoint) {
+        const prepared = prepareMexicoLicenseEndpoint(
+            applyMexicoLicenseTripleInputToEndpoint(endpoint)
+        );
         const postDraft =
-            endpoint.method === 'GET' || endpoint.method === 'DELETE'
+            prepared.method === 'GET' || prepared.method === 'DELETE'
                 ? undefined
                 : JSON.stringify(
-                      endpoint.body && typeof endpoint.body === 'object' ? endpoint.body : {},
+                      prepared.body && typeof prepared.body === 'object' ? prepared.body : {},
                       null,
                       2
                   );
-        if (getPostmanRequestValidationIssues(endpoint, postDraft).length > 0) {
+        if (getPostmanRequestValidationIssues(prepared, postDraft).length > 0) {
             return;
         }
 
@@ -1024,8 +1032,8 @@ export class PostmanService {
         this.response.set(null);
         this.error.set(null);
 
-        const effectiveUrl = buildPostmanEffectiveUrl(endpoint);
-        const pathParamKeys = getPostmanPathParamKeysForEndpoint(endpoint);
+        const effectiveUrl = buildPostmanEffectiveUrl(prepared);
+        const pathParamKeys = getPostmanPathParamKeysForEndpoint(prepared);
 
         let url = effectiveUrl;
         const options: any = {
@@ -1036,16 +1044,16 @@ export class PostmanService {
         if (isX402) {
             url = `${environment.smartAgentUrl}/api/proxy`;
 
-            const paymentTxHeader = endpoint.headers?.find((h) => h.key === 'x-payment-tx');
-            const walletAddressHeader = endpoint.headers?.find((h) => h.key === 'x-wallet-address');
+            const paymentTxHeader = prepared.headers?.find((h) => h.key === 'x-payment-tx');
+            const walletAddressHeader = prepared.headers?.find((h) => h.key === 'x-wallet-address');
 
             options.headers['x-payment-tx'] = paymentTxHeader?.value || '';
             options.headers['x-wallet-address'] = walletAddressHeader?.value || '';
             options.headers['x-target-url'] = effectiveUrl;
             options.headers['Content-Type'] = 'application/json';
         } else {
-            if (endpoint.headers) {
-                endpoint.headers.forEach((h) => {
+            if (prepared.headers) {
+                prepared.headers.forEach((h) => {
                     let value = h.value;
                     if (value && value.includes('<token>')) {
                         const token = localStorage.getItem('accessToken') || '';
@@ -1056,8 +1064,8 @@ export class PostmanService {
             }
         }
 
-        if (endpoint.params) {
-            endpoint.params.forEach((p) => {
+        if (prepared.params) {
+            prepared.params.forEach((p) => {
                 if (!p.value) {
                     return;
                 }
@@ -1075,15 +1083,15 @@ export class PostmanService {
         }
 
         let body = null;
-        if (endpoint.method !== 'GET' && endpoint.method !== 'DELETE') {
-            body = endpoint.body && typeof endpoint.body === 'object' ? { ...endpoint.body } : {};
+        if (prepared.method !== 'GET' && prepared.method !== 'DELETE') {
+            body = prepared.body && typeof prepared.body === 'object' ? { ...prepared.body } : {};
             if (body && typeof body.sexo === 'string') {
                 body.sexo = normalizePostmanSexoValue(body.sexo);
             }
         }
 
         if (!isX402) {
-            const costSend = resolvePostmanIncludeCostForSend(endpoint, endpoint.method);
+            const costSend = resolvePostmanIncludeCostForSend(prepared, prepared.method);
             if (costSend.query) {
                 options.params.includeCost = costSend.query;
             }
@@ -1093,7 +1101,7 @@ export class PostmanService {
         }
 
         const startTime = Date.now();
-        const req$ = this._httpClient.request(endpoint.method, url, {
+        const req$ = this._httpClient.request(prepared.method, url, {
             ...options,
             body: body,
             observe: 'response',
