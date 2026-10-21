@@ -924,6 +924,18 @@
       "title": "INE Validation",
       "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector."
     },
+    "mexico_api_cedula_profesional": {
+      "title": "Mexico — Professional License",
+      "description": "Look up a Mexican professional license by CURP, license number, or name. CURP is matched directly first; when there is no direct match, the CURP holder's official name is used for an exact-name match at no extra cost."
+    },
+    "mexico_api_health_worker": {
+      "title": "Mexico — Health Worker License",
+      "description": "Validate that a person holds a Mexican health-related professional license, including medicine, nursing, psychiatry, obstetrics, physiotherapy, and optometry. A person with only non-health licenses returns 404."
+    },
+    "mexico_api_siged_certificado": {
+      "title": "Mexico — Education Certificate (folio)",
+      "description": "Validate a Mexican electronic education certificate by folio. Optionally send fullName or CURP; a mismatch returns 409 name_mismatch. When both are sent, CURP wins."
+    },
     "colombia_api_copnia_license": {
       "title": "COPNIA professional license by matrícula",
       "description": "Query a single COPNIA professional license by registration number via GET /v2/co/copnia/matricula."

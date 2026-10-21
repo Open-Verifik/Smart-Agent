@@ -924,6 +924,18 @@
             "title": "Mexique — Validation INE",
             "description": "Validez une carte d'électeur mexicaine (INE) auprès du registre électoral à l'aide du CIC, de l'OCR ou de la clave de elector."
         },
+        "mexico_api_cedula_profesional": {
+            "title": "Mexique — Licence professionnelle",
+            "description": "Consultez une licence professionnelle mexicaine par CURP, numéro de licence ou nom. Le CURP est recherché d'abord ; sans correspondance directe, le nom officiel du titulaire est utilisé sans coût supplémentaire."
+        },
+        "mexico_api_health_worker": {
+            "title": "Mexique — Licence de professionnel de santé",
+            "description": "Vérifiez qu'une personne détient une licence de santé mexicaine, y compris médecine, soins infirmiers, psychiatrie, obstétrique, physiothérapie et optométrie. Une personne avec seulement des licences hors santé renvoie 404."
+        },
+        "mexico_api_siged_certificado": {
+            "title": "Mexique — Certificat d'études (folio)",
+            "description": "Validez un certificat électronique d'études mexicain par folio. Vous pouvez envoyer fullName ou CURP ; un écart renvoie 409 name_mismatch. Si les deux sont envoyés, le CURP l'emporte."
+        },
         "colombia_api_copnia_license": {
             "title": "Licence COPNIA par matrícula",
             "description": "Consultez une licence professionnelle COPNIA par numéro d'inscription via GET /v2/co/copnia/matricula."

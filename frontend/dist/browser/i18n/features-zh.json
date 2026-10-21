@@ -924,6 +924,18 @@
             "title": "INE 验证",
             "description": "使用 CIC、OCR 或 clave de elector，对照选举登记册验证墨西哥选民证（INE）。"
         },
+        "mexico_api_cedula_profesional": {
+            "title": "墨西哥 — 专业执照",
+            "description": "按 CURP、执照号或姓名查询墨西哥专业执照。先直接匹配 CURP；没有直接命中时，使用持有人的官方姓名做精确匹配，不另收费。"
+        },
+        "mexico_api_health_worker": {
+            "title": "墨西哥 — 卫生从业人员执照",
+            "description": "确认某人持有墨西哥卫生相关专业执照，包括医学、护理、精神病学、产科、物理治疗和验光。仅有非卫生执照时返回 404。"
+        },
+        "mexico_api_siged_certificado": {
+            "title": "墨西哥 — 学历证书（folio）",
+            "description": "按 folio 验证墨西哥电子学历证书。可以同时发送 fullName 或 CURP；不一致时返回 409 name_mismatch。两者都发送时，CURP 优先。"
+        },
         "colombia_api_copnia_license": {
             "title": "按注册号查询 COPNIA 执照",
             "description": "通过 GET /v2/co/copnia/matricula 按注册号（matrícula）查询单条 COPNIA 专业执照。"

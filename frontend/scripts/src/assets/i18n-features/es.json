@@ -924,6 +924,18 @@
       "title": "Validación INE",
       "description": "Valida una credencial para votar (INE) mexicana contra el padrón electoral usando CIC, OCR o clave de elector."
     },
+    "mexico_api_cedula_profesional": {
+      "title": "México — Cédula profesional",
+      "description": "Consulta una cédula profesional mexicana por CURP, número de cédula o nombre. La CURP se busca de forma directa; si no hay coincidencia, se usa el nombre oficial del titular sin costo extra."
+    },
+    "mexico_api_health_worker": {
+      "title": "México — Licencia de profesionista de salud",
+      "description": "Valida que una persona tenga cédula de salud en México, incluida medicina, enfermería, psiquiatría, obstetricia, fisioterapia y optometría. Si solo tiene cédulas no sanitarias, la respuesta es 404."
+    },
+    "mexico_api_siged_certificado": {
+      "title": "México — Certificado de estudios (folio)",
+      "description": "Valida un certificado electrónico de estudios mexicano por folio. Se puede enviar fullName o CURP; si no coinciden, responde 409 name_mismatch. Si se envían ambos, la CURP tiene prioridad."
+    },
     "colombia_api_copnia_license": {
       "title": "COPNIA matrícula profesional por número",
       "description": "Consulta una matrícula profesional del COPNIA por número de registro mediante GET /v2/co/copnia/matricula."
