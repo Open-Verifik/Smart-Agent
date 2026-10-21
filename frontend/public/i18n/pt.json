@@ -5518,6 +5518,10 @@
                 "otherParameters": "Outros parâmetros",
                 "requiredFieldLegend": "* Campo obrigatório",
                 "includeCostDescription": "Quando verdadeiro, a resposta inclui um bloco de créditos (credits, creditsCharged, charged, featureCode). Defina como falso ou remova esta linha para omitir.",
+                "mexicoLicenseDocumentTypeCurpDescription": "Fixo em CURP para este grupo de busca.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "Fixo no tipo de licença profissional para este grupo de busca.",
+                "mexicoLicenseCurpNumberDescription": "CURP de 18 caracteres.",
+                "mexicoLicenseCedulaNumberDescription": "Número da licença profissional.",
                 "pickValue": "Escolha um valor de [{{values}}]",
                 "sexoFemale": "Feminino (FEMENINO)",
                 "sexoMale": "Masculino (MASCULINO)"
@@ -5570,7 +5574,8 @@
                 "invalidEnum": "\"{{value}}\" não é válido para \"{{field}}\". Esperado: {{expected}}.",
                 "invalidJsonBody": "O corpo deve ser JSON válido.",
                 "pathSegmentRequired": "O segmento de caminho da URL \"{{segment}}\" é obrigatório.",
-                "groupedModesBodyWithSerial": "Use apenas uma abordagem: busca por nome, por número do documento (mais o sexo quando exigido) ou por serial do registro civil. Não misture modos na mesma solicitação."
+                "groupedModesBodyWithSerial": "Use apenas uma abordagem: busca por nome, por número do documento (mais o sexo quando exigido) ou por serial do registro civil. Não misture modos na mesma solicitação.",
+                "mexicoLicenseModesBody": "Use apenas um grupo: CURP com número do documento, número da licença com tipo de documento, ou nome e sobrenomes sem campos de documento. Não misture grupos na mesma solicitação."
             },
             "sandboxProfiles": {
                 "title": "Perfis de teste Sandbox",
@@ -9294,6 +9299,10 @@
         "searchModeOptionFullName": "Opção A — Busca por nome completo",
         "searchModeOptionDocument": "Opção B — Busca por documento",
         "searchModeOptionSerial": "Opção C — Busca por serial",
+        "searchModesIntroMexicoLicense": "Use apenas um grupo de entrada: CURP e número do documento, número da licença profissional ou nome e sobrenomes. Não combine grupos na mesma solicitação.",
+        "searchModeOptionCurp": "Grupo 1 — Busca por CURP",
+        "searchModeOptionLicenseNumber": "Grupo 2 — Busca por número da licença",
+        "searchModeOptionNameMexico": "Grupo 3 — Busca por nome",
         "dateOfBirthConditionalHint": "Quando o tipo de documento for um de: {{values}}, a coluna dateOfBirth é obrigatória nessa linha.",
         "fieldConditional": "Condicional",
         "fieldConditionalDetail": "Obrigatório quando {{whenField}} for um de: {{values}}.",

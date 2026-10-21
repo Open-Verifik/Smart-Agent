@@ -5383,6 +5383,10 @@
                 "otherParameters": "Autres paramètres",
                 "requiredFieldLegend": "* Champ obligatoire",
                 "includeCostDescription": "Lorsque la valeur est true, la réponse inclut un bloc de crédits (credits, creditsCharged, charged, featureCode). Définissez false ou supprimez cette ligne pour l'omettre.",
+                "mexicoLicenseDocumentTypeCurpDescription": "Fixé sur CURP pour ce groupe de recherche.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "Fixé sur le type de licence professionnelle pour ce groupe de recherche.",
+                "mexicoLicenseCurpNumberDescription": "CURP de 18 caractères.",
+                "mexicoLicenseCedulaNumberDescription": "Numéro de licence professionnelle.",
                 "pickValue": "Choisissez une valeur parmi [{{values}}]",
                 "sexoFemale": "Féminin (FEMENINO)",
                 "sexoMale": "Masculin (MASCULINO)"
@@ -5435,7 +5439,8 @@
                 "invalidEnum": "« {{value}} » n'est pas valide pour « {{field}} ». Valeurs attendues : {{expected}}.",
                 "invalidJsonBody": "Le corps doit être un JSON valide.",
                 "pathSegmentRequired": "Le segment d'URL « {{segment}} » est obligatoire.",
-                "groupedModesBodyWithSerial": "N’utilisez qu’une seule méthode : recherche par nom, par numéro de document (et par sexe si requis), ou par série du registre civil. Ne mélangez pas les modes dans la même requête."
+                "groupedModesBodyWithSerial": "N’utilisez qu’une seule méthode : recherche par nom, par numéro de document (et par sexe si requis), ou par série du registre civil. Ne mélangez pas les modes dans la même requête.",
+                "mexicoLicenseModesBody": "Utilisez un seul groupe : CURP avec numéro de document, numéro de licence avec type de document, ou prénom et noms de famille sans champs de document. Ne mélangez pas les groupes dans la même requête."
             },
             "sandboxProfiles": {
                 "title": "Profils de test Sandbox",
@@ -9144,6 +9149,10 @@
         "searchModeOptionFullName": "Option A — Recherche par nom complet",
         "searchModeOptionDocument": "Option B — Recherche par document",
         "searchModeOptionSerial": "Option C — Recherche par serial",
+        "searchModesIntroMexicoLicense": "Utilisez un seul groupe de saisie : CURP et numéro de document, numéro de licence professionnelle, ou prénom et noms de famille. Ne combinez pas les groupes dans la même requête.",
+        "searchModeOptionCurp": "Groupe 1 — Recherche par CURP",
+        "searchModeOptionLicenseNumber": "Groupe 2 — Recherche par numéro de licence",
+        "searchModeOptionNameMexico": "Groupe 3 — Recherche par nom",
         "dateOfBirthConditionalHint": "Lorsque le type de document est l'un des suivants : {{values}}, la colonne dateOfBirth est obligatoire pour cette ligne.",
         "fieldConditional": "Conditionnel",
         "fieldConditionalDetail": "Obligatoire lorsque {{whenField}} est l'un des suivants : {{values}}.",
