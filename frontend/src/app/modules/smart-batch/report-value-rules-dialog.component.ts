@@ -24,6 +24,7 @@ import {
     sanitizeValueRules,
 } from './report-value-rules.util';
 import { ReportIconPickerDialogComponent, ReportIconPickerResult } from './report-icon-picker-dialog.component';
+import { ColorHexFieldComponent } from './color-hex-field.component';
 
 export type ReportRuleScope = 'value' | 'block';
 
@@ -38,10 +39,24 @@ export interface ReportValueRulesDialogData {
     /** Example values from the preview record, used by the test box. */
     samples?: string[];
     /** Shape mode: data the shape color can follow. */
-    fieldOptions?: { path: string; label: string; sample?: string }[];
+    fieldOptions?: ReportShapeFieldOption[];
     field?: string;
+    tableColumnKey?: string;
+    rulesSectionId?: string;
+    tableMode?: 'all' | 'any';
     /** Icons already placed on the report, offered as quick choices. */
     reportIcons?: ReportRuleIconChoice[];
+}
+
+export interface ReportShapeFieldOption {
+    path: string;
+    label: string;
+    sample?: string;
+    /** Unique dropdown value when several options share the same `path` (table columns). */
+    selectKey?: string;
+    /** Table column store key; uses that column's cell rules before the icon rules. */
+    tableColumnKey?: string;
+    rulesSectionId?: string;
 }
 
 export interface ReportRuleIconChoice {
@@ -54,12 +69,24 @@ export interface ReportValueRulesDialogResult {
     rules: ReportValueRule[];
     scope: ReportRuleScope;
     field?: string;
+    tableColumnKey?: string;
+    rulesSectionId?: string;
+    tableMode?: 'all' | 'any';
 }
 
 @Component({
     selector: 'report-value-rules-dialog',
     standalone: true,
-    imports: [CommonModule, FormsModule, TranslocoModule, MatDialogModule, MatButtonModule, MatIconModule, MatTooltipModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        TranslocoModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        ColorHexFieldComponent,
+    ],
     template: `
         <div class="flex max-h-[88vh] w-[min(46rem,94vw)] flex-col">
             <div class="flex items-start justify-between gap-3 border-b border-stone-200 px-5 py-4 dark:border-gray-800">
@@ -86,12 +113,24 @@ export interface ReportValueRulesDialogResult {
                         (ngModelChange)="chooseField($event)"
                     >
                         <option [ngValue]="''">{{ 'reportRules.fieldPick' | transloco }}</option>
-                        @for (option of data.fieldOptions || []; track option.path) {
-                            <option [ngValue]="option.path">{{ option.label }}{{ option.sample ? ' — ' + option.sample : '' }}</option>
+                        @for (option of data.fieldOptions || []; track option.selectKey ?? option.path) {
+                            <option [ngValue]="option.selectKey ?? option.path">{{ option.label }}{{ option.sample ? ' — ' + option.sample : '' }}</option>
                         }
                     </select>
                     @if (!(data.fieldOptions || []).length) {
                         <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">{{ 'reportRules.noFields' | transloco }}</p>
+                    }
+                    @if (selectedFieldOption()?.tableColumnKey) {
+                        <label class="mt-3 block text-xs font-medium text-stone-700 dark:text-stone-200">{{ 'reportRules.tableMode.label' | transloco }}</label>
+                        <select
+                            class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [ngModel]="tableMode()"
+                            (ngModelChange)="tableMode.set($event)"
+                        >
+                            <option value="all">{{ 'reportRules.tableMode.all' | transloco }}</option>
+                            <option value="any">{{ 'reportRules.tableMode.any' | transloco }}</option>
+                        </select>
+                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">{{ 'reportRules.tableMode.hint' | transloco }}</p>
                     }
                 }
 
@@ -176,22 +215,48 @@ export interface ReportValueRulesDialogResult {
                                 </div>
                             </div>
 
-                            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+                            <div class="mt-2 flex flex-wrap items-start gap-x-3 gap-y-2">
                                 <span class="rounded-md bg-emerald-50 px-1.5 py-0.5 font-mono text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">{{ 'reportRules.then' | transloco }}</span>
-                                <label class="inline-flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-300">
-                                    {{ (isShape ? 'reportRules.shapeColor' : 'reportRules.textColor') | transloco }}
-                                    <input type="color" class="h-7 w-9 cursor-pointer rounded border border-stone-200 bg-transparent p-0.5 dark:border-gray-700" [ngModel]="rule.color || '#111827'" (ngModelChange)="patch(index, { color: $event })" />
-                                </label>
+                                <div class="min-w-[11rem] flex-1 basis-44">
+                                    <span class="text-xs text-stone-600 dark:text-stone-300">{{
+                                        (isShape ? 'reportRules.shapeColor' : 'reportRules.textColor') | transloco
+                                    }}</span>
+                                    <color-hex-field
+                                        class="mt-1 block"
+                                        [showTransparency]="false"
+                                        [ngModel]="rule.color || '#111827'"
+                                        (ngModelChange)="patch(index, { color: $event })"
+                                        placeholder="#RRGGBB"
+                                        [ariaLabel]="(isShape ? 'reportRules.shapeColor' : 'reportRules.textColor') | transloco"
+                                    />
+                                    @if (isShape) {
+                                        <p class="mt-0.5 text-[10px] text-stone-400 dark:text-stone-500">{{ 'reportRules.shapeColorHexHint' | transloco }}</p>
+                                    }
+                                </div>
                                 @if (!isShape) {
-                                    <label class="inline-flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-300">
-                                        {{ 'reportRules.background' | transloco }}
-                                        <input type="color" class="h-7 w-9 cursor-pointer rounded border border-stone-200 bg-transparent p-0.5 dark:border-gray-700" [ngModel]="rule.backgroundColor || '#ffffff'" (ngModelChange)="patch(index, { backgroundColor: $event })" />
-                                        @if (rule.backgroundColor) {
-                                            <button type="button" class="text-stone-400 hover:text-stone-700" [matTooltip]="'reportRules.noBackground' | transloco" (click)="patch(index, { backgroundColor: undefined })">
-                                                <mat-icon class="!h-4 !w-4 !text-[16px]">format_color_reset</mat-icon>
-                                            </button>
-                                        }
-                                    </label>
+                                    <div class="min-w-[11rem] flex-1 basis-44">
+                                        <span class="text-xs text-stone-600 dark:text-stone-300">{{ 'reportRules.background' | transloco }}</span>
+                                        <div class="mt-1 flex items-start gap-1">
+                                            <color-hex-field
+                                                class="min-w-0 flex-1"
+                                                [showTransparency]="false"
+                                                [ngModel]="rule.backgroundColor || '#ffffff'"
+                                                (ngModelChange)="patch(index, { backgroundColor: $event })"
+                                                placeholder="#RRGGBB"
+                                                [ariaLabel]="'reportRules.background' | transloco"
+                                            />
+                                            @if (rule.backgroundColor) {
+                                                <button
+                                                    type="button"
+                                                    class="mt-1 text-stone-400 hover:text-stone-700"
+                                                    [matTooltip]="'reportRules.noBackground' | transloco"
+                                                    (click)="patch(index, { backgroundColor: undefined })"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 !text-[16px]">format_color_reset</mat-icon>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
                                     <button
                                         type="button"
                                         class="h-7 w-7 rounded-lg border text-sm font-bold"
@@ -360,7 +425,12 @@ export class ReportValueRulesDialogComponent {
     rules = signal<ReportValueRule[]>(sanitizeValueRules(this.data.rules));
     scope = signal<ReportRuleScope>(this.data.scope ?? 'value');
     field = signal<string>(this.data.field ?? '');
+    tableMode = signal<'all' | 'any'>(this.data.tableMode === 'any' ? 'any' : 'all');
     testValue = signal<string>(this._initialSample());
+
+    selectedFieldOption = computed(() =>
+        this.data.fieldOptions?.find((option) => (option.selectKey ?? option.path) === this.field())
+    );
 
     testRule = computed(() => matchValueRule(this.rules(), this.testValue()));
     testRuleIndex = computed(() => this.rules().findIndex((rule) => rule.id === this.testRule()?.id));
@@ -429,10 +499,11 @@ export class ReportValueRulesDialogComponent {
         return safe;
     }
 
-    chooseField(path: string): void {
-        this.field.set(path);
-        const sample = this.data.fieldOptions?.find((option) => option.path === path)?.sample;
-        if (sample) this.testValue.set(sample);
+    chooseField(selectValue: string): void {
+        this.field.set(selectValue);
+        const option = this.data.fieldOptions?.find((item) => (item.selectKey ?? item.path) === selectValue);
+        if (option?.sample) this.testValue.set(String(option.sample));
+        if (!option?.tableColumnKey) this.tableMode.set('all');
     }
 
     applyPreset(id: ReportRulePresetId): void {
@@ -478,10 +549,18 @@ export class ReportValueRulesDialogComponent {
     }
 
     save(): void {
+        const option = this.selectedFieldOption();
         this._ref.close({
             rules: sanitizeValueRules(this.rules()),
             scope: this.scope(),
-            ...(this.isShape ? { field: this.field() } : {}),
+            ...(this.isShape
+                ? {
+                      field: option?.path ?? this.field(),
+                      tableColumnKey: option?.tableColumnKey,
+                      rulesSectionId: option?.rulesSectionId,
+                      tableMode: option?.tableColumnKey ? this.tableMode() : undefined,
+                  }
+                : {}),
         });
     }
 
@@ -491,7 +570,10 @@ export class ReportValueRulesDialogComponent {
 
     private _initialSample(): string {
         if (this.data.mode === 'shape') {
-            return this.data.fieldOptions?.find((option) => option.path === this.data.field)?.sample ?? '';
+            const option = this.data.fieldOptions?.find(
+                (item) => (item.selectKey ?? item.path) === this.data.field || item.path === this.data.field
+            );
+            return option?.sample != null ? String(option.sample) : '';
         }
         return (this.data.samples ?? []).find(Boolean) ?? '';
     }

@@ -190,6 +190,12 @@ export interface ReportSection {
     valueRules?: ReportValueRule[];
     /** Full data path a shape's `valueRules` read, e.g. `results.2.soat.0.estado`. */
     ruleField?: string;
+    /** When `ruleField` is a table array, column key (e.g. `rtm.estado`) whose cell rules apply first. */
+    ruleColumnKey?: string;
+    /** Block that owns the column's conditional rules. */
+    ruleRulesSectionId?: string;
+    /** How table row effective values combine before shape rules run. */
+    ruleTableMode?: 'all' | 'any';
 
     /** repeater: `{field}` placeholders resolved against each array item. */
     itemTitle?: string;

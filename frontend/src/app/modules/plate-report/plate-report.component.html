@@ -89,6 +89,21 @@
                         }
                         {{ pendingNotice() ? t('plateReport.continuePending') : t('plateReport.continue') }}
                     </button>
+
+                    @if (!signedIn()) {
+                        <p class="plate-report__note" style="margin-top: 0.75rem;">
+                            {{ needsSignIn() ? t('plateReport.signInHint') : t('plateReport.haveAccount') }}
+                            <button
+                                mat-button
+                                color="primary"
+                                type="button"
+                                (click)="signIn()"
+                                [disabled]="busy()"
+                            >
+                                {{ t('plateReport.signIn') }}
+                            </button>
+                        </p>
+                    }
                 </form>
             }
 
@@ -103,15 +118,67 @@
             @if (phase() === 'payment') {
                 <h2>{{ t('plateReport.paymentTitle') }}</h2>
                 <p class="plate-report__lead">{{ t('plateReport.paymentBody') }}</p>
-                @if (errorKey(); as key) {
-                    <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+
+                <div class="plate-report__currency" role="radiogroup" [attr.aria-label]="t('plateReport.currencyLabel')">
+                    @for (option of currencyOptions; track option.code) {
+                        <button
+                            type="button"
+                            role="radio"
+                            class="plate-report__currency-option"
+                            [class.is-active]="currency() === option.code"
+                            [attr.aria-checked]="currency() === option.code"
+                            [disabled]="option.disabled || busy()"
+                            (click)="selectCurrency(option)"
+                        >
+                            <span class="plate-report__currency-code">{{ option.code }}</span>
+                            <span class="plate-report__currency-text">
+                                <strong>{{ t(option.labelKey) }}</strong>
+                                <small>{{ t(option.methodsKey) }}</small>
+                            </span>
+                        </button>
+                    }
+                </div>
+
+                @if (totalLabel()) {
+                    <p class="plate-report__quote">
+                        {{ t('plateReport.quoteTotal', { total: totalLabel() }) }}
+                    </p>
+                } @else if (quoteLoading()) {
+                    <p class="plate-report__quote">{{ t('addCredits.purchaseDialog.bold.quoteLoading') }}</p>
                 }
-                <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="pay()" [disabled]="busy()">
+
+                @if (fxUnavailable()) {
+                    <p class="plate-report__error" role="alert">{{ t('plateReport.fxUnavailable') }}</p>
+                }
+
+                @if (pseOnly()) {
+                    <p class="plate-report__note">{{ t('addCredits.purchaseDialog.bold.firstPurchasePseNote') }}</p>
+                }
+
+                @if (errorKey(); as key) {
+                    <p [class]="awaitingOrder() ? 'plate-report__note' : 'plate-report__error'" role="alert">{{ t(key) }}</p>
+                }
+
+                @if (awaitingOrder()) {
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="plate-report__submit"
+                        (click)="checkPayment()"
+                        [disabled]="busy()"
+                    >
+                        {{ t('plateReport.checkPayment') }}
+                    </button>
+                }
+
+                <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="pay()" [disabled]="!canPay()">
                     @if (busy()) {
                         <mat-spinner diameter="18"></mat-spinner>
                     }
-                    {{ t('plateReport.pay') }}
+                    {{ totalLabel() ? t('plateReport.payAmount', { total: totalLabel() }) : t('plateReport.pay') }}
                 </button>
+
+                <p class="plate-report__hint">{{ t('plateReport.paymentHint') }}</p>
             }
 
             @if (phase() === 'ready') {

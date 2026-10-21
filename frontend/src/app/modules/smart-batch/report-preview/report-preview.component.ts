@@ -23,12 +23,25 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { colorIconSvg } from '../report-icon.util';
 import { ReportCellPart, ReportHeaderLogo, ReportLogoBand, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
 import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogoSize, headerLogoAlignAt, headerLogoBandHeight, placeCompanyLogos, PlacedHeaderLogo } from '../header-logos.util';
-import { chunkLayoutSheetItems, collectLayoutSheetItems, LayoutSheetChunk, tableColumnPath } from '../report-param-entries.util';
+import {
+    chunkLayoutSheetItems,
+    collectLayoutSheetItems,
+    formatReportCellValue,
+    LayoutSheetChunk,
+    tableColumnPath,
+} from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import { resolveTextRole } from '../report-text-role.util';
 import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
 import { availableFontWeights, fontHeadMarkup, fontWeightStep, nearestFontWeight, registerReportFonts, ReportFontWeight } from '../report-fonts.util';
+import { resolveShapeRuleValue } from '../report-shape-rules.util';
 import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
+import {
+    clampReportSheetZ,
+    REPORT_SHEET_Z_DRAG,
+    REPORT_SHEET_Z_PEEK,
+    REPORT_UI_Z_MARQUEE,
+} from '../report-design-z-index.constants';
 
 export type ReportOverlayId = 'logo' | 'watermark' | 'signature' | `img:${string}` | `hdr:${string}`;
 
@@ -155,7 +168,7 @@ export function reportPaperSizePx(
             }
             .marquee-box {
                 position: fixed;
-                z-index: 100000;
+                z-index: ${REPORT_UI_Z_MARQUEE};
                 border: 1px solid rgb(67 56 202);
                 background: rgba(79, 70, 229, 0.28);
                 box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
@@ -1051,9 +1064,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Shared paint order for blocks, images, and stamps. */
     layerZIndex(id: string, fallback: number): number {
         const value = Number(this.layerZ()[id]);
-        if (Number.isFinite(value) && value > 0) return Math.round(value);
+        if (Number.isFinite(value) && value > 0) return clampReportSheetZ(Math.round(value));
         const safe = Number.isFinite(fallback) ? fallback : 40;
-        return Math.min(800, Math.max(1, Math.round(safe)));
+        return clampReportSheetZ(Math.min(800, Math.max(1, Math.round(safe))));
     }
 
     isLayerHidden(id: string): boolean {
@@ -1079,7 +1092,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     layerPaintZ(id: string, fallback: number): number {
-        if (this.isLayerPeeked(id)) return 100000;
+        if (this.isLayerPeeked(id)) return REPORT_SHEET_Z_PEEK;
         return this.layerZIndex(id, fallback);
     }
 
@@ -1338,7 +1351,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             el = document.createElement('div');
             el.setAttribute('data-report-marquee', '');
             el.style.position = 'fixed';
-            el.style.zIndex = '2147483000';
+            el.style.zIndex = String(REPORT_UI_Z_MARQUEE);
             el.style.pointerEvents = 'none';
             el.style.border = '1px solid rgb(67, 56, 202)';
             el.style.background = 'rgba(79, 70, 229, 0.28)';
@@ -2289,11 +2302,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             position: 'absolute',
             top: `${y / scales.y}px`,
             marginBottom: '0px',
-            zIndex: dragging ? '100000' : String(this.layerZIndex(`sec:${section.id}`, this._sectionZIndex(section))),
+            zIndex: dragging
+                ? String(REPORT_SHEET_Z_DRAG)
+                : String(this.layerZIndex(`sec:${section.id}`, this._sectionZIndex(section))),
             pointerEvents: this._sectionPointer(section),
         };
         if (this.isLayerHidden(`sec:${section.id}`) && !this.isLayerPeeked(`sec:${section.id}`)) style['visibility'] = 'hidden';
-        if (this.isLayerPeeked(`sec:${section.id}`)) style['zIndex'] = '100000';
+        if (this.isLayerPeeked(`sec:${section.id}`)) style['zIndex'] = String(REPORT_SHEET_Z_PEEK);
         if (this.isLayerPeeked(`sec:${section.id}`) && this.isLayerHidden(`sec:${section.id}`)) style['opacity'] = '0.55';
         if (dragging) style['willChange'] = 'left, top, width, height';
         if (hug) {
@@ -2335,7 +2350,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     private _sectionZIndex(section: ReportSection): number {
         const stored = Number(section.style?.zIndex);
-        if (Number.isFinite(stored) && stored > 0) return Math.round(stored);
+        if (Number.isFinite(stored) && stored > 0) return clampReportSheetZ(Math.round(stored));
         return 40;
     }
 
@@ -3783,7 +3798,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             current = current[part];
         }
         if (current == null) return '';
-        if (typeof current === 'object') return JSON.stringify(current);
+        if (typeof current === 'object') return formatReportCellValue(current);
         return String(current);
     }
 
@@ -3797,6 +3812,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
      */
     boundValue(_section: ReportSection, _key: string, fallback: unknown): string {
         if (fallback == null) return '';
+        if (typeof fallback === 'object') return formatReportCellValue(fallback);
         return String(fallback);
     }
 
@@ -3978,7 +3994,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
                     if (value == null) return '—';
 
-                    return typeof value === 'object' ? '…' : String(value);
+                    return typeof value === 'object' ? formatReportCellValue(value) : String(value);
                 })
             );
     }
@@ -4157,7 +4173,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     shapeFill(section: ReportSection): string {
         if (section.ruleField && section.valueRules?.length) {
-            const rule = matchValueRule(section.valueRules, this._valueAt(section.ruleField));
+            const root = this.previewData() as Record<string, unknown>;
+            const sections = this.template()?.sections ?? [];
+            const value = resolveShapeRuleValue(section, root, sections);
+            const rule = matchValueRule(section.valueRules, value);
             if (rule?.color) return rule.color;
         }
         return section.style?.color || section.style?.backgroundColor || this.primaryColor();
@@ -4168,7 +4187,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (kind !== 'cellValue') return null;
         const rules = keyValueRules(section, (key || '__value').split('#')[0]);
         if (!rules.length) return null;
-        return matchValueRule(rules, this._liveValueForKey(section, key, fallback));
+        const raw = this._liveValueForKey(section, key, fallback);
+        const forMatch =
+            raw != null && typeof raw === 'object'
+                ? formatReportCellValue(raw)
+                : raw ?? fallback ?? '';
+        return matchValueRule(rules, forMatch);
     }
 
     ruleBadge(rule: ReportValueRule): SafeHtml | null {

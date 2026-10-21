@@ -1129,13 +1129,17 @@
                         <tr class="border-b-2" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
                                 <th
-                                    class="py-1.5 pr-3 text-left"
+                                    class="cursor-pointer py-1.5 pr-3 text-left"
+                                    [class.ring-1]="isCellSelected(section, column.key, 'label')"
+                                    [class.ring-lime-500]="isCellSelected(section, column.key, 'label')"
                                     [style.font-family]="roleFontFamily(section, 'label')"
                                     [style.font-size.px]="roleFontSize(section, 'label')"
                                     [style.font-weight]="roleFontWeight(section, 'label')"
                                     [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                                     [style.text-align]="roleTextAlign(section, 'label')"
                                     [style.color]="roleColor(section, 'label')"
+                                    (click)="onCellActivate(section, column.key, 'label', $event)"
+                                    (contextmenu)="onCellContextMenu(section, column.key, $event)"
                                 >
                                     <ng-container
                                         [ngTemplateOutlet]="sheetText"
@@ -1150,13 +1154,17 @@
                             <tr [ngStyle]="rowLineBg(section)">
                                 @for (cell of row; track $index; let colIndex = $index) {
                                     <td
-                                        class="py-1.5 pr-3"
+                                        class="cursor-pointer py-1.5 pr-3"
+                                        [class.ring-1]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
                                         [style.font-family]="roleFontFamily(section, 'value')"
                                         [style.font-size.px]="roleFontSize(section, 'value')"
                                         [style.font-weight]="roleFontWeight(section, 'value')"
                                         [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                                         [style.text-align]="roleTextAlign(section, 'value')"
                                         [style.color]="roleColor(section, 'value')"
+                                        (click)="onCellActivate(section, structuralColumns(section)[colIndex].key, 'value', $event)"
+                                        (contextmenu)="onCellContextMenu(section, structuralColumns(section)[colIndex].key, $event)"
                                     >
                                         <ng-container
                                             [ngTemplateOutlet]="sheetText"

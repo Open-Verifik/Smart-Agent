@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,7 +14,14 @@ import { VerifikApiService } from 'app/core/verifik/verifik-api.service';
 import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
 import { firstValueFrom } from 'rxjs';
-import { PaymentService } from '../add-credits/services/payment.service';
+import {
+    BoldConfirmData,
+    BoldCurrency,
+    BoldProduct,
+    BoldQuote,
+    PaymentService,
+    PurchasePolicy,
+} from '../add-credits/services/payment.service';
 import { CreditsService } from '../add-credits/services/credits.service';
 import { extractClientSettingsPayload, invoiceBillingDetailsComplete } from '../settings/utils/invoice-billing-complete';
 import { BatchBrowserRunnerService } from '../smart-batch/batch-browser-runner.service';
@@ -48,11 +55,50 @@ import {
 } from './plate-report.validation';
 
 type PlateReportPhase = 'form' | 'working' | 'payment' | 'ready';
-type WorkingStep = 'account' | 'clone' | 'run' | 'pdf';
+type WorkingStep = 'account' | 'clone' | 'run' | 'pdf' | 'payment';
+
+/** Where the customer stands with the Bold order they came back with. */
+type BoldReturnState = 'approved' | 'pending' | 'abandoned' | 'failed' | 'unknown';
+
+/** Currency choices on screen. Only pesos can be charged for now, so USD is shown but not selectable. */
+interface CurrencyOption {
+    code: BoldCurrency;
+    labelKey: string;
+    methodsKey: string;
+    disabled: boolean;
+}
 
 const VEHICLE_PRESET = defaultSystemKey('vehicle', 'co');
 const POLL_MS = 2500;
 const POLL_LIMIT_MS = 4 * 60 * 1000;
+
+/**
+ * The report is a fixed-price product: the API charges its own peso price (35.000 COP), so the amount is
+ * never sent from here.
+ */
+const REPORT_PRODUCT: BoldProduct = 'plate_report';
+
+/** Bold's webhook can lag, and PSE settles in minutes, so the return trip asks a few times. */
+const BOLD_CONFIRM_ATTEMPTS = 5;
+const BOLD_CONFIRM_RETRY_MS = 3000;
+
+/** Where Bold sends the customer back to; the API whitelists this path. */
+const BOLD_RETURN_PATH = '/reporte-placa';
+
+const CURRENCY_OPTIONS: CurrencyOption[] = [
+    {
+        code: 'COP',
+        labelKey: 'plateReport.currencyCop',
+        methodsKey: 'addCredits.purchaseDialog.bold.methodsCop',
+        disabled: false,
+    },
+    {
+        code: 'USD',
+        labelKey: 'plateReport.currencyUsd',
+        methodsKey: 'plateReport.currencyUsdSoon',
+        disabled: true,
+    },
+];
 
 @Component({
     selector: 'plate-report',
@@ -78,6 +124,7 @@ export class PlateReportComponent implements OnInit {
     private _batches = inject(SmartBatchService);
     private _reports = inject(SmartReportService);
     private _fleet = inject(SmartFleetService);
+    private _dialog = inject(MatDialog);
     private _runner = inject(BatchBrowserRunnerService);
     private _credits = inject(CreditsService);
     private _payment = inject(PaymentService);
@@ -117,11 +164,70 @@ export class PlateReportComponent implements OnInit {
     readonly reusedReport = signal(false);
     /** The report reference was stored on the account's vehicle. */
     readonly savedOnAccount = signal(false);
+    /** The phone already has an account, so the client is asked to sign in instead of registering again. */
+    readonly needsSignIn = signal(false);
+
+    readonly currencyOptions = CURRENCY_OPTIONS;
+    /** Charge currency. Pesos are the only one enabled, and the one that unlocks PSE, Nequi and Bancolombia. */
+    readonly currency = signal<BoldCurrency>('COP');
+    /** Peso price of the report at today's rate; null until the quote resolves. */
+    readonly quote = signal<BoldQuote | null>(null);
+    readonly quoteLoading = signal(false);
+    /** No USD/COP rate is available, and pesos are the only way to pay, so paying has to wait. */
+    readonly fxUnavailable = signal(false);
+    readonly policy = signal<PurchasePolicy | null>(null);
+    /** First purchase from a Colombian account: the API only allows PSE and sends the client to a hosted link. */
+    readonly pseOnly = computed(() => this.policy()?.restricted === true);
+    /** A Bold order the customer came back with that has not settled yet. */
+    readonly awaitingOrder = signal(false);
+
+    readonly totalLabel = computed(() => {
+        const quote = this.quote();
+        if (!quote || quote.currency !== 'COP') return '';
+
+        return `${new Intl.NumberFormat('es-CO').format(quote.total)} COP`;
+    });
+
+    private _orderId = '';
 
     constructor() {
         inject(DestroyRef).onDestroy(() => {
             this._left = true;
         });
+
+        // The quote and the purchase policy need the account, which only exists once the payment step shows.
+        effect(() => {
+            if (this.phase() === 'payment') untracked(() => void this._loadPaymentInfo());
+        });
+    }
+
+    selectCurrency(option: CurrencyOption): void {
+        if (option.disabled || this.busy()) return;
+
+        this.currency.set(option.code);
+    }
+
+    private async _loadPaymentInfo(): Promise<void> {
+        this.fxUnavailable.set(false);
+        this.quoteLoading.set(true);
+
+        try {
+            const policy = await firstValueFrom(this._payment.getPurchasePolicy());
+            this.policy.set(policy.data ?? null);
+        } catch {
+            // A failed lookup leaves the default path: the API rejects a forbidden method anyway.
+            this.policy.set(null);
+        }
+
+        try {
+            const quote = await firstValueFrom(this._payment.getBoldProductQuote(REPORT_PRODUCT));
+            this.quote.set(quote.data ?? null);
+        } catch (error) {
+            this.quote.set(null);
+            if (this._errorMessage(error).includes('bold_fx_unavailable')) this.fxUnavailable.set(true);
+        } finally {
+            this.quoteLoading.set(false);
+        }
     }
 
     ngOnInit(): void {
@@ -157,31 +263,97 @@ export class PlateReportComponent implements OnInit {
         }
     }
 
+    /**
+     * Bold sends the customer back with `bold-order-id`. Credits are granted by Bold's webhook or by the
+     * confirm call, whichever comes first, so the order is asked about a few times before giving up.
+     */
     private async _handleBoldReturn(orderId: string): Promise<void> {
+        this._orderId = orderId;
+        this.awaitingOrder.set(false);
+        this.errorKey.set(null);
+        this.workingStep.set('payment');
         this.phase.set('working');
         this.busy.set(true);
+
+        // Drops Bold's parameters so a refresh does not replay the return trip.
+        void this._router.navigate(['/reporte-placa'], { replaceUrl: true });
+
         try {
-            const result = await firstValueFrom(this._payment.confirmBoldPurchase(orderId));
-            const status = result?.data?.transaction?.status;
-            if (status === 'approved' || result?.data?.finalized) {
+            const state = await this._confirmBoldOrder(orderId);
+
+            if (this._left) return;
+
+            if (state === 'approved') {
+                this._orderId = '';
                 this._paid = true;
                 this._remember();
                 await firstValueFrom(this._auth.refreshSession());
                 await this.startReport();
                 return;
             }
-            if (result?.data?.pending) {
+
+            if (state === 'pending') {
+                this.awaitingOrder.set(true);
                 this.errorKey.set('plateReport.paymentPending');
-                this.phase.set('payment');
-                return;
+            } else {
+                this._orderId = '';
+                this.errorKey.set(
+                    state === 'abandoned'
+                        ? 'plateReport.paymentAbandoned'
+                        : state === 'failed'
+                          ? 'plateReport.paymentFailed'
+                          : 'plateReport.paymentUnknown'
+                );
             }
-            this.errorKey.set('plateReport.paymentPending');
             this.phase.set('payment');
-        } catch {
+        } catch (error) {
+            console.error('[PlateReport] could not finish after the payment', error);
+            this._showError('plateReport.genericError', error);
             this.phase.set('payment');
         } finally {
             this.busy.set(false);
         }
+    }
+
+    /** Asks again for a payment that was still settling (PSE debits can take a few minutes). */
+    async checkPayment(): Promise<void> {
+        if (this.busy() || !this._orderId) return;
+
+        await this._handleBoldReturn(this._orderId);
+    }
+
+    private async _confirmBoldOrder(orderId: string): Promise<BoldReturnState> {
+        for (let attempt = 1; attempt <= BOLD_CONFIRM_ATTEMPTS; attempt++) {
+            let state: BoldReturnState;
+
+            try {
+                const response = await firstValueFrom(this._payment.confirmBoldPurchase(orderId));
+                state = this._boldStateFromConfirm(response.data);
+            } catch (error) {
+                // Our own API could not be reached: never presented as a payment on its way.
+                console.error('[PlateReport] could not confirm the Bold order', error);
+                return 'unknown';
+            }
+
+            if (state !== 'pending' || attempt === BOLD_CONFIRM_ATTEMPTS) return state;
+
+            await this._sleep(BOLD_CONFIRM_RETRY_MS);
+
+            if (this._left) return state;
+        }
+
+        return 'pending';
+    }
+
+    /** An order written off for never being paid also reads as `failed`, so that flag is checked first. */
+    private _boldStateFromConfirm(data?: BoldConfirmData): BoldReturnState {
+        if (data?.abandoned) return 'abandoned';
+
+        const status = data?.transaction?.status;
+
+        if (status === 'approved' || status === 'failed' || status === 'pending') return status;
+
+        return 'unknown';
     }
 
     selectedCountry(): CountryDialCode {
@@ -192,6 +364,7 @@ export class PlateReportComponent implements OnInit {
         if (this.busy()) return;
         this.fieldError.set(null);
         this.errorKey.set(null);
+        this.needsSignIn.set(false);
 
         const personName = normalizePersonName(this.personName());
         this.personName.set(personName);
@@ -239,6 +412,8 @@ export class PlateReportComponent implements OnInit {
 
             this.phase.set('payment');
         } catch (error) {
+            if (this._handleAccountError(error)) return;
+
             this._showError('plateReport.genericError', error);
             this.phase.set('form');
         } finally {
@@ -246,45 +421,138 @@ export class PlateReportComponent implements OnInit {
         }
     }
 
+    /**
+     * Turns the account errors the API returns into something the client can act on.
+     * Returns true when the error was an account error and the form is shown again.
+     */
+    private _handleAccountError(error: unknown): boolean {
+        const message = this._errorMessage(error).toLowerCase();
+        const show = (key: string, signIn = false): true => {
+            this.errorKey.set(key);
+            this.errorDetail.set('');
+            this.needsSignIn.set(signIn);
+            this.phase.set('form');
+
+            return true;
+        };
+
+        // The phone or email already belongs to an account: it has to be opened by signing in, not re-created.
+        if (message.includes('is_registered_already')) return show('plateReport.accountExists', true);
+
+        // The report project or its onboarding flow is not published, or has no plan: nothing the client can fix.
+        if (
+            message.includes('onboarding_flow_not_published') ||
+            message.includes('project_not_found') ||
+            message.includes('projectflow_not_found') ||
+            message.includes('clientsmartenrollplan_not_found')
+        ) {
+            return show('plateReport.accountUnavailable');
+        }
+
+        if (message === 'account' || message === 'project_not_allowed') return show('plateReport.accountFailed');
+        if (message === 'signupform_validation_not_passed') return show('plateReport.verificationRequired');
+
+        return false;
+    }
+
+    /** For people who already have a Verifik account: sign in, then continue with the same data. */
+    async signIn(): Promise<void> {
+        if (this.busy()) return;
+
+        const { AuthModalComponent } = await import('app/layout/common/auth-modal/auth-modal.component');
+
+        this._dialog
+            .open(AuthModalComponent, { panelClass: 'auth-modal-dialog', width: '400px', maxWidth: '100vw' })
+            .afterClosed()
+            .subscribe(() => {
+                this.signedIn.set(this._session.isTokenValid());
+                if (!this.signedIn()) return;
+
+                this.needsSignIn.set(false);
+                this.errorKey.set(null);
+                void this.submitForm();
+            });
+    }
+
     statusKey(): string {
         const step = this.workingStep();
         if (step === 'account') return 'plateReport.workingAccount';
+        if (step === 'payment') return 'plateReport.workingPayment';
         if (step === 'run') return 'plateReport.workingRun';
         if (step === 'pdf') return 'plateReport.workingPdf';
         return 'plateReport.workingClone';
     }
 
+    /** Pesos are the only enabled currency, so the order is always made in COP. */
+    canPay(): boolean {
+        return !this.busy() && this.currency() === 'COP' && !this.fxUnavailable();
+    }
+
+    /**
+     * Opens the Bold order for the report, charged in pesos at the API's fixed price. A first purchase from a
+     * Colombian account comes back as a hosted PSE link to navigate to; any other order opens Bold's modal.
+     * Either way Bold returns to this page with `bold-order-id`, handled in {@link _handleBoldReturn}.
+     */
     async pay(): Promise<void> {
-        if (this.busy()) return;
+        if (!this.canPay()) return;
+
         this.busy.set(true);
         this.errorKey.set(null);
+        this.errorDetail.set('');
         this._remember('after-payment');
+
         try {
-            // Amount in USD for the Bold purchase (approx $6 USD ~ 24.000 COP) or COP directly
-            // The backend /v2/credits/bold/checkout handles currency: 'COP' or amount in USD
             const response = await firstValueFrom(
                 this._payment.createBoldCheckout({
-                    amount: 6, // 6 USD ~ 24,000 COP
+                    product: REPORT_PRODUCT,
                     currency: 'COP',
                     origin: 'smart_agent',
+                    returnPath: BOLD_RETURN_PATH,
                 })
             );
 
             const config = response.data;
+
             if (config.mode === 'redirect') {
+                // Leaves the spinner up: the page is on its way to Bold.
                 this._payment.redirectToBoldCheckout(config);
                 return;
             }
 
             await this._payment.loadBoldCheckoutScript();
             this._payment.openBoldCheckout(config);
-            this.errorKey.set('plateReport.paymentPending');
         } catch (error) {
-            console.error('Failed to open Bold checkout:', error);
-            this._showError('plateReport.genericError', error);
+            console.error('[PlateReport] could not open the Bold checkout', error);
+            this.errorKey.set(this._paymentErrorKey(error));
+            this.errorDetail.set('');
         } finally {
             this.busy.set(false);
         }
+    }
+
+    /** Maps the API's purchase errors to text that makes sense for a single-report payment. */
+    private _paymentErrorKey(error: unknown): string {
+        const message = this._errorMessage(error);
+
+        if (message.includes('bold_fx_unavailable')) {
+            this.fxUnavailable.set(true);
+            return 'plateReport.fxUnavailable';
+        }
+        if (message.includes('first_purchase_requires_pse')) return 'addCredits.purchaseDialog.errors.firstPurchaseRequiresPse';
+        if (message.includes('duplicate_credit_purchase')) return 'plateReport.paymentDuplicate';
+        if (message.includes('must be at least') || message.includes('credit_purchase_invalid_amount')) {
+            return 'plateReport.paymentAmount';
+        }
+        if (
+            message.includes('bold_not_configured') ||
+            message.includes('bold_voucher_lookup_failed') ||
+            message.includes('bold_payment_link') ||
+            message.includes('bold_checkout')
+        ) {
+            return 'plateReport.paymentUnavailable';
+        }
+
+        return 'plateReport.paymentFailedToOpen';
     }
 
     async continueFromDraft(): Promise<void> {
@@ -353,6 +621,7 @@ export class PlateReportComponent implements OnInit {
         this.pendingNotice.set(false);
         this.reusedReport.set(false);
         this.savedOnAccount.set(false);
+        this.needsSignIn.set(false);
         this.errorKey.set(null);
         this.fieldError.set(null);
         this.phase.set('form');
@@ -428,19 +697,8 @@ export class PlateReportComponent implements OnInit {
             this.errorKey.set('plateReport.failed');
             this.phase.set('form');
         } catch (error) {
-            const accountMessage = this._errorMessage(error);
-            if (accountMessage === 'account' || accountMessage === 'Project_not_allowed') {
-                this.errorKey.set('plateReport.accountFailed');
-                this.errorDetail.set('');
-                this.phase.set('form');
-                return;
-            }
-            if (accountMessage === 'signUpForm_validation_not_passed') {
-                this.errorKey.set('plateReport.verificationRequired');
-                this.errorDetail.set('');
-                this.phase.set('form');
-                return;
-            }
+            if (this._handleAccountError(error)) return;
+
             const code = this._errorCode(error);
             if (code === 'insufficient_credits' || /credit/i.test(this._errorMessage(error))) {
                 this._remember('after-payment');
@@ -618,17 +876,14 @@ export class PlateReportComponent implements OnInit {
     }
 
     /**
-     * Opens the current session, or creates a basic account from the name, phone, and email.
-     * The contact is stored as given. This step does not send or require a verification code.
+     * Uses the current session (a Verifik account or one created here earlier), or creates a basic account
+     * in the report project from the phone and name. The basic account has no verification code step.
+     *
+     * An existing session is never edited: its profile belongs to the account, not to this form.
      */
     private async _ensureBasicAccount(): Promise<void> {
         if (this._session.isTokenValid()) {
             this.signedIn.set(true);
-            try {
-                await firstValueFrom(this._users.updateClient({ name: this.personName() }));
-            } catch {
-                // The lookup can continue with the name captured on this form.
-            }
             return;
         }
 
@@ -646,7 +901,8 @@ export class PlateReportComponent implements OnInit {
             countryCode?: string;
         } = {
             projectFlow: await this._onboardingFlowId(),
-            fullName: this.personName() || undefined,
+            // The project flow requires a name; the form keeps it optional, so fall back to the phone.
+            fullName: this.personName() || `Cliente ${phone || this.plate()}`,
             ...(email ? { email } : {}),
             ...(phone ? { phone, countryCode: country.dialCode } : {}),
         };

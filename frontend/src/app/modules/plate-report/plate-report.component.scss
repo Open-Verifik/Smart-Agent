@@ -128,6 +128,86 @@ h2 {
     border-radius: 0.9rem !important;
 }
 
+.plate-report__currency {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+}
+
+.plate-report__currency-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgb(203, 213, 225);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.plate-report__currency-option.is-active {
+    border-color: rgb(37, 99, 235);
+    background: rgb(239, 246, 255);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    color: rgb(30, 41, 59);
+}
+
+.plate-report__currency-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.plate-report__currency-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(203, 213, 225);
+    background: #fff;
+    color: rgb(15, 23, 42);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.plate-report__currency-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.plate-report__currency-text small {
+    color: rgb(100, 116, 139);
+    font-size: 0.78rem;
+}
+
+:host-context(.dark) .plate-report__currency-option {
+    border-color: rgb(71, 85, 105);
+}
+
+:host-context(.dark) .plate-report__currency-option.is-active {
+    background: rgba(37, 99, 235, 0.18);
+    color: #e2e8f0;
+}
+
+.plate-report__quote,
+.plate-report__hint {
+    margin: 0 0 0.9rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: rgb(100, 116, 139);
+}
+
+.plate-report__hint {
+    margin: 0.75rem 0 0;
+    font-size: 0.8rem;
+}
+
 .plate-report__row {
     display: flex;
     justify-content: space-between;

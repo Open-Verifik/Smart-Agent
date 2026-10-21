@@ -47,6 +47,9 @@ export interface CreditPurchaseResponse {
  */
 export type BoldCurrency = 'USD' | 'COP';
 
+/** Products the API sells at its own fixed peso price instead of a USD credit amount. */
+export type BoldProduct = 'plate_report';
+
 /** Rails Bold will offer for the chosen currency, as reported by the backend. */
 export type BoldMethod = 'card' | 'pse' | 'nequi' | 'bancolombia';
 
@@ -296,11 +299,31 @@ export class PaymentService {
         });
     }
 
+    /** Peso price of a fixed-price product, without creating an order. */
+    getBoldProductQuote(product: BoldProduct) {
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.get<{ data: BoldQuote }>(`${this.apiUrl}/v2/credits/bold/quote`, {
+            headers,
+            params: { product, currency: 'COP' },
+        });
+    }
+
     /**
      * Opens a Bold order (hosted checkout, no saved card). Returns the signed config the browser
      * hands to Bold; credits are only granted once Bold confirms the sale.
      */
-    createBoldCheckout(request: { amount: number; currency?: BoldCurrency; origin?: string }) {
+    createBoldCheckout(request: {
+        /** Whole USD of credits. Left out for a fixed-price `product`, which the API prices itself. */
+        amount?: number;
+        currency?: BoldCurrency;
+        /** Fixed-price product (e.g. `plate_report`), always charged in pesos at the API's price. */
+        product?: BoldProduct;
+        origin?: string;
+        /** Page Bold sends the customer back to; the API only honours its own whitelist. */
+        returnPath?: string;
+    }) {
         this.error.set(null);
 
         const token = localStorage.getItem('accessToken');
@@ -309,9 +332,11 @@ export class PaymentService {
         return this._httpClient.post<{ data: BoldCheckoutConfig }>(
             `${this.apiUrl}/v2/credits/bold/checkout`,
             {
-                amount: request.amount,
-                currency: request.currency || 'USD',
+                ...(request.product
+                    ? { product: request.product, currency: 'COP' }
+                    : { amount: request.amount, currency: request.currency || 'USD' }),
                 origin: request.origin || 'smart_agent',
+                ...(request.returnPath ? { returnPath: request.returnPath } : {}),
             },
             { headers }
         );

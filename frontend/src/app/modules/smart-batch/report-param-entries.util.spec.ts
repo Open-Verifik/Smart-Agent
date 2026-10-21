@@ -5,8 +5,11 @@ import {
     collectObjectTables,
     collectScalarParams,
     flattenSampleResultsForPdf,
+    formatReportCellValue,
     isHiddenParamKey,
     layoutParamGroups,
+    layoutTableRulesKey,
+    layoutTableRowIndex,
     relativeLayoutItemKey,
     setHiddenParamKey,
     sortByKeyOrder,
@@ -19,6 +22,26 @@ const nestedPayload = {
         { name: 'Luis', id: 2 },
     ],
 };
+
+describe('layoutTableRulesKey', () => {
+    it('strips row index from table cell store keys', () => {
+        expect(layoutTableRulesKey('ownershipDuration#0')).toBe('ownershipDuration');
+        expect(layoutTableRulesKey('owners.documentNumber#12')).toBe('owners.documentNumber');
+        expect(layoutTableRulesKey('plate')).toBe('plate');
+    });
+
+    it('parses row index from store keys', () => {
+        expect(layoutTableRowIndex('ownershipDuration#2')).toBe(2);
+        expect(layoutTableRowIndex('plate')).toBeNull();
+    });
+});
+
+describe('formatReportCellValue', () => {
+    it('formats colombian vehicle ownership duration objects', () => {
+        expect(formatReportCellValue({ years: 8, months: 6, days: 23 })).toBe('8 años, 6 meses, 23 días');
+        expect(formatReportCellValue({ anios: 2, meses: 4, dias: 0 })).toBe('2 años, 4 meses');
+    });
+});
 
 describe('collectScalarParams', () => {
     it('flattens nested objects into dotted keys', () => {

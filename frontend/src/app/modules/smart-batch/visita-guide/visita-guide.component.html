@@ -1508,6 +1508,26 @@
                                         </button>
                                     </article>
                                 }
+                                <button
+                                    type="button"
+                                    class="mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/40 px-3 text-sm font-semibold text-indigo-800 transition hover:border-indigo-400 hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-500/50 dark:bg-indigo-950/20 dark:text-indigo-200"
+                                    (click)="openLayoutAddConsultDialog()"
+                                    [disabled]="isAddingLayoutConsult()"
+                                >
+                                    @if (isAddingLayoutConsult()) {
+                                        <mat-spinner diameter="20"></mat-spinner>
+                                    } @else {
+                                        <mat-icon class="!text-[20px]">add_circle</mat-icon>
+                                    }
+                                    {{ t('visitaGuide.layoutAddConsult') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="text-center text-[11px] font-medium text-stone-500 underline-offset-2 hover:text-stone-700 hover:underline dark:text-stone-400 dark:hover:text-stone-200"
+                                    (click)="goToEndpointsFromLayout()"
+                                >
+                                    {{ t('visitaGuide.layoutBrowseEndpoints') }}
+                                </button>
                             </div>
 
                             <div class="min-w-0">
@@ -1603,6 +1623,7 @@
                                         [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
                                         [cdkConnectedOverlayHasBackdrop]="true"
                                         cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                                        cdkConnectedOverlayPanelClass="report-design-overlay-pane"
                                         (backdropClick)="layoutShapesOpen.set(false)"
                                         (overlayKeydown)="$event.key === 'Escape' && layoutShapesOpen.set(false)"
                                         (detach)="layoutShapesOpen.set(false)"
@@ -1723,6 +1744,7 @@
                             <div class="flex items-start gap-3">
                             <div class="min-w-0 flex-1">
                             <div
+                                #layoutDocumentViewport
                                 cdkDropList
                                 id="visita-layout-canvas"
                                 data-document-viewport
@@ -1943,7 +1965,7 @@
                                 <div
                                     #layoutDocumentBackdrop
                                     class="visita-document-backdrop fixed inset-0 bg-stone-900/25 dark:bg-black/50"
-                                    style="z-index: 999980"
+                                    [style.z-index]="uiZ.backdrop"
                                     (click)="closeLayoutEditor()"
                                 ></div>
                             }
@@ -1953,8 +1975,8 @@
                                 [cdkDragDisabled]="layoutEditorKind() === 'page'"
                                 [cdkDragFreeDragPosition]="layoutEditorDrag()"
                                 (cdkDragEnded)="onLayoutEditorDragEnded($event)"
-                                class="visita-layout-editor z-[999990] flex flex-col bg-white dark:bg-gray-900"
-                                style="z-index: 999990"
+                                class="visita-layout-editor flex flex-col bg-white dark:bg-gray-900"
+                                [style.z-index]="uiZ.panel"
                                 [ngClass]="
                                     layoutEditorKind() === 'page'
                                         ? 'fixed right-0 top-0 h-screen w-full max-w-md border-l border-stone-200 dark:border-gray-800'
@@ -2854,13 +2876,23 @@
                                                 <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutParamOrder') }}</p>
                                                 <div class="mt-2 max-h-56 space-y-1 overflow-y-auto">
                                                     @for (column of selectedDataTableColumns(); track column.key; let first = $first; let last = $last) {
-                                                        <div class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30">
+                                                        <div
+                                                            class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30"
+                                                            [class.ring-2]="selectedLayoutCellKey() === column.key"
+                                                            [class.ring-amber-500]="selectedLayoutCellKey() === column.key"
+                                                        >
                                                             <input
                                                                 type="checkbox"
                                                                 [ngModel]="column.visible"
                                                                 (ngModelChange)="setLayoutParamVisible(column.key, $event)"
                                                             />
-                                                            <span class="min-w-0 flex-1 truncate text-xs text-stone-700 dark:text-stone-200">{{ column.label }}</span>
+                                                            <button
+                                                                type="button"
+                                                                class="min-w-0 flex-1 truncate text-left text-xs text-stone-700 dark:text-stone-200"
+                                                                (click)="selectDataTableColumn(column.key)"
+                                                            >
+                                                                {{ column.label }}
+                                                            </button>
                                                             <button
                                                                 type="button"
                                                                 class="rounded px-1 text-xs text-stone-500 disabled:opacity-30"
@@ -3780,8 +3812,8 @@
     @if (step() === 'layout' && selectedLayoutShowsFormatBar() && layoutFormatAnchor(); as anchor) {
         <div
             #layoutFormatBarEl
-            class="visita-layout-format-bar fixed z-[999995] flex w-max overflow-hidden rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
-            style="z-index: 999995"
+            class="visita-layout-format-bar fixed flex w-max overflow-hidden rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
+            [style.z-index]="uiZ.toolbar"
             [class.flex-col]="!anchor.opensUp"
             [class.flex-col-reverse]="anchor.opensUp"
             [style.left.px]="anchor.x"
@@ -4190,6 +4222,7 @@
                 [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
                 [cdkConnectedOverlayHasBackdrop]="true"
                 cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                cdkConnectedOverlayPanelClass="report-design-overlay-pane"
                 (backdropClick)="layoutTextCaseOpen.set(false)"
                 (overlayKeydown)="$event.key === 'Escape' && layoutTextCaseOpen.set(false)"
                 (detach)="layoutTextCaseOpen.set(false)"
@@ -5070,13 +5103,23 @@
                                 <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutParamOrder') }}</p>
                                 <div class="mt-2 max-h-40 space-y-1 overflow-y-auto">
                                     @for (column of selectedDataTableColumns(); track column.key; let first = $first; let last = $last) {
-                                        <div class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30">
+                                        <div
+                                            class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30"
+                                            [class.ring-2]="selectedLayoutCellKey() === column.key"
+                                            [class.ring-amber-500]="selectedLayoutCellKey() === column.key"
+                                        >
                                             <input
                                                 type="checkbox"
                                                 [ngModel]="column.visible"
                                                 (ngModelChange)="setLayoutParamVisible(column.key, $event)"
                                             />
-                                            <span class="min-w-0 flex-1 truncate text-xs text-stone-700 dark:text-stone-200">{{ column.label }}</span>
+                                            <button
+                                                type="button"
+                                                class="min-w-0 flex-1 truncate text-left text-xs text-stone-700 dark:text-stone-200"
+                                                (click)="selectDataTableColumn(column.key)"
+                                            >
+                                                {{ column.label }}
+                                            </button>
                                             <button
                                                 type="button"
                                                 class="rounded px-1 text-xs text-stone-500 disabled:opacity-30"
@@ -5192,8 +5235,8 @@
     @if (layoutContextMenu(); as menu) {
         <div
             #layoutContextMenuEl
-            class="visita-layout-context-menu fixed z-[1000000] min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
-            style="z-index: 1000000"
+            class="visita-layout-context-menu fixed min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            [style.z-index]="uiZ.menu"
             [style.left.px]="menu.x"
             [style.top.px]="menu.y"
             [style.max-height.px]="menu.maxHeight"

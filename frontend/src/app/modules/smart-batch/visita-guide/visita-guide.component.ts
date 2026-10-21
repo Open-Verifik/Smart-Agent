@@ -22,12 +22,15 @@ import { ReportEmojiPickerData, ReportEmojiPickerDialogComponent } from '../repo
 import {
     ReportRuleIconChoice,
     ReportRuleScope,
+    ReportShapeFieldOption,
     ReportValueRulesDialogComponent,
     ReportValueRulesDialogData,
     ReportValueRulesDialogResult,
 } from '../report-value-rules-dialog.component';
+import { shapeRuleTestSamples } from '../report-shape-rules.util';
 import { sanitizeValueRules } from '../report-value-rules.util';
 import { imageAspectRatio, scalableImageSrc } from '../report-image.util';
+import { ReportBuilderAddConsultDialogComponent } from '../report-builder/report-builder-add-consult-dialog.component';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
 import { HEADER_LOGO_DEFAULT_HEIGHT, HEADER_LOGO_DEFAULT_WIDTH, HEADER_LOGO_MAX_HEIGHT, HEADER_LOGO_MIN_HEIGHT, fitHeaderLogoSize } from '../header-logos.util';
@@ -63,15 +66,27 @@ import {
     requiredParamChipClass,
 } from '../endpoint-param-highlight.util';
 import { featureGroup, featureGroupIcon, FeatureGroupId, isSmartBatchCatalogFeature } from '../feature-group.util';
+import {
+    clampReportSheetZ,
+    REPORT_DESIGN_BODY_CLASS,
+    REPORT_UI_Z_BACKDROP,
+    REPORT_UI_Z_CDK_OVERLAY,
+    REPORT_UI_Z_MENU,
+    REPORT_UI_Z_PANEL,
+    REPORT_UI_Z_TOOLBAR,
+} from '../report-design-z-index.constants';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
 import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SampleReportData, SmartReport, SmartReportService, SmartReportTemplate, cloneReportValue } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
     collectObjectTables,
+    formatReportCellValue,
+    layoutTableRulesKey,
     tableColumnPath,
     isHiddenParamKey,
     layoutParamGroups,
+    mergeLayoutKeyOrder,
     LAYOUT_HOST_SECTION_TYPES,
     relativeLayoutItemKey,
     remapLayoutOverrideKey,
@@ -98,6 +113,13 @@ import {
 } from '../report-row-line.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
+import { orderedBatchSteps } from '../batch-config-steps.util';
+import {
+    buildStepSequenceMap,
+    ensureResultSlots,
+    remapReportSectionPaths,
+    remapResultsRecord,
+} from '../batch-step-sequence.util';
 import { buildRowDataForResolution } from '../template-match.util';
 import {
     featureIdsFromConfiguration,
@@ -340,6 +362,14 @@ type GuideResultCard = {
     ],
 })
 export class VisitaGuideComponent implements OnInit, OnDestroy {
+    /** z-index tokens for layout chrome (always above sheet content). */
+    readonly uiZ = {
+        backdrop: REPORT_UI_Z_BACKDROP,
+        panel: REPORT_UI_Z_PANEL,
+        toolbar: REPORT_UI_Z_TOOLBAR,
+        menu: REPORT_UI_Z_MENU,
+    };
+
     private _state = inject(VisitaGuideStateService);
     private _batch = inject(SmartBatchService);
     private _reports = inject(SmartReportService);
@@ -364,6 +394,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @ViewChild('layoutEditorPanel') private _layoutEditorPanel?: ElementRef<HTMLElement>;
     @ViewChild('layoutDocumentBackdrop') private _layoutDocumentBackdrop?: ElementRef<HTMLElement>;
     @ViewChild('layoutEditorScroll') private _layoutEditorScroll?: ElementRef<HTMLElement>;
+    @ViewChild('layoutDocumentViewport') private _layoutDocumentViewport?: ElementRef<HTMLElement>;
     @ViewChild('layoutContextMenuEl') private _layoutContextMenuEl?: ElementRef<HTMLElement>;
     @ViewChild('layoutFormatBarEl') private _layoutFormatBarEl?: ElementRef<HTMLElement>;
     @ViewChild('countrySearchInput') private _countrySearchInput?: ElementRef<HTMLInputElement>;
@@ -1151,8 +1182,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    constructor() {
+        effect(() => {
+            const onLayout = this.step() === 'layout';
+            untracked(() => document.body.classList.toggle(REPORT_DESIGN_BODY_CLASS, onLayout));
+        });
+    }
+
     ngOnDestroy(): void {
         this._alive = false;
+        document.body.classList.remove(REPORT_DESIGN_BODY_CLASS);
         if (this._endpointHoverHide) clearTimeout(this._endpointHoverHide);
         if (this._endpointHoverShow) clearTimeout(this._endpointHoverShow);
         if (this._layoutHistoryTimer) clearTimeout(this._layoutHistoryTimer);
@@ -1812,7 +1851,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }): void => {
         this.selectedLayoutOverlay.set(null);
         this.selectedLayoutSectionId.set(event.section.id);
-        this.selectedLayoutCellKey.set(event.key);
+        this.selectedLayoutCellKey.set(event.key ? layoutTableRulesKey(event.key) : null);
         this.selectedLayoutCellPart.set(event.part);
         this._followCellPart = event.part === 'label' || event.part === 'value';
         if (this._followCellPartTimer) clearTimeout(this._followCellPartTimer);
@@ -1886,7 +1925,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _stackZ(section: ReportSection): number {
         const stored = Number(section.style?.zIndex);
-        if (Number.isFinite(stored) && stored > 0) return stored;
+        if (Number.isFinite(stored) && stored > 0) return clampReportSheetZ(stored);
         return 40;
     }
 
@@ -2165,7 +2204,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _topLayoutZ(): number {
-        return this.layoutLayers().reduce((highest, layer) => Math.max(highest, layer.z), 40);
+        const top = this.layoutLayers().reduce((highest, layer) => Math.max(highest, layer.z), 40);
+        return clampReportSheetZ(top);
     }
 
     private _writeLayoutLayerOrder(layers: LayoutLayerItem[]): void {
@@ -2228,15 +2268,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _bringSectionsToFront(list: ReportSection[], ids: string[]): ReportSection[] {
         if (!ids.length) return list;
         const moved = new Set(ids);
-        const maxZ = Math.max(
-            this._topLayoutZ(),
-            list.reduce((highest, section) => Math.max(highest, this._stackZ(section)), 0)
+        const maxZ = clampReportSheetZ(
+            Math.max(
+                this._topLayoutZ(),
+                list.reduce((highest, section) => Math.max(highest, this._stackZ(section)), 0)
+            )
         );
         return list.map((section) =>
             moved.has(section.id)
                 ? {
                       ...section,
-                      style: { ...(section.style ?? {}), zIndex: maxZ + 1 + ids.indexOf(section.id) },
+                      style: {
+                          ...(section.style ?? {}),
+                          zIndex: clampReportSheetZ(maxZ + 1 + ids.indexOf(section.id)),
+                      },
                   }
                 : section
         );
@@ -2457,7 +2502,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _raiseAppOverlay(): void {
         const overlay = document.querySelector('.cdk-overlay-container') as HTMLElement | null;
-        if (overlay) overlay.style.zIndex = '1000002';
+        if (overlay) overlay.style.zIndex = String(REPORT_UI_Z_CDK_OVERLAY);
     }
 
     onLayoutEditorDragEnded(event: CdkDragEnd): void {
@@ -2682,6 +2727,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         document.querySelectorAll('body > .visita-layout-format-bar').forEach((node) => node.remove());
     }
 
+    /** True when the selection box overlaps the layout canvas scrollport (sheet in view). */
+    private _selectionRectVisibleInLayoutViewport(rect: DOMRect): boolean {
+        const viewport = this._layoutDocumentViewport?.nativeElement;
+        if (!viewport) return true;
+        const bounds = viewport.getBoundingClientRect();
+        return (
+            rect.right > bounds.left &&
+            rect.left < bounds.right &&
+            rect.bottom > bounds.top &&
+            rect.top < bounds.bottom
+        );
+    }
+
     private _measureFormatAnchor(): { x: number; y: number; opensUp: boolean; room: number } | null {
         const preview = this._layoutEditorPreview;
         if (!preview || this.step() !== 'layout' || !this.selectedLayoutShowsFormatBar()) return null;
@@ -2696,6 +2754,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                       : null;
               })();
         if (!rect || rect.width < 2 || rect.height < 2) return null;
+        if (!this._selectionRectVisibleInLayoutViewport(rect)) return null;
         const el = this._layoutFormatBarEl?.nativeElement;
         if (el && el.parentElement !== document.body) document.body.appendChild(el);
         const row = el?.querySelector('[data-format-toolbar]') as HTMLElement | null;
@@ -2969,7 +3028,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             rowLineWidth: override?.rowLineWidth ?? source.rowLineWidth,
             rowLineMark: override?.rowLineMark ?? source.rowLineMark,
             style: {
-                zIndex: topZ + 1,
+                zIndex: clampReportSheetZ(topZ + 1),
                 backgroundColor: override?.backgroundColor ?? source.style?.backgroundColor,
                 borderWidth: override?.borderWidth ?? source.style?.borderWidth,
                 borderColor: override?.borderColor ?? source.style?.borderColor,
@@ -3095,7 +3154,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
         }
         const topZ = this._topLayoutZ();
-        copy.style = { ...(copy.style ?? {}), zIndex: topZ + 1 };
+        copy.style = { ...(copy.style ?? {}), zIndex: clampReportSheetZ(topZ + 1) };
         this.layoutSections.update((list) => {
             const index = list.findIndex((section) => section.id === source.id);
             const next = [...list];
@@ -3494,6 +3553,70 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(section.id);
         this._focusLayoutEditor(section, 'block');
         if (section.frame) this._showFrameOnSheet(section.frame);
+    }
+
+    isAddingLayoutConsult = signal(false);
+
+    /** Country string for the endpoint catalog while designing a template layout. */
+    layoutConsultCountry(): string {
+        return this.configuration()?.country ?? this.countryIsos()[0] ?? 'co';
+    }
+
+    /** Pick another Verifik endpoint; it is appended to Smart Batch and appears under «Tus consultas». */
+    openLayoutAddConsultDialog(): void {
+        const excludeFeatureIds = this.selectedFeatures()
+            .map((feature) => feature._id)
+            .filter((id): id is string => Boolean(id));
+
+        this._dialog
+            .open(ReportBuilderAddConsultDialogComponent, {
+                width: '480px',
+                maxWidth: '95vw',
+                data: { country: this.layoutConsultCountry(), excludeFeatureIds },
+            })
+            .afterClosed()
+            .subscribe((feature) => {
+                if (!feature?._id) return;
+                void this._addConsultFromLayout(feature);
+            });
+    }
+
+    /** Full endpoint picker step, for chaining or advanced mappings. */
+    goToEndpointsFromLayout(): void {
+        this.step.set('endpoints');
+    }
+
+    private async _addConsultFromLayout(feature: AppFeature): Promise<void> {
+        if (this.selectedFeatures().some((item) => item._id === feature._id)) return;
+
+        this.isAddingLayoutConsult.set(true);
+
+        const previousFeatures = this.selectedFeatures();
+        const previousGraph = this._state.flowGraph();
+
+        try {
+            const next = [...previousFeatures, feature];
+            this._state.selectedFeatures.set(next);
+            this._state.flowGraph.set(graphFromLinearChain(next));
+            await this._ensureLinkedConfiguration();
+            this.ensureIncludeItems();
+            this._snack.open(
+                this._transloco.translate('visitaGuide.layoutConsultAdded', {
+                    name: this.featureDisplayName(feature),
+                }),
+                undefined,
+                { duration: 4000 }
+            );
+        } catch (error) {
+            console.error('[VisitaGuide] could not add consult from layout', error);
+            this._state.selectedFeatures.set(previousFeatures);
+            this._state.flowGraph.set(previousGraph);
+            this._snack.open(this._transloco.translate('visitaGuide.layoutConsultAddFailed'), undefined, {
+                duration: 5000,
+            });
+        } finally {
+            this.isAddingLayoutConsult.set(false);
+        }
     }
 
     addAllCardsToLayout(): void {
@@ -4848,7 +4971,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _patchSelectedKeyOverride(patch: Partial<ReportKeyOverride>, unset: (keyof ReportKeyOverride)[] = []): void {
         const section = this.selectedLayoutSection();
-        const key = this.selectedLayoutCellKey();
+        const key = this._selectedLayoutRulesKey();
         if (!section || !key) return;
         const current = { ...(section.keyOverrides?.[key] ?? {}) };
         const next: ReportKeyOverride = { ...current, ...patch };
@@ -4862,22 +4985,33 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectedLayoutCellOverride(): ReportKeyOverride | null {
-        const key = this.selectedLayoutCellKey();
+        const key = this._selectedLayoutRulesKey();
         if (!key) return null;
         return this.selectedLayoutSection()?.keyOverrides?.[key] ?? {};
     }
 
     selectedLayoutCellTitle(): string {
-        const key = this.selectedLayoutCellKey();
+        const key = this._selectedLayoutRulesKey();
         if (!key) return '';
         const override = this.selectedLayoutSection()?.keyOverrides?.[key]?.label;
+        const section = this.selectedLayoutSection();
+        if (section?.type === 'dataTable') {
+            const column = this.selectedDataTableColumns().find((item) => item.key === key);
+            if (column) return column.label;
+        }
         const option = this.layoutParamOptions().find((item) => item.key === key);
         return override || option?.label || humanizeParamKey(key);
     }
 
     selectedCellRuleCount(): number {
-        const key = this.selectedLayoutCellKey();
+        const key = this._selectedLayoutRulesKey();
         return key ? (this.selectedLayoutSection()?.keyOverrides?.[key]?.rules?.length ?? 0) : 0;
+    }
+
+    /** Column key for table rules and overrides (never `column#row`). */
+    private _selectedLayoutRulesKey(): string | null {
+        const key = this.selectedLayoutCellKey();
+        return key ? layoutTableRulesKey(key) : null;
     }
 
     selectedBlockRuleCount(): number {
@@ -4888,21 +5022,21 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     openSelectedValueRules(): void {
         const section = this.selectedLayoutSection();
         if (!section) return;
-        const key = this.selectedLayoutCellKey();
-        const own = key ? section.keyOverrides?.[key]?.rules ?? [] : [];
+        const rulesKey = this._selectedLayoutRulesKey();
+        const own = rulesKey ? section.keyOverrides?.[rulesKey]?.rules ?? [] : [];
         const block = section.valueRules ?? [];
-        const scope: ReportRuleScope = !key || (!own.length && block.length) ? 'block' : 'value';
+        const scope: ReportRuleScope = !rulesKey || (!own.length && block.length) ? 'block' : 'value';
         this._raiseAppOverlay();
         const dialogRef = this._dialog.open<ReportValueRulesDialogComponent, ReportValueRulesDialogData, ReportValueRulesDialogResult>(
             ReportValueRulesDialogComponent,
             {
                 data: {
                     mode: 'value',
-                    title: key ? this.selectedLayoutCellTitle() : this._layoutSectionLayerLabel(section),
+                    title: rulesKey ? this.selectedLayoutCellTitle() : this._layoutSectionLayerLabel(section),
                     rules: cloneReportValue(scope === 'value' ? own : block),
-                    allowScope: Boolean(key),
+                    allowScope: Boolean(rulesKey),
                     scope,
-                    samples: this._valueRuleSamples(key),
+                    samples: this._valueRuleSamples(rulesKey),
                     reportIcons: this._reportIconChoices(),
                 },
                 maxWidth: '96vw',
@@ -4913,13 +5047,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const rules = sanitizeValueRules(result.rules);
             this._patchLayoutSectionById(section.id, (current) => {
                 const keyOverrides = { ...(current.keyOverrides ?? {}) };
-                if (key) {
-                    const next = { ...(keyOverrides[key] ?? {}) };
+                if (rulesKey) {
+                    const next = { ...(keyOverrides[rulesKey] ?? {}) };
                     delete next.rules;
                     if (result.scope === 'value' && rules.length) next.rules = rules;
-                    keyOverrides[key] = next;
+                    keyOverrides[rulesKey] = next;
                 }
-                if (result.scope === 'value' && key) return { keyOverrides };
+                if (result.scope === 'value' && rulesKey) return { keyOverrides };
                 return { keyOverrides, valueRules: rules.length ? rules : undefined };
             });
         });
@@ -4935,6 +5069,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     openSelectedShapeRules(): void {
         const section = this.selectedLayoutSection();
         if (section?.type !== 'shape') return;
+        const root = this.previewData() as Record<string, unknown>;
         this._raiseAppOverlay();
         const dialogRef = this._dialog.open<ReportValueRulesDialogComponent, ReportValueRulesDialogData, ReportValueRulesDialogResult>(
             ReportValueRulesDialogComponent,
@@ -4943,8 +5078,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     mode: 'shape',
                     title: this._layoutSectionLayerLabel(section),
                     rules: cloneReportValue(section.valueRules ?? []),
-                    field: section.ruleField ?? '',
+                    field: this._shapeRuleFieldSelectValue(section),
+                    tableColumnKey: section.ruleColumnKey,
+                    rulesSectionId: section.ruleRulesSectionId,
+                    tableMode: section.ruleTableMode,
                     fieldOptions: this._ruleFieldOptions(),
+                    samples: shapeRuleTestSamples(section, root, this.layoutSections()),
                 },
                 maxWidth: '96vw',
             }
@@ -4953,7 +5092,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!result) return;
             const rules = sanitizeValueRules(result.rules);
             const field = rules.length ? result.field || undefined : undefined;
-            this._patchLayoutSectionById(section.id, () => ({ valueRules: field ? rules : undefined, ruleField: field }));
+            this._patchLayoutSectionById(section.id, () => ({
+                valueRules: field ? rules : undefined,
+                ruleField: field,
+                ruleColumnKey: field ? result.tableColumnKey : undefined,
+                ruleRulesSectionId: field ? result.rulesSectionId : undefined,
+                ruleTableMode: field && result.tableColumnKey ? result.tableMode ?? 'all' : undefined,
+            }));
         });
     }
 
@@ -4974,9 +5119,42 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _valueRuleSamples(key: string | null): string[] {
-        const source = this.layoutSourceValue();
+        const section = this.selectedLayoutSection();
         const samples = new Set<string>();
+        const push = (value: unknown): void => {
+            const text = formatReportCellValue(value);
+            if (text && text !== '—') samples.add(text);
+        };
+
+        if (section?.type === 'dataTable') {
+            for (const record of this._dataTableRecords(section)) {
+                if (!key) {
+                    for (const entry of Object.values(record)) push(entry);
+                } else if (Object.prototype.hasOwnProperty.call(record, key)) {
+                    push(record[key]);
+                }
+                if (samples.size > 40) break;
+            }
+            return [...samples].slice(0, 8);
+        }
+
+        const source = this.layoutSourceValue();
         if (source != null && typeof source !== 'object') samples.add(String(source));
+        if (Array.isArray(source)) {
+            for (const entry of source) {
+                if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
+                const record = entry as Record<string, unknown>;
+                if (!key) {
+                    for (const value of Object.values(record)) push(value);
+                } else if (Object.prototype.hasOwnProperty.call(record, key)) {
+                    push(record[key]);
+                } else {
+                    const tail = key.includes('.') ? key.slice(key.lastIndexOf('.') + 1) : key;
+                    if (Object.prototype.hasOwnProperty.call(record, tail)) push(record[tail]);
+                }
+                if (samples.size > 40) break;
+            }
+        }
         for (const item of collectLayoutSheetItems(source, { hiddenKeys: [] })) {
             if (item.kind === 'field') {
                 if (!key || item.key === key) samples.add(item.entry.value);
@@ -4985,16 +5163,35 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             for (const column of item.table.columns) {
                 const path = tableColumnPath(item.table.key, column.key);
                 if (key && path !== key && item.table.key !== key) continue;
-                for (const row of item.table.rows) samples.add(row[column.key]);
+                for (const row of item.table.rows) push(row[column.key]);
             }
             if (samples.size > 40) break;
         }
         return [...samples].filter((value) => value && value !== '—').slice(0, 8);
     }
 
-    private _ruleFieldOptions(): { path: string; label: string; sample?: string }[] {
-        const options = new Map<string, { path: string; label: string; sample?: string }>();
+    private _dataTableRecords(section: ReportSection): Record<string, unknown>[] {
+        const value = valueAtDataPath(this.previewData(), section.dataPath);
+        if (Array.isArray(value)) {
+            return value.filter(
+                (entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === 'object' && !Array.isArray(entry)
+            );
+        }
+        return value && typeof value === 'object' && !Array.isArray(value) ? [value as Record<string, unknown>] : [];
+    }
+
+    private _shapeRuleFieldSelectValue(section: ReportSection): string {
+        if (!section.ruleField) return '';
+        if (section.ruleColumnKey) {
+            return `${section.ruleField}\0${section.ruleColumnKey}`;
+        }
+        return section.ruleField;
+    }
+
+    private _ruleFieldOptions(): ReportShapeFieldOption[] {
+        const options = new Map<string, ReportShapeFieldOption>();
         const root = this.previewData();
+        const tableSuffix = this._transloco.translate('reportRules.tableColumnSuffix');
         for (const section of this.layoutSections()) {
             if (!section.dataPath || section.type === 'shape') continue;
             const value = valueAtDataPath(root, section.dataPath);
@@ -5004,10 +5201,49 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 continue;
             }
             for (const item of collectLayoutSheetItems(value, { hiddenKeys: [] })) {
-                if (item.kind !== 'field') continue;
-                const path = joinReportDataPath(section.dataPath, item.key);
-                const label = section.keyOverrides?.[item.key]?.label || item.label;
-                if (!options.has(path)) options.set(path, { path, label: `${blockLabel} · ${label}`, sample: item.entry.value });
+                if (item.kind === 'field') {
+                    const path = joinReportDataPath(section.dataPath, item.key);
+                    const label = section.keyOverrides?.[item.key]?.label || item.label;
+                    if (!options.has(path)) {
+                        options.set(path, { path, label: `${blockLabel} · ${label}`, sample: item.entry.value });
+                    }
+                    continue;
+                }
+                const arrayPath =
+                    item.table.key && item.table.key !== '__list'
+                        ? joinReportDataPath(section.dataPath, item.table.key)
+                        : section.dataPath;
+                if (!arrayPath) continue;
+                for (const column of item.table.columns) {
+                    const colKey = tableColumnPath(item.table.key, column.key);
+                    const optionKey = `${arrayPath}\0${colKey}`;
+                    if (options.has(optionKey)) continue;
+                    options.set(optionKey, {
+                        path: arrayPath,
+                        selectKey: optionKey,
+                        label: `${blockLabel} · ${column.label} ${tableSuffix}`,
+                        sample: item.table.rows[0]?.[column.key],
+                        tableColumnKey: colKey,
+                        rulesSectionId: section.id,
+                    });
+                }
+            }
+            if (section.type === 'dataTable') {
+                for (const column of this._derivedDataTableColumns(section)) {
+                    const colKey = column.key;
+                    const optionKey = `${section.dataPath}\0${colKey}`;
+                    if (options.has(optionKey)) continue;
+                    const records = this._dataTableRecords(section);
+                    const sample = records[0]?.[colKey];
+                    options.set(optionKey, {
+                        path: section.dataPath,
+                        selectKey: optionKey,
+                        label: `${blockLabel} · ${column.label} ${tableSuffix}`,
+                        sample: sample != null ? formatReportCellValue(sample) : undefined,
+                        tableColumnKey: colKey,
+                        rulesSectionId: section.id,
+                    });
+                }
             }
         }
         return [...options.values()].slice(0, 300);
@@ -5172,10 +5408,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectLayoutSheetItem(key: string): void {
-        this.selectedLayoutCellKey.set(key);
+        this.selectedLayoutCellKey.set(layoutTableRulesKey(key));
         this.selectedLayoutCellPart.set('cell');
         const section = this.selectedLayoutSection();
         if (section) this._focusLayoutEditor(section, 'cell');
+    }
+
+    selectDataTableColumn(columnKey: string): void {
+        this.selectedLayoutCellKey.set(columnKey);
+        this.selectedLayoutCellPart.set('value');
+        const section = this.selectedLayoutSection();
+        if (section) this._focusLayoutEditor(section, 'value');
     }
 
     clearSelectedLayoutCell(): void {
@@ -5350,13 +5593,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectedLayoutTableColumns(): { key: string; label: string; visible: boolean }[] {
-        const tableKey = this.selectedLayoutCellKey();
-        if (!tableKey) return [];
+        const cellKey = this._selectedLayoutRulesKey();
+        if (!cellKey) return [];
         const section = this.selectedLayoutSection();
-        const table = collectObjectTables(this.layoutSourceValue(), {
+        if (section?.type === 'dataTable') return this.selectedDataTableColumns();
+        const tables = collectObjectTables(this.layoutSourceValue(), {
             keyOrder: section?.keyOrder,
             hideColumns: false,
-        }).find((item) => item.key === tableKey);
+        });
+        const table =
+            tables.find((item) => item.key === cellKey) ??
+            tables.find((item) => item.columns.some((column) => tableColumnPath(item.key, column.key) === cellKey));
         if (!table) return [];
         return table.columns.map((column) => {
             const key = tableColumnPath(table.key, column.key);
@@ -5379,7 +5626,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             : collectLayoutSheetItems(this.layoutSourceValue(), { hiddenKeys: [] }).map((item) => item.key);
         const columnSet = new Set(columns.map((column) => column.key));
         const without = current.filter((key) => !columnSet.has(key));
-        const tableAt = without.indexOf(this.selectedLayoutCellKey() || '');
+        const tableAnchor =
+            collectObjectTables(this.layoutSourceValue(), { hideColumns: false }).find(
+                (item) =>
+                    item.key === this._selectedLayoutRulesKey() ||
+                    item.columns.some(
+                        (column) => tableColumnPath(item.key, column.key) === this._selectedLayoutRulesKey()
+                    )
+            )?.key ?? this._selectedLayoutRulesKey();
+        const tableAt = without.indexOf(tableAnchor || '');
         without.splice(tableAt >= 0 ? tableAt + 1 : without.length, 0, ...order);
         this._patchSelectedLayout({ keyOrder: without });
     }
@@ -5617,6 +5872,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const features = this.selectedFeatures();
         const existing = this._state.configId();
         if (!existing && !features.length) return;
+        const previousConfig = this._state.configuration();
         const entities = this.entities().length ? this.entities() : (['citizen'] as GuideEntity[]);
         const resolved = await this._pipeline.resolve(
             entities,
@@ -5627,6 +5883,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._state.flowGraph(),
             existing
         );
+        this._applyStepSequenceTransition(previousConfig?.steps, resolved.configuration?.steps);
         this._state.configId.set(resolved.configId);
         this._state.configuration.set(resolved.configuration);
         if (resolved.configId && endpointNodes(this._state.flowGraph()).length) {
@@ -5635,6 +5892,110 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (resolved.template && !this.selectedTemplate()) {
             this._state.clonedTemplate.set(resolved.template);
             this._state.selectedTemplate.set(resolved.template);
+        }
+    }
+
+    /**
+     * When consultas are added or reordered, step sequences can change. Remap layout
+     * blocks and stored batch results so existing blocks keep the same payload.
+     */
+    private _applyStepSequenceTransition(
+        previousSteps: BatchConfiguration['steps'],
+        nextSteps: BatchConfiguration['steps']
+    ): void {
+        const seqMap = buildStepSequenceMap(previousSteps, nextSteps);
+        if (seqMap.size) {
+            this.layoutSections.update((sections) => remapReportSectionPaths(sections, seqMap));
+            const batch = this._state.batch();
+            if (batch?.rows?.length) {
+                this._state.batch.set({
+                    ...batch,
+                    rows: batch.rows.map((row) => ({
+                        ...row,
+                        results: remapResultsRecord(row.results, seqMap) as typeof row.results,
+                        errors: row.errors?.map((error) => ({
+                            ...error,
+                            step: seqMap.get(Number(error.step)) ?? error.step,
+                        })),
+                    })),
+                });
+            }
+            const external = this.externalPreview();
+            if (external?.results) {
+                this.externalPreview.set({
+                    ...external,
+                    results: remapResultsRecord(external.results as Record<string | number, unknown>, seqMap),
+                });
+            }
+            const template = this.selectedTemplate();
+            const sample = template?.sampleData;
+            if (sample?.results) {
+                const nextResults = remapResultsRecord(
+                    sample.results as Record<string | number, unknown>,
+                    seqMap
+                );
+                this._state.selectedTemplate.set({
+                    ...template!,
+                    sampleData: { ...sample, results: nextResults },
+                });
+            }
+        }
+        this._ensurePreviewResultSlots(nextSteps);
+        this._preserveLayoutFieldOrder();
+    }
+
+    /** New consult fields append at the end; existing keys keep their relative order. */
+    private _preserveLayoutFieldOrder(): void {
+        const root = this.previewData();
+        this.layoutSections.update((sections) =>
+            sections.map((section) => {
+                if (!section.dataPath) return section;
+                const value = valueAtDataPath(root, section.dataPath);
+                const discovered = collectLayoutSheetItems(value, { hiddenKeys: section.hiddenKeys }).map(
+                    (item) => item.key
+                );
+                if (!discovered.length) return section;
+                const keyOrder = mergeLayoutKeyOrder(section.keyOrder, discovered);
+                const prev = section.keyOrder ?? [];
+                if (prev.length === keyOrder.length && prev.every((key, index) => key === keyOrder[index])) {
+                    return section;
+                }
+                return { ...section, keyOrder };
+            })
+        );
+    }
+
+    private _ensurePreviewResultSlots(steps: BatchConfiguration['steps'] | undefined): void {
+        if (!orderedBatchSteps(steps).length) return;
+        const batch = this._state.batch();
+        if (batch?.rows?.length) {
+            this._state.batch.set({
+                ...batch,
+                rows: batch.rows.map((row) => ({
+                    ...row,
+                    results: ensureResultSlots(row.results, steps) as typeof row.results,
+                })),
+            });
+            return;
+        }
+        const external = this.externalPreview();
+        if (external) {
+            this.externalPreview.set({
+                ...external,
+                results: ensureResultSlots(external.results as Record<string | number, unknown>, steps),
+            });
+            return;
+        }
+        const template = this.selectedTemplate();
+        const sample = template?.sampleData;
+        if (sample) {
+            this._state.selectedTemplate.set({
+                ...template!,
+                sampleData: {
+                    ...sample,
+                    results: ensureResultSlots(sample.results as Record<string | number, unknown>, steps),
+                },
+            });
         }
     }
 
@@ -5844,7 +6205,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         height: Math.max(16, height),
                         rotation: 0,
                         page: origin?.page ?? 0,
-                        zIndex: this._topLayoutZ() + 1 + index,
+                        zIndex: clampReportSheetZ(this._topLayoutZ() + 1 + index),
                     },
                 ]);
             };
@@ -6897,6 +7258,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             );
             if (!this._alive) return;
 
+            this._applyStepSequenceTransition(this._state.configuration()?.steps, resolved.configuration?.steps);
             this._state.configId.set(resolved.configId);
             this._state.configuration.set(resolved.configuration);
             if (resolved.template) {

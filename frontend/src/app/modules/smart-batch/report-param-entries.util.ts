@@ -34,6 +34,18 @@ export const sortByKeyOrder = <T>(
         .map((entry) => entry.item);
 };
 
+/** Keep prior field order; append newly discovered keys at the end (never drop known keys). */
+export const mergeLayoutKeyOrder = (existing: string[] | undefined, discovered: string[]): string[] => {
+    if (!discovered.length) return existing?.length ? [...existing] : [];
+    if (!existing?.length) return [...discovered];
+    const present = new Set(discovered);
+    const merged = existing.filter((key) => present.has(key));
+    for (const key of discovered) {
+        if (!merged.includes(key)) merged.push(key);
+    }
+    return merged;
+};
+
 export const applyVisibleKeyReorder = (fullOrder: string[], visibleOrdered: string[]): string[] => {
     const visibleSet = new Set(visibleOrdered);
     let visibleIndex = 0;
@@ -130,6 +142,44 @@ export const humanizeParamKey = (key: string): string =>
 const isScalar = (value: unknown): boolean =>
     value != null && typeof value !== 'object';
 
+const PERIOD_OBJECT_KEYS = new Set([
+    'days',
+    'dias',
+    'months',
+    'meses',
+    'years',
+    'anios',
+    'anos',
+    'años',
+]);
+
+/** RUNT / colombian-vehicle-owners `ownershipDuration` and raw `tiempoPropiedad`. */
+const isPeriodObject = (value: unknown): value is Record<string, unknown> => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+    const keys = Object.keys(value);
+    if (!keys.length || keys.length > PERIOD_OBJECT_KEYS.size) return false;
+    if (!keys.every((key) => PERIOD_OBJECT_KEYS.has(key))) return false;
+    return keys.some((key) => value[key] != null && value[key] !== '');
+};
+
+const formatPeriodObject = (value: Record<string, unknown>): string => {
+    const years = value.years ?? value.anios ?? value.años ?? value.anos;
+    const months = value.months ?? value.meses;
+    const days = value.days ?? value.dias;
+    const parts: string[] = [];
+    const push = (raw: unknown, singular: string, plural: string): void => {
+        if (raw == null || raw === '') return;
+        const num = Number(raw);
+        if (!Number.isFinite(num) || num < 0) return;
+        if (num === 0) return;
+        parts.push(num === 1 ? `1 ${singular}` : `${num} ${plural}`);
+    };
+    push(years, 'año', 'años');
+    push(months, 'mes', 'meses');
+    push(days, 'día', 'días');
+    return parts.length ? parts.join(', ') : '—';
+};
+
 const isCodeDescriptionObject = (value: unknown): value is Record<string, unknown> => {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
     const item = value as Record<string, unknown>;
@@ -209,14 +259,18 @@ const isObjectRecordArray = (value: unknown): value is Record<string, unknown>[]
     value.every((item) => item && typeof item === 'object' && !Array.isArray(item)) &&
     !value.every((item) => isCodeDescriptionObject(item));
 
-const cellText = (value: unknown): string => {
+/** Display string for a table cell or bound field (mirrors backend `_sheetCellText`). */
+export const formatReportCellValue = (value: unknown): string => {
     if (value == null) return '—';
     if (isScalar(value)) return String(value);
     if (isCodeDescriptionObject(value)) return formatCodeDescriptionLine(value);
+    if (isPeriodObject(value)) return formatPeriodObject(value);
     const nested = collectScalarParams(value, { maxItems: 12, maxDepth: 4, skipObjectArrays: false });
     if (!nested.length) return '—';
     return nested.map((entry) => `${entry.label}: ${entry.value}`).join('; ');
 };
+
+const cellText = formatReportCellValue;
 
 export type CollectScalarOptions = {
     hiddenKeys?: string[];
@@ -313,6 +367,22 @@ export const collectScalarParams = (
 
 export const tableColumnPath = (tableKey: string, column: string): string =>
     !tableKey || tableKey === ROOT_TABLE_KEY ? column : `${tableKey}.${column}`;
+
+/** Column key for rules and styles — strips `#row` from table cell store keys. */
+export const layoutTableRulesKey = (key: string): string => {
+    const hash = key.lastIndexOf('#');
+    if (hash <= 0) return key;
+    const row = key.slice(hash + 1);
+    return /^\d+$/.test(row) ? key.slice(0, hash) : key;
+};
+
+/** Row index from a table cell store key (`column#2`), or null when absent. */
+export const layoutTableRowIndex = (key: string): number | null => {
+    const hash = key.lastIndexOf('#');
+    if (hash <= 0) return null;
+    const row = Number(key.slice(hash + 1));
+    return Number.isFinite(row) && row >= 0 ? row : null;
+};
 
 const orderColumnKeys = (columnKeys: string[], tableKey: string, keyOrder?: string[]): string[] => {
     if (!keyOrder?.length || columnKeys.length < 2) return columnKeys;
