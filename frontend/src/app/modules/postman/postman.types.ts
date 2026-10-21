@@ -147,6 +147,29 @@ export interface ApiEndpoint {
     dependencies?: PostmanDependencyMeta[];
 }
 
+/** Single param row with stable index for templates (e.g. removeParam). */
+export type PostmanParamRowRef = {
+    index: number;
+    param: NonNullable<ApiEndpoint['params']>[number];
+};
+
+export type PostmanXorParamLayout =
+    | { kind: 'flat'; allRows: PostmanParamRowRef[] }
+    | {
+          kind: 'xor';
+          nameRows: PostmanParamRowRef[];
+          documentRows: PostmanParamRowRef[];
+          serialRows: PostmanParamRowRef[];
+          otherRows: PostmanParamRowRef[];
+      }
+    | {
+          kind: 'mexicoLicenseTriple';
+          curpRows: PostmanParamRowRef[];
+          cedulaRows: PostmanParamRowRef[];
+          nameRows: PostmanParamRowRef[];
+          otherRows: PostmanParamRowRef[];
+      };
+
 export const API_ENDPOINTS: ApiEndpoint[] = [
     {
         id: 'auth-email',

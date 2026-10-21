@@ -5570,7 +5570,8 @@
                 "invalidEnum": "「{{field}}」的值「{{value}}」无效。应为：{{expected}}。",
                 "invalidJsonBody": "请求体必须是有效的 JSON。",
                 "pathSegmentRequired": "URL 路径段「{{segment}}」为必填。",
-                "groupedModesBodyWithSerial": "只能使用一种方式：按姓名搜索、按证件号码搜索（需要时加上性别），或按民事登记序列号搜索。请勿在同一请求中混用这些方式。"
+                "groupedModesBodyWithSerial": "只能使用一种方式：按姓名搜索、按证件号码搜索（需要时加上性别），或按民事登记序列号搜索。请勿在同一请求中混用这些方式。",
+                "mexicoLicenseModesBody": "只能使用一组：CURP 与证件号码、执照号码与证件类型，或不带证件字段的名字与姓氏。请勿在同一请求中混用多组。"
             },
             "sandboxProfiles": {
                 "title": "Sandbox 测试配置文件",
@@ -9294,6 +9295,10 @@
         "searchModeOptionFullName": "方式 A — 按全名检索",
         "searchModeOptionDocument": "方式 B — 按证件检索",
         "searchModeOptionSerial": "方式 C — 按序列号检索",
+        "searchModesIntroMexicoLicense": "每次请求只能使用一组输入：CURP 与证件号码、专业执照号码，或名字与姓氏。请勿在同一请求中混用多组。",
+        "searchModeOptionCurp": "第 1 组 — 按 CURP 检索",
+        "searchModeOptionLicenseNumber": "第 2 组 — 按执照号码检索",
+        "searchModeOptionNameMexico": "第 3 组 — 按姓名检索",
         "dateOfBirthConditionalHint": "当证件类型（documentType）为以下之一时，该行必须填写 dateOfBirth 列：{{values}}",
         "fieldConditional": "条件必填",
         "fieldConditionalDetail": "当 {{whenField}} 为以下之一时必填：{{values}}。",

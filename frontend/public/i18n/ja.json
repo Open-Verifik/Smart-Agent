@@ -5570,7 +5570,8 @@
                 "invalidEnum": "「{{field}}」の値「{{value}}」は無効です。次が期待されます：{{expected}}。",
                 "invalidJsonBody": "本文は有効なJSONである必要があります。",
                 "pathSegmentRequired": "URLパスの「{{segment}}」セグメントが必須です。",
-                "groupedModesBodyWithSerial": "使い方は1つだけにしてください。氏名で検索するか、書類番号で検索するか（必要な場合は性別も）、民事登録のシリアル番号で検索します。同じリクエストで方式を混ぜないでください。"
+                "groupedModesBodyWithSerial": "使い方は1つだけにしてください。氏名で検索するか、書類番号で検索するか（必要な場合は性別も）、民事登録のシリアル番号で検索します。同じリクエストで方式を混ぜないでください。",
+                "mexicoLicenseModesBody": "グループは1つだけ使用してください。CURPと書類番号、免許番号と書類種別、または書類フィールドなしの名と姓です。同じリクエストでグループを混在させないでください。"
             },
             "sandboxProfiles": {
                 "title": "Sandboxテストプロフィール",
@@ -9294,6 +9295,10 @@
         "searchModeOptionFullName": "オプション A — 氏名で検索",
         "searchModeOptionDocument": "オプション B — 文書で検索",
         "searchModeOptionSerial": "オプション C — シリアルで検索",
+        "searchModesIntroMexicoLicense": "入力グループは1つだけ使用してください。CURPと書類番号、専門免許番号、または名と姓です。同じリクエストでグループを混在させないでください。",
+        "searchModeOptionCurp": "グループ 1 — CURPで検索",
+        "searchModeOptionLicenseNumber": "グループ 2 — 免許番号で検索",
+        "searchModeOptionNameMexico": "グループ 3 — 氏名で検索",
         "dateOfBirthConditionalHint": "documentType が次のいずれかのとき、その行では dateOfBirth 列が必須です: {{values}}",
         "fieldConditional": "条件付き必須",
         "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。",
