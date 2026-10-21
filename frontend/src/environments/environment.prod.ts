@@ -34,6 +34,15 @@ export const environment = {
     get loginProjectFlowId(): string {
         return isStaging() ? '658ed28b0990f300134d7b78' : '6332941ccde4f719d9c00f9f';
     },
+    get plateReportProjectId(): string {
+        return '6ad24bdb2467ba37a62beb72';
+    },
+    get plateReportFlowId(): string {
+        return '6ad251f62467ba37a62beb7d';
+    },
+    get plateReportTemplateId(): string {
+        return '6ac91b76da239e3e07b95270';
+    },
     get kycBaseUrl(): string {
         return isStaging() ? 'https://staging-access.verifik.co' : 'https://access.verifik.co';
     },

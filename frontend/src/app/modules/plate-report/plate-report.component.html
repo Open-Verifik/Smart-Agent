@@ -15,18 +15,6 @@
 
                 <form (ngSubmit)="submitForm()">
                     <label class="plate-report__field">
-                        <span>{{ t('plateReport.name') }}</span>
-                        <input
-                            [ngModel]="personName()"
-                            (ngModelChange)="personName.set($event)"
-                            name="name"
-                            autocomplete="name"
-                            [placeholder]="t('plateReport.namePlaceholder')"
-                            [disabled]="busy()"
-                        />
-                    </label>
-
-                    <label class="plate-report__field">
                         <span>{{ t('plateReport.plate') }}</span>
                         <input
                             [ngModel]="plate()"
@@ -36,6 +24,7 @@
                             autocapitalize="characters"
                             [placeholder]="t('plateReport.platePlaceholder')"
                             [disabled]="busy()"
+                            required
                         />
                     </label>
 
@@ -66,19 +55,18 @@
                             autocomplete="tel"
                             [placeholder]="t('plateReport.phonePlaceholder')"
                             [disabled]="busy()"
+                            required
                         />
                     </label>
 
                     <label class="plate-report__field">
-                        <span>{{ t('plateReport.email') }}</span>
+                        <span>{{ t('plateReport.name') }} <small>({{ t('plateReport.optional') }})</small></span>
                         <input
-                            [ngModel]="contact()"
-                            (ngModelChange)="contact.set($event)"
-                            name="contact"
-                            type="email"
-                            inputmode="email"
-                            autocomplete="email"
-                            [placeholder]="t('plateReport.emailPlaceholder')"
+                            [ngModel]="personName()"
+                            (ngModelChange)="personName.set($event)"
+                            name="name"
+                            autocomplete="name"
+                            [placeholder]="t('plateReport.namePlaceholder')"
                             [disabled]="busy()"
                         />
                     </label>
@@ -114,18 +102,7 @@
 
             @if (phase() === 'payment') {
                 <h2>{{ t('plateReport.paymentTitle') }}</h2>
-                @if (estimate(); as quote) {
-                    <p class="plate-report__lead">
-                        {{
-                            t('plateReport.paymentBody', {
-                                required: quote.totalCredits,
-                                available: quote.availableCredits,
-                            })
-                        }}
-                    </p>
-                } @else {
-                    <p class="plate-report__lead">{{ t('plateReport.paymentBodyUnknown') }}</p>
-                }
+                <p class="plate-report__lead">{{ t('plateReport.paymentBody') }}</p>
                 @if (errorKey(); as key) {
                     <p class="plate-report__error" role="alert">{{ t(key) }}</p>
                 }
@@ -135,7 +112,6 @@
                     }
                     {{ t('plateReport.pay') }}
                 </button>
-                <a class="plate-report__link" routerLink="/add-credits">{{ t('plateReport.openPayments') }}</a>
             }
 
             @if (phase() === 'ready') {
@@ -153,12 +129,29 @@
                 <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="download()">
                     {{ t('plateReport.download') }}
                 </button>
-                @if (deliveryEmail()) {
-                    <button mat-stroked-button type="button" class="plate-report__submit" (click)="sendEmail()" [disabled]="busy()">
+
+                <div class="plate-report__email-delivery" style="margin-top: 1.25rem; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 1.25rem;">
+                    <label class="plate-report__field">
+                        <span>{{ t('plateReport.sendEmailTo') }}</span>
+                        <input
+                            [ngModel]="contact()"
+                            (ngModelChange)="contact.set($event)"
+                            type="email"
+                            inputmode="email"
+                            autocomplete="email"
+                            [placeholder]="t('plateReport.emailPlaceholder')"
+                            [disabled]="busy()"
+                        />
+                    </label>
+                    <button mat-stroked-button type="button" class="plate-report__submit" (click)="sendEmail()" [disabled]="busy() || !deliveryEmail()">
+                        @if (busy()) {
+                            <mat-spinner diameter="18"></mat-spinner>
+                        }
                         {{ t('plateReport.sendEmail') }}
                     </button>
-                }
-                <button mat-button type="button" (click)="reset()">{{ t('plateReport.newReport') }}</button>
+                </div>
+
+                <button mat-button type="button" style="margin-top: 0.75rem;" (click)="reset()">{{ t('plateReport.newReport') }}</button>
             }
         </div>
     </section>

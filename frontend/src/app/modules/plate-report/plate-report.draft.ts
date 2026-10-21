@@ -13,6 +13,7 @@ export interface PlateReportDraft {
     configId?: string;
     batchId?: string;
     templateId?: string;
+    paid?: boolean;
     /** Set when the user left for the existing credits checkout. */
     resume?: 'after-payment';
     savedAt: number;

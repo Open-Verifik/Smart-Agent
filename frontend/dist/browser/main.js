@@ -4,7 +4,7 @@ import {
 import {
   AttachmentService,
   FileDropZoneComponent
-} from "./chunk-VLAF74HM.js";
+} from "./chunk-3HXCOQA4.js";
 import {
   FuseSplashScreenService
 } from "./chunk-A3OI5NK7.js";
@@ -15,16 +15,16 @@ import {
 } from "./chunk-LTIXDJKI.js";
 import {
   SettingsService
-} from "./chunk-PSMTU6G4.js";
+} from "./chunk-VKPGY5XX.js";
+import {
+  extractClientSettingsPayload
+} from "./chunk-FY4LH25C.js";
 import {
   MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
   MatAutocomplete,
   MatAutocompleteModule,
   MatAutocompleteTrigger
 } from "./chunk-FJ4CXUS4.js";
-import {
-  extractClientSettingsPayload
-} from "./chunk-FY4LH25C.js";
 import {
   DateTime,
   Info
@@ -52,10 +52,10 @@ import {
   QuickChatService,
   openNotificationCta,
   shouldShowNotificationCta
-} from "./chunk-ANRZLBDB.js";
+} from "./chunk-MIZSK5L4.js";
 import {
   getVerifikDocsUrls
-} from "./chunk-K5VHWW66.js";
+} from "./chunk-RXDCTGUT.js";
 import {
   MatDividerModule
 } from "./chunk-TEME6LW2.js";
@@ -77,8 +77,8 @@ import {
 } from "./chunk-YJ6YLDQV.js";
 import {
   AccountEnvironmentService
-} from "./chunk-SKDOP6B7.js";
-import "./chunk-XMOWS3RD.js";
+} from "./chunk-FWYUPNZS.js";
+import "./chunk-VWOHFVN5.js";
 import {
   cloneDeep_default,
   compact_default,
@@ -91,7 +91,7 @@ import {
 } from "./chunk-TXEVGTMX.js";
 import {
   AgentWalletService
-} from "./chunk-W4ECYUYB.js";
+} from "./chunk-UO2A7A46.js";
 import "./chunk-H3UX3NVF.js";
 import {
   MatTooltip,
@@ -105,7 +105,7 @@ import "./chunk-4J4GSXOK.js";
 import "./chunk-ZUERA2CK.js";
 import {
   AuthModalComponent
-} from "./chunk-LHH4KRD7.js";
+} from "./chunk-CM2VR6FV.js";
 import "./chunk-4U26N45P.js";
 import {
   WalletEncryptionService
@@ -150,19 +150,19 @@ import {
 } from "./chunk-YY5TJM45.js";
 import {
   AuthApiService
-} from "./chunk-TG6L3SEN.js";
+} from "./chunk-ZQKMV4NA.js";
 import {
   AuthService
-} from "./chunk-UDAOI32F.js";
+} from "./chunk-OJPCXVQ6.js";
 import {
   UserService
-} from "./chunk-K4AG7N5H.js";
+} from "./chunk-6VDSDVMZ.js";
 import {
   HttpWrapperService
 } from "./chunk-BCBZJBUY.js";
 import {
   SessionService
-} from "./chunk-GH366QKW.js";
+} from "./chunk-WSS6AKQE.js";
 import {
   AuthUtils
 } from "./chunk-EVWXSBKG.js";
@@ -233,7 +233,7 @@ import {
 } from "./chunk-HYFP557I.js";
 import {
   environment
-} from "./chunk-KTYFS5OT.js";
+} from "./chunk-PMCYMBOC.js";
 import {
   ANIMATION_MODULE_TYPE,
   BehaviorSubject,
@@ -24960,15 +24960,15 @@ var appRoutes = [
   // Bridge route for SSO authentication (no layout wrapper)
   {
     path: "bridge",
-    loadChildren: () => import("./chunk-EU6666YP.js").then((m) => m.default)
+    loadChildren: () => import("./chunk-LV463PJ2.js").then((m) => m.default)
   },
   {
     path: "proposal",
-    loadChildren: () => import("./chunk-AWSYB5MC.js").then((m) => m.default)
+    loadChildren: () => import("./chunk-BJHTDDBJ.js").then((m) => m.default)
   },
   {
     path: "pay/return",
-    loadComponent: () => import("./chunk-3P7FRFWA.js").then((m) => m.PaymentReturnComponent)
+    loadComponent: () => import("./chunk-645APW3O.js").then((m) => m.PaymentReturnComponent)
   },
   // Redirect empty path to '/home'
   { path: "", pathMatch: "full", redirectTo: "home" },
@@ -24982,67 +24982,71 @@ var appRoutes = [
     children: [
       {
         path: "home",
-        loadChildren: () => import("./chunk-ZGU3SV3C.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-U2GJD52X.js").then((m) => m.default)
       },
       {
         path: "chat",
-        loadChildren: () => import("./chunk-3RQIBNOB.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-CPORP2N2.js").then((m) => m.default)
       },
       {
         path: "postman",
-        loadChildren: () => import("./chunk-3PMW23I2.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-IOMZJJSH.js").then((m) => m.default)
       },
       {
         path: "check-list",
-        loadChildren: () => import("./chunk-NVKLMM5Z.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-QXJZZ7MV.js").then((m) => m.default)
       },
       {
         path: "zelf-id",
-        loadChildren: () => import("./chunk-BT6IWFQI.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-2QV46Z2F.js").then((m) => m.default)
       },
       {
         path: "history",
-        loadChildren: () => import("./chunk-ZJEWITWV.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-7LOZXPUD.js").then((m) => m.default)
       },
       {
         path: "settings",
-        loadChildren: () => import("./chunk-VG4ZCFUK.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-6W3IU6QH.js").then((m) => m.default)
       },
       {
         path: "smart-batch",
-        loadChildren: () => import("./chunk-4GS57H5Y.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-KOC7A43W.js").then((m) => m.default)
+      },
+      {
+        path: "reporte-placa",
+        loadChildren: () => import("./chunk-S6NOQLH6.js").then((m) => m.default)
       },
       {
         path: "smart-fleet",
-        loadChildren: () => import("./chunk-Q77UPVUH.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-LWS4UVT4.js").then((m) => m.default)
       },
       {
         path: "subscription-plans",
-        loadChildren: () => import("./chunk-KUVCBOD4.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-2GX4ZSF7.js").then((m) => m.default)
       },
       {
         path: "add-credits",
-        loadChildren: () => import("./chunk-NOLI6EIM.js").then((m) => m.ADD_CREDITS_ROUTES)
+        loadChildren: () => import("./chunk-VYD4ZANH.js").then((m) => m.ADD_CREDITS_ROUTES)
       },
       {
         path: "smart-access",
-        loadChildren: () => import("./chunk-46XRLKOH.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-4UCOVO2H.js").then((m) => m.default)
       },
       {
         path: "smart-enroll",
-        loadChildren: () => import("./chunk-7ADP3DCD.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-PDVJDVFF.js").then((m) => m.default)
       },
       {
         path: "human-authn",
-        loadChildren: () => import("./chunk-FBWNFKSA.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-L2BW3LOW.js").then((m) => m.default)
       },
       {
         path: "smart-monitor",
-        loadChildren: () => import("./chunk-R3XWCA7V.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-Z2J3Q6EL.js").then((m) => m.default)
       },
       {
         path: "smart-tools",
-        loadChildren: () => import("./chunk-7OVTWTF4.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-VSWZ2BNI.js").then((m) => m.default)
       }
     ]
   },
@@ -25238,6 +25242,14 @@ var defaultNavigation = [
             type: "basic",
             icon: "heroicons_outline:queue-list",
             link: "/smart-batch"
+          },
+          {
+            id: "plate-report",
+            title: "nav.plate_report",
+            subtitle: "nav.plate_report_subtitle",
+            type: "basic",
+            icon: "heroicons_outline:truck",
+            link: "/reporte-placa"
           },
           {
             id: "history",
@@ -25591,6 +25603,14 @@ var horizontalNavigation = [
         type: "basic",
         icon: "heroicons_outline:queue-list",
         link: "/smart-batch"
+      },
+      {
+        id: "plate-report",
+        title: "nav.plate_report",
+        subtitle: "nav.plate_report_subtitle",
+        type: "basic",
+        icon: "heroicons_outline:truck",
+        link: "/reporte-placa"
       },
       {
         id: "history",

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/plate-report/plate-report.routes.ts"],
+  "sourcesContent": ["import { Routes } from '@angular/router';\r\n\r\nexport default [\r\n    {\r\n        path: '',\r\n        loadComponent: () => import('./plate-report.component').then((m) => m.PlateReportComponent),\r\n    },\r\n] as Routes;\r\n"],
+  "mappings": ";;;AAEA,IAAA,8BAAe;EACX;IACI,MAAM;IACN,eAAe,MAAM,OAAO,qBAA0B,EAAE,KAAK,CAAC,MAAM,EAAE,oBAAoB;;;",
+  "names": []
+}

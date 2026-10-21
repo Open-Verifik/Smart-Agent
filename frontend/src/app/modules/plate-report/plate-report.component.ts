@@ -14,7 +14,7 @@ import { VerifikApiService } from 'app/core/verifik/verifik-api.service';
 import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
 import { firstValueFrom } from 'rxjs';
-import { PurchaseCreditsDialogComponent } from '../add-credits/purchase-credits-dialog/purchase-credits-dialog.component';
+import { PaymentService } from '../add-credits/services/payment.service';
 import { CreditsService } from '../add-credits/services/credits.service';
 import { extractClientSettingsPayload, invoiceBillingDetailsComplete } from '../settings/utils/invoice-billing-complete';
 import { BatchBrowserRunnerService } from '../smart-batch/batch-browser-runner.service';
@@ -71,8 +71,8 @@ export class PlateReportComponent implements OnInit {
     private _reports = inject(SmartReportService);
     private _runner = inject(BatchBrowserRunnerService);
     private _credits = inject(CreditsService);
+    private _payment = inject(PaymentService);
     private _billing = inject(SubscriptionService);
-    private _dialog = inject(MatDialog);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _transloco = inject(TranslocoService);
@@ -84,6 +84,7 @@ export class PlateReportComponent implements OnInit {
     private _reportId = '';
     private _pdfBase64 = '';
     private _engine: 'pdfkit' | 'puppeteer' = 'puppeteer';
+    private _paid = false;
 
     readonly countries: CountryDialCode[] = this._countries.countryDialCodes;
     readonly signedIn = signal(false);
@@ -129,12 +130,44 @@ export class PlateReportComponent implements OnInit {
             this._configId = draft.configId ?? '';
             this._batchId = draft.batchId ?? '';
             this._templateId = draft.templateId ?? '';
+            this._paid = draft.paid ?? false;
             this.pendingNotice.set(Boolean(draft.batchId));
         }
 
         const resume = this._route.snapshot.queryParamMap.get('continuar') === '1';
-        if (resume && draft?.batchId && this.signedIn()) {
+        const boldOrderId = this._route.snapshot.queryParamMap.get('bold-order-id');
+
+        if (boldOrderId) {
+            void this._handleBoldReturn(boldOrderId);
+        } else if (resume && draft?.batchId && this.signedIn()) {
             void this.continueFromDraft();
+        }
+    }
+
+    private async _handleBoldReturn(orderId: string): Promise<void> {
+        this.phase.set('working');
+        this.busy.set(true);
+        try {
+            const result = await firstValueFrom(this._payment.confirmBoldPurchase(orderId));
+            const status = result?.data?.transaction?.status;
+            if (status === 'approved' || result?.data?.finalized) {
+                this._paid = true;
+                this._remember();
+                await firstValueFrom(this._auth.refreshSession());
+                await this.startReport();
+                return;
+            }
+            if (result?.data?.pending) {
+                this.errorKey.set('plateReport.paymentPending');
+                this.phase.set('payment');
+                return;
+            }
+            this.errorKey.set('plateReport.paymentPending');
+            this.phase.set('payment');
+        } catch {
+            this.phase.set('payment');
+        } finally {
+            this.busy.set(false);
         }
     }
 
@@ -149,7 +182,7 @@ export class PlateReportComponent implements OnInit {
 
         const personName = normalizePersonName(this.personName());
         this.personName.set(personName);
-        if (!isValidPersonName(personName)) {
+        if (personName && !isValidPersonName(personName)) {
             this.fieldError.set('plateReport.nameInvalid');
             return;
         }
@@ -162,22 +195,38 @@ export class PlateReportComponent implements OnInit {
         }
 
         const country = this.selectedCountry();
-        const phone = nationalPhone(this.phone(), country.dialCode);
+        const rawPhone = this.phone().trim();
+        const phone = nationalPhone(rawPhone, country.dialCode);
         this.phone.set(phone);
         if (!isValidPhoneDigits(phone)) {
             this.fieldError.set('plateReport.phoneInvalid');
             return;
         }
 
-        const contact = this.contact().trim();
-        if (!isValidEmail(contact)) {
-            this.fieldError.set('plateReport.emailInvalid');
-            return;
-        }
-        this.channel.set('email');
-
+        this.channel.set('phone');
         this._remember();
-        await this.startReport();
+
+        // If already paid, proceed directly to run report; otherwise create account and show payment first
+        if (this._paid) {
+            await this.startReport();
+        } else {
+            await this._prepareAndShowPayment();
+        }
+    }
+
+    private async _prepareAndShowPayment(): Promise<void> {
+        this.phase.set('working');
+        this.busy.set(true);
+        this.errorKey.set(null);
+        try {
+            await this._ensureBasicAccount();
+            this.phase.set('payment');
+        } catch (error) {
+            this._showError('plateReport.genericError', error);
+            this.phase.set('form');
+        } finally {
+            this.busy.set(false);
+        }
     }
 
     statusKey(): string {
@@ -194,45 +243,27 @@ export class PlateReportComponent implements OnInit {
         this.errorKey.set(null);
         this._remember('after-payment');
         try {
-            let billingReady = false;
-            try {
-                const billing = await firstValueFrom(this._billing.getBillingConfig({ findOne: true }));
-                const settings = extractClientSettingsPayload(billing);
-                billingReady = invoiceBillingDetailsComplete(settings?.['invoiceSettings']);
-            } catch {
-                billingReady = false;
-            }
-            if (!billingReady) {
-                this.errorKey.set('plateReport.billingNeeded');
-                await this._router.navigate(['/add-credits']);
-                return;
-            }
-
-            await firstValueFrom(this._credits.getCards());
-            const cards = this._credits.cards();
-            const card = cards.find((item) => item.isDefault) ?? cards[0];
-            const result = await firstValueFrom(
-                this._dialog
-                    .open(PurchaseCreditsDialogComponent, {
-                        width: '500px',
-                        maxWidth: '94vw',
-                        maxHeight: 'calc(100dvh - 1.5rem)',
-                        panelClass: 'purchase-credits-dialog-panel',
-                        data: { card },
-                    })
-                    .afterClosed()
+            // Amount in USD for the Bold purchase (approx $6 USD ~ 24.000 COP) or COP directly
+            // The backend /v2/credits/bold/checkout handles currency: 'COP' or amount in USD
+            const response = await firstValueFrom(
+                this._payment.createBoldCheckout({
+                    amount: 6, // 6 USD ~ 24,000 COP
+                    currency: 'COP',
+                    origin: 'smart_agent',
+                })
             );
 
-            if (result === 'success' || result?.alreadyCompleted === true) {
-                await firstValueFrom(this._auth.refreshSession());
-                await this.continueFromDraft();
+            const config = response.data;
+            if (config.mode === 'redirect') {
+                this._payment.redirectToBoldCheckout(config);
                 return;
             }
 
-            if (result === 'bold-checkout-opened') {
-                this.errorKey.set('plateReport.paymentPending');
-            }
+            await this._payment.loadBoldCheckoutScript();
+            this._payment.openBoldCheckout(config);
+            this.errorKey.set('plateReport.paymentPending');
         } catch (error) {
+            console.error('Failed to open Bold checkout:', error);
             this._showError('plateReport.genericError', error);
         } finally {
             this.busy.set(false);
@@ -259,14 +290,20 @@ export class PlateReportComponent implements OnInit {
     }
 
     async sendEmail(): Promise<void> {
-        if (this.busy() || !this._reportId || !this.deliveryEmail()) return;
+        if (this.busy() || !this._reportId) return;
+        const email = this.deliveryEmail();
+        if (!email) {
+            this.fieldError.set('plateReport.emailInvalid');
+            return;
+        }
+        this.fieldError.set(null);
         this.busy.set(true);
         this.emailSent.set(false);
         try {
             const language = this._transloco.getActiveLang().startsWith('es') ? 'es' : 'en';
             const response = await firstValueFrom(
                 this._reports.sendReportEmail(this._reportId, {
-                    recipients: [this.deliveryEmail()],
+                    recipients: [email],
                     language,
                     rowIndex: 0,
                     subject: `Reporte vehicular ${this.plate()}`,
@@ -322,7 +359,7 @@ export class PlateReportComponent implements OnInit {
                 this.workingStep.set('clone');
                 const cloned = await firstValueFrom(this._batches.cloneSystemPreset(VEHICLE_PRESET));
                 this._configId = cloned.data.batchConfiguration._id ?? cloned.data.batchConfiguration.id ?? '';
-                this._templateId = cloned.data.template?._id ?? '';
+                this._templateId = environment.plateReportTemplateId || cloned.data.template?._id || '';
                 this._engine = cloned.data.template?.pdfEngine === 'pdfkit' ? 'pdfkit' : 'puppeteer';
                 if (!this._configId) throw new Error('missing config');
             }
@@ -452,6 +489,10 @@ export class PlateReportComponent implements OnInit {
 
     private async _resolveTemplateId(): Promise<string> {
         if (this._templateId) return this._templateId;
+        if (environment.plateReportTemplateId) {
+            this._templateId = environment.plateReportTemplateId;
+            return this._templateId;
+        }
         const config = await this._configuration();
         const preferred = config?.preferredReportTemplate;
         const preferredId = typeof preferred === 'string' ? preferred : preferred?._id;
@@ -490,14 +531,25 @@ export class PlateReportComponent implements OnInit {
 
         this.workingStep.set('account');
         const country = this.selectedCountry();
+        const rawPhone = this.phone().trim();
+        const phone = rawPhone ? nationalPhone(rawPhone, country.dialCode) : '';
+        const email = this.contact().trim();
+
+        const registrationPayload: {
+            projectFlow: string;
+            fullName?: string;
+            email?: string;
+            phone?: string;
+            countryCode?: string;
+        } = {
+            projectFlow: await this._onboardingFlowId(),
+            fullName: this.personName() || undefined,
+            ...(email ? { email } : {}),
+            ...(phone ? { phone, countryCode: country.dialCode } : {}),
+        };
+
         const created = await firstValueFrom(
-            this._verifik.createAppRegistration(environment.projectId, {
-                projectFlow: await this._onboardingFlowId(),
-                fullName: this.personName(),
-                email: this.contact().trim(),
-                phone: nationalPhone(this.phone(), country.dialCode),
-                countryCode: country.dialCode,
-            })
+            this._verifik.createAppRegistration(environment.plateReportProjectId, registrationPayload)
         );
         const data = created?.data ?? created;
         const registrationToken = data?.token || data?.accessToken;
@@ -528,27 +580,28 @@ export class PlateReportComponent implements OnInit {
     /** App registration only accepts the onboarding flow, not the login flow. */
     private async _onboardingFlowId(): Promise<string> {
         try {
-            const project = await firstValueFrom(this._verifik.getProject(environment.projectId));
+            const project = await firstValueFrom(this._verifik.getProject(environment.plateReportProjectId));
             const flows = project?.data?.projectFlows ?? project?.projectFlows ?? [];
             const onboarding = flows.find((flow: { type?: string; status?: string }) => flow.type === 'onboarding' && flow.status === 'active');
             if (onboarding?._id) return onboarding._id;
         } catch {
             // Fall back to the configured login flow. The API still resolves the onboarding flow.
         }
-        return environment.loginProjectFlowId;
+        return environment.plateReportFlowId;
     }
 
     private _remember(resume?: 'after-payment'): void {
         writePlateReportDraft({
             plate: this.plate(),
             name: this.personName(),
-            channel: 'email',
+            channel: this.channel(),
             contact: this.contact().trim(),
             phone: this.phone().trim(),
             countryCode: this.countryCode(),
             configId: this._configId || undefined,
             batchId: this._batchId || undefined,
             templateId: this._templateId || undefined,
+            paid: this._paid,
             resume,
         });
     }
