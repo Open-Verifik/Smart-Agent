@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/postman/sidebar/sidebar.component.ts"],
-  "sourcesContent": ["\n      :host {\n        display: flex;\n        flex-direction: column;\n        flex: 1 1 auto;\n        height: 100%;\n        max-height: 100%;\n        min-height: 0;\n        overflow: hidden;\n      }\n\n      /* Independent vertical scroller for the endpoint list */\n      .postman-sidebar-scroll {\n        flex: 1 1 0%;\n        min-height: 0;\n        overflow-x: hidden;\n        overflow-y: auto;\n        overscroll-behavior-y: contain;\n        -webkit-overflow-scrolling: touch;\n        scrollbar-width: none;\n        -ms-overflow-style: none;\n      }\n\n      .postman-sidebar-scroll::-webkit-scrollbar {\n        display: none;\n        width: 0;\n        height: 0;\n      }\n    "],
-  "mappings": ";AACM;AACE,WAAA;AACA,kBAAA;AACA,QAAA,EAAA,EAAA;AACA,UAAA;AACA,cAAA;AACA,cAAA;AACA,YAAA;;AAIF,CAAA;AACE,QAAA,EAAA,EAAA;AACA,cAAA;AACA,cAAA;AACA,cAAA;AACA,yBAAA;AACA,8BAAA;AACA,mBAAA;AACA,sBAAA;;AAGF,CAXA,sBAWA;AACE,WAAA;AACA,SAAA;AACA,UAAA;;",
-  "names": []
-}

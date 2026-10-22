@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-enroll/usage-history/usage-history.component.scss"],
-  "sourcesContent": [":host {\r\n    display: flex;\r\n    flex: 1 1 auto;\r\n    min-height: 0;\r\n    min-width: 0;\r\n    width: 100%;\r\n}\r\n\r\n.usage-history-container {\r\n    mat-icon {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        justify-content: center;\r\n    }\r\n\r\n    mat-button-toggle-group {\r\n        border-radius: 0.75rem;\r\n        overflow: hidden;\r\n    }\r\n\r\n    .usage-history-drawer {\r\n        .mat-drawer-inner-container {\r\n            overflow: hidden;\r\n        }\r\n    }\r\n\r\n    .history-date-range {\r\n        .mat-mdc-form-field-infix {\r\n            min-height: 2.5rem;\r\n        }\r\n    }\r\n}\r\n"],
-  "mappings": ";AAAA;AACI,WAAA;AACA,QAAA,EAAA,EAAA;AACA,cAAA;AACA,aAAA;AACA,SAAA;;AAIA,CAAA,wBAAA;AACI,WAAA;AACA,eAAA;AACA,mBAAA;;AAGJ,CANA,wBAMA;AACI,iBAAA;AACA,YAAA;;AAIA,CAZJ,wBAYI,CAAA,qBAAA,CAAA;AACI,YAAA;;AAKJ,CAlBJ,wBAkBI,CAAA,mBAAA,CAAA;AACI,cAAA;;",
-  "names": []
-}

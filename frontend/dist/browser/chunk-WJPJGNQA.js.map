@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-access/smart-access.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\r\n\r\nexport default [\r\n    { path: '', redirectTo: 'projects', pathMatch: 'full' },\r\n    {\r\n        path: 'plans',\r\n        loadComponent: () =>\r\n            import('./plans/smart-access-plans.component').then((m) => m.SmartAccessPlansComponent),\r\n    },\r\n    {\r\n        path: 'projects',\r\n        loadChildren: () => import('./projects/smart-access-projects.routes').then((m) => m.default),\r\n    },\r\n] as Routes;\r\n"],
-  "mappings": ";;;AAEA,IAAA,8BAAe;EACX,EAAE,MAAM,IAAI,YAAY,YAAY,WAAW,OAAM;EACrD;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAAsC,EAAE,KAAK,CAAC,MAAM,EAAE,yBAAyB;;EAE9F;IACI,MAAM;IACN,cAAc,MAAM,OAAO,qBAAyC,EAAE,KAAK,CAAC,MAAM,EAAE,OAAO;;;",
-  "names": []
-}

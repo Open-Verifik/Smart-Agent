@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/postman/response-viewer/json-table.component.ts"],
-  "sourcesContent": ["\n      :host {\n        display: block;\n        width: 100%;\n      }\n    "],
-  "mappings": ";AACM;AACE,WAAA;AACA,SAAA;;",
-  "names": []
-}

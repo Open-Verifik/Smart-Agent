@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-fleet/assets/fleet-vehicle-icon.component.ts"],
-  "sourcesContent": ["\n            :host {\n                color: inherit;\n            }\n\n            .mark {\n                background-color: currentColor;\n                mask-mode: alpha;\n                mask-repeat: no-repeat;\n                mask-position: center;\n                mask-size: contain;\n                -webkit-mask-repeat: no-repeat;\n                -webkit-mask-position: center;\n                -webkit-mask-size: contain;\n            }\n        "],
-  "mappings": ";AACY;AACI,SAAA;;AAGJ,CAAA;AACI,oBAAA;AACA,aAAA;AACA,eAAA;AACA,iBAAA;AACA,aAAA;AACA,uBAAA;AACA,yBAAA;AACA,qBAAA;;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-enroll/projects/project-security-modal/project-security-modal.component.scss"],
-  "sourcesContent": [".project-security-dialog-panel.cdk-overlay-pane {\r\n    max-width: min(600px, 94vw);\r\n}\r\n\r\n.project-security-dialog-panel {\r\n    .mat-mdc-dialog-container {\r\n        padding: 0 !important;\r\n        overflow: hidden;\r\n        border-radius: 1rem;\r\n    }\r\n\r\n    .mat-mdc-dialog-surface {\r\n        border-radius: 1rem !important;\r\n        overflow: hidden;\r\n        background: transparent !important;\r\n        box-shadow:\r\n            0 4px 6px -1px rgb(15 23 42 / 0.08),\r\n            0 2px 4px -2px rgb(15 23 42 / 0.08);\r\n    }\r\n}\r\n\r\n.dark .project-security-dialog-panel {\r\n    .mat-mdc-dialog-surface {\r\n        box-shadow:\r\n            0 8px 24px -4px rgb(0 0 0 / 0.45),\r\n            0 4px 8px -4px rgb(0 0 0 / 0.35);\r\n    }\r\n}\r\n"],
-  "mappings": ";AAAA,CAAA,6BAAA,CAAA;AACI,aAAA,IAAA,KAAA,EAAA;;AAIA,CALJ,8BAKI,CAAA;AACI,WAAA;AACA,YAAA;AACA,iBAAA;;AAGJ,CAXJ,8BAWI,CAAA;AACI,iBAAA;AACA,YAAA;AACA,cAAA;AACA,cACI,EAAA,IAAA,IAAA,KAAA,KAAA,EAAA,EAAA,EAAA,EAAA,EAAA,EAAA,KAAA,EAAA,EAAA,IAAA,IAAA,KAAA,KAAA,EAAA,EAAA,EAAA,EAAA,EAAA,EAAA;;AAMR,CAAA,KAAA,CAtBJ,8BAsBI,CAXA;AAYI,cACI,EAAA,IAAA,KAAA,KAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA,KAAA,EAAA,EAAA,IAAA,IAAA,KAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;;",
-  "names": []
-}
