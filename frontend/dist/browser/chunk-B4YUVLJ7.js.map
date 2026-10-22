@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/utils/insufficient-credits.util.ts"],
-  "sourcesContent": ["/**\r\n * True when an API or notification payload is a credit-balance shortage\r\n * (including the backend typo \"enought\").\r\n */\r\nexport const isInsufficientCreditsError = (\r\n    err:\r\n        | {\r\n              code?: string | null;\r\n              error?: string | null;\r\n              message?: string | null;\r\n          }\r\n        | string\r\n        | null\r\n        | undefined\r\n): boolean => {\r\n    if (typeof err === 'string') return mentionsCreditShortage(err);\r\n    if (!err) return false;\r\n    return mentionsCreditShortage(`${err.message ?? ''} ${err.error ?? ''} ${err.code ?? ''}`);\r\n};\r\n\r\nconst mentionsCreditShortage = (text: string): boolean => {\r\n    const msg = text.toLowerCase();\r\n    return (\r\n        msg.includes('enought') ||\r\n        msg.includes('not enough') ||\r\n        msg.includes('insufficient') ||\r\n        (msg.includes('credit') && (msg.includes('enough') || msg.includes('falt') || msg.includes('insuf')))\r\n    );\r\n};\r\n"],
-  "mappings": ";AAIO,IAAM,6BAA6B,CACtC,QASS;AACT,MAAI,OAAO,QAAQ;AAAU,WAAO,uBAAuB,GAAG;AAC9D,MAAI,CAAC;AAAK,WAAO;AACjB,SAAO,uBAAuB,GAAG,IAAI,WAAW,EAAE,IAAI,IAAI,SAAS,EAAE,IAAI,IAAI,QAAQ,EAAE,EAAE;AAC7F;AAEA,IAAM,yBAAyB,CAAC,SAAyB;AACrD,QAAM,MAAM,KAAK,YAAW;AAC5B,SACI,IAAI,SAAS,SAAS,KACtB,IAAI,SAAS,YAAY,KACzB,IAAI,SAAS,cAAc,KAC1B,IAAI,SAAS,QAAQ,MAAM,IAAI,SAAS,QAAQ,KAAK,IAAI,SAAS,MAAM,KAAK,IAAI,SAAS,OAAO;AAE1G;",
-  "names": []
-}

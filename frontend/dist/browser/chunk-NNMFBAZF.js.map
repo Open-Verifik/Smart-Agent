@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-enroll/biometrics/http-params.util.ts"],
-  "sourcesContent": ["import { HttpParams } from '@angular/common/http';\r\n\r\n/** Builds HttpParams supporting array values (e.g. in_code, in_collections). */\r\nexport const toHttpParams = (params: Record<string, unknown>): HttpParams => {\r\n    let out = new HttpParams();\r\n\r\n    for (const [key, value] of Object.entries(params)) {\r\n        if (value === undefined || value === null || value === '') continue;\r\n\r\n        if (Array.isArray(value)) {\r\n            value.forEach((item) => {\r\n                if (item !== undefined && item !== null && `${item}` !== '') {\r\n                    out = out.append(key, String(item));\r\n                }\r\n            });\r\n            continue;\r\n        }\r\n\r\n        out = out.set(key, String(value));\r\n    }\r\n\r\n    return out;\r\n};\r\n"],
-  "mappings": ";;;;;AAGO,IAAM,eAAe,CAAC,WAA+C;AACxE,MAAI,MAAM,IAAI,WAAU;AAExB,aAAW,CAAC,KAAK,KAAK,KAAK,OAAO,QAAQ,MAAM,GAAG;AAC/C,QAAI,UAAU,UAAa,UAAU,QAAQ,UAAU;AAAI;AAE3D,QAAI,MAAM,QAAQ,KAAK,GAAG;AACtB,YAAM,QAAQ,CAAC,SAAQ;AACnB,YAAI,SAAS,UAAa,SAAS,QAAQ,GAAG,IAAI,OAAO,IAAI;AACzD,gBAAM,IAAI,OAAO,KAAK,OAAO,IAAI,CAAC;QACtC;MACJ,CAAC;AACD;IACJ;AAEA,UAAM,IAAI,IAAI,KAAK,OAAO,KAAK,CAAC;EACpC;AAEA,SAAO;AACX;",
-  "names": []
-}

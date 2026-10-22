@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/postman/sidebar/sidebar-folder.component.ts"],
-  "sourcesContent": ["\n      :host .cdk-drag-placeholder {\n        min-height: 2.25rem;\n        background: rgb(148 163 184 / 0.25);\n        border-radius: 0.375rem;\n        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);\n      }\n      :host .cdk-drag-animating {\n        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);\n      }\n      :host .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {\n        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);\n      }\n    "],
-  "mappings": ";AACM,MAAA,CAAA;AACE,cAAA;AACA,cAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;AACA,iBAAA;AACA,cAAA,UAAA,MAAA,aAAA,CAAA,EAAA,CAAA,EAAA,GAAA,EAAA;;AAEF,MAAA,CAAA;AACE,cAAA,UAAA,MAAA,aAAA,CAAA,EAAA,CAAA,EAAA,GAAA,EAAA;;AAEF,MAAA,CAAA,uBAAA,CAAA,QAAA,KAAA,CATA;AAUE,cAAA,UAAA,MAAA,aAAA,CAAA,EAAA,CAAA,EAAA,GAAA,EAAA;;",
-  "names": []
-}

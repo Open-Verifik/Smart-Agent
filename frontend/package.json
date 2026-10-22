@@ -7,6 +7,7 @@
         "start:docker": "node scripts/patch-vite-hmr-host.mjs && ng serve --configuration=docker",
         "prebuild": "node ../backend/scripts/sync-discovery-frontend-public.js",
         "build": "ng build",
+        "build:staging": "node ../backend/scripts/sync-discovery-frontend-public.js --staging && ng build --configuration=production",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "i18n:audit-demos": "node scripts/audit-smart-enroll-demos-i18n.mjs",

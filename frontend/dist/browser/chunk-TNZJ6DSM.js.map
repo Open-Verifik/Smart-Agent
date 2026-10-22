@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/human-authn/human-authn.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\r\n\r\nexport default [\r\n    { path: '', redirectTo: 'demos', pathMatch: 'full' },\r\n    {\r\n        path: 'plans',\r\n        loadComponent: () =>\r\n            import('./plans/human-authn-plans.component').then((m) => m.HumanAuthnPlansComponent),\r\n    },\r\n    {\r\n        path: 'projects',\r\n        loadChildren: () =>\r\n            import('./projects/human-authn-projects.routes').then((m) => m.default),\r\n    },\r\n    {\r\n        path: 'demos',\r\n        loadComponent: () =>\r\n            import('./demos/human-authn-demos-hub.component').then(\r\n                (m) => m.HumanAuthnDemosHubComponent\r\n            ),\r\n    },\r\n    {\r\n        path: 'history',\r\n        loadComponent: () =>\r\n            import('./history/human-authn-history.component').then(\r\n                (m) => m.HumanAuthnHistoryComponent\r\n            ),\r\n    },\r\n] as Routes;\r\n"],
-  "mappings": ";;;AAEA,IAAA,6BAAe;EACX,EAAE,MAAM,IAAI,YAAY,SAAS,WAAW,OAAM;EAClD;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAAqC,EAAE,KAAK,CAAC,MAAM,EAAE,wBAAwB;;EAE5F;IACI,MAAM;IACN,cAAc,MACV,OAAO,qBAAwC,EAAE,KAAK,CAAC,MAAM,EAAE,OAAO;;EAE9E;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAAyC,EAAE,KAC9C,CAAC,MAAM,EAAE,2BAA2B;;EAGhD;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAAyC,EAAE,KAC9C,CAAC,MAAM,EAAE,0BAA0B;;;",
-  "names": []
-}
