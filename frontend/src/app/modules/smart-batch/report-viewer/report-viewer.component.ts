@@ -414,7 +414,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     this.htmlPreviewError.set(null);
                     const template = this.selectedTemplate()!;
                     const sampleData = this._sampleDataForHtmlPreview();
-                    return this._reportService.previewHtml(template, sampleData).pipe(
+                    return this._reportService
+                        .previewHtml(template, sampleData, { preview: false })
+                        .pipe(
                         map((html) => ({ loadSeq, html })),
                         catchError(() => of({ loadSeq, html: null as string | null }))
                     );
@@ -458,6 +460,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         return JSON.stringify({
             template: sanitizeTemplateForApi(template, 'update'),
             sample: this._sampleDataForHtmlPreview(),
+            printPreview: true,
         });
     }
 
@@ -1074,6 +1077,19 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         return new Blob([bytes], { type: 'application/pdf' });
     }
 
+    private async _pdfBlobToBase64(blob: Blob): Promise<string> {
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        let binary = '';
+        bytes.forEach((byte) => (binary += String.fromCharCode(byte)));
+        return btoa(binary);
+    }
+
+    private _emailPdfFilename(rowIndex: number | undefined, templateId: string): string {
+        const name = this.selectedTemplate()?.name || templateId;
+        const n = (rowIndex ?? 0) + 1;
+        return `SmartReport_${name}_consulta_${n}.pdf`.replace(/[^\w.\-]+/g, '_').slice(0, 120);
+    }
+
     private async _ensureReport(templateId: string, batchId: string): Promise<SmartReport> {
         const current = this.report();
         const currentTemplate =
@@ -1091,8 +1107,12 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     }
 
     private async _pdfBlobForCurrentRow(templateId: string): Promise<Blob> {
+        return this._pdfBlobForRow(templateId, this._currentPreviewRowIndex());
+    }
+
+    /** Same PDF pipeline as download — backend template render, not iframe preview HTML. */
+    private async _pdfBlobForRow(templateId: string, rowIndex?: number): Promise<Blob> {
         const batchId = this.batchId();
-        const rowIndex = this._currentPreviewRowIndex();
         if (batchId) {
             const report = await this._ensureReport(templateId, batchId);
             const result = await firstValueFrom(
@@ -1176,42 +1196,44 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     ): Promise<void> {
         try {
             const report = await this._ensureReport(templateId, batchId);
-            const printHtml = result.sendAll ? '' : this._htmlPreviewDocument || '';
+
+            if (result.sendAll) {
+                const rows = (this.batch()?.rows ?? []).filter(
+                    (row) => row.rowIndex != null && row.results && Object.keys(row.results).length > 0
+                );
+                const pdfFiles: { filename: string; pdfBase64: string }[] = [];
+                for (const row of rows) {
+                    const blob = await this._pdfBlobForRow(templateId, row.rowIndex);
+                    pdfFiles.push({
+                        filename: this._emailPdfFilename(row.rowIndex, templateId),
+                        pdfBase64: await this._pdfBlobToBase64(blob),
+                    });
+                }
+                if (!pdfFiles.length) throw new Error('no_rows');
+
+                this._reportService
+                    .sendReportEmail(report._id!, {
+                        recipients: result.recipients,
+                        subject: result.subject,
+                        language: 'es',
+                        pdfFiles,
+                    })
+                    .subscribe(this._emailSendHandlers());
+                return;
+            }
+
+            const pdfBlob = await this._pdfBlobForRow(templateId, currentRowIndex);
+            const pdfBase64 = await this._pdfBlobToBase64(pdfBlob);
+
             this._reportService
                 .sendReportEmail(report._id!, {
                     recipients: result.recipients,
                     subject: result.subject,
                     language: 'es',
-                    engine: this._pdfEngine(),
-                    ...(result.sendAll ? { sendAll: true } : { rowIndex: currentRowIndex }),
-                    ...(printHtml ? { printHtml } : {}),
+                    rowIndex: currentRowIndex,
+                    pdfBase64,
                 })
-                .subscribe({
-                    next: (res) => {
-                        this.isSending.set(false);
-                        if (res.success) {
-                            this._snack.open(
-                                this._transloco.translate('smartReport.emailSent'),
-                                this._snackCloseLabel(),
-                                { duration: 3000 }
-                            );
-                        } else {
-                            this._snack.open(
-                                res.error || this._transloco.translate('smartReport.failedToSendEmail'),
-                                this._snackCloseLabel(),
-                                { duration: 3000 }
-                            );
-                        }
-                    },
-                    error: () => {
-                        this.isSending.set(false);
-                        this._snack.open(
-                            this._transloco.translate('smartReport.failedToSendEmail'),
-                            this._snackCloseLabel(),
-                            { duration: 3000 }
-                        );
-                    },
-                });
+                .subscribe(this._emailSendHandlers());
         } catch {
             this.isSending.set(false);
             this._snack.open(
@@ -1220,6 +1242,38 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 { duration: 3000 }
             );
         }
+    }
+
+    private _emailSendHandlers(): {
+        next: (res: { success: boolean; error?: string }) => void;
+        error: () => void;
+    } {
+        return {
+            next: (res) => {
+                this.isSending.set(false);
+                if (res.success) {
+                    this._snack.open(
+                        this._transloco.translate('smartReport.emailSent'),
+                        this._snackCloseLabel(),
+                        { duration: 3000 }
+                    );
+                } else {
+                    this._snack.open(
+                        res.error || this._transloco.translate('smartReport.failedToSendEmail'),
+                        this._snackCloseLabel(),
+                        { duration: 3000 }
+                    );
+                }
+            },
+            error: () => {
+                this.isSending.set(false);
+                this._snack.open(
+                    this._transloco.translate('smartReport.failedToSendEmail'),
+                    this._snackCloseLabel(),
+                    { duration: 3000 }
+                );
+            },
+        };
     }
 
     downloadReport(): void {

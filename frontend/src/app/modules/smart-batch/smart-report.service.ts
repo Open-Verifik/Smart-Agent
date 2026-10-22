@@ -651,7 +651,8 @@ export class SmartReportService {
      */
     previewHtml(
         template: Partial<SmartReportTemplate>,
-        sampleData: SampleReportData
+        sampleData: SampleReportData,
+        options?: { preview?: boolean }
     ): Observable<string> {
         return this._httpClient
             .post<{
@@ -659,6 +660,7 @@ export class SmartReportService {
             }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, {
                 ...sanitizeTemplateForApi(template, 'create'),
                 sampleData,
+                ...(options?.preview === false ? { preview: false } : {}),
             })
             .pipe(map((res) => res.data.html));
     }
