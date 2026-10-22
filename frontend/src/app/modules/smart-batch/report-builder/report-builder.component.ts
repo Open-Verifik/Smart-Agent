@@ -34,12 +34,16 @@ import {
     batchStepFeatureId,
     batchStepLabel,
     orderedBatchSteps,
+    removeFeatureFromBatchSteps,
 } from '../batch-config-steps.util';
 import {
     buildStepSequenceMap,
     ensureResultSlots,
+    purgeResultSequence,
+    removeReportSectionsForSequence,
     remapReportSectionPaths,
     remapResultsRecord,
+    trimResultsToSteps,
 } from '../batch-step-sequence.util';
 import { REPORT_DESIGN_BODY_CLASS } from '../report-design-z-index.constants';
 import { buildHelperDataPaths } from '../helper-data.util';
@@ -542,6 +546,14 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             });
     }
 
+    canRemoveConsultStep(step: BatchStep): boolean {
+        return orderedBatchSteps(this.linkedConfiguration()?.steps).length > 1;
+    }
+
+    removeConsultStep(step: BatchStep): void {
+        void this._removeConsultFromLinkedConfig(step);
+    }
+
     editLinkedConfiguration(): void {
         const configId = this.linkedConfigId();
         if (!configId) return;
@@ -585,6 +597,55 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         }
     }
 
+    private async _removeConsultFromLinkedConfig(step: BatchStep): Promise<void> {
+        const configId = this.linkedConfigId();
+        const config = this.linkedConfiguration();
+        const featureId = batchStepFeatureId(step);
+        if (!configId || !config || !featureId) return;
+
+        if (orderedBatchSteps(config.steps).length <= 1) {
+            this._snack.open(
+                this._transloco.translate('smartReport.consultRemoveLast'),
+                this._transloco.translate('smartReport.close'),
+                { duration: 4500 }
+            );
+            return;
+        }
+
+        const removedSequence = step.sequence;
+        const previousSteps = config.steps ?? [];
+        const steps = removeFeatureFromBatchSteps(previousSteps, featureId);
+
+        this.sections.update((list) => removeReportSectionsForSequence(list, removedSequence));
+        this.isUpdatingConsults.set(true);
+
+        try {
+            const updated = await firstValueFrom(this._batchService.updateConfiguration(configId, { steps }));
+            const seqMap = buildStepSequenceMap(previousSteps, updated.data.steps);
+            if (seqMap.size) {
+                this.sections.update((list) => remapReportSectionPaths(list, seqMap));
+            }
+            this.linkedConfiguration.set(updated.data);
+            this._syncPreviewResultsWithSteps(updated.data, seqMap, removedSequence);
+            this._snack.open(
+                this._transloco.translate('smartReport.consultRemoved', {
+                    name: batchStepLabel(step),
+                }),
+                this._transloco.translate('smartReport.close'),
+                { duration: 4000 }
+            );
+        } catch (error) {
+            console.error('[ReportBuilder] could not remove consult from configuration', error);
+            this._snack.open(
+                this._transloco.translate('smartReport.consultRemoveFailed'),
+                this._transloco.translate('smartReport.close'),
+                { duration: 5000 }
+            );
+        } finally {
+            this.isUpdatingConsults.set(false);
+        }
+    }
+
     private async _loadLinkedConfiguration(configId: string | null): Promise<void> {
         if (!configId) {
             this.linkedConfiguration.set(null);
@@ -604,17 +665,22 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     /** Reserves `results.<n>` slots and remaps payloads when step numbers change. */
     private _syncPreviewResultsWithSteps(
         config: BatchConfiguration,
-        seqMap: Map<number, number> = new Map()
+        seqMap: Map<number, number> = new Map(),
+        removedSequence?: number
     ): void {
         const steps = orderedBatchSteps(config.steps);
         if (!steps.length) return;
 
         const current = this.previewData();
         let results = { ...(current.results ?? {}) };
+        if (removedSequence != null) {
+            results = purgeResultSequence(results, removedSequence);
+        }
         if (seqMap.size) {
             results = remapResultsRecord(results, seqMap);
         }
         results = ensureResultSlots(results, config.steps);
+        results = trimResultsToSteps(results, config.steps);
 
         this.previewData.set({ ...current, results });
     }

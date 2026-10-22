@@ -27,7 +27,7 @@ import {
     ReportValueRulesDialogData,
     ReportValueRulesDialogResult,
 } from '../report-value-rules-dialog.component';
-import { shapeRuleTestSamples } from '../report-shape-rules.util';
+import { resolveRuleImageSource, shapeRuleTestSamples } from '../report-shape-rules.util';
 import { sanitizeValueRules } from '../report-value-rules.util';
 import { imageAspectRatio, scalableImageSrc } from '../report-image.util';
 import { ReportBuilderAddConsultDialogComponent } from '../report-builder/report-builder-add-consult-dialog.component';
@@ -113,12 +113,18 @@ import {
 } from '../report-row-line.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
-import { orderedBatchSteps } from '../batch-config-steps.util';
+import { batchStepFeatureId, orderedBatchSteps } from '../batch-config-steps.util';
 import {
     buildStepSequenceMap,
     ensureResultSlots,
+    pathUsesResultSequence,
+    purgeResultSequence,
+    removeReportSectionsForSequence,
     remapReportSectionPaths,
+    remapResultsPath,
     remapResultsRecord,
+    removedStepSequences,
+    trimResultsToSteps,
 } from '../batch-step-sequence.util';
 import { buildRowDataForResolution } from '../template-match.util';
 import {
@@ -2810,6 +2816,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutSectionContextMenu(event: { section: ReportSection; x: number; y: number }): void {
+        this.onLayoutSectionClick(event.section);
         this._openLayoutContextMenu(event.x, event.y, { sectionId: event.section.id });
     }
 
@@ -2838,6 +2845,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutOverlayContextMenu(event: { overlay: ReportOverlayId; x: number; y: number }): void {
+        this.onLayoutOverlaySelect(event.overlay);
         this._openLayoutContextMenu(event.x, event.y, { overlay: event.overlay });
     }
 
@@ -3165,10 +3173,62 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._focusLayoutEditor(copy, 'block');
     }
 
-    private _layoutContextSection(): ReportSection | null {
+    layoutContextSection(): ReportSection | null {
         const id = this.layoutContextMenu()?.sectionId;
         if (!id) return null;
         return this.layoutSections().find((section) => section.id === id) ?? null;
+    }
+
+    layoutContextSheetImage(): ReportSheetImage | null {
+        const overlay = this.layoutContextMenu()?.overlay;
+        if (!overlay?.startsWith('img:')) return null;
+        const id = overlay.slice(4);
+        return this.sheetImages().find((item) => item.id === id) ?? null;
+    }
+
+    layoutContextAllowsImageRules(): boolean {
+        const menu = this.layoutContextMenu();
+        if (menu?.cellKey) return false;
+        const section = this.layoutContextSection();
+        if (section?.type === 'image') return true;
+        return Boolean(this.layoutContextSheetImage());
+    }
+
+    selectedSheetImageRuleCount(): number {
+        return this.selectedSheetImage()?.valueRules?.length ?? 0;
+    }
+
+    private _layoutContextSection(): ReportSection | null {
+        return this.layoutContextSection();
+    }
+
+    openImageRulesFromContextMenu(): void {
+        const section = this.layoutContextSection();
+        const sheet = this.layoutContextSheetImage();
+        if (section?.type === 'image') {
+            this.onLayoutSectionClick(section);
+            this.closeLayoutContextMenu();
+            queueMicrotask(() => this.openSelectedImageRules());
+            return;
+        }
+        if (sheet) {
+            this.onLayoutOverlaySelect(this.imageOverlayId(sheet.id));
+            this.closeLayoutContextMenu();
+            queueMicrotask(() => this._openSheetImageRules(sheet));
+            return;
+        }
+        this.closeLayoutContextMenu();
+    }
+
+    openShapeRulesFromContextMenu(): void {
+        const section = this.layoutContextSection();
+        if (section?.type !== 'shape') {
+            this.closeLayoutContextMenu();
+            return;
+        }
+        this.onLayoutSectionClick(section);
+        this.closeLayoutContextMenu();
+        queueMicrotask(() => this.openSelectedShapeRules());
     }
 
     onLayoutLayerContextMenu(section: ReportSection, event: MouseEvent): void {
@@ -3556,6 +3616,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     isAddingLayoutConsult = signal(false);
+    isRemovingLayoutConsult = signal(false);
+
+    canRemoveLayoutConsult(): boolean {
+        const steps = orderedBatchSteps(this.configuration()?.steps);
+        if (steps.length) return steps.length > 1;
+        return this.selectedFeatures().length > 1;
+    }
 
     /** Country string for the endpoint catalog while designing a template layout. */
     layoutConsultCountry(): string {
@@ -3617,6 +3684,79 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         } finally {
             this.isAddingLayoutConsult.set(false);
         }
+    }
+
+    removeLayoutConsult(card: GuideResultCard): void {
+        void this._removeConsultFromLayout(card);
+    }
+
+    private async _removeConsultFromLayout(card: GuideResultCard): Promise<void> {
+        if (!this.canRemoveLayoutConsult()) {
+            this._snack.open(this._transloco.translate('visitaGuide.layoutConsultRemoveLast'), undefined, {
+                duration: 4500,
+            });
+            return;
+        }
+
+        const featureId = this._featureIdForStepSequence(card.sequence);
+        const feature = this.selectedFeatures().find((item) => item._id === featureId);
+        if (!featureId || !feature) return;
+
+        const removedSequence = card.sequence;
+        const previousFeatures = this.selectedFeatures();
+        const previousGraph = this._state.flowGraph();
+
+        this.isRemovingLayoutConsult.set(true);
+
+        try {
+            this.layoutSections.update((list) => removeReportSectionsForSequence(list, removedSequence));
+            this._clearSheetImageRulesForSequence(removedSequence);
+
+            const next = previousFeatures.filter((item) => item._id !== featureId);
+            this._state.selectedFeatures.set(next);
+            this._state.flowGraph.set(graphFromLinearChain(next));
+
+            await this._ensureLinkedConfiguration();
+            this.ensureIncludeItems();
+
+            this._snack.open(
+                this._transloco.translate('visitaGuide.layoutConsultRemoved', {
+                    name: this.featureDisplayName(feature),
+                }),
+                undefined,
+                { duration: 4000 }
+            );
+        } catch (error) {
+            console.error('[VisitaGuide] could not remove consult from layout', error);
+            this._state.selectedFeatures.set(previousFeatures);
+            this._state.flowGraph.set(previousGraph);
+            this._snack.open(this._transloco.translate('visitaGuide.layoutConsultRemoveFailed'), undefined, {
+                duration: 5000,
+            });
+        } finally {
+            this.isRemovingLayoutConsult.set(false);
+        }
+    }
+
+    private _featureIdForStepSequence(sequence: number): string | undefined {
+        const step = (this.configuration()?.steps ?? []).find((item) => item.sequence === sequence);
+        return batchStepFeatureId(step);
+    }
+
+    private _clearSheetImageRulesForSequence(sequence: number): void {
+        this._state.sheetImages.update((list) =>
+            list.map((image) => {
+                if (!pathUsesResultSequence(image.ruleField, sequence)) return image;
+                return {
+                    ...image,
+                    valueRules: undefined,
+                    ruleField: undefined,
+                    ruleColumnKey: undefined,
+                    ruleRulesSectionId: undefined,
+                    ruleTableMode: undefined,
+                };
+            })
+        );
     }
 
     addAllCardsToLayout(): void {
@@ -5067,15 +5207,43 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     /** Recolor a shape or icon from a data value, e.g. red when the SOAT is "vencido". */
     openSelectedShapeRules(): void {
+        this._openSelectedFieldRules('shape');
+    }
+
+    /** Swap an image block URL when a data value matches (e.g. moto vs automóvil). */
+    openSelectedImageRules(): void {
         const section = this.selectedLayoutSection();
-        if (section?.type !== 'shape') return;
+        if (section?.type === 'image') {
+            this._openSelectedFieldRules('image');
+            return;
+        }
+        const sheet = this.selectedSheetImage();
+        if (sheet) this._openSheetImageRules(sheet);
+    }
+
+    sheetPreviewImageSrc(image: ReportSheetImage): string {
+        const root = this.previewData() as Record<string, unknown>;
+        return resolveRuleImageSource(image, root, this.layoutSections(), image.src) || image.src || '';
+    }
+
+    layoutPreviewImageSrc(section: ReportSection): string {
+        const root = this.previewData() as Record<string, unknown>;
+        const fallback = section.staticContent || '';
+        return resolveRuleImageSource(section, root, this.layoutSections(), fallback) || '';
+    }
+
+    private _openSelectedFieldRules(mode: 'shape' | 'image'): void {
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        if (mode === 'shape' && section.type !== 'shape') return;
+        if (mode === 'image' && section.type !== 'image') return;
         const root = this.previewData() as Record<string, unknown>;
         this._raiseAppOverlay();
         const dialogRef = this._dialog.open<ReportValueRulesDialogComponent, ReportValueRulesDialogData, ReportValueRulesDialogResult>(
             ReportValueRulesDialogComponent,
             {
                 data: {
-                    mode: 'shape',
+                    mode,
                     title: this._layoutSectionLayerLabel(section),
                     rules: cloneReportValue(section.valueRules ?? []),
                     field: this._shapeRuleFieldSelectValue(section),
@@ -5084,6 +5252,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     tableMode: section.ruleTableMode,
                     fieldOptions: this._ruleFieldOptions(),
                     samples: shapeRuleTestSamples(section, root, this.layoutSections()),
+                    reportIcons: this._reportIconChoices(),
                 },
                 maxWidth: '96vw',
             }
@@ -5100,6 +5269,61 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ruleTableMode: field && result.tableColumnKey ? result.tableMode ?? 'all' : undefined,
             }));
         });
+    }
+
+    private _openSheetImageRules(sheet: ReportSheetImage): void {
+        const root = this.previewData() as Record<string, unknown>;
+        const binding = sheet;
+        this._raiseAppOverlay();
+        const dialogRef = this._dialog.open<ReportValueRulesDialogComponent, ReportValueRulesDialogData, ReportValueRulesDialogResult>(
+            ReportValueRulesDialogComponent,
+            {
+                data: {
+                    mode: 'image',
+                    title: this._transloco.translate('visitaGuide.layoutLayerImage'),
+                    rules: cloneReportValue(sheet.valueRules ?? []),
+                    field: this._ruleFieldSelectValue(binding),
+                    tableColumnKey: sheet.ruleColumnKey,
+                    rulesSectionId: sheet.ruleRulesSectionId,
+                    tableMode: sheet.ruleTableMode,
+                    fieldOptions: this._ruleFieldOptions(),
+                    samples: shapeRuleTestSamples(
+                        { ...binding, type: 'image', id: sheet.id, order: 0 } as ReportSection,
+                        root,
+                        this.layoutSections()
+                    ),
+                    reportIcons: this._reportIconChoices(),
+                },
+                maxWidth: '96vw',
+            }
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+            if (!result) return;
+            const rules = sanitizeValueRules(result.rules);
+            const field = rules.length ? result.field || undefined : undefined;
+            this._patchSheetImage(sheet.id, {
+                valueRules: field ? rules : undefined,
+                ruleField: field,
+                ruleColumnKey: field ? result.tableColumnKey : undefined,
+                ruleRulesSectionId: field ? result.rulesSectionId : undefined,
+                ruleTableMode: field && result.tableColumnKey ? result.tableMode ?? 'all' : undefined,
+            });
+        });
+    }
+
+    private _patchSheetImage(id: string, patch: Partial<ReportSheetImage>): void {
+        this._state.sheetImages.update((list) => list.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+    }
+
+    private _ruleFieldSelectValue(binding: {
+        ruleField?: string;
+        ruleColumnKey?: string;
+    }): string {
+        if (!binding.ruleField) return '';
+        if (binding.ruleColumnKey) {
+            return `${binding.ruleField}\0${binding.ruleColumnKey}`;
+        }
+        return binding.ruleField;
     }
 
     /** Icons and emojis already on the sheet, plus those other rules use, so they can be reused. */
@@ -5181,11 +5405,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _shapeRuleFieldSelectValue(section: ReportSection): string {
-        if (!section.ruleField) return '';
-        if (section.ruleColumnKey) {
-            return `${section.ruleField}\0${section.ruleColumnKey}`;
-        }
-        return section.ruleField;
+        return this._ruleFieldSelectValue(section);
     }
 
     private _ruleFieldOptions(): ReportShapeFieldOption[] {
@@ -5895,6 +6115,62 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
+    private _remapStoredResults(
+        previousSteps: BatchConfiguration['steps'],
+        nextSteps: BatchConfiguration['steps'],
+        seqMap: Map<number, number>
+    ): void {
+        const removed = removedStepSequences(previousSteps, nextSteps);
+        const transform = (results: Record<string | number, unknown> | undefined) => {
+            let next = { ...(results ?? {}) };
+            for (const sequence of removed) {
+                next = purgeResultSequence(next, sequence);
+            }
+            if (seqMap.size) {
+                next = remapResultsRecord(next, seqMap);
+            }
+            next = ensureResultSlots(next, nextSteps);
+            return trimResultsToSteps(next, nextSteps);
+        };
+
+        const batch = this._state.batch();
+        if (batch?.rows?.length) {
+            this._state.batch.set({
+                ...batch,
+                rows: batch.rows.map((row) => ({
+                    ...row,
+                    results: transform(row.results as Record<string | number, unknown>) as typeof row.results,
+                    errors: row.errors?.map((error) => ({
+                        ...error,
+                        step: seqMap.get(Number(error.step)) ?? error.step,
+                    })),
+                })),
+            });
+            return;
+        }
+
+        const external = this.externalPreview();
+        if (external?.results) {
+            this.externalPreview.set({
+                ...external,
+                results: transform(external.results as Record<string | number, unknown>),
+            });
+            return;
+        }
+
+        const template = this.selectedTemplate();
+        const sample = template?.sampleData;
+        if (sample?.results) {
+            this._state.selectedTemplate.set({
+                ...template!,
+                sampleData: {
+                    ...sample,
+                    results: transform(sample.results as Record<string | number, unknown>),
+                },
+            });
+        }
+    }
+
     /**
      * When consultas are added or reordered, step sequences can change. Remap layout
      * blocks and stored batch results so existing blocks keep the same payload.
@@ -5903,42 +6179,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         previousSteps: BatchConfiguration['steps'],
         nextSteps: BatchConfiguration['steps']
     ): void {
+        for (const sequence of removedStepSequences(previousSteps, nextSteps)) {
+            this.layoutSections.update((sections) => removeReportSectionsForSequence(sections, sequence));
+            this._clearSheetImageRulesForSequence(sequence);
+        }
+
         const seqMap = buildStepSequenceMap(previousSteps, nextSteps);
         if (seqMap.size) {
             this.layoutSections.update((sections) => remapReportSectionPaths(sections, seqMap));
-            const batch = this._state.batch();
-            if (batch?.rows?.length) {
-                this._state.batch.set({
-                    ...batch,
-                    rows: batch.rows.map((row) => ({
-                        ...row,
-                        results: remapResultsRecord(row.results, seqMap) as typeof row.results,
-                        errors: row.errors?.map((error) => ({
-                            ...error,
-                            step: seqMap.get(Number(error.step)) ?? error.step,
-                        })),
-                    })),
-                });
-            }
-            const external = this.externalPreview();
-            if (external?.results) {
-                this.externalPreview.set({
-                    ...external,
-                    results: remapResultsRecord(external.results as Record<string | number, unknown>, seqMap),
-                });
-            }
-            const template = this.selectedTemplate();
-            const sample = template?.sampleData;
-            if (sample?.results) {
-                const nextResults = remapResultsRecord(
-                    sample.results as Record<string | number, unknown>,
-                    seqMap
-                );
-                this._state.selectedTemplate.set({
-                    ...template!,
-                    sampleData: { ...sample, results: nextResults },
-                });
-            }
+            this._state.sheetImages.update((images) =>
+                images.map((image) => ({
+                    ...image,
+                    ruleField: remapResultsPath(image.ruleField, seqMap),
+                }))
+            );
+            this._remapStoredResults(previousSteps, nextSteps, seqMap);
+        } else if (removedStepSequences(previousSteps, nextSteps).length) {
+            this._remapStoredResults(previousSteps, nextSteps, seqMap);
         }
         this._ensurePreviewResultSlots(nextSteps);
         this._preserveLayoutFieldOrder();

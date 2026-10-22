@@ -4,14 +4,15 @@ import {
     ChangeDetectorRef,
     Component,
     computed,
+    DestroyRef,
     effect,
     HostListener,
     inject,
     OnDestroy,
     OnInit,
     signal,
-    viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -28,24 +29,30 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { firstValueFrom } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, Subject, switchMap } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
-import { ReportPreviewComponent, reportPaperSizeMm } from '../report-preview/report-preview.component';
 import {
     BatchConfiguration,
     BatchStep,
     SmartBatch,
     SmartBatchService,
 } from '../smart-batch.service';
-import { SampleReportData, SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import {
+    SampleReportData,
+    sanitizeTemplateForApi,
+    SmartReport,
+    SmartReportService,
+    SmartReportTemplate,
+} from '../smart-report.service';
 import { sortStepExportFieldLabels } from '../step-result-display.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import {
     buildRowDataForResolution,
+    BuildRowDataForResolutionOptions,
     TemplateMatchResult,
     validateTemplateAgainstData,
 } from '../template-match.util';
@@ -110,7 +117,6 @@ const createReportViewerPaginatorIntl = (): MatPaginatorIntl => {
         MatTooltipModule,
         MatSnackBarModule,
         TranslocoModule,
-        ReportPreviewComponent,
         AgGridAngular,
         MatPaginatorModule,
         MatFormFieldModule,
@@ -131,7 +137,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
-    private readonly _livePreview = viewChild<ReportPreviewComponent>('livePreview');
+    private _destroyRef = inject(DestroyRef);
 
     // Route params
     configId = signal<string | null>(null);
@@ -145,11 +151,20 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     configuration = signal<BatchConfiguration | null>(null);
     templates = signal<SmartReportTemplate[]>([]);
     selectedTemplate = signal<SmartReportTemplate | null>(null);
-    previewPaperWidthMm = computed(() => {
-        const template = this.selectedTemplate();
-        return reportPaperSizeMm(template?.pageSize, template?.orientation || 'portrait').width;
-    });
     report = signal<SmartReport | null>(null);
+
+    /** Backend HTML preview (same renderer as PDF), shown in a sandboxed iframe. */
+    htmlPreviewUrl = signal<SafeResourceUrl | null>(null);
+    htmlPreviewLoading = signal(false);
+    htmlPreviewError = signal<string | null>(null);
+    private _htmlPreviewObjectUrl: string | null = null;
+    private _htmlPreviewDocument = '';
+    private readonly _htmlPreviewRequest$ = new Subject<void>();
+    private _htmlPreviewLoadSeq = 0;
+
+    /** Backend-composed `report.*` model per row (same source as PDF generation). */
+    private _composedReportsByRowIndex = signal<Record<number, Record<string, any>>>({});
+    private _composedReportsLoadSeq = 0;
 
     // Step results layout: ordered list of step blocks (sequence + label)
     stepBlocksOrder = signal<StepBlockDescriptor[]>([]);
@@ -309,11 +324,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         if (!row) return { inputData: {}, results: {} };
 
         const batchName = b?.name ?? this._defaultBatchLabel();
-        const resolution = buildRowDataForResolution(row, {
-            steps: this.configuration()?.steps ?? [],
-            batchName,
-            errors: row.errors,
-        });
+        const resolution = buildRowDataForResolution(row, this._rowResolutionOptions(row, batchName));
 
         return {
             batchName,
@@ -332,11 +343,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const rowIndex = this.selectedRowIndex();
         const filtered = rowIndex != null ? rows.filter((r) => r.rowIndex === rowIndex) : rows;
         const batchName = b?.name ?? this._defaultBatchLabel();
-        const steps = this.configuration()?.steps ?? [];
         return filtered.map((row) => ({
             batchName,
             rowIndex: row.rowIndex,
-            ...buildRowDataForResolution(row, { steps, batchName, errors: row.errors }),
+            ...buildRowDataForResolution(row, this._rowResolutionOptions(row, batchName)),
         }));
     });
 
@@ -367,11 +377,182 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 this.previewPageIndex.set(0);
             }
         });
+
+        effect(() => {
+            const batchId = this.batchId();
+            const b = this.batch();
+            this.selectedRowIndex();
+            if (!batchId || !b?.rows?.length) {
+                this._composedReportsByRowIndex.set({});
+                return;
+            }
+            void this._refreshComposedReports();
+        });
+
+        effect(() => {
+            if (this.stepResultsViewMode() !== 'pdf') return;
+            this.selectedTemplate();
+            this.configuration();
+            this.previewDataForCurrentPage();
+            this._composedReportsByRowIndex();
+            this._requestHtmlPreview();
+        });
+
+        this._htmlPreviewRequest$
+            .pipe(
+                debounceTime(400),
+                map(() => this._htmlPreviewRequestKey()),
+                distinctUntilChanged(),
+                switchMap((key) => {
+                    if (!key) {
+                        this.htmlPreviewLoading.set(false);
+                        this._releaseHtmlPreviewUrl();
+                        return of(null);
+                    }
+                    const loadSeq = ++this._htmlPreviewLoadSeq;
+                    this.htmlPreviewLoading.set(true);
+                    this.htmlPreviewError.set(null);
+                    const template = this.selectedTemplate()!;
+                    const sampleData = this._sampleDataForHtmlPreview();
+                    return this._reportService.previewHtml(template, sampleData).pipe(
+                        map((html) => ({ loadSeq, html })),
+                        catchError(() => of({ loadSeq, html: null as string | null }))
+                    );
+                }),
+                takeUntilDestroyed(this._destroyRef)
+            )
+            .subscribe(({ loadSeq, html }) => {
+                if (loadSeq !== this._htmlPreviewLoadSeq) return;
+                this.htmlPreviewLoading.set(false);
+                if (html == null) {
+                    this.htmlPreviewError.set(
+                        this._transloco.translate('smartReport.previewFailed')
+                    );
+                    this._releaseHtmlPreviewUrl();
+                    return;
+                }
+                this._setHtmlPreviewDocument(html);
+            });
     }
 
     ngOnDestroy(): void {
+        this._composedReportsLoadSeq += 1;
+        this._htmlPreviewLoadSeq += 1;
         this._clearJsonCopyTimer();
         this._clearGeneratedPdf();
+        this._releaseHtmlPreviewUrl();
+    }
+
+    refreshHtmlPreview(): void {
+        this._requestHtmlPreview();
+    }
+
+    private _requestHtmlPreview(): void {
+        this._htmlPreviewRequest$.next();
+    }
+
+    private _htmlPreviewRequestKey(): string {
+        const template = this.selectedTemplate();
+        const b = this.batch();
+        if (!template || !b?.rows?.length) return '';
+        return JSON.stringify({
+            template: sanitizeTemplateForApi(template, 'update'),
+            sample: this._sampleDataForHtmlPreview(),
+        });
+    }
+
+    private _batchStepsForSample(): SampleReportData['steps'] {
+        return (this.configuration()?.steps ?? []).map((step) => ({
+            sequence: step.sequence,
+            enabled: step.enabled,
+            featureCode:
+                typeof step.appFeature === 'object' && step.appFeature != null
+                    ? step.appFeature.code
+                    : undefined,
+            appFeature:
+                typeof step.appFeature === 'object' && step.appFeature != null
+                    ? { code: step.appFeature.code }
+                    : undefined,
+        }));
+    }
+
+    private _sampleDataForHtmlPreview(): SampleReportData {
+        return {
+            ...this._sampleDataForCurrentRow(),
+            steps: this._batchStepsForSample(),
+        };
+    }
+
+    private _setHtmlPreviewDocument(html: string): void {
+        this._releaseHtmlPreviewUrl();
+        this._htmlPreviewDocument = html;
+        const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        this._htmlPreviewObjectUrl = url;
+        this.htmlPreviewUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
+        this.htmlPreviewError.set(null);
+    }
+
+    private _releaseHtmlPreviewUrl(): void {
+        if (this._htmlPreviewObjectUrl) {
+            URL.revokeObjectURL(this._htmlPreviewObjectUrl);
+            this._htmlPreviewObjectUrl = null;
+        }
+        this._htmlPreviewDocument = '';
+        this.htmlPreviewUrl.set(null);
+    }
+
+    private _rowResolutionOptions(
+        row: NonNullable<SmartBatch['rows']>[number],
+        batchName?: string
+    ): BuildRowDataForResolutionOptions {
+        const rowIndex = row.rowIndex;
+        const composed =
+            rowIndex != null ? this._composedReportsByRowIndex()[rowIndex] : undefined;
+
+        return {
+            steps: this.configuration()?.steps ?? [],
+            batchName: batchName ?? this.batch()?.name ?? this._defaultBatchLabel(),
+            errors: row.errors,
+            ...(composed ? { report: composed } : {}),
+        };
+    }
+
+    /** Loads the same composed report model the PDF renderer uses. */
+    private async _refreshComposedReports(): Promise<void> {
+        const batchId = this.batchId();
+        const b = this.batch();
+        if (!batchId || !b?.rows?.length) return;
+
+        const loadSeq = ++this._composedReportsLoadSeq;
+        const rowFilter = this.selectedRowIndex();
+        const rows =
+            rowFilter != null ? b.rows.filter((r) => r.rowIndex === rowFilter) : b.rows;
+
+        const pairs = await Promise.all(
+            rows.map(async (row) => {
+                const rowIndex = row.rowIndex;
+                if (rowIndex == null || !row.results || Object.keys(row.results).length === 0) {
+                    return null;
+                }
+                try {
+                    const response = await firstValueFrom(
+                        this._batchService.getRowReport(batchId, rowIndex)
+                    );
+                    return [rowIndex, response.data] as const;
+                } catch (err) {
+                    console.warn('[ReportViewer] composed report unavailable for row', rowIndex, err);
+                    return null;
+                }
+            })
+        );
+
+        if (loadSeq !== this._composedReportsLoadSeq) return;
+
+        const next: Record<number, Record<string, any>> = {};
+        for (const pair of pairs) {
+            if (pair) next[pair[0]] = pair[1];
+        }
+        this._composedReportsByRowIndex.set(next);
     }
 
     private _clearJsonCopyTimer(): void {
@@ -424,22 +605,17 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             if (!row) return null;
             return validateTemplateAgainstData(
                 template,
-                buildRowDataForResolution(row, {
-                    steps: this.configuration()?.steps ?? [],
-                    batchName: b?.name,
-                    errors: row.errors,
-                })
+                buildRowDataForResolution(row, this._rowResolutionOptions(row, b?.name))
             );
         }
 
         const missingByPath = new Map<string, { path: string; label?: string }>();
         const matchedPaths = new Set<string>();
-        const steps = this.configuration()?.steps ?? [];
 
         for (const row of rows) {
             const result = validateTemplateAgainstData(
                 template,
-                buildRowDataForResolution(row, { steps, batchName: b?.name, errors: row.errors })
+                buildRowDataForResolution(row, this._rowResolutionOptions(row, b?.name))
             );
             result.matchedPaths.forEach((path) => matchedPaths.add(path));
             result.missingPaths.forEach((item) => missingByPath.set(item.path, item));
@@ -869,6 +1045,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             results: current['results'] ?? {},
             errors: current['errors'],
             report: current['report'],
+            steps: this._batchStepsForSample(),
         };
     }
 
@@ -999,7 +1176,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     ): Promise<void> {
         try {
             const report = await this._ensureReport(templateId, batchId);
-            const printHtml = result.sendAll ? '' : this._livePreview()?.exportPrintHtml() || '';
+            const printHtml = result.sendAll ? '' : this._htmlPreviewDocument || '';
             this._reportService
                 .sendReportEmail(report._id!, {
                     recipients: result.recipients,
@@ -1272,11 +1449,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             ? {
                   batchName: b?.name ?? this._defaultBatchLabel(),
                   rowIndex: row.rowIndex,
-                  ...buildRowDataForResolution(row, {
-                      steps: this.configuration()?.steps ?? [],
-                      batchName: b?.name,
-                      errors: row.errors,
-                  }),
+                  ...buildRowDataForResolution(row, this._rowResolutionOptions(row, b?.name)),
               }
             : null;
 

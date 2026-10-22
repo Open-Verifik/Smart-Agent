@@ -1,3 +1,5 @@
+import { colorIconSvg, REPORT_ICON_MAX_LENGTH, sanitizeIconSvg } from './report-icon.util';
+
 const SVG_DATA_URL = /^data:image\/svg\+xml(;[^,]*)?,/i;
 
 function decodeSvgDataUrl(src: string): string | null {
@@ -33,6 +35,19 @@ function svgLength(value: string | null): number {
  * an `<img>`, so a bigger or smaller box crops it instead of scaling it.
  * Adds the missing `viewBox`; any other image comes back unchanged.
  */
+/** Standalone SVG markup as a safe `img` src (for image blocks and conditional image rules). */
+export function iconSvgToReportImageUrl(
+    raw: string,
+    options?: { color?: string; keepColors?: boolean }
+): string | null {
+    let markup = sanitizeIconSvg(raw);
+    if (!markup || markup.length > REPORT_ICON_MAX_LENGTH) return null;
+    if (!options?.keepColors) {
+        markup = colorIconSvg(markup, options?.color || '#111827', false) ?? markup;
+    }
+    return encodeSvgDataUrl(markup);
+}
+
 export function scalableImageSrc(src: string): string {
     const markup = decodeSvgDataUrl(src);
     if (!markup) return src;

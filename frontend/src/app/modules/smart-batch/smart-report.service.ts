@@ -65,7 +65,16 @@ export interface ReportSectionFrame {
     minHeight?: number;
 }
 
-export interface ReportSheetImage {
+/** Conditional image swap on a floating sheet image (same fields as layout image blocks). */
+export type ReportSheetImageRuleBinding = {
+    valueRules?: ReportValueRule[];
+    ruleField?: string;
+    ruleColumnKey?: string;
+    ruleRulesSectionId?: string;
+    ruleTableMode?: 'all' | 'any';
+};
+
+export interface ReportSheetImage extends ReportSheetImageRuleBinding {
     id: string;
     src: string;
     x: number;

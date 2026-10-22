@@ -46,6 +46,7 @@ import wol049Simit from './from-batch-6a1a20b6/wol049/simit-plate.json';
 import wol049Agreements from './from-batch-6a1a20b6/wol049/simit-agreements.json';
 import wol049Sinister from './from-batch-6a1a20b6/wol049/fasecolda-sinister.json';
 import wol049Values from './from-batch-6a1a20b6/wol049/fasecolda-values.json';
+import { enrichResultsRecordForPreview } from './fixture-runt-history.util';
 
 export type BatchExportSlug =
     | 'hxr704'
@@ -138,10 +139,21 @@ const PACKS: Record<
     },
 };
 
+const slugSeed = (slug: BatchExportSlug): number =>
+    slug.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+
 export const buildBatchExportRow = (
     slug: BatchExportSlug,
     rowIndex = 0
-): Pick<SmartBatchRow, 'rowIndex' | 'inputData' | 'results' | 'errors'> => ({
-    rowIndex,
-    ...PACKS[slug],
-});
+): Pick<SmartBatchRow, 'rowIndex' | 'inputData' | 'results' | 'errors'> => {
+    const pack = PACKS[slug];
+    return {
+        rowIndex,
+        inputData: pack.inputData,
+        errors: pack.errors,
+        results: enrichResultsRecordForPreview(
+            pack.results as Record<number, unknown>,
+            slugSeed(slug)
+        ) as typeof pack.results,
+    };
+};

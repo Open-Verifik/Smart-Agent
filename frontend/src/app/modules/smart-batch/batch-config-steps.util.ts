@@ -46,6 +46,13 @@ export function appendFeatureToBatchSteps(steps: BatchStep[], feature: AppFeatur
     return renumberBatchSteps(next);
 }
 
+/** Removes one feature from the pipeline and renumbers remaining enabled steps. */
+export function removeFeatureFromBatchSteps(steps: BatchStep[], featureId: string): BatchStep[] {
+    if (!featureId) return renumberBatchSteps(steps ?? []);
+    const filtered = (steps ?? []).filter((step) => batchStepFeatureId(step) !== featureId);
+    return renumberBatchSteps(filtered);
+}
+
 /** Keeps enabled steps numbered 1…n in pipeline order. */
 export function renumberBatchSteps(steps: BatchStep[]): BatchStep[] {
     const enabled = orderedBatchSteps(steps);

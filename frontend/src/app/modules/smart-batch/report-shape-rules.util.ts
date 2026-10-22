@@ -1,6 +1,6 @@
 import { formatReportCellValue, valueAtDataPath } from './report-param-entries.util';
-import { keyValueRules, matchValueRule } from './report-value-rules.util';
-import type { ReportSection } from './smart-report.service';
+import { isSafeReportImageUrl, keyValueRules, matchValueRule } from './report-value-rules.util';
+import type { ReportSection, ReportSheetImageRuleBinding } from './smart-report.service';
 
 export type ReportShapeTableMode = 'all' | 'any';
 
@@ -79,6 +79,32 @@ export const resolveShapeRuleValue = (
     }
 
     return valueAtDataPath(data, section.ruleField);
+};
+
+const ruleBindingAsSection = (
+    binding: ReportSheetImageRuleBinding
+): ReportSection =>
+    ({
+        ...binding,
+        type: 'image',
+        id: '',
+        order: 0,
+    }) as ReportSection;
+
+/** Image URL after block rules run; falls back to the default source when no rule matches. */
+export const resolveRuleImageSource = (
+    section: ReportSection | ReportSheetImageRuleBinding,
+    data: Record<string, unknown>,
+    sections: ReportSection[],
+    fallback?: string
+): string | undefined => {
+    const base = fallback?.trim() || undefined;
+    const host = 'type' in section && section.type ? section : ruleBindingAsSection(section);
+    if (!host.ruleField || !host.valueRules?.length) return base;
+    const value = resolveShapeRuleValue(host, data, sections);
+    const rule = matchValueRule(host.valueRules, value);
+    const fromRule = rule?.imageUrl?.trim();
+    return isSafeReportImageUrl(fromRule) ? fromRule : base;
 };
 
 export const shapeRuleTestSamples = (

@@ -21,15 +21,17 @@ import {
     RULE_OPERATORS_WITHOUT_VALUE,
     ruleBadgeSvg,
     ruleIconMarkup,
+    isSafeReportImageUrl,
     sanitizeValueRules,
 } from './report-value-rules.util';
+import { iconSvgToReportImageUrl, scalableImageSrc } from './report-image.util';
 import { ReportIconPickerDialogComponent, ReportIconPickerResult } from './report-icon-picker-dialog.component';
 import { ColorHexFieldComponent } from './color-hex-field.component';
 
 export type ReportRuleScope = 'value' | 'block';
 
 export interface ReportValueRulesDialogData {
-    mode: 'value' | 'shape';
+    mode: 'value' | 'shape' | 'image';
     /** Name of the value or shape being configured. */
     title: string;
     rules: ReportValueRule[];
@@ -103,10 +105,14 @@ export interface ReportValueRulesDialogResult {
             </div>
 
             <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-                <p class="text-xs text-stone-500 dark:text-stone-400">{{ (isShape ? 'reportRules.hintShape' : 'reportRules.hint') | transloco }}</p>
+                <p class="text-xs text-stone-500 dark:text-stone-400">{{
+                    (isImage ? 'reportRules.hintImage' : isShape ? 'reportRules.hintShape' : 'reportRules.hint') | transloco
+                }}</p>
 
-                @if (isShape) {
-                    <label class="mt-3 block text-xs font-medium text-stone-700 dark:text-stone-200">{{ 'reportRules.field' | transloco }}</label>
+                @if (isFieldBound) {
+                    <label class="mt-3 block text-xs font-medium text-stone-700 dark:text-stone-200">{{
+                        (isImage ? 'reportRules.fieldImage' : 'reportRules.field') | transloco
+                    }}</label>
                     <select
                         class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                         [ngModel]="field()"
@@ -134,7 +140,7 @@ export interface ReportValueRulesDialogResult {
                     }
                 }
 
-                @if (data.allowScope && !isShape) {
+                @if (data.allowScope && !isFieldBound) {
                     <div class="mt-3 inline-flex rounded-xl border border-stone-200 p-0.5 text-xs dark:border-gray-700">
                         @for (option of scopes; track option) {
                             <button
@@ -149,7 +155,7 @@ export interface ReportValueRulesDialogResult {
                     </div>
                 }
 
-                @if (!isShape) {
+                @if (!isFieldBound) {
                     <p class="mt-4 text-[11px] font-semibold uppercase tracking-wider text-stone-400">{{ 'reportRules.presets' | transloco }}</p>
                     <div class="mt-1.5 flex flex-wrap gap-1.5">
                         @for (preset of presets; track preset.id) {
@@ -217,23 +223,86 @@ export interface ReportValueRulesDialogResult {
 
                             <div class="mt-2 flex flex-wrap items-start gap-x-3 gap-y-2">
                                 <span class="rounded-md bg-emerald-50 px-1.5 py-0.5 font-mono text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">{{ 'reportRules.then' | transloco }}</span>
-                                <div class="min-w-[11rem] flex-1 basis-44">
-                                    <span class="text-xs text-stone-600 dark:text-stone-300">{{
-                                        (isShape ? 'reportRules.shapeColor' : 'reportRules.textColor') | transloco
-                                    }}</span>
-                                    <color-hex-field
-                                        class="mt-1 block"
-                                        [showTransparency]="false"
-                                        [ngModel]="rule.color || '#111827'"
-                                        (ngModelChange)="patch(index, { color: $event })"
-                                        placeholder="#RRGGBB"
-                                        [ariaLabel]="(isShape ? 'reportRules.shapeColor' : 'reportRules.textColor') | transloco"
-                                    />
-                                    @if (isShape) {
+                                @if (isImage) {
+                                    <div class="min-w-0 flex-1 basis-full">
+                                        <span class="text-xs text-stone-600 dark:text-stone-300">{{ 'reportRules.replaceImage' | transloco }}</span>
+                                        @if (reportIcons.length) {
+                                            <p class="mt-2 text-[11px] text-stone-500 dark:text-stone-400">{{ 'reportRules.reportIcons' | transloco }}</p>
+                                            <div class="mt-1 flex flex-wrap gap-1">
+                                                @for (icon of reportIcons; track icon.svg) {
+                                                    <button
+                                                        type="button"
+                                                        class="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 bg-white dark:border-gray-700 dark:bg-gray-950"
+                                                        [attr.aria-label]="icon.name"
+                                                        [innerHTML]="iconHtml({ iconSvg: icon.svg, iconKeepColors: icon.keepColors, color: '#111827' })"
+                                                        (click)="pickImageRuleIcon(index, icon)"
+                                                    ></button>
+                                                }
+                                            </div>
+                                        }
+                                        <button
+                                            type="button"
+                                            class="mt-2 inline-flex h-8 items-center gap-1 rounded-lg border border-dashed border-stone-300 px-2.5 text-xs font-medium text-stone-600 hover:border-emerald-400 hover:text-emerald-700 dark:border-gray-600 dark:text-stone-300"
+                                            (click)="browseImageRuleIcons(index)"
+                                        >
+                                            <mat-icon class="!h-4 !w-4 !text-[16px]">add_photo_alternate</mat-icon>
+                                            {{ 'reportRules.moreIcons' | transloco }}
+                                        </button>
+                                        <label class="mt-3 block text-[11px] text-stone-500 dark:text-stone-400">{{ 'reportRules.imagePasteSvg' | transloco }}</label>
+                                        <textarea
+                                            rows="3"
+                                            class="mt-1 w-full rounded-lg border border-stone-200 px-2 py-1.5 font-mono text-[11px] dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [placeholder]="'reportRules.imagePasteSvgPlaceholder' | transloco"
+                                            [ngModel]="imageSvgDraft(rule.id)"
+                                            (ngModelChange)="setImageSvgDraft(rule.id, $event)"
+                                        ></textarea>
+                                        <button
+                                            type="button"
+                                            mat-stroked-button
+                                            class="mt-1.5 !rounded-lg !text-xs"
+                                            [disabled]="!imageSvgDraft(rule.id).trim()"
+                                            (click)="applyImageSvgPaste(index)"
+                                        >
+                                            {{ 'reportRules.imageUseSvg' | transloco }}
+                                        </button>
+                                        <label class="mt-3 block text-[11px] text-stone-500 dark:text-stone-400">{{ 'reportRules.imageUrlLabel' | transloco }}</label>
+                                        <input
+                                            type="url"
+                                            class="mt-1 w-full rounded-lg border border-stone-200 px-2 py-1.5 font-mono text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [placeholder]="'reportRules.replaceImagePlaceholder' | transloco"
+                                            [ngModel]="rule.imageUrl || ''"
+                                            (ngModelChange)="onImageUrlInput(index, $event)"
+                                        />
+                                        @if (rule.imageUrl) {
+                                            <img [src]="imageRulePreviewSrc(rule.imageUrl)" alt="" class="mt-2 max-h-16 max-w-full rounded object-contain" />
+                                        }
+                                    </div>
+                                } @else if (isShape) {
+                                    <div class="min-w-[11rem] flex-1 basis-44">
+                                        <span class="text-xs text-stone-600 dark:text-stone-300">{{ 'reportRules.shapeColor' | transloco }}</span>
+                                        <color-hex-field
+                                            class="mt-1 block"
+                                            [showTransparency]="false"
+                                            [ngModel]="rule.color || '#111827'"
+                                            (ngModelChange)="patch(index, { color: $event })"
+                                            placeholder="#RRGGBB"
+                                            [ariaLabel]="'reportRules.shapeColor' | transloco"
+                                        />
                                         <p class="mt-0.5 text-[10px] text-stone-400 dark:text-stone-500">{{ 'reportRules.shapeColorHexHint' | transloco }}</p>
-                                    }
-                                </div>
-                                @if (!isShape) {
+                                    </div>
+                                } @else {
+                                    <div class="min-w-[11rem] flex-1 basis-44">
+                                        <span class="text-xs text-stone-600 dark:text-stone-300">{{ 'reportRules.textColor' | transloco }}</span>
+                                        <color-hex-field
+                                            class="mt-1 block"
+                                            [showTransparency]="false"
+                                            [ngModel]="rule.color || '#111827'"
+                                            (ngModelChange)="patch(index, { color: $event })"
+                                            placeholder="#RRGGBB"
+                                            [ariaLabel]="'reportRules.textColor' | transloco"
+                                        />
+                                    </div>
+                                @if (!isFieldBound) {
                                     <div class="min-w-[11rem] flex-1 basis-44">
                                         <span class="text-xs text-stone-600 dark:text-stone-300">{{ 'reportRules.background' | transloco }}</span>
                                         <div class="mt-1 flex items-start gap-1">
@@ -274,9 +343,10 @@ export interface ReportValueRulesDialogResult {
                                         (ngModelChange)="patch(index, { text: $event })"
                                     />
                                 }
+                                }
                             </div>
 
-                            @if (!isShape) {
+                            @if (!isFieldBound) {
                                 <div class="mt-2 flex flex-wrap items-center gap-1.5">
                                     <span class="text-xs text-stone-600 dark:text-stone-300">{{ 'reportRules.iconLabel' | transloco }}</span>
                                     <div class="inline-flex items-center gap-0.5 rounded-lg border border-stone-200 p-0.5 dark:border-gray-700">
@@ -364,7 +434,13 @@ export interface ReportValueRulesDialogResult {
                         />
                         <span class="text-stone-400">→</span>
                         @if (testRule(); as rule) {
-                            @if (isShape) {
+                            @if (isImage) {
+                                @if (rule.imageUrl) {
+                                    <img [src]="imageRulePreviewSrc(rule.imageUrl)" alt="" class="inline-block max-h-10 max-w-[8rem] rounded object-contain" />
+                                } @else {
+                                    <span class="text-xs text-stone-500">{{ 'reportRules.testImageDefault' | transloco }}</span>
+                                }
+                            } @else if (isShape) {
                                 <span class="inline-block h-6 w-6 rounded-md border border-stone-200" [style.background-color]="rule.color || '#111827'"></span>
                             } @else {
                                 <span
@@ -399,7 +475,7 @@ export interface ReportValueRulesDialogResult {
                 <button mat-button type="button" color="warn" [disabled]="!rules().length" (click)="rules.set([])">{{ 'reportRules.clear' | transloco }}</button>
                 <div class="flex items-center gap-2">
                     <button mat-button type="button" (click)="close()">{{ 'reportRules.cancel' | transloco }}</button>
-                    <button mat-flat-button color="primary" type="button" class="rounded-xl" [disabled]="isShape && rules().length > 0 && !field()" (click)="save()">
+                    <button mat-flat-button color="primary" type="button" class="rounded-xl" [disabled]="isFieldBound && rules().length > 0 && !field()" (click)="save()">
                         {{ 'reportRules.save' | transloco }}
                     </button>
                 </div>
@@ -415,6 +491,8 @@ export class ReportValueRulesDialogComponent {
     readonly reportIcons = (this.data.reportIcons ?? []).slice(0, 16);
 
     readonly isShape = this.data.mode === 'shape';
+    readonly isImage = this.data.mode === 'image';
+    readonly isFieldBound = this.isShape || this.isImage;
     readonly scopes: ReportRuleScope[] = ['value', 'block'];
     readonly presets = REPORT_RULE_PRESETS;
     readonly operatorGroups = RULE_OPERATOR_GROUPS;
@@ -427,6 +505,7 @@ export class ReportValueRulesDialogComponent {
     field = signal<string>(this.data.field ?? '');
     tableMode = signal<'all' | 'any'>(this.data.tableMode === 'any' ? 'any' : 'all');
     testValue = signal<string>(this._initialSample());
+    private _imageSvgDrafts = signal<Record<string, string>>({});
 
     selectedFieldOption = computed(() =>
         this.data.fieldOptions?.find((option) => (option.selectKey ?? option.path) === this.field())
@@ -486,6 +565,62 @@ export class ReportValueRulesDialogComponent {
                 if (!choice?.svg) return;
                 this.pickIcon(index, { name: choice.name, svg: choice.svg, keepColors: choice.keepColors });
             });
+    }
+
+    imageSvgDraft(ruleId: string): string {
+        return this._imageSvgDrafts()[ruleId] ?? '';
+    }
+
+    setImageSvgDraft(ruleId: string, value: string): void {
+        this._imageSvgDrafts.update((drafts) => ({ ...drafts, [ruleId]: value }));
+    }
+
+    imageRulePreviewSrc(url: string): string {
+        return scalableImageSrc(url);
+    }
+
+    pickImageRuleIcon(index: number, icon: ReportRuleIconChoice): void {
+        const url = iconSvgToReportImageUrl(icon.svg, { keepColors: icon.keepColors, color: '#111827' });
+        if (url) this.patch(index, { imageUrl: url });
+    }
+
+    browseImageRuleIcons(index: number): void {
+        this._dialog
+            .open<ReportIconPickerDialogComponent, { keepColors: boolean }, ReportIconPickerResult>(ReportIconPickerDialogComponent, {
+                data: { keepColors: false },
+                autoFocus: false,
+                maxWidth: '96vw',
+            })
+            .afterClosed()
+            .subscribe((choice) => {
+                if (!choice?.svg) return;
+                const url = iconSvgToReportImageUrl(choice.svg, { keepColors: choice.keepColors, color: '#111827' });
+                if (url) this.patch(index, { imageUrl: url });
+            });
+    }
+
+    applyImageSvgPaste(index: number): void {
+        const rule = this.rules()[index];
+        if (!rule) return;
+        const raw = this.imageSvgDraft(rule.id).trim();
+        if (!raw) return;
+        const url =
+            /^data:image\//i.test(raw) && isSafeReportImageUrl(raw)
+                ? raw
+                : iconSvgToReportImageUrl(raw);
+        if (url) this.patch(index, { imageUrl: url });
+    }
+
+    onImageUrlInput(index: number, value: string): void {
+        const trimmed = value.trim();
+        if (trimmed.startsWith('<') && trimmed.includes('svg')) {
+            const url = iconSvgToReportImageUrl(trimmed);
+            if (url) {
+                this.patch(index, { imageUrl: url });
+                return;
+            }
+        }
+        this.patch(index, { imageUrl: value });
     }
 
     private _trusted(markup: string): SafeHtml | null {
@@ -553,7 +688,7 @@ export class ReportValueRulesDialogComponent {
         this._ref.close({
             rules: sanitizeValueRules(this.rules()),
             scope: this.scope(),
-            ...(this.isShape
+            ...(this.isFieldBound
                 ? {
                       field: option?.path ?? this.field(),
                       tableColumnKey: option?.tableColumnKey,

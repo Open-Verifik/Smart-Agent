@@ -53,7 +53,14 @@ export interface ReportValueRule {
     iconKeepColors?: boolean;
     /** Shown instead of the value when set, e.g. "VENCIDO". */
     text?: string;
+    /** When set on image-block rules, replaces the image URL if the condition matches. */
+    imageUrl?: string;
 }
+
+/** Safe `src` for rule-driven images (HTTPS or inline raster/SVG data URLs). */
+export const isSafeReportImageUrl = (url: string | undefined | null): boolean =>
+    typeof url === 'string' &&
+    /^(https?:\/\/|data:image\/(png|jpe?g|gif|webp|svg\+xml)(;[^,]*)?,)/i.test(url.trim());
 
 export type ReportRuleOperatorGroup = 'text' | 'number' | 'date' | 'other';
 
@@ -392,6 +399,7 @@ export const sanitizeValueRules = (rules: unknown): ReportValueRule[] => {
                 clean.badge = rule.badge;
             }
             if (rule.text) clean.text = String(rule.text).slice(0, 120);
+            if (isSafeReportImageUrl(rule.imageUrl)) clean.imageUrl = String(rule.imageUrl).trim().slice(0, 2048);
             return clean;
         });
 };

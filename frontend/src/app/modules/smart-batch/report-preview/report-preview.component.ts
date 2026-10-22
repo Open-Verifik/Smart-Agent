@@ -21,7 +21,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslocoModule } from '@jsverse/transloco';
 import { colorIconSvg } from '../report-icon.util';
-import { ReportCellPart, ReportHeaderLogo, ReportLogoBand, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, SmartReportTemplate } from '../smart-report.service';
+import {
+    ReportCellPart,
+    ReportHeaderLogo,
+    ReportLogoBand,
+    ReportRowLineStyle,
+    ReportSection,
+    ReportSectionFrame,
+    ReportShapeKind,
+    ReportSheetImage,
+    ReportTextRole,
+    SmartReportTemplate,
+} from '../smart-report.service';
 import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogoSize, headerLogoAlignAt, headerLogoBandHeight, placeCompanyLogos, PlacedHeaderLogo } from '../header-logos.util';
 import {
     chunkLayoutSheetItems,
@@ -34,7 +45,8 @@ import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint }
 import { resolveTextRole } from '../report-text-role.util';
 import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
 import { availableFontWeights, fontHeadMarkup, fontWeightStep, nearestFontWeight, registerReportFonts, ReportFontWeight } from '../report-fonts.util';
-import { resolveShapeRuleValue } from '../report-shape-rules.util';
+import { scalableImageSrc } from '../report-image.util';
+import { resolveRuleImageSource, resolveShapeRuleValue } from '../report-shape-rules.util';
 import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
 import {
     clampReportSheetZ,
@@ -4180,6 +4192,23 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             if (rule?.color) return rule.color;
         }
         return section.style?.color || section.style?.backgroundColor || this.primaryColor();
+    }
+
+    /** Resolved image URL for image blocks (static URL, data path, or conditional rule). */
+    imageSource(section: ReportSection): string {
+        const fromPath = section.dataPath ? String(this.resolveDataPath(section.dataPath) || '') : '';
+        const fallback = fromPath || section.staticContent || '';
+        const root = this.previewData() as Record<string, unknown>;
+        const sections = this.template()?.sections ?? [];
+        const src = resolveRuleImageSource(section, root, sections, fallback) || '';
+        return src ? scalableImageSrc(src) : '';
+    }
+
+    sheetImageSrc(image: ReportSheetImage): string {
+        const root = this.previewData() as Record<string, unknown>;
+        const sections = this.template()?.sections ?? [];
+        const src = resolveRuleImageSource(image, root, sections, image.src) || image.src || '';
+        return src ? scalableImageSrc(src) : '';
     }
 
     /** Conditional-format rule that applies to a value cell, if any. */

@@ -372,7 +372,7 @@
                                 (contextmenu)="onOverlayContextMenu(sheetOverlayId(image.id), $event)"
                             >
                                 <img
-                                    [src]="image.src"
+                                    [src]="sheetImageSrc(image)"
                                     alt=""
                                     class="h-full w-full object-contain pointer-events-none select-none"
                                     [style.transform]="'rotate(' + (image.rotation || 0) + 'deg)'"
@@ -958,22 +958,23 @@
 
     @if (section.type === 'image') {
         @let framed = hasFreeLayout() && !!displayFrame(section)?.height;
+        @let imgSrc = imageSource(section);
         <div
             [class.mb-4]="!framed"
             [class.h-full]="framed"
             [class.w-full]="framed"
             [style.text-align]="roleTextAlign(section, 'title')"
         >
-            @if (section.staticContent && framed) {
+            @if (imgSrc && framed) {
                 <img
-                    [src]="section.staticContent"
+                    [src]="imgSrc"
                     [alt]="section.label || ('smartReport.image' | transloco)"
                     class="block h-full w-full object-contain"
                     draggable="false"
                 />
-            } @else if (section.staticContent) {
+            } @else if (imgSrc) {
                 <img
-                    [src]="section.staticContent"
+                    [src]="imgSrc"
                     [alt]="section.label || ('smartReport.image' | transloco)"
                     class="max-h-32 inline-block rounded"
                     style="max-width: 100%"
