@@ -928,7 +928,7 @@ export class PlateReportComponent implements OnInit {
                         this.estimate.set(quote.data);
                     }
                 }
-                if (!quote.data.sufficientCredits && existing.data.status !== 'processing') {
+                if (!quote.data.sufficientCredits) {
                     this._remember('after-payment');
                     this.reportPaid.set(this._paid);
                     if (this._paid) {

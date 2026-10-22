@@ -4,27 +4,28 @@ import {
 import {
   AttachmentService,
   FileDropZoneComponent
-} from "./chunk-3HXCOQA4.js";
+} from "./chunk-V3C2O2FI.js";
 import {
   FuseSplashScreenService
-} from "./chunk-A3OI5NK7.js";
-import "./chunk-TDJ6KSLH.js";
+} from "./chunk-NDA4EWAJ.js";
+import "./chunk-SHPJBY32.js";
 import {
   getBusinessUserClientId,
+  getVerifikAccount,
   resolveStaffSeatLimit
-} from "./chunk-LTIXDJKI.js";
-import {
-  SettingsService
-} from "./chunk-VKPGY5XX.js";
-import {
-  extractClientSettingsPayload
-} from "./chunk-FY4LH25C.js";
+} from "./chunk-Q44LA5X3.js";
 import {
   MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
   MatAutocomplete,
   MatAutocompleteModule,
   MatAutocompleteTrigger
-} from "./chunk-FJ4CXUS4.js";
+} from "./chunk-O6FC6GSO.js";
+import {
+  SettingsService
+} from "./chunk-PHYJFZTQ.js";
+import {
+  extractClientSettingsPayload
+} from "./chunk-FY4LH25C.js";
 import {
   DateTime,
   Info
@@ -33,52 +34,54 @@ import {
   DateAdapter,
   MAT_DATE_FORMATS,
   MAT_DATE_LOCALE
-} from "./chunk-XGUHZE77.js";
+} from "./chunk-BSFB775C.js";
 import {
   MatSlideToggle,
   MatSlideToggleModule
-} from "./chunk-YJBIUVPR.js";
+} from "./chunk-GXL6XPV2.js";
+import {
+  MatProgressBar,
+  MatProgressBarModule
+} from "./chunk-2TFX63P7.js";
 import {
   AllCommunityModule,
   ModuleRegistry
 } from "./chunk-3Y2SZ2NQ.js";
 import {
-  MatProgressBar,
-  MatProgressBarModule
-} from "./chunk-IFYEUXEK.js";
-import {
   AppNotificationsService,
   OnboardingService,
   QuickChatService,
+  isSelfReferentialSmartAgentCta,
   openNotificationCta,
+  resolveInAppCtaPath,
   shouldShowNotificationCta
-} from "./chunk-MIZSK5L4.js";
+} from "./chunk-I7PXQXWD.js";
 import {
   getVerifikDocsUrls
-} from "./chunk-RXDCTGUT.js";
+} from "./chunk-Z6YVHGZ4.js";
 import {
   MatDividerModule
-} from "./chunk-TEME6LW2.js";
+} from "./chunk-COFC5IXX.js";
 import {
   FuseMediaWatcherService
-} from "./chunk-SBRI74OE.js";
+} from "./chunk-KQMP7FRR.js";
 import {
   FUSE_CONFIG,
   FuseConfigService
-} from "./chunk-G3ZZ3J2Z.js";
+} from "./chunk-S7YSRK4U.js";
 import {
   FuseConfirmationService
-} from "./chunk-KFR5LC4M.js";
+} from "./chunk-3SSPUNFY.js";
 import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger
-} from "./chunk-YJ6YLDQV.js";
+} from "./chunk-E5CL2DVE.js";
 import {
   AccountEnvironmentService
-} from "./chunk-FWYUPNZS.js";
-import "./chunk-VWOHFVN5.js";
+} from "./chunk-LH7NVJQC.js";
+import "./chunk-BLPRNM4C.js";
 import {
   cloneDeep_default,
   compact_default,
@@ -88,28 +91,28 @@ import {
 import {
   MatSnackBar,
   MatSnackBarModule
-} from "./chunk-TXEVGTMX.js";
+} from "./chunk-N6A4QSA6.js";
 import {
   AgentWalletService
-} from "./chunk-UO2A7A46.js";
+} from "./chunk-JCYMHGIK.js";
 import "./chunk-H3UX3NVF.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-FTSXFXXU.js";
+} from "./chunk-LVI7H6QB.js";
 import {
   MatCheckbox,
   MatCheckboxModule
-} from "./chunk-2HNEWPD3.js";
-import "./chunk-4J4GSXOK.js";
+} from "./chunk-X2PSIDHT.js";
+import "./chunk-BQZ6NKDU.js";
 import "./chunk-ZUERA2CK.js";
 import {
   AuthModalComponent
-} from "./chunk-CM2VR6FV.js";
-import "./chunk-4U26N45P.js";
+} from "./chunk-BXHN2UKT.js";
+import "./chunk-ENWXGLEW.js";
 import {
   WalletEncryptionService
-} from "./chunk-WIGHP2N4.js";
+} from "./chunk-X7X3KIY2.js";
 import "./chunk-JURKDGMK.js";
 import {
   MatOptgroup,
@@ -117,26 +120,27 @@ import {
   MatOptionModule,
   MatSelect,
   MatSelectModule
-} from "./chunk-RM2644J3.js";
+} from "./chunk-DT4JVZCC.js";
 import {
   CdkTextareaAutosize,
   MatInput,
   MatInputModule,
   TextFieldModule
-} from "./chunk-AICPTZP5.js";
-import "./chunk-VURK6DEU.js";
-import "./chunk-E7WYNRWC.js";
+} from "./chunk-DMXREZDX.js";
+import "./chunk-CPZD6RE6.js";
+import "./chunk-W5MZFF7W.js";
 import {
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
   MatError,
   MatFormField,
   MatFormFieldModule,
+  MatHint,
   MatLabel,
   MatPrefix
-} from "./chunk-HWNQWMK7.js";
+} from "./chunk-QUFOCOZK.js";
 import {
   fuseAnimations
-} from "./chunk-NCAN4EJO.js";
+} from "./chunk-G7ZHONFE.js";
 import {
   AUTO_STYLE,
   AnimationBuilder,
@@ -147,29 +151,29 @@ import {
   sequence,
   style,
   ɵPRE_STYLE
-} from "./chunk-YY5TJM45.js";
+} from "./chunk-VV26Z3PN.js";
 import {
   AuthApiService
-} from "./chunk-ZQKMV4NA.js";
+} from "./chunk-CO7JIY6V.js";
 import {
   AuthService
-} from "./chunk-OJPCXVQ6.js";
+} from "./chunk-6Y7NS256.js";
 import {
   UserService
-} from "./chunk-6VDSDVMZ.js";
+} from "./chunk-L5NPACLK.js";
 import {
   HttpWrapperService
-} from "./chunk-BCBZJBUY.js";
+} from "./chunk-2W6CKTFA.js";
 import {
   SessionService
-} from "./chunk-WSS6AKQE.js";
+} from "./chunk-BYA46NNG.js";
 import {
   AuthUtils
 } from "./chunk-EVWXSBKG.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
-} from "./chunk-UUIVQBYS.js";
+} from "./chunk-KIEFKQUB.js";
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -178,27 +182,29 @@ import {
   MatDialogModule,
   MatDialogRef,
   MatDialogTitle
-} from "./chunk-M5KDIZH5.js";
+} from "./chunk-HVUVGZ2L.js";
 import "./chunk-OIBNGD5S.js";
 import {
   Overlay,
   ScrollStrategyOptions
-} from "./chunk-WOW6NB5H.js";
+} from "./chunk-5HABGTLH.js";
 import {
   MatButton,
   MatButtonModule,
-  MatIconButton,
+  MatIconButton
+} from "./chunk-PJFCLQ64.js";
+import {
   coerceBooleanProperty
-} from "./chunk-YSJP7SXK.js";
+} from "./chunk-PDWCMJ4H.js";
 import {
   MatIcon,
   MatIconModule,
   MatIconRegistry
-} from "./chunk-CQIQSUBU.js";
+} from "./chunk-6Z76B4PC.js";
 import {
   MATERIAL_SANITY_CHECKS,
   Platform
-} from "./chunk-J762DGD5.js";
+} from "./chunk-GX5GK4J6.js";
 import {
   DefaultValueAccessor,
   FormBuilder,
@@ -213,14 +219,14 @@ import {
   ReactiveFormsModule,
   UntypedFormControl,
   Validators
-} from "./chunk-DVRFI3SJ.js";
+} from "./chunk-JBF67GMG.js";
 import {
   TranslocoModule,
   TranslocoPipe,
   TranslocoService,
   provideTransloco,
   takeUntilDestroyed
-} from "./chunk-R5W3A6HI.js";
+} from "./chunk-FWBWCXY5.js";
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -230,10 +236,10 @@ import {
   RouterOutlet,
   provideRouter,
   withInMemoryScrolling
-} from "./chunk-HYFP557I.js";
+} from "./chunk-QL64NPDU.js";
 import {
   environment
-} from "./chunk-PMCYMBOC.js";
+} from "./chunk-3V5B4ZWC.js";
 import {
   ANIMATION_MODULE_TYPE,
   BehaviorSubject,
@@ -351,7 +357,9 @@ import {
   ɵɵreference,
   ɵɵrepeater,
   ɵɵrepeaterCreate,
+  ɵɵrepeaterTrackByIdentity,
   ɵɵresetView,
+  ɵɵresolveDocument,
   ɵɵrestoreView,
   ɵɵsanitizeHtml,
   ɵɵsanitizeUrl,
@@ -365,7 +373,7 @@ import {
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2,
   ɵɵviewQuery
-} from "./chunk-PNPEHISK.js";
+} from "./chunk-YWP2Y7QK.js";
 import {
   __async,
   __objRest,
@@ -13204,1025 +13212,6 @@ var LanguagesComponent = class _LanguagesComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LanguagesComponent, { className: "LanguagesComponent", filePath: "src/app/layout/common/languages/languages.component.ts", lineNumber: 30 });
 })();
 
-// src/app/core/notifications/notification-body-html.util.ts
-var trustNotificationBodyHtml = (sanitizer, body) => sanitizer.bypassSecurityTrustHtml(body || "");
-
-// src/app/modules/app-notifications/notification-inbox-panel/notification-inbox-panel.component.ts
-var _c09 = () => ({ wheelPropagation: false, suppressScrollX: true });
-var _c15 = (a0) => ({ version: a0 });
-function NotificationInboxPanelComponent_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275element(1, "mat-icon", 3);
-    \u0275\u0275elementStart(2, "div", 4);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "p", 5);
-    \u0275\u0275text(6);
-    \u0275\u0275pipe(7, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "button", 6);
-    \u0275\u0275listener("click", function NotificationInboxPanelComponent_Conditional_1_Template_button_click_8_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.openSignIn());
-    });
-    \u0275\u0275text(9);
-    \u0275\u0275pipe(10, "transloco");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275property("svgIcon", "heroicons_outline:bell");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "appNotifications.inbox.guest.title"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 6, "appNotifications.inbox.guest.body"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 8, "appNotifications.inbox.guest.signIn"), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275element(1, "mat-icon", 3);
-    \u0275\u0275elementStart(2, "div", 4);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "p", 5);
-    \u0275\u0275text(6);
-    \u0275\u0275pipe(7, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "button", 6);
-    \u0275\u0275listener("click", function NotificationInboxPanelComponent_Conditional_2_Template_button_click_8_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.openSignIn());
-    });
-    \u0275\u0275text(9);
-    \u0275\u0275pipe(10, "transloco");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275property("svgIcon", "heroicons_outline:lock-closed");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "appNotifications.inbox.workspaceOnly.title"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 6, "appNotifications.inbox.workspaceOnly.body"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 8, "appNotifications.inbox.workspaceOnly.signIn"), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 10);
-    \u0275\u0275element(1, "mat-spinner", 17);
-    \u0275\u0275elementEnd();
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r1.listError()), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_8_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "mat-icon", 18);
-    \u0275\u0275elementStart(1, "span", 19);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 20);
-    \u0275\u0275text(5);
-    \u0275\u0275pipe(6, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("svgIcon", "heroicons_outline:bell-alert");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "appNotifications.inbox.pendingOutsideInbox.title"));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 5, "appNotifications.inbox.pendingOutsideInbox.body"));
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_8_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "mat-icon", 21);
-    \u0275\u0275elementStart(1, "span");
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("svgIcon", "heroicons_outline:bell-slash");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "appNotifications.inbox.emptyList"));
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 12);
-    \u0275\u0275template(1, NotificationInboxPanelComponent_Conditional_3_Conditional_8_Conditional_1_Template, 7, 7)(2, NotificationInboxPanelComponent_Conditional_3_Conditional_8_Conditional_2_Template, 4, 4);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.pendingOutsideInbox() ? 1 : 2);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "span", 27);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 28);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "appNotifications.inbox.readLabel"));
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 30);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const item_r6 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(item_r6.content.summary);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 31);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "date");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const item_r6 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 1, item_r6.publishedAt, "medium"));
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
-    \u0275\u0275listener("click", function NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Template_button_click_0_listener() {
-      const item_r6 = \u0275\u0275restoreView(_r5).$implicit;
-      const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.selectItem(item_r6));
-    });
-    \u0275\u0275elementStart(1, "div", 24)(2, "div", 25)(3, "span", 26);
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(6, NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_6_Template, 1, 0, "span", 27)(7, NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_7_Template, 3, 3, "span", 28);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "span", 29);
-    \u0275\u0275text(9);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(10, NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_10_Template, 2, 1, "span", 30)(11, NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Conditional_11_Template, 3, 4, "span", 31);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const item_r6 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275property("ngClass", item_r6.receipt.isUnread ? "inbox-card--unread" : "inbox-card--read");
-    \u0275\u0275advance(3);
-    \u0275\u0275property("ngClass", ctx_r1.categoryBadgeClass(item_r6.category));
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 11, ctx_r1.categoryLabelKey(item_r6.category)));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r6.receipt.isUnread ? 6 : 7);
-    \u0275\u0275advance(2);
-    \u0275\u0275classProp("text-default", item_r6.receipt.isUnread)("text-secondary", ctx_r1.isReadItem(item_r6));
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(item_r6.content.title);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(item_r6.content.summary ? 10 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(item_r6.publishedAt ? 11 : -1);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13);
-    \u0275\u0275repeaterCreate(1, NotificationInboxPanelComponent_Conditional_3_Conditional_9_For_2_Template, 12, 13, "button", 22, \u0275\u0275componentInstance().trackByNotificationId, true);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("fuseScrollbarOptions", \u0275\u0275pureFunction0(1, _c09));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.items());
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_18_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 10);
-    \u0275\u0275element(1, "mat-spinner", 17);
-    \u0275\u0275elementEnd();
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_19_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r1.detailError()), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 35);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275nextContext();
-    const item_r7 = \u0275\u0275readContextLet(0);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(item_r7.content.summary);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "div", 36);
-  }
-  if (rf & 2) {
-    \u0275\u0275nextContext();
-    const item_r7 = \u0275\u0275readContextLet(0);
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("innerHTML", ctx_r1.safeBodyHtml(item_r7.content.body), \u0275\u0275sanitizeHtml);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_9_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 43);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275nextContext(2);
-    const item_r7 = \u0275\u0275readContextLet(0);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "appNotifications.inbox.legalVersion", \u0275\u0275pureFunction1(4, _c15, item_r7.legal.version)), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 37)(1, "a", 42);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(4, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_9_Conditional_4_Template, 3, 6, "p", 43);
-    \u0275\u0275elementStart(5, "mat-checkbox", 44);
-    \u0275\u0275listener("change", function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_9_Template_mat_checkbox_change_5_listener($event) {
-      \u0275\u0275restoreView(_r8);
-      const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.legalAccepted.set($event.checked));
-    });
-    \u0275\u0275text(6);
-    \u0275\u0275pipe(7, "transloco");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275nextContext();
-    const item_r7 = \u0275\u0275readContextLet(0);
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275property("href", item_r7.legal.url, \u0275\u0275sanitizeUrl);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 5, "appNotifications.inbox.legalLink"));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r7.legal.version ? 4 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275property("checked", ctx_r1.legalAccepted());
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 7, "appNotifications.inbox.legalAcceptCheckbox"), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 45);
-    \u0275\u0275listener("click", function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_11_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r9);
-      \u0275\u0275nextContext();
-      const item_r7 = \u0275\u0275readContextLet(0);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.openCtaUrl(item_r7));
-    });
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275nextContext();
-    const item_r7 = \u0275\u0275readContextLet(0);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", item_r7.cta.label || \u0275\u0275pipeBind1(2, 1, "appNotifications.inbox.ctaDefault"), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_12_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 47);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_12_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 46);
-    \u0275\u0275listener("click", function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_12_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r10);
-      const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.runPrimaryAction());
-    });
-    \u0275\u0275template(1, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_12_Conditional_1_Template, 1, 0, "mat-spinner", 47);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275nextContext();
-    const item_r7 = \u0275\u0275readContextLet(0);
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("disabled", ctx_r1.primaryActionDisabled(item_r7));
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.actionBusy() ? 1 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, ctx_r1.primaryActionKey(item_r7.interactionMode)), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_13_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 48);
-    \u0275\u0275listener("click", function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_13_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r11);
-      const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.dismissFromDetail());
-    });
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "transloco");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275property("disabled", ctx_r1.actionBusy());
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "appNotifications.inbox.actions.dismiss"), " ");
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Conditional_20_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275declareLet(0);
-    \u0275\u0275elementStart(1, "div", 32)(2, "span", 33);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "transloco");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "h3", 34);
-    \u0275\u0275text(6);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(7, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_7_Template, 2, 1, "p", 35)(8, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_8_Template, 1, 1, "div", 36)(9, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_9_Template, 8, 9, "div", 37);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 38);
-    \u0275\u0275template(11, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_11_Template, 3, 3, "button", 39)(12, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_12_Template, 4, 5, "button", 40)(13, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Conditional_13_Template, 3, 4, "button", 41);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    const item_r12 = \u0275\u0275storeLet(ctx_r1.selectedItem());
-    \u0275\u0275advance();
-    \u0275\u0275property("fuseScrollbarOptions", \u0275\u0275pureFunction0(13, _c09));
-    \u0275\u0275advance();
-    \u0275\u0275property("ngClass", ctx_r1.categoryBadgeClass(item_r12.category));
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 11, ctx_r1.categoryLabelKey(item_r12.category)));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(item_r12.content.title);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(item_r12.content.summary ? 7 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(item_r12.content.body ? 8 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(item_r12.interactionMode === "accept" && (item_r12.legal == null ? null : item_r12.legal.url) ? 9 : -1);
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.showCta(item_r12) ? 11 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.showPrimaryAction(item_r12) ? 12 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(item_r12.interactionMode === "seen_required" ? 13 : -1);
-  }
-}
-function NotificationInboxPanelComponent_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 2)(1, "div", 7)(2, "div", 8)(3, "span", 9);
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "transloco");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275template(6, NotificationInboxPanelComponent_Conditional_3_Conditional_6_Template, 2, 0, "div", 10)(7, NotificationInboxPanelComponent_Conditional_3_Conditional_7_Template, 3, 3, "div", 11)(8, NotificationInboxPanelComponent_Conditional_3_Conditional_8_Template, 3, 1, "div", 12)(9, NotificationInboxPanelComponent_Conditional_3_Conditional_9_Template, 3, 2, "div", 13);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 7)(11, "div", 14)(12, "button", 15);
-    \u0275\u0275pipe(13, "transloco");
-    \u0275\u0275listener("click", function NotificationInboxPanelComponent_Conditional_3_Template_button_click_12_listener() {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.clearSelection());
-    });
-    \u0275\u0275element(14, "mat-icon", 16);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "span", 9);
-    \u0275\u0275text(16);
-    \u0275\u0275pipe(17, "transloco");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275template(18, NotificationInboxPanelComponent_Conditional_3_Conditional_18_Template, 2, 0, "div", 10)(19, NotificationInboxPanelComponent_Conditional_3_Conditional_19_Template, 3, 3, "div", 11)(20, NotificationInboxPanelComponent_Conditional_3_Conditional_20_Template, 14, 14);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275classProp("hidden", !ctx_r1.showListPane());
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 10, "appNotifications.inbox.listHeading"));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.loadingList() ? 6 : ctx_r1.listError() ? 7 : !ctx_r1.items().length ? 8 : 9);
-    \u0275\u0275advance(4);
-    \u0275\u0275classProp("hidden", !ctx_r1.showDetailPane());
-    \u0275\u0275advance(2);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 12, "appNotifications.inbox.backAria"));
-    \u0275\u0275advance(2);
-    \u0275\u0275property("svgIcon", "heroicons_outline:arrow-left");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(17, 14, "appNotifications.inbox.detailHeading"));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.loadingDetail() ? 18 : ctx_r1.detailError() ? 19 : ctx_r1.selectedItem() ? 20 : -1);
-  }
-}
-var NotificationInboxPanelComponent = class _NotificationInboxPanelComponent {
-  constructor() {
-    this._notifications = inject(AppNotificationsService);
-    this._router = inject(Router);
-    this._quickChat = inject(QuickChatService);
-    this._session = inject(SessionService);
-    this._dialog = inject(MatDialog);
-    this._sanitizer = inject(DomSanitizer);
-    this._unsubscribeAll = new Subject();
-    this.hasSession = computed(() => this._session.hasValidAuthentication());
-    this.canUseApi = signal(false);
-    this.items = this._notifications.hubInboxItems;
-    this.loadingList = this._notifications.hubInboxLoading;
-    this.listError = this._notifications.hubInboxError;
-    this.pendingOutsideInbox = this._notifications.hubInboxPendingOutside;
-    this.selectedItem = signal(null);
-    this.loadingDetail = signal(false);
-    this.detailError = signal(null);
-    this.actionBusy = signal(false);
-    this.legalAccepted = signal(false);
-    this._refreshAuthSignals();
-  }
-  ngOnDestroy() {
-    this._unsubscribeAll.next();
-    this._unsubscribeAll.complete();
-  }
-  refreshIfNeeded() {
-    this._refreshAuthSignals();
-    if (!this.canUseApi()) {
-      this._notifications.clearHubInbox();
-      this.selectedItem.set(null);
-      return;
-    }
-    this._notifications.refreshHubInbox().pipe(takeUntil(this._unsubscribeAll)).subscribe();
-  }
-  openSignIn() {
-    this._dialog.open(AuthModalComponent, {
-      panelClass: "auth-modal-dialog",
-      width: "400px"
-    });
-  }
-  isReadItem(item) {
-    return !item.receipt?.isUnread;
-  }
-  selectItem(item) {
-    this.detailError.set(null);
-    this.legalAccepted.set(false);
-    this.selectedItem.set(item);
-    this._loadDetail(item.notificationId);
-  }
-  clearSelection() {
-    this.selectedItem.set(null);
-    this.detailError.set(null);
-    this.legalAccepted.set(false);
-  }
-  showDetailPane() {
-    return Boolean(this.selectedItem() || this.loadingDetail() || this.detailError());
-  }
-  showListPane() {
-    return !this.showDetailPane();
-  }
-  safeBodyHtml(body) {
-    return trustNotificationBodyHtml(this._sanitizer, body);
-  }
-  categoryLabelKey(cat) {
-    return `appNotifications.inbox.categories.${cat}`;
-  }
-  categoryBadgeClass(cat) {
-    const map2 = {
-      billing: "inbox-pill--billing",
-      security: "inbox-pill--security",
-      legal: "inbox-pill--legal",
-      maintenance: "inbox-pill--maintenance",
-      product: "inbox-pill--product",
-      system: "inbox-pill--system"
-    };
-    return map2[cat] ?? map2.system;
-  }
-  primaryActionKey(mode) {
-    switch (mode) {
-      case "acknowledge":
-        return "appNotifications.inbox.actions.acknowledge";
-      case "accept":
-        return "appNotifications.inbox.actions.accept";
-      case "seen_required":
-        return "appNotifications.inbox.actions.markSeen";
-      default:
-        return "appNotifications.inbox.actions.dismiss";
-    }
-  }
-  showPrimaryAction(item) {
-    if (!item)
-      return false;
-    if (item.interactionMode === "accept")
-      return true;
-    if (item.receipt.isUnread)
-      return true;
-    return item.interactionMode === "informational" && !item.receipt.dismissedAt;
-  }
-  primaryActionDisabled(item) {
-    if (!item || this.actionBusy())
-      return true;
-    if (item.interactionMode === "accept") {
-      return !this.legalAccepted() || !item.legal?.version;
-    }
-    return false;
-  }
-  dismissFromDetail() {
-    const item = this.selectedItem();
-    if (!item)
-      return;
-    this._dismiss(item.notificationId);
-  }
-  runPrimaryAction() {
-    const item = this.selectedItem();
-    if (!item)
-      return;
-    switch (item.interactionMode) {
-      case "acknowledge":
-        this._acknowledge(item.notificationId);
-        break;
-      case "accept":
-        this._accept(item);
-        break;
-      case "seen_required":
-        this._markSeen(item.notificationId);
-        break;
-      default:
-        this._dismiss(item.notificationId);
-    }
-  }
-  showCta(item) {
-    return shouldShowNotificationCta(item?.cta);
-  }
-  openCtaUrl(item) {
-    openNotificationCta(item?.cta, {
-      router: this._router,
-      quickChat: this._quickChat
-    });
-  }
-  trackByNotificationId(_index, item) {
-    return item.notificationId;
-  }
-  _loadDetail(notificationId) {
-    this.loadingDetail.set(true);
-    this.detailError.set(null);
-    this._notifications.show(notificationId).pipe(takeUntil(this._unsubscribeAll)).subscribe({
-      next: (res) => {
-        this.loadingDetail.set(false);
-        const item = res.data;
-        this.selectedItem.set(item);
-        if (item.interactionMode === "seen_required" && item.receipt.isUnread) {
-          this._markSeen(notificationId, false);
-        }
-      },
-      error: () => {
-        this.loadingDetail.set(false);
-        this.detailError.set("appNotifications.inbox.errors.loadDetail");
-      }
-    });
-  }
-  _markSeen(notificationId, reloadList = true) {
-    this.actionBusy.set(true);
-    this._notifications.markSeen(notificationId).pipe(takeUntil(this._unsubscribeAll)).subscribe({
-      next: () => {
-        this.actionBusy.set(false);
-        this._afterAction(notificationId, reloadList);
-      },
-      error: () => {
-        this.actionBusy.set(false);
-        this.detailError.set("appNotifications.inbox.errors.action");
-      }
-    });
-  }
-  _acknowledge(notificationId) {
-    this.actionBusy.set(true);
-    this._notifications.acknowledge(notificationId).pipe(takeUntil(this._unsubscribeAll)).subscribe({
-      next: () => {
-        this.actionBusy.set(false);
-        this._afterAction(notificationId);
-      },
-      error: () => {
-        this.actionBusy.set(false);
-        this.detailError.set("appNotifications.inbox.errors.action");
-      }
-    });
-  }
-  _accept(item) {
-    const version = item.legal?.version;
-    if (!version)
-      return;
-    this.actionBusy.set(true);
-    this._notifications.accept(item.notificationId, { legalVersion: version, accepted: true }).pipe(takeUntil(this._unsubscribeAll)).subscribe({
-      next: () => {
-        this.actionBusy.set(false);
-        this._afterAction(item.notificationId);
-      },
-      error: () => {
-        this.actionBusy.set(false);
-        this.detailError.set("appNotifications.inbox.errors.action");
-      }
-    });
-  }
-  _dismiss(notificationId) {
-    this.actionBusy.set(true);
-    this._notifications.dismiss(notificationId).pipe(takeUntil(this._unsubscribeAll)).subscribe({
-      next: () => {
-        this.actionBusy.set(false);
-        this._afterAction(notificationId);
-      },
-      error: () => {
-        this.actionBusy.set(false);
-        this.detailError.set("appNotifications.inbox.errors.action");
-      }
-    });
-  }
-  _afterAction(notificationId, stayOnDetail = true) {
-    if (stayOnDetail) {
-      this._loadDetail(notificationId);
-    }
-    this._notifications.refreshHubInbox(true).pipe(takeUntil(this._unsubscribeAll)).subscribe();
-  }
-  _refreshAuthSignals() {
-    const ok = this._session.isTokenValid() && (() => {
-      const payload = AuthUtils.getJwtPayload(localStorage.getItem("accessToken") || "");
-      if (!payload)
-        return false;
-      return Boolean(payload["clientId"] ?? payload["staffId"] ?? payload["superAdminId"]);
-    })();
-    this.canUseApi.set(ok);
-  }
-  static {
-    this.\u0275fac = function NotificationInboxPanelComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _NotificationInboxPanelComponent)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NotificationInboxPanelComponent, selectors: [["app-notification-inbox-panel"]], decls: 4, vars: 1, consts: [[1, "notification-inbox", "flex", "h-full", "min-h-0", "w-full", "min-w-0", "flex-auto", "flex-col", "overflow-hidden", "bg-card"], [1, "flex", "flex-auto", "flex-col", "items-center", "justify-center", "gap-4", "p-6", "text-center"], [1, "flex", "min-h-0", "min-w-0", "w-full", "flex-auto", "flex-col", "overflow-hidden"], [1, "icon-size-14", "text-hint", 3, "svgIcon"], [1, "text-lg", "font-medium"], [1, "text-secondary", "max-w-sm", "text-sm"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click"], [1, "border-divider", "flex", "min-h-0", "min-w-0", "w-full", "flex-1", "flex-col"], [1, "border-divider", "flex", "flex-0", "items-center", "border-b", "px-3", "py-3"], [1, "text-secondary", "truncate", "text-xs", "font-semibold", "uppercase", "tracking-wide"], [1, "flex", "flex-auto", "items-center", "justify-center", "p-4"], [1, "text-secondary", "p-4", "text-center", "text-sm"], [1, "text-secondary", "flex", "flex-auto", "flex-col", "items-center", "justify-center", "gap-2", "p-4", "text-center", "text-sm"], ["fuseScrollbar", "", 1, "flex", "min-h-0", "flex-auto", "flex-col", "gap-2", "overflow-x-hidden", "overflow-y-auto", "overscroll-y-contain", "p-3", 3, "fuseScrollbarOptions"], [1, "border-divider", "flex", "flex-0", "items-center", "gap-1", "border-b", "px-2", "py-2"], ["mat-icon-button", "", "type", "button", 3, "click"], [3, "svgIcon"], ["diameter", "32"], [1, "icon-size-10", "text-teal-600", 3, "svgIcon"], [1, "text-default", "font-medium"], [1, "text-secondary", "max-w-xs", "text-xs", "leading-relaxed"], [1, "icon-size-10", "text-hint", 3, "svgIcon"], ["type", "button", 1, "inbox-card", "group", "flex", "w-full", "min-w-0", "gap-3", "rounded-xl", "border", "px-3", "py-3", "text-left", "shadow-sm", "transition-[box-shadow,border-color,background-color,opacity]", "focus-visible:outline-none", "focus-visible:ring-2", "focus-visible:ring-primary/50", 3, "ngClass"], ["type", "button", 1, "inbox-card", "group", "flex", "w-full", "min-w-0", "gap-3", "rounded-xl", "border", "px-3", "py-3", "text-left", "shadow-sm", "transition-[box-shadow,border-color,background-color,opacity]", "focus-visible:outline-none", "focus-visible:ring-2", "focus-visible:ring-primary/50", 3, "click", "ngClass"], [1, "flex", "min-w-0", "flex-1", "flex-col", "gap-1"], [1, "flex", "w-full", "min-w-0", "items-start", "gap-2"], [1, "inbox-pill", "shrink-0", 3, "ngClass"], ["aria-hidden", "true", 1, "inbox-unread-dot", "shrink-0"], [1, "inbox-read-label", "shrink-0"], [1, "min-w-0", "truncate", "text-sm", "font-semibold", "leading-snug"], [1, "text-secondary", "line-clamp-2", "text-xs", "leading-relaxed"], [1, "text-hint", "text-[11px]"], ["fuseScrollbar", "", 1, "inbox-detail-scroll", "flex", "min-h-0", "min-w-0", "w-full", "flex-auto", "flex-col", "overflow-x-hidden", "overflow-y-auto", "overscroll-y-contain", "p-4", 3, "fuseScrollbarOptions"], [1, "inbox-pill", "mb-2", "w-fit", "max-w-full", 3, "ngClass"], [1, "text-default", "mb-1", "break-words", "text-lg", "font-semibold"], [1, "text-secondary", "mb-3", "break-words", "text-sm"], [1, "inbox-body", "prose", "prose-sm", "dark:prose-invert", "max-w-full", "text-sm", 3, "innerHTML"], [1, "mt-4", "rounded-lg", "border", "border-divider", "p-3"], [1, "border-divider", "flex", "flex-0", "flex-wrap", "items-center", "gap-2", "border-t", "p-3"], ["mat-stroked-button", "", "type", "button"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "disabled"], ["mat-button", "", "type", "button", 3, "disabled"], ["target", "_blank", "rel", "noopener noreferrer", 1, "text-primary", "text-sm", "font-medium", "underline", 3, "href"], [1, "text-hint", "mt-1", "text-xs"], [1, "mt-2", "block", 3, "change", "checked"], ["mat-stroked-button", "", "type", "button", 3, "click"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click", "disabled"], ["diameter", "20", 1, "mr-2", "inline-block"], ["mat-button", "", "type", "button", 3, "click", "disabled"]], template: function NotificationInboxPanelComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0);
-        \u0275\u0275template(1, NotificationInboxPanelComponent_Conditional_1_Template, 11, 10, "div", 1)(2, NotificationInboxPanelComponent_Conditional_2_Template, 11, 10, "div", 1)(3, NotificationInboxPanelComponent_Conditional_3_Template, 21, 16, "div", 2);
-        \u0275\u0275elementEnd();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.hasSession() ? 1 : !ctx.canUseApi() ? 2 : 3);
-      }
-    }, dependencies: [
-      NgClass,
-      DatePipe,
-      FormsModule,
-      MatButtonModule,
-      MatButton,
-      MatIconButton,
-      MatCheckboxModule,
-      MatCheckbox,
-      MatIconModule,
-      MatIcon,
-      MatProgressSpinnerModule,
-      MatProgressSpinner,
-      TranslocoModule,
-      TranslocoPipe,
-      FuseScrollbarDirective
-    ], styles: ['\n\n[_nghost-%COMP%] {\n  display: flex;\n  flex: 1 1 auto;\n  min-height: 0;\n  min-width: 0;\n  width: 100%;\n  overflow: hidden;\n}\n.inbox-pill[_ngcontent-%COMP%] {\n  display: inline-flex;\n  align-items: center;\n  border-radius: 9999px;\n  padding: 0.125rem 0.5rem;\n  font-size: 10px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.04em;\n  line-height: 1.25;\n}\n.inbox-pill--billing[_ngcontent-%COMP%] {\n  background: rgba(204, 251, 241, 0.85);\n  color: rgb(15, 118, 110);\n}\n.inbox-pill--security[_ngcontent-%COMP%] {\n  background: rgba(254, 226, 226, 0.9);\n  color: rgb(185, 28, 28);\n}\n.inbox-pill--legal[_ngcontent-%COMP%] {\n  background: rgba(237, 233, 254, 0.9);\n  color: rgb(109, 40, 217);\n}\n.inbox-pill--maintenance[_ngcontent-%COMP%] {\n  background: rgba(254, 243, 199, 0.9);\n  color: rgb(180, 83, 9);\n}\n.inbox-pill--product[_ngcontent-%COMP%] {\n  background: rgba(219, 234, 254, 0.9);\n  color: rgb(29, 78, 216);\n}\n.inbox-pill--system[_ngcontent-%COMP%] {\n  background: rgba(241, 245, 249, 0.95);\n  color: rgb(71, 85, 105);\n}\n.dark[_nghost-%COMP%]   .inbox-pill--billing[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-pill--billing[_ngcontent-%COMP%] {\n  background: rgba(19, 78, 74, 0.55);\n  color: rgb(94, 234, 212);\n}\n.dark[_nghost-%COMP%]   .inbox-pill--security[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-pill--security[_ngcontent-%COMP%] {\n  background: rgba(127, 29, 29, 0.45);\n  color: rgb(252, 165, 165);\n}\n.dark[_nghost-%COMP%]   .inbox-pill--legal[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-pill--legal[_ngcontent-%COMP%] {\n  background: rgba(76, 29, 149, 0.4);\n  color: rgb(216, 180, 254);\n}\n.dark[_nghost-%COMP%]   .inbox-pill--maintenance[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-pill--maintenance[_ngcontent-%COMP%] {\n  background: rgba(120, 53, 15, 0.45);\n  color: rgb(253, 186, 116);\n}\n.dark[_nghost-%COMP%]   .inbox-pill--product[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-pill--product[_ngcontent-%COMP%] {\n  background: rgba(30, 58, 138, 0.45);\n  color: rgb(147, 197, 253);\n}\n.dark[_nghost-%COMP%]   .inbox-pill--system[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-pill--system[_ngcontent-%COMP%] {\n  background: rgba(51, 65, 85, 0.55);\n  color: rgb(203, 213, 225);\n}\n.inbox-unread-dot[_ngcontent-%COMP%] {\n  width: 8px;\n  height: 8px;\n  border-radius: 50%;\n  background: rgb(13, 148, 136);\n  margin-left: auto;\n}\n.inbox-card--unread[_ngcontent-%COMP%] {\n  border-color: rgba(45, 212, 191, 0.45);\n  background: rgba(240, 253, 250, 0.65);\n}\n.inbox-card--read[_ngcontent-%COMP%] {\n  border-color: rgba(231, 229, 228, 0.75);\n  background: rgba(250, 250, 249, 0.9);\n  opacity: 0.82;\n}\n.inbox-read-label[_ngcontent-%COMP%] {\n  margin-left: auto;\n  font-size: 10px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.06em;\n  color: rgb(120, 113, 108);\n}\n.dark[_nghost-%COMP%]   .inbox-card--unread[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-card--unread[_ngcontent-%COMP%] {\n  border-color: rgba(45, 212, 191, 0.35);\n  background: rgba(19, 78, 74, 0.25);\n}\n.dark[_nghost-%COMP%]   .inbox-card--read[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-card--read[_ngcontent-%COMP%] {\n  border-color: rgba(68, 64, 60, 0.65);\n  background: rgba(28, 25, 23, 0.45);\n  opacity: 0.88;\n}\n.dark[_nghost-%COMP%]   .inbox-read-label[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .inbox-read-label[_ngcontent-%COMP%] {\n  color: rgb(168, 162, 158);\n}\n.inbox-detail-scroll[_ngcontent-%COMP%] {\n  box-sizing: border-box;\n  width: 100%;\n}\n.inbox-detail-scroll[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ps__rail-x) {\n  display: none !important;\n}\n.inbox-body[_ngcontent-%COMP%] {\n  min-width: 0;\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p) {\n  margin: 0 0 0.55rem;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:empty), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:has(> br:only-child)) {\n  height: 0.75rem;\n  margin: 0;\n  overflow: hidden;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:has(> br:only-child) br) {\n  display: none;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p > span + span) {\n  margin-inline-start: 0.4em;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h1), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h2), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h3) {\n  font-size: 1.05rem;\n  line-height: 1.35;\n  margin: 0.35rem 0 0.4rem;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(a) {\n  color: rgb(13, 148, 136);\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 0.15em;\n  overflow-wrap: anywhere;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(li), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h1), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h2), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h3), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h4), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(blockquote), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(td), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(th) {\n  overflow-wrap: anywhere;\n  word-break: break-word;\n  max-width: 100%;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(pre), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(table) {\n  display: block;\n  max-width: 100%;\n  overflow-x: auto;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(img), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(video), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(iframe) {\n  border-radius: 0.75rem;\n  display: block;\n  margin: 0.75rem 0;\n  max-width: 100%;\n  height: auto;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-align-center) {\n  text-align: center;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-align-right) {\n  text-align: right;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-arial) {\n  font-family:\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-georgia), \n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-serif) {\n  font-family:\n    Georgia,\n    "Times New Roman",\n    serif;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-poppins) {\n  font-family:\n    Poppins,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-roboto) {\n  font-family:\n    Roboto,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.inbox-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-monospace) {\n  font-family:\n    "Courier New",\n    Courier,\n    monospace;\n}\n/*# sourceMappingURL=notification-inbox-panel.component.css.map */'], changeDetection: 0 });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NotificationInboxPanelComponent, [{
-    type: Component,
-    args: [{ selector: "app-notification-inbox-panel", standalone: true, imports: [
-      NgClass,
-      DatePipe,
-      FormsModule,
-      MatButtonModule,
-      MatCheckboxModule,
-      MatIconModule,
-      MatProgressSpinnerModule,
-      TranslocoModule,
-      FuseScrollbarDirective
-    ], changeDetection: ChangeDetectionStrategy.OnPush, template: `<div class="notification-inbox flex h-full min-h-0 w-full min-w-0 flex-auto flex-col overflow-hidden bg-card">\r
-    @if (!hasSession()) {\r
-        <div class="flex flex-auto flex-col items-center justify-center gap-4 p-6 text-center">\r
-            <mat-icon class="icon-size-14 text-hint" [svgIcon]="'heroicons_outline:bell'"></mat-icon>\r
-            <div class="text-lg font-medium">\r
-                {{ 'appNotifications.inbox.guest.title' | transloco }}\r
-            </div>\r
-            <p class="text-secondary max-w-sm text-sm">\r
-                {{ 'appNotifications.inbox.guest.body' | transloco }}\r
-            </p>\r
-            <button mat-flat-button color="primary" type="button" (click)="openSignIn()">\r
-                {{ 'appNotifications.inbox.guest.signIn' | transloco }}\r
-            </button>\r
-        </div>\r
-    } @else if (!canUseApi()) {\r
-        <div class="flex flex-auto flex-col items-center justify-center gap-4 p-6 text-center">\r
-            <mat-icon class="icon-size-14 text-hint" [svgIcon]="'heroicons_outline:lock-closed'"></mat-icon>\r
-            <div class="text-lg font-medium">\r
-                {{ 'appNotifications.inbox.workspaceOnly.title' | transloco }}\r
-            </div>\r
-            <p class="text-secondary max-w-sm text-sm">\r
-                {{ 'appNotifications.inbox.workspaceOnly.body' | transloco }}\r
-            </p>\r
-            <button mat-flat-button color="primary" type="button" (click)="openSignIn()">\r
-                {{ 'appNotifications.inbox.workspaceOnly.signIn' | transloco }}\r
-            </button>\r
-        </div>\r
-    } @else {\r
-        <div class="flex min-h-0 min-w-0 w-full flex-auto flex-col overflow-hidden">\r
-            <div\r
-                class="border-divider flex min-h-0 min-w-0 w-full flex-1 flex-col"\r
-                [class.hidden]="!showListPane()"\r
-            >\r
-                <div class="border-divider flex flex-0 items-center border-b px-3 py-3">\r
-                    <span\r
-                        class="text-secondary truncate text-xs font-semibold uppercase tracking-wide"\r
-                        >{{ 'appNotifications.inbox.listHeading' | transloco }}</span\r
-                    >\r
-                </div>\r
-\r
-                @if (loadingList()) {\r
-                    <div class="flex flex-auto items-center justify-center p-4">\r
-                        <mat-spinner diameter="32"></mat-spinner>\r
-                    </div>\r
-                } @else if (listError()) {\r
-                    <div class="text-secondary p-4 text-center text-sm">\r
-                        {{ listError()! | transloco }}\r
-                    </div>\r
-                } @else if (!items().length) {\r
-                    <div\r
-                        class="text-secondary flex flex-auto flex-col items-center justify-center gap-2 p-4 text-center text-sm"\r
-                    >\r
-                        @if (pendingOutsideInbox()) {\r
-                            <mat-icon class="icon-size-10 text-teal-600" [svgIcon]="'heroicons_outline:bell-alert'"></mat-icon>\r
-                            <span class="text-default font-medium">{{\r
-                                'appNotifications.inbox.pendingOutsideInbox.title' | transloco\r
-                            }}</span>\r
-                            <p class="text-secondary max-w-xs text-xs leading-relaxed">{{\r
-                                'appNotifications.inbox.pendingOutsideInbox.body' | transloco\r
-                            }}</p>\r
-                        } @else {\r
-                            <mat-icon class="icon-size-10 text-hint" [svgIcon]="'heroicons_outline:bell-slash'"></mat-icon>\r
-                            <span>{{ 'appNotifications.inbox.emptyList' | transloco }}</span>\r
-                        }\r
-                    </div>\r
-                } @else {\r
-                    <div\r
-                        class="flex min-h-0 flex-auto flex-col gap-2 overflow-x-hidden overflow-y-auto overscroll-y-contain p-3"\r
-                        fuseScrollbar\r
-                        [fuseScrollbarOptions]="{\r
-                            wheelPropagation: false,\r
-                            suppressScrollX: true,\r
-                        }"\r
-                    >\r
-                        @for (item of items(); track trackByNotificationId($index, item)) {\r
-                            <button\r
-                                type="button"\r
-                                class="inbox-card group flex w-full min-w-0 gap-3 rounded-xl border px-3 py-3 text-left shadow-sm transition-[box-shadow,border-color,background-color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"\r
-                                [ngClass]="\r
-                                    item.receipt.isUnread\r
-                                        ? 'inbox-card--unread'\r
-                                        : 'inbox-card--read'\r
-                                "\r
-                                (click)="selectItem(item)"\r
-                            >\r
-                                <div class="flex min-w-0 flex-1 flex-col gap-1">\r
-                                    <div class="flex w-full min-w-0 items-start gap-2">\r
-                                        <span\r
-                                            class="inbox-pill shrink-0"\r
-                                            [ngClass]="categoryBadgeClass(item.category)"\r
-                                            >{{ categoryLabelKey(item.category) | transloco }}</span\r
-                                        >\r
-                                        @if (item.receipt.isUnread) {\r
-                                            <span class="inbox-unread-dot shrink-0" aria-hidden="true"></span>\r
-                                        } @else {\r
-                                            <span class="inbox-read-label shrink-0">{{\r
-                                                'appNotifications.inbox.readLabel' | transloco\r
-                                            }}</span>\r
-                                        }\r
-                                    </div>\r
-                                    <span\r
-                                        class="min-w-0 truncate text-sm font-semibold leading-snug"\r
-                                        [class.text-default]="item.receipt.isUnread"\r
-                                        [class.text-secondary]="isReadItem(item)"\r
-                                        >{{ item.content.title }}</span\r
-                                    >\r
-                                    @if (item.content.summary) {\r
-                                        <span class="text-secondary line-clamp-2 text-xs leading-relaxed">{{\r
-                                            item.content.summary\r
-                                        }}</span>\r
-                                    }\r
-                                    @if (item.publishedAt) {\r
-                                        <span class="text-hint text-[11px]">{{\r
-                                            item.publishedAt | date: 'medium'\r
-                                        }}</span>\r
-                                    }\r
-                                </div>\r
-                            </button>\r
-                        }\r
-                    </div>\r
-                }\r
-            </div>\r
-\r
-            <div\r
-                class="border-divider flex min-h-0 min-w-0 w-full flex-1 flex-col"\r
-                [class.hidden]="!showDetailPane()"\r
-            >\r
-                <div\r
-                    class="border-divider flex flex-0 items-center gap-1 border-b px-2 py-2"\r
-                >\r
-                    <button\r
-                        mat-icon-button\r
-                        type="button"\r
-                        [attr.aria-label]="'appNotifications.inbox.backAria' | transloco"\r
-                        (click)="clearSelection()"\r
-                    >\r
-                        <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>\r
-                    </button>\r
-                    <span class="text-secondary truncate text-xs font-semibold uppercase tracking-wide">{{\r
-                        'appNotifications.inbox.detailHeading' | transloco\r
-                    }}</span>\r
-                </div>\r
-\r
-                @if (loadingDetail()) {\r
-                    <div class="flex flex-auto items-center justify-center p-4">\r
-                        <mat-spinner diameter="32"></mat-spinner>\r
-                    </div>\r
-                } @else if (detailError()) {\r
-                    <div class="text-secondary p-4 text-center text-sm">\r
-                        {{ detailError()! | transloco }}\r
-                    </div>\r
-                } @else if (selectedItem()) {\r
-                    @let item = selectedItem()!;\r
-                    <div\r
-                        class="inbox-detail-scroll flex min-h-0 min-w-0 w-full flex-auto flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain p-4"\r
-                        fuseScrollbar\r
-                        [fuseScrollbarOptions]="{\r
-                            wheelPropagation: false,\r
-                            suppressScrollX: true,\r
-                        }"\r
-                    >\r
-                        <span\r
-                            class="inbox-pill mb-2 w-fit max-w-full"\r
-                            [ngClass]="categoryBadgeClass(item.category)"\r
-                            >{{ categoryLabelKey(item.category) | transloco }}</span\r
-                        >\r
-                        <h3 class="text-default mb-1 break-words text-lg font-semibold">{{ item.content.title }}</h3>\r
-                        @if (item.content.summary) {\r
-                            <p class="text-secondary mb-3 break-words text-sm">{{ item.content.summary }}</p>\r
-                        }\r
-                        @if (item.content.body) {\r
-                            <div\r
-                                class="inbox-body prose prose-sm dark:prose-invert max-w-full text-sm"\r
-                                [innerHTML]="safeBodyHtml(item.content.body)"\r
-                            ></div>\r
-                        }\r
-\r
-                        @if (item.interactionMode === 'accept' && item.legal?.url) {\r
-                            <div class="mt-4 rounded-lg border border-divider p-3">\r
-                                <a\r
-                                    class="text-primary text-sm font-medium underline"\r
-                                    [href]="item.legal.url"\r
-                                    target="_blank"\r
-                                    rel="noopener noreferrer"\r
-                                    >{{ 'appNotifications.inbox.legalLink' | transloco }}</a\r
-                                >\r
-                                @if (item.legal.version) {\r
-                                    <p class="text-hint mt-1 text-xs">\r
-                                        {{\r
-                                            'appNotifications.inbox.legalVersion'\r
-                                                | transloco: { version: item.legal.version }\r
-                                        }}\r
-                                    </p>\r
-                                }\r
-                                <mat-checkbox\r
-                                    class="mt-2 block"\r
-                                    [checked]="legalAccepted()"\r
-                                    (change)="legalAccepted.set($event.checked)"\r
-                                >\r
-                                    {{ 'appNotifications.inbox.legalAcceptCheckbox' | transloco }}\r
-                                </mat-checkbox>\r
-                            </div>\r
-                        }\r
-                    </div>\r
-\r
-                    <div\r
-                        class="border-divider flex flex-0 flex-wrap items-center gap-2 border-t p-3"\r
-                    >\r
-                        @if (showCta(item)) {\r
-                            <button\r
-                                mat-stroked-button\r
-                                type="button"\r
-                                (click)="openCtaUrl(item)"\r
-                            >\r
-                                {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}\r
-                            </button>\r
-                        }\r
-                        @if (showPrimaryAction(item)) {\r
-                            <button\r
-                                mat-flat-button\r
-                                color="primary"\r
-                                type="button"\r
-                                [disabled]="primaryActionDisabled(item)"\r
-                                (click)="runPrimaryAction()"\r
-                            >\r
-                                @if (actionBusy()) {\r
-                                    <mat-spinner diameter="20" class="mr-2 inline-block"></mat-spinner>\r
-                                }\r
-                                {{ primaryActionKey(item.interactionMode) | transloco }}\r
-                            </button>\r
-                        }\r
-                        @if (item.interactionMode === 'seen_required') {\r
-                            <button\r
-                                mat-button\r
-                                type="button"\r
-                                [disabled]="actionBusy()"\r
-                                (click)="dismissFromDetail()"\r
-                            >\r
-                                {{ 'appNotifications.inbox.actions.dismiss' | transloco }}\r
-                            </button>\r
-                        }\r
-                    </div>\r
-                }\r
-            </div>\r
-        </div>\r
-    }\r
-</div>\r
-`, styles: ['/* src/app/modules/app-notifications/notification-inbox-panel/notification-inbox-panel.component.scss */\n:host {\n  display: flex;\n  flex: 1 1 auto;\n  min-height: 0;\n  min-width: 0;\n  width: 100%;\n  overflow: hidden;\n}\n.inbox-pill {\n  display: inline-flex;\n  align-items: center;\n  border-radius: 9999px;\n  padding: 0.125rem 0.5rem;\n  font-size: 10px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.04em;\n  line-height: 1.25;\n}\n.inbox-pill--billing {\n  background: rgba(204, 251, 241, 0.85);\n  color: rgb(15, 118, 110);\n}\n.inbox-pill--security {\n  background: rgba(254, 226, 226, 0.9);\n  color: rgb(185, 28, 28);\n}\n.inbox-pill--legal {\n  background: rgba(237, 233, 254, 0.9);\n  color: rgb(109, 40, 217);\n}\n.inbox-pill--maintenance {\n  background: rgba(254, 243, 199, 0.9);\n  color: rgb(180, 83, 9);\n}\n.inbox-pill--product {\n  background: rgba(219, 234, 254, 0.9);\n  color: rgb(29, 78, 216);\n}\n.inbox-pill--system {\n  background: rgba(241, 245, 249, 0.95);\n  color: rgb(71, 85, 105);\n}\n:host-context(.dark) .inbox-pill--billing {\n  background: rgba(19, 78, 74, 0.55);\n  color: rgb(94, 234, 212);\n}\n:host-context(.dark) .inbox-pill--security {\n  background: rgba(127, 29, 29, 0.45);\n  color: rgb(252, 165, 165);\n}\n:host-context(.dark) .inbox-pill--legal {\n  background: rgba(76, 29, 149, 0.4);\n  color: rgb(216, 180, 254);\n}\n:host-context(.dark) .inbox-pill--maintenance {\n  background: rgba(120, 53, 15, 0.45);\n  color: rgb(253, 186, 116);\n}\n:host-context(.dark) .inbox-pill--product {\n  background: rgba(30, 58, 138, 0.45);\n  color: rgb(147, 197, 253);\n}\n:host-context(.dark) .inbox-pill--system {\n  background: rgba(51, 65, 85, 0.55);\n  color: rgb(203, 213, 225);\n}\n.inbox-unread-dot {\n  width: 8px;\n  height: 8px;\n  border-radius: 50%;\n  background: rgb(13, 148, 136);\n  margin-left: auto;\n}\n.inbox-card--unread {\n  border-color: rgba(45, 212, 191, 0.45);\n  background: rgba(240, 253, 250, 0.65);\n}\n.inbox-card--read {\n  border-color: rgba(231, 229, 228, 0.75);\n  background: rgba(250, 250, 249, 0.9);\n  opacity: 0.82;\n}\n.inbox-read-label {\n  margin-left: auto;\n  font-size: 10px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.06em;\n  color: rgb(120, 113, 108);\n}\n:host-context(.dark) .inbox-card--unread {\n  border-color: rgba(45, 212, 191, 0.35);\n  background: rgba(19, 78, 74, 0.25);\n}\n:host-context(.dark) .inbox-card--read {\n  border-color: rgba(68, 64, 60, 0.65);\n  background: rgba(28, 25, 23, 0.45);\n  opacity: 0.88;\n}\n:host-context(.dark) .inbox-read-label {\n  color: rgb(168, 162, 158);\n}\n.inbox-detail-scroll {\n  box-sizing: border-box;\n  width: 100%;\n}\n.inbox-detail-scroll :deep(.ps__rail-x) {\n  display: none !important;\n}\n.inbox-body {\n  min-width: 0;\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.inbox-body :deep(p) {\n  margin: 0 0 0.55rem;\n}\n.inbox-body :deep(p:empty),\n.inbox-body :deep(p:has(> br:only-child)) {\n  height: 0.75rem;\n  margin: 0;\n  overflow: hidden;\n}\n.inbox-body :deep(p:has(> br:only-child) br) {\n  display: none;\n}\n.inbox-body :deep(p > span + span) {\n  margin-inline-start: 0.4em;\n}\n.inbox-body :deep(h1),\n.inbox-body :deep(h2),\n.inbox-body :deep(h3) {\n  font-size: 1.05rem;\n  line-height: 1.35;\n  margin: 0.35rem 0 0.4rem;\n}\n.inbox-body :deep(a) {\n  color: rgb(13, 148, 136);\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 0.15em;\n  overflow-wrap: anywhere;\n}\n.inbox-body :deep(p),\n.inbox-body :deep(li),\n.inbox-body :deep(h1),\n.inbox-body :deep(h2),\n.inbox-body :deep(h3),\n.inbox-body :deep(h4),\n.inbox-body :deep(blockquote),\n.inbox-body :deep(td),\n.inbox-body :deep(th) {\n  overflow-wrap: anywhere;\n  word-break: break-word;\n  max-width: 100%;\n}\n.inbox-body :deep(pre),\n.inbox-body :deep(table) {\n  display: block;\n  max-width: 100%;\n  overflow-x: auto;\n}\n.inbox-body :deep(img),\n.inbox-body :deep(video),\n.inbox-body :deep(iframe) {\n  border-radius: 0.75rem;\n  display: block;\n  margin: 0.75rem 0;\n  max-width: 100%;\n  height: auto;\n}\n.inbox-body :deep(.ql-align-center) {\n  text-align: center;\n}\n.inbox-body :deep(.ql-align-right) {\n  text-align: right;\n}\n.inbox-body :deep(.ql-font-arial) {\n  font-family:\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.inbox-body :deep(.ql-font-georgia),\n.inbox-body :deep(.ql-font-serif) {\n  font-family:\n    Georgia,\n    "Times New Roman",\n    serif;\n}\n.inbox-body :deep(.ql-font-poppins) {\n  font-family:\n    Poppins,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.inbox-body :deep(.ql-font-roboto) {\n  font-family:\n    Roboto,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.inbox-body :deep(.ql-font-monospace) {\n  font-family:\n    "Courier New",\n    Courier,\n    monospace;\n}\n/*# sourceMappingURL=notification-inbox-panel.component.css.map */\n'] }]
-  }], () => [], null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NotificationInboxPanelComponent, { className: "NotificationInboxPanelComponent", filePath: "src/app/modules/app-notifications/notification-inbox-panel/notification-inbox-panel.component.ts", lineNumber: 55 });
-})();
-
 // src/app/modules/support-tickets/support-ticket-smartcheck-apis.constants.ts
 var SUPPORT_TICKET_API_TYPE_OPTIONS = [
   { value: "identity", labelKey: "supportTickets.quickChat.createDialog.apiTypes.identity" },
@@ -15395,8 +14384,8 @@ var readAppFeatureTitleFromTranslations = (translations, apiValue) => {
 };
 
 // src/app/modules/support-tickets/api-picker/support-ticket-api-picker.component.ts
-var _c010 = (a0) => ({ count: a0 });
-var _c16 = (a0) => ({ "api-list-row-selected": a0 });
+var _c09 = (a0) => ({ count: a0 });
+var _c15 = (a0) => ({ "api-list-row-selected": a0 });
 var _forTrack0 = ($index, $item) => $item.value;
 function SupportTicketApiPickerComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
@@ -15566,7 +14555,7 @@ function SupportTicketApiPickerComponent_Conditional_9_For_15_Template(rf, ctx) 
   if (rf & 2) {
     const api_r10 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(12, _c16, ctx_r1.selected && ctx_r1.selected.value === api_r10.value));
+    \u0275\u0275property("ngClass", \u0275\u0275pureFunction1(12, _c15, ctx_r1.selected && ctx_r1.selected.value === api_r10.value));
     \u0275\u0275advance();
     \u0275\u0275property("ngClass", ctx_r1.badgeClass(api_r10.type));
     \u0275\u0275advance();
@@ -15621,7 +14610,7 @@ function SupportTicketApiPickerComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.apiTypes);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(12, 7, "supportTickets.quickChat.createDialog.api.apisFound", \u0275\u0275pureFunction1(10, _c010, ctx_r1.filteredApis.length)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(12, 7, "supportTickets.quickChat.createDialog.api.apisFound", \u0275\u0275pureFunction1(10, _c09, ctx_r1.filteredApis.length)), " ");
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx_r1.filteredApis);
   }
@@ -16040,8 +15029,9 @@ var SupportTicketService = class _SupportTicketService {
 })();
 
 // src/app/modules/support-tickets/create-dialog/support-ticket-create-dialog.component.ts
-var _c011 = (a0) => ({ count: a0 });
-var _c17 = (a0) => ({ name: a0 });
+var _c010 = (a0) => ({ timezone: a0 });
+var _c16 = (a0) => ({ count: a0 });
+var _c23 = (a0) => ({ name: a0 });
 var _forTrack02 = ($index, $item) => $item.value;
 var _forTrack1 = ($index, $item) => $item._id;
 function SupportTicketCreateDialogComponent_Conditional_9_Template(rf, ctx) {
@@ -16070,7 +15060,50 @@ function SupportTicketCreateDialogComponent_For_16_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 2, c_r1.labelKey));
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_17_Conditional_5_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_For_23_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 5);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const p_r2 = ctx.$implicit;
+    \u0275\u0275property("value", p_r2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 2, "supportTickets.priority." + p_r2));
+  }
+}
+function SupportTicketCreateDialogComponent_Conditional_27_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275element(1, "mat-icon", 20);
+    \u0275\u0275elementStart(2, "div")(3, "p", 21);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "transloco");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "p", 22);
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "transloco");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "p", 23);
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "transloco");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("svgIcon", "heroicons_outline:exclamation-triangle");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 4, "supportTickets.quickChat.newTicket.criticalSlaTitle"));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 6, "supportTickets.quickChat.newTicket.criticalSlaBody"));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 8, "supportTickets.quickChat.newTicket.supportHours", \u0275\u0275pureFunction1(11, _c010, ctx_r2.supportTimezone)), " ");
+  }
+}
+function SupportTicketCreateDialogComponent_Conditional_28_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1);
@@ -16082,9 +15115,9 @@ function SupportTicketCreateDialogComponent_Conditional_17_Conditional_5_Templat
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "supportTickets.quickChat.newTicket.ticketSubjectRequired"));
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_17_Conditional_7_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_28_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275elementStart(0, "div", 26);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "transloco");
     \u0275\u0275elementEnd();
@@ -16094,29 +15127,29 @@ function SupportTicketCreateDialogComponent_Conditional_17_Conditional_7_Templat
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "supportTickets.quickChat.newTicket.apiRequired"));
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_17_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-form-field", 2)(1, "mat-label");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "transloco");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "input", 18);
-    \u0275\u0275template(5, SupportTicketCreateDialogComponent_Conditional_17_Conditional_5_Template, 3, 3, "mat-error");
+    \u0275\u0275element(4, "input", 24);
+    \u0275\u0275template(5, SupportTicketCreateDialogComponent_Conditional_28_Conditional_5_Template, 3, 3, "mat-error");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(6, "app-support-ticket-api-picker", 19);
-    \u0275\u0275template(7, SupportTicketCreateDialogComponent_Conditional_17_Conditional_7_Template, 3, 3, "div", 20);
+    \u0275\u0275element(6, "app-support-ticket-api-picker", 25);
+    \u0275\u0275template(7, SupportTicketCreateDialogComponent_Conditional_28_Conditional_7_Template, 3, 3, "div", 26);
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "supportTickets.quickChat.newTicket.ticketSubject"));
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r1.form.controls.subject.hasError("required") ? 5 : -1);
+    \u0275\u0275conditional(ctx_r2.form.controls.subject.hasError("required") ? 5 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.form.controls.api.touched && ctx_r1.form.controls.api.hasError("required") ? 7 : -1);
+    \u0275\u0275conditional(ctx_r2.form.controls.api.touched && ctx_r2.form.controls.api.hasError("required") ? 7 : -1);
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_23_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_34_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error");
     \u0275\u0275text(1);
@@ -16128,22 +15161,22 @@ function SupportTicketCreateDialogComponent_Conditional_23_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "supportTickets.quickChat.newTicket.messageRequired"));
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_29_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 9);
+    \u0275\u0275elementStart(0, "span", 11);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "transloco");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 1, "supportTickets.quickChat.newTicket.attachmentsCount", \u0275\u0275pureFunction1(4, _c011, ctx_r1.uploadedAttachments().length)));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(2, 1, "supportTickets.quickChat.newTicket.attachmentsCount", \u0275\u0275pureFunction1(4, _c16, ctx_r2.uploadedAttachments().length)));
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_33_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_44_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 11);
+    \u0275\u0275elementStart(0, "p", 13);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "transloco");
     \u0275\u0275elementEnd();
@@ -16153,58 +15186,58 @@ function SupportTicketCreateDialogComponent_Conditional_33_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "supportTickets.quickChat.newTicket.attachmentsMaxReached"));
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_35_For_2_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_46_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "li", 21);
-    \u0275\u0275element(1, "mat-icon", 22);
-    \u0275\u0275elementStart(2, "span", 23);
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "li", 27);
+    \u0275\u0275element(1, "mat-icon", 28);
+    \u0275\u0275elementStart(2, "span", 29);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "button", 24);
+    \u0275\u0275elementStart(4, "button", 30);
     \u0275\u0275pipe(5, "transloco");
-    \u0275\u0275listener("click", function SupportTicketCreateDialogComponent_Conditional_35_For_2_Template_button_click_4_listener() {
-      const a_r4 = \u0275\u0275restoreView(_r3).$implicit;
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.removeAttachment(a_r4._id));
+    \u0275\u0275listener("click", function SupportTicketCreateDialogComponent_Conditional_46_For_2_Template_button_click_4_listener() {
+      const a_r5 = \u0275\u0275restoreView(_r4).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.removeAttachment(a_r5._id));
     });
-    \u0275\u0275element(6, "mat-icon", 25);
+    \u0275\u0275element(6, "mat-icon", 31);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const a_r4 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(2);
+    const a_r5 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
     \u0275\u0275property("svgIcon", "heroicons_outline:paper-clip");
     \u0275\u0275advance();
-    \u0275\u0275property("title", a_r4.name);
+    \u0275\u0275property("title", a_r5.name);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r1.truncateFileLabel(a_r4.name));
+    \u0275\u0275textInterpolate(ctx_r2.truncateFileLabel(a_r5.name));
     \u0275\u0275advance();
-    \u0275\u0275property("disabled", ctx_r1.saving() || ctx_r1.attachmentUploadBusy());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 6, "supportTickets.quickChat.newTicket.removeAttachmentAria", \u0275\u0275pureFunction1(9, _c17, a_r4.name)));
+    \u0275\u0275property("disabled", ctx_r2.saving() || ctx_r2.attachmentUploadBusy());
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 6, "supportTickets.quickChat.newTicket.removeAttachmentAria", \u0275\u0275pureFunction1(9, _c23, a_r5.name)));
     \u0275\u0275advance(2);
     \u0275\u0275property("svgIcon", "heroicons_outline:trash");
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_35_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_46_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "ul", 13);
-    \u0275\u0275repeaterCreate(1, SupportTicketCreateDialogComponent_Conditional_35_For_2_Template, 7, 11, "li", 21, _forTrack1);
+    \u0275\u0275elementStart(0, "ul", 15);
+    \u0275\u0275repeaterCreate(1, SupportTicketCreateDialogComponent_Conditional_46_For_2_Template, 7, 11, "li", 27, _forTrack1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.uploadedAttachments());
+    \u0275\u0275repeater(ctx_r2.uploadedAttachments());
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_41_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_52_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 17);
+    \u0275\u0275element(0, "mat-spinner", 19);
   }
 }
-function SupportTicketCreateDialogComponent_Conditional_42_Template(rf, ctx) {
+function SupportTicketCreateDialogComponent_Conditional_53_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "transloco");
@@ -16233,9 +15266,12 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
       { value: "smartAccess", labelKey: "supportTickets.quickChat.categories.smartAccess" },
       { value: "other", labelKey: "supportTickets.quickChat.categories.other" }
     ];
+    this.priorityOptions = ["low", "normal", "high", "critical"];
+    this.supportTimezone = getVerifikAccount()?.["supportTimezone"] || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
     this.form = this._fb.nonNullable.group({
       title: ["", [Validators.required, Validators.maxLength(200)]],
       category: ["smartCheck", Validators.required],
+      priority: ["normal", Validators.required],
       subject: [""],
       api: [""],
       message: ["", [Validators.required, Validators.maxLength(2e4)]]
@@ -16247,6 +15283,9 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
   ngOnDestroy() {
     this._unsubscribeAll.next();
     this._unsubscribeAll.complete();
+  }
+  isCritical() {
+    return this.form.controls.priority.getRawValue() === "critical";
   }
   isSmartCheck() {
     return this.form.controls.category.getRawValue() === "smartCheck";
@@ -16283,6 +15322,7 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
     const payload = __spreadValues({
       title: v.title.trim(),
       category: v.category,
+      priority: v.priority,
       threads: [__spreadValues({ message: messageHtml }, attachmentIds.length ? { attachments: attachmentIds } : {})]
     }, this.isSmartCheck() ? {
       subject: v.subject.trim(),
@@ -16329,7 +15369,7 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SupportTicketCreateDialogComponent, selectors: [["app-support-ticket-create-dialog"]], decls: 43, vars: 33, consts: [["mat-dialog-title", ""], [1, "flex", "max-h-[min(560px,calc(100vh-10rem))]", "flex-col", "gap-3", "overflow-y-auto", "pt-2", 3, "formGroup"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "formControlName", "title"], ["formControlName", "category"], [3, "value"], ["matInput", "", "rows", "6", "formControlName", "message"], [1, "flex", "flex-col", "gap-2"], [1, "text-default", "flex", "flex-wrap", "items-center", "gap-2", "text-sm", "font-medium"], [1, "text-secondary", "font-normal"], [1, "text-secondary", "m-0", "text-xs"], [1, "text-hint", "m-0", "text-xs"], ["accept", ".pdf,.jpg,.jpeg,.png", "source", "support-ticket", 3, "attachmentUploaded", "uploadingChange", "expirationDays", "disabled"], [1, "border-divider", "m-0", "flex", "list-none", "flex-col", "gap-1", "rounded-xl", "border", "p-2"], ["align", "end", 1, "gap-2"], ["mat-button", "", "type", "button", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click", "disabled"], ["diameter", "20", 1, "inline-block"], ["matInput", "", "formControlName", "subject"], ["formControlName", "api"], [1, "text-warn", "-mt-1", "text-xs"], [1, "flex", "min-w-0", "items-center", "gap-2", "text-sm"], [1, "text-secondary", "icon-size-4", "shrink-0", 3, "svgIcon"], [1, "text-default", "min-w-0", "flex-1", "truncate", 3, "title"], ["mat-icon-button", "", "type", "button", 1, "shrink-0", 3, "click", "disabled"], [3, "svgIcon"]], template: function SupportTicketCreateDialogComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SupportTicketCreateDialogComponent, selectors: [["app-support-ticket-create-dialog"]], decls: 54, vars: 40, consts: [["mat-dialog-title", ""], [1, "flex", "max-h-[min(560px,calc(100vh-10rem))]", "flex-col", "gap-3", "overflow-y-auto", "pt-2", 3, "formGroup"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "formControlName", "title"], ["formControlName", "category"], [3, "value"], ["formControlName", "priority"], ["role", "note", 1, "flex", "gap-3", "rounded-xl", "border", "border-rose-200", "bg-rose-50", "p-3", "text-sm", "text-rose-900", "dark:border-rose-900/60", "dark:bg-rose-950/30", "dark:text-rose-100"], ["matInput", "", "rows", "6", "formControlName", "message"], [1, "flex", "flex-col", "gap-2"], [1, "text-default", "flex", "flex-wrap", "items-center", "gap-2", "text-sm", "font-medium"], [1, "text-secondary", "font-normal"], [1, "text-secondary", "m-0", "text-xs"], [1, "text-hint", "m-0", "text-xs"], ["accept", ".pdf,.jpg,.jpeg,.png", "source", "support-ticket", 3, "attachmentUploaded", "uploadingChange", "expirationDays", "disabled"], [1, "border-divider", "m-0", "flex", "list-none", "flex-col", "gap-1", "rounded-xl", "border", "p-2"], ["align", "end", 1, "gap-2"], ["mat-button", "", "type", "button", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click", "disabled"], ["diameter", "20", 1, "inline-block"], [1, "icon-size-5", "shrink-0", 3, "svgIcon"], [1, "m-0", "font-medium"], [1, "m-0", "mt-1", "leading-5"], [1, "m-0", "mt-1", "text-xs", "opacity-80"], ["matInput", "", "formControlName", "subject"], ["formControlName", "api"], [1, "text-warn", "-mt-1", "text-xs"], [1, "flex", "min-w-0", "items-center", "gap-2", "text-sm"], [1, "text-secondary", "icon-size-4", "shrink-0", 3, "svgIcon"], [1, "text-default", "min-w-0", "flex-1", "truncate", 3, "title"], ["mat-icon-button", "", "type", "button", 1, "shrink-0", 3, "click", "disabled"], [3, "svgIcon"]], template: function SupportTicketCreateDialogComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "h2", 0);
         \u0275\u0275text(1);
@@ -16349,87 +15389,106 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
         \u0275\u0275elementStart(14, "mat-select", 4);
         \u0275\u0275repeaterCreate(15, SupportTicketCreateDialogComponent_For_16_Template, 3, 4, "mat-option", 5, _forTrack02);
         \u0275\u0275elementEnd()();
-        \u0275\u0275template(17, SupportTicketCreateDialogComponent_Conditional_17_Template, 8, 5);
-        \u0275\u0275elementStart(18, "mat-form-field", 2)(19, "mat-label");
-        \u0275\u0275text(20);
-        \u0275\u0275pipe(21, "transloco");
+        \u0275\u0275elementStart(17, "mat-form-field", 2)(18, "mat-label");
+        \u0275\u0275text(19);
+        \u0275\u0275pipe(20, "transloco");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(22, "textarea", 6);
-        \u0275\u0275template(23, SupportTicketCreateDialogComponent_Conditional_23_Template, 3, 3, "mat-error");
+        \u0275\u0275elementStart(21, "mat-select", 6);
+        \u0275\u0275repeaterCreate(22, SupportTicketCreateDialogComponent_For_23_Template, 3, 4, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(24, "div", 7)(25, "div", 8)(26, "span");
-        \u0275\u0275text(27);
-        \u0275\u0275pipe(28, "transloco");
-        \u0275\u0275elementEnd();
-        \u0275\u0275template(29, SupportTicketCreateDialogComponent_Conditional_29_Template, 3, 6, "span", 9);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(30, "p", 10);
+        \u0275\u0275elementStart(24, "mat-hint");
+        \u0275\u0275text(25);
+        \u0275\u0275pipe(26, "transloco");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275template(27, SupportTicketCreateDialogComponent_Conditional_27_Template, 12, 13, "div", 7)(28, SupportTicketCreateDialogComponent_Conditional_28_Template, 8, 5);
+        \u0275\u0275elementStart(29, "mat-form-field", 2)(30, "mat-label");
         \u0275\u0275text(31);
         \u0275\u0275pipe(32, "transloco");
         \u0275\u0275elementEnd();
-        \u0275\u0275template(33, SupportTicketCreateDialogComponent_Conditional_33_Template, 3, 3, "p", 11);
-        \u0275\u0275elementStart(34, "file-drop-zone", 12);
-        \u0275\u0275listener("attachmentUploaded", function SupportTicketCreateDialogComponent_Template_file_drop_zone_attachmentUploaded_34_listener($event) {
-          return ctx.onAttachmentUploaded($event);
-        })("uploadingChange", function SupportTicketCreateDialogComponent_Template_file_drop_zone_uploadingChange_34_listener($event) {
-          return ctx.onAttachmentUploadingChange($event);
-        });
+        \u0275\u0275element(33, "textarea", 8);
+        \u0275\u0275template(34, SupportTicketCreateDialogComponent_Conditional_34_Template, 3, 3, "mat-error");
         \u0275\u0275elementEnd();
-        \u0275\u0275template(35, SupportTicketCreateDialogComponent_Conditional_35_Template, 3, 0, "ul", 13);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(36, "mat-dialog-actions", 14)(37, "button", 15);
-        \u0275\u0275listener("click", function SupportTicketCreateDialogComponent_Template_button_click_37_listener() {
-          return ctx.cancel();
-        });
+        \u0275\u0275elementStart(35, "div", 9)(36, "div", 10)(37, "span");
         \u0275\u0275text(38);
         \u0275\u0275pipe(39, "transloco");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(40, "button", 16);
-        \u0275\u0275listener("click", function SupportTicketCreateDialogComponent_Template_button_click_40_listener() {
+        \u0275\u0275template(40, SupportTicketCreateDialogComponent_Conditional_40_Template, 3, 6, "span", 11);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(41, "p", 12);
+        \u0275\u0275text(42);
+        \u0275\u0275pipe(43, "transloco");
+        \u0275\u0275elementEnd();
+        \u0275\u0275template(44, SupportTicketCreateDialogComponent_Conditional_44_Template, 3, 3, "p", 13);
+        \u0275\u0275elementStart(45, "file-drop-zone", 14);
+        \u0275\u0275listener("attachmentUploaded", function SupportTicketCreateDialogComponent_Template_file_drop_zone_attachmentUploaded_45_listener($event) {
+          return ctx.onAttachmentUploaded($event);
+        })("uploadingChange", function SupportTicketCreateDialogComponent_Template_file_drop_zone_uploadingChange_45_listener($event) {
+          return ctx.onAttachmentUploadingChange($event);
+        });
+        \u0275\u0275elementEnd();
+        \u0275\u0275template(46, SupportTicketCreateDialogComponent_Conditional_46_Template, 3, 0, "ul", 15);
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(47, "mat-dialog-actions", 16)(48, "button", 17);
+        \u0275\u0275listener("click", function SupportTicketCreateDialogComponent_Template_button_click_48_listener() {
+          return ctx.cancel();
+        });
+        \u0275\u0275text(49);
+        \u0275\u0275pipe(50, "transloco");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(51, "button", 18);
+        \u0275\u0275listener("click", function SupportTicketCreateDialogComponent_Template_button_click_51_listener() {
           return ctx.submit();
         });
-        \u0275\u0275template(41, SupportTicketCreateDialogComponent_Conditional_41_Template, 1, 0, "mat-spinner", 17)(42, SupportTicketCreateDialogComponent_Conditional_42_Template, 2, 3);
+        \u0275\u0275template(52, SupportTicketCreateDialogComponent_Conditional_52_Template, 1, 0, "mat-spinner", 19)(53, SupportTicketCreateDialogComponent_Conditional_53_Template, 2, 3);
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 19, "supportTickets.quickChat.newTicket.heading"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 22, "supportTickets.quickChat.newTicket.heading"));
         \u0275\u0275advance(2);
         \u0275\u0275property("formGroup", ctx.form);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 21, "supportTickets.quickChat.newTicket.fieldTitle"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 24, "supportTickets.quickChat.newTicket.fieldTitle"));
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.form.controls.title.hasError("required") ? 9 : -1);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(13, 23, "supportTickets.quickChat.newTicket.category"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(13, 26, "supportTickets.quickChat.newTicket.category"));
         \u0275\u0275advance(3);
         \u0275\u0275repeater(ctx.categoryOptions);
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.isSmartCheck() ? 17 : -1);
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(21, 25, "supportTickets.quickChat.newTicket.message"));
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.form.controls.message.hasError("required") ? 23 : -1);
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(28, 27, "supportTickets.quickChat.newTicket.attachmentsLabel"));
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(20, 28, "supportTickets.quickChat.newTicket.priority"));
+        \u0275\u0275advance(3);
+        \u0275\u0275repeater(ctx.priorityOptions);
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(26, 30, "supportTickets.quickChat.newTicket.priorityHint"));
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.uploadedAttachments().length > 0 ? 29 : -1);
+        \u0275\u0275conditional(ctx.isCritical() ? 27 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.isSmartCheck() ? 28 : -1);
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(32, 32, "supportTickets.quickChat.newTicket.message"));
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(ctx.form.controls.message.hasError("required") ? 34 : -1);
+        \u0275\u0275advance(4);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(39, 34, "supportTickets.quickChat.newTicket.attachmentsLabel"));
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(32, 29, "supportTickets.quickChat.newTicket.attachmentsHint"));
+        \u0275\u0275conditional(ctx.uploadedAttachments().length > 0 ? 40 : -1);
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.uploadedAttachments().length >= ctx.maxAttachments ? 33 : -1);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(43, 36, "supportTickets.quickChat.newTicket.attachmentsHint"));
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.uploadedAttachments().length >= ctx.maxAttachments ? 44 : -1);
         \u0275\u0275advance();
         \u0275\u0275property("expirationDays", 1)("disabled", ctx.attachmentDropZoneDisabled());
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.uploadedAttachments().length > 0 ? 35 : -1);
+        \u0275\u0275conditional(ctx.uploadedAttachments().length > 0 ? 46 : -1);
         \u0275\u0275advance(2);
         \u0275\u0275property("disabled", ctx.saving());
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 31, "supportTickets.quickChat.newTicket.cancel"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(50, 38, "supportTickets.quickChat.newTicket.cancel"), " ");
         \u0275\u0275advance(2);
         \u0275\u0275property("disabled", ctx.form.invalid || ctx.saving() || ctx.attachmentUploadBusy());
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.saving() ? 41 : 42);
+        \u0275\u0275conditional(ctx.saving() ? 52 : 53);
       }
     }, dependencies: [
       CommonModule,
@@ -16449,6 +15508,7 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
       MatFormFieldModule,
       MatFormField,
       MatLabel,
+      MatHint,
       MatError,
       MatInputModule,
       MatInput,
@@ -16501,6 +15561,32 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
             }\r
         </mat-select>\r
     </mat-form-field>\r
+\r
+    <mat-form-field class="w-full" appearance="outline">\r
+        <mat-label>{{ 'supportTickets.quickChat.newTicket.priority' | transloco }}</mat-label>\r
+        <mat-select formControlName="priority">\r
+            @for (p of priorityOptions; track p) {\r
+                <mat-option [value]="p">{{ 'supportTickets.priority.' + p | transloco }}</mat-option>\r
+            }\r
+        </mat-select>\r
+        <mat-hint>{{ 'supportTickets.quickChat.newTicket.priorityHint' | transloco }}</mat-hint>\r
+    </mat-form-field>\r
+\r
+    @if (isCritical()) {\r
+        <div\r
+            class="flex gap-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-100"\r
+            role="note"\r
+        >\r
+            <mat-icon class="icon-size-5 shrink-0" [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>\r
+            <div>\r
+                <p class="m-0 font-medium">{{ 'supportTickets.quickChat.newTicket.criticalSlaTitle' | transloco }}</p>\r
+                <p class="m-0 mt-1 leading-5">{{ 'supportTickets.quickChat.newTicket.criticalSlaBody' | transloco }}</p>\r
+                <p class="m-0 mt-1 text-xs opacity-80">\r
+                    {{ 'supportTickets.quickChat.newTicket.supportHours' | transloco: { timezone: supportTimezone } }}\r
+                </p>\r
+            </div>\r
+        </div>\r
+    }\r
 \r
     @if (isSmartCheck()) {\r
         <mat-form-field class="w-full" appearance="outline">\r
@@ -16591,13 +15677,13 @@ var SupportTicketCreateDialogComponent = class _SupportTicketCreateDialogCompone
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SupportTicketCreateDialogComponent, { className: "SupportTicketCreateDialogComponent", filePath: "src/app/modules/support-tickets/create-dialog/support-ticket-create-dialog.component.ts", lineNumber: 43 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SupportTicketCreateDialogComponent, { className: "SupportTicketCreateDialogComponent", filePath: "src/app/modules/support-tickets/create-dialog/support-ticket-create-dialog.component.ts", lineNumber: 44 });
 })();
 
 // src/app/modules/support-tickets/support-ticket-chat-panel/support-ticket-chat-panel.component.ts
-var _c012 = () => ({ wheelPropagation: false, suppressScrollX: true });
-var _c18 = (a0) => ({ num: a0 });
-var _c23 = (a0, a1, a2) => ({ "items-end": a0, "items-start": a1, "mt-3": a2 });
+var _c011 = () => ({ wheelPropagation: false, suppressScrollX: true });
+var _c17 = (a0) => ({ num: a0 });
+var _c24 = (a0, a1, a2) => ({ "items-end": a0, "items-start": a1, "mt-3": a2 });
 var _c33 = (a0, a1) => ({ "border border-stone-200 bg-stone-100 text-stone-900 dark:border-stone-600 dark:bg-stone-800/95 dark:text-stone-50": a0, "border border-stone-200 bg-white text-stone-900 dark:border-stone-600 dark:bg-stone-900/70 dark:text-stone-50": a1 });
 var _c42 = (a0, a1) => ({ "mr-1": a0, "ml-1": a1 });
 var _c5 = (a0) => ({ name: a0 });
@@ -16780,7 +15866,7 @@ function SupportTicketChatPanelComponent_Conditional_3_Conditional_12_For_2_Temp
     \u0275\u0275advance(2);
     \u0275\u0275property("svgIcon", "heroicons_outline:ticket");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(7, 11, "supportTickets.quickChat.ticketPrefix", \u0275\u0275pureFunction1(21, _c18, t_r7.number)), " ", t_r7.title, " ");
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(7, 11, "supportTickets.quickChat.ticketPrefix", \u0275\u0275pureFunction1(21, _c17, t_r7.number)), " ", t_r7.title, " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("ngClass", ctx_r1.statusBadgeClass(t_r7.status));
     \u0275\u0275advance();
@@ -16805,7 +15891,7 @@ function SupportTicketChatPanelComponent_Conditional_3_Conditional_12_Template(r
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("fuseScrollbarOptions", \u0275\u0275pureFunction0(1, _c012));
+    \u0275\u0275property("fuseScrollbarOptions", \u0275\u0275pureFunction0(1, _c011));
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.tickets());
   }
@@ -16982,7 +16068,7 @@ function SupportTicketChatPanelComponent_Conditional_3_Conditional_16_For_30_Tem
     const ctx_r1 = \u0275\u0275nextContext(3);
     const prev_r14 = \u0275$index_209_r13 > 0 ? ctx_r1.sortedThreadsList()[\u0275$index_209_r13 - 1] : null;
     \u0275\u0275advance();
-    \u0275\u0275property("ngClass", \u0275\u0275pureFunction3(14, _c23, !ctx_r1.isSupportMessage(thread_r12), ctx_r1.isSupportMessage(thread_r12), prev_r14 && ctx_r1.isSupportMessage(thread_r12) !== ctx_r1.isSupportMessage(prev_r14)));
+    \u0275\u0275property("ngClass", \u0275\u0275pureFunction3(14, _c24, !ctx_r1.isSupportMessage(thread_r12), ctx_r1.isSupportMessage(thread_r12), prev_r14 && ctx_r1.isSupportMessage(thread_r12) !== ctx_r1.isSupportMessage(prev_r14)));
     \u0275\u0275advance();
     \u0275\u0275property("ngClass", \u0275\u0275pureFunction2(18, _c33, !ctx_r1.isSupportMessage(thread_r12), ctx_r1.isSupportMessage(thread_r12)));
     \u0275\u0275advance(2);
@@ -17155,7 +16241,7 @@ function SupportTicketChatPanelComponent_Conditional_3_Conditional_16_Template(r
     \u0275\u0275advance(2);
     \u0275\u0275property("svgIcon", "heroicons_outline:arrow-left");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(10, 30, "supportTickets.quickChat.ticketPrefix", \u0275\u0275pureFunction1(43, _c18, ctx_r1.selectedTicket().number)), " ", ctx_r1.selectedTicket().title, " ");
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(10, 30, "supportTickets.quickChat.ticketPrefix", \u0275\u0275pureFunction1(43, _c17, ctx_r1.selectedTicket().number)), " ", ctx_r1.selectedTicket().title, " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("ngClass", ctx_r1.statusBadgeClass(ctx_r1.selectedTicket().status));
     \u0275\u0275advance();
@@ -17173,7 +16259,7 @@ function SupportTicketChatPanelComponent_Conditional_3_Conditional_16_Template(r
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.loadingDetail() ? 26 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("fuseScrollbarOptions", \u0275\u0275pureFunction0(45, _c012));
+    \u0275\u0275property("fuseScrollbarOptions", \u0275\u0275pureFunction0(45, _c011));
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.sortedThreadsList());
     \u0275\u0275advance(4);
@@ -18134,28 +17220,15 @@ var SupportTicketChatPanelComponent = class _SupportTicketChatPanelComponent {
 })();
 
 // src/app/layout/common/quick-chat/quick-chat.component.ts
-var _c013 = ["ticketPanel"];
-var _c19 = ["notificationPanel"];
-function QuickChatComponent_Conditional_0_Conditional_20_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 14);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r1.unreadCount() > 99 ? "99+" : ctx_r1.unreadCount());
-  }
-}
+var _c012 = ["ticketPanel"];
 function QuickChatComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 2)(1, "div", 3)(2, "div", 4)(3, "div", 5)(4, "div", 6)(5, "span", 7);
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "div", 3)(3, "div", 4)(4, "div", 5)(5, "span", 6);
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "transloco");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 8)(9, "button", 9);
+    \u0275\u0275elementStart(8, "div", 7)(9, "button", 8);
     \u0275\u0275pipe(10, "transloco");
     \u0275\u0275listener("click", function QuickChatComponent_Conditional_0_Template_button_click_9_listener($event) {
       \u0275\u0275restoreView(_r1);
@@ -18163,9 +17236,9 @@ function QuickChatComponent_Conditional_0_Template(rf, ctx) {
       ctx_r1.toggleExpanded();
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275element(11, "mat-icon", 10);
+    \u0275\u0275element(11, "mat-icon", 9);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "button", 9);
+    \u0275\u0275elementStart(12, "button", 8);
     \u0275\u0275pipe(13, "transloco");
     \u0275\u0275listener("click", function QuickChatComponent_Conditional_0_Template_button_click_12_listener($event) {
       \u0275\u0275restoreView(_r1);
@@ -18173,64 +17246,24 @@ function QuickChatComponent_Conditional_0_Template(rf, ctx) {
       ctx_r1.close();
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275element(14, "mat-icon", 10);
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(15, "div", 11)(16, "button", 12);
-    \u0275\u0275listener("click", function QuickChatComponent_Conditional_0_Template_button_click_16_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      ctx_r1.setActiveTab("notifications");
-      return \u0275\u0275resetView($event.stopPropagation());
-    });
-    \u0275\u0275elementStart(17, "span", 13);
-    \u0275\u0275text(18);
-    \u0275\u0275pipe(19, "transloco");
-    \u0275\u0275template(20, QuickChatComponent_Conditional_0_Conditional_20_Template, 2, 1, "span", 14);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(21, "button", 12);
-    \u0275\u0275listener("click", function QuickChatComponent_Conditional_0_Template_button_click_21_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      ctx_r1.setActiveTab("tickets");
-      return \u0275\u0275resetView($event.stopPropagation());
-    });
-    \u0275\u0275text(22);
-    \u0275\u0275pipe(23, "transloco");
-    \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(24, "div", 15);
-    \u0275\u0275element(25, "app-notification-inbox-panel", 16, 0)(27, "app-support-ticket-chat-panel", 16, 1);
+    \u0275\u0275element(14, "mat-icon", 9);
+    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(15, "div", 10);
+    \u0275\u0275element(16, "app-support-ticket-chat-panel", 11, 0);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 20, "messagesHub.headerTitle"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 5, "messagesHub.headerTitle"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(10, 22, ctx_r1.expanded ? "messagesHub.fullscreenExitAria" : "messagesHub.fullscreenEnterAria"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(10, 7, ctx_r1.expanded ? "messagesHub.fullscreenExitAria" : "messagesHub.fullscreenEnterAria"));
     \u0275\u0275advance(2);
     \u0275\u0275property("svgIcon", ctx_r1.expanded ? "heroicons_outline:arrows-pointing-in" : "heroicons_outline:arrows-pointing-out");
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 24, "messagesHub.closeAria"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 9, "messagesHub.closeAria"));
     \u0275\u0275advance(2);
     \u0275\u0275property("svgIcon", "heroicons_outline:x-mark");
-    \u0275\u0275advance(2);
-    \u0275\u0275classProp("messages-hub-tab--active", ctx_r1.activeTab === "notifications");
-    \u0275\u0275attribute("aria-selected", ctx_r1.activeTab === "notifications");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 26, "messagesHub.tabs.notifications"), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.unreadCount() > 0 ? 20 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275classProp("messages-hub-tab--active", ctx_r1.activeTab === "tickets");
-    \u0275\u0275attribute("aria-selected", ctx_r1.activeTab === "tickets");
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(23, 28, "messagesHub.tabs.support"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275classProp("hidden", ctx_r1.activeTab !== "notifications");
-    \u0275\u0275attribute("aria-hidden", ctx_r1.activeTab !== "notifications");
-    \u0275\u0275advance(2);
-    \u0275\u0275classProp("hidden", ctx_r1.activeTab !== "tickets");
-    \u0275\u0275attribute("aria-hidden", ctx_r1.activeTab !== "tickets");
   }
 }
 var QuickChatComponent = class _QuickChatComponent {
@@ -18241,16 +17274,10 @@ var QuickChatComponent = class _QuickChatComponent {
     this._scrollStrategyOptions = _scrollStrategyOptions;
     this._destroyRef = inject(DestroyRef);
     this._quickChatService = inject(QuickChatService);
-    this._appNotifications = inject(AppNotificationsService);
     this.opened = false;
     this.expanded = false;
-    this.activeTab = "tickets";
-    this.unreadCount = this._appNotifications.unreadCount;
     this._scrollStrategy = this._scrollStrategyOptions.block();
-    this._quickChatService.openPanel$.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((request) => {
-      if (request.tab) {
-        this.activeTab = request.tab;
-      }
+    this._quickChatService.openPanel$.pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
       this.open();
     });
   }
@@ -18281,10 +17308,6 @@ var QuickChatComponent = class _QuickChatComponent {
   }
   ngOnDestroy() {
     this._mutationObserver?.disconnect();
-  }
-  setActiveTab(tab) {
-    this.activeTab = tab;
-    this._refreshActivePanel();
   }
   open() {
     if (this.opened) {
@@ -18319,15 +17342,7 @@ var QuickChatComponent = class _QuickChatComponent {
     }
   }
   _refreshActivePanel() {
-    if (this.activeTab === "notifications") {
-      if (this.notificationPanel) {
-        this.notificationPanel.refreshIfNeeded();
-      } else {
-        this._appNotifications.refreshHubInbox().subscribe();
-      }
-    } else {
-      this.ticketPanel?.refreshIfNeeded();
-    }
+    this.ticketPanel?.refreshIfNeeded();
   }
   _showOverlay() {
     this._hideOverlay();
@@ -18356,35 +17371,24 @@ var QuickChatComponent = class _QuickChatComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _QuickChatComponent, selectors: [["quick-chat"]], viewQuery: function QuickChatComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c013, 5);
-        \u0275\u0275viewQuery(_c19, 5);
+        \u0275\u0275viewQuery(_c012, 5);
       }
       if (rf & 2) {
         let _t;
         \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.ticketPanel = _t.first);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.notificationPanel = _t.first);
       }
     }, hostVars: 2, hostBindings: function QuickChatComponent_HostBindings(rf, ctx) {
       if (rf & 2) {
         \u0275\u0275classMap(ctx.hostClasses);
       }
-    }, exportAs: ["quickChat"], decls: 1, vars: 1, consts: [["notificationPanel", ""], ["ticketPanel", ""], [1, "quick-chat-inner", "fixed", "bottom-0", "right-0", "top-0", "w-full", "shadow", "sm:w-96", "lg:w-[50vw]"], [1, "bg-card", "flex", "h-full", "w-full", "flex-col"], [1, "quick-chat-header", "flex", "flex-0", "items-center", "justify-between"], [1, "flex", "w-full", "min-w-0", "flex-col", "gap-2", "pl-1", "pr-1", "pt-2"], [1, "flex", "w-full", "min-w-0", "items-center", "justify-between", "gap-1"], [1, "text-default", "ml-2", "truncate", "text-lg", "font-medium"], [1, "flex", "flex-0", "items-center"], ["mat-icon-button", "", "type", "button", 3, "click"], [3, "svgIcon"], ["role", "tablist", 1, "messages-hub-tabs", "mx-2", "mb-1", "grid", "grid-cols-2", "gap-1", "rounded-lg", "bg-gray-100", "p-1", "dark:bg-gray-800"], ["type", "button", "role", "tab", 1, "messages-hub-tab", "rounded-md", "px-2", "py-1.5", "text-xs", "font-semibold", "transition-colors", 3, "click"], [1, "inline-flex", "items-center", "gap-1"], [1, "rounded-full", "bg-teal-600", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "text-white"], [1, "border-divider", "grid", "min-h-0", "min-w-0", "flex-1", "grid-cols-1", "grid-rows-1", "overflow-hidden", "border-t"], [1, "col-start-1", "row-start-1", "min-h-0", "min-w-0", "overflow-hidden"]], template: function QuickChatComponent_Template(rf, ctx) {
+    }, exportAs: ["quickChat"], decls: 1, vars: 1, consts: [["ticketPanel", ""], [1, "quick-chat-inner", "fixed", "bottom-0", "right-0", "top-0", "w-full", "shadow", "sm:w-96", "lg:w-[50vw]"], [1, "bg-card", "flex", "h-full", "w-full", "flex-col"], [1, "quick-chat-header", "flex", "flex-0", "items-center", "justify-between"], [1, "flex", "w-full", "min-w-0", "flex-col", "gap-2", "pl-1", "pr-1", "pt-2"], [1, "flex", "w-full", "min-w-0", "items-center", "justify-between", "gap-1"], [1, "text-default", "ml-2", "truncate", "text-lg", "font-medium"], [1, "flex", "flex-0", "items-center"], ["mat-icon-button", "", "type", "button", 3, "click"], [3, "svgIcon"], [1, "border-divider", "min-h-0", "min-w-0", "flex-1", "overflow-hidden", "border-t"], [1, "block", "h-full", "min-h-0", "min-w-0", "overflow-hidden"]], template: function QuickChatComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275template(0, QuickChatComponent_Conditional_0_Template, 29, 30, "div", 2);
+        \u0275\u0275template(0, QuickChatComponent_Conditional_0_Template, 18, 11, "div", 1);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.opened ? 0 : -1);
       }
-    }, dependencies: [
-      MatIconModule,
-      MatIcon,
-      MatButtonModule,
-      MatIconButton,
-      TranslocoModule,
-      TranslocoPipe,
-      SupportTicketChatPanelComponent,
-      NotificationInboxPanelComponent
-    ], styles: ["/* src/app/layout/common/quick-chat/quick-chat.component.scss */\nquick-chat {\n  z-index: 399;\n}\nquick-chat:not(.quick-chat-opened) {\n  display: none;\n}\nquick-chat.quick-chat-opened {\n  display: block;\n}\nquick-chat.quick-chat-expanded {\n  z-index: 450;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner {\n  position: fixed !important;\n  inset: 0 !important;\n  top: 0 !important;\n  bottom: 0 !important;\n  left: 0 !important;\n  right: 0 !important;\n  width: 100% !important;\n  max-width: none !important;\n  height: 100% !important;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner > div {\n  width: 100% !important;\n  max-width: none !important;\n}\n.quick-chat-header {\n  min-height: 64px;\n  height: auto;\n}\nenterprise-layout .quick-chat-header,\nmodern-layout .quick-chat-header {\n  min-height: 80px !important;\n}\n.messages-hub-tab {\n  color: rgb(100, 116, 139);\n}\n.messages-hub-tab--active {\n  background: rgb(255, 255, 255);\n  color: rgb(15, 118, 110);\n  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);\n}\n:host-context(.dark) .messages-hub-tab--active {\n  background: rgb(41, 37, 36);\n  color: rgb(45, 212, 191);\n}\n.quick-chat-overlay {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: 299;\n  opacity: 1;\n  background-color: transparent;\n}\n/*# sourceMappingURL=quick-chat.component.css.map */\n"], encapsulation: 2 });
+    }, dependencies: [MatIconModule, MatIcon, MatButtonModule, MatIconButton, TranslocoModule, TranslocoPipe, SupportTicketChatPanelComponent], styles: ["/* src/app/layout/common/quick-chat/quick-chat.component.scss */\nquick-chat {\n  z-index: 399;\n}\nquick-chat:not(.quick-chat-opened) {\n  display: none;\n}\nquick-chat.quick-chat-opened {\n  display: block;\n}\nquick-chat.quick-chat-expanded {\n  z-index: 450;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner {\n  position: fixed !important;\n  inset: 0 !important;\n  top: 0 !important;\n  bottom: 0 !important;\n  left: 0 !important;\n  right: 0 !important;\n  width: 100% !important;\n  max-width: none !important;\n  height: 100% !important;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner > div {\n  width: 100% !important;\n  max-width: none !important;\n}\n.quick-chat-header {\n  min-height: 64px;\n  height: auto;\n}\nenterprise-layout .quick-chat-header,\nmodern-layout .quick-chat-header {\n  min-height: 80px !important;\n}\n.quick-chat-overlay {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: 299;\n  opacity: 1;\n  background-color: transparent;\n}\n/*# sourceMappingURL=quick-chat.component.css.map */\n"], encapsulation: 2 });
   }
 };
 (() => {
@@ -18394,8 +17398,7 @@ var QuickChatComponent = class _QuickChatComponent {
       MatIconModule,
       MatButtonModule,
       TranslocoModule,
-      SupportTicketChatPanelComponent,
-      NotificationInboxPanelComponent
+      SupportTicketChatPanelComponent
     ], template: `@if (opened) {\r
     <div class="quick-chat-inner fixed bottom-0 right-0 top-0 w-full shadow sm:w-96 lg:w-[50vw]">\r
         <div class="bg-card flex h-full w-full flex-col">\r
@@ -18435,79 +17438,32 @@ var QuickChatComponent = class _QuickChatComponent {
                             </button>\r
                         </div>\r
                     </div>\r
-                    <div\r
-                        class="messages-hub-tabs mx-2 mb-1 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800"\r
-                        role="tablist"\r
-                    >\r
-                        <button\r
-                            type="button"\r
-                            role="tab"\r
-                            class="messages-hub-tab rounded-md px-2 py-1.5 text-xs font-semibold transition-colors"\r
-                            [class.messages-hub-tab--active]="activeTab === 'notifications'"\r
-                            [attr.aria-selected]="activeTab === 'notifications'"\r
-                            (click)="setActiveTab('notifications'); $event.stopPropagation()"\r
-                        >\r
-                            <span class="inline-flex items-center gap-1">\r
-                                {{ 'messagesHub.tabs.notifications' | transloco }}\r
-                                @if (unreadCount() > 0) {\r
-                                    <span\r
-                                        class="rounded-full bg-teal-600 px-1.5 py-0.5 text-[10px] font-bold text-white"\r
-                                        >{{ unreadCount() > 99 ? '99+' : unreadCount() }}</span\r
-                                    >\r
-                                }\r
-                            </span>\r
-                        </button>\r
-                        <button\r
-                            type="button"\r
-                            role="tab"\r
-                            class="messages-hub-tab rounded-md px-2 py-1.5 text-xs font-semibold transition-colors"\r
-                            [class.messages-hub-tab--active]="activeTab === 'tickets'"\r
-                            [attr.aria-selected]="activeTab === 'tickets'"\r
-                            (click)="setActiveTab('tickets'); $event.stopPropagation()"\r
-                        >\r
-                            {{ 'messagesHub.tabs.support' | transloco }}\r
-                        </button>\r
-                    </div>\r
                 </div>\r
             </div>\r
 \r
-            <div\r
-                class="border-divider grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden border-t"\r
-            >\r
-                <!-- Both panels share one grid cell so tab switches do not destroy state or steal width -->\r
-                <app-notification-inbox-panel\r
-                    #notificationPanel\r
-                    class="col-start-1 row-start-1 min-h-0 min-w-0 overflow-hidden"\r
-                    [class.hidden]="activeTab !== 'notifications'"\r
-                    [attr.aria-hidden]="activeTab !== 'notifications'"\r
-                ></app-notification-inbox-panel>\r
+            <div class="border-divider min-h-0 min-w-0 flex-1 overflow-hidden border-t">\r
                 <app-support-ticket-chat-panel\r
                     #ticketPanel\r
-                    class="col-start-1 row-start-1 min-h-0 min-w-0 overflow-hidden"\r
-                    [class.hidden]="activeTab !== 'tickets'"\r
-                    [attr.aria-hidden]="activeTab !== 'tickets'"\r
+                    class="block h-full min-h-0 min-w-0 overflow-hidden"\r
                 ></app-support-ticket-chat-panel>\r
             </div>\r
         </div>\r
     </div>\r
 }\r
-`, styles: ["/* src/app/layout/common/quick-chat/quick-chat.component.scss */\nquick-chat {\n  z-index: 399;\n}\nquick-chat:not(.quick-chat-opened) {\n  display: none;\n}\nquick-chat.quick-chat-opened {\n  display: block;\n}\nquick-chat.quick-chat-expanded {\n  z-index: 450;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner {\n  position: fixed !important;\n  inset: 0 !important;\n  top: 0 !important;\n  bottom: 0 !important;\n  left: 0 !important;\n  right: 0 !important;\n  width: 100% !important;\n  max-width: none !important;\n  height: 100% !important;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner > div {\n  width: 100% !important;\n  max-width: none !important;\n}\n.quick-chat-header {\n  min-height: 64px;\n  height: auto;\n}\nenterprise-layout .quick-chat-header,\nmodern-layout .quick-chat-header {\n  min-height: 80px !important;\n}\n.messages-hub-tab {\n  color: rgb(100, 116, 139);\n}\n.messages-hub-tab--active {\n  background: rgb(255, 255, 255);\n  color: rgb(15, 118, 110);\n  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);\n}\n:host-context(.dark) .messages-hub-tab--active {\n  background: rgb(41, 37, 36);\n  color: rgb(45, 212, 191);\n}\n.quick-chat-overlay {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: 299;\n  opacity: 1;\n  background-color: transparent;\n}\n/*# sourceMappingURL=quick-chat.component.css.map */\n"] }]
+`, styles: ["/* src/app/layout/common/quick-chat/quick-chat.component.scss */\nquick-chat {\n  z-index: 399;\n}\nquick-chat:not(.quick-chat-opened) {\n  display: none;\n}\nquick-chat.quick-chat-opened {\n  display: block;\n}\nquick-chat.quick-chat-expanded {\n  z-index: 450;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner {\n  position: fixed !important;\n  inset: 0 !important;\n  top: 0 !important;\n  bottom: 0 !important;\n  left: 0 !important;\n  right: 0 !important;\n  width: 100% !important;\n  max-width: none !important;\n  height: 100% !important;\n}\nquick-chat.quick-chat-expanded .quick-chat-inner > div {\n  width: 100% !important;\n  max-width: none !important;\n}\n.quick-chat-header {\n  min-height: 64px;\n  height: auto;\n}\nenterprise-layout .quick-chat-header,\nmodern-layout .quick-chat-header {\n  min-height: 80px !important;\n}\n.quick-chat-overlay {\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: 299;\n  opacity: 1;\n  background-color: transparent;\n}\n/*# sourceMappingURL=quick-chat.component.css.map */\n"] }]
   }], () => [{ type: Document, decorators: [{
     type: Inject,
     args: [DOCUMENT]
   }] }, { type: ElementRef }, { type: Renderer2 }, { type: ScrollStrategyOptions }], { ticketPanel: [{
     type: ViewChild,
     args: ["ticketPanel"]
-  }], notificationPanel: [{
-    type: ViewChild,
-    args: ["notificationPanel"]
   }], hostClasses: [{
     type: HostBinding,
     args: ["class"]
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(QuickChatComponent, { className: "QuickChatComponent", filePath: "src/app/layout/common/quick-chat/quick-chat.component.ts", lineNumber: 42 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(QuickChatComponent, { className: "QuickChatComponent", filePath: "src/app/layout/common/quick-chat/quick-chat.component.ts", lineNumber: 36 });
 })();
 
 // src/app/core/notifications/blocking-notification.service.ts
@@ -18517,6 +17473,8 @@ var BlockingNotificationService = class _BlockingNotificationService {
     this._session = inject(SessionService);
     this._queue = signal([]);
     this._current = signal(null);
+    this._settledIds = /* @__PURE__ */ new Set();
+    this._queueGeneration = 0;
     this.currentBlocking = this._current.asReadonly();
   }
   canRun() {
@@ -18533,13 +17491,24 @@ var BlockingNotificationService = class _BlockingNotificationService {
       this._current.set(null);
       return;
     }
-    this._notifications.syncInbox().pipe(switchMap(() => this._notifications.getActiveModals()), tap((res) => {
-      const blocking = (res.data || []).filter((item) => item.receipt?.isBlocking);
+    const generation = ++this._queueGeneration;
+    this._notifications.getActiveModals().pipe(tap((res) => {
+      if (generation !== this._queueGeneration)
+        return;
+      const rows = res.data || [];
+      for (const id of [...this._settledIds]) {
+        const stillBlocking = rows.some((item) => item.notificationId === id && item.receipt?.isBlocking);
+        if (!stillBlocking)
+          this._settledIds.delete(id);
+      }
+      const blocking = rows.filter((item) => item.receipt?.isBlocking && !this._settledIds.has(item.notificationId));
       this._queue.set(blocking);
       this._current.set(blocking[0] ?? null);
     })).subscribe({ error: () => void 0 });
   }
-  advanceAfterAction() {
+  advanceAfterAction(notificationId) {
+    if (notificationId)
+      this._settledIds.add(notificationId);
     this._current.set(null);
     this.refreshQueue();
   }
@@ -18562,8 +17531,11 @@ var BlockingNotificationService = class _BlockingNotificationService {
   }], null, null);
 })();
 
+// src/app/core/notifications/notification-body-html.util.ts
+var trustNotificationBodyHtml = (sanitizer, body) => sanitizer.bypassSecurityTrustHtml(body || "");
+
 // src/app/modules/app-notifications/blocking-notification-modal/blocking-notification-modal.component.ts
-var _c014 = (a0) => ({ version: a0 });
+var _c013 = (a0) => ({ version: a0 });
 function BlockingNotificationModalComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 2);
@@ -18578,16 +17550,36 @@ function BlockingNotificationModalComponent_Conditional_3_Template(rf, ctx) {
 }
 function BlockingNotificationModalComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 3);
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275element(1, "mat-spinner", 14);
+    \u0275\u0275elementEnd();
+  }
+}
+function BlockingNotificationModalComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 4);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r0.detailError()), " ");
+  }
+}
+function BlockingNotificationModalComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 5);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275property("innerHTML", ctx_r0.safeBodyHtml(ctx_r0.item.content.body), \u0275\u0275sanitizeHtml);
   }
 }
-function BlockingNotificationModalComponent_Conditional_5_Conditional_4_Template(rf, ctx) {
+function BlockingNotificationModalComponent_Conditional_7_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 11);
+    \u0275\u0275elementStart(0, "p", 16);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "transloco");
     \u0275\u0275elementEnd();
@@ -18595,19 +17587,19 @@ function BlockingNotificationModalComponent_Conditional_5_Conditional_4_Template
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "appNotifications.inbox.legalVersion", \u0275\u0275pureFunction1(4, _c014, ctx_r0.item.legal.version)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "appNotifications.inbox.legalVersion", \u0275\u0275pureFunction1(4, _c013, ctx_r0.item.legal.version)), " ");
   }
 }
-function BlockingNotificationModalComponent_Conditional_5_Template(rf, ctx) {
+function BlockingNotificationModalComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "a", 10);
+    \u0275\u0275elementStart(0, "div", 6)(1, "a", 15);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "transloco");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(4, BlockingNotificationModalComponent_Conditional_5_Conditional_4_Template, 3, 6, "p", 11);
-    \u0275\u0275elementStart(5, "mat-checkbox", 12);
-    \u0275\u0275listener("change", function BlockingNotificationModalComponent_Conditional_5_Template_mat_checkbox_change_5_listener($event) {
+    \u0275\u0275template(4, BlockingNotificationModalComponent_Conditional_7_Conditional_4_Template, 3, 6, "p", 16);
+    \u0275\u0275elementStart(5, "mat-checkbox", 17);
+    \u0275\u0275listener("change", function BlockingNotificationModalComponent_Conditional_7_Template_mat_checkbox_change_5_listener($event) {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.legalAccepted.set($event.checked));
@@ -18630,11 +17622,24 @@ function BlockingNotificationModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 7, "appNotifications.inbox.legalAcceptCheckbox"), " ");
   }
 }
-function BlockingNotificationModalComponent_Conditional_7_Template(rf, ctx) {
+function BlockingNotificationModalComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 8);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r0.actionError()), " ");
+  }
+}
+function BlockingNotificationModalComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
-    \u0275\u0275listener("click", function BlockingNotificationModalComponent_Conditional_7_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function BlockingNotificationModalComponent_Conditional_11_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.openCta());
@@ -18649,11 +17654,11 @@ function BlockingNotificationModalComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.item.cta.label || \u0275\u0275pipeBind1(2, 1, "appNotifications.inbox.ctaDefault"), " ");
   }
 }
-function BlockingNotificationModalComponent_Conditional_8_Template(rf, ctx) {
+function BlockingNotificationModalComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 14);
-    \u0275\u0275listener("click", function BlockingNotificationModalComponent_Conditional_8_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 19);
+    \u0275\u0275listener("click", function BlockingNotificationModalComponent_Conditional_12_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.goToAddCredits());
@@ -18669,12 +17674,12 @@ function BlockingNotificationModalComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "nav.add_credits"), " ");
   }
 }
-function BlockingNotificationModalComponent_Conditional_10_Template(rf, ctx) {
+function BlockingNotificationModalComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 9);
+    \u0275\u0275element(0, "mat-spinner", 13);
   }
 }
-function BlockingNotificationModalComponent_Conditional_11_Template(rf, ctx) {
+function BlockingNotificationModalComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "transloco");
@@ -18683,7 +17688,7 @@ function BlockingNotificationModalComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(1, 1, "appNotifications.inbox.actions.accept"), " ");
   }
 }
-function BlockingNotificationModalComponent_Conditional_12_Template(rf, ctx) {
+function BlockingNotificationModalComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "transloco");
@@ -18693,6 +17698,9 @@ function BlockingNotificationModalComponent_Conditional_12_Template(rf, ctx) {
   }
 }
 var BlockingNotificationModalComponent = class _BlockingNotificationModalComponent {
+  get item() {
+    return this.viewItem();
+  }
   constructor() {
     this._dialogRef = inject(MatDialogRef);
     this._data = inject(MAT_DIALOG_DATA);
@@ -18700,14 +17708,17 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
     this._sanitizer = inject(DomSanitizer);
     this._router = inject(Router);
     this._quickChat = inject(QuickChatService);
-    this.item = this._data.item;
+    this.viewItem = signal(this._data.item);
+    this.detailLoading = signal(true);
+    this.detailError = signal(null);
     this.actionBusy = signal(false);
+    this.actionError = signal(null);
     this.legalAccepted = signal(false);
     this.isInsufficientCredits = () => isInsufficientCreditsError(`${this.item.content.title ?? ""} ${this.item.content.summary ?? ""} ${this.item.content.body ?? ""}`);
     this.goToAddCredits = () => {
       const id = this.item.notificationId;
       this.actionBusy.set(true);
-      this._notifications.acknowledge(id).subscribe({
+      this._notifications.acknowledgeAndForget(id).subscribe({
         next: () => this._closeAndGoToCredits(),
         error: () => this._closeAndGoToCredits()
       });
@@ -18717,6 +17728,17 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
       this._dialogRef.close(true);
       void this._router.navigate(["/add-credits"]);
     };
+    this._notifications.show(this._data.item.notificationId).subscribe({
+      next: (response) => {
+        if (response.data)
+          this.viewItem.set(response.data);
+        this.detailLoading.set(false);
+      },
+      error: () => {
+        this.detailLoading.set(false);
+        this.detailError.set("appNotifications.inbox.errors.loadDetail");
+      }
+    });
   }
   safeBodyHtml(body) {
     return trustNotificationBodyHtml(this._sanitizer, body);
@@ -18725,7 +17747,9 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
     if (this.actionBusy())
       return true;
     if (this.item.interactionMode === "accept") {
-      return !this.legalAccepted() || !this.item.legal?.version;
+      if (!this.item.legal?.version)
+        return true;
+      return Boolean(this.item.legal?.url) && !this.legalAccepted();
     }
     return false;
   }
@@ -18738,15 +17762,15 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
         this.actionBusy.set(false);
         return;
       }
-      this._notifications.accept(id, { legalVersion: version, accepted: true }).subscribe({
+      this._notifications.acceptAndForget(id, { legalVersion: version, accepted: true }).subscribe({
         next: () => this._closeSuccess(),
-        error: () => this.actionBusy.set(false)
+        error: () => this._failAction()
       });
       return;
     }
-    this._notifications.acknowledge(id).subscribe({
+    this._notifications.acknowledgeAndForget(id).subscribe({
       next: () => this._closeSuccess(),
-      error: () => this.actionBusy.set(false)
+      error: () => this._failAction()
     });
   }
   showCta() {
@@ -18755,12 +17779,18 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
   openCta() {
     openNotificationCta(this.item.cta, {
       router: this._router,
-      quickChat: this._quickChat
+      quickChat: this._quickChat,
+      openBell: () => this._notifications.requestOpenBell()
     });
   }
   _closeSuccess() {
     this.actionBusy.set(false);
+    this.actionError.set(null);
     this._dialogRef.close(true);
+  }
+  _failAction() {
+    this.actionBusy.set(false);
+    this.actionError.set("appNotifications.inbox.errors.action");
   }
   static {
     this.\u0275fac = function BlockingNotificationModalComponent_Factory(__ngFactoryType__) {
@@ -18768,22 +17798,24 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlockingNotificationModalComponent, selectors: [["app-blocking-notification-modal"]], decls: 13, vars: 9, consts: [["mat-dialog-title", "", 1, "!text-lg", "!font-semibold"], [1, "blocking-modal-content"], [1, "text-secondary", "mb-3", "text-sm"], [1, "blocking-modal-body", "prose", "prose-sm", "dark:prose-invert", "max-w-none", "text-sm", 3, "innerHTML"], [1, "mt-4", "rounded-lg", "border", "border-divider", "p-3"], ["align", "end", 1, "flex", "flex-wrap", "gap-2"], ["mat-stroked-button", "", "type", "button"], ["mat-stroked-button", "", "type", "button", 3, "disabled"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click", "disabled"], ["diameter", "20", 1, "mr-2", "inline-block"], ["target", "_blank", "rel", "noopener noreferrer", 1, "text-primary", "text-sm", "font-medium", "underline", 3, "href"], [1, "text-hint", "mt-1", "text-xs"], [1, "mt-2", "block", 3, "change", "checked"], ["mat-stroked-button", "", "type", "button", 3, "click"], ["mat-stroked-button", "", "type", "button", 3, "click", "disabled"]], template: function BlockingNotificationModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlockingNotificationModalComponent, selectors: [["app-blocking-notification-modal"]], decls: 17, vars: 12, consts: [["mat-dialog-title", "", 1, "!text-lg", "!font-semibold"], [1, "blocking-modal-content"], [1, "text-secondary", "mb-3", "text-sm"], ["role", "status", 1, "flex", "justify-center", "py-6"], ["role", "alert", 1, "mb-3", "text-sm", "text-red-600", "dark:text-red-400"], [1, "blocking-modal-body", "prose", "prose-sm", "dark:prose-invert", "max-w-none", "text-sm", 3, "innerHTML"], [1, "mt-4", "rounded-lg", "border", "border-divider", "p-3"], ["align", "end", 1, "flex", "flex-col", "items-stretch", "gap-2", "sm:items-end"], ["role", "alert", 1, "w-full", "text-sm", "text-red-600", "dark:text-red-400"], [1, "flex", "flex-wrap", "justify-end", "gap-2"], ["mat-stroked-button", "", "type", "button"], ["mat-stroked-button", "", "type", "button", 3, "disabled"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click", "disabled"], ["diameter", "20", "aria-hidden", "true", 1, "mr-2", "inline-block"], ["diameter", "28"], ["target", "_blank", "rel", "noopener noreferrer", 1, "text-primary", "text-sm", "font-medium", "underline", 3, "href"], [1, "text-hint", "mt-1", "text-xs"], [1, "mt-2", "block", 3, "change", "checked"], ["mat-stroked-button", "", "type", "button", 3, "click"], ["mat-stroked-button", "", "type", "button", 3, "click", "disabled"]], template: function BlockingNotificationModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "h2", 0);
         \u0275\u0275text(1);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(2, "mat-dialog-content", 1);
-        \u0275\u0275template(3, BlockingNotificationModalComponent_Conditional_3_Template, 2, 1, "p", 2)(4, BlockingNotificationModalComponent_Conditional_4_Template, 1, 1, "div", 3)(5, BlockingNotificationModalComponent_Conditional_5_Template, 8, 9, "div", 4);
+        \u0275\u0275template(3, BlockingNotificationModalComponent_Conditional_3_Template, 2, 1, "p", 2)(4, BlockingNotificationModalComponent_Conditional_4_Template, 2, 0, "div", 3)(5, BlockingNotificationModalComponent_Conditional_5_Template, 3, 3, "p", 4)(6, BlockingNotificationModalComponent_Conditional_6_Template, 1, 1, "div", 5)(7, BlockingNotificationModalComponent_Conditional_7_Template, 8, 9, "div", 6);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(6, "mat-dialog-actions", 5);
-        \u0275\u0275template(7, BlockingNotificationModalComponent_Conditional_7_Template, 3, 3, "button", 6)(8, BlockingNotificationModalComponent_Conditional_8_Template, 3, 4, "button", 7);
-        \u0275\u0275elementStart(9, "button", 8);
-        \u0275\u0275listener("click", function BlockingNotificationModalComponent_Template_button_click_9_listener() {
+        \u0275\u0275elementStart(8, "mat-dialog-actions", 7);
+        \u0275\u0275template(9, BlockingNotificationModalComponent_Conditional_9_Template, 3, 3, "p", 8);
+        \u0275\u0275elementStart(10, "div", 9);
+        \u0275\u0275template(11, BlockingNotificationModalComponent_Conditional_11_Template, 3, 3, "button", 10)(12, BlockingNotificationModalComponent_Conditional_12_Template, 3, 4, "button", 11);
+        \u0275\u0275elementStart(13, "button", 12);
+        \u0275\u0275listener("click", function BlockingNotificationModalComponent_Template_button_click_13_listener() {
           return ctx.runPrimary();
         });
-        \u0275\u0275template(10, BlockingNotificationModalComponent_Conditional_10_Template, 1, 0, "mat-spinner", 9)(11, BlockingNotificationModalComponent_Conditional_11_Template, 2, 3)(12, BlockingNotificationModalComponent_Conditional_12_Template, 2, 3);
-        \u0275\u0275elementEnd()();
+        \u0275\u0275template(14, BlockingNotificationModalComponent_Conditional_14_Template, 1, 0, "mat-spinner", 13)(15, BlockingNotificationModalComponent_Conditional_15_Template, 2, 3)(16, BlockingNotificationModalComponent_Conditional_16_Template, 2, 3);
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance();
@@ -18791,19 +17823,25 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.item.content.summary ? 3 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.item.content.body ? 4 : -1);
+        \u0275\u0275conditional(ctx.detailLoading() && !ctx.item.content.body ? 4 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.item.interactionMode === "accept" && (ctx.item.legal == null ? null : ctx.item.legal.url) ? 5 : -1);
+        \u0275\u0275conditional(ctx.detailError() ? 5 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.item.content.body ? 6 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.item.interactionMode === "accept" && (ctx.item.legal == null ? null : ctx.item.legal.url) ? 7 : -1);
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.showCta() ? 7 : -1);
+        \u0275\u0275conditional(ctx.actionError() ? 9 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.showCta() ? 11 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.isInsufficientCredits() ? 8 : -1);
+        \u0275\u0275conditional(ctx.isInsufficientCredits() ? 12 : -1);
         \u0275\u0275advance();
         \u0275\u0275property("disabled", ctx.primaryActionDisabled());
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.actionBusy() ? 10 : -1);
+        \u0275\u0275conditional(ctx.actionBusy() ? 14 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.item.interactionMode === "accept" ? 11 : 12);
+        \u0275\u0275conditional(ctx.item.interactionMode === "accept" ? 15 : 16);
       }
     }, dependencies: [
       FormsModule,
@@ -18820,7 +17858,7 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
       MatProgressSpinner,
       TranslocoModule,
       TranslocoPipe
-    ], styles: ['\n\n.blocking-modal-content[_ngcontent-%COMP%] {\n  max-height: min(60vh, 480px);\n  overflow-y: auto;\n}\n.blocking-modal-body[_ngcontent-%COMP%] {\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p) {\n  margin: 0 0 0.55rem;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:empty), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:has(> br:only-child)) {\n  height: 0.75rem;\n  margin: 0;\n  overflow: hidden;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:has(> br:only-child) br) {\n  display: none;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p > span + span) {\n  margin-inline-start: 0.4em;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h1), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h2), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h3) {\n  font-size: 1.05rem;\n  line-height: 1.35;\n  margin: 0.35rem 0 0.4rem;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(a) {\n  color: rgb(13, 148, 136);\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 0.15em;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(li), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h1), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h2), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h3), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h4), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(blockquote), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(td), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(th) {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(pre), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(table) {\n  display: block;\n  max-width: 100%;\n  overflow-x: auto;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(img), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(video), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(iframe) {\n  border-radius: 0.75rem;\n  display: block;\n  height: auto;\n  margin: 0.75rem 0;\n  max-width: 100%;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-align-center) {\n  text-align: center;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-align-right) {\n  text-align: right;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-arial) {\n  font-family:\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-georgia), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-serif) {\n  font-family:\n    Georgia,\n    "Times New Roman",\n    serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-poppins) {\n  font-family:\n    Poppins,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-roboto) {\n  font-family:\n    Roboto,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-monospace) {\n  font-family:\n    "Courier New",\n    Courier,\n    monospace;\n}\n/*# sourceMappingURL=blocking-notification-modal.component.css.map */'] });
+    ], styles: ['\n\n.blocking-modal-content[_ngcontent-%COMP%] {\n  max-height: min(60vh, 480px);\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n.blocking-modal-body[_ngcontent-%COMP%] {\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p) {\n  margin: 0 0 0.55rem;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:empty), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:has(> br:only-child)) {\n  height: 0.75rem;\n  margin: 0;\n  overflow: hidden;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p:has(> br:only-child) br) {\n  display: none;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p > span + span) {\n  margin-inline-start: 0.4em;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h1), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h2), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h3) {\n  font-size: 1.05rem;\n  line-height: 1.35;\n  margin: 0.35rem 0 0.4rem;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(a) {\n  color: rgb(13, 148, 136);\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 0.15em;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(li), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h1), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h2), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h3), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(h4), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(blockquote), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(td), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(th) {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(pre), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(table) {\n  display: block;\n  max-width: 100%;\n  overflow-x: auto;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(img), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(video), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(iframe) {\n  border-radius: 0.75rem;\n  display: block;\n  height: auto;\n  margin: 0.75rem 0;\n  max-width: 100%;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-align-center) {\n  text-align: center;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-align-right) {\n  text-align: right;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-arial) {\n  font-family:\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-georgia), \n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-serif) {\n  font-family:\n    Georgia,\n    "Times New Roman",\n    serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-poppins) {\n  font-family:\n    Poppins,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-roboto) {\n  font-family:\n    Roboto,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(.ql-font-monospace) {\n  font-family:\n    "Courier New",\n    Courier,\n    monospace;\n}\n/*# sourceMappingURL=blocking-notification-modal.component.css.map */'] });
   }
 };
 (() => {
@@ -18839,6 +17877,16 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
 <mat-dialog-content class="blocking-modal-content">\r
     @if (item.content.summary) {\r
         <p class="text-secondary mb-3 text-sm">{{ item.content.summary }}</p>\r
+    }\r
+    @if (detailLoading() && !item.content.body) {\r
+        <div class="flex justify-center py-6" role="status">\r
+            <mat-spinner diameter="28"></mat-spinner>\r
+        </div>\r
+    }\r
+    @if (detailError()) {\r
+        <p class="mb-3 text-sm text-red-600 dark:text-red-400" role="alert">\r
+            {{ detailError()! | transloco }}\r
+        </p>\r
     }\r
     @if (item.content.body) {\r
         <div\r
@@ -18875,7 +17923,13 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
     }\r
 </mat-dialog-content>\r
 \r
-<mat-dialog-actions align="end" class="flex flex-wrap gap-2">\r
+<mat-dialog-actions align="end" class="flex flex-col items-stretch gap-2 sm:items-end">\r
+    @if (actionError()) {\r
+        <p class="w-full text-sm text-red-600 dark:text-red-400" role="alert">\r
+            {{ actionError()! | transloco }}\r
+        </p>\r
+    }\r
+    <div class="flex flex-wrap justify-end gap-2">\r
     @if (showCta()) {\r
         <button mat-stroked-button type="button" (click)="openCta()">\r
             {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}\r
@@ -18899,7 +17953,7 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
         (click)="runPrimary()"\r
     >\r
         @if (actionBusy()) {\r
-            <mat-spinner diameter="20" class="mr-2 inline-block"></mat-spinner>\r
+            <mat-spinner diameter="20" class="mr-2 inline-block" aria-hidden="true"></mat-spinner>\r
         }\r
         @if (item.interactionMode === 'accept') {\r
             {{ 'appNotifications.inbox.actions.accept' | transloco }}\r
@@ -18907,9 +17961,10 @@ var BlockingNotificationModalComponent = class _BlockingNotificationModalCompone
             {{ 'appNotifications.inbox.actions.acknowledge' | transloco }}\r
         }\r
     </button>\r
+    </div>\r
 </mat-dialog-actions>\r
-`, styles: ['/* src/app/modules/app-notifications/blocking-notification-modal/blocking-notification-modal.component.scss */\n.blocking-modal-content {\n  max-height: min(60vh, 480px);\n  overflow-y: auto;\n}\n.blocking-modal-body {\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body :deep(p) {\n  margin: 0 0 0.55rem;\n}\n.blocking-modal-body :deep(p:empty),\n.blocking-modal-body :deep(p:has(> br:only-child)) {\n  height: 0.75rem;\n  margin: 0;\n  overflow: hidden;\n}\n.blocking-modal-body :deep(p:has(> br:only-child) br) {\n  display: none;\n}\n.blocking-modal-body :deep(p > span + span) {\n  margin-inline-start: 0.4em;\n}\n.blocking-modal-body :deep(h1),\n.blocking-modal-body :deep(h2),\n.blocking-modal-body :deep(h3) {\n  font-size: 1.05rem;\n  line-height: 1.35;\n  margin: 0.35rem 0 0.4rem;\n}\n.blocking-modal-body :deep(a) {\n  color: rgb(13, 148, 136);\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 0.15em;\n}\n.blocking-modal-body :deep(p),\n.blocking-modal-body :deep(li),\n.blocking-modal-body :deep(h1),\n.blocking-modal-body :deep(h2),\n.blocking-modal-body :deep(h3),\n.blocking-modal-body :deep(h4),\n.blocking-modal-body :deep(blockquote),\n.blocking-modal-body :deep(td),\n.blocking-modal-body :deep(th) {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body :deep(pre),\n.blocking-modal-body :deep(table) {\n  display: block;\n  max-width: 100%;\n  overflow-x: auto;\n}\n.blocking-modal-body :deep(img),\n.blocking-modal-body :deep(video),\n.blocking-modal-body :deep(iframe) {\n  border-radius: 0.75rem;\n  display: block;\n  height: auto;\n  margin: 0.75rem 0;\n  max-width: 100%;\n}\n.blocking-modal-body :deep(.ql-align-center) {\n  text-align: center;\n}\n.blocking-modal-body :deep(.ql-align-right) {\n  text-align: right;\n}\n.blocking-modal-body :deep(.ql-font-arial) {\n  font-family:\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body :deep(.ql-font-georgia),\n.blocking-modal-body :deep(.ql-font-serif) {\n  font-family:\n    Georgia,\n    "Times New Roman",\n    serif;\n}\n.blocking-modal-body :deep(.ql-font-poppins) {\n  font-family:\n    Poppins,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body :deep(.ql-font-roboto) {\n  font-family:\n    Roboto,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body :deep(.ql-font-monospace) {\n  font-family:\n    "Courier New",\n    Courier,\n    monospace;\n}\n/*# sourceMappingURL=blocking-notification-modal.component.css.map */\n'] }]
-  }], null, null);
+`, styles: ['/* src/app/modules/app-notifications/blocking-notification-modal/blocking-notification-modal.component.scss */\n.blocking-modal-content {\n  max-height: min(60vh, 480px);\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n.blocking-modal-body {\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body :deep(p) {\n  margin: 0 0 0.55rem;\n}\n.blocking-modal-body :deep(p:empty),\n.blocking-modal-body :deep(p:has(> br:only-child)) {\n  height: 0.75rem;\n  margin: 0;\n  overflow: hidden;\n}\n.blocking-modal-body :deep(p:has(> br:only-child) br) {\n  display: none;\n}\n.blocking-modal-body :deep(p > span + span) {\n  margin-inline-start: 0.4em;\n}\n.blocking-modal-body :deep(h1),\n.blocking-modal-body :deep(h2),\n.blocking-modal-body :deep(h3) {\n  font-size: 1.05rem;\n  line-height: 1.35;\n  margin: 0.35rem 0 0.4rem;\n}\n.blocking-modal-body :deep(a) {\n  color: rgb(13, 148, 136);\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 0.15em;\n}\n.blocking-modal-body :deep(p),\n.blocking-modal-body :deep(li),\n.blocking-modal-body :deep(h1),\n.blocking-modal-body :deep(h2),\n.blocking-modal-body :deep(h3),\n.blocking-modal-body :deep(h4),\n.blocking-modal-body :deep(blockquote),\n.blocking-modal-body :deep(td),\n.blocking-modal-body :deep(th) {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n}\n.blocking-modal-body :deep(pre),\n.blocking-modal-body :deep(table) {\n  display: block;\n  max-width: 100%;\n  overflow-x: auto;\n}\n.blocking-modal-body :deep(img),\n.blocking-modal-body :deep(video),\n.blocking-modal-body :deep(iframe) {\n  border-radius: 0.75rem;\n  display: block;\n  height: auto;\n  margin: 0.75rem 0;\n  max-width: 100%;\n}\n.blocking-modal-body :deep(.ql-align-center) {\n  text-align: center;\n}\n.blocking-modal-body :deep(.ql-align-right) {\n  text-align: right;\n}\n.blocking-modal-body :deep(.ql-font-arial) {\n  font-family:\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body :deep(.ql-font-georgia),\n.blocking-modal-body :deep(.ql-font-serif) {\n  font-family:\n    Georgia,\n    "Times New Roman",\n    serif;\n}\n.blocking-modal-body :deep(.ql-font-poppins) {\n  font-family:\n    Poppins,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body :deep(.ql-font-roboto) {\n  font-family:\n    Roboto,\n    Arial,\n    Helvetica,\n    sans-serif;\n}\n.blocking-modal-body :deep(.ql-font-monospace) {\n  font-family:\n    "Courier New",\n    Courier,\n    monospace;\n}\n/*# sourceMappingURL=blocking-notification-modal.component.css.map */\n'] }]
+  }], () => [], null);
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlockingNotificationModalComponent, { className: "BlockingNotificationModalComponent", filePath: "src/app/modules/app-notifications/blocking-notification-modal/blocking-notification-modal.component.ts", lineNumber: 44 });
@@ -18953,7 +18008,7 @@ var BlockingNotificationModalHostComponent = class _BlockingNotificationModalHos
     ref.afterClosed().subscribe((success) => {
       this._dialogOpen = false;
       if (success) {
-        this._blocking.advanceAfterAction();
+        this._blocking.advanceAfterAction(item.notificationId);
         this._notifications.getUnreadCount().pipe(takeUntilDestroyed(this._destroyRef)).subscribe();
       } else {
         this._blocking.setCurrent(null);
@@ -18985,9 +18040,9 @@ var BlockingNotificationModalHostComponent = class _BlockingNotificationModalHos
 })();
 
 // src/app/layout/common/search/search.component.ts
-var _c015 = ["barSearchInput"];
-var _c110 = ["matAutocomplete"];
-var _c24 = (a0) => ({ $implicit: a0 });
+var _c014 = ["barSearchInput"];
+var _c18 = ["matAutocomplete"];
+var _c25 = (a0) => ({ $implicit: a0 });
 var _c34 = (a0) => ({ "text-hint line-through": a0 });
 function SearchComponent_Conditional_0_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -19026,7 +18081,7 @@ function SearchComponent_Conditional_0_Conditional_1_For_8_For_4_Conditional_1_T
     const result_r4 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275nextContext(4);
     const contactResult_r5 = \u0275\u0275reference(3);
-    \u0275\u0275property("ngTemplateOutlet", contactResult_r5)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c24, result_r4));
+    \u0275\u0275property("ngTemplateOutlet", contactResult_r5)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c25, result_r4));
   }
 }
 function SearchComponent_Conditional_0_Conditional_1_For_8_For_4_Conditional_2_ng_container_0_Template(rf, ctx) {
@@ -19042,7 +18097,7 @@ function SearchComponent_Conditional_0_Conditional_1_For_8_For_4_Conditional_2_T
     const result_r4 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275nextContext(4);
     const pageResult_r6 = \u0275\u0275reference(5);
-    \u0275\u0275property("ngTemplateOutlet", pageResult_r6)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c24, result_r4));
+    \u0275\u0275property("ngTemplateOutlet", pageResult_r6)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c25, result_r4));
   }
 }
 function SearchComponent_Conditional_0_Conditional_1_For_8_For_4_Conditional_3_ng_container_0_Template(rf, ctx) {
@@ -19058,7 +18113,7 @@ function SearchComponent_Conditional_0_Conditional_1_For_8_For_4_Conditional_3_T
     const result_r4 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275nextContext(4);
     const taskResult_r7 = \u0275\u0275reference(7);
-    \u0275\u0275property("ngTemplateOutlet", taskResult_r7)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c24, result_r4));
+    \u0275\u0275property("ngTemplateOutlet", taskResult_r7)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c25, result_r4));
   }
 }
 function SearchComponent_Conditional_0_Conditional_1_For_8_For_4_Template(rf, ctx) {
@@ -19168,7 +18223,7 @@ function SearchComponent_Conditional_1_For_8_For_4_Conditional_1_Template(rf, ct
     const result_r11 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275nextContext(3);
     const contactResult_r5 = \u0275\u0275reference(3);
-    \u0275\u0275property("ngTemplateOutlet", contactResult_r5)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c24, result_r11));
+    \u0275\u0275property("ngTemplateOutlet", contactResult_r5)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c25, result_r11));
   }
 }
 function SearchComponent_Conditional_1_For_8_For_4_Conditional_2_ng_container_0_Template(rf, ctx) {
@@ -19184,7 +18239,7 @@ function SearchComponent_Conditional_1_For_8_For_4_Conditional_2_Template(rf, ct
     const result_r11 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275nextContext(3);
     const pageResult_r6 = \u0275\u0275reference(5);
-    \u0275\u0275property("ngTemplateOutlet", pageResult_r6)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c24, result_r11));
+    \u0275\u0275property("ngTemplateOutlet", pageResult_r6)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c25, result_r11));
   }
 }
 function SearchComponent_Conditional_1_For_8_For_4_Conditional_3_ng_container_0_Template(rf, ctx) {
@@ -19200,7 +18255,7 @@ function SearchComponent_Conditional_1_For_8_For_4_Conditional_3_Template(rf, ct
     const result_r11 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275nextContext(3);
     const taskResult_r7 = \u0275\u0275reference(7);
-    \u0275\u0275property("ngTemplateOutlet", taskResult_r7)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c24, result_r11));
+    \u0275\u0275property("ngTemplateOutlet", taskResult_r7)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c25, result_r11));
   }
 }
 function SearchComponent_Conditional_1_For_8_For_4_Template(rf, ctx) {
@@ -19500,8 +18555,8 @@ var SearchComponent = class _SearchComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SearchComponent, selectors: [["search"]], viewQuery: function SearchComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c015, 5);
-        \u0275\u0275viewQuery(_c110, 5);
+        \u0275\u0275viewQuery(_c014, 5);
+        \u0275\u0275viewQuery(_c18, 5);
       }
       if (rf & 2) {
         let _t;
@@ -20381,6 +19436,1091 @@ var LayoutFooterComponent = class _LayoutFooterComponent {
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LayoutFooterComponent, { className: "LayoutFooterComponent", filePath: "src/app/layout/common/layout-footer/layout-footer.component.ts", lineNumber: 24 });
+})();
+
+// src/app/layout/common/notification-bell/notification-bell.component.ts
+var _c015 = (a0) => ({ count: a0 });
+function NotificationBellComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 2);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.badgeLabel());
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275pipe(1, "transloco");
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_3_Template_button_click_0_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.onDetailBack($event));
+    });
+    \u0275\u0275element(2, "mat-icon", 1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "h2", 14);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 3, "appNotifications.inbox.backAria"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("svgIcon", "heroicons_outline:arrow-left");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx.content.title);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_4_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 16);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_4_Conditional_3_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.markAll());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("disabled", ctx_r0.markingAll());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "appNotifications.bell.markAll"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h2", 14);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(3, NotificationBellComponent_Conditional_4_Conditional_4_Conditional_3_Template, 3, 4, "button", 15);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 2, "appNotifications.bell.title"));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.canUseApi() && ctx_r0.unreadCount() > 0 ? 3 : -1);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "appNotifications.inbox.errors.action"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 18);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r4 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(item_r4.content.summary);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275element(1, "mat-spinner", 22);
+    \u0275\u0275elementEnd();
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 10);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r0.detailError()), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 23);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_5_Template_div_click_0_listener($event) {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.onBodyClick($event));
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r4 = \u0275\u0275nextContext();
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("innerHTML", ctx_r0.safeBodyHtml(item_r4.content.body), \u0275\u0275sanitizeHtml);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "a", 24);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-checkbox", 25);
+    \u0275\u0275listener("change", function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_6_Template_mat_checkbox_change_3_listener($event) {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.legalAccepted.set($event.checked));
+    });
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r4 = \u0275\u0275nextContext();
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("href", item_r4.legal.url, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 4, "appNotifications.inbox.legalLink"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("checked", ctx_r0.legalAccepted());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 6, "appNotifications.inbox.legalAcceptCheckbox"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 26);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "appNotifications.inbox.errors.action"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 30);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_3_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const item_r4 = \u0275\u0275nextContext(2);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.openCta(item_r4));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r4 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", item_r4.cta.label || \u0275\u0275pipeBind1(2, 1, "appNotifications.inbox.ctaDefault"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 31);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_4_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r8);
+      const item_r4 = \u0275\u0275nextContext(2);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.acknowledge(item_r4));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r4 = \u0275\u0275nextContext(2);
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("disabled", ctx_r0.actionId() === item_r4.notificationId);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "appNotifications.inbox.actions.acknowledge"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 31);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_5_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r9);
+      const item_r4 = \u0275\u0275nextContext(2);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.accept(item_r4));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r4 = \u0275\u0275nextContext(2);
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("disabled", ctx_r0.actionId() === item_r4.notificationId || !(item_r4.legal == null ? null : item_r4.legal.version) || !!(item_r4.legal == null ? null : item_r4.legal.url) && !ctx_r0.legalAccepted());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "appNotifications.inbox.actions.accept"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 21);
+    \u0275\u0275template(1, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_1_Template, 3, 3, "p", 26);
+    \u0275\u0275elementStart(2, "div", 27);
+    \u0275\u0275template(3, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_3_Template, 3, 3, "button", 28)(4, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_4_Template, 3, 4, "button", 29)(5, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Conditional_5_Template, 3, 4, "button", 29);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r4 = \u0275\u0275nextContext();
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.rowErrorId() === item_r4.notificationId ? 1 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.showCta(item_r4) ? 3 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r4.interactionMode === "acknowledge" && (item_r4.receipt == null ? null : item_r4.receipt.isUnread) ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r4.interactionMode === "accept" && (item_r4.receipt == null ? null : item_r4.receipt.isUnread) ? 5 : -1);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7)(1, "div", 17);
+    \u0275\u0275template(2, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_2_Template, 2, 1, "p", 18)(3, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_3_Template, 2, 0, "div", 19)(4, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_4_Template, 3, 3, "p", 10)(5, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_5_Template, 1, 1, "div", 20)(6, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_6_Template, 6, 8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(7, NotificationBellComponent_Conditional_4_Conditional_6_Conditional_7_Template, 6, 4, "div", 21);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r4 = ctx;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(item_r4.content.summary ? 2 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.detailLoading() && !item_r4.content.body ? 3 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.detailError() ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r4.content.body ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r4.interactionMode === "accept" && (item_r4.legal == null ? null : item_r4.legal.url) ? 6 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.showDetailFooter(item_r4) ? 7 : -1);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "p");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "transloco");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "button", 32);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_7_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.openSignIn());
+    });
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "transloco");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "appNotifications.inbox.guest.body"));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 4, "appNotifications.inbox.guest.signIn"), " ");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275element(1, "mat-spinner", 22);
+    \u0275\u0275elementStart(2, "span", 33);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "transloco");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 1, "appNotifications.bell.loading"));
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 10);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, ctx_r0.listError()));
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275element(1, "mat-icon", 1);
+    \u0275\u0275elementStart(2, "p");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "transloco");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("svgIcon", "heroicons_outline:bell");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 2, "appNotifications.bell.empty"));
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 40);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r12 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(item_r12.content.summary);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_11_For_2_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "span", 42);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_11_For_2_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 44);
+    \u0275\u0275pipe(1, "transloco");
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_11_For_2_Conditional_11_Template_button_click_0_listener($event) {
+      \u0275\u0275restoreView(_r13);
+      const item_r12 = \u0275\u0275nextContext().$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.dismiss($event, item_r12));
+    });
+    \u0275\u0275element(2, "mat-icon", 1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r12 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("disabled", ctx_r0.actionId() === item_r12.notificationId);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 3, "appNotifications.bell.dismissAria"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("svgIcon", "heroicons_outline:x-mark");
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_11_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "li", 35)(1, "button", 36);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_11_For_2_Template_button_click_1_listener() {
+      const item_r12 = \u0275\u0275restoreView(_r11).$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.openDetail(item_r12));
+    });
+    \u0275\u0275elementStart(2, "span", 37);
+    \u0275\u0275element(3, "mat-icon", 1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "span", 38)(5, "span", 39);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(7, NotificationBellComponent_Conditional_4_Conditional_11_For_2_Conditional_7_Template, 2, 1, "span", 40);
+    \u0275\u0275elementStart(8, "span", 41);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275template(10, NotificationBellComponent_Conditional_4_Conditional_11_For_2_Conditional_10_Template, 1, 0, "span", 42);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(11, NotificationBellComponent_Conditional_4_Conditional_11_For_2_Conditional_11_Template, 3, 5, "button", 43);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r12 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275classProp("notification-bell__row--unread", item_r12.receipt == null ? null : item_r12.receipt.isUnread)("notification-bell__row--busy", ctx_r0.actionId() === item_r12.notificationId);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("svgIcon", ctx_r0.categoryIcon(item_r12.category));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(item_r12.content.title);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r12.content.summary ? 7 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.relativeTime(item_r12.publishedAt));
+    \u0275\u0275advance();
+    \u0275\u0275conditional((item_r12.receipt == null ? null : item_r12.receipt.isUnread) ? 10 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.canDismiss(item_r12) ? 11 : -1);
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "ul", 11);
+    \u0275\u0275repeaterCreate(1, NotificationBellComponent_Conditional_4_Conditional_11_For_2_Template, 12, 10, "li", 34, \u0275\u0275componentInstance().trackById, true);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r0.items());
+  }
+}
+function NotificationBellComponent_Conditional_4_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r14 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 45);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_12_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r14);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.closeImage());
+    });
+    \u0275\u0275elementStart(1, "button", 46);
+    \u0275\u0275pipe(2, "transloco");
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_12_Template_button_click_1_listener($event) {
+      \u0275\u0275restoreView(_r14);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      ctx_r0.closeImage();
+      return \u0275\u0275resetView($event.stopPropagation());
+    });
+    \u0275\u0275element(3, "mat-icon", 1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "img", 47);
+    \u0275\u0275listener("click", function NotificationBellComponent_Conditional_4_Conditional_12_Template_img_click_4_listener($event) {
+      \u0275\u0275restoreView(_r14);
+      return \u0275\u0275resetView($event.stopPropagation());
+    });
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    let tmp_6_0;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "appNotifications.bell.closeImage"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("svgIcon", "heroicons_outline:x-mark");
+    \u0275\u0275advance();
+    \u0275\u0275property("src", ctx, \u0275\u0275sanitizeUrl);
+    \u0275\u0275attribute("alt", ((tmp_6_0 = ctx_r0.selectedItem()) == null ? null : tmp_6_0.content == null ? null : tmp_6_0.content.title) || "");
+  }
+}
+function NotificationBellComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275pipe(1, "transloco");
+    \u0275\u0275elementStart(2, "div", 5);
+    \u0275\u0275template(3, NotificationBellComponent_Conditional_4_Conditional_3_Template, 5, 5)(4, NotificationBellComponent_Conditional_4_Conditional_4_Template, 4, 4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(5, NotificationBellComponent_Conditional_4_Conditional_5_Template, 3, 3, "p", 6)(6, NotificationBellComponent_Conditional_4_Conditional_6_Template, 8, 6, "div", 7)(7, NotificationBellComponent_Conditional_4_Conditional_7_Template, 7, 6, "div", 8)(8, NotificationBellComponent_Conditional_4_Conditional_8_Template, 5, 3, "div", 9)(9, NotificationBellComponent_Conditional_4_Conditional_9_Template, 3, 3, "p", 10)(10, NotificationBellComponent_Conditional_4_Conditional_10_Template, 5, 4, "div", 8)(11, NotificationBellComponent_Conditional_4_Conditional_11_Template, 3, 0, "ul", 11)(12, NotificationBellComponent_Conditional_4_Conditional_12_Template, 5, 6, "div", 12);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_4_0;
+    let tmp_6_0;
+    let tmp_7_0;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("notification-bell__panel--image", ctx_r0.expandedImageSrc());
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 8, "appNotifications.bell.title"))("aria-busy", ctx_r0.loading());
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional((tmp_4_0 = ctx_r0.selectedItem()) ? 3 : 4, tmp_4_0);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.markAllError() && !ctx_r0.selectedItem() ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((tmp_6_0 = ctx_r0.selectedItem()) ? 6 : !ctx_r0.canUseApi() ? 7 : ctx_r0.loading() && !ctx_r0.items().length ? 8 : ctx_r0.listError() ? 9 : !ctx_r0.items().length ? 10 : 11, tmp_6_0);
+    \u0275\u0275advance(6);
+    \u0275\u0275conditional((tmp_7_0 = ctx_r0.expandedImageSrc()) ? 12 : -1, tmp_7_0);
+  }
+}
+var NotificationBellComponent = class _NotificationBellComponent {
+  constructor() {
+    this._notifications = inject(AppNotificationsService);
+    this._session = inject(SessionService);
+    this._dialog = inject(MatDialog);
+    this._router = inject(Router);
+    this._quickChat = inject(QuickChatService);
+    this._transloco = inject(TranslocoService);
+    this._sanitizer = inject(DomSanitizer);
+    this._host = inject(ElementRef);
+    this._unsubscribeAll = new Subject();
+    this.unreadCount = this._notifications.unreadCount;
+    this.items = this._notifications.hubInboxItems;
+    this.loading = this._notifications.hubInboxLoading;
+    this.listError = this._notifications.hubInboxError;
+    this.opened = signal(false);
+    this.canUseApi = signal(false);
+    this.expandedId = signal(null);
+    this.detailItem = signal(null);
+    this.detailLoading = signal(false);
+    this.detailError = signal(null);
+    this.actionId = signal(null);
+    this.rowErrorId = signal(null);
+    this.legalAccepted = signal(false);
+    this.expandedImageSrc = signal(null);
+    this.markingAll = signal(false);
+    this.markAllError = signal(false);
+    this.badgeLabel = computed(() => {
+      const count = this.unreadCount();
+      return count > 99 ? "99+" : String(count);
+    });
+    this.selectedItem = computed(() => this.detailItem());
+    this._notifications.openBell$.pipe(takeUntil(this._unsubscribeAll)).subscribe(() => this.openFromRequest());
+  }
+  ngOnDestroy() {
+    this._unsubscribeAll.next();
+    this._unsubscribeAll.complete();
+  }
+  onEscape() {
+    if (this.expandedImageSrc()) {
+      this.closeImage();
+      return;
+    }
+    if (this.selectedItem()) {
+      this.closeDetail();
+      return;
+    }
+    this._closePanel(true);
+  }
+  onDocumentClick(event) {
+    if (!this.opened())
+      return;
+    const target = event.target;
+    if (!target?.isConnected)
+      return;
+    if (this._host.nativeElement.contains(target))
+      return;
+    this._closePanel(true);
+  }
+  openFromRequest() {
+    this._refreshAuth();
+    const alreadyOpen = this.opened();
+    this.opened.set(true);
+    if (!alreadyOpen) {
+      setTimeout(() => this._panelElement()?.focus());
+    }
+    if (!this.canUseApi())
+      return;
+    this._notifications.refreshHubInbox().pipe(takeUntil(this._unsubscribeAll)).subscribe();
+  }
+  toggle(event) {
+    event.stopPropagation();
+    this._refreshAuth();
+    const next = !this.opened();
+    this.opened.set(next);
+    if (!next)
+      return;
+    setTimeout(() => this._panelElement()?.focus());
+    if (!this.canUseApi())
+      return;
+    this._notifications.refreshHubInbox().pipe(takeUntil(this._unsubscribeAll)).subscribe();
+  }
+  openSignIn() {
+    this._dialog.open(AuthModalComponent, {
+      panelClass: "auth-modal-dialog",
+      width: "400px"
+    });
+  }
+  markAll() {
+    if (this.markingAll())
+      return;
+    this.markingAll.set(true);
+    this.markAllError.set(false);
+    this._notifications.markVisibleAsSeen().pipe(takeUntil(this._unsubscribeAll)).subscribe({
+      next: () => this.markingAll.set(false),
+      error: () => {
+        this.markingAll.set(false);
+        this.markAllError.set(true);
+      }
+    });
+  }
+  openDetail(item) {
+    this.expandedId.set(item.notificationId);
+    this.detailItem.set(item);
+    this.detailLoading.set(true);
+    this.detailError.set(null);
+    this.expandedImageSrc.set(null);
+    this.rowErrorId.set(null);
+    this.legalAccepted.set(false);
+    this._notifications.show(item.notificationId).pipe(takeUntil(this._unsubscribeAll)).subscribe({
+      next: (response) => {
+        if (this.expandedId() !== item.notificationId)
+          return;
+        const loaded = response.data ?? item;
+        this.detailItem.set(loaded);
+        this.detailLoading.set(false);
+        this._markSeenIfRequired(loaded);
+      },
+      error: () => {
+        if (this.expandedId() !== item.notificationId)
+          return;
+        this.detailLoading.set(false);
+        this.detailError.set("appNotifications.inbox.errors.loadDetail");
+      }
+    });
+  }
+  closeDetail() {
+    this.expandedId.set(null);
+    this.detailItem.set(null);
+    this.detailLoading.set(false);
+    this.detailError.set(null);
+    this.expandedImageSrc.set(null);
+    this.rowErrorId.set(null);
+    this.legalAccepted.set(false);
+  }
+  onDetailBack(event) {
+    event.stopPropagation();
+    if (this.expandedImageSrc()) {
+      this.closeImage();
+      return;
+    }
+    this.closeDetail();
+  }
+  onBodyClick(event) {
+    const target = event.target;
+    if (!(target instanceof HTMLImageElement))
+      return;
+    const src = target.currentSrc || target.src;
+    if (!src)
+      return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.expandedImageSrc.set(src);
+  }
+  closeImage() {
+    this.expandedImageSrc.set(null);
+  }
+  safeBodyHtml(body) {
+    return trustNotificationBodyHtml(this._sanitizer, body);
+  }
+  showDetailFooter(item) {
+    if (this.rowErrorId() === item.notificationId)
+      return true;
+    if (this.showCta(item))
+      return true;
+    if (item.interactionMode === "acknowledge" && item.receipt?.isUnread)
+      return true;
+    return item.interactionMode === "accept" && Boolean(item.receipt?.isUnread);
+  }
+  canDismiss(item) {
+    return item.interactionMode === "informational" || item.interactionMode === "seen_required";
+  }
+  dismiss(event, item) {
+    event.stopPropagation();
+    this._run(item.notificationId, this._notifications.dismissAndForget(item.notificationId));
+  }
+  acknowledge(item) {
+    this._run(item.notificationId, this._notifications.acknowledgeAndForget(item.notificationId));
+  }
+  accept(item) {
+    const version = item.legal?.version;
+    if (!version)
+      return;
+    if (item.legal?.url && !this.legalAccepted())
+      return;
+    this._run(item.notificationId, this._notifications.acceptAndForget(item.notificationId, {
+      legalVersion: version,
+      accepted: true
+    }));
+  }
+  showCta(item) {
+    return shouldShowNotificationCta(item.cta);
+  }
+  openCta(item) {
+    const url = item.cta?.url;
+    const inAppPath = url ? resolveInAppCtaPath(url) : null;
+    const opensBell = isSelfReferentialSmartAgentCta(url) || Boolean(inAppPath?.includes("openNotifications=1"));
+    openNotificationCta(item.cta, {
+      router: this._router,
+      quickChat: this._quickChat,
+      openBell: () => this._notifications.requestOpenBell()
+    });
+    if (opensBell)
+      return;
+    this._closePanel(false);
+  }
+  _closePanel(restoreFocus) {
+    if (!this.opened())
+      return;
+    this.opened.set(false);
+    this.closeDetail();
+    if (!restoreFocus)
+      return;
+    setTimeout(() => this._triggerElement()?.focus());
+  }
+  _panelElement() {
+    const root = this._host.nativeElement;
+    return root.querySelector(".notification-bell__panel");
+  }
+  _triggerElement() {
+    const root = this._host.nativeElement;
+    return root.querySelector(".notification-bell__trigger");
+  }
+  relativeTime(publishedAt) {
+    if (!publishedAt)
+      return "";
+    const minutes = Math.round((Date.now() - new Date(publishedAt).getTime()) / 6e4);
+    if (!Number.isFinite(minutes) || minutes < 1) {
+      return this._transloco.translate("appNotifications.bell.justNow");
+    }
+    if (minutes < 60) {
+      return this._transloco.translate("appNotifications.bell.minutes", { count: minutes });
+    }
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) {
+      return this._transloco.translate("appNotifications.bell.hours", { count: hours });
+    }
+    return this._transloco.translate("appNotifications.bell.days", { count: Math.round(hours / 24) });
+  }
+  categoryIcon(category) {
+    const map2 = {
+      billing: "heroicons_outline:credit-card",
+      security: "heroicons_outline:shield-check",
+      legal: "heroicons_outline:scale",
+      maintenance: "heroicons_outline:wrench-screwdriver",
+      product: "heroicons_outline:sparkles",
+      system: "heroicons_outline:bell"
+    };
+    return map2[category] ?? map2.system;
+  }
+  trackById(_index, item) {
+    return item.notificationId;
+  }
+  _run(notificationId, request) {
+    this.actionId.set(notificationId);
+    this.rowErrorId.set(null);
+    request.pipe(takeUntil(this._unsubscribeAll)).subscribe({
+      next: () => {
+        this.actionId.set(null);
+        if (this.expandedId() === notificationId)
+          this.closeDetail();
+      },
+      error: () => {
+        this.actionId.set(null);
+        this.rowErrorId.set(notificationId);
+      }
+    });
+  }
+  _markSeenIfRequired(item) {
+    if (item.interactionMode !== "seen_required" || !item.receipt?.isUnread)
+      return;
+    this._notifications.markSeen(item.notificationId).pipe(takeUntil(this._unsubscribeAll)).subscribe({
+      next: () => {
+        this._notifications.noteSeenLocally(item.notificationId);
+        this.detailItem.update((current) => {
+          if (!current || current.notificationId !== item.notificationId)
+            return current;
+          return __spreadProps(__spreadValues({}, current), {
+            receipt: __spreadProps(__spreadValues({}, current.receipt), {
+              isUnread: false,
+              firstSeenAt: current.receipt.firstSeenAt || (/* @__PURE__ */ new Date()).toISOString()
+            })
+          });
+        });
+      }
+    });
+  }
+  _refreshAuth() {
+    const token = localStorage.getItem("accessToken") || "";
+    const payload = AuthUtils.getJwtPayload(token);
+    const ok = this._session.isTokenValid() && Boolean(payload && (payload["clientId"] ?? payload["staffId"] ?? payload["superAdminId"]));
+    this.canUseApi.set(ok);
+  }
+  static {
+    this.\u0275fac = function NotificationBellComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _NotificationBellComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NotificationBellComponent, selectors: [["notification-bell"]], hostBindings: function NotificationBellComponent_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("keydown.escape", function NotificationBellComponent_keydown_escape_HostBindingHandler() {
+          return ctx.onEscape();
+        }, false, \u0275\u0275resolveDocument)("click", function NotificationBellComponent_click_HostBindingHandler($event) {
+          return ctx.onDocumentClick($event);
+        }, false, \u0275\u0275resolveDocument);
+      }
+    }, decls: 5, vars: 10, consts: [["mat-icon-button", "", "type", "button", "aria-haspopup", "dialog", "aria-controls", "notification-bell-panel", 1, "notification-bell__trigger", 3, "click"], ["aria-hidden", "true", 3, "svgIcon"], ["aria-hidden", "true", 1, "notification-bell__badge"], ["id", "notification-bell-panel", "role", "dialog", "aria-modal", "false", "tabindex", "-1", 1, "notification-bell__panel", 3, "notification-bell__panel--image"], ["id", "notification-bell-panel", "role", "dialog", "aria-modal", "false", "tabindex", "-1", 1, "notification-bell__panel"], [1, "notification-bell__header"], ["role", "alert", 1, "notification-bell__error", "notification-bell__error--header"], [1, "notification-bell__detail"], [1, "notification-bell__empty"], ["role", "status", "aria-live", "polite", 1, "notification-bell__empty"], ["role", "alert", 1, "notification-bell__empty"], [1, "notification-bell__list"], [1, "notification-bell__zoom"], ["type", "button", 1, "notification-bell__back", 3, "click"], [1, "notification-bell__title"], ["type", "button", 1, "notification-bell__mark-all", 3, "disabled"], ["type", "button", 1, "notification-bell__mark-all", 3, "click", "disabled"], [1, "notification-bell__detail-body"], [1, "notification-bell__detail-summary"], ["role", "status", 1, "notification-bell__empty"], [1, "notification-bell__body", 3, "innerHTML"], [1, "notification-bell__detail-footer"], ["diameter", "28"], [1, "notification-bell__body", 3, "click", "innerHTML"], ["target", "_blank", "rel", "noopener noreferrer", 1, "notification-bell__legal", 3, "href"], [3, "change", "checked"], ["role", "alert", 1, "notification-bell__error"], [1, "notification-bell__actions"], ["mat-stroked-button", "", "type", "button"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "disabled"], ["mat-stroked-button", "", "type", "button", 3, "click"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click", "disabled"], ["mat-flat-button", "", "color", "primary", "type", "button", 3, "click"], [1, "notification-bell__sr"], [1, "notification-bell__row", 3, "notification-bell__row--unread", "notification-bell__row--busy"], [1, "notification-bell__row"], ["type", "button", 1, "notification-bell__row-main", 3, "click"], ["aria-hidden", "true", 1, "notification-bell__icon"], [1, "notification-bell__copy"], [1, "notification-bell__row-title"], [1, "notification-bell__summary"], [1, "notification-bell__time"], ["aria-hidden", "true", 1, "notification-bell__dot"], ["type", "button", 1, "notification-bell__dismiss", 3, "disabled"], ["type", "button", 1, "notification-bell__dismiss", 3, "click", "disabled"], [1, "notification-bell__zoom", 3, "click"], ["type", "button", 1, "notification-bell__zoom-close", 3, "click"], [1, "notification-bell__zoom-image", 3, "click", "src"]], template: function NotificationBellComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "button", 0);
+        \u0275\u0275pipe(1, "transloco");
+        \u0275\u0275listener("click", function NotificationBellComponent_Template_button_click_0_listener($event) {
+          return ctx.toggle($event);
+        });
+        \u0275\u0275element(2, "mat-icon", 1);
+        \u0275\u0275template(3, NotificationBellComponent_Conditional_3_Template, 2, 1, "span", 2);
+        \u0275\u0275elementEnd();
+        \u0275\u0275template(4, NotificationBellComponent_Conditional_4_Template, 13, 10, "div", 3);
+      }
+      if (rf & 2) {
+        \u0275\u0275attribute("aria-expanded", ctx.opened())("aria-label", \u0275\u0275pipeBind2(1, 5, ctx.unreadCount() > 0 ? "appNotifications.bell.ariaCount" : "appNotifications.bell.aria", \u0275\u0275pureFunction1(8, _c015, ctx.unreadCount())));
+        \u0275\u0275advance(2);
+        \u0275\u0275property("svgIcon", "heroicons_outline:bell");
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.unreadCount() > 0 ? 3 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.opened() ? 4 : -1);
+      }
+    }, dependencies: [MatButtonModule, MatButton, MatIconButton, MatCheckboxModule, MatCheckbox, MatIconModule, MatIcon, MatProgressSpinnerModule, MatProgressSpinner, TranslocoModule, TranslocoPipe], styles: ["\n\n[_nghost-%COMP%] {\n  display: inline-flex;\n  position: relative;\n}\n.notification-bell__trigger[_ngcontent-%COMP%], \n.notification-bell__row-main[_ngcontent-%COMP%], \n.notification-bell__dismiss[_ngcontent-%COMP%], \n.notification-bell__mark-all[_ngcontent-%COMP%], \n.notification-bell__back[_ngcontent-%COMP%], \n.notification-bell__legal[_ngcontent-%COMP%] {\n  -webkit-tap-highlight-color: transparent;\n  touch-action: manipulation;\n}\n.notification-bell__trigger[_ngcontent-%COMP%] {\n  position: relative;\n}\n.notification-bell__badge[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 4px;\n  right: 2px;\n  min-width: 16px;\n  height: 16px;\n  padding: 0 4px;\n  border-radius: 999px;\n  background: #0f766e;\n  color: #fff;\n  font-size: 10px;\n  font-weight: 700;\n  font-variant-numeric: tabular-nums;\n  line-height: 16px;\n  text-align: center;\n  pointer-events: none;\n}\n.notification-bell__panel[_ngcontent-%COMP%] {\n  position: absolute;\n  top: calc(100% + 8px);\n  right: 0;\n  z-index: 80;\n  display: flex;\n  flex-direction: column;\n  width: min(400px, 100vw - 24px);\n  max-height: min(70vh, 560px);\n  overflow: hidden;\n  border: 1px solid rgb(226, 232, 240);\n  border-radius: 16px;\n  background: #fff;\n  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.06);\n  overscroll-behavior: contain;\n}\n.notification-bell__panel--image[_ngcontent-%COMP%] {\n  width: min(92vw, 960px);\n  max-height: min(85vh, 900px);\n}\n.dark[_nghost-%COMP%]   .notification-bell__panel[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__panel[_ngcontent-%COMP%] {\n  border-color: rgb(51, 65, 85);\n  background: rgb(15, 23, 42);\n  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);\n}\n.notification-bell__header[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 14px 16px 10px;\n}\n.notification-bell__title[_ngcontent-%COMP%] {\n  flex: 1 1 auto;\n  min-width: 0;\n  margin: 0;\n  overflow: hidden;\n  font-size: 16px;\n  font-weight: 600;\n  line-height: 1.3;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.notification-bell__back[_ngcontent-%COMP%] {\n  display: grid;\n  flex: 0 0 auto;\n  place-items: center;\n  width: 36px;\n  height: 36px;\n  margin: 0;\n  padding: 0;\n  border: 0;\n  border-radius: 999px;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n}\n.notification-bell__back[_ngcontent-%COMP%]:hover {\n  background: rgb(241, 245, 249);\n}\n.dark[_nghost-%COMP%]   .notification-bell__back[_ngcontent-%COMP%]:hover, .dark   [_nghost-%COMP%]   .notification-bell__back[_ngcontent-%COMP%]:hover {\n  background: rgb(30, 41, 59);\n}\n.notification-bell__mark-all[_ngcontent-%COMP%] {\n  border: 0;\n  background: transparent;\n  color: #0f766e;\n  font-size: 13px;\n  font-weight: 600;\n  cursor: pointer;\n}\n.notification-bell__mark-all[_ngcontent-%COMP%]:hover {\n  text-decoration: underline;\n}\n.notification-bell__panel[_ngcontent-%COMP%]:focus {\n  outline: none;\n}\n.notification-bell__panel[_ngcontent-%COMP%]:focus-visible, \n.notification-bell__mark-all[_ngcontent-%COMP%]:focus-visible, \n.notification-bell__row-main[_ngcontent-%COMP%]:focus-visible, \n.notification-bell__dismiss[_ngcontent-%COMP%]:focus-visible, \n.notification-bell__back[_ngcontent-%COMP%]:focus-visible, \n.notification-bell__legal[_ngcontent-%COMP%]:focus-visible {\n  outline: 2px solid #0f766e;\n  outline-offset: 2px;\n}\n.notification-bell__list[_ngcontent-%COMP%] {\n  margin: 0;\n  padding: 0 8px 8px;\n  overflow: auto;\n  list-style: none;\n  overscroll-behavior: contain;\n}\n.notification-bell__row[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) 36px;\n  align-items: start;\n  border-bottom: 1px solid rgb(226, 232, 240);\n}\n.notification-bell__row[_ngcontent-%COMP%]:last-child {\n  border-bottom: 0;\n}\n.dark[_nghost-%COMP%]   .notification-bell__row[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__row[_ngcontent-%COMP%] {\n  border-bottom-color: rgb(51, 65, 85);\n}\n.notification-bell__row--unread[_ngcontent-%COMP%] {\n  background: rgb(240, 253, 250);\n}\n.dark[_nghost-%COMP%]   .notification-bell__row--unread[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__row--unread[_ngcontent-%COMP%] {\n  background: rgba(19, 78, 74, 0.35);\n}\n.notification-bell__row--busy[_ngcontent-%COMP%] {\n  opacity: 0.55;\n}\n.notification-bell__row-main[_ngcontent-%COMP%] {\n  display: flex;\n  grid-column: 1;\n  grid-row: 1;\n  gap: 10px;\n  min-width: 0;\n  padding: 10px 8px;\n  border: 0;\n  border-radius: 12px;\n  background: transparent;\n  text-align: left;\n  cursor: pointer;\n  touch-action: manipulation;\n}\n.notification-bell__row-main[_ngcontent-%COMP%]:hover {\n  background: rgb(248, 250, 252);\n}\n.dark[_nghost-%COMP%]   .notification-bell__row-main[_ngcontent-%COMP%]:hover, .dark   [_nghost-%COMP%]   .notification-bell__row-main[_ngcontent-%COMP%]:hover {\n  background: rgba(30, 41, 59, 0.7);\n}\n.notification-bell__icon[_ngcontent-%COMP%] {\n  display: grid;\n  flex: 0 0 auto;\n  place-items: center;\n  width: 36px;\n  height: 36px;\n  border-radius: 999px;\n  background: rgb(241, 245, 249);\n  color: #0f766e;\n}\n.dark[_nghost-%COMP%]   .notification-bell__icon[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__icon[_ngcontent-%COMP%] {\n  background: rgb(30, 41, 59);\n}\n.notification-bell__copy[_ngcontent-%COMP%] {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  gap: 2px;\n  min-width: 0;\n}\n.notification-bell__row-title[_ngcontent-%COMP%] {\n  overflow: hidden;\n  font-size: 14px;\n  font-weight: 600;\n  line-height: 1.35;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.notification-bell__summary[_ngcontent-%COMP%] {\n  display: -webkit-box;\n  overflow: hidden;\n  color: rgb(71, 85, 105);\n  font-size: 13px;\n  line-height: 1.4;\n  -webkit-line-clamp: 2;\n  -webkit-box-orient: vertical;\n}\n.dark[_nghost-%COMP%]   .notification-bell__summary[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__summary[_ngcontent-%COMP%] {\n  color: rgb(148, 163, 184);\n}\n.notification-bell__time[_ngcontent-%COMP%] {\n  color: rgb(71, 85, 105);\n  font-size: 12px;\n  font-variant-numeric: tabular-nums;\n}\n.notification-bell__dot[_ngcontent-%COMP%] {\n  flex: 0 0 auto;\n  width: 8px;\n  height: 8px;\n  margin-top: 8px;\n  border-radius: 999px;\n  background: #0f766e;\n}\n.notification-bell__dismiss[_ngcontent-%COMP%] {\n  display: grid;\n  grid-column: 2;\n  grid-row: 1;\n  place-items: center;\n  align-self: start;\n  justify-self: center;\n  width: 36px;\n  height: 36px;\n  margin: 6px 0 0;\n  border: 0;\n  border-radius: 999px;\n  background: transparent;\n  color: rgb(100, 116, 139);\n  cursor: pointer;\n  opacity: 0.72;\n  touch-action: manipulation;\n}\n.notification-bell__dismiss[_ngcontent-%COMP%]:hover, \n.notification-bell__dismiss[_ngcontent-%COMP%]:focus-visible {\n  opacity: 1;\n}\n.notification-bell__dismiss[_ngcontent-%COMP%]:hover {\n  background: rgb(241, 245, 249);\n}\n.notification-bell__detail[_ngcontent-%COMP%] {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  min-height: 0;\n}\n.notification-bell__detail-body[_ngcontent-%COMP%] {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  gap: 10px;\n  min-height: 120px;\n  overflow: auto;\n  padding: 4px 16px 16px;\n  overscroll-behavior: contain;\n}\n.notification-bell__detail-summary[_ngcontent-%COMP%] {\n  margin: 0;\n  color: rgb(71, 85, 105);\n  font-size: 14px;\n  line-height: 1.45;\n}\n.dark[_nghost-%COMP%]   .notification-bell__detail-summary[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__detail-summary[_ngcontent-%COMP%] {\n  color: rgb(203, 213, 225);\n}\n.notification-bell__body[_ngcontent-%COMP%] {\n  overflow-wrap: anywhere;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.notification-bell__body[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:deep(p) {\n  margin: 0 0 0.55rem;\n}\n[_nghost-%COMP%]     .notification-bell__body img, \n[_nghost-%COMP%]     .notification-bell__body video {\n  display: block;\n  max-width: 100%;\n  height: auto;\n}\n[_nghost-%COMP%]     .notification-bell__body img {\n  cursor: pointer;\n}\n.notification-bell__zoom[_ngcontent-%COMP%] {\n  position: absolute;\n  inset: 0;\n  z-index: 2;\n  display: flex;\n  align-items: flex-start;\n  justify-content: center;\n  overflow: auto;\n  padding: 52px 16px 16px;\n  background: rgba(15, 23, 42, 0.78);\n  overscroll-behavior: contain;\n}\n.notification-bell__zoom-close[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  display: grid;\n  place-items: center;\n  width: 36px;\n  height: 36px;\n  border: 0;\n  border-radius: 999px;\n  background: #fff;\n  color: rgb(15, 23, 42);\n  cursor: pointer;\n  touch-action: manipulation;\n}\n.notification-bell__zoom-close[_ngcontent-%COMP%]:hover, \n.notification-bell__zoom-close[_ngcontent-%COMP%]:focus-visible {\n  outline: 2px solid #0f766e;\n  outline-offset: 2px;\n}\n.notification-bell__zoom-image[_ngcontent-%COMP%] {\n  width: auto;\n  max-width: 100%;\n  height: auto;\n  object-fit: contain;\n  border-radius: 8px;\n  background: #fff;\n}\n.notification-bell__detail-footer[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  border-top: 1px solid rgb(226, 232, 240);\n  padding: 12px 16px;\n}\n.dark[_nghost-%COMP%]   .notification-bell__detail-footer[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__detail-footer[_ngcontent-%COMP%] {\n  border-top-color: rgb(51, 65, 85);\n}\n.notification-bell__legal[_ngcontent-%COMP%] {\n  color: #0f766e;\n  font-size: 13px;\n  font-weight: 600;\n}\n.notification-bell__actions[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 8px;\n}\n.notification-bell__error[_ngcontent-%COMP%] {\n  margin: 0;\n  color: #b91c1c;\n  font-size: 13px;\n}\n.notification-bell__error--header[_ngcontent-%COMP%] {\n  padding: 0 16px 8px;\n}\n.dark[_nghost-%COMP%]   .notification-bell__error[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__error[_ngcontent-%COMP%] {\n  color: #fca5a5;\n}\n.dark[_nghost-%COMP%]   .notification-bell__time[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__time[_ngcontent-%COMP%], \n.dark[_nghost-%COMP%]   .notification-bell__empty[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__empty[_ngcontent-%COMP%], \n.dark[_nghost-%COMP%]   .notification-bell__dismiss[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__dismiss[_ngcontent-%COMP%] {\n  color: rgb(203, 213, 225);\n}\n.dark[_nghost-%COMP%]   .notification-bell__mark-all[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__mark-all[_ngcontent-%COMP%], \n.dark[_nghost-%COMP%]   .notification-bell__legal[_ngcontent-%COMP%], .dark   [_nghost-%COMP%]   .notification-bell__legal[_ngcontent-%COMP%] {\n  color: rgb(45, 212, 191);\n}\n.notification-bell__sr[_ngcontent-%COMP%] {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip: rect(0, 0, 0, 0);\n  white-space: nowrap;\n  border: 0;\n}\n.notification-bell__empty[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  padding: 28px 20px 32px;\n  color: rgb(100, 116, 139);\n  font-size: 14px;\n  text-align: center;\n}\n@media (hover: none) {\n  .notification-bell__dismiss[_ngcontent-%COMP%] {\n    opacity: 1;\n  }\n}\n@media (prefers-reduced-motion: reduce) {\n  .notification-bell__row--busy[_ngcontent-%COMP%] {\n    opacity: 1;\n  }\n}\n/*# sourceMappingURL=notification-bell.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NotificationBellComponent, [{
+    type: Component,
+    args: [{ selector: "notification-bell", standalone: true, imports: [
+      MatButtonModule,
+      MatCheckboxModule,
+      MatIconModule,
+      MatProgressSpinnerModule,
+      TranslocoModule
+    ], template: `<button\r
+    class="notification-bell__trigger"\r
+    mat-icon-button\r
+    type="button"\r
+    aria-haspopup="dialog"\r
+    [attr.aria-expanded]="opened()"\r
+    aria-controls="notification-bell-panel"\r
+    [attr.aria-label]="\r
+        (unreadCount() > 0 ? 'appNotifications.bell.ariaCount' : 'appNotifications.bell.aria')\r
+            | transloco: { count: unreadCount() }\r
+    "\r
+    (click)="toggle($event)"\r
+>\r
+    <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:bell'"></mat-icon>\r
+    @if (unreadCount() > 0) {\r
+        <span class="notification-bell__badge" aria-hidden="true">{{ badgeLabel() }}</span>\r
+    }\r
+</button>\r
+\r
+@if (opened()) {\r
+    <div\r
+        id="notification-bell-panel"\r
+        class="notification-bell__panel"\r
+        [class.notification-bell__panel--image]="expandedImageSrc()"\r
+        role="dialog"\r
+        aria-modal="false"\r
+        tabindex="-1"\r
+        [attr.aria-label]="'appNotifications.bell.title' | transloco"\r
+        [attr.aria-busy]="loading()"\r
+    >\r
+        <div class="notification-bell__header">\r
+            @if (selectedItem(); as item) {\r
+                <button\r
+                    class="notification-bell__back"\r
+                    type="button"\r
+                    [attr.aria-label]="'appNotifications.inbox.backAria' | transloco"\r
+                    (click)="onDetailBack($event)"\r
+                >\r
+                    <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>\r
+                </button>\r
+                <h2 class="notification-bell__title">{{ item.content.title }}</h2>\r
+            } @else {\r
+                <h2 class="notification-bell__title">{{ 'appNotifications.bell.title' | transloco }}</h2>\r
+                @if (canUseApi() && unreadCount() > 0) {\r
+                    <button\r
+                        class="notification-bell__mark-all"\r
+                        type="button"\r
+                        [disabled]="markingAll()"\r
+                        (click)="markAll()"\r
+                    >\r
+                        {{ 'appNotifications.bell.markAll' | transloco }}\r
+                    </button>\r
+                }\r
+            }\r
+        </div>\r
+        @if (markAllError() && !selectedItem()) {\r
+            <p class="notification-bell__error notification-bell__error--header" role="alert">\r
+                {{ 'appNotifications.inbox.errors.action' | transloco }}\r
+            </p>\r
+        }\r
+\r
+        @if (selectedItem(); as item) {\r
+            <div class="notification-bell__detail">\r
+                <div class="notification-bell__detail-body">\r
+                    @if (item.content.summary) {\r
+                        <p class="notification-bell__detail-summary">{{ item.content.summary }}</p>\r
+                    }\r
+                    @if (detailLoading() && !item.content.body) {\r
+                        <div class="notification-bell__empty" role="status">\r
+                            <mat-spinner diameter="28"></mat-spinner>\r
+                        </div>\r
+                    }\r
+                    @if (detailError()) {\r
+                        <p class="notification-bell__empty" role="alert">\r
+                            {{ detailError()! | transloco }}\r
+                        </p>\r
+                    }\r
+                    @if (item.content.body) {\r
+                        <div\r
+                            class="notification-bell__body"\r
+                            [innerHTML]="safeBodyHtml(item.content.body)"\r
+                            (click)="onBodyClick($event)"\r
+                        ></div>\r
+                    }\r
+                    @if (item.interactionMode === 'accept' && item.legal?.url) {\r
+                        <a\r
+                            class="notification-bell__legal"\r
+                            [href]="item.legal.url"\r
+                            target="_blank"\r
+                            rel="noopener noreferrer"\r
+                            >{{ 'appNotifications.inbox.legalLink' | transloco }}</a\r
+                        >\r
+                        <mat-checkbox\r
+                            [checked]="legalAccepted()"\r
+                            (change)="legalAccepted.set($event.checked)"\r
+                        >\r
+                            {{ 'appNotifications.inbox.legalAcceptCheckbox' | transloco }}\r
+                        </mat-checkbox>\r
+                    }\r
+                </div>\r
+                @if (showDetailFooter(item)) {\r
+                    <div class="notification-bell__detail-footer">\r
+                        @if (rowErrorId() === item.notificationId) {\r
+                            <p class="notification-bell__error" role="alert">\r
+                                {{ 'appNotifications.inbox.errors.action' | transloco }}\r
+                            </p>\r
+                        }\r
+                        <div class="notification-bell__actions">\r
+                            @if (showCta(item)) {\r
+                                <button mat-stroked-button type="button" (click)="openCta(item)">\r
+                                    {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}\r
+                                </button>\r
+                            }\r
+                            @if (item.interactionMode === 'acknowledge' && item.receipt?.isUnread) {\r
+                                <button\r
+                                    mat-flat-button\r
+                                    color="primary"\r
+                                    type="button"\r
+                                    [disabled]="actionId() === item.notificationId"\r
+                                    (click)="acknowledge(item)"\r
+                                >\r
+                                    {{ 'appNotifications.inbox.actions.acknowledge' | transloco }}\r
+                                </button>\r
+                            }\r
+                            @if (item.interactionMode === 'accept' && item.receipt?.isUnread) {\r
+                                <button\r
+                                    mat-flat-button\r
+                                    color="primary"\r
+                                    type="button"\r
+                                    [disabled]="\r
+                                        actionId() === item.notificationId ||\r
+                                        !item.legal?.version ||\r
+                                        (!!item.legal?.url && !legalAccepted())\r
+                                    "\r
+                                    (click)="accept(item)"\r
+                                >\r
+                                    {{ 'appNotifications.inbox.actions.accept' | transloco }}\r
+                                </button>\r
+                            }\r
+                        </div>\r
+                    </div>\r
+                }\r
+            </div>\r
+        } @else if (!canUseApi()) {\r
+            <div class="notification-bell__empty">\r
+                <p>{{ 'appNotifications.inbox.guest.body' | transloco }}</p>\r
+                <button mat-flat-button color="primary" type="button" (click)="openSignIn()">\r
+                    {{ 'appNotifications.inbox.guest.signIn' | transloco }}\r
+                </button>\r
+            </div>\r
+        } @else if (loading() && !items().length) {\r
+            <div class="notification-bell__empty" role="status" aria-live="polite">\r
+                <mat-spinner diameter="28"></mat-spinner>\r
+                <span class="notification-bell__sr">{{ 'appNotifications.bell.loading' | transloco }}</span>\r
+            </div>\r
+        } @else if (listError()) {\r
+            <p class="notification-bell__empty" role="alert">{{ listError()! | transloco }}</p>\r
+        } @else if (!items().length) {\r
+            <div class="notification-bell__empty">\r
+                <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:bell'"></mat-icon>\r
+                <p>{{ 'appNotifications.bell.empty' | transloco }}</p>\r
+            </div>\r
+        } @else {\r
+            <ul class="notification-bell__list">\r
+                @for (item of items(); track trackById($index, item)) {\r
+                    <li\r
+                        class="notification-bell__row"\r
+                        [class.notification-bell__row--unread]="item.receipt?.isUnread"\r
+                        [class.notification-bell__row--busy]="actionId() === item.notificationId"\r
+                    >\r
+                        <button class="notification-bell__row-main" type="button" (click)="openDetail(item)">\r
+                            <span class="notification-bell__icon" aria-hidden="true">\r
+                                <mat-icon aria-hidden="true" [svgIcon]="categoryIcon(item.category)"></mat-icon>\r
+                            </span>\r
+                            <span class="notification-bell__copy">\r
+                                <span class="notification-bell__row-title">{{ item.content.title }}</span>\r
+                                @if (item.content.summary) {\r
+                                    <span class="notification-bell__summary">{{ item.content.summary }}</span>\r
+                                }\r
+                                <span class="notification-bell__time">{{ relativeTime(item.publishedAt) }}</span>\r
+                            </span>\r
+                            @if (item.receipt?.isUnread) {\r
+                                <span class="notification-bell__dot" aria-hidden="true"></span>\r
+                            }\r
+                        </button>\r
+                        @if (canDismiss(item)) {\r
+                            <button\r
+                                class="notification-bell__dismiss"\r
+                                type="button"\r
+                                [disabled]="actionId() === item.notificationId"\r
+                                [attr.aria-label]="'appNotifications.bell.dismissAria' | transloco"\r
+                                (click)="dismiss($event, item)"\r
+                            >\r
+                                <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>\r
+                            </button>\r
+                        }\r
+                    </li>\r
+                }\r
+            </ul>\r
+        }\r
+        @if (expandedImageSrc(); as src) {\r
+            <div class="notification-bell__zoom" (click)="closeImage()">\r
+                <button\r
+                    class="notification-bell__zoom-close"\r
+                    type="button"\r
+                    [attr.aria-label]="'appNotifications.bell.closeImage' | transloco"\r
+                    (click)="closeImage(); $event.stopPropagation()"\r
+                >\r
+                    <mat-icon aria-hidden="true" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>\r
+                </button>\r
+                <img\r
+                    class="notification-bell__zoom-image"\r
+                    [src]="src"\r
+                    [attr.alt]="selectedItem()?.content?.title || ''"\r
+                    (click)="$event.stopPropagation()"\r
+                />\r
+            </div>\r
+        }\r
+    </div>\r
+}\r
+`, styles: ["/* src/app/layout/common/notification-bell/notification-bell.component.scss */\n:host {\n  display: inline-flex;\n  position: relative;\n}\n.notification-bell__trigger,\n.notification-bell__row-main,\n.notification-bell__dismiss,\n.notification-bell__mark-all,\n.notification-bell__back,\n.notification-bell__legal {\n  -webkit-tap-highlight-color: transparent;\n  touch-action: manipulation;\n}\n.notification-bell__trigger {\n  position: relative;\n}\n.notification-bell__badge {\n  position: absolute;\n  top: 4px;\n  right: 2px;\n  min-width: 16px;\n  height: 16px;\n  padding: 0 4px;\n  border-radius: 999px;\n  background: #0f766e;\n  color: #fff;\n  font-size: 10px;\n  font-weight: 700;\n  font-variant-numeric: tabular-nums;\n  line-height: 16px;\n  text-align: center;\n  pointer-events: none;\n}\n.notification-bell__panel {\n  position: absolute;\n  top: calc(100% + 8px);\n  right: 0;\n  z-index: 80;\n  display: flex;\n  flex-direction: column;\n  width: min(400px, 100vw - 24px);\n  max-height: min(70vh, 560px);\n  overflow: hidden;\n  border: 1px solid rgb(226, 232, 240);\n  border-radius: 16px;\n  background: #fff;\n  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.06);\n  overscroll-behavior: contain;\n}\n.notification-bell__panel--image {\n  width: min(92vw, 960px);\n  max-height: min(85vh, 900px);\n}\n:host-context(.dark) .notification-bell__panel {\n  border-color: rgb(51, 65, 85);\n  background: rgb(15, 23, 42);\n  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);\n}\n.notification-bell__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 14px 16px 10px;\n}\n.notification-bell__title {\n  flex: 1 1 auto;\n  min-width: 0;\n  margin: 0;\n  overflow: hidden;\n  font-size: 16px;\n  font-weight: 600;\n  line-height: 1.3;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.notification-bell__back {\n  display: grid;\n  flex: 0 0 auto;\n  place-items: center;\n  width: 36px;\n  height: 36px;\n  margin: 0;\n  padding: 0;\n  border: 0;\n  border-radius: 999px;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n}\n.notification-bell__back:hover {\n  background: rgb(241, 245, 249);\n}\n:host-context(.dark) .notification-bell__back:hover {\n  background: rgb(30, 41, 59);\n}\n.notification-bell__mark-all {\n  border: 0;\n  background: transparent;\n  color: #0f766e;\n  font-size: 13px;\n  font-weight: 600;\n  cursor: pointer;\n}\n.notification-bell__mark-all:hover {\n  text-decoration: underline;\n}\n.notification-bell__panel:focus {\n  outline: none;\n}\n.notification-bell__panel:focus-visible,\n.notification-bell__mark-all:focus-visible,\n.notification-bell__row-main:focus-visible,\n.notification-bell__dismiss:focus-visible,\n.notification-bell__back:focus-visible,\n.notification-bell__legal:focus-visible {\n  outline: 2px solid #0f766e;\n  outline-offset: 2px;\n}\n.notification-bell__list {\n  margin: 0;\n  padding: 0 8px 8px;\n  overflow: auto;\n  list-style: none;\n  overscroll-behavior: contain;\n}\n.notification-bell__row {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) 36px;\n  align-items: start;\n  border-bottom: 1px solid rgb(226, 232, 240);\n}\n.notification-bell__row:last-child {\n  border-bottom: 0;\n}\n:host-context(.dark) .notification-bell__row {\n  border-bottom-color: rgb(51, 65, 85);\n}\n.notification-bell__row--unread {\n  background: rgb(240, 253, 250);\n}\n:host-context(.dark) .notification-bell__row--unread {\n  background: rgba(19, 78, 74, 0.35);\n}\n.notification-bell__row--busy {\n  opacity: 0.55;\n}\n.notification-bell__row-main {\n  display: flex;\n  grid-column: 1;\n  grid-row: 1;\n  gap: 10px;\n  min-width: 0;\n  padding: 10px 8px;\n  border: 0;\n  border-radius: 12px;\n  background: transparent;\n  text-align: left;\n  cursor: pointer;\n  touch-action: manipulation;\n}\n.notification-bell__row-main:hover {\n  background: rgb(248, 250, 252);\n}\n:host-context(.dark) .notification-bell__row-main:hover {\n  background: rgba(30, 41, 59, 0.7);\n}\n.notification-bell__icon {\n  display: grid;\n  flex: 0 0 auto;\n  place-items: center;\n  width: 36px;\n  height: 36px;\n  border-radius: 999px;\n  background: rgb(241, 245, 249);\n  color: #0f766e;\n}\n:host-context(.dark) .notification-bell__icon {\n  background: rgb(30, 41, 59);\n}\n.notification-bell__copy {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  gap: 2px;\n  min-width: 0;\n}\n.notification-bell__row-title {\n  overflow: hidden;\n  font-size: 14px;\n  font-weight: 600;\n  line-height: 1.35;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.notification-bell__summary {\n  display: -webkit-box;\n  overflow: hidden;\n  color: rgb(71, 85, 105);\n  font-size: 13px;\n  line-height: 1.4;\n  -webkit-line-clamp: 2;\n  -webkit-box-orient: vertical;\n}\n:host-context(.dark) .notification-bell__summary {\n  color: rgb(148, 163, 184);\n}\n.notification-bell__time {\n  color: rgb(71, 85, 105);\n  font-size: 12px;\n  font-variant-numeric: tabular-nums;\n}\n.notification-bell__dot {\n  flex: 0 0 auto;\n  width: 8px;\n  height: 8px;\n  margin-top: 8px;\n  border-radius: 999px;\n  background: #0f766e;\n}\n.notification-bell__dismiss {\n  display: grid;\n  grid-column: 2;\n  grid-row: 1;\n  place-items: center;\n  align-self: start;\n  justify-self: center;\n  width: 36px;\n  height: 36px;\n  margin: 6px 0 0;\n  border: 0;\n  border-radius: 999px;\n  background: transparent;\n  color: rgb(100, 116, 139);\n  cursor: pointer;\n  opacity: 0.72;\n  touch-action: manipulation;\n}\n.notification-bell__dismiss:hover,\n.notification-bell__dismiss:focus-visible {\n  opacity: 1;\n}\n.notification-bell__dismiss:hover {\n  background: rgb(241, 245, 249);\n}\n.notification-bell__detail {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  min-height: 0;\n}\n.notification-bell__detail-body {\n  display: flex;\n  flex: 1 1 auto;\n  flex-direction: column;\n  gap: 10px;\n  min-height: 120px;\n  overflow: auto;\n  padding: 4px 16px 16px;\n  overscroll-behavior: contain;\n}\n.notification-bell__detail-summary {\n  margin: 0;\n  color: rgb(71, 85, 105);\n  font-size: 14px;\n  line-height: 1.45;\n}\n:host-context(.dark) .notification-bell__detail-summary {\n  color: rgb(203, 213, 225);\n}\n.notification-bell__body {\n  overflow-wrap: anywhere;\n  font-size: 14px;\n  line-height: 1.5;\n}\n.notification-bell__body :deep(p) {\n  margin: 0 0 0.55rem;\n}\n:host ::ng-deep .notification-bell__body img,\n:host ::ng-deep .notification-bell__body video {\n  display: block;\n  max-width: 100%;\n  height: auto;\n}\n:host ::ng-deep .notification-bell__body img {\n  cursor: pointer;\n}\n.notification-bell__zoom {\n  position: absolute;\n  inset: 0;\n  z-index: 2;\n  display: flex;\n  align-items: flex-start;\n  justify-content: center;\n  overflow: auto;\n  padding: 52px 16px 16px;\n  background: rgba(15, 23, 42, 0.78);\n  overscroll-behavior: contain;\n}\n.notification-bell__zoom-close {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  display: grid;\n  place-items: center;\n  width: 36px;\n  height: 36px;\n  border: 0;\n  border-radius: 999px;\n  background: #fff;\n  color: rgb(15, 23, 42);\n  cursor: pointer;\n  touch-action: manipulation;\n}\n.notification-bell__zoom-close:hover,\n.notification-bell__zoom-close:focus-visible {\n  outline: 2px solid #0f766e;\n  outline-offset: 2px;\n}\n.notification-bell__zoom-image {\n  width: auto;\n  max-width: 100%;\n  height: auto;\n  object-fit: contain;\n  border-radius: 8px;\n  background: #fff;\n}\n.notification-bell__detail-footer {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n  border-top: 1px solid rgb(226, 232, 240);\n  padding: 12px 16px;\n}\n:host-context(.dark) .notification-bell__detail-footer {\n  border-top-color: rgb(51, 65, 85);\n}\n.notification-bell__legal {\n  color: #0f766e;\n  font-size: 13px;\n  font-weight: 600;\n}\n.notification-bell__actions {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 8px;\n}\n.notification-bell__error {\n  margin: 0;\n  color: #b91c1c;\n  font-size: 13px;\n}\n.notification-bell__error--header {\n  padding: 0 16px 8px;\n}\n:host-context(.dark) .notification-bell__error {\n  color: #fca5a5;\n}\n:host-context(.dark) .notification-bell__time,\n:host-context(.dark) .notification-bell__empty,\n:host-context(.dark) .notification-bell__dismiss {\n  color: rgb(203, 213, 225);\n}\n:host-context(.dark) .notification-bell__mark-all,\n:host-context(.dark) .notification-bell__legal {\n  color: rgb(45, 212, 191);\n}\n.notification-bell__sr {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip: rect(0, 0, 0, 0);\n  white-space: nowrap;\n  border: 0;\n}\n.notification-bell__empty {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  padding: 28px 20px 32px;\n  color: rgb(100, 116, 139);\n  font-size: 14px;\n  text-align: center;\n}\n@media (hover: none) {\n  .notification-bell__dismiss {\n    opacity: 1;\n  }\n}\n@media (prefers-reduced-motion: reduce) {\n  .notification-bell__row--busy {\n    opacity: 1;\n  }\n}\n/*# sourceMappingURL=notification-bell.component.css.map */\n"] }]
+  }], () => [], { onEscape: [{
+    type: HostListener,
+    args: ["document:keydown.escape"]
+  }], onDocumentClick: [{
+    type: HostListener,
+    args: ["document:click", ["$event"]]
+  }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NotificationBellComponent, { className: "NotificationBellComponent", filePath: "src/app/layout/common/notification-bell/notification-bell.component.ts", lineNumber: 49 });
 })();
 
 // src/app/layout/common/support-nav-button/support-nav-button.component.ts
@@ -21979,7 +22119,7 @@ function CenteredLayoutComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
   }
 }
-function CenteredLayoutComponent_Conditional_17_Template(rf, ctx) {
+function CenteredLayoutComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -22037,7 +22177,7 @@ var CenteredLayoutComponent = class _CenteredLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CenteredLayoutComponent, selectors: [["centered-layout"]], decls: 22, vars: 5, consts: [[1, "flex", "min-h-dvh", "w-full", "flex-auto", "justify-center", "bg-gray-200", "dark:bg-card", "sm:p-4", "md:p-8"], [1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "min-h-0", "min-w-0", "max-w-360", "flex-1", "flex-col", "items-center", "overflow-hidden", "shadow-2xl", "sm:rounded-xl", "dark:shadow-none"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "border-b", "px-4", "dark:bg-default", "sm:h-20", "md:px-6", "print:hidden"], ["mat-icon-button", "", 1, "mr-2"], [1, "ml-auto", "flex", "items-center", "space-x-1", "pl-2", "sm:space-x-2"], [1, "hidden", "md:block"], [3, "appearance"], [1, "bg-default", "flex", "min-h-0", "w-full", "flex-1", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-6", "dark:bg-default", "sm:h-20", "sm:px-8", "print:hidden"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-30", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-30", "dark:flex"], [1, "mx-2", "flex", "items-center", "lg:mr-8"], [1, "hidden", "lg:flex"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Logo image", 1, "flex", "w-8", "lg:hidden"], [1, "mr-2", 3, "name", "navigation"], ["mat-icon-button", "", 1, "mr-2", 3, "click"], [3, "svgIcon"]], template: function CenteredLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CenteredLayoutComponent, selectors: [["centered-layout"]], decls: 23, vars: 5, consts: [[1, "flex", "min-h-dvh", "w-full", "flex-auto", "justify-center", "bg-gray-200", "dark:bg-card", "sm:p-4", "md:p-8"], [1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "min-h-0", "min-w-0", "max-w-360", "flex-1", "flex-col", "items-center", "overflow-hidden", "shadow-2xl", "sm:rounded-xl", "dark:shadow-none"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "border-b", "px-4", "dark:bg-default", "sm:h-20", "md:px-6", "print:hidden"], ["mat-icon-button", "", 1, "mr-2"], [1, "ml-auto", "flex", "items-center", "space-x-1", "pl-2", "sm:space-x-2"], [1, "hidden", "md:block"], [3, "appearance"], [1, "bg-default", "flex", "min-h-0", "w-full", "flex-1", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-6", "dark:bg-default", "sm:h-20", "sm:px-8", "print:hidden"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-30", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-30", "dark:flex"], [1, "mx-2", "flex", "items-center", "lg:mr-8"], [1, "hidden", "lg:flex"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Logo image", 1, "flex", "w-8", "lg:hidden"], [1, "mr-2", 3, "name", "navigation"], ["mat-icon-button", "", 1, "mr-2", 3, "click"], [3, "svgIcon"]], template: function CenteredLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275elementStart(1, "div", 0);
@@ -22047,16 +22187,16 @@ var CenteredLayoutComponent = class _CenteredLayoutComponent {
         \u0275\u0275elementStart(5, "div", 3);
         \u0275\u0275template(6, CenteredLayoutComponent_Conditional_6_Template, 6, 2)(7, CenteredLayoutComponent_Conditional_7_Template, 2, 1, "button", 4);
         \u0275\u0275elementStart(8, "div", 5);
-        \u0275\u0275element(9, "production-mode-toggle")(10, "languages")(11, "fuse-fullscreen", 6)(12, "search", 7)(13, "support-nav-button")(14, "user");
+        \u0275\u0275element(9, "production-mode-toggle")(10, "languages")(11, "fuse-fullscreen", 6)(12, "search", 7)(13, "notification-bell")(14, "support-nav-button")(15, "user");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(15, "sandbox-notice-strip");
-        \u0275\u0275elementStart(16, "div", 8);
-        \u0275\u0275template(17, CenteredLayoutComponent_Conditional_17_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(16, "sandbox-notice-strip");
+        \u0275\u0275elementStart(17, "div", 8);
+        \u0275\u0275template(18, CenteredLayoutComponent_Conditional_18_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(18, "div", 9);
-        \u0275\u0275element(19, "layout-footer");
+        \u0275\u0275elementStart(19, "div", 9);
+        \u0275\u0275element(20, "layout-footer");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275element(20, "app-blocking-notification-modal-host")(21, "quick-chat");
+        \u0275\u0275element(21, "app-blocking-notification-modal-host")(22, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
@@ -22067,8 +22207,8 @@ var CenteredLayoutComponent = class _CenteredLayoutComponent {
         \u0275\u0275conditional(ctx.isScreenSmall ? 7 : -1);
         \u0275\u0275advance(5);
         \u0275\u0275property("appearance", "bar");
-        \u0275\u0275advance(5);
-        \u0275\u0275conditional(true ? 17 : -1);
+        \u0275\u0275advance(6);
+        \u0275\u0275conditional(true ? 18 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -22086,6 +22226,7 @@ var CenteredLayoutComponent = class _CenteredLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -22114,6 +22255,7 @@ var CenteredLayoutComponent = class _CenteredLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -22218,6 +22360,7 @@ var CenteredLayoutComponent = class _CenteredLayoutComponent {
                 <!-- <shortcuts></shortcuts> -->\r
                 <!-- <messages></messages> -->\r
                 <!-- <notifications></notifications> -->\r
+                <notification-bell></notification-bell>\r
                 <support-nav-button></support-nav-button>\r
                 <user></user>\r
             </div>\r
@@ -22250,7 +22393,7 @@ var CenteredLayoutComponent = class _CenteredLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CenteredLayoutComponent, { className: "CenteredLayoutComponent", filePath: "src/app/layout/layouts/horizontal/centered/centered.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CenteredLayoutComponent, { className: "CenteredLayoutComponent", filePath: "src/app/layout/layouts/horizontal/centered/centered.component.ts", lineNumber: 61 });
 })();
 
 // src/app/layout/layouts/horizontal/enterprise/enterprise.component.ts
@@ -22293,7 +22436,7 @@ function EnterpriseLayoutComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
   }
 }
-function EnterpriseLayoutComponent_Conditional_16_Template(rf, ctx) {
+function EnterpriseLayoutComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10)(1, "div", 21);
     \u0275\u0275element(2, "fuse-horizontal-navigation", 22);
@@ -22305,7 +22448,7 @@ function EnterpriseLayoutComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275property("name", "mainNavigation")("navigation", ctx_r0.navigation.horizontal);
   }
 }
-function EnterpriseLayoutComponent_Conditional_20_Template(rf, ctx) {
+function EnterpriseLayoutComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -22363,7 +22506,7 @@ var EnterpriseLayoutComponent = class _EnterpriseLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EnterpriseLayoutComponent, selectors: [["enterprise-layout"]], decls: 26, vars: 6, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col", "items-center", "bg-gray-200", "dark:bg-card"], [1, "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "flex-col", "justify-center", "overflow-hidden", "shadow", "sm:h-20", "md:h-36", "dark:shadow-none", "print:hidden"], [1, "dark", "relative", "flex", "w-full", "flex-auto", "justify-center", "bg-gray-800", "px-4", "md:px-8", "dark:bg-gray-900"], [1, "flex", "h-16", "w-full", "max-w-360", "items-center", "sm:h-20"], [1, "flex", "items-center"], ["mat-icon-button", ""], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "hidden", "md:block"], [3, "appearance"], [1, "bg-card", "flex", "flex-auto", "justify-center", "px-4", "md:px-8", "dark:bg-gray-700"], [1, "flex", "w-full", "flex-auto", "justify-center", "sm:p-6", "md:p-8"], [1, "bg-default", "flex", "w-full", "flex-auto", "flex-col", "sm:max-w-360", "sm:overflow-hidden", "sm:rounded-lg", "sm:shadow-lg"], [1, "bg-card", "relative", "z-49", "flex", "w-full", "flex-0", "justify-center", "border-t", "px-6", "md:px-8", "print:hidden"], [1, "flex", "h-14", "w-full", "max-w-360", "items-center", "sm:h-20"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [1, "relative", "flex", "h-16", "w-full", "max-w-360", "items-center"], [1, "-mx-4", 3, "name", "navigation"]], template: function EnterpriseLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EnterpriseLayoutComponent, selectors: [["enterprise-layout"]], decls: 27, vars: 6, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col", "items-center", "bg-gray-200", "dark:bg-card"], [1, "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "flex-col", "justify-center", "overflow-hidden", "shadow", "sm:h-20", "md:h-36", "dark:shadow-none", "print:hidden"], [1, "dark", "relative", "flex", "w-full", "flex-auto", "justify-center", "bg-gray-800", "px-4", "md:px-8", "dark:bg-gray-900"], [1, "flex", "h-16", "w-full", "max-w-360", "items-center", "sm:h-20"], [1, "flex", "items-center"], ["mat-icon-button", ""], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "hidden", "md:block"], [3, "appearance"], [1, "bg-card", "flex", "flex-auto", "justify-center", "px-4", "md:px-8", "dark:bg-gray-700"], [1, "flex", "w-full", "flex-auto", "justify-center", "sm:p-6", "md:p-8"], [1, "bg-default", "flex", "w-full", "flex-auto", "flex-col", "sm:max-w-360", "sm:overflow-hidden", "sm:rounded-lg", "sm:shadow-lg"], [1, "bg-card", "relative", "z-49", "flex", "w-full", "flex-0", "justify-center", "border-t", "px-6", "md:px-8", "print:hidden"], [1, "flex", "h-14", "w-full", "max-w-360", "items-center", "sm:h-20"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [1, "relative", "flex", "h-16", "w-full", "max-w-360", "items-center"], [1, "-mx-4", 3, "name", "navigation"]], template: function EnterpriseLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275template(1, EnterpriseLayoutComponent_Conditional_1_Template, 5, 4, "fuse-vertical-navigation", 0);
@@ -22372,18 +22515,18 @@ var EnterpriseLayoutComponent = class _EnterpriseLayoutComponent {
         \u0275\u0275elementStart(4, "div", 2)(5, "div", 3)(6, "div", 4);
         \u0275\u0275template(7, EnterpriseLayoutComponent_Conditional_7_Template, 3, 0, "div", 5)(8, EnterpriseLayoutComponent_Conditional_8_Template, 2, 1, "button", 6);
         \u0275\u0275elementStart(9, "div", 7);
-        \u0275\u0275element(10, "production-mode-toggle")(11, "languages")(12, "fuse-fullscreen", 8)(13, "search", 9)(14, "support-nav-button")(15, "user");
+        \u0275\u0275element(10, "production-mode-toggle")(11, "languages")(12, "fuse-fullscreen", 8)(13, "search", 9)(14, "notification-bell")(15, "support-nav-button")(16, "user");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275template(16, EnterpriseLayoutComponent_Conditional_16_Template, 3, 2, "div", 10);
+        \u0275\u0275template(17, EnterpriseLayoutComponent_Conditional_17_Template, 3, 2, "div", 10);
         \u0275\u0275elementEnd();
-        \u0275\u0275element(17, "sandbox-notice-strip");
-        \u0275\u0275elementStart(18, "div", 11)(19, "div", 12);
-        \u0275\u0275template(20, EnterpriseLayoutComponent_Conditional_20_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(18, "sandbox-notice-strip");
+        \u0275\u0275elementStart(19, "div", 11)(20, "div", 12);
+        \u0275\u0275template(21, EnterpriseLayoutComponent_Conditional_21_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(21, "div", 13)(22, "div", 14);
-        \u0275\u0275element(23, "layout-footer");
+        \u0275\u0275elementStart(22, "div", 13)(23, "div", 14);
+        \u0275\u0275element(24, "layout-footer");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275element(24, "app-blocking-notification-modal-host")(25, "quick-chat");
+        \u0275\u0275element(25, "app-blocking-notification-modal-host")(26, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
@@ -22394,10 +22537,10 @@ var EnterpriseLayoutComponent = class _EnterpriseLayoutComponent {
         \u0275\u0275conditional(ctx.isScreenSmall ? 8 : -1);
         \u0275\u0275advance(5);
         \u0275\u0275property("appearance", "bar");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(!ctx.isScreenSmall ? 16 : -1);
         \u0275\u0275advance(4);
-        \u0275\u0275conditional(true ? 20 : -1);
+        \u0275\u0275conditional(!ctx.isScreenSmall ? 17 : -1);
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(true ? 21 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -22414,6 +22557,7 @@ var EnterpriseLayoutComponent = class _EnterpriseLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       FuseHorizontalNavigationComponent,
       RouterOutlet,
@@ -22442,6 +22586,7 @@ var EnterpriseLayoutComponent = class _EnterpriseLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       FuseHorizontalNavigationComponent,
       RouterOutlet,
@@ -22536,6 +22681,7 @@ var EnterpriseLayoutComponent = class _EnterpriseLayoutComponent {
                     <!-- <shortcuts></shortcuts> -->\r
                     <!-- <messages></messages> -->\r
                     <!-- <notifications></notifications> -->\r
+                    <notification-bell></notification-bell>\r
                     <support-nav-button></support-nav-button>\r
                     <user></user>\r
                 </div>\r
@@ -22590,7 +22736,7 @@ var EnterpriseLayoutComponent = class _EnterpriseLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(EnterpriseLayoutComponent, { className: "EnterpriseLayoutComponent", filePath: "src/app/layout/layouts/horizontal/enterprise/enterprise.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(EnterpriseLayoutComponent, { className: "EnterpriseLayoutComponent", filePath: "src/app/layout/layouts/horizontal/enterprise/enterprise.component.ts", lineNumber: 61 });
 })();
 
 // src/app/layout/layouts/horizontal/material/material.component.ts
@@ -22633,7 +22779,7 @@ function MaterialLayoutComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
   }
 }
-function MaterialLayoutComponent_Conditional_16_Template(rf, ctx) {
+function MaterialLayoutComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10);
     \u0275\u0275element(1, "fuse-horizontal-navigation", 21);
@@ -22645,7 +22791,7 @@ function MaterialLayoutComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275property("name", "mainNavigation")("navigation", ctx_r0.navigation.horizontal);
   }
 }
-function MaterialLayoutComponent_Conditional_20_Template(rf, ctx) {
+function MaterialLayoutComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -22703,7 +22849,7 @@ var MaterialLayoutComponent = class _MaterialLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MaterialLayoutComponent, selectors: [["material-layout"]], decls: 26, vars: 6, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col", "items-center", "bg-gray-200", "dark:bg-card"], [1, "relative", "z-49", "flex", "w-full", "justify-center", "overflow-hidden", "bg-neutral-100", "dark:bg-zinc-950", "print:hidden"], [1, "bg-card", "w-full", "max-w-360", "overflow-hidden", "border-b", "sm:m-8", "sm:mb-0", "sm:rounded-t-xl", "sm:py-3", "sm:shadow-2xl", "md:mx-8", "md:mt-12", "md:pb-3", "md:pt-4"], [1, "relative", "flex", "h-16", "flex-0", "flex-auto", "items-center", "px-4", "md:px-6"], [1, "mx-2", "flex", "items-center"], ["mat-icon-button", ""], [1, "ml-auto", "flex", "items-center", "space-x-1", "pl-2", "sm:space-x-2"], [1, "hidden", "md:block"], [3, "appearance"], [1, "relative", "flex", "h-16", "flex-0", "flex-auto", "items-center", "px-4"], [1, "flex", "w-full", "flex-auto", "justify-center", "sm:px-8"], [1, "bg-default", "flex", "w-full", "flex-auto", "flex-col", "sm:max-w-360", "sm:overflow-hidden", "sm:shadow-xl"], [1, "relative", "z-49", "flex", "w-full", "justify-center", "print:hidden"], [1, "bg-card", "flex", "h-14", "w-full", "max-w-360", "items-center", "border-t", "px-6", "dark:bg-default", "sm:h-20", "sm:shadow-xl", "md:px-8"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [3, "name", "navigation"]], template: function MaterialLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MaterialLayoutComponent, selectors: [["material-layout"]], decls: 27, vars: 6, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col", "items-center", "bg-gray-200", "dark:bg-card"], [1, "relative", "z-49", "flex", "w-full", "justify-center", "overflow-hidden", "bg-neutral-100", "dark:bg-zinc-950", "print:hidden"], [1, "bg-card", "w-full", "max-w-360", "overflow-hidden", "border-b", "sm:m-8", "sm:mb-0", "sm:rounded-t-xl", "sm:py-3", "sm:shadow-2xl", "md:mx-8", "md:mt-12", "md:pb-3", "md:pt-4"], [1, "relative", "flex", "h-16", "flex-0", "flex-auto", "items-center", "px-4", "md:px-6"], [1, "mx-2", "flex", "items-center"], ["mat-icon-button", ""], [1, "ml-auto", "flex", "items-center", "space-x-1", "pl-2", "sm:space-x-2"], [1, "hidden", "md:block"], [3, "appearance"], [1, "relative", "flex", "h-16", "flex-0", "flex-auto", "items-center", "px-4"], [1, "flex", "w-full", "flex-auto", "justify-center", "sm:px-8"], [1, "bg-default", "flex", "w-full", "flex-auto", "flex-col", "sm:max-w-360", "sm:overflow-hidden", "sm:shadow-xl"], [1, "relative", "z-49", "flex", "w-full", "justify-center", "print:hidden"], [1, "bg-card", "flex", "h-14", "w-full", "max-w-360", "items-center", "border-t", "px-6", "dark:bg-default", "sm:h-20", "sm:shadow-xl", "md:px-8"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [3, "name", "navigation"]], template: function MaterialLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275template(1, MaterialLayoutComponent_Conditional_1_Template, 5, 4, "fuse-vertical-navigation", 0);
@@ -22712,18 +22858,18 @@ var MaterialLayoutComponent = class _MaterialLayoutComponent {
         \u0275\u0275elementStart(4, "div", 2)(5, "div", 3)(6, "div", 4);
         \u0275\u0275template(7, MaterialLayoutComponent_Conditional_7_Template, 3, 0, "div", 5)(8, MaterialLayoutComponent_Conditional_8_Template, 2, 1, "button", 6);
         \u0275\u0275elementStart(9, "div", 7);
-        \u0275\u0275element(10, "production-mode-toggle")(11, "languages")(12, "fuse-fullscreen", 8)(13, "search", 9)(14, "support-nav-button")(15, "user");
+        \u0275\u0275element(10, "production-mode-toggle")(11, "languages")(12, "fuse-fullscreen", 8)(13, "search", 9)(14, "notification-bell")(15, "support-nav-button")(16, "user");
         \u0275\u0275elementEnd()();
-        \u0275\u0275template(16, MaterialLayoutComponent_Conditional_16_Template, 2, 2, "div", 10);
+        \u0275\u0275template(17, MaterialLayoutComponent_Conditional_17_Template, 2, 2, "div", 10);
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(17, "sandbox-notice-strip");
-        \u0275\u0275elementStart(18, "div", 11)(19, "div", 12);
-        \u0275\u0275template(20, MaterialLayoutComponent_Conditional_20_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(18, "sandbox-notice-strip");
+        \u0275\u0275elementStart(19, "div", 11)(20, "div", 12);
+        \u0275\u0275template(21, MaterialLayoutComponent_Conditional_21_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(21, "div", 13)(22, "div", 14);
-        \u0275\u0275element(23, "layout-footer");
+        \u0275\u0275elementStart(22, "div", 13)(23, "div", 14);
+        \u0275\u0275element(24, "layout-footer");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275element(24, "app-blocking-notification-modal-host")(25, "quick-chat");
+        \u0275\u0275element(25, "app-blocking-notification-modal-host")(26, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
@@ -22734,10 +22880,10 @@ var MaterialLayoutComponent = class _MaterialLayoutComponent {
         \u0275\u0275conditional(ctx.isScreenSmall ? 8 : -1);
         \u0275\u0275advance(5);
         \u0275\u0275property("appearance", "bar");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(!ctx.isScreenSmall ? 16 : -1);
         \u0275\u0275advance(4);
-        \u0275\u0275conditional(true ? 20 : -1);
+        \u0275\u0275conditional(!ctx.isScreenSmall ? 17 : -1);
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(true ? 21 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -22754,6 +22900,7 @@ var MaterialLayoutComponent = class _MaterialLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       QuickChatComponent,
       BlockingNotificationModalHostComponent,
@@ -22782,6 +22929,7 @@ var MaterialLayoutComponent = class _MaterialLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       QuickChatComponent,
       BlockingNotificationModalHostComponent,
@@ -22880,6 +23028,7 @@ var MaterialLayoutComponent = class _MaterialLayoutComponent {
                     <!-- <shortcuts></shortcuts> -->\r
                     <!-- <messages></messages> -->\r
                     <!-- <notifications></notifications> -->\r
+                    <notification-bell></notification-bell>\r
                     <support-nav-button></support-nav-button>\r
                     <user></user>\r
                 </div>\r
@@ -22930,7 +23079,7 @@ var MaterialLayoutComponent = class _MaterialLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MaterialLayoutComponent, { className: "MaterialLayoutComponent", filePath: "src/app/layout/layouts/horizontal/material/material.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MaterialLayoutComponent, { className: "MaterialLayoutComponent", filePath: "src/app/layout/layouts/horizontal/material/material.component.ts", lineNumber: 61 });
 })();
 
 // src/app/layout/layouts/horizontal/modern/modern.component.ts
@@ -22981,7 +23130,7 @@ function ModernLayoutComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
   }
 }
-function ModernLayoutComponent_Conditional_14_Template(rf, ctx) {
+function ModernLayoutComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -23039,7 +23188,7 @@ var ModernLayoutComponent = class _ModernLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ModernLayoutComponent, selectors: [["modern-layout"]], decls: 19, vars: 4, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "sm:h-20", "md:px-6", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "print:hidden"], ["mat-icon-button", ""], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "flex", "w-full", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "border-t", "px-4", "sm:h-20", "md:px-6", "dark:bg-transparent", "print:hidden"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], [1, "mx-2", "flex", "items-center", "lg:mr-8"], [1, "hidden", "lg:flex"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Verifik", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Verifik", 1, "hidden", "w-24", "dark:flex"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", 1, "flex", "w-8", "lg:hidden"], [1, "mr-2", 3, "name", "navigation"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"]], template: function ModernLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ModernLayoutComponent, selectors: [["modern-layout"]], decls: 20, vars: 4, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "sm:h-20", "md:px-6", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "print:hidden"], ["mat-icon-button", ""], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "flex", "w-full", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "border-t", "px-4", "sm:h-20", "md:px-6", "dark:bg-transparent", "print:hidden"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "px-8", "pt-6"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Logo image", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Logo image", 1, "hidden", "w-24", "dark:flex"], [1, "mx-2", "flex", "items-center", "lg:mr-8"], [1, "hidden", "lg:flex"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Verifik", 1, "w-24", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Verifik", 1, "hidden", "w-24", "dark:flex"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", 1, "flex", "w-8", "lg:hidden"], [1, "mr-2", 3, "name", "navigation"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"]], template: function ModernLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275template(1, ModernLayoutComponent_Conditional_1_Template, 5, 4, "fuse-vertical-navigation", 0);
@@ -23048,16 +23197,16 @@ var ModernLayoutComponent = class _ModernLayoutComponent {
         \u0275\u0275elementStart(4, "div", 2);
         \u0275\u0275template(5, ModernLayoutComponent_Conditional_5_Template, 6, 2)(6, ModernLayoutComponent_Conditional_6_Template, 2, 1, "button", 3);
         \u0275\u0275elementStart(7, "div", 4);
-        \u0275\u0275element(8, "production-mode-toggle")(9, "languages")(10, "support-nav-button")(11, "user");
+        \u0275\u0275element(8, "production-mode-toggle")(9, "languages")(10, "notification-bell")(11, "support-nav-button")(12, "user");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(12, "sandbox-notice-strip");
-        \u0275\u0275elementStart(13, "div", 5);
-        \u0275\u0275template(14, ModernLayoutComponent_Conditional_14_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(13, "sandbox-notice-strip");
+        \u0275\u0275elementStart(14, "div", 5);
+        \u0275\u0275template(15, ModernLayoutComponent_Conditional_15_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(15, "div", 6);
-        \u0275\u0275element(16, "layout-footer");
+        \u0275\u0275elementStart(16, "div", 6);
+        \u0275\u0275element(17, "layout-footer");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(17, "app-blocking-notification-modal-host")(18, "quick-chat");
+        \u0275\u0275element(18, "app-blocking-notification-modal-host")(19, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
@@ -23066,8 +23215,8 @@ var ModernLayoutComponent = class _ModernLayoutComponent {
         \u0275\u0275conditional(!ctx.isScreenSmall ? 5 : -1);
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.isScreenSmall ? 6 : -1);
-        \u0275\u0275advance(8);
-        \u0275\u0275conditional(true ? 14 : -1);
+        \u0275\u0275advance(9);
+        \u0275\u0275conditional(true ? 15 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -23083,6 +23232,7 @@ var ModernLayoutComponent = class _ModernLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -23109,6 +23259,7 @@ var ModernLayoutComponent = class _ModernLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -23200,6 +23351,7 @@ var ModernLayoutComponent = class _ModernLayoutComponent {
             <!-- <shortcuts></shortcuts> -->\r
             <!-- <messages></messages> -->\r
             <!-- <notifications></notifications> -->\r
+            <notification-bell></notification-bell>\r
             <support-nav-button></support-nav-button>\r
             <user></user>\r
         </div>\r
@@ -23232,7 +23384,7 @@ var ModernLayoutComponent = class _ModernLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ModernLayoutComponent, { className: "ModernLayoutComponent", filePath: "src/app/layout/layouts/horizontal/modern/modern.component.ts", lineNumber: 55 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ModernLayoutComponent, { className: "ModernLayoutComponent", filePath: "src/app/layout/layouts/horizontal/modern/modern.component.ts", lineNumber: 57 });
 })();
 
 // src/app/layout/layouts/vertical/classy/classy.component.ts
@@ -23253,7 +23405,7 @@ function ClassyLayoutComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275property("svgIcon", "heroicons_solid:user-circle");
   }
 }
-function ClassyLayoutComponent_Conditional_33_Template(rf, ctx) {
+function ClassyLayoutComponent_Conditional_34_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -23315,7 +23467,7 @@ var ClassyLayoutComponent = class _ClassyLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClassyLayoutComponent, selectors: [["classy-layout"]], decls: 38, vars: 12, consts: [[1, "classy-layout-nav", "bg-card", "border-r", "border-gray-200/80", "shadow-none", "dark:border-white/10", "dark:bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "classy-layout-nav__header", "border-b", "border-gray-200/90", "dark:border-white/10"], [1, "flex", "w-full", "flex-col", "gap-4", "px-4", "pb-4", "pl-6", "pt-5"], [1, "classy-layout-nav__brand", "flex", "w-full", "shrink-0", "justify-start"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Verifik", 1, "h-10", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Verifik", 1, "hidden", "h-10", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:flex"], [1, "flex", "w-full", "min-w-0", "items-center", "justify-center", "px-0.5"], [3, "showAvatar"], [1, "flex", "w-full", "flex-col", "items-center", "px-4", "pb-2"], [1, "relative", "h-24", "w-24"], ["alt", "User avatar", 1, "h-full", "w-full", "rounded-full", "ring-1", "ring-gray-200", "dark:ring-white/10", 3, "src"], [1, "icon-size-24", "text-hint", 3, "svgIcon"], [1, "mt-6", "flex", "w-full", "flex-col", "items-center", "justify-center"], [1, "text-default", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "text-center", "font-medium", "leading-normal"], [1, "text-secondary", "mt-0.5", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "text-center", "text-md", "font-medium", "leading-normal"], ["fuseVerticalNavigationContentFooter", ""], [1, "mb-4", "mt-2", "flex", "h-12", "flex-0", "items-center", "justify-center", "px-4", "text-center"], [3, "compact"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "md:px-6", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "print:hidden"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "min-h-14", "h-auto", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "py-2", "md:px-6", "dark:bg-transparent", "print:hidden"]], template: function ClassyLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClassyLayoutComponent, selectors: [["classy-layout"]], decls: 39, vars: 12, consts: [[1, "classy-layout-nav", "bg-card", "border-r", "border-gray-200/80", "shadow-none", "dark:border-white/10", "dark:bg-gray-900", "print:hidden", 3, "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "classy-layout-nav__header", "border-b", "border-gray-200/90", "dark:border-white/10"], [1, "flex", "w-full", "flex-col", "gap-4", "px-4", "pb-4", "pl-6", "pt-5"], [1, "classy-layout-nav__brand", "flex", "w-full", "shrink-0", "justify-start"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Verifik", 1, "h-10", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Verifik", 1, "hidden", "h-10", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:flex"], [1, "flex", "w-full", "min-w-0", "items-center", "justify-center", "px-0.5"], [3, "showAvatar"], [1, "flex", "w-full", "flex-col", "items-center", "px-4", "pb-2"], [1, "relative", "h-24", "w-24"], ["alt", "User avatar", 1, "h-full", "w-full", "rounded-full", "ring-1", "ring-gray-200", "dark:ring-white/10", 3, "src"], [1, "icon-size-24", "text-hint", 3, "svgIcon"], [1, "mt-6", "flex", "w-full", "flex-col", "items-center", "justify-center"], [1, "text-default", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "text-center", "font-medium", "leading-normal"], [1, "text-secondary", "mt-0.5", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "text-center", "text-md", "font-medium", "leading-normal"], ["fuseVerticalNavigationContentFooter", ""], [1, "mb-4", "mt-2", "flex", "h-12", "flex-0", "items-center", "justify-center", "px-4", "text-center"], [3, "compact"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "md:px-6", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "print:hidden"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "min-h-14", "h-auto", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "py-2", "md:px-6", "dark:bg-transparent", "print:hidden"]], template: function ClassyLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275elementStart(1, "fuse-vertical-navigation", 0);
@@ -23351,16 +23503,16 @@ var ClassyLayoutComponent = class _ClassyLayoutComponent {
         \u0275\u0275element(26, "mat-icon", 22);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(27, "div", 23);
-        \u0275\u0275element(28, "production-mode-toggle")(29, "languages")(30, "support-nav-button");
+        \u0275\u0275element(28, "production-mode-toggle")(29, "languages")(30, "notification-bell")(31, "support-nav-button");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(31, "sandbox-notice-strip");
-        \u0275\u0275elementStart(32, "div", 24);
-        \u0275\u0275template(33, ClassyLayoutComponent_Conditional_33_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(32, "sandbox-notice-strip");
+        \u0275\u0275elementStart(33, "div", 24);
+        \u0275\u0275template(34, ClassyLayoutComponent_Conditional_34_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(34, "div", 25);
-        \u0275\u0275element(35, "layout-footer");
+        \u0275\u0275elementStart(35, "div", 25);
+        \u0275\u0275element(36, "layout-footer");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(36, "app-blocking-notification-modal-host")(37, "quick-chat");
+        \u0275\u0275element(37, "app-blocking-notification-modal-host")(38, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
@@ -23379,8 +23531,8 @@ var ClassyLayoutComponent = class _ClassyLayoutComponent {
         \u0275\u0275property("compact", true);
         \u0275\u0275advance(5);
         \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional(true ? 33 : -1);
+        \u0275\u0275advance(8);
+        \u0275\u0275conditional(true ? 34 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -23388,6 +23540,7 @@ var ClassyLayoutComponent = class _ClassyLayoutComponent {
       // OCULTADO: Componentes comentados - Para futuras búsquedas busca: shortcuts messages notifications imports
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       MatIconModule,
       MatIcon,
@@ -23415,6 +23568,7 @@ var ClassyLayoutComponent = class _ClassyLayoutComponent {
       // OCULTADO: Componentes comentados - Para futuras búsquedas busca: shortcuts messages notifications imports
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       MatIconModule,
       MatButtonModule,
@@ -23533,6 +23687,7 @@ var ClassyLayoutComponent = class _ClassyLayoutComponent {
             <!-- OCULTADO: shortcuts messages notifications - Para futuras b\xFAsquedas busca: shortcuts messages notifications header -->\r
             <!-- <shortcuts></shortcuts> -->\r
             <!-- <messages></messages> -->\r
+            <notification-bell></notification-bell>\r
             <support-nav-button></support-nav-button>\r
         </div>\r
     </div>\r
@@ -23564,11 +23719,11 @@ var ClassyLayoutComponent = class _ClassyLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: UserService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ClassyLayoutComponent, { className: "ClassyLayoutComponent", filePath: "src/app/layout/layouts/vertical/classy/classy.component.ts", lineNumber: 56 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ClassyLayoutComponent, { className: "ClassyLayoutComponent", filePath: "src/app/layout/layouts/vertical/classy/classy.component.ts", lineNumber: 58 });
 })();
 
 // src/app/layout/layouts/vertical/compact/compact.component.ts
-function CompactLayoutComponent_Conditional_17_Template(rf, ctx) {
+function CompactLayoutComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -23626,7 +23781,7 @@ var CompactLayoutComponent = class _CompactLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CompactLayoutComponent, selectors: [["compact-layout"]], decls: 22, vars: 7, consts: [[1, "compact-layout-nav", "bg-card", "border-r", "border-gray-200/80", "shadow-none", "dark:border-white/10", "dark:bg-gray-900", "print:hidden", 3, "appearance", "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "mb-4", "mt-3", "flex", "h-20", "items-center", "justify-center"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Verifik", 1, "w-10"], [1, "flex", "min-h-0", "w-full", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "md:px-6", "print:hidden"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "relative", "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "dark:bg-transparent", "md:px-6", "print:hidden"]], template: function CompactLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CompactLayoutComponent, selectors: [["compact-layout"]], decls: 23, vars: 7, consts: [[1, "compact-layout-nav", "bg-card", "border-r", "border-gray-200/80", "shadow-none", "dark:border-white/10", "dark:bg-gray-900", "print:hidden", 3, "appearance", "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "mb-4", "mt-3", "flex", "h-20", "items-center", "justify-center"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Verifik", 1, "w-10"], [1, "flex", "min-h-0", "w-full", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "md:px-6", "print:hidden"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "relative", "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "dark:bg-transparent", "md:px-6", "print:hidden"]], template: function CompactLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275elementStart(1, "fuse-vertical-navigation", 0);
@@ -23645,24 +23800,24 @@ var CompactLayoutComponent = class _CompactLayoutComponent {
         \u0275\u0275element(9, "mat-icon", 7);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(10, "div", 8);
-        \u0275\u0275element(11, "production-mode-toggle")(12, "languages")(13, "support-nav-button")(14, "user");
+        \u0275\u0275element(11, "production-mode-toggle")(12, "languages")(13, "notification-bell")(14, "support-nav-button")(15, "user");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(15, "sandbox-notice-strip");
-        \u0275\u0275elementStart(16, "div", 9);
-        \u0275\u0275template(17, CompactLayoutComponent_Conditional_17_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(16, "sandbox-notice-strip");
+        \u0275\u0275elementStart(17, "div", 9);
+        \u0275\u0275template(18, CompactLayoutComponent_Conditional_18_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(18, "div", 10);
-        \u0275\u0275element(19, "layout-footer");
+        \u0275\u0275elementStart(19, "div", 10);
+        \u0275\u0275element(20, "layout-footer");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(20, "app-blocking-notification-modal-host")(21, "quick-chat");
+        \u0275\u0275element(21, "app-blocking-notification-modal-host")(22, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
         \u0275\u0275property("appearance", "compact")("mode", ctx.isScreenSmall ? "over" : "side")("name", "mainNavigation")("navigation", ctx.navigation.compact)("opened", !ctx.isScreenSmall);
         \u0275\u0275advance(8);
         \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
-        \u0275\u0275advance(8);
-        \u0275\u0275conditional(true ? 17 : -1);
+        \u0275\u0275advance(9);
+        \u0275\u0275conditional(true ? 18 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -23676,6 +23831,7 @@ var CompactLayoutComponent = class _CompactLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -23701,6 +23857,7 @@ var CompactLayoutComponent = class _CompactLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -23758,6 +23915,7 @@ var CompactLayoutComponent = class _CompactLayoutComponent {
             <!-- <shortcuts></shortcuts> -->\r
             <!-- <messages></messages> -->\r
             <!-- <notifications></notifications> -->\r
+            <notification-bell></notification-bell>\r
             <support-nav-button></support-nav-button>\r
             <user></user>\r
         </div>\r
@@ -23790,11 +23948,11 @@ var CompactLayoutComponent = class _CompactLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CompactLayoutComponent, { className: "CompactLayoutComponent", filePath: "src/app/layout/layouts/vertical/compact/compact.component.ts", lineNumber: 54 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CompactLayoutComponent, { className: "CompactLayoutComponent", filePath: "src/app/layout/layouts/vertical/compact/compact.component.ts", lineNumber: 56 });
 })();
 
 // src/app/layout/layouts/vertical/dense/dense.component.ts
-function DenseLayoutComponent_Conditional_20_Template(rf, ctx) {
+function DenseLayoutComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -23860,7 +24018,7 @@ var DenseLayoutComponent = class _DenseLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DenseLayoutComponent, selectors: [["dense-layout"]], decls: 25, vars: 8, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "appearance", "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "justify-center"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Verifik", 1, "w-8"], [1, "flex", "min-h-0", "w-full", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "md:px-6", "print:hidden"], [1, "flex", "items-center", "space-x-2", "pr-2"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], ["mat-icon-button", "", 1, "hidden", "md:inline-flex", 3, "click"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "relative", "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "dark:bg-transparent", "md:px-6", "print:hidden"]], template: function DenseLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DenseLayoutComponent, selectors: [["dense-layout"]], decls: 26, vars: 8, consts: [[1, "dark", "bg-gray-900", "print:hidden", 3, "appearance", "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "justify-center"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Verifik", 1, "w-8"], [1, "flex", "min-h-0", "w-full", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "md:px-6", "print:hidden"], [1, "flex", "items-center", "space-x-2", "pr-2"], ["mat-icon-button", "", 3, "click"], [3, "svgIcon"], ["mat-icon-button", "", 1, "hidden", "md:inline-flex", 3, "click"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "relative", "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "dark:bg-transparent", "md:px-6", "print:hidden"]], template: function DenseLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275elementStart(1, "fuse-vertical-navigation", 0);
@@ -23885,16 +24043,16 @@ var DenseLayoutComponent = class _DenseLayoutComponent {
         \u0275\u0275element(12, "mat-icon", 8);
         \u0275\u0275elementEnd()();
         \u0275\u0275elementStart(13, "div", 10);
-        \u0275\u0275element(14, "production-mode-toggle")(15, "languages")(16, "support-nav-button")(17, "user");
+        \u0275\u0275element(14, "production-mode-toggle")(15, "languages")(16, "notification-bell")(17, "support-nav-button")(18, "user");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(18, "sandbox-notice-strip");
-        \u0275\u0275elementStart(19, "div", 11);
-        \u0275\u0275template(20, DenseLayoutComponent_Conditional_20_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(19, "sandbox-notice-strip");
+        \u0275\u0275elementStart(20, "div", 11);
+        \u0275\u0275template(21, DenseLayoutComponent_Conditional_21_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(21, "div", 12);
-        \u0275\u0275element(22, "layout-footer");
+        \u0275\u0275elementStart(22, "div", 12);
+        \u0275\u0275element(23, "layout-footer");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(23, "app-blocking-notification-modal-host")(24, "quick-chat");
+        \u0275\u0275element(24, "app-blocking-notification-modal-host")(25, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
@@ -23903,8 +24061,8 @@ var DenseLayoutComponent = class _DenseLayoutComponent {
         \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
         \u0275\u0275advance(2);
         \u0275\u0275property("svgIcon", "heroicons_outline:arrows-right-left");
-        \u0275\u0275advance(8);
-        \u0275\u0275conditional(true ? 20 : -1);
+        \u0275\u0275advance(9);
+        \u0275\u0275conditional(true ? 21 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -23919,6 +24077,7 @@ var DenseLayoutComponent = class _DenseLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -23944,6 +24103,7 @@ var DenseLayoutComponent = class _DenseLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -24010,6 +24170,7 @@ var DenseLayoutComponent = class _DenseLayoutComponent {
             <!-- <shortcuts></shortcuts> -->\r
             <!-- <messages></messages> -->\r
             <!-- <notifications></notifications> -->\r
+            <notification-bell></notification-bell>\r
             <support-nav-button></support-nav-button>\r
             <user></user>\r
         </div>\r
@@ -24042,11 +24203,11 @@ var DenseLayoutComponent = class _DenseLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DenseLayoutComponent, { className: "DenseLayoutComponent", filePath: "src/app/layout/layouts/vertical/dense/dense.component.ts", lineNumber: 54 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DenseLayoutComponent, { className: "DenseLayoutComponent", filePath: "src/app/layout/layouts/vertical/dense/dense.component.ts", lineNumber: 56 });
 })();
 
 // src/app/layout/layouts/vertical/futuristic/futuristic.component.ts
-function FuturisticLayoutComponent_Conditional_25_Template(rf, ctx) {
+function FuturisticLayoutComponent_Conditional_26_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -24108,7 +24269,7 @@ var FuturisticLayoutComponent = class _FuturisticLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FuturisticLayoutComponent, selectors: [["futuristic-layout"]], decls: 30, vars: 8, consts: [[1, "futuristic-layout-nav", "bg-card", "border-r", "border-gray-200/90", "text-default", "shadow-none", "dark:border-white/10", "dark:bg-gray-950", "print:hidden", 3, "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationHeader", ""], [1, "flex", "h-20", "items-center", "border-b", "border-gray-200/80", "px-6", "pb-4", "pt-6", "dark:border-white/10"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Verifik", 1, "h-9", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Verifik", 1, "hidden", "h-9", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:flex"], ["fuseVerticalNavigationFooter", ""], [1, "flex", "w-full", "items-center", "gap-4", "border-t", "border-gray-200/80", "px-6", "py-6", "dark:border-white/10"], [1, "ml-2", "flex", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "text-default", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "leading-normal", "font-medium"], [1, "text-secondary", "mt-1", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "text-sm", "leading-normal"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "md:px-6", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "print:hidden"], ["mat-icon-button", "", 1, "mr-2", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "flex", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "md:px-6", "dark:bg-transparent", "print:hidden"]], template: function FuturisticLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FuturisticLayoutComponent, selectors: [["futuristic-layout"]], decls: 31, vars: 8, consts: [[1, "futuristic-layout-nav", "bg-card", "border-r", "border-gray-200/90", "text-default", "shadow-none", "dark:border-white/10", "dark:bg-gray-950", "print:hidden", 3, "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationHeader", ""], [1, "flex", "h-20", "items-center", "border-b", "border-gray-200/80", "px-6", "pb-4", "pt-6", "dark:border-white/10"], ["src", "/images/logo/logo_verifik_brand.svg", "alt", "Verifik", 1, "h-9", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:hidden"], ["src", "/images/logo/logo_verifik_brand_on_dark.svg", "alt", "Verifik", 1, "hidden", "h-9", "w-auto", "max-w-full", "shrink-0", "object-contain", "object-left", "dark:flex"], ["fuseVerticalNavigationFooter", ""], [1, "flex", "w-full", "items-center", "gap-4", "border-t", "border-gray-200/80", "px-6", "py-6", "dark:border-white/10"], [1, "ml-2", "flex", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "text-default", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "leading-normal", "font-medium"], [1, "text-secondary", "mt-1", "w-full", "overflow-hidden", "text-ellipsis", "whitespace-nowrap", "text-sm", "leading-normal"], [1, "flex", "w-full", "min-w-0", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "md:px-6", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "print:hidden"], ["mat-icon-button", "", 1, "mr-2", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "flex", "flex-auto", "flex-col"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "md:px-6", "dark:bg-transparent", "print:hidden"]], template: function FuturisticLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275elementStart(1, "fuse-vertical-navigation", 0);
@@ -24137,16 +24298,16 @@ var FuturisticLayoutComponent = class _FuturisticLayoutComponent {
         \u0275\u0275element(18, "mat-icon", 13);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(19, "div", 14);
-        \u0275\u0275element(20, "production-mode-toggle")(21, "languages")(22, "support-nav-button");
+        \u0275\u0275element(20, "production-mode-toggle")(21, "languages")(22, "notification-bell")(23, "support-nav-button");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(23, "sandbox-notice-strip");
-        \u0275\u0275elementStart(24, "div", 15);
-        \u0275\u0275template(25, FuturisticLayoutComponent_Conditional_25_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(24, "sandbox-notice-strip");
+        \u0275\u0275elementStart(25, "div", 15);
+        \u0275\u0275template(26, FuturisticLayoutComponent_Conditional_26_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(26, "div", 16);
-        \u0275\u0275element(27, "layout-footer");
+        \u0275\u0275elementStart(27, "div", 16);
+        \u0275\u0275element(28, "layout-footer");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(28, "app-blocking-notification-modal-host")(29, "quick-chat");
+        \u0275\u0275element(29, "app-blocking-notification-modal-host")(30, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
@@ -24157,13 +24318,14 @@ var FuturisticLayoutComponent = class _FuturisticLayoutComponent {
         \u0275\u0275textInterpolate1(" ", ctx.user == null ? null : ctx.user.email, " ");
         \u0275\u0275advance(5);
         \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional(true ? 25 : -1);
+        \u0275\u0275advance(8);
+        \u0275\u0275conditional(true ? 26 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
       FuseVerticalNavigationComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       MatButtonModule,
       MatIconButton,
@@ -24191,6 +24353,7 @@ var FuturisticLayoutComponent = class _FuturisticLayoutComponent {
       FuseLoadingBarComponent,
       FuseVerticalNavigationComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       MatButtonModule,
       MatIconModule,
@@ -24279,6 +24442,7 @@ var FuturisticLayoutComponent = class _FuturisticLayoutComponent {
             <!-- <shortcuts></shortcuts> -->\r
             <!-- <messages></messages> -->\r
             <!-- <notifications></notifications> -->\r
+            <notification-bell></notification-bell>\r
             <support-nav-button></support-nav-button>\r
         </div>\r
     </div>\r
@@ -24310,11 +24474,11 @@ var FuturisticLayoutComponent = class _FuturisticLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: UserService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FuturisticLayoutComponent, { className: "FuturisticLayoutComponent", filePath: "src/app/layout/layouts/vertical/futuristic/futuristic.component.ts", lineNumber: 56 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FuturisticLayoutComponent, { className: "FuturisticLayoutComponent", filePath: "src/app/layout/layouts/vertical/futuristic/futuristic.component.ts", lineNumber: 58 });
 })();
 
 // src/app/layout/layouts/vertical/thin/thin.component.ts
-function ThinLayoutComponent_Conditional_17_Template(rf, ctx) {
+function ThinLayoutComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "router-outlet");
   }
@@ -24372,7 +24536,7 @@ var ThinLayoutComponent = class _ThinLayoutComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ThinLayoutComponent, selectors: [["thin-layout"]], decls: 22, vars: 7, consts: [[1, "bg-card", "dark:bg-gray-900", "print:hidden", 3, "appearance", "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "justify-center"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Verifik", 1, "w-8"], [1, "flex", "min-h-0", "w-full", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "md:px-6", "print:hidden"], ["mat-icon-button", "", 1, "mr-2", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "relative", "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "dark:bg-transparent", "md:px-6", "print:hidden"]], template: function ThinLayoutComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ThinLayoutComponent, selectors: [["thin-layout"]], decls: 23, vars: 7, consts: [[1, "bg-card", "dark:bg-gray-900", "print:hidden", 3, "appearance", "mode", "name", "navigation", "opened"], ["fuseVerticalNavigationContentHeader", ""], [1, "flex", "h-20", "items-center", "justify-center"], ["src", "https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg", "alt", "Verifik", 1, "w-8"], [1, "flex", "min-h-0", "w-full", "min-w-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-16", "w-full", "flex-0", "items-center", "px-4", "shadow", "dark:border-b", "dark:bg-transparent", "dark:shadow-none", "md:px-6", "print:hidden"], ["mat-icon-button", "", 1, "mr-2", 3, "click"], [3, "svgIcon"], [1, "ml-auto", "flex", "items-center", "space-x-0.5", "pl-2", "sm:space-x-2"], [1, "relative", "flex", "min-h-0", "min-w-0", "flex-auto", "flex-col", "overflow-hidden"], [1, "bg-card", "relative", "z-49", "flex", "h-14", "w-full", "flex-0", "items-center", "justify-start", "border-t", "px-4", "dark:bg-transparent", "md:px-6", "print:hidden"]], template: function ThinLayoutComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "fuse-loading-bar");
         \u0275\u0275elementStart(1, "fuse-vertical-navigation", 0);
@@ -24391,24 +24555,24 @@ var ThinLayoutComponent = class _ThinLayoutComponent {
         \u0275\u0275element(9, "mat-icon", 7);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(10, "div", 8);
-        \u0275\u0275element(11, "production-mode-toggle")(12, "languages")(13, "support-nav-button")(14, "user");
+        \u0275\u0275element(11, "production-mode-toggle")(12, "languages")(13, "notification-bell")(14, "support-nav-button")(15, "user");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(15, "sandbox-notice-strip");
-        \u0275\u0275elementStart(16, "div", 9);
-        \u0275\u0275template(17, ThinLayoutComponent_Conditional_17_Template, 1, 0, "router-outlet");
+        \u0275\u0275element(16, "sandbox-notice-strip");
+        \u0275\u0275elementStart(17, "div", 9);
+        \u0275\u0275template(18, ThinLayoutComponent_Conditional_18_Template, 1, 0, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(18, "div", 10);
-        \u0275\u0275element(19, "layout-footer");
+        \u0275\u0275elementStart(19, "div", 10);
+        \u0275\u0275element(20, "layout-footer");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(20, "app-blocking-notification-modal-host")(21, "quick-chat");
+        \u0275\u0275element(21, "app-blocking-notification-modal-host")(22, "quick-chat");
       }
       if (rf & 2) {
         \u0275\u0275advance();
         \u0275\u0275property("appearance", "thin")("mode", ctx.isScreenSmall ? "over" : "side")("name", "mainNavigation")("navigation", ctx.navigation.compact)("opened", !ctx.isScreenSmall);
         \u0275\u0275advance(8);
         \u0275\u0275property("svgIcon", "heroicons_outline:bars-3");
-        \u0275\u0275advance(8);
-        \u0275\u0275conditional(true ? 17 : -1);
+        \u0275\u0275advance(9);
+        \u0275\u0275conditional(true ? 18 : -1);
       }
     }, dependencies: [
       FuseLoadingBarComponent,
@@ -24423,6 +24587,7 @@ var ThinLayoutComponent = class _ThinLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -24448,6 +24613,7 @@ var ThinLayoutComponent = class _ThinLayoutComponent {
       // MessagesComponent,
       // NotificationsComponent,
       UserComponent,
+      NotificationBellComponent,
       SupportNavButtonComponent,
       RouterOutlet,
       QuickChatComponent,
@@ -24504,6 +24670,7 @@ var ThinLayoutComponent = class _ThinLayoutComponent {
             <!-- <shortcuts></shortcuts> -->\r
             <!-- <messages></messages> -->\r
             <!-- <notifications></notifications> -->\r
+            <notification-bell></notification-bell>\r
             <support-nav-button></support-nav-button>\r
             <user></user>\r
         </div>\r
@@ -24536,7 +24703,7 @@ var ThinLayoutComponent = class _ThinLayoutComponent {
   }], () => [{ type: ActivatedRoute }, { type: Router }, { type: NavigationService }, { type: FuseMediaWatcherService }, { type: FuseNavigationService }], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ThinLayoutComponent, { className: "ThinLayoutComponent", filePath: "src/app/layout/layouts/vertical/thin/thin.component.ts", lineNumber: 54 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ThinLayoutComponent, { className: "ThinLayoutComponent", filePath: "src/app/layout/layouts/vertical/thin/thin.component.ts", lineNumber: 56 });
 })();
 
 // src/app/core/appearance/auto-scheme.ts
@@ -24960,15 +25127,15 @@ var appRoutes = [
   // Bridge route for SSO authentication (no layout wrapper)
   {
     path: "bridge",
-    loadChildren: () => import("./chunk-LV463PJ2.js").then((m) => m.default)
+    loadChildren: () => import("./chunk-G4NRDY6W.js").then((m) => m.default)
   },
   {
     path: "proposal",
-    loadChildren: () => import("./chunk-BJHTDDBJ.js").then((m) => m.default)
+    loadChildren: () => import("./chunk-5CKACZ6G.js").then((m) => m.default)
   },
   {
     path: "pay/return",
-    loadComponent: () => import("./chunk-645APW3O.js").then((m) => m.PaymentReturnComponent)
+    loadComponent: () => import("./chunk-V6MJASF2.js").then((m) => m.PaymentReturnComponent)
   },
   // Redirect empty path to '/home'
   { path: "", pathMatch: "full", redirectTo: "home" },
@@ -24982,71 +25149,71 @@ var appRoutes = [
     children: [
       {
         path: "home",
-        loadChildren: () => import("./chunk-U2GJD52X.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-4L7TBIUS.js").then((m) => m.default)
       },
       {
         path: "chat",
-        loadChildren: () => import("./chunk-CPORP2N2.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-IUPPABKE.js").then((m) => m.default)
       },
       {
         path: "postman",
-        loadChildren: () => import("./chunk-IOMZJJSH.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-52MVB5PA.js").then((m) => m.default)
       },
       {
         path: "check-list",
-        loadChildren: () => import("./chunk-QXJZZ7MV.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-MU3IVTOO.js").then((m) => m.default)
       },
       {
         path: "zelf-id",
-        loadChildren: () => import("./chunk-2QV46Z2F.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-PV3T64WI.js").then((m) => m.default)
       },
       {
         path: "history",
-        loadChildren: () => import("./chunk-7LOZXPUD.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-HVLLOFZG.js").then((m) => m.default)
       },
       {
         path: "settings",
-        loadChildren: () => import("./chunk-6W3IU6QH.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-UKFOWXCZ.js").then((m) => m.default)
       },
       {
         path: "smart-batch",
-        loadChildren: () => import("./chunk-KOC7A43W.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-H6PNXQUX.js").then((m) => m.default)
       },
       {
         path: "reporte-placa",
-        loadChildren: () => import("./chunk-S6NOQLH6.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-BKWRUANL.js").then((m) => m.default)
       },
       {
         path: "smart-fleet",
-        loadChildren: () => import("./chunk-LWS4UVT4.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-NI4JUB66.js").then((m) => m.default)
       },
       {
         path: "subscription-plans",
-        loadChildren: () => import("./chunk-2GX4ZSF7.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-F6DMBV7R.js").then((m) => m.default)
       },
       {
         path: "add-credits",
-        loadChildren: () => import("./chunk-VYD4ZANH.js").then((m) => m.ADD_CREDITS_ROUTES)
+        loadChildren: () => import("./chunk-V4MNFWF2.js").then((m) => m.ADD_CREDITS_ROUTES)
       },
       {
         path: "smart-access",
-        loadChildren: () => import("./chunk-4UCOVO2H.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-WJPJGNQA.js").then((m) => m.default)
       },
       {
         path: "smart-enroll",
-        loadChildren: () => import("./chunk-PDVJDVFF.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-PT66RGG4.js").then((m) => m.default)
       },
       {
         path: "human-authn",
-        loadChildren: () => import("./chunk-L2BW3LOW.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-TNZJ6DSM.js").then((m) => m.default)
       },
       {
         path: "smart-monitor",
-        loadChildren: () => import("./chunk-Z2J3Q6EL.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-Q3PCMSWY.js").then((m) => m.default)
       },
       {
         path: "smart-tools",
-        loadChildren: () => import("./chunk-VSWZ2BNI.js").then((m) => m.default)
+        loadChildren: () => import("./chunk-TBLSXFAQ.js").then((m) => m.default)
       }
     ]
   },
@@ -26102,10 +26269,22 @@ function deepMergeTranslations(base, patch) {
   }
   return out;
 }
+var mergeAppNotificationPatch = (http, lang, merged) => http.get(`./i18n/patches/app-notifications-${lang}.json`, {
+  responseType: "json",
+  observe: "body"
+}).pipe(map((patch) => deepMergeTranslations(merged, patch)), catchError(() => of(merged)), switchMap((withNotifications) => mergeCedulaBarcodePatch(http, lang, withNotifications)));
+var mergeCedulaBarcodePatch = (http, lang, merged) => http.get(`./i18n/patches/cedula-barcode-${lang}.json`, {
+  responseType: "json",
+  observe: "body"
+}).pipe(map((patch) => deepMergeTranslations(merged, patch)), catchError(() => of(merged)), switchMap((withBarcode) => mergeSmartScanPatch(http, lang, withBarcode)));
+var mergeSmartScanPatch = (http, lang, merged) => http.get(`./i18n/patches/smart-scan-${lang}.json`, {
+  responseType: "json",
+  observe: "body"
+}).pipe(map((patch) => deepMergeTranslations(merged, patch)), catchError(() => of(merged)));
 var mergeFeatureUrlPatch = (http, lang, merged) => http.get(`./i18n/patches/feature-urls-${lang}.json`, {
   responseType: "json",
   observe: "body"
-}).pipe(map((featureUrlPatch) => deepMergeTranslations(merged, featureUrlPatch)), catchError(() => of(merged)));
+}).pipe(map((featureUrlPatch) => deepMergeTranslations(merged, featureUrlPatch)), catchError(() => of(merged)), switchMap((withUrls) => mergeAppNotificationPatch(http, lang, withUrls)));
 var TranslocoHttpLoader = class _TranslocoHttpLoader {
   constructor() {
     this._httpClient = inject(HttpClient);
