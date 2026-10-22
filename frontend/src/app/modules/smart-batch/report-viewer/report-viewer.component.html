@@ -399,81 +399,47 @@
                                             </div>
                                         }
                                         @if (selectedTemplate() && batch()?.rows?.length) {
-                                            <div class="mx-auto max-w-none" [style.width.mm]="previewPaperWidthMm()">
-                                                <report-preview
-                                                    [printCapture]="false"
-                                                    [fullContent]="true"
-                                                    [template]="selectedTemplate()!"
-                                                    [previewData]="previewDataForCurrentPage()"
-                                                    [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
-                                                    [pageBackgroundColor]="
-                                                        selectedTemplate()!.pageBackgroundColor || '#ffffff'
-                                                    "
-                                                    [orientation]="selectedTemplate()!.orientation || 'portrait'"
-                                                    [pageSize]="selectedTemplate()!.pageSize || 'A4'"
-                                                    [clickable]="false"
-                                                    [logoUrl]="
-                                                        selectedTemplate()!.headerLogos?.length
-                                                            ? null
-                                                            : selectedTemplate()!.logo || null
-                                                    "
-                                                    [logoEnabled]="
-                                                        !selectedTemplate()!.headerLogos?.length &&
-                                                        !!selectedTemplate()!.logo
-                                                    "
-                                                    [logoX]="selectedTemplate()!.logoSettings?.x ?? 32"
-                                                    [logoY]="selectedTemplate()!.logoSettings?.y ?? 32"
-                                                    [logoWidth]="selectedTemplate()!.logoSettings?.width ?? 160"
-                                                    [logoHeight]="selectedTemplate()!.logoSettings?.height ?? 60"
-                                                    [logoRotation]="selectedTemplate()!.logoSettings?.rotation ?? 0"
-                                                    [logoAutoFitContent]="
-                                                        selectedTemplate()!.logoSettings?.autoFitContent ?? false
-                                                    "
-                                                    [sheetImages]="selectedTemplate()!.sheetImages ?? []"
-                                                    [bodyTopPadding]="selectedTemplate()!.bodyTopPadding ?? 0"
-                                                    [legend]="selectedTemplate()!.legend || ''"
-                                                    [legendPosition]="selectedTemplate()!.legendPosition || 'left'"
-                                                    [termsAndConditions]="
-                                                        selectedTemplate()!.termsAndConditions || ''
-                                                    "
-                                                    [termsPosition]="selectedTemplate()!.termsPosition || 'left'"
-                                                    [signatureEnabled]="
-                                                        !!(
-                                                            selectedTemplate()!.signature?.enabled &&
-                                                            selectedTemplate()!.signature?.image
-                                                        )
-                                                    "
-                                                    [signatureImage]="selectedTemplate()!.signature?.image || null"
-                                                    [signatureX]="selectedTemplate()!.signature?.x ?? 48"
-                                                    [signatureY]="selectedTemplate()!.signature?.y ?? 720"
-                                                    [signatureWidth]="selectedTemplate()!.signature?.width ?? 160"
-                                                    [signatureHeight]="selectedTemplate()!.signature?.height ?? 64"
-                                                    [signaturePage]="selectedTemplate()!.signature?.page ?? 0"
-                                                    [showPageNumbers]="selectedTemplate()!.showPageNumbers || false"
-                                                    [pageNumberPosition]="
-                                                        selectedTemplate()!.pageNumberPosition || 'bottom-center'
-                                                    "
-                                                    [watermarkEnabled]="selectedTemplate()!.watermark?.enabled || false"
-                                                    [watermarkType]="selectedTemplate()!.watermark?.type || 'text'"
-                                                    [watermarkLogoUrl]="
-                                                        selectedTemplate()!.watermark?.logo || undefined
-                                                    "
-                                                    [watermarkText]="
-                                                        selectedTemplate()!.watermark?.text ||
-                                                        ('smartReport.watermarkTextPlaceholder' | transloco)
-                                                    "
-                                                    [watermarkOpacity]="selectedTemplate()!.watermark?.opacity ?? 0.08"
-                                                    [watermarkPattern]="
-                                                        selectedTemplate()!.watermark?.pattern || 'single'
-                                                    "
-                                                    [watermarkX]="selectedTemplate()!.watermark?.x ?? 250"
-                                                    [watermarkY]="selectedTemplate()!.watermark?.y ?? 420"
-                                                    [watermarkWidth]="selectedTemplate()!.watermark?.width ?? 280"
-                                                    [watermarkHeight]="selectedTemplate()!.watermark?.height ?? 160"
-                                                    [watermarkRotation]="
-                                                        selectedTemplate()!.watermark?.rotation ?? -15
-                                                    "
-                                                />
+                                            <div
+                                                class="relative mx-auto max-w-none overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-100 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                                                [style.width.mm]="previewPaperWidthMm()"
+                                            >
+                                                @if (htmlPreviewError()) {
+                                                    <div
+                                                        class="flex min-h-[480px] flex-col items-center justify-center gap-2 px-4 text-stone-400 dark:text-stone-500"
+                                                    >
+                                                        <mat-icon class="!h-8 !w-8 !text-3xl">error_outline</mat-icon>
+                                                        <p class="text-center text-sm">{{ htmlPreviewError() }}</p>
+                                                        <button
+                                                            type="button"
+                                                            (click)="refreshHtmlPreview()"
+                                                            class="rounded-lg border border-stone-200 px-3 py-1.5 text-xs hover:bg-white dark:border-gray-700 dark:hover:bg-gray-950"
+                                                        >
+                                                            {{ 'smartReport.retry' | transloco }}
+                                                        </button>
+                                                    </div>
+                                                } @else if (htmlPreviewUrl()) {
+                                                    <iframe
+                                                        [src]="htmlPreviewUrl()"
+                                                        sandbox
+                                                        title="Report preview"
+                                                        class="min-h-[480px] w-full border-0 bg-white"
+                                                        style="height: 80vh"
+                                                    ></iframe>
+                                                } @else {
+                                                    <div
+                                                        class="flex min-h-[480px] flex-col items-center justify-center gap-2 text-stone-400 dark:text-stone-500"
+                                                    >
+                                                        <mat-spinner diameter="40"></mat-spinner>
+                                                        <p class="text-sm">{{ 'smartReport.rendering' | transloco }}</p>
+                                                    </div>
+                                                }
+                                                @if (htmlPreviewLoading() && htmlPreviewUrl()) {
+                                                    <div
+                                                        class="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-white/60 dark:bg-gray-950/60"
+                                                    >
+                                                        <mat-spinner diameter="36"></mat-spinner>
+                                                    </div>
+                                                }
                                             </div>
                                             @if (previewDataForAllRows().length > 1) {
                                                 <div

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/proposal/proposal.routes.ts"],
+  "sourcesContent": ["import { Route } from '@angular/router';\r\n\r\nexport default [\r\n    {\r\n        path: ':token',\r\n        loadComponent: () =>\r\n            import('./proposal-viewer.component').then((m) => m.ProposalViewerComponent),\r\n    },\r\n] as Route[];\r\n"],
+  "mappings": ";;;AAEA,IAAA,0BAAe;EACX;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAA6B,EAAE,KAAK,CAAC,MAAM,EAAE,uBAAuB;;;",
+  "names": []
+}

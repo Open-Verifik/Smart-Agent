@@ -142,3 +142,25 @@ export const reportModelHasBlocks = (report: Record<string, unknown> | null | un
     !!report['blocks'] &&
     typeof report['blocks'] === 'object' &&
     Object.keys(report['blocks'] as object).length > 0;
+
+/** True when at least one block has rows or tables the template can bind to. */
+export const reportModelHasRenderableContent = (
+    report: Record<string, unknown> | null | undefined
+): boolean => {
+    if (!reportModelHasBlocks(report)) return false;
+    const blocks = report!['blocks'] as Record<string, Record<string, unknown>>;
+    return Object.values(blocks).some((block) => {
+        if (!block || typeof block !== 'object') return false;
+        const displayRows = block['displayRows'];
+        if (Array.isArray(displayRows) && displayRows.length > 0) return true;
+        const tables = block['tables'];
+        if (!Array.isArray(tables)) return false;
+        return tables.some(
+            (table) =>
+                table &&
+                typeof table === 'object' &&
+                Array.isArray((table as Record<string, unknown>)['rows']) &&
+                ((table as Record<string, unknown>)['rows'] as unknown[]).length > 0
+        );
+    });
+};

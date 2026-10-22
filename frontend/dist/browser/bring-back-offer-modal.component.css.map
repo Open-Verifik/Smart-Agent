@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/home/bring-back-offer-modal/bring-back-offer-modal.component.ts"],
+  "sourcesContent": ["\n\t\t\t:host {\n\t\t\t\tdisplay: block;\n\t\t\t}\n\t\t"],
+  "mappings": ";AACG;AACC,WAAA;;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/add-credits/add-credits.routes.ts"],
+  "sourcesContent": ["import { Routes } from '@angular/router';\r\n\r\nexport const ADD_CREDITS_ROUTES: Routes = [\r\n    {\r\n        path: '',\r\n        loadComponent: () =>\r\n            import('./add-credits.component').then((m) => m.AddCreditsComponent),\r\n    },\r\n];\r\n"],
+  "mappings": ";;;AAEO,IAAM,qBAA6B;EACtC;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAAyB,EAAE,KAAK,CAAC,MAAM,EAAE,mBAAmB;;;",
+  "names": []
+}

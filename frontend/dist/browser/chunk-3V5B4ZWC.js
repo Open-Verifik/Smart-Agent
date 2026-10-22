@@ -1,0 +1,54 @@
+// src/environments/environment.ts
+var isLocalVerifikApp = () => typeof window !== "undefined" && window.location.hostname === "verifik.app";
+var localDefaults = {
+  production: false,
+  thisUrl: "http://localhost:4201",
+  baseUrl: "http://localhost:3006",
+  smartAgentUrl: "http://localhost:3060",
+  apiUrl: "http://localhost:3001",
+  documentationBaseUrl: "https://docs.verifik.co",
+  appUrl: "https://verifik.app",
+  projectId: "6266193db77ccc8111730c90",
+  loginProjectFlowId: "658ed28b0990f300134d7b78",
+  plateReportProjectId: "6ad24bdb2467ba37a62beb72",
+  plateReportFlowId: "6ad251f62467ba37a62beb7d",
+  plateReportTemplateId: "6ac91b76da239e3e07b95270",
+  kycBaseUrl: "https://access.app",
+  rpcUrl: "https://wild-bitter-meadow.avalanche-mainnet.quiknode.pro/e2565749ca44c2873fe2a0a747f5ac68ae7eb14f/ext/bc/C/rpc/",
+  vkaContractAddress: "0x8fc4b00689812f449723CB473E0A7C060b10eD3f",
+  tokenTicker: "VKA",
+  x402PaymentContract: "0x5e3C7c44e5d76fa5517378582B824046cBDcFfCD",
+  reputationRegistryContract: "0x310247955605c357628F51e94b3E5A20225C71a4",
+  priorityFeeTipGwei: "5",
+  chainId: 43114,
+  isTestnet: false
+};
+var verifikAppOverrides = {
+  get thisUrl() {
+    return "https://verifik.app";
+  },
+  get baseUrl() {
+    return "https://verifik.app";
+  },
+  get apiUrl() {
+    return "https://verifik.app";
+  },
+  get appUrl() {
+    return "https://verifik.app";
+  },
+  smartAgentUrl: "http://localhost:3060",
+  kycBaseUrl: "https://access.app"
+};
+var environment = new Proxy(localDefaults, {
+  get(target, prop, receiver) {
+    if (isLocalVerifikApp() && prop in verifikAppOverrides) {
+      return Reflect.get(verifikAppOverrides, prop, receiver);
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+export {
+  environment
+};
+//# sourceMappingURL=chunk-3V5B4ZWC.js.map

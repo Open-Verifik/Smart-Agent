@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-access/projects/setup/steps/access-whitelist-step.component.scss"],
+  "sourcesContent": [".step-card {\r\n    @apply rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900;\r\n}\r\n"],
+  "mappings": ";AACI,CAAA;AAAA,iBAAA;AAAA,gBAAA;AAAA,gBAAA,IAAA,IAAA,IAAA,IAAA,EAAA;AAAA,mBAAA;AAAA,oBAAA,IAAA,IAAA,IAAA,IAAA,EAAA,IAAA,eAAA,EAAA;AAAA,WAAA;AAAA,eAAA,EAAA,IAAA,IAAA,EAAA,IAAA,EAAA,EAAA,EAAA,EAAA;AAAA,uBAAA,EAAA,IAAA,IAAA,EAAA,IAAA;AAAA;IAAA,IAAA,uBAAA,EAAA,EAAA,EAAA,MAAA;IAAA,IAAA,gBAAA,EAAA,EAAA,EAAA,MAAA;IAAA,IAAA;AAAA;AAAA,CAAA,SAAA,OAAA,CAAA,MAAA,CAAA,KAAA;AAAA,uBAAA;AAAA,gBAAA,IAAA,GAAA,GAAA,GAAA,EAAA,IAAA,mBAAA,EAAA;AAAA,mBAAA;AAAA,oBAAA,IAAA,GAAA,GAAA,GAAA,EAAA,IAAA,eAAA,EAAA;AAAA;",
+  "names": []
+}

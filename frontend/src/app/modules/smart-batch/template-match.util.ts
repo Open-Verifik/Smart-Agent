@@ -2,7 +2,7 @@ import {
     buildColombiaVehicleReport,
     hasColombiaVehicleReportSteps,
 } from './colombia-vehicle-report/colombia-vehicle-report.composer';
-import { reportModelHasBlocks } from './report-blocks-preview.util';
+import { reportModelHasBlocks, reportModelHasRenderableContent } from './report-blocks-preview.util';
 import type { BatchStep } from './smart-batch.service';
 import { ReportSection, SmartReportTemplate } from './smart-report.service';
 
@@ -115,12 +115,14 @@ export function buildRowDataForResolution(
         ) as Record<string, any>;
     }
 
-    if (reportModelHasBlocks(options?.report)) {
+    if (reportModelHasRenderableContent(options?.report)) {
         data.report = options!.report!;
         return data;
     }
 
-    if (reportModelHasBlocks(localReport)) {
+    if (reportModelHasRenderableContent(localReport)) {
+        data.report = localReport!;
+    } else if (reportModelHasBlocks(localReport)) {
         data.report = localReport!;
     }
 

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-batch/report-template-thumb.component.ts"],
+  "sourcesContent": ["\n        :host {\n            display: block;\n        }\n        .report-template-thumb__frame {\n            height: 100%;\n            aspect-ratio: 210 / 297;\n            container-type: size;\n            overflow: hidden;\n            pointer-events: none;\n        }\n        .report-template-thumb--landscape .report-template-thumb__frame {\n            aspect-ratio: 297 / 210;\n        }\n        .report-template-thumb__sheet {\n            transform-origin: top left;\n        }\n    "],
+  "mappings": ";AACQ;AACI,WAAA;;AAEJ,CAAA;AACI,UAAA;AACA,gBAAA,GAAA,CAAA;AACA,kBAAA;AACA,YAAA;AACA,kBAAA;;AAEJ,CAAA,iCAAA,CAPA;AAQI,gBAAA,GAAA,CAAA;;AAEJ,CAAA;AACI,oBAAA,IAAA;;",
+  "names": []
+}

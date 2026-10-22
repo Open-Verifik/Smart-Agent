@@ -3981,7 +3981,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return value.filter((entry) => entry && typeof entry === 'object');
         }
 
-        return value && typeof value === 'object' ? [value] : [];
+        if (value && typeof value === 'object') {
+            const table = value as Record<string, unknown>;
+            if (Array.isArray(table['rows'])) {
+                return (table['rows'] as unknown[]).filter(
+                    (entry) => entry && typeof entry === 'object'
+                ) as Record<string, any>[];
+            }
+            return [value as Record<string, any>];
+        }
+
+        return [];
     }
 
     /** Declared columns, or the ones the backend would derive from the records. */
@@ -3995,6 +4005,19 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                     key: column.key,
                     label: column.label || this._humanize(column.key),
                 }));
+        }
+
+        const raw = this._valueAt(section.dataPath);
+        if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+            const table = raw as Record<string, unknown>;
+            if (Array.isArray(table['columns']) && table['columns'].length > 0) {
+                return (table['columns'] as { key?: string; label?: string }[])
+                    .filter((column) => column?.key && !hidden.has(column.key))
+                    .map((column) => ({
+                        key: String(column.key),
+                        label: column.label || this._humanize(String(column.key)),
+                    }));
+            }
         }
 
         const records = this.structuralRecords(section);
