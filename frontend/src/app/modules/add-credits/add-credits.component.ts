@@ -215,6 +215,12 @@ export class AddCreditsComponent implements OnInit {
                 if (state === 'approved') {
                     this.boldReturnState.set('approved');
                     this._refreshSessionAndBalance();
+                    if (hasPlateReportDraft()) {
+                        void this._router.navigate(['/reporte-placa'], {
+                            queryParams: { continuar: '1' },
+                            replaceUrl: true,
+                        });
+                    }
                     return;
                 }
 

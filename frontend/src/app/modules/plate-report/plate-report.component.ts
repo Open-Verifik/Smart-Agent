@@ -14,6 +14,7 @@ import { VerifikApiService } from 'app/core/verifik/verifik-api.service';
 import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { take } from 'rxjs/operators';
 import {
     BoldConfirmData,
     BoldCurrency,
@@ -60,6 +61,9 @@ type WorkingStep = 'account' | 'clone' | 'run' | 'pdf' | 'payment';
 /** Where the customer stands with the Bold order they came back with. */
 type BoldReturnState = 'approved' | 'pending' | 'abandoned' | 'failed' | 'unknown';
 
+/** Same states as add-credits Bold return banner (`addCredits.bold.return.*`). */
+type PlateBoldBannerState = BoldReturnState | 'confirming';
+
 /** Currency choices on screen. Only pesos can be charged for now, so USD is shown but not selectable. */
 interface CurrencyOption {
     code: BoldCurrency;
@@ -80,10 +84,18 @@ const REPORT_PRODUCT: BoldProduct = 'plate_report';
 
 /** Bold's webhook can lag, and PSE settles in minutes, so the return trip asks a few times. */
 const BOLD_CONFIRM_ATTEMPTS = 5;
+/** When Bold's redirect URL already says approved, the webhook can still lag a few seconds. */
+const BOLD_CONFIRM_ATTEMPTS_APPROVED_HINT = 18;
 const BOLD_CONFIRM_RETRY_MS = 3000;
+/** Credits can lag the Bold confirm response by a few seconds. */
+const POST_PAYMENT_CREDIT_ATTEMPTS = 10;
+const POST_PAYMENT_CREDIT_RETRY_MS = 2500;
 
 /** Where Bold sends the customer back to; the API whitelists this path. */
 const BOLD_RETURN_PATH = '/reporte-placa';
+/** Poll while Bold's embedded success screen is open (webhook/confirm can beat the redirect). */
+const BOLD_EMBEDDED_POLL_MS = 4000;
+const BOLD_EMBEDDED_POLL_MAX = 90;
 
 const CURRENCY_OPTIONS: CurrencyOption[] = [
     {
@@ -180,6 +192,10 @@ export class PlateReportComponent implements OnInit {
     readonly pseOnly = computed(() => this.policy()?.restricted === true);
     /** A Bold order the customer came back with that has not settled yet. */
     readonly awaitingOrder = signal(false);
+    /** Payment is settled; the client can generate or download the report without paying again. */
+    readonly reportPaid = signal(false);
+    /** Bold payment status banner (mirrors `/add-credits`). */
+    readonly boldReturnState = signal<PlateBoldBannerState | null>(null);
 
     readonly totalLabel = computed(() => {
         const quote = this.quote();
@@ -189,10 +205,15 @@ export class PlateReportComponent implements OnInit {
     });
 
     private _orderId = '';
+    private _boldReturnHandled = false;
+    private _boldCheckoutWatchTimer?: ReturnType<typeof setInterval>;
+    private _boldCheckoutPolls = 0;
 
     constructor() {
-        inject(DestroyRef).onDestroy(() => {
+        const destroyRef = inject(DestroyRef);
+        destroyRef.onDestroy(() => {
             this._left = true;
+            this._stopBoldCheckoutWatch();
         });
 
         // The quote and the purchase policy need the account, which only exists once the payment step shows.
@@ -250,16 +271,36 @@ export class PlateReportComponent implements OnInit {
             this._batchId = draft.batchId ?? '';
             this._templateId = draft.templateId ?? '';
             this._paid = draft.paid ?? false;
+            this.reportPaid.set(this._paid);
             this.pendingNotice.set(Boolean(draft.batchId));
+            if (draft.boldOrderId) this._orderId = draft.boldOrderId;
         }
 
         const resume = this._route.snapshot.queryParamMap.get('continuar') === '1';
-        const boldOrderId = this._route.snapshot.queryParamMap.get('bold-order-id');
+        const handleBoldReturnFromQuery = (params: { get: (key: string) => string | null }): void => {
+            const boldReturn = this._readBoldReturnQuery(params);
+            if (boldReturn) {
+                void this._handleBoldReturn(boldReturn.orderId, boldReturn.txHint);
+            }
+        };
 
-        if (boldOrderId) {
-            void this._handleBoldReturn(boldOrderId);
-        } else if (resume && draft?.batchId && this.signedIn()) {
-            void this.continueFromDraft();
+        handleBoldReturnFromQuery(this._route.snapshot.queryParamMap);
+        this._route.queryParamMap.pipe(take(1)).subscribe((params) => handleBoldReturnFromQuery(params));
+
+        if (this._boldReturnHandled) {
+            // Bold return flow owns the screen until confirm finishes.
+        } else if (resume && this.signedIn()) {
+            void this.continueAfterPayment();
+        } else if (this.signedIn() && (this._paid || draft?.resume === 'after-payment')) {
+            if (this._paid) {
+                void this.continueAfterPayment();
+            } else if (this._orderId) {
+                this.phase.set('payment');
+                this.awaitingOrder.set(true);
+                this.boldReturnState.set('pending');
+            } else {
+                void this._reconcileOpenPaymentAndContinue();
+            }
         }
     }
 
@@ -267,47 +308,131 @@ export class PlateReportComponent implements OnInit {
      * Bold sends the customer back with `bold-order-id`. Credits are granted by Bold's webhook or by the
      * confirm call, whichever comes first, so the order is asked about a few times before giving up.
      */
-    private async _handleBoldReturn(orderId: string): Promise<void> {
+    dismissBoldReturnNotice(): void {
+        this.boldReturnState.set(null);
+        this.errorKey.set(null);
+    }
+
+    boldReturnIcon(state: PlateBoldBannerState): string {
+        if (state === 'confirming') return 'hourglass_top';
+        if (state === 'approved') return 'check_circle';
+        if (state === 'pending') return 'schedule';
+        if (state === 'abandoned') return 'remove_shopping_cart';
+        if (state === 'unknown') return 'help_outline';
+        return 'error_outline';
+    }
+
+    /**
+     * Bold appends `bold-order-id` and often `bold-tx-status=approved` on the return URL
+     * (see redirectionUrl in checkout config).
+     */
+    private _readBoldReturnQuery(
+        params: { get: (key: string) => string | null }
+    ): { orderId: string; txHint: BoldReturnState | null } | null {
+        if (this._boldReturnHandled) return null;
+
+        const orderId = params.get('bold-order-id')?.trim();
+        if (!orderId) return null;
+
+        this._boldReturnHandled = true;
+        const txHint = this._parseBoldTxStatus(params.get('bold-tx-status'));
+
+        this._orderId = orderId;
+        this._remember('after-payment');
+        void this._router.navigate(['/reporte-placa'], { replaceUrl: true, queryParams: {} });
+
+        return { orderId, txHint };
+    }
+
+    private _startBoldCheckoutWatch(orderId: string): void {
+        this._stopBoldCheckoutWatch();
+        this._boldCheckoutPolls = 0;
+        this._boldCheckoutWatchTimer = setInterval(() => {
+            void this._pollBoldCheckoutOnce(orderId);
+        }, BOLD_EMBEDDED_POLL_MS);
+    }
+
+    private _stopBoldCheckoutWatch(): void {
+        if (this._boldCheckoutWatchTimer) {
+            clearInterval(this._boldCheckoutWatchTimer);
+            this._boldCheckoutWatchTimer = undefined;
+        }
+        this._boldCheckoutPolls = 0;
+    }
+
+    /** Detects approval while the embedded «Completaste el pago» screen is still open. */
+    private async _pollBoldCheckoutOnce(orderId: string): Promise<void> {
+        if (this._left || this.busy()) return;
+        if (this.phase() === 'ready') {
+            this._stopBoldCheckoutWatch();
+            return;
+        }
+        if (this._boldCheckoutPolls >= BOLD_EMBEDDED_POLL_MAX) {
+            this._stopBoldCheckoutWatch();
+            return;
+        }
+        this._boldCheckoutPolls += 1;
+
+        const state = await this._confirmBoldOrder(orderId, 'approved');
+        if (state === 'approved') {
+            await this._handleBoldReturn(orderId, 'approved');
+        }
+    }
+
+    private _parseBoldTxStatus(raw: string | null): BoldReturnState | null {
+        if (!raw) return null;
+        const value = raw.trim().toLowerCase();
+        if (value === 'approved' || value === 'success' || value === 'paid') return 'approved';
+        if (value === 'pending' || value === 'processing') return 'pending';
+        if (value === 'failed' || value === 'rejected' || value === 'declined') return 'failed';
+        return null;
+    }
+
+    private async _handleBoldReturn(orderId: string, txHint: BoldReturnState | null = null): Promise<void> {
+        if (this.busy()) return;
+
+        this._stopBoldCheckoutWatch();
         this._orderId = orderId;
         this.awaitingOrder.set(false);
         this.errorKey.set(null);
+        this.boldReturnState.set('confirming');
         this.workingStep.set('payment');
         this.phase.set('working');
         this.busy.set(true);
-
-        // Drops Bold's parameters so a refresh does not replay the return trip.
-        void this._router.navigate(['/reporte-placa'], { replaceUrl: true });
+        this._remember('after-payment');
 
         try {
-            const state = await this._confirmBoldOrder(orderId);
+            let state = await this._confirmBoldOrder(orderId, txHint);
 
             if (this._left) return;
 
-            if (state === 'approved') {
-                this._orderId = '';
-                this._paid = true;
-                this._remember();
-                await firstValueFrom(this._auth.refreshSession());
-                await this.startReport();
+            if (state === 'pending' && txHint === 'approved') {
+                await this._waitForCreditsAfterPayment();
+                state = await this._confirmBoldOrder(orderId, txHint);
+            }
+
+            if (state === 'approved' || (state === 'pending' && txHint === 'approved')) {
+                await this._finishApprovedPayment(state === 'pending');
                 return;
             }
 
             if (state === 'pending') {
                 this.awaitingOrder.set(true);
-                this.errorKey.set('plateReport.paymentPending');
+                this.boldReturnState.set('pending');
+                this._remember();
+                void this._pollBoldOrderUntilSettled(orderId, txHint);
             } else {
                 this._orderId = '';
-                this.errorKey.set(
-                    state === 'abandoned'
-                        ? 'plateReport.paymentAbandoned'
-                        : state === 'failed'
-                          ? 'plateReport.paymentFailed'
-                          : 'plateReport.paymentUnknown'
-                );
+                this.boldReturnState.set(state);
             }
             this.phase.set('payment');
         } catch (error) {
             console.error('[PlateReport] could not finish after the payment', error);
+            if (txHint === 'approved') {
+                await this._finishApprovedPayment(true);
+                return;
+            }
+            this.boldReturnState.set('unknown');
             this._showError('plateReport.genericError', error);
             this.phase.set('payment');
         } finally {
@@ -315,15 +440,62 @@ export class PlateReportComponent implements OnInit {
         }
     }
 
+    /** Credits granted; generate the PDF or ask for the plate if the draft was lost. */
+    private async _finishApprovedPayment(syncPending = false): Promise<void> {
+        this._orderId = '';
+        this._paid = true;
+        this.reportPaid.set(true);
+        this.boldReturnState.set(syncPending ? 'pending' : 'approved');
+        this._remember();
+
+        try {
+            await firstValueFrom(this._auth.refreshSession());
+        } catch {
+            // Best-effort; batch may still run on existing token.
+        }
+        this._credits.refreshBalance();
+
+        if (!normalizePlate(this.plate())) {
+            this.phase.set('form');
+            this.pendingNotice.set(true);
+            this.boldReturnState.set('approved');
+            return;
+        }
+
+        await this.startReport();
+    }
+
+    /** Whether the primary «Pagar» button should show (not while a settled/pending Bold trip is active). */
+    canShowPayButton(): boolean {
+        if (this.reportPaid()) return false;
+        const banner = this.boldReturnState();
+        if (!banner) return true;
+        return banner === 'failed' || banner === 'abandoned';
+    }
+
+    orderIdForCheck(): boolean {
+        return Boolean(this._orderId);
+    }
+
+    /** Hide the banner while the report runs; keep it for payment confirmation and checkout. */
+    showBoldBanner(): boolean {
+        const state = this.boldReturnState();
+        if (!state) return false;
+        if (this.phase() === 'working' && this.workingStep() !== 'payment') return false;
+        return true;
+    }
+
     /** Asks again for a payment that was still settling (PSE debits can take a few minutes). */
     async checkPayment(): Promise<void> {
         if (this.busy() || !this._orderId) return;
 
-        await this._handleBoldReturn(this._orderId);
+        await this._handleBoldReturn(this._orderId, null);
     }
 
-    private async _confirmBoldOrder(orderId: string): Promise<BoldReturnState> {
-        for (let attempt = 1; attempt <= BOLD_CONFIRM_ATTEMPTS; attempt++) {
+    private async _confirmBoldOrder(orderId: string, txHint: BoldReturnState | null = null): Promise<BoldReturnState> {
+        const maxAttempts = txHint === 'approved' ? BOLD_CONFIRM_ATTEMPTS_APPROVED_HINT : BOLD_CONFIRM_ATTEMPTS;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             let state: BoldReturnState;
 
             try {
@@ -335,7 +507,7 @@ export class PlateReportComponent implements OnInit {
                 return 'unknown';
             }
 
-            if (state !== 'pending' || attempt === BOLD_CONFIRM_ATTEMPTS) return state;
+            if (state !== 'pending' || attempt === maxAttempts) return state;
 
             await this._sleep(BOLD_CONFIRM_RETRY_MS);
 
@@ -511,9 +683,12 @@ export class PlateReportComponent implements OnInit {
                 })
             );
 
-            const config = response.data;
+            let config = this._payment.alignBoldReturnUrl(response.data, BOLD_RETURN_PATH);
+            this._orderId = config.orderId;
+            this._remember('after-payment');
 
             if (config.mode === 'redirect') {
+                config = this._payment.alignBoldReturnUrl(config, BOLD_RETURN_PATH);
                 // Leaves the spinner up: the page is on its way to Bold.
                 this._payment.redirectToBoldCheckout(config);
                 return;
@@ -521,6 +696,7 @@ export class PlateReportComponent implements OnInit {
 
             await this._payment.loadBoldCheckoutScript();
             this._payment.openBoldCheckout(config);
+            this._startBoldCheckoutWatch(config.orderId);
         } catch (error) {
             console.error('[PlateReport] could not open the Bold checkout', error);
             this.errorKey.set(this._paymentErrorKey(error));
@@ -556,11 +732,73 @@ export class PlateReportComponent implements OnInit {
     }
 
     async continueFromDraft(): Promise<void> {
-        if (!this._batchId || !this._session.isTokenValid()) {
+        await this.continueAfterPayment();
+    }
+
+    /**
+     * After a successful payment (or when returning from credits with a saved draft), run the batch
+     * and land on the download / email screen.
+     */
+    async continueAfterPayment(): Promise<void> {
+        if (this.busy()) return;
+        if (!this._session.isTokenValid()) {
             this.phase.set('form');
             return;
         }
-        await this.startReport();
+
+        if (this._paid) {
+            await this.startReport();
+            return;
+        }
+
+        if (this._orderId) {
+            await this._handleBoldReturn(this._orderId);
+            return;
+        }
+
+        const settled = await this._reconcileOpenPaymentAndContinue();
+        if (!settled && this._batchId) {
+            await this.startReport();
+        }
+    }
+
+    private async _reconcileOpenPaymentAndContinue(): Promise<boolean> {
+        try {
+            const response = await firstValueFrom(this._payment.reconcileBoldOrders());
+            const orders = response.data?.orders ?? [];
+            const approved = orders.find((order) => order.state === 'approved');
+            if (!approved?.orderId) return false;
+
+            await this._handleBoldReturn(approved.orderId, 'approved');
+            return true;
+        } catch (error) {
+            console.error('[PlateReport] could not reconcile Bold orders', error);
+            return false;
+        }
+    }
+
+    private async _pollBoldOrderUntilSettled(orderId: string, txHint: BoldReturnState | null = null): Promise<void> {
+        const maxAttempts = txHint === 'approved' ? BOLD_CONFIRM_ATTEMPTS_APPROVED_HINT : BOLD_CONFIRM_ATTEMPTS;
+
+        for (let attempt = 2; attempt <= maxAttempts; attempt++) {
+            await this._sleep(BOLD_CONFIRM_RETRY_MS);
+            if (this._left || this.phase() === 'ready' || !this.awaitingOrder()) return;
+
+            const state = await this._confirmBoldOrder(orderId, txHint);
+            if (state === 'approved') {
+                this.awaitingOrder.set(false);
+                await this._finishApprovedPayment(false);
+                return;
+            }
+            if (state !== 'pending') {
+                this.boldReturnState.set(state);
+                return;
+            }
+        }
+
+        if (txHint === 'approved' || this._paid) {
+            await this._finishApprovedPayment(true);
+        }
     }
 
     async download(): Promise<void> {
@@ -622,6 +860,11 @@ export class PlateReportComponent implements OnInit {
         this.reusedReport.set(false);
         this.savedOnAccount.set(false);
         this.needsSignIn.set(false);
+        this.reportPaid.set(false);
+        this.awaitingOrder.set(false);
+        this.boldReturnState.set(null);
+        this._paid = false;
+        this._orderId = '';
         this.errorKey.set(null);
         this.fieldError.set(null);
         this.phase.set('form');
@@ -634,6 +877,9 @@ export class PlateReportComponent implements OnInit {
 
     private async startReport(): Promise<void> {
         if (this._left) return;
+        if (this.boldReturnState() === 'approved') {
+            this.boldReturnState.set('confirming');
+        }
         this.phase.set('working');
         this.busy.set(true);
         this.errorKey.set(null);
@@ -672,12 +918,25 @@ export class PlateReportComponent implements OnInit {
             }
 
             this.workingStep.set('run');
-            const quote = await firstValueFrom(this._batches.getBatchEstimate(this._batchId));
+            let quote = await firstValueFrom(this._batches.getBatchEstimate(this._batchId));
             this.estimate.set(quote.data);
             if (!quote.data.sufficientCredits && existing.data.status !== 'processing') {
-                this._remember('after-payment');
-                this.phase.set('payment');
-                return;
+                if (this._paid) {
+                    const creditsReady = await this._waitForCreditsAfterPayment();
+                    if (creditsReady) {
+                        quote = await firstValueFrom(this._batches.getBatchEstimate(this._batchId));
+                        this.estimate.set(quote.data);
+                    }
+                }
+                if (!quote.data.sufficientCredits && existing.data.status !== 'processing') {
+                    this._remember('after-payment');
+                    this.reportPaid.set(this._paid);
+                    if (this._paid) {
+                        this.boldReturnState.set('approved');
+                    }
+                    this.phase.set('payment');
+                    return;
+                }
             }
 
             if (!this._isTerminal(existing.data.status)) {
@@ -702,6 +961,10 @@ export class PlateReportComponent implements OnInit {
             const code = this._errorCode(error);
             if (code === 'insufficient_credits' || /credit/i.test(this._errorMessage(error))) {
                 this._remember('after-payment');
+                this.reportPaid.set(this._paid);
+                if (this._paid) {
+                    this.boldReturnState.set('approved');
+                }
                 this.phase.set('payment');
                 return;
             }
@@ -766,6 +1029,7 @@ export class PlateReportComponent implements OnInit {
 
         this.reusedReport.set(false);
         clearPlateReportDraft();
+        this.boldReturnState.set(null);
         this.phase.set('ready');
     }
 
@@ -949,6 +1213,24 @@ export class PlateReportComponent implements OnInit {
         return environment.plateReportFlowId;
     }
 
+    private async _waitForCreditsAfterPayment(): Promise<boolean> {
+        for (let attempt = 1; attempt <= POST_PAYMENT_CREDIT_ATTEMPTS; attempt++) {
+            try {
+                await firstValueFrom(this._auth.refreshSession());
+            } catch {
+                // Session refresh is best-effort; the estimate call still runs.
+            }
+            this._credits.refreshBalance();
+            if (this._batchId) {
+                const quote = await firstValueFrom(this._batches.getBatchEstimate(this._batchId));
+                if (quote.data.sufficientCredits) return true;
+            }
+            if (attempt < POST_PAYMENT_CREDIT_ATTEMPTS) await this._sleep(POST_PAYMENT_CREDIT_RETRY_MS);
+            if (this._left) return false;
+        }
+        return false;
+    }
+
     private _remember(resume?: 'after-payment'): void {
         writePlateReportDraft({
             plate: this.plate(),
@@ -961,6 +1243,7 @@ export class PlateReportComponent implements OnInit {
             batchId: this._batchId || undefined,
             templateId: this._templateId || undefined,
             paid: this._paid,
+            boldOrderId: this._orderId || undefined,
             resume,
         });
     }

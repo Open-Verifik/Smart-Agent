@@ -193,6 +193,7 @@
         "continuePending": "Continue lookup",
         "signedIn": "This uses the account you already signed in with. You do not need to register again or have a verified company.",
         "pendingNotice": "You have a lookup in progress. Continue to pay for it or generate the report.",
+        "paymentApprovedNeedPlate": "Your payment is already approved. Confirm the plate and tap «Continue» to generate the PDF (you will not be charged again).",
         "otpTitle": "Confirm your code",
         "otpBody": "We sent a 6-digit code to {{contact}}. If you do not have an account yet, this step creates one.",
         "otpPlaceholder": "Code",
@@ -234,6 +235,8 @@
         "paymentFailedToOpen": "We could not start the payment. Please try again.",
         "openPayments": "Other payment options",
         "paymentPending": "Your payment is being processed by Bold. As soon as it completes, we will automatically generate your report.",
+        "paymentSuccessBody": "Your payment went through. Continue to generate the report and download it or send it by email.",
+        "continueToReady": "Continue to report",
         "billingNeeded": "Failed to start payment gateway. Please try again.",
         "readyTitle": "Your report is ready",
         "readyBody": "Download it now or send it to the email you provided.",
@@ -248,8 +251,22 @@
         "timeout": "The lookup is still running. Check again in a moment.",
         "genericError": "Something went wrong. Try again.",
         "newReport": "New lookup",
-        "continueFromPayment": "Your plate report is waiting. Continue the lookup once you have credits.",
-        "continueAction": "Continue report"
+        "continueFromPayment": "Your plate report payment is ready. Continue to generate the PDF and download or email it.",
+        "continueAction": "Continue report",
+        "bold": {
+            "embeddedHint": "When Bold shows «Payment complete», tap «Back to the store» or wait a few seconds—we detect the payment and take you to your report without charging again.",
+            "return": {
+                "confirming": "Confirming your Bold payment…",
+                "approved": "Payment confirmed. Continue to generate your report and download it or send it by email.",
+                "pending": "Bold is still processing your payment (for example PSE). When it is approved, tap «Check my payment» or wait; you do not need to pay again.",
+                "failed": "Bold could not process this payment. You were not charged; you can try again.",
+                "abandoned": "You opened Bold checkout but did not finish, so you were not charged.",
+                "unknown": "We could not check this payment right now. If you already paid, wait a few minutes and check again; do not pay twice.",
+                "dismiss": "Dismiss",
+                "continue": "Continue to report",
+                "check": "Check my payment"
+            }
+        }
     },
     "smartBatchLanding": {
         "authRequiredTitle": "Sign in required",

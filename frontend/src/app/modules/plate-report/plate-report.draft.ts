@@ -14,6 +14,8 @@ export interface PlateReportDraft {
     batchId?: string;
     templateId?: string;
     paid?: boolean;
+    /** Bold order reference while waiting for PSE / webhook settlement. */
+    boldOrderId?: string;
     /** Set when the user left for the existing credits checkout. */
     resume?: 'after-payment';
     savedAt: number;

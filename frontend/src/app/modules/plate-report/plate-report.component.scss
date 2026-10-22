@@ -73,6 +73,107 @@ h2 {
     line-height: 1.45;
 }
 
+.plate-report__note--resume {
+    background: rgb(238, 242, 255);
+    border: 1px solid rgb(199, 210, 254);
+    color: rgb(49, 46, 129);
+}
+
+.plate-report__bold-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 0 0 1.25rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 0.9rem;
+    border: 1px solid transparent;
+    line-height: 1.45;
+}
+
+.plate-report__bold-banner--confirming,
+.plate-report__bold-banner--neutral {
+    border-color: rgb(226, 232, 240);
+    background: rgb(248, 250, 252);
+    color: rgb(51, 65, 85);
+}
+
+.plate-report__bold-banner--approved {
+    border-color: rgb(167, 243, 208);
+    background: rgb(236, 253, 245);
+    color: rgb(6, 78, 59);
+}
+
+.plate-report__bold-banner--pending {
+    border-color: rgb(253, 230, 138);
+    background: rgb(255, 251, 235);
+    color: rgb(146, 64, 14);
+}
+
+.plate-report__bold-banner--failed {
+    border-color: rgb(254, 202, 202);
+    background: rgb(254, 242, 242);
+    color: rgb(153, 27, 27);
+}
+
+:host-context(.dark) .plate-report__bold-banner--confirming,
+:host-context(.dark) .plate-report__bold-banner--neutral {
+    border-color: rgb(71, 85, 105);
+    background: rgba(30, 41, 59, 0.65);
+    color: rgb(226, 232, 240);
+}
+
+:host-context(.dark) .plate-report__bold-banner--approved {
+    border-color: rgb(6, 95, 70);
+    background: rgba(6, 78, 59, 0.35);
+    color: rgb(167, 243, 208);
+}
+
+:host-context(.dark) .plate-report__bold-banner--pending {
+    border-color: rgb(180, 83, 9);
+    background: rgba(120, 53, 15, 0.35);
+    color: rgb(253, 230, 138);
+}
+
+:host-context(.dark) .plate-report__bold-banner--failed {
+    border-color: rgb(185, 28, 28);
+    background: rgba(127, 29, 29, 0.35);
+    color: rgb(254, 202, 202);
+}
+
+.plate-report__bold-icon {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.plate-report__bold-copy {
+    min-width: 0;
+    flex: 1;
+}
+
+.plate-report__bold-text {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.plate-report__bold-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+}
+
+.plate-report__bold-btn {
+    min-height: 2.25rem !important;
+    border-radius: 0.65rem !important;
+    font-size: 0.8125rem !important;
+}
+
+.plate-report__bold-btn--quiet {
+    opacity: 0.85;
+}
+
 .plate-report__field {
     display: flex;
     flex-direction: column;

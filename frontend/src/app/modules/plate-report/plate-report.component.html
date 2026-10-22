@@ -5,12 +5,75 @@
             <h1>{{ t('plateReport.title') }}</h1>
             <p class="plate-report__lead">{{ t('plateReport.subtitle') }}</p>
 
+            @if (showBoldBanner() && boldReturnState(); as boldState) {
+                <div
+                    class="plate-report__bold-banner"
+                    [class.plate-report__bold-banner--confirming]="boldState === 'confirming'"
+                    [class.plate-report__bold-banner--approved]="boldState === 'approved'"
+                    [class.plate-report__bold-banner--pending]="boldState === 'pending'"
+                    [class.plate-report__bold-banner--failed]="boldState === 'failed'"
+                    [class.plate-report__bold-banner--neutral]="
+                        boldState === 'abandoned' || boldState === 'unknown'
+                    "
+                    role="status"
+                >
+                    @if (boldState === 'confirming') {
+                        <mat-spinner diameter="22"></mat-spinner>
+                    } @else {
+                        <mat-icon class="plate-report__bold-icon">{{ boldReturnIcon(boldState) }}</mat-icon>
+                    }
+                    <div class="plate-report__bold-copy">
+                        <p class="plate-report__bold-text">{{ t('plateReport.bold.return.' + boldState) }}</p>
+                        <div class="plate-report__bold-actions">
+                            @if (boldState === 'approved' || reportPaid()) {
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    type="button"
+                                    class="plate-report__bold-btn"
+                                    (click)="continueAfterPayment()"
+                                    [disabled]="busy()"
+                                >
+                                    @if (busy()) {
+                                        <mat-spinner diameter="16"></mat-spinner>
+                                    }
+                                    {{ t('plateReport.bold.return.continue') }}
+                                </button>
+                            }
+                            @if (boldState === 'pending' || boldState === 'unknown') {
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="plate-report__bold-btn"
+                                    (click)="checkPayment()"
+                                    [disabled]="busy() || !orderIdForCheck()"
+                                >
+                                    {{ t('plateReport.bold.return.check') }}
+                                </button>
+                            }
+                            @if (boldState !== 'confirming') {
+                                <button
+                                    mat-button
+                                    type="button"
+                                    class="plate-report__bold-btn plate-report__bold-btn--quiet"
+                                    (click)="dismissBoldReturnNotice()"
+                                >
+                                    {{ t('plateReport.bold.return.dismiss') }}
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
             @if (phase() === 'form') {
                 @if (signedIn()) {
                     <p class="plate-report__note">{{ t('plateReport.signedIn') }}</p>
                 }
-                @if (pendingNotice()) {
-                    <p class="plate-report__note">{{ t('plateReport.pendingNotice') }}</p>
+                @if (reportPaid() && !plate().trim()) {
+                    <p class="plate-report__note plate-report__note--resume">{{ t('plateReport.paymentApprovedNeedPlate') }}</p>
+                } @else if (pendingNotice() && !boldReturnState()) {
+                    <p class="plate-report__note plate-report__note--resume">{{ t('plateReport.pendingNotice') }}</p>
                 }
 
                 <form (ngSubmit)="submitForm()">
@@ -87,7 +150,13 @@
                         @if (busy()) {
                             <mat-spinner diameter="18"></mat-spinner>
                         }
-                        {{ pendingNotice() ? t('plateReport.continuePending') : t('plateReport.continue') }}
+                        {{
+                            reportPaid()
+                                ? t('plateReport.continueToReady')
+                                : pendingNotice()
+                                  ? t('plateReport.continuePending')
+                                  : t('plateReport.continue')
+                        }}
                     </button>
 
                     @if (!signedIn()) {
@@ -156,29 +225,22 @@
                 }
 
                 @if (errorKey(); as key) {
-                    <p [class]="awaitingOrder() ? 'plate-report__note' : 'plate-report__error'" role="alert">{{ t(key) }}</p>
+                    @if (!boldReturnState()) {
+                        <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+                    }
                 }
 
-                @if (awaitingOrder()) {
-                    <button
-                        mat-stroked-button
-                        type="button"
-                        class="plate-report__submit"
-                        (click)="checkPayment()"
-                        [disabled]="busy()"
-                    >
-                        {{ t('plateReport.checkPayment') }}
-                    </button>
-                }
-
+                @if (canShowPayButton()) {
                 <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="pay()" [disabled]="!canPay()">
                     @if (busy()) {
                         <mat-spinner diameter="18"></mat-spinner>
                     }
                     {{ totalLabel() ? t('plateReport.payAmount', { total: totalLabel() }) : t('plateReport.pay') }}
                 </button>
+                }
 
                 <p class="plate-report__hint">{{ t('plateReport.paymentHint') }}</p>
+                <p class="plate-report__hint plate-report__hint--bold">{{ t('plateReport.bold.embeddedHint') }}</p>
             }
 
             @if (phase() === 'ready') {

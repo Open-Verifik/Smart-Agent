@@ -189,6 +189,7 @@
         "continuePending": "Continuar consulta",
         "signedIn": "Usarás la cuenta con la que ya iniciaste sesión. No hace falta registrarte de nuevo ni tener la empresa verificada.",
         "pendingNotice": "Tienes una consulta pendiente. Continúa para pagarla o generar el reporte.",
+        "paymentApprovedNeedPlate": "Tu pago ya fue aprobado. Confirma la placa y pulsa «Continuar» para generar el PDF (no se te volverá a cobrar).",
         "otpTitle": "Confirma tu código",
         "otpBody": "Enviamos un código de 6 dígitos a {{contact}}. Si aún no tienes cuenta, este paso la crea.",
         "otpPlaceholder": "Código",
@@ -230,6 +231,8 @@
         "paymentFailedToOpen": "No pudimos iniciar el pago. Inténtalo de nuevo.",
         "openPayments": "Otras opciones de pago",
         "paymentPending": "Tu pago está siendo procesado por Bold. En cuanto finalice, generaremos tu reporte automáticamente.",
+        "paymentSuccessBody": "Tu pago fue exitoso. Pulsa continuar para generar el reporte y descargarlo o enviarlo por correo.",
+        "continueToReady": "Continuar al reporte",
         "billingNeeded": "No se pudo iniciar la pasarela de pago. Inténtalo de nuevo.",
         "readyTitle": "Tu reporte está listo",
         "readyBody": "Descárgalo ahora o envíalo al correo que indicaste.",
@@ -244,8 +247,22 @@
         "timeout": "La consulta sigue en proceso. Puedes revisarla de nuevo en un momento.",
         "genericError": "Algo salió mal. Inténtalo de nuevo.",
         "newReport": "Nueva consulta",
-        "continueFromPayment": "Tu reporte por placa está pendiente. Cuando tengas créditos, continúa la consulta.",
-        "continueAction": "Continuar reporte"
+        "continueFromPayment": "Tu pago del reporte por placa quedó listo. Continúa para generar el PDF y descargarlo o enviarlo por correo.",
+        "continueAction": "Continuar reporte",
+        "bold": {
+            "embeddedHint": "Cuando Bold muestre «Completaste el pago», puedes pulsar «Volver a la tienda» o esperar unos segundos: detectamos el pago y te llevamos al reporte sin cobrar de nuevo.",
+            "return": {
+                "confirming": "Confirmando tu pago con Bold…",
+                "approved": "Pago confirmado. Continúa para generar tu reporte y descargarlo o enviarlo por correo.",
+                "pending": "Bold aún está procesando tu pago (por ejemplo PSE). Cuando se apruebe, pulsa «Verificar mi pago» o espera; no necesitas pagar otra vez.",
+                "failed": "Bold no pudo procesar este pago. No se hizo ningún cargo; puedes intentarlo de nuevo.",
+                "abandoned": "Abriste el pago en Bold pero no lo completaste, así que no se te cobró nada.",
+                "unknown": "No pudimos consultar este pago ahora. Si ya pagaste, espera unos minutos y verifica de nuevo; no vuelvas a pagar.",
+                "dismiss": "Cerrar",
+                "continue": "Continuar al reporte",
+                "check": "Verificar mi pago"
+            }
+        }
     },
     "smartBatchLanding": {
         "authRequiredTitle": "Inicio de sesión obligatorio",
