@@ -1,5 +1,15 @@
 import { isClientVisibleBatchDependencyField } from '../smart-batch/smart-batch-dependency.constants';
-import { ApiEndpoint, PostmanDependencyMeta } from './postman.types';
+import {
+    getMexicoLicenseTripleParamLayout,
+    getMexicoLicenseTripleValidationIssues,
+    isMexicoLicenseTripleInputEndpoint,
+} from './postman-mexico-license-input.util';
+import {
+    ApiEndpoint,
+    PostmanDependencyMeta,
+    PostmanParamRowRef,
+    PostmanXorParamLayout,
+} from './postman.types';
 import { isPostmanSexoEnumMatch } from './postman-sexo.util';
 import { getPostmanPathParamKeysForEndpoint } from './postman-url.util';
 
@@ -49,8 +59,21 @@ const getRowCellRaw = (row: Record<string, unknown>, field: string): unknown => 
     return k ? row[k] : undefined;
 };
 
-const NAME_MODE_TRIGGER_FIELDS = new Set(['fullName', 'primerNombre', 'primerApellido']);
-const NAME_MODE_REQUIRED_FIELDS = ['fullName', 'primerNombre', 'primerApellido', 'fecha'] as const;
+const NAME_MODE_TRIGGER_FIELDS = new Set([
+    'fullName',
+    'primerNombre',
+    'primerApellido',
+    'firstName',
+    'lastName',
+]);
+const NAME_MODE_REQUIRED_FIELDS = [
+    'fullName',
+    'primerNombre',
+    'primerApellido',
+    'fecha',
+    'firstName',
+    'lastName',
+] as const;
 const SEXO_FIELD = 'sexo';
 const SERIAL_FIELD = 'serial';
 
@@ -691,7 +714,26 @@ export const getPostmanRequestValidationIssues = (
         (d) => d && typeof d.field === 'string' && isClientVisibleBatchDependencyField(d.field)
     );
 
-    if (deps.length) {
+    if (isMexicoLicenseTripleInputEndpoint(endpoint.code)) {
+        issues.push(...getMexicoLicenseTripleValidationIssues(endpoint, stepLabel));
+        for (const p of endpoint.params ?? []) {
+            if (!isClientVisibleBatchDependencyField(p.key)) continue;
+            if (p.key === 'documentType') continue;
+            if (
+                p.key !== 'documentNumber' &&
+                p.key !== 'firstName' &&
+                p.key !== 'lastName' &&
+                p.required &&
+                !String(p.value ?? '').trim()
+            ) {
+                issues.push({
+                    field: p.key,
+                    translationKey: 'postman.requestEditor.validation.fieldRequired',
+                    translationParams: { field: p.key, step: stepLabel },
+                });
+            }
+        }
+    } else if (deps.length) {
         appendGroupedDependencyIssues(input, deps, stepLabel, issues, options);
     } else {
         issues.push(...legacyParamIssues(endpoint, stepLabel));
@@ -705,21 +747,7 @@ export const isPostmanRequestValid = (
     postBodyJsonDraft: string | null | undefined
 ): boolean => getPostmanRequestValidationIssues(endpoint, postBodyJsonDraft).length === 0;
 
-/** Single param row with stable index for templates (e.g. removeParam). */
-export type PostmanParamRowRef = {
-    index: number;
-    param: NonNullable<ApiEndpoint['params']>[number];
-};
-
-export type PostmanXorParamLayout =
-    | { kind: 'flat'; allRows: PostmanParamRowRef[] }
-    | {
-          kind: 'xor';
-          nameRows: PostmanParamRowRef[];
-          documentRows: PostmanParamRowRef[];
-          serialRows: PostmanParamRowRef[];
-          otherRows: PostmanParamRowRef[];
-      };
+export type { PostmanParamRowRef, PostmanXorParamLayout } from './postman.types';
 
 const DOCUMENT_FIELD_ORDER = [
     'documentType',
@@ -736,6 +764,8 @@ const NAME_FIELD_ORDER = [
     'segundoApellido',
     'sexo',
     'fecha',
+    'firstName',
+    'lastName',
 ];
 
 /**
@@ -753,6 +783,10 @@ const isSharedXorNameAndDocumentField = (field: string): boolean => field === SE
 export const getPostmanXorParamLayout = (
     endpoint: ApiEndpoint | null | undefined
 ): PostmanXorParamLayout => {
+    if (isMexicoLicenseTripleInputEndpoint(endpoint?.code)) {
+        return getMexicoLicenseTripleParamLayout(endpoint);
+    }
+
     const allRows: PostmanParamRowRef[] = (endpoint?.params ?? []).map((param, index) => ({
         index,
         param,
@@ -860,7 +894,7 @@ export const filterVisibleXorDocumentRows = (
 };
 
 /** Guidance banner variant for dependency metadata on an endpoint. */
-export type PostmanDependencyGuidanceKind = 'xor' | 'documentFields' | null;
+export type PostmanDependencyGuidanceKind = 'xor' | 'mexicoLicenseTriple' | 'documentFields' | null;
 
 /**
  * Returns which guidance copy to show, or null when no banner is needed.
@@ -869,6 +903,9 @@ export type PostmanDependencyGuidanceKind = 'xor' | 'documentFields' | null;
 export const getPostmanDependencyGuidanceKind = (
     endpoint: ApiEndpoint | null | undefined
 ): PostmanDependencyGuidanceKind => {
+    if (isMexicoLicenseTripleInputEndpoint(endpoint?.code)) {
+        return 'mexicoLicenseTriple';
+    }
     if (!endpoint?.dependencies?.length) return null;
     const deps = endpoint.dependencies.filter(
         (d) => d && typeof d.field === 'string' && isClientVisibleBatchDependencyField(d.field)

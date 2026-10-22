@@ -43,6 +43,7 @@ export interface ProfileData {
     company?: string;
     address?: string;
     avatar?: string;
+    supportTimezone?: string;
 }
 
 export interface ProfileUpdateResponse {

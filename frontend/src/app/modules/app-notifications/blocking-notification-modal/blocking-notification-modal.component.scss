@@ -1,6 +1,7 @@
 .blocking-modal-content {
     max-height: min(60vh, 480px);
     overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .blocking-modal-body {

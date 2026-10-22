@@ -18,6 +18,8 @@ import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-opt
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
@@ -48,6 +50,8 @@ type ProofMode = 'paste' | 'qr';
         NgClass,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoStageHeroComponent,
+        DemoStageCardComponent,
         DemoRelatedDocsSectionComponent,
         DemoChooseOneCalloutComponent,
         DemoCaptureOptionHeadingComponent,
@@ -239,7 +243,7 @@ export class HumanidDecryptDemoComponent implements OnInit {
     }
 
     backToDemos(): void {
-        void this._router.navigate(['/smart-enroll/demos']);
+        void this._router.navigate(['/human-authn/demos']);
     }
 
     private buildRelatedDocs(): DemoRelatedDocItem[] {

@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,9 +22,33 @@ import { ApiEndpoint } from '../postman.types';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
-        class: 'absolute right-0.5 top-1/2 z-[1] -translate-y-1/2',
+        class: 'absolute right-0.5 top-1/2 z-[1] flex -translate-y-1/2 items-center gap-2.5',
     },
     template: `
+        <button
+            type="button"
+            class="inline-flex h-3.5 w-3.5 min-w-0 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white p-0 text-slate-400 opacity-0 shadow-[0_1px_2px_rgb(15_23_42/0.16)] transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400"
+            [class.opacity-100]="pinned()"
+            [class.text-slate-900]="pinned()"
+            [class.dark:text-slate-50]="pinned()"
+            (click)="emitPin($event)"
+            matTooltipPosition="above"
+            [matTooltip]="
+                (pinned() ? 'postman.sidebar.unpinEndpoint' : 'postman.sidebar.pinEndpoint')
+                    | transloco: { name: pinTitle() }
+            "
+            [attr.aria-label]="
+                (pinned() ? 'postman.sidebar.unpinEndpoint' : 'postman.sidebar.pinEndpoint')
+                    | transloco: { name: pinTitle() }
+            "
+        >
+            <svg viewBox="0 0 12 12" class="h-2.5 w-2.5" aria-hidden="true">
+                <path
+                    fill="currentColor"
+                    d="M4 1.25h4a.75.75 0 0 1 .75.75v1.1c0 .85-.55 1.55-1.3 1.8l-.15.05v.45h.9L6.75 7.1v2.15L6 10.1l-.75-.85V7.1L3.8 5.4h.9v-.45l-.15-.05c-.75-.25-1.3-.95-1.3-1.8V2A.75.75 0 0 1 4 1.25z"
+                />
+            </svg>
+        </button>
         <div
             class="opacity-0 transition-opacity duration-150 group-hover/row:opacity-100 group-focus-within/row:opacity-100"
             [class.opacity-100]="isSelected() || menuOpen()"
@@ -45,8 +63,7 @@ import { ApiEndpoint } from '../postman.types';
                 [class.dark:bg-slate-800]="menuOpen()"
                 [class.shadow-sm]="menuOpen()"
                 [matMenuTriggerFor]="menu"
-                [matTooltip]="'postman.sidebar.endpointMenuTooltip' | transloco"
-                matTooltipPosition="left"
+                [attr.aria-label]="'postman.sidebar.endpointMenuTooltip' | transloco"
                 (click)="$event.preventDefault(); $event.stopPropagation()"
             >
                 <mat-icon class="!h-4 !w-4 !text-[16px]">more_vert</mat-icon>
@@ -102,15 +119,28 @@ import { ApiEndpoint } from '../postman.types';
 export class PostmanEndpointActionsComponent {
     endpoint = input.required<ApiEndpoint>();
     isSelected = input(false);
+    pinned = input(false);
+    pinTitle = input('');
     showMoveSection = input(false);
     moveOptions = input<{ id: string; label: string }[]>([]);
 
     moveEndpoint = output<{ endpoint: ApiEndpoint; folderId: string | null }>();
     renameEndpoint = output<ApiEndpoint>();
+    pinEndpoint = output<ApiEndpoint>();
 
     menuOpen = signal(false);
 
     emitMove(folderId: string | null): void {
         this.moveEndpoint.emit({ endpoint: this.endpoint(), folderId });
+    }
+
+    /**
+     * Pin or unpin without selecting the row.
+     * @param {Event} event
+     */
+    emitPin(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        this.pinEndpoint.emit(this.endpoint());
     }
 }

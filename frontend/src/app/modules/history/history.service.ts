@@ -45,6 +45,10 @@ export interface HistoryListParams {
     whereGTE_createdAt?: string;
     whereLTE_createdAt?: string;
     historyBucket?: 'all' | 'failed' | 'pending' | 'success';
+    /** ISO-2 country; matched on the `/v2/{country}/` endpoint prefix so older rows are included. */
+    country?: string;
+    /** Cost center id. */
+    costCenter?: string;
 }
 
 export interface HistoryFeatureMeta {
@@ -58,9 +62,51 @@ export interface HistoryTopSalesRow {
     total: number;
     ok: number;
     failed: number;
+    costUSD?: number;
     credits?: number;
     feature?: HistoryFeatureMeta;
 }
+
+export interface HistoryTopSalesTotals {
+    total: number;
+    ok: number;
+    failed: number;
+    costUSD: number;
+}
+
+export interface HistoryTopSalesResult {
+    totals: HistoryTopSalesTotals;
+    rows: HistoryTopSalesRow[];
+}
+
+const emptyTopSalesTotals = (): HistoryTopSalesTotals => ({ total: 0, ok: 0, failed: 0, costUSD: 0 });
+
+/**
+ * Accept the `{ totals, rows }` payload and the older bare array.
+ * @param res top-sales body
+ */
+const normalizeTopSales = (res: HistoryTopSalesResult | HistoryTopSalesRow[] | { data?: HistoryTopSalesRow[] } | null): HistoryTopSalesResult => {
+    if (res && !Array.isArray(res) && Array.isArray((res as HistoryTopSalesResult).rows)) {
+        const body = res as HistoryTopSalesResult;
+
+        return { totals: body.totals || emptyTopSalesTotals(), rows: body.rows };
+    }
+
+    const rows = Array.isArray(res) ? res : res && 'data' in res ? res.data || [] : [];
+
+    return {
+        totals: rows.reduce(
+            (sum, row) => ({
+                total: sum.total + (row.total || 0),
+                ok: sum.ok + (row.ok || 0),
+                failed: sum.failed + (row.failed || 0),
+                costUSD: sum.costUSD + (row.costUSD || 0),
+            }),
+            emptyTopSalesTotals()
+        ),
+        rows,
+    };
+};
 
 const LIST_COLUMNS = '_id statusCode status code endpoint method createdAt cost billingAdjustmentType billingStandardCost billingStandardCode paymentTx paymentAmount params';
 
@@ -167,16 +213,16 @@ export class HistoryService {
             })
             .pipe(map((res) => (Array.isArray(res) ? res : res?.data || [])));
 
-    getTopSales = (params: Record<string, unknown> = {}): Observable<HistoryTopSalesRow[]> =>
+    getTopSales = (params: Record<string, unknown> = {}): Observable<HistoryTopSalesResult> =>
         this._httpClient
-            .get<HistoryTopSalesRow[] | { data: HistoryTopSalesRow[] }>(
+            .get<HistoryTopSalesResult | HistoryTopSalesRow[] | { data: HistoryTopSalesRow[] }>(
                 `${environment.apiUrl}/v2/api-requests/top-sales`,
                 {
                     headers: this._authHeaders(),
                     params: toHttpParams(params),
                 }
             )
-            .pipe(map((res) => (Array.isArray(res) ? res : res?.data || [])));
+            .pipe(map((res) => normalizeTopSales(res)));
 
     private _listQuery = (params: HistoryListParams = {}) => ({
         columns: LIST_COLUMNS,
@@ -189,6 +235,8 @@ export class HistoryService {
         historyBucket: params.historyBucket,
         whereGTE_createdAt: params.whereGTE_createdAt,
         whereLTE_createdAt: params.whereLTE_createdAt,
+        prefix_endpoint: params.country ? `/v2/${params.country.toLowerCase()}/` : undefined,
+        where_costCenter: params.costCenter,
     });
 
     private _authHeaders = (): Record<string, string> => {

@@ -1210,6 +1210,20 @@
         "banners": {
             "dismissAria": "关闭横幅"
         },
+        "bell": {
+            "title": "通知",
+            "markAll": "全部标为已读",
+            "aria": "通知",
+            "ariaCount": "通知，{{count}} 条未读",
+            "empty": "已全部查看",
+            "loading": "加载中…",
+            "justNow": "刚刚",
+            "minutes": "{{count}} 分钟",
+            "hours": "{{count}} 小时",
+            "days": "{{count}} 天",
+            "dismissAria": "关闭通知",
+            "closeImage": "关闭图片"
+        },
         "inbox": {
             "guest": {
                 "title": "登录后查看通知",
@@ -1256,6 +1270,34 @@
         }
     },
     "home": {
+        "usageGlobe": {
+            "title": "您的请求来自哪里",
+            "subtitle": "{{total}} 次请求，覆盖 {{countries}} 个国家",
+            "subtitleUnscoped": "{{total}} 次请求来自不属于某个国家的服务",
+            "rangeLabel": "请求时段",
+            "ranges": {
+                "today": "今天",
+                "week": "本周",
+                "month": "本月",
+                "previousMonth": "上月",
+                "year": "今年"
+            },
+            "loading": "正在绘制您的用量…",
+            "error": "无法加载用量地图。请稍后再试。",
+            "emptySubtitle": "您的第一次请求会点亮地图",
+            "emptyTitle": "此时段没有请求",
+            "emptyBody": "从 Postman 或您的后端发起一次查询，您查询的每个国家都会显示在这里。",
+            "emptyCta": "试用一个 API",
+            "sourceCredits": "来自账单",
+            "sourceCreditsHint": "此期间没有请求日志，因此合计来自已计费的积分。",
+            "openReport": "打开用量报告",
+            "globeLabel": "按国家显示请求量的地球",
+            "countries": "主要国家",
+            "topServices": "主要服务",
+            "failedShare": "{{rate}}% 失败",
+            "global": "不属于某个国家",
+            "globalHint": "邮件 OTP、短信、Smart Enroll，以及其他不属于单一国家查询的 API。"
+        },
         "notifications": {
             "openFromEmail": "正在打开您的通知…"
         },
@@ -1553,6 +1595,52 @@
             "unsavedChanges": "未保存的更改",
             "unsavedChangesMessage": "不保存就离开此步骤？",
             "exitWithoutSaving": "不保存离开",
+            "draft_name": "未命名项目",
+            "continue_setup": "继续设置",
+            "leave": {
+                "chooseTitle": "选择如何处理",
+                "chooseHelp": "此选择决定项目是否作为草稿保留。",
+                "howTitle": "如何运作",
+                "howHelp": "选择会改变保留的内容，不会改变已完成的步骤。",
+                "recommended": "推荐",
+                "selectedPath": "所选路径",
+                "flowEntered": "已填写内容",
+                "options": {
+                    "save": {
+                        "title": "保存并离开",
+                        "body": "保存目前已填写的全部内容，然后离开此模块。",
+                        "benefit1": "进度会被保留",
+                        "benefit2": "项目保持为草稿",
+                        "benefit3": "可从当前步骤继续",
+                        "howTitle": "保存为草稿",
+                        "howBody": "Verifik 会保存已填写的字段，并将项目标为未完成。",
+                        "result": "再次打开项目时，无需重新填写这些信息即可继续。",
+                        "flowOutcome": "草稿已保存"
+                    },
+                    "discard": {
+                        "title": "不保存并离开",
+                        "body": "立即离开，并丢弃尚未保存的更改。",
+                        "benefit1": "未保存的更改会被丢弃",
+                        "benefit2": "此前已保存的内容保留",
+                        "benefit3": "离开此模块",
+                        "howTitle": "丢弃未保存的更改",
+                        "howBody": "只会丢失尚未保存的信息。",
+                        "result": "已经保存过的项目仍然可用。",
+                        "flowOutcome": "更改已丢弃"
+                    },
+                    "cancel": {
+                        "title": "取消",
+                        "body": "留在当前步骤并继续编辑。",
+                        "benefit1": "留在设置向导中",
+                        "benefit2": "不会丢弃任何内容",
+                        "benefit3": "新内容尚未保存",
+                        "howTitle": "继续设置",
+                        "howBody": "向导会停留在你正在编辑的步骤。",
+                        "result": "你可以继续填写表单。",
+                        "flowOutcome": "留在这里"
+                    }
+                }
+            },
             "steps": {
                 "basic": "项目详情",
                 "signup": "注册表单",
@@ -2128,6 +2216,19 @@
     "network": {
         "title": "系统状态检查",
         "subtitle": "实时 API 性能和运行时间监控",
+        "availability": {
+            "title": "您的月度可用性",
+            "subtitle": "每个公历月（UTC）中，服务已应答的 SmartCheck 请求占比。承诺为 {{target}}%。",
+            "monthsMet": "{{total}} 个已结束月份中有 {{met}} 个达到目标",
+            "targetLine": "{{target}}% 目标",
+            "partial": "进行中",
+            "barTooltip": "{{ok}} 已应答 · {{failed}} 次服务失败 · {{excluded}} 次客户端错误已排除",
+            "belowTarget": "最近一个月低于目标",
+            "empty": "过去六个月还没有 SmartCheck 请求。",
+            "error": "暂时无法获取可用性。请稍后再试。",
+            "footnote": "无效输入或未找到记录等客户端错误不计入可用性。",
+            "docs": "衡量方式"
+        },
         "uptime_history": "运行历史",
         "response_time": "响应时间",
         "status": "状态",
@@ -3215,6 +3316,26 @@
             "backScan": "背面",
             "documentFace": "证件人像",
             "documentLiveness": "证件活体",
+            "barcode": {
+                "title": "背面条形码",
+                "attempts": "读取尝试 {{count}} 次",
+                "unreadableWarning": "注册可以通过。背面条形码未能读取，因此这里保留为警告。",
+                "mismatchLead": "背面条形码与正面不一致。证件可能被修改过。",
+                "verdict": {
+                    "confirmed": "与正面一致",
+                    "mismatch": "可能被篡改",
+                    "unreadable": "背面未验证"
+                },
+                "field": {
+                    "fullName": "条形码上的姓名",
+                    "documentNumber": "证件号码",
+                    "dateOfBirth": "出生日期",
+                    "gender": "性别",
+                    "bloodType": "血型",
+                    "firstName": "名",
+                    "lastName": "姓"
+                }
+            },
             "livenessPassed": "通过",
             "livenessFailed": "未通过",
             "ocr": "识别字段",
@@ -3609,6 +3730,52 @@
             "unsaved_changes": "未保存的更改",
             "unsaved_changes_message": "不保存就离开吗？",
             "exit_without_saving": "不保存离开",
+            "draft_name": "未命名项目",
+            "continue_setup": "继续设置",
+            "leave": {
+                "chooseTitle": "选择如何处理",
+                "chooseHelp": "此选择决定项目是否作为草稿保留。",
+                "howTitle": "如何运作",
+                "howHelp": "选择会改变保留的内容，不会改变已完成的步骤。",
+                "recommended": "推荐",
+                "selectedPath": "所选路径",
+                "flowEntered": "已填写内容",
+                "options": {
+                    "save": {
+                        "title": "保存并离开",
+                        "body": "保存目前已填写的全部内容，然后离开此模块。",
+                        "benefit1": "进度会被保留",
+                        "benefit2": "项目保持为草稿",
+                        "benefit3": "可从当前步骤继续",
+                        "howTitle": "保存为草稿",
+                        "howBody": "Verifik 会保存已填写的字段，并将项目标为未完成。",
+                        "result": "再次打开项目时，无需重新填写这些信息即可继续。",
+                        "flowOutcome": "草稿已保存"
+                    },
+                    "discard": {
+                        "title": "不保存并离开",
+                        "body": "立即离开，并丢弃尚未保存的更改。",
+                        "benefit1": "未保存的更改会被丢弃",
+                        "benefit2": "此前已保存的内容保留",
+                        "benefit3": "离开此模块",
+                        "howTitle": "丢弃未保存的更改",
+                        "howBody": "只会丢失尚未保存的信息。",
+                        "result": "已经保存过的项目仍然可用。",
+                        "flowOutcome": "更改已丢弃"
+                    },
+                    "cancel": {
+                        "title": "取消",
+                        "body": "留在当前步骤并继续编辑。",
+                        "benefit1": "留在设置向导中",
+                        "benefit2": "不会丢弃任何内容",
+                        "benefit3": "新内容尚未保存",
+                        "howTitle": "继续设置",
+                        "howBody": "向导会停留在你正在编辑的步骤。",
+                        "result": "你可以继续填写表单。",
+                        "flowOutcome": "留在这里"
+                    }
+                }
+            },
             "stub": {
                 "title": "步骤",
                 "placeholder": "此步骤将在向导的后续阶段中接入。"
@@ -4253,6 +4420,52 @@
             "unsaved_changes": "有未保存的更改",
             "unsaved_changes_message": "您有未保存的更改。确定要不保存就离开吗？",
             "exit_without_saving": "不保存并离开",
+            "draft_name": "未命名项目",
+            "continue_setup": "继续设置",
+            "leave": {
+                "chooseTitle": "选择如何处理",
+                "chooseHelp": "此选择决定项目是否作为草稿保留。",
+                "howTitle": "如何运作",
+                "howHelp": "选择会改变保留的内容，不会改变已完成的步骤。",
+                "recommended": "推荐",
+                "selectedPath": "所选路径",
+                "flowEntered": "已填写内容",
+                "options": {
+                    "save": {
+                        "title": "保存并离开",
+                        "body": "保存目前已填写的全部内容，然后离开此模块。",
+                        "benefit1": "进度会被保留",
+                        "benefit2": "项目保持为草稿",
+                        "benefit3": "可从当前步骤继续",
+                        "howTitle": "保存为草稿",
+                        "howBody": "Verifik 会保存已填写的字段，并将项目标为未完成。",
+                        "result": "再次打开项目时，无需重新填写这些信息即可继续。",
+                        "flowOutcome": "草稿已保存"
+                    },
+                    "discard": {
+                        "title": "不保存并离开",
+                        "body": "立即离开，并丢弃尚未保存的更改。",
+                        "benefit1": "未保存的更改会被丢弃",
+                        "benefit2": "此前已保存的内容保留",
+                        "benefit3": "离开此模块",
+                        "howTitle": "丢弃未保存的更改",
+                        "howBody": "只会丢失尚未保存的信息。",
+                        "result": "已经保存过的项目仍然可用。",
+                        "flowOutcome": "更改已丢弃"
+                    },
+                    "cancel": {
+                        "title": "取消",
+                        "body": "留在当前步骤并继续编辑。",
+                        "benefit1": "留在设置向导中",
+                        "benefit2": "不会丢弃任何内容",
+                        "benefit3": "新内容尚未保存",
+                        "howTitle": "继续设置",
+                        "howBody": "向导会停留在你正在编辑的步骤。",
+                        "result": "你可以继续填写表单。",
+                        "flowOutcome": "留在这里"
+                    }
+                }
+            },
             "steps": {
                 "basic": "基本信息",
                 "login_methods": "登录方式",
@@ -4470,6 +4683,81 @@
     "settings": {
         "title": "设置",
         "subtitle": "管理您的账户和偏好设置",
+        "costCenters": {
+            "title": "成本中心",
+            "subtitle": "用团队、国家或业务单元标记每次请求，以便拆分用量和账单。",
+            "add": "新建成本中心",
+            "createTitle": "新建成本中心",
+            "editTitle": "编辑成本中心",
+            "name": "名称",
+            "code": "代码",
+            "codeHint": "字母、数字、点、连字符和下划线。这是您在请求头中发送的值。",
+            "codeInvalid": "只能使用字母、数字、点、连字符和下划线。",
+            "codeTaken": "另一个成本中心已使用此代码。",
+            "country": "该国家的默认中心",
+            "status": "状态",
+            "active": "启用",
+            "inactive": "停用",
+            "edit": "编辑",
+            "deactivate": "停用",
+            "reactivate": "重新启用",
+            "cancel": "取消",
+            "save": "保存",
+            "saving": "正在保存…",
+            "emptyTitle": "还没有成本中心",
+            "emptyBody": "为每个团队或国家创建一个，然后在请求中发送其代码。",
+            "howTitle": "请求如何获得成本中心",
+            "howHeader": "在 x-cost-center 请求头中发送代码。它优先于其他规则。",
+            "howCountry": "没有请求头时，请求使用其 API 令牌上的中心，然后使用该请求国家对应的中心。",
+            "howNone": "都不匹配的请求保持未标记，仍会出现在用量报告中。",
+            "copyHeader": "复制示例",
+            "copied": "已复制",
+            "docs": "查看文档",
+            "loadError": "无法加载您的成本中心。",
+            "saveError": "无法保存成本中心。请重试。",
+            "created": "成本中心已创建",
+            "updated": "成本中心已更新",
+            "deactivated": "成本中心已停用",
+            "reactivated": "成本中心已重新启用",
+            "modalEyebrow": "全球运营",
+            "modalLead": "为每个国家或团队单独加标签，以便拆分之后的请求。",
+            "whyTitle": "为什么要创建",
+            "whyBody": "如果您在多个国家运营，每次请求都可以带上发起它的那次运营。",
+            "whyCountry": "每个国家或团队一个，例如西班牙运营。",
+            "whySplit": "用量和账单就会把该运营与账户的其余部分分开。",
+            "whyAssign": "之后的请求通过 x-cost-center 请求头、令牌默认值，或该国家唯一的启用中心获得它。",
+            "editWhyTitle": "更改会怎样",
+            "editNote": "保存只影响之后的请求。已经打上标记的历史仍保留当时的成本中心。",
+            "countryInvalid": "请从列表中选择一个国家。",
+            "countryNone": "没有匹配的国家。",
+            "signInHint": "使用邮箱或手机登录以管理成本中心。"
+        },
+        "usageReport": {
+            "title": "用量报告",
+            "subtitle": "您所选时段的请求和费用。查看或导出此报告不消耗积分。",
+            "downloadCsv": "下载 CSV",
+            "exporting": "正在导出…",
+            "exportError": "无法导出 CSV。请重试。",
+            "groupBy": "分组方式",
+            "group": { "month": "月", "day": "日", "country": "国家", "costCenter": "成本中心", "endpoint": "端点" },
+            "range": "时段",
+            "ranges": { "last_30_days": "最近 30 天", "this_month": "本月", "last_month": "上月", "last_3_months": "最近 3 个月", "last_12_months": "最近 12 个月" },
+            "costCenter": "成本中心",
+            "allCostCenters": "所有成本中心",
+            "noCostCenter": "无成本中心",
+            "sourceCredits": "此期间没有请求日志，因此成功次数和费用来自已计费积分。单次请求明细有限。",
+            "sourceCreditsAndFailures": "成功次数和费用来自已计费积分。失败次数来自请求日志。单次请求明细有限。",
+            "loadError": "无法加载用量报告。",
+            "total": "请求",
+            "ok": "成功",
+            "failed": "失败",
+            "timedOut": "超时",
+            "cost": "费用（美元）",
+            "empty": "此期间没有请求。",
+            "footnote": "费用只计算成功的请求。日期为 UTC。",
+            "docs": "用量 API 文档",
+            "signInHint": "使用邮箱或手机登录以查看用量报告。"
+        },
         "coming_soon": "即将推出",
         "coming_soon_title": "即将推出",
         "coming_soon_desc": "此功能目前正在开发中。请稍后再来查看更新！",
@@ -4501,7 +4789,11 @@
             "notifications": "通知",
             "notifications_desc": "电子邮件与面板通知偏好",
             "usage_history": "使用记录",
-            "usage_history_desc": "跟踪 API 消耗与积分支出"
+            "usage_history_desc": "跟踪 API 消耗与积分支出",
+            "usage_report": "用量报告",
+            "usage_report_desc": "按月、国家、成本中心或端点查看请求和费用，并可导出 CSV",
+            "cost_centers": "成本中心",
+            "cost_centers_desc": "按团队或国家标记请求，以拆分用量和账单"
         },
         "profile": {
             "title": "个人资料设置",
@@ -4679,6 +4971,17 @@
             "need_help": "需要API集成帮助？",
             "docs_description": "了解如何使用您的API令牌并浏览我们的文档。",
             "view_docs": "查看文档",
+            "cost_center_title": "按成本中心拆分用量",
+            "cost_center_body": "在任意请求中发送此请求头，即可将其计入某个成本中心。未发送时，使用令牌或该国家的中心。",
+            "cost_center_manage": "管理成本中心",
+            "project_cost_center_title": "每个项目的默认成本中心",
+            "project_cost_center_body": "使用项目令牌且未发送 x-cost-center 的请求会使用此中心。",
+            "project_cost_center_none": "无默认",
+            "project_cost_center_empty": "您还没有任何项目。",
+            "project_cost_center_save": "保存",
+            "project_cost_center_saving": "正在保存…",
+            "project_cost_center_saved": "项目默认已保存",
+            "project_cost_center_error": "无法保存项目默认。请重试。",
             "help_label": "了解更多",
             "help_close": "知道了",
             "how_it_works_title": "工作原理",
@@ -4886,6 +5189,10 @@
             "workspace_name_desc": "这是您的团队可见的公共工作区名称。",
             "name_label": "名称",
             "name_placeholder": "输入您的工作区名称",
+            "support_timezone": "支持时区",
+            "support_timezone_desc": "关键工单的截止时间按此时区显示。适用于整个账户。",
+            "support_timezone_saved": "支持时区已保存",
+            "support_timezone_error": "无法保存支持时区。请重试。",
             "update": "更新",
             "create": "创建",
             "saving": "保存中...",
@@ -5125,6 +5432,12 @@
             "splitVertical": "垂直分割",
             "splitHorizontal": "水平分割"
         },
+        "flags": {
+            "pin": "固定{{country}}",
+            "unpin": "取消固定{{country}}",
+            "scrollLeft": "查看前面的国家",
+            "scrollRight": "查看更多国家"
+        },
         "sidebar": {
             "title": "API 浏览器",
             "search": "搜索端点...",
@@ -5133,6 +5446,9 @@
             "collapse": "折叠侧边栏",
             "expand": "展开侧边栏",
             "library": "资源库",
+            "pinned": "已固定",
+            "pinEndpoint": "固定{{name}}",
+            "unpinEndpoint": "取消固定{{name}}",
             "layoutActions": "文件夹",
             "newFolder": "新建文件夹",
             "newFolderTitle": "新建文件夹",
@@ -5204,6 +5520,10 @@
                 "otherParameters": "其他参数",
                 "requiredFieldLegend": "* 必填字段",
                 "includeCostDescription": "为 true 时，响应会包含积分信息块（credits、creditsCharged、charged、featureCode）。设为 false 或删除此行即可省略。",
+                "mexicoLicenseDocumentTypeCurpDescription": "此搜索组固定为 CURP。",
+                "mexicoLicenseDocumentTypeCedulaDescription": "此搜索组固定为执照号码类型。",
+                "mexicoLicenseCurpNumberDescription": "18 位 CURP。",
+                "mexicoLicenseCedulaNumberDescription": "专业执照号码。",
                 "pickValue": "请从 [{{values}}] 中选择一个值",
                 "sexoFemale": "女（FEMENINO）",
                 "sexoMale": "男（MASCULINO）"
@@ -5256,7 +5576,8 @@
                 "invalidEnum": "「{{field}}」的值「{{value}}」无效。应为：{{expected}}。",
                 "invalidJsonBody": "请求体必须是有效的 JSON。",
                 "pathSegmentRequired": "URL 路径段「{{segment}}」为必填。",
-                "groupedModesBodyWithSerial": "只能使用一种方式：按姓名搜索、按证件号码搜索（需要时加上性别），或按民事登记序列号搜索。请勿在同一请求中混用这些方式。"
+                "groupedModesBodyWithSerial": "只能使用一种方式：按姓名搜索、按证件号码搜索（需要时加上性别），或按民事登记序列号搜索。请勿在同一请求中混用这些方式。",
+                "mexicoLicenseModesBody": "只能使用一组：CURP 与证件号码、执照号码与证件类型，或不带证件字段的名字与姓氏。请勿在同一请求中混用多组。"
             },
             "sandboxProfiles": {
                 "title": "Sandbox 测试配置文件",
@@ -5589,11 +5910,16 @@
         "statusPending": "无响应",
         "filterService": "服务",
         "filterServiceAll": "全部服务",
+        "filterCountry": "国家",
+        "filterCountryAll": "全部国家",
+        "filterCostCenter": "成本中心",
+        "filterCostCenterAll": "全部成本中心",
         "filterDateAll": "全部时间",
         "filterDateToday": "今天",
         "filterDateThisWeek": "本周",
         "filterDateThisMonth": "本月",
-        "filterDateCustom": "自定义",
+        "filterDateLastMonth": "上月",
+        "filterDateCustom": "自定义日期",
         "dateRange": "日期范围",
         "dateStart": "开始",
         "dateEnd": "结束",
@@ -5936,17 +6262,12 @@
         "customDesc": "根据您的需求定制",
         "billedAnnually": "按年计费",
         "currentPlan": "当前计划",
-        "notOptimalForVolume": "按您的用量并非最优",
-        "notOptimalHint": "其他套餐更适合您的使用情况。",
-        "notOptimalCta": "并非最佳选择",
         "addCredits": "添加积分",
         "contactSales": "联系销售",
         "selectPlan": "选择计划",
         "upgrade": "升级",
         "downgrade": "降级",
         "backToCurrentPlan": "返回当前计划",
-        "off": "折扣",
-        "discountDescription": "适用于所有API请求",
         "interval": {
             "month": "月",
             "year": "年"
@@ -5993,8 +6314,6 @@
             "requestsPerYear": "请求/年",
             "perRequest": "每次请求",
             "monthlySpend": "预估月支出",
-            "bestValue": "最适合您的用量",
-            "basePrice": "基础价格：$0.30/请求 — 您的计划折扣可降低成本",
             "estimatedTotal": "应付"
         },
         "estimator": {
@@ -6004,8 +6323,32 @@
             "budgetLabel": "您的目标支出是多少？",
             "budgetPlaceholder": "例如 1000",
             "referenceLabel": "按计划匹配：",
-            "resolvedRequests": "预估用量",
-            "closestFor": "{{plan}} 上最接近的总额"
+            "closestFor": "{{plan}} 上最接近的总额",
+            "usageBaseline": "近 {{months}} 个月实际用量：约 {{requests}} 次请求/月",
+            "resetToUsage": "恢复为我的实际用量"
+        },
+        "zones": {
+            "label": "按月用量推荐的套餐",
+            "tooltip": "{{plan}}：{{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "按您的用量推荐",
+            "fits": "— 约 {{requests}} {{unit}} 的费用：",
+            "savesVs": "比 {{plan}} 节省 ${{amount}}/{{interval}}。",
+            "headroom": "在约 {{requests}} {{unit}} 以内都是最佳选择；超过后 {{plan}} 更便宜。"
+        },
+        "card": {
+            "recommended": "推荐",
+            "includes": "含约 {{requests}} 次请求/月",
+            "pricePerRequestHint": "该套餐折扣后的 SmartCheck 平均单价（基础 $0.30/请求）。具体价格因 API 而异，请查看“比较 API 价格”。",
+            "lowestForVolume": "最适合您的用量",
+            "deltaVsBest": "比 {{plan}} 多 ${{amount}}/{{interval}}",
+            "avgPerRequest": "每次请求实际成本",
+            "avgPerRequestHint": "预估总额除以您每月 {{requests}} 次请求，已计入套餐折扣。",
+            "ratePerRequest": "每次请求单价",
+            "includedRequests": "含约 {{requests}} 次请求/月",
+            "extraRate": "超出部分每次 ${{price}}",
+            "rateDiscountHint": "比基础单价 ${{base}}/请求低 {{percent}}%"
         },
         "apiBreakdown": {
             "button": "比较API价格",
@@ -6960,6 +7303,12 @@
         }
     },
     "supportTickets": {
+        "priority": {
+            "low": "低",
+            "normal": "普通",
+            "high": "高",
+            "critical": "紧急"
+        },
         "quickChat": {
             "headerTitle": "支持工单",
             "guest": {
@@ -7010,6 +7359,11 @@
             },
             "newTicket": {
                 "heading": "新建支持工单",
+                "priority": "优先级",
+                "priorityHint": "仅在生产流量受阻时使用紧急。",
+                "criticalSlaTitle": "紧急工单会在 24 小时内收到首次回复",
+                "criticalSlaBody": "我们力争在 48 小时内解决。两个计时都从您提交工单时开始。",
+                "supportHours": "截止时间按 {{timezone}} 显示。",
                 "fieldTitle": "标题",
                 "titleRequired": "标题为必填项",
                 "ticketSubject": "主题",
@@ -8947,6 +9301,10 @@
         "searchModeOptionFullName": "方式 A — 按全名检索",
         "searchModeOptionDocument": "方式 B — 按证件检索",
         "searchModeOptionSerial": "方式 C — 按序列号检索",
+        "searchModesIntroMexicoLicense": "每次请求只能使用一组输入：CURP 与证件号码、专业执照号码，或名字与姓氏。请勿在同一请求中混用多组。",
+        "searchModeOptionCurp": "第 1 组 — 按 CURP 检索",
+        "searchModeOptionLicenseNumber": "第 2 组 — 按执照号码检索",
+        "searchModeOptionNameMexico": "第 3 组 — 按姓名检索",
         "dateOfBirthConditionalHint": "当证件类型（documentType）为以下之一时，该行必须填写 dateOfBirth 列：{{values}}",
         "fieldConditional": "条件必填",
         "fieldConditionalDetail": "当 {{whenField}} 为以下之一时必填：{{values}}。",

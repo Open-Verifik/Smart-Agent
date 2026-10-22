@@ -22,12 +22,25 @@ export interface DocumentValidation {
         front?: Record<string, boolean>;
         back?: Record<string, boolean>;
     };
+    requiresBackSide?: boolean;
+    template?: string | { _id?: string };
+    scanTemplate?: ScanTemplateSummary | null;
     createdAt?: string;
     updatedAt?: string;
     client?: string;
     project?: string | DocumentValidationProjectRef;
     projectFlow?: string | { _id: string };
     appRegistration?: string | DocumentValidationAppRegistrationRef | null;
+    cost?: ScanCostBreakdown | null;
+    creditsCharged?: number;
+    smartCheck?: SmartCheckResult | null;
+    scoreValidation?: (Partial<SmartCheckResult> & { ocrCreditsCharged?: number; creditsCharged?: number }) | null;
+}
+
+export interface ScanCostBreakdown {
+    ocr?: number;
+    smartCheck?: number;
+    total?: number;
 }
 
 /**
@@ -78,9 +91,25 @@ export interface DocumentType {
     backImage?: string;
     version?: string | null;
     client?: string | null;
-    appFeature?: string | { _id?: string } | null;
-    smartCheckFieldMap?: Array<{ mapKey?: string; dependencyField?: string }>;
+    appFeature?: string | { _id?: string; code?: string; name?: string; url?: string } | null;
+    smartCheckFieldMap?: Array<{ mapKey?: string; dependencyField?: string; literal?: string }>;
     promptTemplate?: PromptTemplate;
+}
+
+export interface ScanTemplateSummary {
+    _id?: string;
+    name: string;
+    owned: boolean;
+    requiresBackSide: boolean;
+    fields: DocumentTypeField[];
+    source: 'saved' | 'current';
+}
+
+export interface RecentDocumentType {
+    lastUsedAt: string;
+    country: string;
+    owned: boolean;
+    documentType: DocumentType;
 }
 
 export interface DocumentTypeField {
@@ -122,6 +151,11 @@ export interface SmartCheckResult {
     reason?: string;
     missing?: string[];
     featureCode?: string;
+    featureName?: string;
+    featureUrl?: string;
+    method?: string;
+    params?: Record<string, unknown>;
+    creditsCharged?: number;
     httpStatus?: number;
     data?: unknown;
     error?: { code?: string; message?: string } | null;
@@ -131,9 +165,14 @@ export interface AppFeatureOption {
     _id: string;
     code: string;
     name: string;
+    url?: string;
+    method?: string;
+    description?: string;
+    price?: number;
     country?: string;
+    baseCategory?: string;
     smartCheckEnabled?: boolean;
-    dependencies?: Array<{ field: string; required?: boolean; type?: string }>;
+    dependencies?: Array<{ field: string; required?: boolean; type?: string; enum?: string[] | null }>;
 }
 
 export interface ScanResult {
@@ -146,6 +185,8 @@ export interface ScanResult {
     status?: string;
     url?: string;
     backUrl?: string;
+    cost?: ScanCostBreakdown | null;
+    creditsCharged?: number;
     smartCheck?: SmartCheckResult | null;
     fieldMapping?: {
         front?: Record<string, boolean>;

@@ -18,9 +18,17 @@ import {
 import { CollectionMultiSelectComponent } from '../../shared/collection-multi-select.component';
 import { CreatePersonResultComponent } from '../../shared/create-person-result.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
 import { PersonSingleSelectComponent } from '../../shared/person-single-select.component';
+import { CountryService } from 'app/core/services/country.service';
+import {
+    NationalitySelectComponent,
+    isCatalogNationality,
+    normalizeNationalityCode,
+} from '../../../shared/nationality-select.component';
 
 const DOCS_BASE = 'https://docs.verifik.co';
 
@@ -51,10 +59,13 @@ const readPersonPayload = (body: unknown): Record<string, unknown> | null => {
         FormsModule,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoStageHeroComponent,
+        DemoStageCardComponent,
         DemoRelatedDocsSectionComponent,
         CollectionMultiSelectComponent,
         CreatePersonResultComponent,
         PersonSingleSelectComponent,
+        NationalitySelectComponent,
     ],
     templateUrl: './update-person-demo.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +75,7 @@ export class UpdatePersonDemoComponent implements OnInit {
     private _router = inject(Router);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private _countries = inject(CountryService);
 
     authChecked = false;
     step: Step = 'form';
@@ -195,9 +207,13 @@ export class UpdatePersonDemoComponent implements OnInit {
         this.loadPersonDetails(id);
     }
 
+    get nationalityBlocked(): boolean {
+        return !isCatalogNationality(this.nationality, this._countries.countries);
+    }
+
     handleSubmit(): void {
         const id = this.selectedPersonId?.trim();
-        if (!id) return;
+        if (!id || this.nationalityBlocked) return;
 
         this.step = 'processing';
         this.submitError = null;
@@ -208,7 +224,7 @@ export class UpdatePersonDemoComponent implements OnInit {
                 name: this.name,
                 gender: this.gender,
                 date_of_birth: this.dob,
-                nationality: this.nationality || undefined,
+                nationality: normalizeNationalityCode(this.nationality) || undefined,
                 notes: this.notes || undefined,
                 collections: this.selectedCollectionIds,
             })

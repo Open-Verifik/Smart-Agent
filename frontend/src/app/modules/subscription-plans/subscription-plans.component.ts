@@ -10,13 +10,14 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import type { BringBackOffer } from 'app/core/user/user.types';
 import { UserService } from 'app/core/user/user.service';
-import { Subject, catchError, of } from 'rxjs';
+import { Subject, catchError, forkJoin, of } from 'rxjs';
 import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
@@ -28,10 +29,21 @@ import {
     formatBenefitRowsFromChanges,
     hasOtherPlanWithApiDiscount,
 } from './subscription-plan-benefits.util';
-import { AppFeature, ClientSubscription, SubscriptionPlan } from './subscription-plan.types';
+import {
+    AppFeature,
+    ClientSubscription,
+    MonthlyUsageMetric,
+    PlanZone,
+    SubscriptionPlan,
+} from './subscription-plan.types';
 import { SubscriptionService } from './subscription.service';
 
 const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
+const USAGE_BASELINE_MONTHS = 3;
+/** Max samples across the slider range when computing plan zones (boundaries are then refined exactly). */
+const PLAN_ZONE_SAMPLES = 400;
+/** Zones narrower than this share of the track render without a text label (name stays in the tooltip). */
+const PLAN_ZONE_MIN_LABEL_PERCENT = 9;
 
 @Component({
     selector: 'subscription-plans',
@@ -43,6 +55,7 @@ const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
         RouterModule,
         MatIconModule,
         MatSnackBarModule,
+        MatTooltipModule,
         PlanChangeDialogComponent,
         BillingRequiredDialogComponent,
     ],
@@ -82,6 +95,12 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     readonly YEARLY_SLIDER_MAX = 500000;
     readonly YEARLY_SLIDER_STEP = 1;
 
+    /** Average monthly requests over the last complete months with traffic; null when there is no history. */
+    usageBaselinePerMonth: number | null = null;
+    usageBaselineMonths = 0;
+    private _volumeTouchedByUser = false;
+    private _planZonesCache: { key: string; zones: PlanZone[] } | null = null;
+
     // Estimator mode: pick exact requests, or invert from a target monthly budget
     estimatorMode: 'requests' | 'budget' = 'requests';
     targetMonthlyBudget: number | null = null;
@@ -92,6 +111,8 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     showBillingRequiredModal = false;
     selectedPlanForChange: SubscriptionPlan | null = null;
     selectedPlanRequests = 0;
+    selectedPlanCostDeltaVsBest = 0;
+    selectedPlanRecommendedName: string | null = null;
     selectedFeatureForModal: AppFeature | null = null;
 
     // Data
@@ -132,6 +153,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
     private _bootstrapSubscriptionPlansAfterAuth(): void {
         this._loadBringBackOffer();
+        this._loadUsageBaseline();
         this._loadCurrentSubscription();
         this._checkBillingSetup();
         this._confirmSessionIfPresent();
@@ -151,6 +173,70 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                 this.bringBackOffer =
                     offer?.kind === 'bring_back' && offer.eligible ? offer : null;
             });
+    }
+
+    /**
+     * Seeds the estimator with the client's real average monthly volume over the last
+     * complete months that had traffic. Keeps the static default when there is no history
+     * or the user already moved the estimator.
+     */
+    private _loadUsageBaseline(): void {
+        const months = this._lastCompleteMonths(USAGE_BASELINE_MONTHS);
+        const years = Array.from(new Set(months.map((m) => m.year)));
+
+        forkJoin(
+            years.map((year) =>
+                this._subscriptionService
+                    .getMonthlyUsage(year)
+                    .pipe(catchError(() => of([] as MonthlyUsageMetric[])))
+            )
+        ).subscribe((responses) => {
+            const rows = responses.flatMap((r) => (Array.isArray(r) ? r : (r?.data ?? [])));
+            const totals = months
+                .map(
+                    (m) =>
+                        rows.find((row) => row._id?.year === m.year && row._id?.month === m.month)
+                            ?.total ?? 0
+                )
+                .filter((total) => total > 0);
+
+            if (!totals.length) return;
+
+            this.usageBaselinePerMonth = Math.round(
+                totals.reduce((sum, total) => sum + total, 0) / totals.length
+            );
+            this.usageBaselineMonths = totals.length;
+
+            if (!this._volumeTouchedByUser) this._applyUsageBaseline();
+        });
+    }
+
+    /** Previous `count` calendar months (UTC), most recent first, excluding the current month. */
+    private _lastCompleteMonths(count: number): { year: number; month: number }[] {
+        const now = new Date();
+
+        return Array.from({ length: count }, (_, i) => {
+            const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (i + 1), 1));
+
+            return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1 };
+        });
+    }
+
+    private _applyUsageBaseline(): void {
+        if (this.usageBaselinePerMonth == null) return;
+
+        this.requestsPerMonth = this.usageBaselinePerMonth;
+        this.requestsPerYear = this.usageBaselinePerMonth * 12;
+        this._syncBudgetFromRequests();
+    }
+
+    resetToUsageBaseline(): void {
+        this._volumeTouchedByUser = false;
+        this._applyUsageBaseline();
+    }
+
+    get isAtUsageBaseline(): boolean {
+        return this.usageBaselinePerMonth != null && this.requestsPerMonth === this.usageBaselinePerMonth;
     }
 
     get showBringBackPromoBanner(): boolean {
@@ -228,8 +314,15 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     // Actions
     upgradePlan(plan: SubscriptionPlan): void {
         // Open plan change dialog
+        const best = this.requestsPerMonth > 0 ? this.recommendedPlan : null;
+
         this.selectedPlanRequests = this.getStripeCheckoutQuantityFromEstimator(plan);
         this.selectedPlanForChange = plan;
+        this.selectedPlanRecommendedName = best?.name ?? null;
+        this.selectedPlanCostDeltaVsBest =
+            best && best._id !== plan._id
+                ? Math.round(this.getEstimatedTotal(plan) - this.getEstimatedTotal(best))
+                : 0;
         this.showPlanChangeDialog = true;
     }
 
@@ -429,6 +522,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
     onSliderChange(event: Event): void {
         const value = Number((event.target as HTMLInputElement).value);
+        this._volumeTouchedByUser = true;
         this._setRequestsFromInterval(value);
         this._syncBudgetFromRequests();
     }
@@ -439,6 +533,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
      */
     onRequestsInput(rawValue: string | number): void {
         const parsed = Math.max(0, Math.min(this.sliderMax, Math.round(Number(rawValue) || 0)));
+        this._volumeTouchedByUser = true;
         this._setRequestsFromInterval(parsed);
         this._syncBudgetFromRequests();
     }
@@ -450,6 +545,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
      */
     onBudgetInput(rawValue: string | number): void {
         const target = Math.max(0, Number(rawValue) || 0);
+        this._volumeTouchedByUser = true;
         this.targetMonthlyBudget = target;
         this._autoPickReferenceAndRequestsForTarget(target);
     }
@@ -543,7 +639,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
      * Ties: prefer larger R (more included usage / volume for the same error).
      */
     private _findBestRForTargetPlan(plan: SubscriptionPlan, target: number): number {
-        const cap = this.MONTHLY_SLIDER_MAX;
+        const cap = this.monthlyVolumeMax;
         let bestR = 0;
         let bestErr = Infinity;
         for (let r = 0; r <= cap; r++) {
@@ -599,7 +695,22 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     get sliderMax(): number {
-        return this.selectedInterval === 'year' ? this.YEARLY_SLIDER_MAX : this.MONTHLY_SLIDER_MAX;
+        return this.selectedInterval === 'year'
+            ? Math.max(this.YEARLY_SLIDER_MAX, this.monthlyVolumeMax * 12)
+            : this.monthlyVolumeMax;
+    }
+
+    /** Monthly slider ceiling; grows so a high-volume client's real usage sits mid-track instead of clamped. */
+    get monthlyVolumeMax(): number {
+        const baseline = this.usageBaselinePerMonth ?? 0;
+        const stretched = Math.ceil((baseline * 1.5) / 1000) * 1000;
+
+        return Math.max(this.MONTHLY_SLIDER_MAX, stretched);
+    }
+
+    /** Monthly-equivalent span of the slider track, used to position plan zones. */
+    private get _zoneTrackMax(): number {
+        return this.selectedInterval === 'year' ? Math.round(this.sliderMax / 12) : this.sliderMax;
     }
 
     get sliderStep(): number {
@@ -608,24 +719,178 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
             : this.MONTHLY_SLIDER_STEP;
     }
 
-    get sliderTicks(): string[] {
-        const segments = 4;
-        return Array.from({ length: segments + 1 }, (_, i) =>
-            this.formatNumber(Math.round((this.sliderMax / segments) * i))
+    /**
+     * Contiguous monthly-volume ranges across the slider track where each plan is the
+     * recommended one (same rules as `getBestValuePlanId`). Sampled, then each boundary
+     * is refined by binary search so "good until" figures are exact.
+     */
+    get planZones(): PlanZone[] {
+        const max = this._zoneTrackMax;
+        const key = `${this.selectedInterval}|${max}|${this.currentSubscription?.subscriptionPlan?.code ?? ''}|${this.plans.map((p) => p._id).join(',')}`;
+        if (this._planZonesCache?.key === key) return this._planZonesCache.zones;
+
+        const zones = this._computePlanZones(max);
+        this._planZonesCache = { key, zones };
+
+        return zones;
+    }
+
+    private _computePlanZones(max: number): PlanZone[] {
+        if (!this.visiblePlans.length || max <= 0) return [];
+
+        const step = Math.max(1, Math.ceil(max / PLAN_ZONE_SAMPLES));
+        const zones: PlanZone[] = [];
+        let from = 1;
+        let bestId = this._bestPlanIdAt(from);
+
+        for (let r = from + step; r <= max + step - 1; r += step) {
+            const probe = Math.min(r, max);
+            const probeId = this._bestPlanIdAt(probe);
+            if (probeId === bestId) continue;
+
+            const boundary = this._firstVolumeWithDifferentBest(probe - step, probe, bestId);
+            zones.push(this._toZone(bestId, from, boundary - 1));
+            from = boundary;
+            bestId = this._bestPlanIdAt(from);
+        }
+
+        zones.push(this._toZone(bestId, from, max));
+
+        return zones.filter((zone) => zone.planId && zone.to >= zone.from);
+    }
+
+    /** Smallest R in (lo, hi] whose recommended plan is not `bestId`; assumes it differs at `hi`. */
+    private _firstVolumeWithDifferentBest(lo: number, hi: number, bestId: string): number {
+        let low = lo;
+        let high = hi;
+
+        while (high - low > 1) {
+            const mid = Math.floor((low + high) / 2);
+            if (this._bestPlanIdAt(mid) === bestId) low = mid;
+            else high = mid;
+        }
+
+        return high;
+    }
+
+    private _toZone(planId: string, from: number, to: number): PlanZone {
+        const plan = this.plans.find((p) => p._id === planId);
+
+        return { planId, name: plan?.name ?? '', from, to };
+    }
+
+    /** Left offset and width of a zone on the slider track, in percent. */
+    getZoneStyle(zone: PlanZone): { left: string; width: string } {
+        const max = this._zoneTrackMax || 1;
+        const left = ((zone.from - 1) / max) * 100;
+        const width = ((zone.to - zone.from + 1) / max) * 100;
+
+        return { left: `${left}%`, width: `${width}%` };
+    }
+
+    showZoneLabel(zone: PlanZone): boolean {
+        const max = this._zoneTrackMax || 1;
+
+        return ((zone.to - zone.from + 1) / max) * 100 >= PLAN_ZONE_MIN_LABEL_PERCENT;
+    }
+
+    isActiveZone(zone: PlanZone): boolean {
+        return this.requestsPerMonth >= zone.from && this.requestsPerMonth <= zone.to;
+    }
+
+    /** Snap the estimator to the first volume where this zone's plan becomes the recommendation. */
+    selectZone(zone: PlanZone): void {
+        this._volumeTouchedByUser = true;
+        this.requestsPerMonth = zone.from;
+        this.requestsPerYear = zone.from * 12;
+        this._syncBudgetFromRequests();
+    }
+
+    /** Volume in the slider's display unit (per month or per year). */
+    toDisplayVolume(monthlyRequests: number): number {
+        return this.selectedInterval === 'year' ? monthlyRequests * 12 : monthlyRequests;
+    }
+
+    get recommendedPlan(): SubscriptionPlan | null {
+        const id = this.getBestValuePlanId();
+
+        return this.plans.find((p) => p._id === id) ?? null;
+    }
+
+    /** Cheapest plan other than the recommended one at the current volume. */
+    get runnerUpPlan(): SubscriptionPlan | null {
+        const best = this.recommendedPlan;
+        if (!best) return null;
+
+        const others = this.visiblePlans.filter((p) => p._id !== best._id);
+        if (!others.length) return null;
+
+        return others.reduce((cheapest, plan) =>
+            this.getEstimatedTotal(plan) < this.getEstimatedTotal(cheapest) ? plan : cheapest
         );
+    }
+
+    /** Savings of the recommended plan vs the runner-up, in the display unit. Null when not positive. */
+    get recommendedSavings(): number | null {
+        const best = this.recommendedPlan;
+        const runnerUp = this.runnerUpPlan;
+        if (!best || !runnerUp) return null;
+
+        const savings = this.getDisplayEstimatedTotal(runnerUp) - this.getDisplayEstimatedTotal(best);
+
+        return savings >= 1 ? savings : null;
+    }
+
+    /** Zone after the one containing the current volume, i.e. what takes over once usage grows. */
+    get nextZone(): PlanZone | null {
+        const zones = this.planZones;
+        const index = zones.findIndex((zone) => this.isActiveZone(zone));
+
+        return index >= 0 && index < zones.length - 1 ? zones[index + 1] : null;
+    }
+
+    get activeZone(): PlanZone | null {
+        return this.planZones.find((zone) => this.isActiveZone(zone)) ?? null;
+    }
+
+    /** Extra cost of a plan vs the recommended one at the current volume, in the display unit. */
+    getCostDeltaVsBest(plan: SubscriptionPlan): number {
+        const best = this.recommendedPlan;
+        if (!best || best._id === plan._id) return 0;
+
+        return Math.round(this.getDisplayEstimatedTotal(plan) - this.getDisplayEstimatedTotal(best));
+    }
+
+    isRecommendedPlan(plan: SubscriptionPlan): boolean {
+        return Boolean(plan._id) && plan._id === this.getBestValuePlanId() && this.requestsPerMonth > 0;
+    }
+
+    /** Included requests per month for a plan, or null when the plan has no prepaid volume. */
+    getIncludedRequestsDisplay(plan: SubscriptionPlan): number | null {
+        const included = this.getIncludedRequests(plan);
+
+        return Number.isFinite(included) && included > 0 ? included : null;
     }
 
     getEffectiveCostPerRequest(plan: SubscriptionPlan): number {
         return applyApiRequestDiscountToBasePrice(this.BASE_REQUEST_PRICE, plan.discount);
     }
 
-    getDiscountDisplayText(plan: SubscriptionPlan): string {
-        const d = plan.discount;
-        if (!d?.discount) return '';
-        if (d.type === 'amount') {
-            return `$${d.discount.toFixed(2)} ${this._translocoService.translate('subscriptionPlans.off')}`;
-        }
-        return `${d.discount}% ${this._translocoService.translate('subscriptionPlans.off')}`;
+    /**
+     * What each request really costs on this plan at the estimated volume (monthly total / requests).
+     * Falls back to the plan rate when no volume is set.
+     */
+    getAverageCostPerRequest(plan: SubscriptionPlan): number {
+        if (this.requestsPerMonth <= 0) return this.getEffectiveCostPerRequest(plan);
+
+        return this.getEstimatedTotal(plan) / this.requestsPerMonth;
+    }
+
+    /** Whole-percent discount of the plan rate vs the base request price. */
+    getRateDiscountPercent(plan: SubscriptionPlan): number {
+        const percent = Math.round((1 - this.getEffectiveCostPerRequest(plan) / this.BASE_REQUEST_PRICE) * 100);
+
+        return percent > 0 ? percent : 0;
     }
 
     getBaseMonthlyAmount(plan: SubscriptionPlan): number {
@@ -678,34 +943,32 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         return base + this.getRequestAddOn(plan);
     }
 
-    getTotalMonthlyCost(plan: SubscriptionPlan): number {
-        const baseCost = this.getBaseMonthlyAmount(plan);
-        return baseCost + this.getMonthlyRequestSpend(plan);
+    getBestValuePlanId(): string {
+        return this._bestPlanIdAt(this.requestsPerMonth);
     }
 
-    getBestValuePlanId(): string {
-        const candidatesPool = this.competitivePlans;
+    /**
+     * Recommended plan at monthly volume `r`: cheapest competitive plan, preferring plans with an
+     * API discount (and skipping starter tiers from 400 req/mo) when there is any volume.
+     */
+    private _bestPlanIdAt(r: number): string {
+        const candidatesPool = this.visiblePlans.filter((p) => this._isPlanCompetitiveAt(p, r));
         if (!candidatesPool.length) return '';
 
-        if (this.requestsPerMonth > 0) {
+        const cheapest = (list: SubscriptionPlan[]): string =>
+            list.reduce((best, plan) =>
+                this._getEstimatedTotalForR(plan, r) < this._getEstimatedTotalForR(best, r) ? plan : best
+            )._id;
+
+        if (r > 0) {
             let candidates = candidatesPool.filter((p) => p.discount?.discount);
-            if (candidates.length) {
-                if (this.requestsPerMonth >= 400) {
-                    candidates = candidates.filter((p) => !this._isStarterPlan(p));
-                }
-                if (candidates.length) {
-                    return candidates.reduce((best, plan) =>
-                        this.getTotalMonthlyCost(plan) < this.getTotalMonthlyCost(best)
-                            ? plan
-                            : best
-                    )._id;
-                }
+            if (candidates.length && r >= 400) {
+                candidates = candidates.filter((p) => !this._isStarterPlan(p));
             }
+            if (candidates.length) return cheapest(candidates);
         }
 
-        return candidatesPool.reduce((best, plan) =>
-            this.getTotalMonthlyCost(plan) < this.getTotalMonthlyCost(best) ? plan : best
-        )._id;
+        return cheapest(candidatesPool);
     }
 
     /**
@@ -714,12 +977,16 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
      * (no other tier is significantly cheaper at the same R) and not be a starter SKU at high volume.
      */
     isPlanCompetitive(plan: SubscriptionPlan): boolean {
+        return this._isPlanCompetitiveAt(plan, this.requestsPerMonth);
+    }
+
+    private _isPlanCompetitiveAt(plan: SubscriptionPlan, r: number): boolean {
         const isCurrent = plan.code === this.currentSubscription?.subscriptionPlan?.code;
         if (isCurrent) return true;
         if (!plan._id) return false;
 
-        if (this._isStarterPlan(plan) && this.requestsPerMonth >= 2000) return false;
-        return !this._isDominatedCompetitivelyByAnyPlan(plan);
+        if (this._isStarterPlan(plan) && r >= 2000) return false;
+        return !this._isDominatedCompetitivelyByAnyPlan(plan, r);
     }
 
     private _dominanceMarginUsd(dominatorsTotal: number): number {
@@ -729,16 +996,16 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         );
     }
 
-    private _isDominatedCompetitivelyByAnyPlan(plan: SubscriptionPlan): boolean {
+    private _isDominatedCompetitivelyByAnyPlan(plan: SubscriptionPlan, r: number): boolean {
         const paidPlans = this.plans.filter((p) => p._id);
         if (!paidPlans.length) return false;
 
-        const planTotal = this.getEstimatedTotal(plan);
+        const planTotal = this._getEstimatedTotalForR(plan, r);
 
         for (const rival of paidPlans) {
             if (rival._id === plan._id) continue;
 
-            const rivalTotal = this.getEstimatedTotal(rival);
+            const rivalTotal = this._getEstimatedTotalForR(rival, r);
             if (planTotal > rivalTotal + this._dominanceMarginUsd(rivalTotal)) return true;
         }
 
@@ -749,14 +1016,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         return /starter/i.test(plan.name) || (plan.amount ?? 0) <= 49;
     }
 
-    /** All paid plans, regardless of competitiveness. Cards render dominated tiers as blurred (handled in template). */
+    /** All paid plans, regardless of competitiveness. Dominated tiers render de-emphasized but selectable. */
     get visiblePlans(): SubscriptionPlan[] {
         return this.plans.filter((p) => p._id);
-    }
-
-    /** Subset of visiblePlans that beat the dominance check at the current R. */
-    get competitivePlans(): SubscriptionPlan[] {
-        return this.visiblePlans.filter((p) => this.isPlanCompetitive(p));
     }
 
     /** Plans shown in API breakdown table (Smart plans only) */
@@ -1183,6 +1445,10 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     // TrackBy function for ngFor
     trackByPlan(index: number, plan: SubscriptionPlan): string {
         return plan._id || plan.code || index.toString();
+    }
+
+    trackByZone(index: number, zone: PlanZone): string {
+        return `${zone.planId}-${zone.from}`;
     }
 
     trackByFeature(index: number, feature: AppFeature): string {

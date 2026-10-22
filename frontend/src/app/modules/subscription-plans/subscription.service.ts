@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
-import { ClientSubscription, SubscriptionPlan } from './subscription-plan.types';
+import { ClientSubscription, MonthlyUsageMetric, SubscriptionPlan } from './subscription-plan.types';
 
 @Injectable({
     providedIn: 'root',
@@ -86,6 +86,16 @@ export class SubscriptionService {
      */
     getBillingConfig(params: any = {}): Observable<any> {
         return this._httpWrapper.sendRequest('get', `${this.baseUrl}/v2/client-settings`, params);
+    }
+
+    /**
+     * Get API request totals grouped by month for one calendar year (UTC).
+     * Used to seed the plan estimator with the client's real volume.
+     */
+    getMonthlyUsage(year: number): Observable<MonthlyUsageMetric[] | { data: MonthlyUsageMetric[] }> {
+        return this._httpWrapper.sendRequest('get', `${this.baseUrl}/v2/api-requests/monthly`, {
+            year: year.toString(),
+        });
     }
 
     /**

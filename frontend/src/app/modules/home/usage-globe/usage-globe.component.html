@@ -1,0 +1,134 @@
+<section class="usage-globe" *transloco="let t">
+    <header class="usage-globe-header">
+        <div class="min-w-0">
+            <h2 class="usage-globe-title">{{ t('home.usageGlobe.title') }}</h2>
+            <p class="usage-globe-subtitle">
+                @if (loading()) {
+                    {{ t('home.usageGlobe.loading') }}
+                } @else if (failed()) {
+                    {{ t('home.usageGlobe.error') }}
+                } @else if (isEmpty()) {
+                    {{ t('home.usageGlobe.emptySubtitle') }}
+                } @else if (!countryCount()) {
+                    {{ t('home.usageGlobe.subtitleUnscoped', { total: (totalRequests() | number) }) }}
+                } @else {
+                    {{ t('home.usageGlobe.subtitle', { total: (totalRequests() | number), countries: countryCount() }) }}
+                }
+            </p>
+        </div>
+        <div class="usage-globe-actions">
+            @if (source() !== 'apiRequests' && !loading()) {
+                <span class="usage-globe-chip" [title]="t('home.usageGlobe.sourceCreditsHint')">
+                    <span class="usage-globe-chip__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path
+                                d="M19.5 3.5 18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V2l-1.5 1.5zM19 19c0 .55-.45 1-1 1s-1-.45-1-1v-3H8V5h11v14z"
+                            />
+                            <path d="M9 7h6v2H9zm7 0h2v2h-2zM9 11h6v2H9zm7 0h2v2h-2z" />
+                        </svg>
+                    </span>
+                    {{ t('home.usageGlobe.sourceCredits') }}
+                </span>
+            }
+            <a class="usage-globe-link" routerLink="/settings/usage-report">
+                {{ t('home.usageGlobe.openReport') }}
+                <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+            </a>
+        </div>
+    </header>
+
+    <div class="usage-globe-ranges" role="group" [attr.aria-label]="t('home.usageGlobe.rangeLabel')">
+        @for (item of ranges; track item) {
+            <button
+                type="button"
+                class="usage-globe-range"
+                [class.usage-globe-range--active]="range() === item"
+                [attr.aria-pressed]="range() === item"
+                (click)="selectRange(item)"
+            >
+                {{ t('home.usageGlobe.ranges.' + item) }}
+            </button>
+        }
+    </div>
+
+    <div class="usage-globe-body">
+        <div
+            class="usage-globe-stage"
+            role="img"
+            [attr.aria-label]="t('home.usageGlobe.globeLabel')"
+            (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp()"
+            (pointercancel)="onPointerUp()"
+            (pointerleave)="onPointerUp()"
+        >
+            <canvas #globeCanvas class="usage-globe-canvas"></canvas>
+            @for (row of labelled(); track row.code; let first = $first) {
+                <div
+                    class="usage-globe-label"
+                    [class.usage-globe-label--hub]="first"
+                    [attr.style]="'position-anchor: ' + anchorFor(row.code!) + '; opacity: ' + visibilityFor(row.code!)"
+                >
+                    <span class="usage-globe-label-code">{{ row.code }}</span>
+                    <span>{{ row.total | number }}</span>
+                </div>
+            }
+            @if (loading()) {
+                <div class="usage-globe-overlay"><mat-spinner diameter="28"></mat-spinner></div>
+            }
+        </div>
+
+        <div class="usage-globe-panel">
+            @if (isEmpty() || failed()) {
+                <div class="usage-globe-empty">
+                    <mat-icon class="text-slate-400">travel_explore</mat-icon>
+                    <p class="font-medium text-slate-700 dark:text-slate-200">{{ t('home.usageGlobe.emptyTitle') }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('home.usageGlobe.emptyBody') }}</p>
+                    <a class="usage-globe-link mt-2" routerLink="/postman">{{ t('home.usageGlobe.emptyCta') }}</a>
+                </div>
+            } @else if (!loading()) {
+                <h3 class="usage-globe-panel-title">{{ t(countryCount() ? 'home.usageGlobe.countries' : 'home.usageGlobe.global') }}</h3>
+                <ol class="usage-globe-list">
+                    @for (row of rows().slice(0, 6); track row.code) {
+                        <li>
+                            <button type="button" class="usage-globe-row" (click)="openCountry(row)">
+                                <span class="usage-globe-iso">
+                                    @if (row.code) {
+                                        {{ row.code }}
+                                    } @else {
+                                        <mat-icon class="!h-4 !w-4 !text-base">public</mat-icon>
+                                    }
+                                </span>
+                                <span class="usage-globe-row-main">
+                                    <span class="usage-globe-row-head">
+                                        <span class="truncate">{{ row.name }}</span>
+                                        <span class="usage-globe-row-count">{{ row.total | number }}</span>
+                                    </span>
+                                    <span class="usage-globe-bar"><span [style.width]="barWidth(row)"></span></span>
+                                    @if (!row.code) {
+                                        <span class="usage-globe-row-meta">{{ t('home.usageGlobe.globalHint') }}</span>
+                                    }
+                                    @if (row.failed) {
+                                        <span class="usage-globe-row-meta">{{ t('home.usageGlobe.failedShare', { rate: failureRate(row) }) }}</span>
+                                    }
+                                </span>
+                            </button>
+                        </li>
+                    }
+                </ol>
+
+                @if (services().length) {
+                    <h3 class="usage-globe-panel-title mt-5">{{ t('home.usageGlobe.topServices') }}</h3>
+                    <ul class="usage-globe-services">
+                        @for (service of services().slice(0, 3); track service.code) {
+                            <li>
+                                <span class="truncate">{{ service.label }}</span>
+                                <span class="usage-globe-row-count">{{ service.count | number }}</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+        </div>
+    </div>
+</section>

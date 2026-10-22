@@ -1,0 +1,14 @@
+<section class="rounded-2xl border border-outline-variant/40 bg-surface-container p-5 md:p-6">
+    <div class="mb-5 flex items-start gap-3">
+        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-on-surface text-xs font-bold text-surface">
+            {{ number }}
+        </span>
+        <div>
+            <h3 class="text-base font-semibold text-on-surface">{{ title }}</h3>
+            @if (help) {
+                <p class="mt-1 text-sm leading-relaxed text-on-surface-variant">{{ help }}</p>
+            }
+        </div>
+    </div>
+    <ng-content />
+</section>

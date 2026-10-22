@@ -13,57 +13,64 @@
                 <mat-icon class="icon-size-5 mr-1">arrow_back</mat-icon>
                 {{ 'smartScan.back' | transloco }}
             </button>
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
-                <div
-                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-stone-200/80 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/60"
-                >
-                    <mat-icon class="icon-size-5 text-stone-700 dark:text-stone-200"
-                        >document_scanner</mat-icon
-                    >
-                </div>
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div class="min-w-0 flex-1 space-y-2">
-                    <h1
-                        class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl"
-                    >
-                        {{ 'smartScan.toolTitle' | transloco }}
+                    <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-stone-500">
+                        {{ 'smartScan.journeyEyebrow' | transloco }}
+                    </p>
+                    <h1 class="text-3xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-4xl">
+                        {{ stepTitleKey | transloco }}
                     </h1>
                     <p class="max-w-2xl text-sm leading-relaxed text-stone-600 dark:text-stone-400">
-                        {{ 'smartScan.toolSubtitle' | transloco }}
+                        {{ stepHelpKey | transloco }}
                     </p>
-                    <p class="text-xs leading-relaxed text-stone-500 dark:text-stone-500">
+                    <p class="text-xs leading-relaxed text-stone-500">
                         {{ 'smartScan.privacyNote' | transloco }}
                     </p>
+                </div>
+                <div
+                    class="flex w-full max-w-xs flex-col items-start rounded-2xl border border-stone-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900 lg:items-end"
+                >
+                    <span class="text-[0.62rem] font-semibold uppercase tracking-wider text-stone-400">
+                        {{ 'smartScan.currentChoice' | transloco }}
+                    </span>
+                    <strong class="mt-1 text-sm text-stone-800 dark:text-stone-100">{{ choiceLabel }}</strong>
+                    <em class="mt-0.5 text-xs not-italic text-stone-500">{{ choiceDetail }}</em>
                 </div>
             </div>
         </header>
 
-        <!-- Flow steps -->
-        <nav
-            class="scan-tool-steps mb-8 flex flex-wrap items-center gap-y-2 text-xs sm:mb-10 sm:text-sm"
-            [attr.aria-label]="'smartScan.toolTitle' | transloco"
-        >
+        <ol class="mb-8 flex flex-col gap-2 sm:flex-row sm:flex-wrap" [attr.aria-label]="'smartScan.toolTitle' | transloco">
             @for (s of flowStepDefs; track s.id; let i = $index) {
-                @if (i > 0) {
-                    <span
-                        class="scan-tool-steps__rule mx-0.5 hidden h-px w-6 shrink-0 rounded-full bg-stone-200 sm:block lg:w-10 dark:bg-gray-700"
-                    ></span>
-                }
-                <span
-                    class="inline-flex max-w-[9rem] items-center gap-1.5 truncate rounded-full px-3 py-1.5 font-medium transition-colors sm:max-w-none"
-                    [ngClass]="{
-                        'scan-tool-steps__item--current': isFlowStepCurrent(s.id),
-                        'scan-tool-steps__item--done': isFlowStepDone(s.id),
-                        'scan-tool-steps__item--todo':
-                            !isFlowStepCurrent(s.id) && !isFlowStepDone(s.id),
-                    }"
-                >
-                    <span class="w-5 text-center text-[11px] tabular-nums opacity-80">{{
-                        i + 1
-                    }}</span>
-                    <span class="truncate">{{ s.labelKey | transloco }}</span>
-                </span>
+                <li class="flex min-w-0 flex-1">
+                    <button
+                        type="button"
+                        class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border px-3 py-2 text-left enabled:cursor-pointer disabled:cursor-default"
+                        [disabled]="!canOpenFlowStep(s.id)"
+                        [attr.aria-current]="isFlowStepCurrent(s.id) ? 'step' : null"
+                        (click)="goToFlowStep(s.id)"
+                        [ngClass]="{
+                            'border-stone-900 bg-stone-900 text-white dark:border-stone-100 dark:bg-stone-100 dark:text-stone-900':
+                                isFlowStepCurrent(s.id),
+                            'border-stone-200 bg-white text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200':
+                                isFlowStepDone(s.id),
+                            'border-stone-200/80 bg-stone-50 text-stone-400 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-500':
+                                !isFlowStepCurrent(s.id) && !isFlowStepDone(s.id),
+                        }"
+                    >
+                        <span
+                            class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[11px] font-bold"
+                            [ngClass]="
+                                isFlowStepCurrent(s.id)
+                                    ? 'bg-white text-stone-900 dark:bg-stone-900 dark:text-white'
+                                    : 'bg-stone-200 text-stone-700 dark:bg-gray-800 dark:text-stone-200'
+                            "
+                        >{{ i + 1 }}</span>
+                        <span class="truncate text-sm font-medium">{{ s.labelKey | transloco }}</span>
+                    </button>
+                </li>
             }
-        </nav>
+        </ol>
 
         @if (errorMessage) {
             <div
@@ -77,27 +84,178 @@
         <!-- STEP 1: Select Country + Document Type       -->
         <!-- ============================================ -->
         @if (step === 'select') {
+            <div class="flex flex-col gap-6">
             <div class="scan-tool-panel overflow-hidden">
-                <div class="space-y-6 p-6 md:p-8">
+                <div class="p-6 md:p-8">
+                    <section>
+                        <div class="mb-4 flex items-start gap-3">
+                            <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-stone-900 text-[11px] font-bold text-white dark:bg-stone-100 dark:text-stone-900">01</span>
+                            <div>
+                                <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                                    {{ 'smartScan.yourDocumentsTitle' | transloco }}
+                                </h3>
+                                <p class="mt-1 text-xs leading-relaxed text-stone-500">
+                                    {{ 'smartScan.yourDocumentsHelp' | transloco }}
+                                </p>
+                            </div>
+                        </div>
+                        @if (recentLoading) {
+                            <div class="flex justify-center py-8">
+                                <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+                            </div>
+                        } @else if (recentTypes.length === 0) {
+                            <p class="rounded-2xl border border-dashed border-stone-200 px-4 py-6 text-sm text-stone-500 dark:border-gray-700">
+                                {{ 'smartScan.yourDocumentsEmpty' | transloco }}
+                            </p>
+                        } @else {
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                @for (row of recentTypes; track row.documentType._id) {
+                                    <div
+                                        class="doc-type-card cursor-pointer"
+                                        (click)="selectDocumentType(row.documentType)"
+                                        (contextmenu)="onOwnedCardContextMenu($event, row.documentType)"
+                                    >
+                                        <div class="scan-tool-doc-card">
+                                            <div class="scan-tool-doc-card__media">
+                                                @if (flippedCardId === row.documentType._id && row.documentType.backImage) {
+                                                    <img
+                                                        [src]="row.documentType.backImage"
+                                                        [alt]="row.documentType.name + ' (back)'"
+                                                        class="h-full w-full object-contain"
+                                                        loading="lazy"
+                                                    />
+                                                } @else if (row.documentType.frontImage) {
+                                                    <img
+                                                        [src]="row.documentType.frontImage"
+                                                        [alt]="row.documentType.name"
+                                                        class="h-full w-full object-contain"
+                                                        loading="lazy"
+                                                    />
+                                                } @else {
+                                                    <div
+                                                        class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200/80 dark:from-gray-900 dark:to-gray-950"
+                                                    >
+                                                        <mat-icon
+                                                            class="icon-size-16 text-stone-300 dark:text-stone-600"
+                                                            [svgIcon]="'heroicons_outline:identification'"
+                                                        ></mat-icon>
+                                                    </div>
+                                                }
+                                                @if (row.documentType.client) {
+                                                    <button
+                                                        type="button"
+                                                        mat-icon-button
+                                                        class="absolute left-1 top-1 flex h-8 w-8 items-center justify-center rounded-lg bg-black/40 text-white hover:bg-black/60"
+                                                        (click)="editDocumentType(row.documentType, $event)"
+                                                        [attr.aria-label]="'smartScan.editDocumentType' | transloco"
+                                                    >
+                                                        <mat-icon class="icon-size-4">edit</mat-icon>
+                                                    </button>
+                                                }
+                                                @if (row.documentType.backImage) {
+                                                    <button
+                                                        type="button"
+                                                        mat-icon-button
+                                                        class="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-lg bg-black/40 text-white hover:bg-black/60"
+                                                        (click)="flipCard(row.documentType._id, $event)"
+                                                    >
+                                                        <mat-icon class="icon-size-4">{{
+                                                            flippedCardId === row.documentType._id
+                                                                ? 'flip_to_front'
+                                                                : 'flip'
+                                                        }}</mat-icon>
+                                                    </button>
+                                                }
+                                            </div>
+                                            <div class="p-4">
+                                                <div class="min-w-0">
+                                                    <span class="scan-tool-doc-card__code">{{ row.documentType.code }}</span>
+                                                    <span class="ml-2 text-[10px] font-semibold uppercase tracking-wide text-stone-400">
+                                                        {{ (row.owned ? 'smartScan.yourFields' : 'smartScan.verifikFields') | transloco }}
+                                                    </span>
+                                                    <p class="mt-2 truncate text-sm font-semibold text-stone-900 dark:text-white">
+                                                        {{ row.documentType.name }}
+                                                    </p>
+                                                </div>
+                                                <div class="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
+                                                    <span class="text-base leading-none">{{ getFlag(row.documentType.country || row.country) }}</span>
+                                                    <span>{{ getCountryLabel(row.documentType.country || row.country) }}</span>
+                                                    @if (row.documentType.category) {
+                                                        <span>·</span>
+                                                        <span>{{ getCategoryLabel(row.documentType.category) }}</span>
+                                                    }
+                                                </div>
+                                                <p class="mt-1 text-xs text-stone-500">
+                                                    {{ 'smartScan.lastUsed' | transloco }} {{ formatLastUsed(row.lastUsedAt) }}
+                                                </p>
+                                                @if (!row.owned) {
+                                                    <button
+                                                        type="button"
+                                                        class="mt-3 text-xs font-semibold text-stone-900 underline dark:text-stone-100"
+                                                        (click)="useMyFields(row.documentType, $event)"
+                                                    >
+                                                        {{ 'smartScan.useMyFields' | transloco }}
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </section>
+                </div>
+            </div>
+
+            <div class="scan-tool-panel overflow-hidden">
+                <div class="space-y-8 p-6 md:p-8">
+                    <section class="flex flex-col gap-10">
+                        <div class="flex items-start gap-3">
+                            <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-stone-200 text-[11px] font-bold text-stone-700 dark:bg-gray-800 dark:text-stone-200">02</span>
+                            <div>
+                                <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                                    {{ 'smartScan.allDocumentsTitle' | transloco }}
+                                </h3>
+                                <p class="mt-1 text-xs leading-relaxed text-stone-500">
+                                    {{ 'smartScan.allDocumentsHelp' | transloco }}
+                                </p>
+                            </div>
+                        </div>
                     <div>
                         <h3
                             class="mb-4 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400"
                         >
                             {{ 'smartScan.selectCountry' | transloco }}
                         </h3>
-                        <div class="flex flex-wrap gap-2">
-                            @for (c of countries; track c) {
+                        @if (!selectedCountry || countryPickerOpen) {
+                            <div class="flex flex-wrap gap-2">
+                                @for (c of countries; track c) {
+                                    <button
+                                        type="button"
+                                        (click)="toggleCountry(c)"
+                                        class="scan-tool-pill"
+                                        [class.scan-tool-pill--active]="selectedCountry === c"
+                                    >
+                                        <span class="text-base leading-none">{{ getFlag(c) }}</span>
+                                        <span>{{ getCountryLabel(c) }}</span>
+                                    </button>
+                                }
+                            </div>
+                        } @else {
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="scan-tool-pill scan-tool-pill--active">
+                                    <span class="text-base leading-none">{{ getFlag(selectedCountry) }}</span>
+                                    <span>{{ getCountryLabel(selectedCountry) }}</span>
+                                </span>
                                 <button
                                     type="button"
-                                    (click)="toggleCountry(c)"
-                                    class="scan-tool-pill"
-                                    [class.scan-tool-pill--active]="selectedCountry === c"
+                                    class="text-sm font-semibold text-stone-900 underline underline-offset-4 dark:text-stone-100"
+                                    (click)="openCountryPicker()"
                                 >
-                                    <span class="text-base leading-none">{{ getFlag(c) }}</span>
-                                    <span>{{ getCountryLabel(c) }}</span>
+                                    {{ 'smartScan.changeCountry' | transloco }}
                                 </button>
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
 
                     @if (selectedCountry) {
@@ -126,31 +284,31 @@
                             </mat-form-field>
                         </div>
 
-                        <div>
-                            <div class="mb-3 flex flex-wrap gap-2">
+                        <div class="flex flex-col gap-6">
+                            <div class="scan-tool-segment" role="group">
                                 <button
                                     type="button"
                                     (click)="toggleMine(false)"
-                                    class="scan-tool-chip"
-                                    [class.scan-tool-chip--active]="!showMine"
+                                    class="scan-tool-segment__option"
+                                    [class.scan-tool-segment__option--active]="!showMine"
                                 >
                                     {{ 'smartScan.mineFilterAll' | transloco }}
                                 </button>
                                 <button
                                     type="button"
                                     (click)="toggleMine(true)"
-                                    class="scan-tool-chip"
-                                    [class.scan-tool-chip--active]="showMine"
+                                    class="scan-tool-segment__option"
+                                    [class.scan-tool-segment__option--active]="showMine"
                                 >
                                     {{ 'smartScan.mineFilterMine' | transloco }}
                                 </button>
                             </div>
-                            <div class="flex flex-wrap gap-2">
+                            <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
                                 <button
                                     type="button"
                                     (click)="selectedCategory = ''"
-                                    class="scan-tool-chip"
-                                    [class.scan-tool-chip--active]="!selectedCategory"
+                                    class="scan-tool-text-filter"
+                                    [class.scan-tool-text-filter--active]="!selectedCategory"
                                 >
                                     {{ 'smartScan.allCategories' | transloco }}
                                 </button>
@@ -158,8 +316,8 @@
                                     <button
                                         type="button"
                                         (click)="toggleCategory(cat)"
-                                        class="scan-tool-chip"
-                                        [class.scan-tool-chip--active]="selectedCategory === cat"
+                                        class="scan-tool-text-filter"
+                                        [class.scan-tool-text-filter--active]="selectedCategory === cat"
                                     >
                                         {{ getCategoryLabel(cat) }}
                                     </button>
@@ -167,6 +325,7 @@
                             </div>
                         </div>
                     }
+                    </section>
                 </div>
 
                 <div
@@ -277,7 +436,11 @@
                                                 }}</span>
                                                 @if (dt.client) {
                                                     <span class="ml-2 text-[10px] font-semibold uppercase tracking-wide text-stone-400">
-                                                        {{ 'smartScan.mineBadge' | transloco }}
+                                                        {{ 'smartScan.yourFields' | transloco }}
+                                                    </span>
+                                                } @else {
+                                                    <span class="ml-2 text-[10px] font-semibold uppercase tracking-wide text-stone-400">
+                                                        {{ 'smartScan.verifikFields' | transloco }}
                                                     </span>
                                                 }
                                                 <p
@@ -296,6 +459,15 @@
                                                 <span>·</span>
                                                 <span>{{ getCategoryLabel(dt.category) }}</span>
                                             </div>
+                                            @if (!dt.client) {
+                                                <button
+                                                    type="button"
+                                                    class="mt-3 text-xs font-semibold text-stone-900 underline dark:text-stone-100"
+                                                    (click)="useMyFields(dt, $event)"
+                                                >
+                                                    {{ 'smartScan.useMyFields' | transloco }}
+                                                </button>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -336,169 +508,26 @@
                     }
                 </div>
             </div>
+            </div>
         }
 
         <!-- ============================================ -->
         <!-- STEP 2: Preview selected document            -->
         <!-- ============================================ -->
         @if (step === 'preview' && selectedDocType()) {
-            <div class="scan-tool-panel overflow-hidden">
-                <div class="space-y-6 p-6 md:p-8">
-                    <div class="scan-tool-strip">
-                        <span class="text-base leading-none">{{
-                            getFlag(selectedDocType()!.country)
-                        }}</span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-semibold text-stone-900 dark:text-white">
-                                {{ selectedDocType()!.code }} — {{ selectedDocType()!.name }}
-                            </p>
-                            <p class="text-xs text-stone-600 dark:text-stone-400">
-                                {{ getCountryLabel(selectedDocType()!.country) }} ·
-                                {{ getCategoryLabel(selectedDocType()!.category) }}
-                            </p>
-                        </div>
-                        <button
-                            mat-stroked-button
-                            (click)="backToSelect()"
-                            class="scan-tool-mat-btn-pill shrink-0 !text-xs"
-                        >
-                            {{ 'smartScan.changeDocument' | transloco }}
-                        </button>
-                    </div>
-
-                    @if (requiresBackSide) {
-                        <span
-                            class="inline-flex items-center gap-1 rounded-full bg-amber-100/90 px-2.5 py-1 text-xs font-medium text-amber-900 dark:bg-amber-950/50 dark:text-amber-200"
-                        >
-                            <mat-icon class="icon-size-3.5">flip</mat-icon>
-                            {{ 'smartScan.requiresBackSide' | transloco }}
-                        </span>
-                    }
-
-                    <div
-                        class="grid grid-cols-1 gap-0 divide-y divide-stone-100 overflow-hidden rounded-2xl border border-stone-200/90 lg:grid-cols-2 lg:divide-x lg:divide-y-0 dark:divide-gray-800 dark:border-gray-700"
-                    >
-                        <div class="space-y-4 p-6 md:p-8">
-                            <h4
-                                class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400"
-                            >
-                                {{ 'smartScan.previewTitle' | transloco }}
-                            </h4>
-                            @if (selectedDocType()!.frontImage) {
-                                <div
-                                    class="overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-50/50 dark:border-gray-700 dark:bg-gray-950/50"
-                                >
-                                    <img
-                                        [src]="selectedDocType()!.frontImage"
-                                        [alt]="selectedDocType()!.name"
-                                        class="max-h-56 w-full object-contain"
-                                    />
-                                </div>
-                            } @else {
-                                <div
-                                    class="flex h-40 items-center justify-center rounded-2xl border border-dashed border-stone-300 bg-stone-50/50 dark:border-gray-600 dark:bg-gray-950/30"
-                                >
-                                    <span class="text-sm text-stone-500 dark:text-stone-400"
-                                        >Front side preview not available</span
-                                    >
-                                </div>
-                            }
-                            @if (requiresBackSide) {
-                                @if (selectedDocType()!.backImage) {
-                                    <div
-                                        class="overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-50/50 dark:border-gray-700 dark:bg-gray-950/50"
-                                    >
-                                        <img
-                                            [src]="selectedDocType()!.backImage"
-                                            [alt]="selectedDocType()!.name + ' (back)'"
-                                            class="max-h-56 w-full object-contain"
-                                        />
-                                    </div>
-                                } @else {
-                                    <div
-                                        class="flex h-32 items-center justify-center rounded-2xl border border-dashed border-stone-300 bg-stone-50/50 dark:border-gray-600 dark:bg-gray-950/30"
-                                    >
-                                        <span class="text-sm text-stone-500 dark:text-stone-400"
-                                            >Back side preview not available</span
-                                        >
-                                    </div>
-                                }
-                            }
-                        </div>
-
-                        <div class="space-y-4 p-6 md:p-8">
-                            @if (selectedTemplateFields.length > 0) {
-                                <h4
-                                    class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400"
-                                >
-                                    {{ 'smartScan.extractableFields' | transloco }}
-                                </h4>
-                                <div class="flex flex-wrap gap-2">
-                                    @for (f of selectedTemplateFields; track f.mapKey) {
-                                        <span
-                                            class="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/80 px-3 py-1.5 text-xs font-medium text-stone-800 dark:border-gray-700 dark:bg-gray-800/50 dark:text-stone-200"
-                                        >
-                                            <mat-icon
-                                                class="icon-size-3.5 text-stone-500 dark:text-stone-400"
-                                                >check_circle</mat-icon
-                                            >
-                                            {{ f.name }}
-                                        </span>
-                                    }
-                                </div>
-                            }
-                            @if (selectedTemplateBackFields.length > 0) {
-                                <h4
-                                    class="mt-4 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400"
-                                >
-                                    {{ 'smartScan.backSideFields' | transloco }}
-                                </h4>
-                                <div class="flex flex-wrap gap-2">
-                                    @for (f of selectedTemplateBackFields; track f.mapKey) {
-                                        <span
-                                            class="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/80 px-3 py-1.5 text-xs font-medium text-stone-800 dark:border-gray-700 dark:bg-gray-800/50 dark:text-stone-200"
-                                        >
-                                            <mat-icon
-                                                class="icon-size-3.5 text-stone-500 dark:text-stone-400"
-                                                >check_circle</mat-icon
-                                            >
-                                            {{ f.name }}
-                                        </span>
-                                    }
-                                </div>
-                            }
-                            @if (
-                                selectedTemplateFields.length === 0 &&
-                                selectedTemplateBackFields.length === 0
-                            ) {
-                                <div
-                                    class="flex flex-col items-center justify-center py-10 text-center"
-                                >
-                                    <mat-icon
-                                        class="icon-size-10 mb-2 text-stone-300 dark:text-stone-600"
-                                        >list_alt</mat-icon
-                                    >
-                                    <p class="text-sm text-stone-500 dark:text-stone-400">
-                                        Field definitions will be available after scanning.
-                                    </p>
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-3 pt-2">
-                        <button
-                            mat-flat-button
-                            color="primary"
-                            (click)="proceedToUpload()"
-                            class="scan-tool-mat-btn-pill"
-                        >
-                            {{ 'smartScan.proceedToScan' | transloco }}
-                            <mat-icon class="icon-size-4 ml-1">arrow_forward</mat-icon>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <scan-tool-review-step
+                [documentType]="selectedDocType()!"
+                [requiresBackSide]="requiresBackSide"
+                [frontFields]="selectedTemplateFields"
+                [backFields]="selectedTemplateBackFields"
+                [flag]="getFlag(selectedDocType()!.country)"
+                [countryLabel]="getCountryLabel(selectedDocType()!.country)"
+                [categoryLabel]="getCategoryLabel(selectedDocType()!.category)"
+                (changeDocument)="backToSelect()"
+                (proceed)="proceedToUpload()"
+                (changeFields)="changeSelectedFields()"
+                (connectCheck)="connectGovernmentCheck()"
+            />
         }
 
         <!-- ============================================ -->
@@ -529,12 +558,16 @@
                         </button>
                     </div>
 
+                    <p class="text-sm text-stone-600 dark:text-stone-300">
+                        {{ (requiresBackSide ? 'smartScan.uploadTwoSides' : 'smartScan.onePhotoHelp') | transloco }}
+                    </p>
                     <div>
                         <h4
-                            class="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400"
+                            class="mb-1 text-xs font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400"
                         >
-                            {{ 'smartScan.uploadDocument' | transloco }}
+                            {{ 'smartScan.frontPhotoTitle' | transloco }}
                         </h4>
+                        <p class="mb-2 text-xs text-stone-500">{{ 'smartScan.frontPhotoHelp' | transloco }}</p>
                         <div
                             class="scan-tool-dropzone"
                             (click)="triggerFrontInput()"
@@ -592,10 +625,11 @@
                     @if (requiresBackSide) {
                         <div>
                             <h4
-                                class="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400"
+                                class="mb-1 text-xs font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400"
                             >
-                                {{ 'smartScan.uploadBackSide' | transloco }}
+                                {{ 'smartScan.backPhotoTitle' | transloco }}
                             </h4>
+                            <p class="mb-2 text-xs text-stone-500">{{ 'smartScan.backPhotoHelp' | transloco }}</p>
                             <div
                                 class="scan-tool-dropzone"
                                 (click)="triggerBackInput()"
@@ -868,69 +902,152 @@
                     </div>
                 </div>
 
-                <div class="space-y-6 p-6 md:p-8">
-                    @if (showRawJson) {
+                @if (showRawJson) {
+                    <div class="p-6 md:p-8">
                         <pre
                             class="max-h-96 overflow-auto rounded-2xl border border-stone-200/90 bg-stone-100/80 p-4 font-mono text-xs dark:border-gray-700 dark:bg-gray-900/60"
                             >{{ scanResult() | json }}</pre
                         >
-                    } @else {
+                    </div>
+                } @else if (smartCheck && scanResult()) {
+                    @let result = scanResult()!;
+                    <div class="scan-results-decision">
+                        <section class="scan-results-record space-y-6">
+                            <div class="results-section-heading">
+                                <span>01</span>
+                                <div>
+                                    <h4>{{ 'smartScan.extractedFields' | transloco }}</h4>
+                                    <p>{{ (requiresBackSide ? 'smartScan.backPhotoHelp' : 'smartScan.onePhotoHelp') | transloco }}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                @if (result.url) {
+                                    <div
+                                        class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                            (click)="openImagePreview(result.url, selectedDocType()?.name)"
+                                        >
+                                            <img
+                                                [src]="result.url"
+                                                alt="Document front"
+                                                class="max-h-72 w-full object-contain"
+                                            />
+                                        </button>
+                                    </div>
+                                }
+                                @if (result.backUrl) {
+                                    <div
+                                        class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                            (click)="openImagePreview(result.backUrl, selectedDocType()?.name)"
+                                        >
+                                            <img
+                                                [src]="result.backUrl"
+                                                alt="Document back"
+                                                class="max-h-56 w-full object-contain"
+                                            />
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="space-y-3">
+                                @for (section of extractionSections(); track section.id) {
+                                    @if (section.fields.length) {
+                                        <div class="space-y-2">
+                                            @if (section.labelKey) {
+                                                <h5 class="text-sm font-medium text-stone-500 dark:text-stone-400">
+                                                    {{ section.labelKey | transloco }}
+                                                </h5>
+                                            }
+                                            <div
+                                                class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700"
+                                            >
+                                                @for (f of section.fields; track f.key; let i = $index) {
+                                                    <div
+                                                        class="flex justify-between gap-4 px-4 py-3"
+                                                        [ngClass]="{
+                                                            'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0,
+                                                        }"
+                                                    >
+                                                        <span
+                                                            class="text-sm font-medium text-stone-500 dark:text-stone-400"
+                                                            >{{ f.key }}</span
+                                                        >
+                                                        <span
+                                                            class="break-all text-right text-sm font-medium text-stone-900 dark:text-white"
+                                                            >{{ f.value }}</span
+                                                        >
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </section>
+
+                        <aside class="scan-results-explainer">
+                            <scan-tool-smart-check-result
+                                [scanResult]="result"
+                                [documentType]="selectedDocType()"
+                            />
+                        </aside>
+                    </div>
+                } @else {
+                    <div class="space-y-6 p-6 md:p-8">
                         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                             <div class="space-y-4">
                                 @if (scanResult()?.url) {
                                     <div
                                         class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50"
                                     >
-                                        <img
-                                            [src]="scanResult()!.url"
-                                            alt="Document front"
-                                            class="max-h-80 w-full object-contain"
-                                        />
+                                        <button
+                                            type="button"
+                                            class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                            (click)="openImagePreview(scanResult()!.url, selectedDocType()?.name)"
+                                        >
+                                            <img
+                                                [src]="scanResult()!.url"
+                                                alt="Document front"
+                                                class="max-h-80 w-full object-contain"
+                                            />
+                                        </button>
                                     </div>
                                 }
                                 @if (scanResult()?.backUrl) {
                                     <div
                                         class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50"
                                     >
-                                        <img
-                                            [src]="scanResult()!.backUrl"
-                                            alt="Document back"
-                                            class="max-h-60 w-full object-contain"
-                                        />
+                                        <button
+                                            type="button"
+                                            class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                            (click)="openImagePreview(scanResult()!.backUrl, selectedDocType()?.name)"
+                                        >
+                                            <img
+                                                [src]="scanResult()!.backUrl"
+                                                alt="Document back"
+                                                class="max-h-60 w-full object-contain"
+                                            />
+                                        </button>
                                     </div>
                                 }
                             </div>
 
                             <div class="space-y-3">
-                                @if (smartCheck) {
-                                    <div
-                                        class="rounded-2xl border border-stone-200/90 p-4 dark:border-gray-700"
-                                    >
-                                        <h4 class="font-semibold text-stone-900 dark:text-white">
-                                            {{ 'smartScan.smartCheckResult' | transloco }}
-                                        </h4>
-                                        <p class="mt-1 text-sm text-stone-600 dark:text-stone-300">
-                                            {{ 'smartScan.smartCheckStatus.' + smartCheck.status | transloco }}
-                                            @if (smartCheck.featureCode) {
-                                                <span> · {{ smartCheck.featureCode }}</span>
-                                            }
-                                        </p>
-                                        @if (smartCheck.reason === 'missing_dependencies') {
-                                            <p class="mt-2 text-sm text-amber-800 dark:text-amber-200">
-                                                {{ 'smartScan.smartCheckMissing' | transloco }}
-                                                {{ smartCheck.missing?.join(', ') }}
-                                            </p>
-                                        }
-                                        @if (smartCheck.error?.message) {
-                                            <p class="mt-2 text-sm text-red-700 dark:text-red-300">
-                                                {{ smartCheck.error?.message }}
-                                            </p>
-                                        }
-                                    </div>
-                                }
                                 <h4 class="font-semibold text-stone-900 dark:text-white">
                                     {{ 'smartScan.extractedFields' | transloco }}
                                 </h4>
+                                <p class="text-xs text-stone-500">
+                                    {{ (requiresBackSide ? 'smartScan.backPhotoHelp' : 'smartScan.onePhotoHelp') | transloco }}
+                                </p>
                                 @for (section of extractionSections(); track section.id) {
                                     @if (section.fields.length) {
                                         <div class="space-y-2">
@@ -965,8 +1082,8 @@
                                 }
                             </div>
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
         }
     </div>

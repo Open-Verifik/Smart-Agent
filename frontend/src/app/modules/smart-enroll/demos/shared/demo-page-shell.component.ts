@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 
@@ -14,4 +14,8 @@ import { TranslocoModule } from '@jsverse/transloco';
         class: 'flex flex-auto min-w-0 w-full',
     },
 })
-export class DemoPageShellComponent {}
+export class DemoPageShellComponent {
+    @Input() sectionLink = '/smart-enroll/collections';
+    @Input() sectionLabelKey = '';
+    @Input() demosLink = '/smart-enroll/demos';
+}

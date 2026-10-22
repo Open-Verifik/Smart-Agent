@@ -400,7 +400,7 @@ export class ChatComponent implements OnInit {
         const identity = this.agentInfo()?.identity;
         const welcomeMsg = identity
             ? `Hello! I am ${identity.name}. ${identity.description} How can I assist you today?`
-            : 'Hello! I am your Verifik AI Agent powered by Gemini. I can help you validate identities using the x402 protocol on Avalanche. How can I assist you today?';
+            : 'Hello! I am your Verifik AI Agent. I can help you validate identities using the x402 protocol on Avalanche. How can I assist you today?';
 
         // We show welcome message temporarily.
         this.messages.set([{ role: 'assistant', content: welcomeMsg }]);

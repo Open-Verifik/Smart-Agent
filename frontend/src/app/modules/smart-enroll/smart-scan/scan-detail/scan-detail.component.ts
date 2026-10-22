@@ -6,18 +6,28 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 import { DateTime } from 'luxon';
 import { FuseHighlightService } from '@fuse/components/highlight/highlight.service';
+import {
+    BarcodeValidationPanelComponent,
+    type CedulaBarcodeValidation,
+} from '../../projects/barcode-validation-panel.component';
+import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
 import { ScanDeleteConfirmDialogComponent } from '../scan-delete-confirm-dialog.component';
+import { ScanToolSmartCheckResultComponent } from '../scan-tool/scan-tool-smart-check-result.component';
 import { SmartScanService } from '../smart-scan.service';
 import {
     resolveEnrollmentRecordLink,
     type DocumentClassification,
+    type DocumentType,
     type DocumentTypeField,
     type DocumentValidation,
+    type ScanResult,
+    type SmartCheckResult,
 } from '../smart-scan.types';
 
 @Component({
@@ -29,6 +39,9 @@ import {
         MatButtonModule,
         MatDialogModule,
         MatIconModule,
+        MatMenuModule,
+        BarcodeValidationPanelComponent,
+        ScanToolSmartCheckResultComponent,
         MatProgressSpinnerModule,
         TranslocoModule,
     ],
@@ -46,6 +59,7 @@ export class ScanDetailComponent implements OnInit {
     private _domSanitizer = inject(DomSanitizer);
 
     scan: DocumentValidation | null = null;
+    documentType: DocumentType | null = null;
     templateFields: DocumentTypeField[] = [];
     loading = true;
     errorMessage: string | null = null;
@@ -70,6 +84,7 @@ export class ScanDetailComponent implements OnInit {
                 this.showClassificationReason = cls ? !cls.isMatch : false;
                 this.loading = false;
                 this.loadTemplateFields();
+                this.loadDocumentTypeMeta();
                 this._cdr.markForCheck();
             },
             error: () => {
@@ -80,8 +95,102 @@ export class ScanDetailComponent implements OnInit {
         });
     }
 
+    get resolvedSmartCheck(): SmartCheckResult | null {
+        if (!this.scan) return null;
+        if (this.scan.smartCheck?.status) {
+            const { creditsCharged: _c, ...clean } = this.scan.smartCheck;
+            return clean;
+        }
+        const score = this.scan.scoreValidation as Record<string, unknown> | null | undefined;
+        if (!score || typeof score !== 'object') return null;
+        if (typeof score['status'] === 'string') {
+            const { creditsCharged: _c, ocrCreditsCharged: _o, ...clean } = score;
+            return clean as unknown as SmartCheckResult;
+        }
+        if (
+            score['fullName'] ||
+            score['firstName'] ||
+            score['lastName'] ||
+            Array.isArray(score['arrayName'])
+        ) {
+            return {
+                status: 'completed',
+                data: score,
+            };
+        }
+        return null;
+    }
+
+    get resolvedCost(): { ocr: number; smartCheck: number; total: number } | null {
+        if (!this.scan) return null;
+        if (this.scan.cost && (this.scan.cost.ocr != null || this.scan.cost.smartCheck != null)) {
+            const ocr = this.scan.cost.ocr || 0;
+            const smartCheck = this.scan.cost.smartCheck || 0;
+            return {
+                ocr,
+                smartCheck,
+                total: this.scan.cost.total ?? Number((ocr + smartCheck).toFixed(6)),
+            };
+        }
+        const score = this.scan.scoreValidation;
+        const ocr = this.scan.creditsCharged ?? score?.ocrCreditsCharged;
+        const smartCheck = this.scan.smartCheck?.creditsCharged ?? score?.creditsCharged;
+        if (ocr == null && smartCheck == null) return null;
+        return {
+            ocr: ocr || 0,
+            smartCheck: smartCheck || 0,
+            total: Number(((ocr || 0) + (smartCheck || 0)).toFixed(6)),
+        };
+    }
+
+    get scanAsResult(): ScanResult | null {
+        if (!this.scan) return null;
+        const cost = this.resolvedCost;
+        return {
+            _id: this.scan._id,
+            documentType: this.scan.documentType,
+            documentNumber: this.scan.documentNumber,
+            OCRExtraction: this.scan.OCRExtraction,
+            status: this.scan.status,
+            url: this.scan.url,
+            backUrl: this.scan.backUrl,
+            cost,
+            creditsCharged: cost?.ocr,
+            smartCheck: this.resolvedSmartCheck,
+            fieldMapping: this.scan.fieldMapping,
+        };
+    }
+
     goBack() {
         this._router.navigate(['/smart-enroll/smart-scan/list']);
+    }
+
+    scanAnother(): void {
+        const code = this.scan?.documentType;
+        if (!code) return;
+        this._router.navigate(['/smart-enroll/smart-scan/new'], { queryParams: { documentType: code } });
+    }
+
+    /**
+     * Opens the document photo full screen so it can be zoomed.
+     */
+    openImagePreview(imageSrc: string | undefined, title?: string): void {
+        if (!imageSrc) return;
+        this._dialog.open(ImagePreviewDialogComponent, {
+            data: { imageSrc, title },
+            panelClass: 'image-preview-dialog-panel',
+            width: '100%',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            height: '100%',
+        });
+    }
+
+    get singlePhoto(): boolean {
+        const template = this.scan?.scanTemplate;
+        if (template) return !template.requiresBackSide;
+        const back = this.scan?.fieldMapping?.back;
+        return !this.scan?.backUrl && !back;
     }
 
     confirmDelete(): void {
@@ -141,11 +250,17 @@ export class ScanDetailComponent implements OnInit {
         return Math.round((cls?.confidence ?? 0) * 100);
     }
 
+    barcodeValidation(): CedulaBarcodeValidation | null {
+        const extraction = this.scan?.OCRExtraction as { barcodeValidation?: CedulaBarcodeValidation } | undefined;
+
+        return extraction?.barcodeValidation || null;
+    }
+
     getExtractionFields(): Array<{ key: string; value: unknown }> {
         const extraction = this.scan?.OCRExtraction;
         if (!extraction || typeof extraction !== 'object') return [];
         return Object.entries(extraction)
-            .filter(([k]) => k !== 'documentClassification' && !k.startsWith('_'))
+            .filter(([k]) => k !== 'documentClassification' && k !== 'barcodeValidation' && !k.startsWith('_'))
             .map(([key, value]) => ({ key, value }));
     }
 
@@ -155,11 +270,11 @@ export class ScanDetailComponent implements OnInit {
         if (!front.size && !back.size) return [{ id: 'all', labelKey: '', fields: rows }];
 
         return [
-            { id: 'front', labelKey: 'smartScan.frontSideFields', fields: rows.filter((row) => front.has(row.key)) },
+            { id: 'front', labelKey: 'smartScan.frontPhotoTitle', fields: rows.filter((row) => front.has(row.key)) },
             {
                 id: 'back',
-                labelKey: 'smartScan.backSideFields',
-                fields: rows.filter((row) => back.has(row.key) && !front.has(row.key)),
+                labelKey: 'smartScan.backPhotoTitle',
+                fields: this.singlePhoto ? [] : rows.filter((row) => back.has(row.key)),
             },
             {
                 id: 'other',
@@ -167,6 +282,22 @@ export class ScanDetailComponent implements OnInit {
                 fields: rows.filter((row) => !front.has(row.key) && !back.has(row.key)),
             },
         ];
+    }
+
+    private loadDocumentTypeMeta() {
+        const code = this.scan?.documentType;
+        if (!code) return;
+
+        this._scanService.getDocumentTypesByCode(code).subscribe({
+            next: (types) => {
+                const owned = types.find((type) => type.client);
+                this.documentType = owned || types[0] || null;
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.documentType = null;
+            },
+        });
     }
 
     private loadTemplateFields() {
@@ -233,9 +364,20 @@ export class ScanDetailComponent implements OnInit {
     }
 
     get formattedJson(): string {
-        return this.scan?.OCRExtraction != null
-            ? JSON.stringify(this.scan.OCRExtraction, null, 2)
-            : '';
+        if (!this.scan) return '';
+        const cost = this.resolvedCost;
+        const smartCheck = this.resolvedSmartCheck;
+        if (!smartCheck && !cost) {
+            return this.scan.OCRExtraction != null
+                ? JSON.stringify(this.scan.OCRExtraction, null, 2)
+                : '';
+        }
+        const payload: Record<string, unknown> = {
+            OCRExtraction: this.scan.OCRExtraction,
+        };
+        if (smartCheck) payload['smartCheck'] = smartCheck;
+        if (cost) payload['cost'] = cost;
+        return JSON.stringify(payload, null, 2);
     }
 
     get highlightedJson(): string {

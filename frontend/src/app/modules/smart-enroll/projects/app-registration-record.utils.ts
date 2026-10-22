@@ -41,6 +41,8 @@ export const ORDER_OCR_BY: Record<string, number> = {
 export const cleanOcrExtraction = (ocr: Record<string, unknown> | null | undefined): string[] => {
     if (!ocr || typeof ocr !== 'object') return [];
 
+    delete ocr.barcodeValidation;
+
     Object.keys(ocr).forEach((key) => {
         const camelCaseKey = key
             .replace(/([A-Z])/g, ' $1')

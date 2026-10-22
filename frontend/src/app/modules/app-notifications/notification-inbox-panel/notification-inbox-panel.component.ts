@@ -74,6 +74,7 @@ export class NotificationInboxPanelComponent implements OnDestroy {
     loadingDetail = signal(false);
     detailError = signal<string | null>(null);
     actionBusy = signal(false);
+    actionError = signal<string | null>(null);
     legalAccepted = signal(false);
 
     constructor() {
@@ -108,6 +109,7 @@ export class NotificationInboxPanelComponent implements OnDestroy {
 
     selectItem(item: InboxItem): void {
         this.detailError.set(null);
+        this.actionError.set(null);
         this.legalAccepted.set(false);
         this.selectedItem.set(item);
         this._loadDetail(item.notificationId);
@@ -116,6 +118,7 @@ export class NotificationInboxPanelComponent implements OnDestroy {
     clearSelection(): void {
         this.selectedItem.set(null);
         this.detailError.set(null);
+        this.actionError.set(null);
         this.legalAccepted.set(false);
     }
 
@@ -170,7 +173,8 @@ export class NotificationInboxPanelComponent implements OnDestroy {
     primaryActionDisabled(item: InboxItem | null): boolean {
         if (!item || this.actionBusy()) return true;
         if (item.interactionMode === 'accept') {
-            return !this.legalAccepted() || !item.legal?.version;
+            if (!item.legal?.version) return true;
+            return Boolean(item.legal?.url) && !this.legalAccepted();
         }
         return false;
     }
@@ -193,7 +197,7 @@ export class NotificationInboxPanelComponent implements OnDestroy {
                 this._accept(item);
                 break;
             case 'seen_required':
-                this._markSeen(item.notificationId);
+                this._markSeen(item.notificationId, true);
                 break;
             default:
                 this._dismiss(item.notificationId);
@@ -208,6 +212,7 @@ export class NotificationInboxPanelComponent implements OnDestroy {
         openNotificationCta(item?.cta, {
             router: this._router,
             quickChat: this._quickChat,
+            openBell: () => this._notifications.requestOpenBell(),
         });
     }
 
@@ -239,37 +244,35 @@ export class NotificationInboxPanelComponent implements OnDestroy {
             });
     }
 
-    private _markSeen(notificationId: string, reloadList = true): void {
+    private _markSeen(notificationId: string, leaveDetail = false): void {
         this.actionBusy.set(true);
+        this.actionError.set(null);
         this._notifications
             .markSeen(notificationId)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: () => {
                     this.actionBusy.set(false);
-                    this._afterAction(notificationId, reloadList);
+                    this._notifications.noteSeenLocally(notificationId);
+                    if (leaveDetail) {
+                        this.clearSelection();
+                        return;
+                    }
+                    this._patchSelectedAsSeen();
                 },
-                error: () => {
-                    this.actionBusy.set(false);
-                    this.detailError.set('appNotifications.inbox.errors.action');
-                },
+                error: () => this._failAction(),
             });
     }
 
     private _acknowledge(notificationId: string): void {
         this.actionBusy.set(true);
+        this.actionError.set(null);
         this._notifications
-            .acknowledge(notificationId)
+            .acknowledgeAndForget(notificationId)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
-                next: () => {
-                    this.actionBusy.set(false);
-                    this._afterAction(notificationId);
-                },
-                error: () => {
-                    this.actionBusy.set(false);
-                    this.detailError.set('appNotifications.inbox.errors.action');
-                },
+                next: () => this._completeRemoval(notificationId),
+                error: () => this._failAction(),
             });
     }
 
@@ -278,43 +281,49 @@ export class NotificationInboxPanelComponent implements OnDestroy {
         if (!version) return;
 
         this.actionBusy.set(true);
+        this.actionError.set(null);
         this._notifications
-            .accept(item.notificationId, { legalVersion: version, accepted: true })
+            .acceptAndForget(item.notificationId, { legalVersion: version, accepted: true })
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
-                next: () => {
-                    this.actionBusy.set(false);
-                    this._afterAction(item.notificationId);
-                },
-                error: () => {
-                    this.actionBusy.set(false);
-                    this.detailError.set('appNotifications.inbox.errors.action');
-                },
+                next: () => this._completeRemoval(item.notificationId),
+                error: () => this._failAction(),
             });
     }
 
     private _dismiss(notificationId: string): void {
         this.actionBusy.set(true);
+        this.actionError.set(null);
         this._notifications
-            .dismiss(notificationId)
+            .dismissAndForget(notificationId)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
-                next: () => {
-                    this.actionBusy.set(false);
-                    this._afterAction(notificationId);
-                },
-                error: () => {
-                    this.actionBusy.set(false);
-                    this.detailError.set('appNotifications.inbox.errors.action');
-                },
+                next: () => this._completeRemoval(notificationId),
+                error: () => this._failAction(),
             });
     }
 
-    private _afterAction(notificationId: string, stayOnDetail = true): void {
-        if (stayOnDetail) {
-            this._loadDetail(notificationId);
-        }
-        this._notifications.refreshHubInbox(true).pipe(takeUntil(this._unsubscribeAll)).subscribe();
+    private _completeRemoval(_notificationId: string): void {
+        this.actionBusy.set(false);
+        this.clearSelection();
+    }
+
+    private _failAction(): void {
+        this.actionBusy.set(false);
+        this.actionError.set('appNotifications.inbox.errors.action');
+    }
+
+    private _patchSelectedAsSeen(): void {
+        const current = this.selectedItem();
+        if (!current || current.interactionMode === 'acknowledge' || current.interactionMode === 'accept') return;
+        this.selectedItem.set({
+            ...current,
+            receipt: {
+                ...current.receipt,
+                isUnread: false,
+                firstSeenAt: current.receipt.firstSeenAt || new Date().toISOString(),
+            },
+        });
     }
 
     private _refreshAuthSignals(): void {

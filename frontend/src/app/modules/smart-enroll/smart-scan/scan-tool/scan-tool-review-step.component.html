@@ -1,0 +1,207 @@
+<div class="scan-tool-panel overflow-hidden">
+    <div class="space-y-6 p-6 md:p-8">
+        <div class="scan-tool-strip">
+            <span class="text-base leading-none">{{ flag() }}</span>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-stone-900 dark:text-white">
+                    {{ documentType().code }} — {{ documentType().name }}
+                </p>
+                <p class="text-xs text-stone-600 dark:text-stone-400">
+                    {{ countryLabel() }} · {{ categoryLabel() }}
+                </p>
+                <p class="mt-1 text-[10px] font-semibold uppercase tracking-wide text-stone-400">
+                    {{ (documentType().client ? 'smartScan.yourFields' : 'smartScan.verifikFields') | transloco }}
+                </p>
+            </div>
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="changeDocument.emit()"
+                class="scan-tool-mat-btn-pill shrink-0 !text-xs"
+            >
+                {{ 'smartScan.changeDocument' | transloco }}
+            </button>
+        </div>
+
+        <p class="text-sm text-stone-600 dark:text-stone-300">
+            {{ (requiresBackSide() ? 'smartScan.backPhotoHelp' : 'smartScan.onePhotoHelp') | transloco }}
+        </p>
+        <span
+            class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+            [ngClass]="requiresBackSide()
+                ? 'bg-amber-100/90 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'
+                : 'bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-200'"
+        >
+            <mat-icon class="icon-size-3.5">{{ requiresBackSide() ? 'flip' : 'crop_portrait' }}</mat-icon>
+            {{ (requiresBackSide() ? 'smartScan.backRequired' : 'smartScan.onePhoto') | transloco }}
+        </span>
+
+        @if (linkedFeature(); as feature) {
+            <section class="gov-check-banner gov-check-banner--linked">
+                <span class="gov-check-banner__blob gov-check-banner__blob--tr" aria-hidden="true"></span>
+                <span class="gov-check-banner__blob gov-check-banner__blob--bl" aria-hidden="true"></span>
+                <span class="gov-check-banner__icon" aria-hidden="true">
+                    <mat-icon>verified</mat-icon>
+                </span>
+                <div class="gov-check-banner__copy">
+                    <span class="gov-check-banner__pill">{{ 'smartScan.governmentCheckTitle' | transloco }}</span>
+                    <p class="gov-check-banner__title">
+                        {{ 'smartScan.governmentCheckLinked' | transloco: { name: feature.name } }}
+                    </p>
+                    @if (feature.url) {
+                        <code class="gov-check-banner__url">{{ feature.url }}</code>
+                    }
+                </div>
+            </section>
+        } @else {
+            <section class="gov-check-banner">
+                <span class="gov-check-banner__blob gov-check-banner__blob--tr" aria-hidden="true"></span>
+                <span class="gov-check-banner__blob gov-check-banner__blob--bl" aria-hidden="true"></span>
+                <span class="gov-check-banner__icon" aria-hidden="true">
+                    <mat-icon>verified</mat-icon>
+                </span>
+                <div class="gov-check-banner__copy">
+                    <span class="gov-check-banner__pill">{{ 'smartScan.governmentCheckTitle' | transloco }}</span>
+                    <p class="gov-check-banner__title">
+                        {{ 'smartScan.governmentCheckMissing' | transloco }}
+                    </p>
+                </div>
+                <button type="button" class="gov-check-banner__cta" (click)="connectCheck.emit()">
+                    {{ 'smartScan.governmentCheckSetup' | transloco }}
+                </button>
+            </section>
+        }
+
+        <div
+            class="grid grid-cols-1 gap-0 divide-y divide-stone-100 overflow-hidden rounded-2xl border border-stone-200/90 lg:grid-cols-2 lg:divide-x lg:divide-y-0 dark:divide-gray-800 dark:border-gray-700"
+        >
+            <div class="space-y-4 p-6 md:p-8">
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                    {{ 'smartScan.previewTitle' | transloco }}
+                </h4>
+                @if (documentType().frontImage) {
+                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-50/50 dark:border-gray-700 dark:bg-gray-950/50">
+                        <button
+                            type="button"
+                            class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                            [attr.aria-label]="documentType().name"
+                            (click)="openImagePreview(documentType().frontImage, documentType().name)"
+                        >
+                            <img
+                                [src]="documentType().frontImage"
+                                [alt]="documentType().name"
+                                class="max-h-56 w-full object-contain"
+                            />
+                        </button>
+                    </div>
+                } @else {
+                    <div class="flex h-40 items-center justify-center rounded-2xl border border-dashed border-stone-300 bg-stone-50/50 dark:border-gray-600 dark:bg-gray-950/30">
+                        <span class="text-sm text-stone-500 dark:text-stone-400">Front side preview not available</span>
+                    </div>
+                }
+                @if (requiresBackSide()) {
+                    @if (documentType().backImage) {
+                        <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-50/50 dark:border-gray-700 dark:bg-gray-950/50">
+                            <button
+                                type="button"
+                                class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                                [attr.aria-label]="documentType().name"
+                                (click)="openImagePreview(documentType().backImage, documentType().name)"
+                            >
+                                <img
+                                    [src]="documentType().backImage"
+                                    [alt]="documentType().name + ' (back)'"
+                                    class="max-h-56 w-full object-contain"
+                                />
+                            </button>
+                        </div>
+                    } @else {
+                        <div class="flex h-32 items-center justify-center rounded-2xl border border-dashed border-stone-300 bg-stone-50/50 dark:border-gray-600 dark:bg-gray-950/30">
+                            <span class="text-sm text-stone-500 dark:text-stone-400">Back side preview not available</span>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="space-y-4 p-6 md:p-8">
+                <div class="rounded-2xl border border-stone-200/90 p-4 dark:border-gray-700">
+                    <p class="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-stone-400">
+                        {{ 'smartScan.stageLabel' | transloco: { number: 1 } }}
+                    </p>
+                    <h4 class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'smartScan.frontPhotoTitle' | transloco }}
+                    </h4>
+                    <p class="mt-1 text-xs leading-relaxed text-stone-500">
+                        {{ 'smartScan.frontPhotoHelp' | transloco }}
+                    </p>
+                    @if (frontFields().length > 0) {
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            @for (field of frontFields(); track field.mapKey + $index) {
+                                <ng-container *ngTemplateOutlet="fieldChip; context: { $implicit: field }" />
+                            }
+                        </div>
+                    }
+                </div>
+                @if (requiresBackSide()) {
+                    <div class="rounded-2xl border border-stone-200/90 p-4 dark:border-gray-700">
+                        <p class="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-stone-400">
+                            {{ 'smartScan.stageLabel' | transloco: { number: 2 } }}
+                        </p>
+                        <h4 class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                            {{ 'smartScan.backPhotoTitle' | transloco }}
+                        </h4>
+                        <p class="mt-1 text-xs leading-relaxed text-stone-500">
+                            {{ 'smartScan.backPhotoHelp' | transloco }}
+                        </p>
+                        @if (backFields().length > 0) {
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                @for (field of backFields(); track field.mapKey + $index) {
+                                    <ng-container *ngTemplateOutlet="fieldChip; context: { $implicit: field }" />
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                <p class="text-sm text-stone-600 dark:text-stone-300">
+                    {{ 'smartScan.changeFieldsPrompt' | transloco }}
+                    <button
+                        type="button"
+                        class="font-semibold text-stone-900 underline underline-offset-4 dark:text-stone-100"
+                        (click)="changeFields.emit()"
+                    >
+                        {{ 'smartScan.changeFieldsAction' | transloco }}
+                    </button>
+                </p>
+                @if (frontFields().length === 0 && backFields().length === 0) {
+                    <div class="flex flex-col items-center justify-center py-10 text-center">
+                        <mat-icon class="icon-size-10 mb-2 text-stone-300 dark:text-stone-600">list_alt</mat-icon>
+                        <p class="text-sm text-stone-500 dark:text-stone-400">
+                            Field definitions will be available after scanning.
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 pt-2">
+            <button mat-flat-button color="primary" type="button" (click)="proceed.emit()" class="scan-tool-mat-btn-pill">
+                {{ 'smartScan.proceedToScan' | transloco }}
+                <mat-icon class="icon-size-4 ml-1">arrow_forward</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<ng-template #fieldChip let-field>
+    <span
+        class="inline-flex items-start gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/80 px-3 py-1.5 text-xs font-medium text-stone-800 dark:border-gray-700 dark:bg-gray-800/50 dark:text-stone-200"
+    >
+        <mat-icon class="icon-size-3.5 mt-0.5 text-stone-500 dark:text-stone-400">check_circle</mat-icon>
+        <span class="flex min-w-0 flex-col items-start leading-tight">
+            <span>{{ field.name }}</span>
+            @if (field.mapKey) {
+                <span class="mt-0.5 font-mono text-[10px] font-normal text-stone-500 dark:text-stone-400">{{ field.mapKey }}</span>
+            }
+        </span>
+    </span>
+</ng-template>

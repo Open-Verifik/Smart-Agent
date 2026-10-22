@@ -81,7 +81,7 @@
                     }
 
                     @for (project of projects(); track project._id) {
-                        <article class="card" (click)="openProject(project, $event)">
+                        <article class="card" (click)="openProjectOrResume(project, $event)">
                             <div class="card-top">
                                 <div class="card-brand">
                                     @if (project.branding?.logo) {

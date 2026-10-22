@@ -181,6 +181,44 @@
                             {{
                                 'subscriptionPlans.requestSlider.requests' | transloco
                             }}
+                            ·
+                            <span class="font-semibold text-stone-800 dark:text-stone-100"
+                                >${{ formattedPlan?.effectiveCostPerReq | number: '1.2-4' }}</span
+                            >
+                            {{ 'subscriptionPlans.requestSlider.perRequest' | transloco }}
+                        </p>
+                        <p
+                            *ngIf="formattedPlan?.includedRequests"
+                            class="mt-1 text-xs text-stone-500 dark:text-stone-400"
+                        >
+                            {{
+                                'subscriptionPlans.card.includes'
+                                    | transloco
+                                        : {
+                                              requests:
+                                                  (formattedPlan?.includedRequests | number: '1.0-0'),
+                                          }
+                            }}
+                        </p>
+                        <p
+                            *ngIf="recommendedPlanName && recommendedPlanName === newPlan?.name"
+                            class="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-300"
+                        >
+                            {{ 'subscriptionPlans.card.lowestForVolume' | transloco }}
+                        </p>
+                        <p
+                            *ngIf="costDeltaVsBest > 0 && recommendedPlanName"
+                            class="mt-2 text-xs font-medium text-amber-700 dark:text-amber-400"
+                        >
+                            {{
+                                'subscriptionPlans.card.deltaVsBest'
+                                    | transloco
+                                        : {
+                                              amount: (costDeltaVsBest | number: '1.0-0'),
+                                              interval: ('subscriptionPlans.interval.month' | transloco),
+                                              plan: recommendedPlanName,
+                                          }
+                            }}
                         </p>
                         <p
                             *ngIf="formattedPlan?.interval === 'year'"

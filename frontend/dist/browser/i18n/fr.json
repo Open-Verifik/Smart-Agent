@@ -1210,6 +1210,20 @@
         "banners": {
             "dismissAria": "Fermer la bannière"
         },
+        "bell": {
+            "title": "Notifications",
+            "markAll": "Tout marquer comme lu",
+            "aria": "Notifications",
+            "ariaCount": "Notifications, {{count}} non lues",
+            "empty": "Vous êtes à jour",
+            "loading": "Chargement…",
+            "justNow": "À l'instant",
+            "minutes": "{{count}} min",
+            "hours": "{{count}} h",
+            "days": "{{count}} j",
+            "dismissAria": "Ignorer la notification",
+            "closeImage": "Fermer l'image"
+        },
         "inbox": {
             "guest": {
                 "title": "Connectez-vous pour voir les notifications",
@@ -1553,6 +1567,52 @@
             "unsavedChanges": "Modifications non enregistrées",
             "unsavedChangesMessage": "Quitter cette étape sans enregistrer ?",
             "exitWithoutSaving": "Quitter sans enregistrer",
+            "draft_name": "Projet sans titre",
+            "continue_setup": "Continuer la configuration",
+            "leave": {
+                "chooseTitle": "Choisissez une action",
+                "chooseHelp": "Ce choix décide si le projet reste un brouillon.",
+                "howTitle": "Comment ça marche",
+                "howHelp": "Le choix change ce qui est conservé, pas les étapes déjà terminées.",
+                "recommended": "Recommandé",
+                "selectedPath": "Chemin sélectionné",
+                "flowEntered": "Données saisies",
+                "options": {
+                    "save": {
+                        "title": "Enregistrer et quitter",
+                        "body": "Enregistre tout ce qui a été saisi jusqu’ici et quitte ce module.",
+                        "benefit1": "La progression est conservée",
+                        "benefit2": "Le projet reste un brouillon",
+                        "benefit3": "Reprise à cette étape",
+                        "howTitle": "Enregistré comme brouillon",
+                        "howBody": "Verifik conserve les champs déjà remplis et marque le projet comme incomplet.",
+                        "result": "Rouvrez le projet pour continuer sans ressaisir ces informations.",
+                        "flowOutcome": "Brouillon enregistré"
+                    },
+                    "discard": {
+                        "title": "Quitter sans enregistrer",
+                        "body": "Quittez maintenant et abandonnez les changements non enregistrés.",
+                        "benefit1": "Les modifications non enregistrées sont perdues",
+                        "benefit2": "Les enregistrements précédents restent",
+                        "benefit3": "Vous quittez ce module",
+                        "howTitle": "Les changements sont abandonnés",
+                        "howBody": "Seules les informations qui n’avaient pas encore été enregistrées sont perdues.",
+                        "result": "Un projet déjà enregistré reste disponible.",
+                        "flowOutcome": "Changements abandonnés"
+                    },
+                    "cancel": {
+                        "title": "Annuler",
+                        "body": "Restez sur cette étape et continuez à modifier.",
+                        "benefit1": "Vous restez dans l’assistant",
+                        "benefit2": "Rien n’est abandonné",
+                        "benefit3": "Rien de nouveau n’est encore enregistré",
+                        "howTitle": "Rester dans la configuration",
+                        "howBody": "L’assistant reste ouvert sur l’étape que vous modifiez.",
+                        "result": "Vous pouvez continuer à remplir le formulaire.",
+                        "flowOutcome": "Vous restez ici"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Détails du projet",
                 "signup": "Formulaire d’inscription",
@@ -3215,6 +3275,26 @@
             "backScan": "Verso",
             "documentFace": "Portrait du document",
             "documentLiveness": "Vivacité du document",
+            "barcode": {
+                "title": "Code-barres du verso",
+                "attempts": "{{count}} tentatives de lecture",
+                "unreadableWarning": "L'inscription peut aboutir. Le code-barres du verso n'a pas pu être lu : cela reste un avertissement.",
+                "mismatchLead": "Le code-barres du verso ne correspond pas au recto. La pièce peut avoir été modifiée.",
+                "verdict": {
+                    "confirmed": "Correspond au recto",
+                    "mismatch": "Altération possible",
+                    "unreadable": "Verso non validé"
+                },
+                "field": {
+                    "fullName": "Nom sur le code",
+                    "documentNumber": "Numéro de document",
+                    "dateOfBirth": "Date de naissance",
+                    "gender": "Sexe",
+                    "bloodType": "Groupe sanguin",
+                    "firstName": "Prénom",
+                    "lastName": "Nom"
+                }
+            },
             "livenessPassed": "Réussi",
             "livenessFailed": "Échoué",
             "ocr": "Données extraites",
@@ -3612,6 +3692,52 @@
             "unsaved_changes": "Modifications non enregistrées",
             "unsaved_changes_message": "Quitter sans enregistrer ?",
             "exit_without_saving": "Quitter sans enregistrer",
+            "draft_name": "Projet sans titre",
+            "continue_setup": "Continuer la configuration",
+            "leave": {
+                "chooseTitle": "Choisissez une action",
+                "chooseHelp": "Ce choix décide si le projet reste un brouillon.",
+                "howTitle": "Comment ça marche",
+                "howHelp": "Le choix change ce qui est conservé, pas les étapes déjà terminées.",
+                "recommended": "Recommandé",
+                "selectedPath": "Chemin sélectionné",
+                "flowEntered": "Données saisies",
+                "options": {
+                    "save": {
+                        "title": "Enregistrer et quitter",
+                        "body": "Enregistre tout ce qui a été saisi jusqu’ici et quitte ce module.",
+                        "benefit1": "La progression est conservée",
+                        "benefit2": "Le projet reste un brouillon",
+                        "benefit3": "Reprise à cette étape",
+                        "howTitle": "Enregistré comme brouillon",
+                        "howBody": "Verifik conserve les champs déjà remplis et marque le projet comme incomplet.",
+                        "result": "Rouvrez le projet pour continuer sans ressaisir ces informations.",
+                        "flowOutcome": "Brouillon enregistré"
+                    },
+                    "discard": {
+                        "title": "Quitter sans enregistrer",
+                        "body": "Quittez maintenant et abandonnez les changements non enregistrés.",
+                        "benefit1": "Les modifications non enregistrées sont perdues",
+                        "benefit2": "Les enregistrements précédents restent",
+                        "benefit3": "Vous quittez ce module",
+                        "howTitle": "Les changements sont abandonnés",
+                        "howBody": "Seules les informations qui n’avaient pas encore été enregistrées sont perdues.",
+                        "result": "Un projet déjà enregistré reste disponible.",
+                        "flowOutcome": "Changements abandonnés"
+                    },
+                    "cancel": {
+                        "title": "Annuler",
+                        "body": "Restez sur cette étape et continuez à modifier.",
+                        "benefit1": "Vous restez dans l’assistant",
+                        "benefit2": "Rien n’est abandonné",
+                        "benefit3": "Rien de nouveau n’est encore enregistré",
+                        "howTitle": "Rester dans la configuration",
+                        "howBody": "L’assistant reste ouvert sur l’étape que vous modifiez.",
+                        "result": "Vous pouvez continuer à remplir le formulaire.",
+                        "flowOutcome": "Vous restez ici"
+                    }
+                }
+            },
             "stub": {
                 "title": "Étape",
                 "placeholder": "Cette étape sera connectée dans les phases futures de l'assistant."
@@ -4253,6 +4379,52 @@
             "unsaved_changes": "Unsaved changes",
             "unsaved_changes_message": "You have unsaved changes. Are you sure you want to leave without saving?",
             "exit_without_saving": "Exit without saving",
+            "draft_name": "Projet sans titre",
+            "continue_setup": "Continuer la configuration",
+            "leave": {
+                "chooseTitle": "Choisissez une action",
+                "chooseHelp": "Ce choix décide si le projet reste un brouillon.",
+                "howTitle": "Comment ça marche",
+                "howHelp": "Le choix change ce qui est conservé, pas les étapes déjà terminées.",
+                "recommended": "Recommandé",
+                "selectedPath": "Chemin sélectionné",
+                "flowEntered": "Données saisies",
+                "options": {
+                    "save": {
+                        "title": "Enregistrer et quitter",
+                        "body": "Enregistre tout ce qui a été saisi jusqu’ici et quitte ce module.",
+                        "benefit1": "La progression est conservée",
+                        "benefit2": "Le projet reste un brouillon",
+                        "benefit3": "Reprise à cette étape",
+                        "howTitle": "Enregistré comme brouillon",
+                        "howBody": "Verifik conserve les champs déjà remplis et marque le projet comme incomplet.",
+                        "result": "Rouvrez le projet pour continuer sans ressaisir ces informations.",
+                        "flowOutcome": "Brouillon enregistré"
+                    },
+                    "discard": {
+                        "title": "Quitter sans enregistrer",
+                        "body": "Quittez maintenant et abandonnez les changements non enregistrés.",
+                        "benefit1": "Les modifications non enregistrées sont perdues",
+                        "benefit2": "Les enregistrements précédents restent",
+                        "benefit3": "Vous quittez ce module",
+                        "howTitle": "Les changements sont abandonnés",
+                        "howBody": "Seules les informations qui n’avaient pas encore été enregistrées sont perdues.",
+                        "result": "Un projet déjà enregistré reste disponible.",
+                        "flowOutcome": "Changements abandonnés"
+                    },
+                    "cancel": {
+                        "title": "Annuler",
+                        "body": "Restez sur cette étape et continuez à modifier.",
+                        "benefit1": "Vous restez dans l’assistant",
+                        "benefit2": "Rien n’est abandonné",
+                        "benefit3": "Rien de nouveau n’est encore enregistré",
+                        "howTitle": "Rester dans la configuration",
+                        "howBody": "L’assistant reste ouvert sur l’étape que vous modifiez.",
+                        "result": "Vous pouvez continuer à remplir le formulaire.",
+                        "flowOutcome": "Vous restez ici"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Basics",
                 "login_methods": "Login methods",
@@ -5125,6 +5297,12 @@
             "splitVertical": "Séparation Verticale",
             "splitHorizontal": "Séparation Horizontale"
         },
+        "flags": {
+            "pin": "Épingler {{country}}",
+            "unpin": "Désépingler {{country}}",
+            "scrollLeft": "Voir les pays précédents",
+            "scrollRight": "Voir plus de pays"
+        },
         "sidebar": {
             "title": "Explorateur API",
             "search": "Rechercher endpoints...",
@@ -5133,6 +5311,9 @@
             "collapse": "Réduire barre latérale",
             "expand": "Agrandir barre latérale",
             "library": "Bibliothèque",
+            "pinned": "Épinglés",
+            "pinEndpoint": "Épingler {{name}}",
+            "unpinEndpoint": "Désépingler {{name}}",
             "layoutActions": "Dossiers",
             "newFolder": "Nouveau dossier",
             "newFolderTitle": "Nouveau dossier",
@@ -5204,6 +5385,10 @@
                 "otherParameters": "Autres paramètres",
                 "requiredFieldLegend": "* Champ obligatoire",
                 "includeCostDescription": "Lorsque la valeur est true, la réponse inclut un bloc de crédits (credits, creditsCharged, charged, featureCode). Définissez false ou supprimez cette ligne pour l'omettre.",
+                "mexicoLicenseDocumentTypeCurpDescription": "Fixé sur CURP pour ce groupe de recherche.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "Fixé sur le type de licence professionnelle pour ce groupe de recherche.",
+                "mexicoLicenseCurpNumberDescription": "CURP de 18 caractères.",
+                "mexicoLicenseCedulaNumberDescription": "Numéro de licence professionnelle.",
                 "pickValue": "Choisissez une valeur parmi [{{values}}]",
                 "sexoFemale": "Féminin (FEMENINO)",
                 "sexoMale": "Masculin (MASCULINO)"
@@ -5256,7 +5441,8 @@
                 "invalidEnum": "« {{value}} » n'est pas valide pour « {{field}} ». Valeurs attendues : {{expected}}.",
                 "invalidJsonBody": "Le corps doit être un JSON valide.",
                 "pathSegmentRequired": "Le segment d'URL « {{segment}} » est obligatoire.",
-                "groupedModesBodyWithSerial": "N’utilisez qu’une seule méthode : recherche par nom, par numéro de document (et par sexe si requis), ou par série du registre civil. Ne mélangez pas les modes dans la même requête."
+                "groupedModesBodyWithSerial": "N’utilisez qu’une seule méthode : recherche par nom, par numéro de document (et par sexe si requis), ou par série du registre civil. Ne mélangez pas les modes dans la même requête.",
+                "mexicoLicenseModesBody": "Utilisez un seul groupe : CURP avec numéro de document, numéro de licence avec type de document, ou prénom et noms de famille sans champs de document. Ne mélangez pas les groupes dans la même requête."
             },
             "sandboxProfiles": {
                 "title": "Profils de test Sandbox",
@@ -5593,7 +5779,8 @@
         "filterDateToday": "Aujourd'hui",
         "filterDateThisWeek": "Cette semaine",
         "filterDateThisMonth": "Ce mois",
-        "filterDateCustom": "Personnalisé",
+        "filterDateLastMonth": "Mois dernier",
+        "filterDateCustom": "Dates personnalisées",
         "dateRange": "Plage de dates",
         "dateStart": "Début",
         "dateEnd": "Fin",
@@ -5936,17 +6123,12 @@
         "customDesc": "Adapté à vos besoins",
         "billedAnnually": "facturé annuellement",
         "currentPlan": "Plan actuel",
-        "notOptimalForVolume": "Pas optimal pour votre volume",
-        "notOptimalHint": "Un autre palier correspond mieux à votre usage.",
-        "notOptimalCta": "Pas le meilleur choix",
         "addCredits": "Ajouter des crédits",
         "contactSales": "Contacter les ventes",
         "selectPlan": "Sélectionner le plan",
         "upgrade": "Mettre à niveau",
         "downgrade": "Rétrograder",
         "backToCurrentPlan": "Retour au plan actuel",
-        "off": "de réduction",
-        "discountDescription": "Sur toutes les requêtes API",
         "interval": {
             "month": "mois",
             "year": "an"
@@ -5993,8 +6175,6 @@
             "requestsPerYear": "requêtes/an",
             "perRequest": "par requête",
             "monthlySpend": "dépense mensuelle est.",
-            "bestValue": "Meilleur rapport qualité-prix pour votre usage",
-            "basePrice": "Prix de base : 0,30 $/requête — la réduction de votre plan réduit le coût",
             "estimatedTotal": "À payer"
         },
         "estimator": {
@@ -6004,8 +6184,32 @@
             "budgetLabel": "Quel est votre budget cible ?",
             "budgetPlaceholder": "ex. 1000",
             "referenceLabel": "Ajuster pour le plan :",
-            "resolvedRequests": "Volume estimé",
-            "closestFor": "Total le plus proche sur {{plan}}"
+            "closestFor": "Total le plus proche sur {{plan}}",
+            "usageBaseline": "Vos {{months}} derniers mois : ~{{requests}} requêtes/mois",
+            "resetToUsage": "Revenir à mon usage réel"
+        },
+        "zones": {
+            "label": "Plan recommandé selon le volume mensuel",
+            "tooltip": "{{plan}} : {{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "Recommandé pour votre volume",
+            "fits": "couvre ~{{requests}} {{unit}} pour",
+            "savesVs": "Vous économisez {{amount}} $/{{interval}} par rapport à {{plan}}.",
+            "headroom": "Reste le meilleur choix jusqu'à ~{{requests}} {{unit}} ; au-delà, {{plan}} revient moins cher."
+        },
+        "card": {
+            "recommended": "Recommandé",
+            "includes": "Inclut ~{{requests}} requêtes/mois",
+            "pricePerRequestHint": "Tarif SmartCheck moyen après la réduction de ce plan (base 0,30 $/requête). Le prix exact varie selon l'API ; voir Comparer les prix des API.",
+            "lowestForVolume": "Le meilleur choix pour votre volume",
+            "deltaVsBest": "+{{amount}} $/{{interval}} par rapport à {{plan}}",
+            "avgPerRequest": "Chaque requête vous revient à",
+            "avgPerRequestHint": "Total estimé divisé par vos {{requests}} requêtes/mois, réduction du plan déjà appliquée.",
+            "ratePerRequest": "Tarif par requête",
+            "includedRequests": "~{{requests}} requêtes incluses/mois",
+            "extraRate": "{{price}} $ par requête supplémentaire",
+            "rateDiscountHint": "{{percent}} % de moins que le tarif de base de {{base}} $ par requête"
         },
         "apiBreakdown": {
             "button": "Comparer les prix des API",
@@ -8947,6 +9151,10 @@
         "searchModeOptionFullName": "Option A — Recherche par nom complet",
         "searchModeOptionDocument": "Option B — Recherche par document",
         "searchModeOptionSerial": "Option C — Recherche par serial",
+        "searchModesIntroMexicoLicense": "Utilisez un seul groupe de saisie : CURP et numéro de document, numéro de licence professionnelle, ou prénom et noms de famille. Ne combinez pas les groupes dans la même requête.",
+        "searchModeOptionCurp": "Groupe 1 — Recherche par CURP",
+        "searchModeOptionLicenseNumber": "Groupe 2 — Recherche par numéro de licence",
+        "searchModeOptionNameMexico": "Groupe 3 — Recherche par nom",
         "dateOfBirthConditionalHint": "Lorsque le type de document est l'un des suivants : {{values}}, la colonne dateOfBirth est obligatoire pour cette ligne.",
         "fieldConditional": "Conditionnel",
         "fieldConditionalDetail": "Obligatoire lorsque {{whenField}} est l'un des suivants : {{values}}.",

@@ -19,6 +19,8 @@ import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-opt
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRasterImageComponent } from '../../shared/demo-raster-image.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
@@ -27,6 +29,13 @@ import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-b
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
+import { CountryService } from 'app/core/services/country.service';
+import {
+    NationalitySelectComponent,
+    isCatalogNationality,
+    nationalityDisplayName,
+    normalizeNationalityCode,
+} from '../../../shared/nationality-select.component';
 
 const DOCS_BASE = 'https://docs.verifik.co';
 const DOCS_ES_BASE = 'https://docs.verifik.co/verifik-es';
@@ -54,6 +63,8 @@ type Step = 'form' | 'processing' | 'result' | 'conflict';
         FormsModule,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoStageHeroComponent,
+        DemoStageCardComponent,
         DemoRelatedDocsSectionComponent,
         CreatePersonAlreadyExistsResultComponent,
         DemoCaptureOptionHeadingComponent,
@@ -65,6 +76,7 @@ type Step = 'form' | 'processing' | 'result' | 'conflict';
         FaceGuidedCameraComponent,
         DemoResultActionsComponent,
         DemoSandboxResultBannerComponent,
+        NationalitySelectComponent,
     ],
     templateUrl: './create-person-with-liveness-demo.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,6 +88,7 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
     private _router = inject(Router);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private _countries = inject(CountryService);
 
     authChecked = false;
     step: Step = 'form';
@@ -121,6 +134,19 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
         this.relatedDocs = this.buildRelatedDocs();
     }
 
+    get nationalityChip(): string {
+        return nationalityDisplayName(
+            this.nationality,
+            this._countries.countries,
+            (key) => this._transloco.translate(key),
+            this._transloco.translate('smartEnrollDemos.personForm.nationalityNotSet'),
+        );
+    }
+
+    get nationalityBlocked(): boolean {
+        return !isCatalogNationality(this.nationality, this._countries.countries);
+    }
+
     get showApiReference(): boolean {
         return this.step !== 'result' && this.step !== 'conflict';
     }
@@ -150,7 +176,7 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
     }
 
     handleSubmit(): void {
-        if (!this.images.length) return;
+        if (!this.images.length || this.nationalityBlocked) return;
 
         this.step = 'processing';
         this.error = null;
@@ -166,7 +192,7 @@ export class CreatePersonWithLivenessDemoComponent implements OnInit {
                 liveness_min_score: this.livenessMinScore,
                 min_score: this.minScore,
                 search_mode: this.searchMode,
-                nationality: this.nationality || undefined,
+                nationality: normalizeNationalityCode(this.nationality) || undefined,
             })
             .subscribe({
                 next: (data) => {

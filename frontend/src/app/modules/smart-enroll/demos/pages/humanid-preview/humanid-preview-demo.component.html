@@ -1,15 +1,29 @@
-<app-demo-page-shell>
-    <div class="mb-8 mt-6">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            {{ (step === 'result' ? 'smartEnrollDemos.humanidPreview.heroTitleResult' : 'smartEnrollDemos.humanidPreview.heroTitle') | transloco }}
-        </h2>
-        <p class="text-on-surface-variant">{{ 'smartEnrollDemos.humanidPreview.heroSubtitle' | transloco }}</p>
-    </div>
+<app-demo-page-shell sectionLink="/human-authn/demos" sectionLabelKey="nav.human_authn" demosLink="/human-authn/demos">
+    @if (step === 'form' && authChecked) {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.humanAuthn' | transloco"
+            [title]="'smartEnrollDemos.humanidPreview.heroTitle' | transloco"
+            [subtitle]="'smartEnrollDemos.humanidPreview.heroSubtitle' | transloco"
+        />
+    } @else {
+        <div class="mb-8 mt-6">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                {{ (step === 'result' ? 'smartEnrollDemos.humanidPreview.heroTitleResult' : 'smartEnrollDemos.humanidPreview.heroTitle') | transloco }}
+            </h2>
+            <p class="text-on-surface-variant">{{ 'smartEnrollDemos.humanidPreview.heroSubtitle' | transloco }}</p>
+        </div>
+    }
 
     @if (!authChecked) {
         <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else if (step === 'form') {
         <form class="space-y-5" (submit)="submit($event)">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.proofTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.proofHelp' | transloco"
+            >
+            <div class="space-y-5">
             <div>
                 <p class="block text-sm font-semibold text-on-surface mb-2">{{ 'smartEnrollDemos.humanidPreview.humanIdModeLabel' | transloco }}</p>
                 <div class="flex rounded-xl p-1 bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/60 gap-1.5">
@@ -54,6 +68,8 @@
             <label class="block text-sm font-semibold text-on-surface mb-1.5" for="prev-verifier">{{ 'smartEnrollDemos.humanidPreview.verifierKeyOptional' | transloco }}</label>
             <input id="prev-verifier" type="text" [(ngModel)]="verifierKey" name="verifierKey" [placeholder]="'smartEnrollDemos.humanidPreview.verifierKeyPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/60" />
             </div>
+            </div>
+            </app-demo-stage-card>
 
             @if (error) {
                 <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg text-sm text-error">{{ error }}</div>

@@ -1210,6 +1210,20 @@
         "banners": {
             "dismissAria": "Dispensar banner"
         },
+        "bell": {
+            "title": "Notificações",
+            "markAll": "Marcar todas como lidas",
+            "aria": "Notificações",
+            "ariaCount": "Notificações, {{count}} não lidas",
+            "empty": "Você está em dia",
+            "loading": "Carregando…",
+            "justNow": "Agora",
+            "minutes": "{{count}} min",
+            "hours": "{{count}} h",
+            "days": "{{count}} d",
+            "dismissAria": "Dispensar notificação",
+            "closeImage": "Fechar imagem"
+        },
         "inbox": {
             "guest": {
                 "title": "Inicie sessão para ver notificações",
@@ -1256,6 +1270,34 @@
         }
     },
     "home": {
+        "usageGlobe": {
+            "title": "De onde vêm as suas solicitações",
+            "subtitle": "{{total}} solicitações em {{countries}} países",
+            "subtitleUnscoped": "{{total}} solicitações de serviços que não pertencem a um país",
+            "rangeLabel": "Período",
+            "ranges": {
+                "today": "Hoje",
+                "week": "Esta semana",
+                "month": "Este mês",
+                "previousMonth": "Mês passado",
+                "year": "Este ano"
+            },
+            "loading": "Mapeando o seu uso…",
+            "error": "Não foi possível carregar o mapa de uso. Tente novamente em instantes.",
+            "emptySubtitle": "A sua primeira solicitação acende o mapa",
+            "emptyTitle": "Nenhuma solicitação neste período",
+            "emptyBody": "Faça uma consulta pelo Postman ou pelo seu backend e cada país consultado aparece aqui.",
+            "emptyCta": "Experimentar uma API",
+            "sourceCredits": "Da faturação",
+            "sourceCreditsHint": "Não há registo de solicitações neste período, por isso os totais vêm dos créditos faturados.",
+            "openReport": "Abrir relatório de uso",
+            "globeLabel": "Globo com o volume de solicitações por país",
+            "countries": "Principais países",
+            "topServices": "Principais serviços",
+            "failedShare": "{{rate}}% falharam",
+            "global": "Sem país",
+            "globalHint": "OTP por e-mail, SMS, Smart Enroll e outras APIs que não são uma consulta de um país."
+        },
         "notifications": {
             "openFromEmail": "A abrir as suas notificações…"
         },
@@ -1553,6 +1595,52 @@
             "unsavedChanges": "Alterações não guardadas",
             "unsavedChangesMessage": "Sair deste passo sem guardar?",
             "exitWithoutSaving": "Sair sem guardar",
+            "draft_name": "Projeto sem título",
+            "continue_setup": "Continuar configuração",
+            "leave": {
+                "chooseTitle": "Escolha o que fazer",
+                "chooseHelp": "Esta seleção decide se o projeto fica como rascunho.",
+                "howTitle": "Como funciona",
+                "howHelp": "A escolha muda o que é mantido, não as etapas que já concluiu.",
+                "recommended": "Recomendado",
+                "selectedPath": "Caminho selecionado",
+                "flowEntered": "Dados inseridos",
+                "options": {
+                    "save": {
+                        "title": "Guardar e sair",
+                        "body": "Guarda tudo o que foi inserido até agora e sai deste módulo.",
+                        "benefit1": "O progresso é mantido",
+                        "benefit2": "O projeto fica em rascunho",
+                        "benefit3": "Retoma nesta etapa",
+                        "howTitle": "Guardado como rascunho",
+                        "howBody": "A Verifik guarda os campos já preenchidos e marca o projeto como incompleto.",
+                        "result": "Ao reabrir o projeto pode continuar sem preencher esta informação outra vez.",
+                        "flowOutcome": "Rascunho guardado"
+                    },
+                    "discard": {
+                        "title": "Sair sem guardar",
+                        "body": "Saia agora e descarte as alterações que ainda não foram guardadas.",
+                        "benefit1": "As alterações não guardadas são descartadas",
+                        "benefit2": "O que já foi guardado permanece",
+                        "benefit3": "Você sai deste módulo",
+                        "howTitle": "As alterações são descartadas",
+                        "howBody": "Só se perde a informação que ainda não tinha sido guardada.",
+                        "result": "Um projeto que já tinha guardado continua disponível.",
+                        "flowOutcome": "Alterações descartadas"
+                    },
+                    "cancel": {
+                        "title": "Cancelar",
+                        "body": "Fique nesta etapa e continue a editar.",
+                        "benefit1": "Permanece no assistente",
+                        "benefit2": "Nada é descartado",
+                        "benefit3": "Ainda não se guarda nada de novo",
+                        "howTitle": "Continuar na configuração",
+                        "howBody": "O assistente permanece aberto na etapa que está a editar.",
+                        "result": "Pode continuar a preencher o formulário.",
+                        "flowOutcome": "Fica aqui"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Detalhes do projeto",
                 "signup": "Formulário de cadastro",
@@ -2128,6 +2216,19 @@
     "network": {
         "title": "Verificação de status",
         "subtitle": "Monitoramento de desempenho e tempo de atividade da API em tempo real",
+        "availability": {
+            "title": "A sua disponibilidade mensal",
+            "subtitle": "Parcela das solicitações SmartCheck que o serviço respondeu, por mês civil (UTC). O compromisso é {{target}}%.",
+            "monthsMet": "{{met}} de {{total}} meses encerrados na meta",
+            "targetLine": "Meta {{target}}%",
+            "partial": "Em andamento",
+            "barTooltip": "{{ok}} respondidas · {{failed}} falhas do serviço · {{excluded}} erros do cliente excluídos",
+            "belowTarget": "Abaixo da meta no último mês",
+            "empty": "Ainda não há solicitações SmartCheck nos últimos seis meses.",
+            "error": "A disponibilidade não está disponível agora. Tente mais tarde.",
+            "footnote": "Erros do cliente, como dados inválidos ou registros não encontrados, não contam contra a disponibilidade.",
+            "docs": "Como é medida"
+        },
         "uptime_history": "Histórico de disponibilidade",
         "response_time": "Tempo de resposta",
         "status": "Estado",
@@ -3215,6 +3316,26 @@
             "backScan": "Verso",
             "documentFace": "Retrato do documento",
             "documentLiveness": "Vivacidade do documento",
+            "barcode": {
+                "title": "Código de barras do verso",
+                "attempts": "{{count}} tentativas de leitura",
+                "unreadableWarning": "O cadastro pode ser aprovado. O código do verso não pôde ser lido, então isto fica como aviso.",
+                "mismatchLead": "O código do verso não confere com a frente. O documento pode ter sido alterado.",
+                "verdict": {
+                    "confirmed": "Confere com a frente",
+                    "mismatch": "Possível alteração",
+                    "unreadable": "Verso não validado"
+                },
+                "field": {
+                    "fullName": "Nome no código",
+                    "documentNumber": "Número do documento",
+                    "dateOfBirth": "Data de nascimento",
+                    "gender": "Sexo",
+                    "bloodType": "Tipo sanguíneo",
+                    "firstName": "Nome",
+                    "lastName": "Sobrenome"
+                }
+            },
             "livenessPassed": "Aprovado",
             "livenessFailed": "Reprovado",
             "ocr": "Dados extraídos",
@@ -3609,6 +3730,52 @@
             "unsaved_changes": "Alterações não salvas",
             "unsaved_changes_message": "Sair sem salvar as alterações?",
             "exit_without_saving": "Sair sem salvar",
+            "draft_name": "Projeto sem título",
+            "continue_setup": "Continuar configuração",
+            "leave": {
+                "chooseTitle": "Escolha o que fazer",
+                "chooseHelp": "Esta seleção decide se o projeto fica como rascunho.",
+                "howTitle": "Como funciona",
+                "howHelp": "A escolha muda o que é mantido, não as etapas que já concluiu.",
+                "recommended": "Recomendado",
+                "selectedPath": "Caminho selecionado",
+                "flowEntered": "Dados inseridos",
+                "options": {
+                    "save": {
+                        "title": "Guardar e sair",
+                        "body": "Guarda tudo o que foi inserido até agora e sai deste módulo.",
+                        "benefit1": "O progresso é mantido",
+                        "benefit2": "O projeto fica em rascunho",
+                        "benefit3": "Retoma nesta etapa",
+                        "howTitle": "Guardado como rascunho",
+                        "howBody": "A Verifik guarda os campos já preenchidos e marca o projeto como incompleto.",
+                        "result": "Ao reabrir o projeto pode continuar sem preencher esta informação outra vez.",
+                        "flowOutcome": "Rascunho guardado"
+                    },
+                    "discard": {
+                        "title": "Sair sem guardar",
+                        "body": "Saia agora e descarte as alterações que ainda não foram guardadas.",
+                        "benefit1": "As alterações não guardadas são descartadas",
+                        "benefit2": "O que já foi guardado permanece",
+                        "benefit3": "Você sai deste módulo",
+                        "howTitle": "As alterações são descartadas",
+                        "howBody": "Só se perde a informação que ainda não tinha sido guardada.",
+                        "result": "Um projeto que já tinha guardado continua disponível.",
+                        "flowOutcome": "Alterações descartadas"
+                    },
+                    "cancel": {
+                        "title": "Cancelar",
+                        "body": "Fique nesta etapa e continue a editar.",
+                        "benefit1": "Permanece no assistente",
+                        "benefit2": "Nada é descartado",
+                        "benefit3": "Ainda não se guarda nada de novo",
+                        "howTitle": "Continuar na configuração",
+                        "howBody": "O assistente permanece aberto na etapa que está a editar.",
+                        "result": "Pode continuar a preencher o formulário.",
+                        "flowOutcome": "Fica aqui"
+                    }
+                }
+            },
             "stub": {
                 "title": "Passo",
                 "placeholder": "Este passo será ligado em fases futuras do assistente."
@@ -4253,6 +4420,52 @@
             "unsaved_changes": "Alterações não guardadas",
             "unsaved_changes_message": "Tem alterações não guardadas. Tem a certeza de que quer sair sem guardar?",
             "exit_without_saving": "Sair sem guardar",
+            "draft_name": "Projeto sem título",
+            "continue_setup": "Continuar configuração",
+            "leave": {
+                "chooseTitle": "Escolha o que fazer",
+                "chooseHelp": "Esta seleção decide se o projeto fica como rascunho.",
+                "howTitle": "Como funciona",
+                "howHelp": "A escolha muda o que é mantido, não as etapas que já concluiu.",
+                "recommended": "Recomendado",
+                "selectedPath": "Caminho selecionado",
+                "flowEntered": "Dados inseridos",
+                "options": {
+                    "save": {
+                        "title": "Guardar e sair",
+                        "body": "Guarda tudo o que foi inserido até agora e sai deste módulo.",
+                        "benefit1": "O progresso é mantido",
+                        "benefit2": "O projeto fica em rascunho",
+                        "benefit3": "Retoma nesta etapa",
+                        "howTitle": "Guardado como rascunho",
+                        "howBody": "A Verifik guarda os campos já preenchidos e marca o projeto como incompleto.",
+                        "result": "Ao reabrir o projeto pode continuar sem preencher esta informação outra vez.",
+                        "flowOutcome": "Rascunho guardado"
+                    },
+                    "discard": {
+                        "title": "Sair sem guardar",
+                        "body": "Saia agora e descarte as alterações que ainda não foram guardadas.",
+                        "benefit1": "As alterações não guardadas são descartadas",
+                        "benefit2": "O que já foi guardado permanece",
+                        "benefit3": "Você sai deste módulo",
+                        "howTitle": "As alterações são descartadas",
+                        "howBody": "Só se perde a informação que ainda não tinha sido guardada.",
+                        "result": "Um projeto que já tinha guardado continua disponível.",
+                        "flowOutcome": "Alterações descartadas"
+                    },
+                    "cancel": {
+                        "title": "Cancelar",
+                        "body": "Fique nesta etapa e continue a editar.",
+                        "benefit1": "Permanece no assistente",
+                        "benefit2": "Nada é descartado",
+                        "benefit3": "Ainda não se guarda nada de novo",
+                        "howTitle": "Continuar na configuração",
+                        "howBody": "O assistente permanece aberto na etapa que está a editar.",
+                        "result": "Pode continuar a preencher o formulário.",
+                        "flowOutcome": "Fica aqui"
+                    }
+                }
+            },
             "steps": {
                 "basic": "Informações básicas",
                 "login_methods": "Métodos de início de sessão",
@@ -4470,6 +4683,81 @@
     "settings": {
         "title": "Configurações",
         "subtitle": "Gerencie sua conta e preferências",
+        "costCenters": {
+            "title": "Centros de custo",
+            "subtitle": "Marque cada solicitação com uma equipe, país ou unidade de negócio para separar o uso e as faturas.",
+            "add": "Novo centro de custo",
+            "createTitle": "Novo centro de custo",
+            "editTitle": "Editar centro de custo",
+            "name": "Nome",
+            "code": "Código",
+            "codeHint": "Letras, números, pontos, hífens e sublinhados. É o valor que você envia no cabeçalho.",
+            "codeInvalid": "Use apenas letras, números, pontos, hífens e sublinhados.",
+            "codeTaken": "Outro centro de custo já usa este código.",
+            "country": "Padrão para o país",
+            "status": "Status",
+            "active": "Ativo",
+            "inactive": "Inativo",
+            "edit": "Editar",
+            "deactivate": "Desativar",
+            "reactivate": "Reativar",
+            "cancel": "Cancelar",
+            "save": "Salvar",
+            "saving": "Salvando…",
+            "emptyTitle": "Ainda não há centros de custo",
+            "emptyBody": "Crie um por equipe ou país e envie o código com as suas solicitações.",
+            "howTitle": "Como uma solicitação recebe um centro de custo",
+            "howHeader": "Envie o código no cabeçalho x-cost-center. Ele tem prioridade sobre as outras regras.",
+            "howCountry": "Sem o cabeçalho, a solicitação usa o centro do token de API e depois o centro do país da solicitação.",
+            "howNone": "Solicitações que não correspondem a nenhuma regra ficam sem marcação e continuam no relatório de uso.",
+            "copyHeader": "Copiar exemplo",
+            "copied": "Copiado",
+            "docs": "Ler a documentação",
+            "loadError": "Não foi possível carregar os centros de custo.",
+            "saveError": "Não foi possível salvar o centro de custo. Tente novamente.",
+            "created": "Centro de custo criado",
+            "updated": "Centro de custo atualizado",
+            "deactivated": "Centro de custo desativado",
+            "reactivated": "Centro de custo reativado",
+            "modalEyebrow": "Operações globais",
+            "modalLead": "Dê a cada país ou equipe o próprio rótulo para separar as solicitações seguintes.",
+            "whyTitle": "Por que criar um",
+            "whyBody": "Se você opera em mais de um país, cada solicitação pode levar a operação que a originou.",
+            "whyCountry": "Um centro por país ou equipe, como a operação da Espanha.",
+            "whySplit": "O uso e as faturas separam essa operação do resto da conta.",
+            "whyAssign": "Uma solicitação seguinte o recebe pelo header x-cost-center, o padrão do token ou o único centro ativo daquele país.",
+            "editWhyTitle": "O que uma alteração faz",
+            "editNote": "Salvar só afeta solicitações feitas depois. O histórico já marcado mantém o centro que tinha.",
+            "countryInvalid": "Escolha um país da lista.",
+            "countryNone": "Nenhum país corresponde a essa busca.",
+            "signInHint": "Entre com e-mail ou telefone para gerenciar os centros de custo."
+        },
+        "usageReport": {
+            "title": "Relatório de uso",
+            "subtitle": "Solicitações e custo do período escolhido. Ver ou exportar este relatório não consome créditos.",
+            "downloadCsv": "Baixar CSV",
+            "exporting": "Exportando…",
+            "exportError": "Não foi possível exportar o CSV. Tente novamente.",
+            "groupBy": "Agrupar por",
+            "group": { "month": "Mês", "day": "Dia", "country": "País", "costCenter": "Centro de custo", "endpoint": "Endpoint" },
+            "range": "Período",
+            "ranges": { "last_30_days": "Últimos 30 dias", "this_month": "Este mês", "last_month": "Mês passado", "last_3_months": "Últimos 3 meses", "last_12_months": "Últimos 12 meses" },
+            "costCenter": "Centro de custo",
+            "allCostCenters": "Todos os centros de custo",
+            "noCostCenter": "Sem centro de custo",
+            "sourceCredits": "Este período não tem registro de solicitações, então os sucessos e o custo vêm dos créditos faturados. O detalhe por solicitação é limitado.",
+            "sourceCreditsAndFailures": "Os sucessos e o custo vêm dos créditos faturados. As falhas vêm do registro de solicitações. O detalhe por solicitação é limitado.",
+            "loadError": "Não foi possível carregar o relatório de uso.",
+            "total": "Solicitações",
+            "ok": "Bem-sucedidas",
+            "failed": "Com falha",
+            "timedOut": "Tempo esgotado",
+            "cost": "Custo (USD)",
+            "empty": "Não há solicitações neste período.",
+            "footnote": "O custo conta apenas as solicitações bem-sucedidas. As datas estão em UTC.",
+            "docs": "Documentação da API de uso",
+            "signInHint": "Entre com e-mail ou telefone para ver o relatório de uso."
+        },
         "coming_soon": "Em breve",
         "coming_soon_title": "Em breve",
         "coming_soon_desc": "Este recurso está atualmente em desenvolvimento. Volte em breve para atualizações!",
@@ -4501,7 +4789,11 @@
             "notifications": "Notificações",
             "notifications_desc": "Preferências de e-mail e notificações do painel",
             "usage_history": "Histórico de uso",
-            "usage_history_desc": "Acompanhe o consumo de APIs e créditos ao longo do tempo"
+            "usage_history_desc": "Acompanhe o consumo de APIs e créditos ao longo do tempo",
+            "usage_report": "Relatório de uso",
+            "usage_report_desc": "Solicitações e custo por mês, país, centro de custo ou endpoint, com exportação CSV",
+            "cost_centers": "Centros de custo",
+            "cost_centers_desc": "Marque solicitações por equipe ou país para separar o uso e o faturamento"
         },
         "profile": {
             "title": "Configurações de Perfil",
@@ -4679,6 +4971,17 @@
             "need_help": "Precisa de ajuda com integração de API?",
             "docs_description": "Aprenda como usar seu token de API e explore nossa documentação.",
             "view_docs": "Ver Documentação",
+            "cost_center_title": "Separar o uso por centro de custo",
+            "cost_center_body": "Envie este cabeçalho em qualquer solicitação para lançá-la em um centro de custo. Sem ele, a solicitação usa o centro do token ou do país.",
+            "cost_center_manage": "Gerenciar centros de custo",
+            "project_cost_center_title": "Centro de custo padrão de cada projeto",
+            "project_cost_center_body": "Solicitações que usam o token de um projeto escolhem este centro quando não enviam x-cost-center.",
+            "project_cost_center_none": "Sem padrão",
+            "project_cost_center_empty": "Você ainda não tem projetos.",
+            "project_cost_center_save": "Salvar",
+            "project_cost_center_saving": "Salvando…",
+            "project_cost_center_saved": "Padrão do projeto salvo",
+            "project_cost_center_error": "Não foi possível salvar o padrão do projeto. Tente novamente.",
             "help_label": "Saiba mais",
             "help_close": "Entendi",
             "how_it_works_title": "Como funciona",
@@ -4798,6 +5101,10 @@
             "workspace_name_desc": "Este é o nome público da sua área de trabalho visível para sua equipe.",
             "name_label": "Nome",
             "name_placeholder": "Digite o nome da sua área de trabalho",
+            "support_timezone": "Fuso horário do suporte",
+            "support_timezone_desc": "Os prazos dos tickets críticos aparecem neste fuso horário. Vale para toda a conta.",
+            "support_timezone_saved": "Fuso horário do suporte salvo",
+            "support_timezone_error": "Não foi possível salvar o fuso horário do suporte. Tente novamente.",
             "update": "Atualizar",
             "create": "Criar",
             "saving": "Salvando...",
@@ -5125,6 +5432,12 @@
             "splitVertical": "Divisão Vertical",
             "splitHorizontal": "Divisão Horizontal"
         },
+        "flags": {
+            "pin": "Fixar {{country}}",
+            "unpin": "Desafixar {{country}}",
+            "scrollLeft": "Ver países anteriores",
+            "scrollRight": "Ver mais países"
+        },
         "sidebar": {
             "title": "Explorador de API",
             "search": "Pesquisar endpoints...",
@@ -5133,6 +5446,9 @@
             "collapse": "Recolher barra lateral",
             "expand": "Expandir barra lateral",
             "library": "Biblioteca",
+            "pinned": "Fixados",
+            "pinEndpoint": "Fixar {{name}}",
+            "unpinEndpoint": "Desafixar {{name}}",
             "layoutActions": "Pastas",
             "newFolder": "Nova pasta",
             "newFolderTitle": "Nova pasta",
@@ -5204,6 +5520,10 @@
                 "otherParameters": "Outros parâmetros",
                 "requiredFieldLegend": "* Campo obrigatório",
                 "includeCostDescription": "Quando verdadeiro, a resposta inclui um bloco de créditos (credits, creditsCharged, charged, featureCode). Defina como falso ou remova esta linha para omitir.",
+                "mexicoLicenseDocumentTypeCurpDescription": "Fixo em CURP para este grupo de busca.",
+                "mexicoLicenseDocumentTypeCedulaDescription": "Fixo no tipo de licença profissional para este grupo de busca.",
+                "mexicoLicenseCurpNumberDescription": "CURP de 18 caracteres.",
+                "mexicoLicenseCedulaNumberDescription": "Número da licença profissional.",
                 "pickValue": "Escolha um valor de [{{values}}]",
                 "sexoFemale": "Feminino (FEMENINO)",
                 "sexoMale": "Masculino (MASCULINO)"
@@ -5256,7 +5576,8 @@
                 "invalidEnum": "\"{{value}}\" não é válido para \"{{field}}\". Esperado: {{expected}}.",
                 "invalidJsonBody": "O corpo deve ser JSON válido.",
                 "pathSegmentRequired": "O segmento de caminho da URL \"{{segment}}\" é obrigatório.",
-                "groupedModesBodyWithSerial": "Use apenas uma abordagem: busca por nome, por número do documento (mais o sexo quando exigido) ou por serial do registro civil. Não misture modos na mesma solicitação."
+                "groupedModesBodyWithSerial": "Use apenas uma abordagem: busca por nome, por número do documento (mais o sexo quando exigido) ou por serial do registro civil. Não misture modos na mesma solicitação.",
+                "mexicoLicenseModesBody": "Use apenas um grupo: CURP com número do documento, número da licença com tipo de documento, ou nome e sobrenomes sem campos de documento. Não misture grupos na mesma solicitação."
             },
             "sandboxProfiles": {
                 "title": "Perfis de teste Sandbox",
@@ -5589,11 +5910,16 @@
         "statusPending": "Sem resposta",
         "filterService": "Serviço",
         "filterServiceAll": "Todos os serviços",
+        "filterCountry": "País",
+        "filterCountryAll": "Todos os países",
+        "filterCostCenter": "Centro de custo",
+        "filterCostCenterAll": "Todos os centros de custo",
         "filterDateAll": "Todo o período",
         "filterDateToday": "Hoje",
         "filterDateThisWeek": "Esta semana",
         "filterDateThisMonth": "Este mês",
-        "filterDateCustom": "Personalizado",
+        "filterDateLastMonth": "Mês passado",
+        "filterDateCustom": "Datas personalizadas",
         "dateRange": "Intervalo de datas",
         "dateStart": "Início",
         "dateEnd": "Fim",
@@ -5936,17 +6262,12 @@
         "customDesc": "Adaptado às suas necessidades",
         "billedAnnually": "cobrado anualmente",
         "currentPlan": "Plano atual",
-        "notOptimalForVolume": "Não é ideal para o seu volume",
-        "notOptimalHint": "Outro plano combina melhor com o seu uso.",
-        "notOptimalCta": "Não é a melhor opção",
         "addCredits": "Adicionar créditos",
         "contactSales": "Contatar vendas",
         "selectPlan": "Selecionar plano",
         "upgrade": "Fazer upgrade",
         "downgrade": "Fazer downgrade",
         "backToCurrentPlan": "Voltar ao plano atual",
-        "off": "de desconto",
-        "discountDescription": "Em todas as requisições API",
         "interval": {
             "month": "mês",
             "year": "ano"
@@ -5993,8 +6314,6 @@
             "requestsPerYear": "solicitações/ano",
             "perRequest": "por solicitação",
             "monthlySpend": "gasto mensal est.",
-            "bestValue": "Melhor custo-benefício para seu uso",
-            "basePrice": "Preço base: $0.30/solicitação — o desconto do seu plano reduz o custo",
             "estimatedTotal": "A pagar"
         },
         "estimator": {
@@ -6004,8 +6323,32 @@
             "budgetLabel": "Qual é seu orçamento alvo?",
             "budgetPlaceholder": "ex. 1000",
             "referenceLabel": "Calcular para o plano:",
-            "resolvedRequests": "Volume estimado",
-            "closestFor": "Total mais próximo em {{plan}}"
+            "closestFor": "Total mais próximo em {{plan}}",
+            "usageBaseline": "Seus últimos {{months}} meses: ~{{requests}} solicitações/mês",
+            "resetToUsage": "Voltar ao meu uso real"
+        },
+        "zones": {
+            "label": "Plano recomendado por volume mensal",
+            "tooltip": "{{plan}}: {{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "Recomendado para o seu volume",
+            "fits": "cobre ~{{requests}} {{unit}} por",
+            "savesVs": "Você economiza ${{amount}}/{{interval}} em relação a {{plan}}.",
+            "headroom": "Continua sendo a melhor opção até ~{{requests}} {{unit}}; acima disso, {{plan}} fica mais barato."
+        },
+        "card": {
+            "recommended": "Recomendado",
+            "includes": "Inclui ~{{requests}} solicitações/mês",
+            "pricePerRequestHint": "Tarifa média do SmartCheck com o desconto deste plano (base $0.30/solicitação). O preço exato varia por API; veja Comparar preços de API.",
+            "lowestForVolume": "A melhor opção para o seu volume",
+            "deltaVsBest": "+${{amount}}/{{interval}} em relação a {{plan}}",
+            "avgPerRequest": "Cada solicitação sai por",
+            "avgPerRequestHint": "Total estimado dividido pelas suas {{requests}} solicitações/mês, com o desconto do plano já aplicado.",
+            "ratePerRequest": "Tarifa por solicitação",
+            "includedRequests": "~{{requests}} solicitações incluídas/mês",
+            "extraRate": "${{price}} por solicitação adicional",
+            "rateDiscountHint": "{{percent}}% a menos que a tarifa base de ${{base}} por solicitação"
         },
         "apiBreakdown": {
             "button": "Comparar preços de API",
@@ -6960,6 +7303,12 @@
         }
     },
     "supportTickets": {
+        "priority": {
+            "low": "Baixa",
+            "normal": "Normal",
+            "high": "Alta",
+            "critical": "Crítica"
+        },
         "quickChat": {
             "headerTitle": "Tickets de suporte",
             "guest": {
@@ -7010,6 +7359,11 @@
             },
             "newTicket": {
                 "heading": "Novo ticket de suporte",
+                "priority": "Prioridade",
+                "priorityHint": "Use crítica apenas quando o tráfego de produção estiver bloqueado.",
+                "criticalSlaTitle": "Tickets críticos recebem a primeira resposta em até 24 horas",
+                "criticalSlaBody": "Buscamos resolvê-los em até 48 horas. Os dois prazos começam quando você envia o ticket.",
+                "supportHours": "Os prazos aparecem em {{timezone}}.",
                 "fieldTitle": "Título",
                 "titleRequired": "O título é obrigatório",
                 "ticketSubject": "Assunto",
@@ -8947,6 +9301,10 @@
         "searchModeOptionFullName": "Opção A — Busca por nome completo",
         "searchModeOptionDocument": "Opção B — Busca por documento",
         "searchModeOptionSerial": "Opção C — Busca por serial",
+        "searchModesIntroMexicoLicense": "Use apenas um grupo de entrada: CURP e número do documento, número da licença profissional ou nome e sobrenomes. Não combine grupos na mesma solicitação.",
+        "searchModeOptionCurp": "Grupo 1 — Busca por CURP",
+        "searchModeOptionLicenseNumber": "Grupo 2 — Busca por número da licença",
+        "searchModeOptionNameMexico": "Grupo 3 — Busca por nome",
         "dateOfBirthConditionalHint": "Quando o tipo de documento for um de: {{values}}, a coluna dateOfBirth é obrigatória nessa linha.",
         "fieldConditional": "Condicional",
         "fieldConditionalDetail": "Obrigatório quando {{whenField}} for um de: {{values}}.",

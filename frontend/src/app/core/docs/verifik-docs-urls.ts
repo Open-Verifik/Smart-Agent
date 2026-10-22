@@ -5,6 +5,8 @@ export interface VerifikDocsUrls {
     privacyPolicy: string;
     termsAndConditions: string;
     serviceLevelAgreement: string;
+    usageApi: string;
+    costCenters: string;
 }
 
 const SUPPORTED_LANGS = new Set(['en', 'es', 'fr', 'pt', 'ko', 'ja', 'zh']);
@@ -27,12 +29,16 @@ const ES_LEGAL_PATHS = {
     privacyPolicy: '/legal/politica-privacidad/',
     termsAndConditions: '/terminos-y-condiciones/',
     serviceLevelAgreement: '/acuerdo-de-niveles-de-servicio/',
+    usageApi: '/resources/uso/',
+    costCenters: '/resources/centros-de-costo/',
 } as const;
 
 const EN_LEGAL_PATHS = {
     privacyPolicy: '/legal/privacy-policy/',
     termsAndConditions: '/legal/terms-and-conditions/',
     serviceLevelAgreement: '/legal/service-level-agreement/',
+    usageApi: '/resources/usage/',
+    costCenters: '/resources/cost-centers/',
 } as const;
 
 const normalizeLang = (lang: string): string =>
@@ -62,6 +68,8 @@ export const getVerifikDocsUrls = (lang: string): VerifikDocsUrls => {
             privacyPolicy: `${prefix}${ES_LEGAL_PATHS.privacyPolicy}`,
             termsAndConditions: `${prefix}${ES_LEGAL_PATHS.termsAndConditions}`,
             serviceLevelAgreement: `${prefix}${ES_LEGAL_PATHS.serviceLevelAgreement}`,
+            usageApi: `${prefix}${ES_LEGAL_PATHS.usageApi}`,
+            costCenters: `${prefix}${ES_LEGAL_PATHS.costCenters}`,
         };
     }
 
@@ -73,5 +81,7 @@ export const getVerifikDocsUrls = (lang: string): VerifikDocsUrls => {
         privacyPolicy: `${base}${EN_LEGAL_PATHS.privacyPolicy}`,
         termsAndConditions: `${base}${EN_LEGAL_PATHS.termsAndConditions}`,
         serviceLevelAgreement: `${base}${EN_LEGAL_PATHS.serviceLevelAgreement}`,
+        usageApi: `${DOCS_BASE}${EN_LEGAL_PATHS.usageApi}`,
+        costCenters: `${DOCS_BASE}${EN_LEGAL_PATHS.costCenters}`,
     };
 };

@@ -43,10 +43,20 @@
                             <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openRecords()">
                                 {{ t('smartAccessProjects.viewRecords') }}
                             </button>
-                            <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                {{ t('smartAccessProjects.detail.openSetup') }}
-                            </button>
+                            @if (incompleteWizard()) {
+                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
+                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                    {{ t('smartAccessProjects.detail.openSetup') }}
+                                </button>
+                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="continueSetup()">
+                                    {{ t('smartAccessProjects.setup.continue_setup') }}
+                                </button>
+                            } @else {
+                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
+                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                    {{ t('smartAccessProjects.detail.openSetup') }}
+                                </button>
+                            }
                         </div>
                     }
                 </div>

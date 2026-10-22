@@ -190,7 +190,7 @@
                                 </button>
                                 <div class="card-actions-row">
                                     <button type="button" class="btn-primary" (click)="openProject(project, $event)">
-                                        {{ t('humanAuthnProjects.list.edit') }}
+                                        {{ t(isIncomplete(project) ? 'humanAuthnProjects.setup.continue_setup' : 'humanAuthnProjects.list.edit') }}
                                     </button>
                                     <button type="button" class="btn-secondary" (click)="openHistory($event)">
                                         {{ t('humanAuthnProjects.list.seeLogs') }}

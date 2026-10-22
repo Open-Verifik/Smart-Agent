@@ -1,0 +1,138 @@
+@if (smartCheck(); as check) {
+    <section class="sc-result" [attr.data-status]="check.status">
+        <div class="sc-heading">
+            <div class="sc-heading__left">
+                <span class="sc-heading__index">02</span>
+                <div>
+                    <h4>{{ 'smartScan.governmentCheckTitle' | transloco }}</h4>
+                    <p>{{ 'smartScan.wizard.smartCheckStep.explainHelp' | transloco }}</p>
+                </div>
+            </div>
+            <span class="sc-status" [attr.data-status]="check.status">
+                {{ 'smartScan.smartCheckStatus.' + check.status | transloco }}
+            </span>
+        </div>
+
+        <ol class="sc-flow">
+            <li>
+                <mat-icon>document_scanner</mat-icon>
+                <div class="sc-flow__copy">
+                    <strong>{{ 'smartScan.costOcr' | transloco }}</strong>
+                    <small>{{ documentType()?.name || scanResult().documentType }}</small>
+                </div>
+                @if (ocrCost() !== null) {
+                    <span class="sc-flow__cost">{{ formatCredits(ocrCost()) }}</span>
+                }
+            </li>
+            <li>
+                <mat-icon>verified</mat-icon>
+                <div class="sc-flow__copy">
+                    <strong>{{ endpointName() || ('smartScan.smartCheckResult' | transloco) }}</strong>
+                    @if (endpointUrl()) {
+                        <small class="sc-flow__route">
+                            <span>{{ endpointMethod() }}</span>
+                            <code>{{ endpointUrl() }}</code>
+                        </small>
+                    } @else if (check.featureCode) {
+                        <small>{{ check.featureCode }}</small>
+                    }
+                </div>
+                @if (smartCheckCost() !== null) {
+                    <span class="sc-flow__cost">{{ formatCredits(smartCheckCost()) }}</span>
+                }
+            </li>
+            @if (totalCost() !== null) {
+                <li class="sc-flow__result">
+                    <mat-icon>toll</mat-icon>
+                    <div class="sc-flow__copy">
+                        <strong>{{ 'smartScan.costTotal' | transloco }}</strong>
+                    </div>
+                    <span class="sc-flow__cost">
+                        {{ 'smartScan.wizard.endpointCost' | transloco: { cost: formatCredits(totalCost()) } }}
+                    </span>
+                </li>
+            }
+        </ol>
+
+        @if (check.reason === 'missing_dependencies') {
+            <p class="sc-notice sc-notice--warn">
+                {{ 'smartScan.smartCheckMissing' | transloco }} {{ check.missing?.join(', ') }}
+            </p>
+        }
+
+        @if (check.error?.message) {
+            <p class="sc-notice sc-notice--error">
+                {{ check.error?.message }}
+            </p>
+        }
+
+        @if (nameRows().length) {
+            <div class="sc-compare">
+                <div class="sc-gauge" [attr.data-tone]="tone()">
+                    <svg viewBox="0 0 220 132" class="sc-gauge__svg" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="scGaugeArc" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#ef4444" />
+                                <stop offset="50%" stop-color="#f59e0b" />
+                                <stop offset="100%" stop-color="#10b981" />
+                            </linearGradient>
+                        </defs>
+                        <path
+                            class="sc-gauge__track"
+                            d="M 24 110 A 86 86 0 0 1 196 110"
+                            fill="none"
+                            stroke-width="14"
+                            stroke-linecap="round"
+                        />
+                        <path
+                            class="sc-gauge__fill"
+                            d="M 24 110 A 86 86 0 0 1 196 110"
+                            fill="none"
+                            stroke="url(#scGaugeArc)"
+                            stroke-width="14"
+                            stroke-linecap="round"
+                            pathLength="100"
+                            [attr.stroke-dasharray]="overallPercent() + ' 100'"
+                        />
+                        <g
+                            class="sc-gauge__needle"
+                            [style.transform]="'rotate(' + needleDegrees() + 'deg)'"
+                        >
+                            <line x1="110" y1="110" x2="110" y2="36" stroke-width="3" stroke-linecap="round" />
+                        </g>
+                        <circle class="sc-gauge__hub" cx="110" cy="110" r="7" />
+                        <text x="18" y="127" class="sc-gauge__scale">0%</text>
+                        <text x="110" y="14" text-anchor="middle" class="sc-gauge__scale">50%</text>
+                        <text x="202" y="127" text-anchor="end" class="sc-gauge__scale">100%</text>
+                    </svg>
+                    <div class="sc-gauge__readout">
+                        <strong>{{ overallPercent() }}%</strong>
+                        <span>{{ verdictKey() | transloco }}</span>
+                    </div>
+                </div>
+
+                <div class="sc-rows">
+                    <div class="sc-rows__legend">
+                        <span>{{ 'smartScan.nameMatch.ocrColumn' | transloco }}</span>
+                        <span>{{ 'smartScan.nameMatch.sourceColumn' | transloco }}</span>
+                    </div>
+                    @for (row of nameRows(); track row.id) {
+                        <article class="sc-row" [attr.data-tone]="rowTone(row.percent)">
+                            <div class="sc-row__top">
+                                <span>{{ row.labelKey | transloco }}</span>
+                                <strong>{{ row.percent }}%</strong>
+                            </div>
+                            <div class="sc-row__values">
+                                <p>{{ row.ocrValue || '—' }}</p>
+                                <p>{{ row.sourceValue || '—' }}</p>
+                            </div>
+                            <div class="sc-row__bar">
+                                <span [style.width.%]="row.percent"></span>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+}

@@ -101,7 +101,12 @@ export const appendSandboxResponseProfiles = (
 ];
 
 export const getPostmanSandboxProfileKey = (profile: PostmanSandboxProfile): string =>
-    profile.profileKey ?? profile.vin ?? profile.plate ?? profile.processNumber ?? profile.documentNumber;
+    profile.profileKey ??
+    profile.folio ??
+    profile.vin ??
+    profile.plate ??
+    profile.processNumber ??
+    profile.documentNumber;
 
 export const matchesPostmanSandboxProfile = (
     profile: PostmanSandboxProfile,

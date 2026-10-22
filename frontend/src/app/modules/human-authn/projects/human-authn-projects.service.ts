@@ -22,6 +22,8 @@ export interface HumanAuthnProject {
     _id: string;
     name: string;
     status?: string;
+    currentStep?: number;
+    lastStep?: number;
     demoMode?: boolean;
     branding?: { logo?: string };
     updatedAt?: string;

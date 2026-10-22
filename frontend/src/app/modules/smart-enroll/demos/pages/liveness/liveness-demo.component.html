@@ -1,4 +1,4 @@
-<app-demo-page-shell>
+<app-demo-page-shell sectionLink="/human-authn/demos" sectionLabelKey="nav.human_authn" demosLink="/human-authn/demos">
     <div class="flex items-center justify-center mb-10 pt-4 gap-2">
         @for (label of ['smartEnrollDemos.liveness.stepCapture', 'smartEnrollDemos.liveness.stepResult']; track label; let i = $index) {
             <div class="flex items-center">
@@ -28,6 +28,13 @@
         }
     </div>
 
+    @if (step === 'capture') {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.humanAuthn' | transloco"
+            [title]="'smartEnrollDemos.liveness.heroLivenessDefault' | transloco"
+            [subtitle]="'smartEnrollDemos.liveness.heroCapture' | transloco"
+        />
+    } @else {
     <div class="mb-10">
         <h2 class="text-4xl md:text-5xl font-black tracking-tight text-on-surface mb-2">
             @if (step === 'result' && result?.isApiError) {
@@ -56,6 +63,7 @@
             }
         </p>
     </div>
+    }
 
     @if (step === 'capture') {
         @if (error) {
@@ -64,6 +72,11 @@
                 <span class="text-sm text-on-error-container leading-5">{{ error }}</span>
             </div>
         }
+        <app-demo-stage-card
+            number="01"
+            [title]="'smartEnrollDemos.demoStage.captureTitle' | transloco"
+            [help]="'smartEnrollDemos.demoStage.captureHelp' | transloco"
+        >
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div class="lg:col-span-7 bg-surface-container-low rounded-xl p-6 relative overflow-hidden">
                 <app-demo-choose-one-callout [extraClass]="'relative z-10 mb-4'" [description]="'smartEnrollDemos.liveness.chooseOneDescription' | transloco" />
@@ -119,6 +132,7 @@
                 </div>
             </div>
         </div>
+        </app-demo-stage-card>
     }
 
     @if (step === 'processing') {
@@ -190,6 +204,7 @@
                 <app-demo-result-actions
                     [secondaryLabel]="'smartEnrollDemos.liveness.tryAgain' | transloco"
                     [primaryLabel]="'smartEnrollDemos.common.backToDemos' | transloco"
+                    primaryRouterLink="/human-authn/demos"
                     (secondary)="reset()"
                 />
             </div>

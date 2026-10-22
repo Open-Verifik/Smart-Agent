@@ -1,5 +1,6 @@
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -18,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { ApiKeyHelpModalComponent, ApiKeyHelpModalContent } from './api-key-help-modal.component';
@@ -34,11 +36,19 @@ import {
     getTokenRemainingDays,
     TokenLifecycleStatus,
 } from './api-key-expiration.util';
+import { CostCenter, UsageApiService } from 'app/core/usage/usage-api.service';
+import { environment } from 'environments/environment';
 import { SavedJsonWebToken, SettingsService } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId, getVerifikAccount } from '../utils/settings-business-user.util';
 
 type ApiKeyHelpTopic = 'overview' | 'token' | 'extend' | 'revoke';
+
+interface ProjectCostCenterRow {
+    _id: string;
+    name: string;
+    costCenter?: string | { _id?: string } | null;
+}
 
 interface TokenExpiration {
     value: number;
@@ -60,6 +70,7 @@ interface TokenExpiration {
         MatProgressSpinnerModule,
         TranslocoModule,
         ClipboardModule,
+        RouterLink,
         SettingsBusinessAccountEmptyStateComponent,
         ApiKeyHelpModalComponent,
         ApiKeyMcpSetupModalComponent,
@@ -97,6 +108,10 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
     mcpSetupOpen = false;
     mcpSetupMode: McpSetupMode = 'full';
     mcpSetupContext: McpSetupTokenContext | null = null;
+    projects: ProjectCostCenterRow[] = [];
+    activeCostCenters: CostCenter[] = [];
+    projectCostCenter: Record<string, string> = {};
+    savingProjectId: string | null = null;
     lastGeneratedTokenAlias: string | null = null;
     readonly mcpSetupEnabled = VERIFIK_MCP_FEATURE.enabled;
     private _registerInFlight = false;
@@ -152,18 +167,22 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
         private _snackBar: MatSnackBar,
         private _translocoService: TranslocoService,
         private _settingsService: SettingsService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
+        private _http: HttpClient,
+        private _usageApi: UsageApiService
     ) {}
 
     ngOnInit(): void {
         this._loadAccessToken();
         this._loadSavedTokens(true);
+        this._loadProjectDefaults();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['user']) {
             this._loadAccessToken();
             this._loadSavedTokens(true);
+            this._loadProjectDefaults();
         }
     }
 
@@ -751,6 +770,79 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         return points;
+    }
+
+    saveProjectCostCenter(projectId: string): void {
+        this.savingProjectId = projectId;
+        const costCenter = this.projectCostCenter[projectId] || null;
+
+        this._http
+            .put(
+                `${environment.apiUrl}/v2/projects/${projectId}`,
+                { costCenter },
+                { headers: { Authorization: `Bearer ${this._settingsService.accessToken}` } }
+            )
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+                next: () => {
+                    this.savingProjectId = null;
+                    this._snackBar.open(this._translocoService.translate('settings.api_key.project_cost_center_saved'), undefined, { duration: 2500 });
+                    this._cdr.markForCheck();
+                },
+                error: () => {
+                    this.savingProjectId = null;
+                    this._snackBar.open(this._translocoService.translate('settings.api_key.project_cost_center_error'), undefined, { duration: 3000 });
+                    this._cdr.markForCheck();
+                },
+            });
+    }
+
+    private _loadProjectDefaults(): void {
+        if (!this.userClientId || !this._settingsService.accessToken) {
+            this.projects = [];
+            this._cdr.markForCheck();
+
+            return;
+        }
+
+        const headers = { Authorization: `Bearer ${this._settingsService.accessToken}` };
+
+        this._http
+            .get<{ data: ProjectCostCenterRow[] }>(`${environment.apiUrl}/v2/projects`, { headers, params: { limit: '100', page: '1' } })
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.projects = response?.data || [];
+                    this.projectCostCenter = Object.fromEntries(this.projects.map((project) => [project._id, this._costCenterId(project)]));
+                    this._cdr.markForCheck();
+                },
+                error: () => {
+                    this.projects = [];
+                    this._cdr.markForCheck();
+                },
+            });
+
+        this._usageApi
+            .listCostCenters(false)
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+                next: (centers) => {
+                    this.activeCostCenters = centers;
+                    this._cdr.markForCheck();
+                },
+                error: () => {
+                    this.activeCostCenters = [];
+                    this._cdr.markForCheck();
+                },
+            });
+    }
+
+    private _costCenterId(project: ProjectCostCenterRow): string {
+        const value = project.costCenter;
+
+        if (!value) return '';
+
+        return typeof value === 'string' ? value : value._id || '';
     }
 
     private _translateOptional(key: string): string | null {

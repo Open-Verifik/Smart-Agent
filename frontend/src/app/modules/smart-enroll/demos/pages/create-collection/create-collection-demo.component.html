@@ -1,25 +1,41 @@
 <app-demo-page-shell>
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.createCollection.heroTitleResult' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.createCollection.heroTitleForm' | transloco }}
-            }
-        </h2>
-        <p class="text-on-surface-variant">
-            @if (step === 'result') {
-                {{ 'smartEnrollDemos.createCollection.heroSubtitleResult' | transloco }}
-            } @else {
-                {{ 'smartEnrollDemos.createCollection.heroSubtitleForm' | transloco }}
-            }
-        </p>
-    </div>
+    @if (step === 'form' && authChecked) {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.enroll' | transloco"
+            [title]="'smartEnrollDemos.createCollection.heroTitleForm' | transloco"
+            [subtitle]="'smartEnrollDemos.createCollection.heroSubtitleForm' | transloco"
+            [chipLabel]="'smartEnrollDemos.demoStage.collectionTitle' | transloco"
+            [chipValue]="name || ('smartEnrollDemos.demoStage.notSet' | transloco)"
+        />
+    } @else {
+        <div class="mb-8">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.createCollection.heroTitleResult' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.createCollection.heroTitleForm' | transloco }}
+                }
+            </h2>
+            <p class="text-on-surface-variant">
+                @if (step === 'result') {
+                    {{ 'smartEnrollDemos.createCollection.heroSubtitleResult' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.createCollection.heroSubtitleForm' | transloco }}
+                }
+            </p>
+        </div>
+    }
 
     @if (!authChecked) {
         <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else if (step === 'form') {
         <form (ngSubmit)="handleSubmit()" class="space-y-5">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.collectionTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.collectionHelp' | transloco"
+            >
+            <div class="space-y-5">
             <div>
                 <label class="block text-sm font-semibold text-on-surface mb-1.5" for="col-name">
                     {{ 'smartEnrollDemos.createCollection.nameLabel' | transloco }}
@@ -48,6 +64,8 @@
                     class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60 transition-colors resize-none"
                 ></textarea>
             </div>
+            </div>
+            </app-demo-stage-card>
             @if (error) {
                 <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
                     <span class="material-symbols-outlined text-sm">error_outline</span>

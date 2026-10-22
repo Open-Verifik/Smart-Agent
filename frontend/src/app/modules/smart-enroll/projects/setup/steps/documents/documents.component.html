@@ -383,6 +383,19 @@
                                         </div>
                                     }
                                 }
+
+                                @if (stepFormControlName === 'document' && formGroup?.get('colombianBarcodeValidation')) {
+                                    <div class="setting-row">
+                                        <div class="setting-row__copy">
+                                            <mat-icon>qr_code_scanner</mat-icon>
+                                            <div>
+                                                <strong>{{ t('smartEnrollProjects.setup.documents.colombianBarcode.title') }}</strong>
+                                                <span>{{ t('smartEnrollProjects.setup.documents.colombianBarcode.subtitle') }}</span>
+                                            </div>
+                                        </div>
+                                        <mat-slide-toggle formControlName="colombianBarcodeValidation"></mat-slide-toggle>
+                                    </div>
+                                }
                             </div>
                         }
                     </section>

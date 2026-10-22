@@ -12,6 +12,8 @@ export interface PostmanSandboxProfile {
     plate?: string;
     /** Path/query param for VIN-only vehicle endpoints. */
     vin?: string;
+    /** Query param for folio-only certificate endpoints. */
+    folio?: string;
     /** When set, profile triggers a documented error response (or middleware validation). */
     responseType?: 'success' | 'error';
     expectedStatus?: number;
@@ -33,6 +35,8 @@ export interface PostmanSandboxEndpointConfig {
     defaultState?: string;
     /** Default VIN when endpoint uses vin query/path param only. */
     defaultVin?: string;
+    /** Default folio when endpoint uses folio query param only. */
+    defaultFolio?: string;
     /** Per endpoint code, default documentType when that param exists on the endpoint. */
     documentTypeByCode?: Record<string, string>;
     /** Default expeditionDate when endpoint requires it (e.g. CE foreigner-id). */

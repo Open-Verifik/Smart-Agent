@@ -12,7 +12,7 @@ import {
     throwError,
 } from 'rxjs';
 
-export type QuickChatTab = 'notifications' | 'tickets';
+export type QuickChatTab = 'tickets';
 
 export interface QuickChatOpenRequest {
     tab?: QuickChatTab;
@@ -37,7 +37,7 @@ export class QuickChatService {
         return this._chats.asObservable();
     }
 
-    /** Open the messages hub (notifications and/or support tab). */
+    /** Open the support drawer. */
     requestOpenPanel(options?: QuickChatOpenRequest): void {
         this._openPanel$.next(options ?? {});
     }

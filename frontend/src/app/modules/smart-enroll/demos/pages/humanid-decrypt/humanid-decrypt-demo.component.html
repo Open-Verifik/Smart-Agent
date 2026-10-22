@@ -1,15 +1,29 @@
-<app-demo-page-shell>
-    <div class="mb-8 mt-6">
-        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
-            {{ (step === 'result' ? 'smartEnrollDemos.humanidDecrypt.heroTitleResult' : 'smartEnrollDemos.humanidDecrypt.heroTitle') | transloco }}
-        </h2>
-        <p class="text-on-surface-variant">{{ 'smartEnrollDemos.humanidDecrypt.heroSubtitle' | transloco }}</p>
-    </div>
+<app-demo-page-shell sectionLink="/human-authn/demos" sectionLabelKey="nav.human_authn" demosLink="/human-authn/demos">
+    @if (step === 'form' && authChecked) {
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.humanAuthn' | transloco"
+            [title]="'smartEnrollDemos.humanidDecrypt.heroTitle' | transloco"
+            [subtitle]="'smartEnrollDemos.humanidDecrypt.heroSubtitle' | transloco"
+        />
+    } @else {
+        <div class="mb-8 mt-6">
+            <h2 class="mb-2 text-3xl font-black tracking-tight text-on-surface">
+                {{ (step === 'result' ? 'smartEnrollDemos.humanidDecrypt.heroTitleResult' : 'smartEnrollDemos.humanidDecrypt.heroTitle') | transloco }}
+            </h2>
+            <p class="text-on-surface-variant">{{ 'smartEnrollDemos.humanidDecrypt.heroSubtitle' | transloco }}</p>
+        </div>
+    }
 
     @if (!authChecked) {
         <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else if (step === 'form') {
-        <form class="space-y-5" (submit)="submit($event)">
+        <form class="grid grid-cols-1 items-start gap-5 xl:grid-cols-2" (submit)="submit($event)">
+            <app-demo-stage-card
+                number="01"
+                [title]="'smartEnrollDemos.demoStage.proofTitle' | transloco"
+                [help]="'smartEnrollDemos.demoStage.proofHelp' | transloco"
+            >
+            <div class="space-y-5">
             <div>
                 <p class="block text-sm font-semibold text-on-surface mb-2">{{ 'smartEnrollDemos.humanidDecrypt.humanIdModeLabel' | transloco }}</p>
                 <div class="flex rounded-xl p-1 bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/60 gap-1.5">
@@ -60,7 +74,15 @@
                 <label class="block text-sm font-semibold text-on-surface mb-1.5" for="dec-pw">{{ 'smartEnrollDemos.humanidDecrypt.passwordOptional' | transloco }}</label>
                 <input id="dec-pw" type="text" [(ngModel)]="password" name="password" [placeholder]="'smartEnrollDemos.humanidDecrypt.passwordPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/60" />
             </div>
+            </div>
+            </app-demo-stage-card>
 
+            <app-demo-stage-card
+                number="02"
+                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
+            >
+            <div class="space-y-5">
             <div>
                 <p class="block text-sm font-semibold text-on-surface mb-2">{{ 'smartEnrollDemos.humanidDecrypt.faceImageLabel' | transloco }} <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span></p>
                 @if (!faceB64) {
@@ -76,6 +98,8 @@
                     <button type="button" (click)="clearFace()" class="text-sm text-primary underline">{{ 'smartEnrollDemos.humanidDecrypt.changeFaceImage' | transloco }}</button>
                 }
             </div>
+            </div>
+            </app-demo-stage-card>
 
             @if (error) {
                 <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg text-sm text-error">{{ error }}</div>
@@ -84,7 +108,7 @@
                 <div class="px-4 py-3 bg-primary/10 border border-primary/20 rounded-lg text-sm text-primary">{{ qrExtractMessage }}</div>
             }
 
-            <button type="submit" [disabled]="!canDecrypt" class="demo-btn-primary">{{ 'smartEnrollDemos.humanidDecrypt.decryptCta' | transloco }}</button>
+            <button type="submit" [disabled]="!canDecrypt" class="demo-btn-primary xl:col-span-2">{{ 'smartEnrollDemos.humanidDecrypt.decryptCta' | transloco }}</button>
         </form>
     } @else if (step === 'processing') {
         <div class="flex flex-col items-center justify-center py-20 gap-4">

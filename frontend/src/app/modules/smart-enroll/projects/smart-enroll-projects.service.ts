@@ -62,13 +62,13 @@ const CLIENT_LIST_PARAMS: Record<string, string | string[]> = {
     with: ['projectFlows'],
     sort: '-updatedAt',
     populates: ['projectMembers', 'projectMembers.staff', 'client'],
-    select: '_id name client projectFlows branding projectMembers demoMode demoOTP version updatedAt createdAt',
+    select: '_id name client projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
 };
 
 const STAFF_LIST_PARAMS: Record<string, string | string[]> = {
     with: ['projectFlows'],
     populates: ['projectMembers', 'projectMembers.staff'],
-    select: '_id name client projectFlows branding projectMembers demoMode demoOTP updatedAt createdAt',
+    select: '_id name client projectFlows branding projectMembers demoMode demoOTP currentStep lastStep status updatedAt createdAt',
 };
 
 @Injectable({ providedIn: 'root' })

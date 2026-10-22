@@ -155,13 +155,7 @@
                             <label class="text-sm font-semibold text-stone-950 dark:text-white" for="person-nationality">
                                 {{ t('smartEnrollPeople.nationality') }}
                             </label>
-                            <input
-                                id="person-nationality"
-                                type="text"
-                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950/50"
-                                formControlName="nationality"
-                                [placeholder]="t('smartEnrollPeople.nationalityPlaceholder')"
-                            />
+                            <app-nationality-select inputId="person-nationality" variant="dialog" formControlName="nationality" />
                         </div>
 
                         @if (isCreateMode) {

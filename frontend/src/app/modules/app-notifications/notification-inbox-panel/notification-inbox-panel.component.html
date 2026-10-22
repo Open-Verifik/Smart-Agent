@@ -204,8 +204,14 @@
                     </div>
 
                     <div
-                        class="border-divider flex flex-0 flex-wrap items-center gap-2 border-t p-3"
+                        class="border-divider flex flex-0 flex-col gap-2 border-t p-3"
                     >
+                        @if (actionError()) {
+                            <p class="text-sm text-red-600 dark:text-red-400" role="alert">
+                                {{ actionError()! | transloco }}
+                            </p>
+                        }
+                        <div class="flex flex-wrap items-center gap-2">
                         @if (showCta(item)) {
                             <button
                                 mat-stroked-button
@@ -239,6 +245,7 @@
                                 {{ 'appNotifications.inbox.actions.dismiss' | transloco }}
                             </button>
                         }
+                        </div>
                     </div>
                 }
             </div>

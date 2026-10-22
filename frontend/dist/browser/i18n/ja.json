@@ -1210,6 +1210,20 @@
         "banners": {
             "dismissAria": "バナーを閉じる"
         },
+        "bell": {
+            "title": "通知",
+            "markAll": "すべて既読にする",
+            "aria": "通知",
+            "ariaCount": "通知、未読 {{count}} 件",
+            "empty": "すべて確認済みです",
+            "loading": "読み込み中…",
+            "justNow": "たった今",
+            "minutes": "{{count}}分",
+            "hours": "{{count}}時間",
+            "days": "{{count}}日",
+            "dismissAria": "通知を閉じる",
+            "closeImage": "画像を閉じる"
+        },
         "inbox": {
             "guest": {
                 "title": "通知を表示するにはサインインしてください",
@@ -1256,6 +1270,34 @@
         }
     },
     "home": {
+        "usageGlobe": {
+            "title": "リクエストの発生元",
+            "subtitle": "{{countries}} か国、{{total}} 件のリクエスト",
+            "subtitleUnscoped": "国に属さないサービスへのリクエスト {{total}} 件",
+            "rangeLabel": "期間",
+            "ranges": {
+                "today": "今日",
+                "week": "今週",
+                "month": "今月",
+                "previousMonth": "先月",
+                "year": "今年"
+            },
+            "loading": "利用状況を地図に描いています…",
+            "error": "利用状況マップを読み込めませんでした。しばらくしてからもう一度お試しください。",
+            "emptySubtitle": "最初のリクエストが地図を灯します",
+            "emptyTitle": "この期間にリクエストはありません",
+            "emptyBody": "Postman またはバックエンドから照会すると、照会した国がここに表示されます。",
+            "emptyCta": "API を試す",
+            "sourceCredits": "請求データ",
+            "sourceCreditsHint": "この期間のリクエストログがないため、合計は請求済みクレジットから算出しています。",
+            "openReport": "利用レポートを開く",
+            "globeLabel": "国別のリクエスト量を示す地球",
+            "countries": "上位の国",
+            "topServices": "上位のサービス",
+            "failedShare": "{{rate}}% 失敗",
+            "global": "国に属さない",
+            "globalHint": "メール OTP、SMS、Smart Enroll など、特定の国の照会ではない API です。"
+        },
         "notifications": {
             "openFromEmail": "通知を開いています…"
         },
@@ -1553,6 +1595,52 @@
             "unsavedChanges": "未保存の変更",
             "unsavedChangesMessage": "保存せずにこのステップを離れますか？",
             "exitWithoutSaving": "保存せずに離れる",
+            "draft_name": "無題のプロジェクト",
+            "continue_setup": "設定を続ける",
+            "leave": {
+                "chooseTitle": "操作を選択",
+                "chooseHelp": "この選択で、プロジェクトを下書きのままにするかが決まります。",
+                "howTitle": "仕組み",
+                "howHelp": "選択は残す内容を変えます。完了済みの手順は変わりません。",
+                "recommended": "推奨",
+                "selectedPath": "選択した経路",
+                "flowEntered": "入力済み",
+                "options": {
+                    "save": {
+                        "title": "保存して終了",
+                        "body": "ここまでに入力した内容を保存して、このモジュールを離れます。",
+                        "benefit1": "進捗が残ります",
+                        "benefit2": "プロジェクトは下書きのままです",
+                        "benefit3": "この手順から再開できます",
+                        "howTitle": "下書きとして保存",
+                        "howBody": "入力済みの項目を保存し、プロジェクトを未完了として扱います。",
+                        "result": "プロジェクトを開き直すと、同じ内容を再入力せずに続けられます。",
+                        "flowOutcome": "下書きを保存"
+                    },
+                    "discard": {
+                        "title": "保存せずに離れる",
+                        "body": "今すぐ離れ、まだ保存していない変更を破棄します。",
+                        "benefit1": "未保存の変更は破棄されます",
+                        "benefit2": "以前の保存内容はそのままです",
+                        "benefit3": "このモジュールを離れます",
+                        "howTitle": "未保存の変更を破棄",
+                        "howBody": "まだ保存していない情報だけが破棄されます。",
+                        "result": "すでに保存したプロジェクトは引き続き利用できます。",
+                        "flowOutcome": "変更を破棄"
+                    },
+                    "cancel": {
+                        "title": "キャンセル",
+                        "body": "この手順に残り、編集を続けます。",
+                        "benefit1": "ウィザードに残ります",
+                        "benefit2": "何も破棄されません",
+                        "benefit3": "新しい内容はまだ保存されません",
+                        "howTitle": "設定に残る",
+                        "howBody": "編集中の手順のままウィザードを開いておきます。",
+                        "result": "フォームの入力を続けられます。",
+                        "flowOutcome": "ここに残る"
+                    }
+                }
+            },
             "steps": {
                 "basic": "プロジェクト詳細",
                 "signup": "登録フォーム",
@@ -2128,6 +2216,19 @@
     "network": {
         "title": "ステータスチェック",
         "subtitle": "リアルタイムAPIパフォーマンスと稼働時間監視",
+        "availability": {
+            "title": "月間の可用性",
+            "subtitle": "暦月（UTC）ごとに、SmartCheck のリクエストのうちサービスが応答した割合です。目標は {{target}}% です。",
+            "monthsMet": "確定した {{total}} か月のうち {{met}} か月が目標達成",
+            "targetLine": "目標 {{target}}%",
+            "partial": "進行中",
+            "barTooltip": "{{ok}} 件応答 · サービス失敗 {{failed}} 件 · クライアントエラー {{excluded}} 件は除外",
+            "belowTarget": "直近の月は目標を下回っています",
+            "empty": "過去 6 か月に SmartCheck のリクエストはまだありません。",
+            "error": "可用性を取得できません。後でもう一度お試しください。",
+            "footnote": "無効な入力や記録なしなどのクライアントエラーは可用性に数えません。",
+            "docs": "測定方法"
+        },
         "uptime_history": "稼働履歴",
         "response_time": "レスポンスタイム",
         "status": "ステータス",
@@ -3215,6 +3316,26 @@
             "backScan": "裏面",
             "documentFace": "顔写真",
             "documentLiveness": "書類のライブネス",
+            "barcode": {
+                "title": "裏面のバーコード",
+                "attempts": "読み取り試行 {{count}} 回",
+                "unreadableWarning": "登録は完了できます。裏面のバーコードを読めなかったため、これは警告として残ります。",
+                "mismatchLead": "裏面のバーコードが表面と一致しません。書類が改ざんされた可能性があります。",
+                "verdict": {
+                    "confirmed": "表面と一致",
+                    "mismatch": "改ざんの可能性",
+                    "unreadable": "裏面は未確認"
+                },
+                "field": {
+                    "fullName": "バーコードの氏名",
+                    "documentNumber": "書類番号",
+                    "dateOfBirth": "生年月日",
+                    "gender": "性別",
+                    "bloodType": "血液型",
+                    "firstName": "名",
+                    "lastName": "姓"
+                }
+            },
             "livenessPassed": "合格",
             "livenessFailed": "不合格",
             "ocr": "抽出データ",
@@ -3609,6 +3730,52 @@
             "unsaved_changes": "未保存の変更",
             "unsaved_changes_message": "保存せずに移動しますか？",
             "exit_without_saving": "保存せずに退出",
+            "draft_name": "無題のプロジェクト",
+            "continue_setup": "設定を続ける",
+            "leave": {
+                "chooseTitle": "操作を選択",
+                "chooseHelp": "この選択で、プロジェクトを下書きのままにするかが決まります。",
+                "howTitle": "仕組み",
+                "howHelp": "選択は残す内容を変えます。完了済みの手順は変わりません。",
+                "recommended": "推奨",
+                "selectedPath": "選択した経路",
+                "flowEntered": "入力済み",
+                "options": {
+                    "save": {
+                        "title": "保存して終了",
+                        "body": "ここまでに入力した内容を保存して、このモジュールを離れます。",
+                        "benefit1": "進捗が残ります",
+                        "benefit2": "プロジェクトは下書きのままです",
+                        "benefit3": "この手順から再開できます",
+                        "howTitle": "下書きとして保存",
+                        "howBody": "入力済みの項目を保存し、プロジェクトを未完了として扱います。",
+                        "result": "プロジェクトを開き直すと、同じ内容を再入力せずに続けられます。",
+                        "flowOutcome": "下書きを保存"
+                    },
+                    "discard": {
+                        "title": "保存せずに離れる",
+                        "body": "今すぐ離れ、まだ保存していない変更を破棄します。",
+                        "benefit1": "未保存の変更は破棄されます",
+                        "benefit2": "以前の保存内容はそのままです",
+                        "benefit3": "このモジュールを離れます",
+                        "howTitle": "未保存の変更を破棄",
+                        "howBody": "まだ保存していない情報だけが破棄されます。",
+                        "result": "すでに保存したプロジェクトは引き続き利用できます。",
+                        "flowOutcome": "変更を破棄"
+                    },
+                    "cancel": {
+                        "title": "キャンセル",
+                        "body": "この手順に残り、編集を続けます。",
+                        "benefit1": "ウィザードに残ります",
+                        "benefit2": "何も破棄されません",
+                        "benefit3": "新しい内容はまだ保存されません",
+                        "howTitle": "設定に残る",
+                        "howBody": "編集中の手順のままウィザードを開いておきます。",
+                        "result": "フォームの入力を続けられます。",
+                        "flowOutcome": "ここに残る"
+                    }
+                }
+            },
             "stub": {
                 "title": "ステップ",
                 "placeholder": "このステップはウィザードの今後のフェーズで接続されます。"
@@ -4253,6 +4420,52 @@
             "unsaved_changes": "未保存の変更",
             "unsaved_changes_message": "未保存の変更があります。保存せずに離れますか？",
             "exit_without_saving": "保存せずに離れる",
+            "draft_name": "無題のプロジェクト",
+            "continue_setup": "設定を続ける",
+            "leave": {
+                "chooseTitle": "操作を選択",
+                "chooseHelp": "この選択で、プロジェクトを下書きのままにするかが決まります。",
+                "howTitle": "仕組み",
+                "howHelp": "選択は残す内容を変えます。完了済みの手順は変わりません。",
+                "recommended": "推奨",
+                "selectedPath": "選択した経路",
+                "flowEntered": "入力済み",
+                "options": {
+                    "save": {
+                        "title": "保存して終了",
+                        "body": "ここまでに入力した内容を保存して、このモジュールを離れます。",
+                        "benefit1": "進捗が残ります",
+                        "benefit2": "プロジェクトは下書きのままです",
+                        "benefit3": "この手順から再開できます",
+                        "howTitle": "下書きとして保存",
+                        "howBody": "入力済みの項目を保存し、プロジェクトを未完了として扱います。",
+                        "result": "プロジェクトを開き直すと、同じ内容を再入力せずに続けられます。",
+                        "flowOutcome": "下書きを保存"
+                    },
+                    "discard": {
+                        "title": "保存せずに離れる",
+                        "body": "今すぐ離れ、まだ保存していない変更を破棄します。",
+                        "benefit1": "未保存の変更は破棄されます",
+                        "benefit2": "以前の保存内容はそのままです",
+                        "benefit3": "このモジュールを離れます",
+                        "howTitle": "未保存の変更を破棄",
+                        "howBody": "まだ保存していない情報だけが破棄されます。",
+                        "result": "すでに保存したプロジェクトは引き続き利用できます。",
+                        "flowOutcome": "変更を破棄"
+                    },
+                    "cancel": {
+                        "title": "キャンセル",
+                        "body": "この手順に残り、編集を続けます。",
+                        "benefit1": "ウィザードに残ります",
+                        "benefit2": "何も破棄されません",
+                        "benefit3": "新しい内容はまだ保存されません",
+                        "howTitle": "設定に残る",
+                        "howBody": "編集中の手順のままウィザードを開いておきます。",
+                        "result": "フォームの入力を続けられます。",
+                        "flowOutcome": "ここに残る"
+                    }
+                }
+            },
             "steps": {
                 "basic": "基本情報",
                 "login_methods": "ログイン方法",
@@ -4470,6 +4683,81 @@
     "settings": {
         "title": "設定",
         "subtitle": "アカウントと設定を管理",
+        "costCenters": {
+            "title": "コストセンター",
+            "subtitle": "チーム、国、または事業単位で各リクエストをタグ付けし、利用と請求を分けます。",
+            "add": "新しいコストセンター",
+            "createTitle": "新しいコストセンター",
+            "editTitle": "コストセンターを編集",
+            "name": "名前",
+            "code": "コード",
+            "codeHint": "文字、数字、ドット、ハイフン、アンダースコア。ヘッダーで送る値です。",
+            "codeInvalid": "文字、数字、ドット、ハイフン、アンダースコアだけを使ってください。",
+            "codeTaken": "別のコストセンターがこのコードを使っています。",
+            "country": "この国の既定",
+            "status": "状態",
+            "active": "有効",
+            "inactive": "無効",
+            "edit": "編集",
+            "deactivate": "無効化",
+            "reactivate": "再有効化",
+            "cancel": "キャンセル",
+            "save": "保存",
+            "saving": "保存しています…",
+            "emptyTitle": "コストセンターはまだありません",
+            "emptyBody": "チームまたは国ごとに作成し、リクエストと一緒にコードを送ってください。",
+            "howTitle": "リクエストへの割り当て方",
+            "howHeader": "x-cost-center ヘッダーにコードを送ります。他のどのルールよりも優先されます。",
+            "howCountry": "ヘッダーがない場合、API トークンのセンター、次にリクエストの国のセンターが使われます。",
+            "howNone": "どれにも当てはまらないリクエストは未設定のまま、利用レポートには表示されます。",
+            "copyHeader": "例をコピー",
+            "copied": "コピーしました",
+            "docs": "ドキュメントを見る",
+            "loadError": "コストセンターを読み込めませんでした。",
+            "saveError": "コストセンターを保存できませんでした。もう一度お試しください。",
+            "created": "コストセンターを作成しました",
+            "updated": "コストセンターを更新しました",
+            "deactivated": "コストセンターを無効にしました",
+            "reactivated": "コストセンターを再度有効にしました",
+            "modalEyebrow": "グローバル運用",
+            "modalLead": "国やチームごとにラベルを付け、以降のリクエストを分けます。",
+            "whyTitle": "作る理由",
+            "whyBody": "複数の国で運用している場合、各リクエストにその運用を載せられます。",
+            "whyCountry": "国やチームごとに 1 つ。例: スペイン運用。",
+            "whySplit": "利用と請求が、その運用をアカウントの残りから分けます。",
+            "whyAssign": "以降のリクエストは x-cost-center ヘッダー、トークンの既定値、またはその国の有効なセンター 1 つから受け取ります。",
+            "editWhyTitle": "変更すると",
+            "editNote": "保存はそれ以降のリクエストだけに影響します。すでに刻まれた履歴は当時のセンターのままです。",
+            "countryInvalid": "一覧から国を選んでください。",
+            "countryNone": "一致する国がありません。",
+            "signInHint": "メールまたは電話でサインインしてコストセンターを管理します。"
+        },
+        "usageReport": {
+            "title": "利用レポート",
+            "subtitle": "選んだ期間のリクエストと費用です。表示や CSV の書き出しにクレジットはかかりません。",
+            "downloadCsv": "CSV をダウンロード",
+            "exporting": "書き出しています…",
+            "exportError": "CSV を書き出せませんでした。もう一度お試しください。",
+            "groupBy": "グループ",
+            "group": { "month": "月", "day": "日", "country": "国", "costCenter": "コストセンター", "endpoint": "エンドポイント" },
+            "range": "期間",
+            "ranges": { "last_30_days": "過去 30 日", "this_month": "今月", "last_month": "先月", "last_3_months": "過去 3 か月", "last_12_months": "過去 12 か月" },
+            "costCenter": "コストセンター",
+            "allCostCenters": "すべてのコストセンター",
+            "noCostCenter": "コストセンターなし",
+            "sourceCredits": "この期間のリクエストログがないため、成功数と費用は請求済みクレジットから算出しています。リクエスト単位の明細は限られます。",
+            "sourceCreditsAndFailures": "成功数と費用は請求済みクレジットから、失敗はリクエストログからです。リクエスト単位の明細は限られます。",
+            "loadError": "利用レポートを読み込めませんでした。",
+            "total": "リクエスト",
+            "ok": "成功",
+            "failed": "失敗",
+            "timedOut": "タイムアウト",
+            "cost": "費用（USD）",
+            "empty": "この期間にリクエストはありません。",
+            "footnote": "費用は成功したリクエストだけを数えます。日付は UTC です。",
+            "docs": "利用 API ドキュメント",
+            "signInHint": "メールまたは電話でサインインして利用レポートを見ます。"
+        },
         "coming_soon": "近日公開",
         "coming_soon_title": "近日公開",
         "coming_soon_desc": "この機能は現在開発中です。更新情報については後で確認してください！",
@@ -4501,7 +4789,11 @@
             "notifications": "通知",
             "notifications_desc": "メールとパネルの通知設定",
             "usage_history": "利用履歴",
-            "usage_history_desc": "API 消費とクレジット支出を追跡"
+            "usage_history_desc": "API 消費とクレジット支出を追跡",
+            "usage_report": "利用レポート",
+            "usage_report_desc": "月、国、コストセンター、エンドポイント別のリクエストと費用。CSV 書き出し付き",
+            "cost_centers": "コストセンター",
+            "cost_centers_desc": "チームまたは国でリクエストをタグ付けし、利用と請求を分ける"
         },
         "profile": {
             "title": "プロフィール設定",
@@ -4679,6 +4971,17 @@
             "need_help": "API統合のヘルプが必要ですか？",
             "docs_description": "APIトークンの使用方法を学び、ドキュメントを探索してください。",
             "view_docs": "ドキュメントを表示",
+            "cost_center_title": "コストセンターで利用を分ける",
+            "cost_center_body": "任意のリクエストにこのヘッダーを付けると、そのコストセンターに計上されます。付けない場合はトークンまたは国のセンターに戻ります。",
+            "cost_center_manage": "コストセンターを管理",
+            "project_cost_center_title": "プロジェクトごとの既定コストセンター",
+            "project_cost_center_body": "プロジェクトのトークンを使い、x-cost-center を送らないリクエストはこのセンターを使います。",
+            "project_cost_center_none": "既定なし",
+            "project_cost_center_empty": "プロジェクトはまだありません。",
+            "project_cost_center_save": "保存",
+            "project_cost_center_saving": "保存しています…",
+            "project_cost_center_saved": "プロジェクトの既定を保存しました",
+            "project_cost_center_error": "プロジェクトの既定を保存できませんでした。もう一度お試しください。",
             "help_label": "詳細を見る",
             "help_close": "了解",
             "how_it_works_title": "仕組み",
@@ -4886,6 +5189,10 @@
             "workspace_name_desc": "これはチームに表示される公開ワークスペース名です。",
             "name_label": "名前",
             "name_placeholder": "ワークスペース名を入力",
+            "support_timezone": "サポートのタイムゾーン",
+            "support_timezone_desc": "クリティカルチケットの期限はこのタイムゾーンで表示されます。アカウント全体に適用されます。",
+            "support_timezone_saved": "サポートのタイムゾーンを保存しました",
+            "support_timezone_error": "サポートのタイムゾーンを保存できませんでした。もう一度お試しください。",
             "update": "更新",
             "create": "作成",
             "saving": "保存中...",
@@ -5125,6 +5432,12 @@
             "splitVertical": "垂直分割",
             "splitHorizontal": "水平分割"
         },
+        "flags": {
+            "pin": "{{country}}をピン留め",
+            "unpin": "{{country}}のピンを外す",
+            "scrollLeft": "前の国を表示",
+            "scrollRight": "ほかの国を表示"
+        },
         "sidebar": {
             "title": "APIエクスプローラー",
             "search": "エンドポイントを検索...",
@@ -5133,6 +5446,9 @@
             "collapse": "サイドバーを折りたたむ",
             "expand": "サイドバーを展開",
             "library": "ライブラリ",
+            "pinned": "ピン留め",
+            "pinEndpoint": "{{name}}をピン留め",
+            "unpinEndpoint": "{{name}}のピンを外す",
             "layoutActions": "フォルダ",
             "newFolder": "新規フォルダ",
             "newFolderTitle": "新規フォルダ",
@@ -5204,6 +5520,10 @@
                 "otherParameters": "その他のパラメータ",
                 "requiredFieldLegend": "* 必須項目",
                 "includeCostDescription": "true の場合、レスポンスにクレジット情報ブロック（credits, creditsCharged, charged, featureCode）が含まれます。省略するには false にするか、この行を削除してください。",
+                "mexicoLicenseDocumentTypeCurpDescription": "この検索グループでは CURP に固定されます。",
+                "mexicoLicenseDocumentTypeCedulaDescription": "この検索グループでは免許番号タイプに固定されます。",
+                "mexicoLicenseCurpNumberDescription": "18 文字の CURP。",
+                "mexicoLicenseCedulaNumberDescription": "専門免許番号。",
                 "pickValue": "[{{values}}] から値を選択してください",
                 "sexoFemale": "女性（FEMENINO）",
                 "sexoMale": "男性（MASCULINO）"
@@ -5256,7 +5576,8 @@
                 "invalidEnum": "「{{field}}」の値「{{value}}」は無効です。次が期待されます：{{expected}}。",
                 "invalidJsonBody": "本文は有効なJSONである必要があります。",
                 "pathSegmentRequired": "URLパスの「{{segment}}」セグメントが必須です。",
-                "groupedModesBodyWithSerial": "使い方は1つだけにしてください。氏名で検索するか、書類番号で検索するか（必要な場合は性別も）、民事登録のシリアル番号で検索します。同じリクエストで方式を混ぜないでください。"
+                "groupedModesBodyWithSerial": "使い方は1つだけにしてください。氏名で検索するか、書類番号で検索するか（必要な場合は性別も）、民事登録のシリアル番号で検索します。同じリクエストで方式を混ぜないでください。",
+                "mexicoLicenseModesBody": "グループは1つだけ使用してください。CURPと書類番号、免許番号と書類種別、または書類フィールドなしの名と姓です。同じリクエストでグループを混在させないでください。"
             },
             "sandboxProfiles": {
                 "title": "Sandboxテストプロフィール",
@@ -5588,11 +5909,16 @@
         "statusPending": "未応答",
         "filterService": "サービス",
         "filterServiceAll": "すべてのサービス",
+        "filterCountry": "国",
+        "filterCountryAll": "すべての国",
+        "filterCostCenter": "コストセンター",
+        "filterCostCenterAll": "すべてのコストセンター",
         "filterDateAll": "全期間",
         "filterDateToday": "今日",
         "filterDateThisWeek": "今週",
         "filterDateThisMonth": "今月",
-        "filterDateCustom": "カスタム",
+        "filterDateLastMonth": "先月",
+        "filterDateCustom": "日付を指定",
         "dateRange": "期間",
         "dateStart": "開始",
         "dateEnd": "終了",
@@ -5936,17 +6262,12 @@
         "customDesc": "お客様のニーズに合わせて",
         "billedAnnually": "年間一括払い",
         "currentPlan": "現在のプラン",
-        "notOptimalForVolume": "ご利用量には最適ではありません",
-        "notOptimalHint": "別のプランの方がご利用に合っています。",
-        "notOptimalCta": "最適ではありません",
         "addCredits": "クレジット追加",
         "contactSales": "営業に連絡",
         "selectPlan": "プランを選択",
         "upgrade": "アップグレード",
         "downgrade": "ダウングレード",
         "backToCurrentPlan": "現在のプランに戻る",
-        "off": "オフ",
-        "discountDescription": "すべてのAPIリクエストに適用",
         "interval": {
             "month": "月",
             "year": "年"
@@ -5993,8 +6314,6 @@
             "requestsPerYear": "リクエスト/年",
             "perRequest": "リクエストあたり",
             "monthlySpend": "推定月額支出",
-            "bestValue": "ご利用量に最適なプラン",
-            "basePrice": "基本料金: $0.30/リクエスト — プランの割引でコスト削減",
             "estimatedTotal": "お支払い"
         },
         "estimator": {
@@ -6004,8 +6323,32 @@
             "budgetLabel": "目標支出はいくらですか？",
             "budgetPlaceholder": "例: 1000",
             "referenceLabel": "プランに合わせる：",
-            "resolvedRequests": "推定ボリューム",
-            "closestFor": "{{plan}} で最も近い合計"
+            "closestFor": "{{plan}} で最も近い合計",
+            "usageBaseline": "過去{{months}}か月の実績: 約{{requests}}リクエスト/月",
+            "resetToUsage": "実際の利用量に戻す"
+        },
+        "zones": {
+            "label": "月間ボリューム別のおすすめプラン",
+            "tooltip": "{{plan}}: {{from}} – {{to}}"
+        },
+        "verdict": {
+            "label": "ご利用量におすすめ",
+            "fits": "— 約{{requests}} {{unit}}の場合の料金:",
+            "savesVs": "{{plan}}と比べて${{amount}}/{{interval}}お得です。",
+            "headroom": "約{{requests}} {{unit}}までは最適です。それを超えると{{plan}}の方が安くなります。"
+        },
+        "card": {
+            "recommended": "おすすめ",
+            "includes": "約{{requests}}リクエスト/月を含む",
+            "pricePerRequestHint": "このプランの割引適用後のSmartCheck平均単価です（基本 $0.30/リクエスト）。正確な料金はAPIごとに異なります。「API料金を比較」をご覧ください。",
+            "lowestForVolume": "ご利用量に最適",
+            "deltaVsBest": "{{plan}}より+${{amount}}/{{interval}}",
+            "avgPerRequest": "1リクエストあたりの実質単価",
+            "avgPerRequestHint": "推定合計を月{{requests}}リクエストで割った金額です（プラン割引適用済み）。",
+            "ratePerRequest": "リクエスト単価",
+            "includedRequests": "約{{requests}}リクエスト/月を含む",
+            "extraRate": "追加リクエストは1件${{price}}",
+            "rateDiscountHint": "基本単価${{base}}/リクエストより{{percent}}%お得"
         },
         "apiBreakdown": {
             "button": "API価格を比較",
@@ -6960,6 +7303,12 @@
         }
     },
     "supportTickets": {
+        "priority": {
+            "low": "低",
+            "normal": "通常",
+            "high": "高",
+            "critical": "クリティカル"
+        },
         "quickChat": {
             "headerTitle": "サポートチケット",
             "guest": {
@@ -7010,6 +7359,11 @@
             },
             "newTicket": {
                 "heading": "新規サポートチケット",
+                "priority": "優先度",
+                "priorityHint": "本番のトラフィックが止まっているときだけクリティカルを使ってください。",
+                "criticalSlaTitle": "クリティカルチケットは 24 時間以内に初回返信します",
+                "criticalSlaBody": "48 時間以内の解決を目指します。どちらの時計もチケット送信時に始まります。",
+                "supportHours": "期限は {{timezone}} で表示されます。",
                 "fieldTitle": "タイトル",
                 "titleRequired": "タイトルは必須です",
                 "ticketSubject": "件名",
@@ -8947,6 +9301,10 @@
         "searchModeOptionFullName": "オプション A — 氏名で検索",
         "searchModeOptionDocument": "オプション B — 文書で検索",
         "searchModeOptionSerial": "オプション C — シリアルで検索",
+        "searchModesIntroMexicoLicense": "入力グループは1つだけ使用してください。CURPと書類番号、専門免許番号、または名と姓です。同じリクエストでグループを混在させないでください。",
+        "searchModeOptionCurp": "グループ 1 — CURPで検索",
+        "searchModeOptionLicenseNumber": "グループ 2 — 免許番号で検索",
+        "searchModeOptionNameMexico": "グループ 3 — 氏名で検索",
         "dateOfBirthConditionalHint": "documentType が次のいずれかのとき、その行では dateOfBirth 列が必須です: {{values}}",
         "fieldConditional": "条件付き必須",
         "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。",

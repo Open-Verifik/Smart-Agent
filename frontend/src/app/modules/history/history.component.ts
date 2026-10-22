@@ -12,7 +12,6 @@ import {
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,6 +25,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { DateTime } from 'luxon';
 import { firstValueFrom, Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
@@ -49,11 +49,15 @@ import {
     HistoryListParams,
     HistoryService,
     HistoryTopSalesRow,
+    HistoryTopSalesTotals,
 } from './history.service';
+import { buildUsageChart } from '../settings/usage-report/usage-report-chart.util';
 import { createdAtRangeParams } from '../settings/usage-history/usage-history-date-params.util';
+import { countryName } from 'app/core/usage/country-geo';
+import { CostCenter, UsageApiService, UsageReport } from 'app/core/usage/usage-api.service';
 import { HistoryRequestDialogComponent, HistoryRequestDialogResult } from './history-request-dialog.component';
 
-export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
+export type DatePreset = 'all' | 'custom' | 'last_month' | 'this_month' | 'this_week' | 'today';
 export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
 export type HistoryStatus = 'failed' | 'pending' | 'success';
 export type HistorySectionId = HistoryStatus | 'x402';
@@ -110,7 +114,6 @@ const createSection = (id: HistorySectionId): HistorySectionState => ({
         ReactiveFormsModule,
         RouterLink,
         MatButtonModule,
-        MatButtonToggleModule,
         MatDatepickerModule,
         MatFormFieldModule,
         MatIconModule,
@@ -122,6 +125,7 @@ const createSection = (id: HistorySectionId): HistorySectionState => ({
         MatSnackBarModule,
         MatTableModule,
         MatTooltipModule,
+        NgApexchartsModule,
         TranslocoModule,
     ],
     templateUrl: './history.component.html',
@@ -133,6 +137,7 @@ const createSection = (id: HistorySectionId): HistorySectionState => ({
 })
 export class HistoryComponent implements OnInit, OnDestroy {
     private _historyService = inject(HistoryService);
+    private _usageApi = inject(UsageApiService);
     private _dialog = inject(MatDialog);
     private _walletService = inject(AgentWalletService);
     private _router = inject(Router);
@@ -184,7 +189,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         },
     };
 
-    readonly datePresets: DatePreset[] = ['all', 'today', 'this_week', 'this_month', 'custom'];
+    readonly datePresets: DatePreset[] = ['today', 'this_week', 'this_month', 'last_month', 'custom'];
     readonly pageSizeOptions = [10, 25, 50];
     readonly rangeStart = new FormControl<DateTime | null>(null);
     readonly rangeEnd = new FormControl<DateTime | null>(null);
@@ -206,7 +211,36 @@ export class HistoryComponent implements OnInit, OnDestroy {
     datePreset: DatePreset = 'all';
     searchText = '';
     serviceFilter = '';
+    countryFilter = '';
+    costCenterFilter = '';
+    countryOptions = signal<{ code: string; name: string }[]>([]);
+    costCenterOptions = signal<CostCenter[]>([]);
     topEndpoints = signal<HistoryTopSalesRow[]>([]);
+    topTotals = signal<HistoryTopSalesTotals>({ total: 0, ok: 0, failed: 0, costUSD: 0 });
+
+    /** Stacked successful / failed bars for the filtered top endpoints. */
+    readonly endpointChart = computed<ApexOptions | null>(() => {
+        const rows = this.topEndpoints();
+
+        if (!rows.length) return null;
+
+        const report = {
+            groupBy: 'endpoint',
+            groups: rows.map((row) => ({
+                key: this.endpointDisplayName(row),
+                totalRequests: row.total,
+                ok: row.ok,
+                failed: row.failed,
+                timedOut: 0,
+                costUSD: row.costUSD || 0,
+            })),
+        } as UsageReport;
+
+        return buildUsageChart(report, 'endpoint', (group) => group.key || '', document.body.classList.contains('dark'), {
+            ok: this._transloco.translate('settings.usageReport.ok'),
+            failed: this._transloco.translate('settings.usageReport.failed'),
+        });
+    });
     featureCatalog = signal<Record<string, HistoryFeatureMeta>>({});
 
     ngOnInit(): void {
@@ -232,6 +266,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
         });
         this._route.queryParams.pipe(takeUntil(this._destroy$)).subscribe((params) => {
             const targetMode = params['view'] === 'x402' ? 'x402' : 'credits';
+            const country = /^[A-Za-z]{2}$/.test(params['country'] || '') ? String(params['country']).toUpperCase() : '';
+            if (country !== this.countryFilter) {
+                this.countryFilter = country;
+                this._resetVisiblePages();
+            }
             if (this.mode() !== targetMode) {
                 this.mode.set(targetMode);
                 this._resetVisiblePages();
@@ -240,6 +279,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
             this.loadData();
         });
         this._loadFeatureCatalog();
+        this._loadScopeFilters();
     }
 
     ngOnDestroy(): void {
@@ -248,7 +288,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
 
     get disabledClearFilters(): boolean {
-        return !this.searchText && !this.serviceFilter && this.datePreset === 'all';
+        return !this.searchText && !this.serviceFilter && !this.countryFilter && !this.costCenterFilter && this.datePreset === 'all';
     }
 
     setMode = (mode: 'credits' | 'x402'): void => {
@@ -279,22 +319,35 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.loadData();
     };
 
+    onCountryFilterChange = (value: string): void => {
+        this._router.navigate([], { relativeTo: this._route, queryParams: { country: value || null }, queryParamsHandling: 'merge' });
+    };
+
+    onCostCenterFilterChange = (value: string): void => {
+        this.costCenterFilter = value || '';
+        this._resetVisiblePages();
+        this.loadData();
+    };
+
     onDatePresetChange = (value: DatePreset): void => {
         this.datePreset = value;
-        if (value !== 'custom') {
-            this.rangeStart.setValue(null, { emitEvent: false });
-            this.rangeEnd.setValue(null, { emitEvent: false });
-            this._resetVisiblePages();
-            this.loadData();
+        if (value === 'custom') {
+            this._cdr.markForCheck();
             return;
         }
-        this._cdr.markForCheck();
+
+        this.rangeStart.setValue(null, { emitEvent: false });
+        this.rangeEnd.setValue(null, { emitEvent: false });
+        this._resetVisiblePages();
+        this.loadData();
     };
 
     onCustomRangeChange = (): void => {
         const start = this.rangeStart.value;
         const end = this.rangeEnd.value;
         if (!start?.isValid || !end?.isValid) return;
+
+        this.datePreset = 'custom';
         this._resetVisiblePages();
         this.loadData();
     };
@@ -308,23 +361,11 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
     isEndpointSelected = (code: string): boolean => this.serviceFilter === code;
 
-    endpointCardClasses = (code: string): Record<string, boolean> => {
-        const selected = this.isEndpointSelected(code);
-        return {
-            'border-indigo-300': selected,
-            'bg-indigo-50': selected,
-            'dark:border-indigo-700': selected,
-            'dark:bg-indigo-950/30': selected,
-            'border-stone-200/90': !selected,
-            'bg-white': !selected,
-            'dark:border-gray-800': !selected,
-            'dark:bg-gray-900/70': !selected,
-        };
-    };
-
     clearFilters = (): void => {
         this.searchText = '';
         this.serviceFilter = '';
+        this.costCenterFilter = '';
+        if (this.countryFilter) this.onCountryFilterChange('');
         this.datePreset = 'all';
         this.rangeStart.setValue(null, { emitEvent: false });
         this.rangeEnd.setValue(null, { emitEvent: false });
@@ -496,6 +537,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
             today: 'history.filterDateToday',
             this_week: 'history.filterDateThisWeek',
             this_month: 'history.filterDateThisMonth',
+            last_month: 'history.filterDateLastMonth',
             custom: 'history.filterDateCustom',
         };
         return keys[preset];
@@ -601,6 +643,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
         };
         if (this.searchText) params.like_code = this.searchText.toLowerCase();
         if (this.serviceFilter) params.where_code = this.serviceFilter;
+        if (this.countryFilter) params.country = this.countryFilter;
+        if (this.costCenterFilter) params.costCenter = this.costCenterFilter;
         const range = this._dateRangeForPreset(this.datePreset);
         if (range) {
             Object.assign(params, createdAtRangeParams(range.start, range.end));
@@ -615,6 +659,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (preset === 'today') return { start: now.startOf('day'), end: now.endOf('day') };
         if (preset === 'this_week') return { start: now.startOf('week'), end: now.endOf('week') };
         if (preset === 'this_month') return { start: now.startOf('month'), end: now.endOf('month') };
+        if (preset === 'last_month') {
+            const start = now.minus({ months: 1 }).startOf('month');
+            return { start, end: start.endOf('month') };
+        }
         return null;
     };
 
@@ -780,6 +828,30 @@ export class HistoryComponent implements OnInit, OnDestroy {
     private _t = (key: string, params?: Record<string, string | number>): string =>
         this._transloco.translate(key, params);
 
+    /** Countries with traffic in the last 12 months, and the account's cost centers. */
+    private _loadScopeFilters = (): void => {
+        const end = new Date();
+        const start = new Date(end.getFullYear() - 1, end.getMonth(), end.getDate() + 1);
+        const lang = this._transloco.getActiveLang() || 'en';
+
+        this._usageApi
+            .getUsage({ groupBy: 'country', startDate: start.toISOString(), endDate: end.toISOString(), limit: 100 })
+            .pipe(catchError(() => of(null)))
+            .subscribe((report) => {
+                const codes = (report?.groups ?? []).map((group) => group.key).filter((key): key is string => Boolean(key));
+                this.countryOptions.set(codes.map((code) => ({ code, name: countryName(code, lang) })).sort((a, b) => a.name.localeCompare(b.name)));
+                this._cdr.markForCheck();
+            });
+
+        this._usageApi
+            .listCostCenters()
+            .pipe(catchError(() => of([] as CostCenter[])))
+            .subscribe((centers) => {
+                this.costCenterOptions.set(centers);
+                this._cdr.markForCheck();
+            });
+    };
+
     private _loadFeatureCatalog = (): void => {
         this._historyService
             .getFeatureCatalog()
@@ -802,12 +874,19 @@ export class HistoryComponent implements OnInit, OnDestroy {
         const range = this._dateRangeForPreset(this.datePreset);
         const params: Record<string, unknown> = { source: 'requests', limit: 5 };
         if (range) Object.assign(params, createdAtRangeParams(range.start, range.end));
+        if (this.countryFilter) params.country = this.countryFilter;
+        if (this.costCenterFilter) params.costCenter = this.costCenterFilter;
         this._historyService.getTopSales(params).subscribe({
-            next: (rows) => {
-                this.topEndpoints.set(rows.slice(0, 5));
+            next: (result) => {
+                this.topTotals.set(result.totals);
+                this.topEndpoints.set(result.rows.slice(0, 5));
                 this._cdr.markForCheck();
             },
-            error: () => this.topEndpoints.set([]),
+            error: () => {
+                this.topTotals.set({ total: 0, ok: 0, failed: 0, costUSD: 0 });
+                this.topEndpoints.set([]);
+                this._cdr.markForCheck();
+            },
         });
     };
 

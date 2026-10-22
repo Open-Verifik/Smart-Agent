@@ -2,7 +2,31 @@
     @if (!authChecked) {
         <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
     } @else {
-        <div class="flex items-center justify-center mb-10 pt-4 gap-2">
+        <app-demo-stage-hero
+            [eyebrow]="'smartEnrollDemos.demoStage.comparison' | transloco"
+            [title]="
+                (step === 1
+                    ? 'smartEnrollDemos.faceComparison.headlineSource'
+                    : step === 2
+                      ? 'smartEnrollDemos.faceComparison.headlineTarget'
+                      : 'smartEnrollDemos.faceComparison.headlineAnalysis'
+                ) | transloco
+            "
+            [subtitle]="
+                (step === 1
+                    ? 'smartEnrollDemos.faceComparison.subIdleSource'
+                    : step === 2
+                      ? 'smartEnrollDemos.faceComparison.subIdleTarget'
+                      : isLoading
+                        ? 'smartEnrollDemos.faceComparison.subLoading'
+                        : result
+                          ? 'smartEnrollDemos.faceComparison.subResult'
+                          : 'smartEnrollDemos.faceComparison.subProcessing'
+                ) | transloco
+            "
+        />
+
+        <div class="mb-8 flex items-center justify-center gap-2">
             @for (label of stepLabels; track label; let i = $index) {
                 <div class="flex items-center">
                     <div class="flex flex-col items-center">
@@ -31,33 +55,40 @@
             }
         </div>
 
-        <div class="text-center mb-8">
-            <h2 class="text-4xl font-black tracking-tight text-on-surface mb-2">
-                @if (step === 1) {
-                    {{ 'smartEnrollDemos.faceComparison.headlineSource' | transloco }}
-                } @else if (step === 2) {
-                    {{ 'smartEnrollDemos.faceComparison.headlineTarget' | transloco }}
-                } @else {
-                    {{ 'smartEnrollDemos.faceComparison.headlineAnalysis' | transloco }}
-                }
-            </h2>
-            <p class="text-on-surface-variant text-sm max-w-xl mx-auto">
-                @if (step === 1) {
-                    {{ 'smartEnrollDemos.faceComparison.subIdleSource' | transloco }}
-                } @else if (step === 2) {
-                    {{ 'smartEnrollDemos.faceComparison.subIdleTarget' | transloco }}
-                } @else if (isLoading) {
-                    {{ 'smartEnrollDemos.faceComparison.subLoading' | transloco }}
-                } @else if (result) {
-                    {{ 'smartEnrollDemos.faceComparison.subResult' | transloco }}
-                } @else {
-                    {{ 'smartEnrollDemos.faceComparison.subProcessing' | transloco }}
-                }
-            </p>
-        </div>
-
         @if (step === 1 || step === 2) {
-            <div class="max-w-2xl mx-auto space-y-5">
+            <div [class]="step === 1 ? 'grid grid-cols-1 items-start gap-5 xl:grid-cols-2' : ''">
+            @if (step === 1) {
+                <app-demo-stage-card
+                    number="01"
+                    [title]="'smartEnrollDemos.demoStage.settingsTitle' | transloco"
+                    [help]="'smartEnrollDemos.demoStage.settingsHelp' | transloco"
+                >
+                    <div>
+                        <label class="block text-[0.6875rem] font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="compare-min-score">
+                            {{ 'smartEnrollDemos.faceComparison.compareMinScoreLabel' | transloco }}
+                        </label>
+                        <div class="flex items-center gap-4">
+                            <input
+                                id="compare-min-score"
+                                type="range"
+                                min="0.67"
+                                max="0.95"
+                                step="0.01"
+                                [(ngModel)]="compareMinScore"
+                                name="compareMinScore"
+                                class="demo-range-input flex-1"
+                            />
+                            <span class="text-sm font-mono text-primary w-14 shrink-0 tabular-nums">{{ compareMinScore.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                </app-demo-stage-card>
+            }
+            <app-demo-stage-card
+                [number]="step === 1 ? '02' : '01'"
+                [title]="'smartEnrollDemos.personForm.faceTitle' | transloco"
+                [help]="'smartEnrollDemos.personForm.faceHelp' | transloco"
+            >
+            <div class="space-y-5">
                 @if (source.preview || target.preview) {
                     <div class="flex gap-4 justify-center">
                         @for (slot of [{ data: source, key: 'source', label: 'smartEnrollDemos.faceComparison.slotSource' }, { data: target, key: 'target', label: 'smartEnrollDemos.faceComparison.slotTarget' }]; track slot.key) {
@@ -74,27 +105,6 @@
                                 <span class="text-[10px] uppercase tracking-wide text-on-surface-variant">{{ slot.label | transloco }}</span>
                             </div>
                         }
-                    </div>
-                }
-
-                @if (step === 1) {
-                    <div>
-                        <label class="block text-[0.6875rem] font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="compare-min-score">
-                            {{ 'smartEnrollDemos.faceComparison.compareMinScoreLabel' | transloco }}
-                        </label>
-                        <div class="flex items-center gap-4 mb-4">
-                            <input
-                                id="compare-min-score"
-                                type="range"
-                                min="0.67"
-                                max="0.95"
-                                step="0.01"
-                                [(ngModel)]="compareMinScore"
-                                name="compareMinScore"
-                                class="demo-range-input flex-1"
-                            />
-                            <span class="text-sm font-mono text-primary w-14 shrink-0 tabular-nums">{{ compareMinScore.toFixed(2) }}</span>
-                        </div>
                     </div>
                 }
 
@@ -117,6 +127,8 @@
                 <app-demo-upload-image-button (clicked)="triggerUpload(currentSlot)" [primaryText]="'smartEnrollDemos.faceComparison.uploadPrimary' | transloco" [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco" />
                 <input #sourceFileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'source')" />
                 <input #targetFileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'target')" />
+            </div>
+            </app-demo-stage-card>
             </div>
         }
 

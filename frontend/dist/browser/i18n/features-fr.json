@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — Permis de conduire",
-            "description": "Vérifiez auprès du RUNT colombien le statut, les catégories et la validité du permis par pièce d’identité."
+            "description": "Vérifiez le statut, les catégories et la validité du permis de conduire colombien à partir de la pièce d’identité."
         },
         "peru_api_vehicle": {
             "title": "Pérou — Véhicule par plaque",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — Véhicule par plaque et pièce d'identité",
-            "description": "Validation véhicule RUNT par plaque et document du propriétaire uniquement."
+            "description": "Validation véhicule en Colombie par plaque et document du propriétaire uniquement."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — Véhicule par VIN",
-            "description": "Historique et rapport technique véhicule auprès du RUNT Colombie via le NIV (VIN)."
+            "description": "Historique et données techniques du véhicule en Colombie via le NIV (VIN)."
         },
         "peru_identity_extra_lookup": {
             "title": "Pérou - Vérification d'Identité Nationale",
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — Véhicule simplifié par plaque",
-            "description": "Consultation RUNT allégée des informations essentielles du véhicule par plaque."
+            "description": "Consultation allégée des informations essentielles du véhicule en Colombie par plaque."
         },
         "canada_api_driver_license_quebec": {
             "title": "Québec — Permis de conduire",
@@ -594,7 +594,7 @@
         },
         "colombia_api_runt_owners": {
             "title": "Colombie - Propriétaires (RUNT)",
-            "description": "Verify vehicle ownership and registered owners through the RUNT system."
+            "description": "Vérifiez la propriété du véhicule et les propriétaires enregistrés à partir des registres officiels."
         },
         "colombia_api_vehicle_owners": {
             "title": "Colombie - Historique des propriétaires du véhicule",
@@ -924,6 +924,18 @@
             "title": "Mexique — Validation INE",
             "description": "Validez une carte d'électeur mexicaine (INE) auprès du registre électoral à l'aide du CIC, de l'OCR ou de la clave de elector."
         },
+        "mexico_api_cedula_profesional": {
+            "title": "Mexique — Licence professionnelle",
+            "description": "Consultez une licence professionnelle mexicaine par CURP, numéro de licence ou nom. Le CURP est recherché d'abord ; sans correspondance directe, le nom officiel du titulaire est utilisé sans coût supplémentaire."
+        },
+        "mexico_api_health_worker": {
+            "title": "Mexique — Licence de professionnel de santé",
+            "description": "Vérifiez qu'une personne détient une licence de santé mexicaine, y compris médecine, soins infirmiers, psychiatrie, obstétrique, physiothérapie et optométrie. Une personne avec seulement des licences hors santé renvoie 404."
+        },
+        "mexico_api_siged_certificado": {
+            "title": "Mexique — Certificat d'études (folio)",
+            "description": "Validez un certificat électronique d'études mexicain par folio. Vous pouvez envoyer fullName ou CURP ; un écart renvoie 409 name_mismatch. Si les deux sont envoyés, le CURP l'emporte."
+        },
         "colombia_api_copnia_license": {
             "title": "Licence COPNIA par matrícula",
             "description": "Consultez une licence professionnelle COPNIA par numéro d'inscription via GET /v2/co/copnia/matricula."
@@ -931,6 +943,10 @@
         "colombia_api_copnia": {
             "title": "Licences COPNIA par document",
             "description": "Consultez les licences professionnelles COPNIA (Consejo Profesional Nacional de Ingeniería) par pièce d'identité via GET /v2/co/copnia."
+        },
+        "colombia_api_vehicle_valuation_sibga": {
+            "title": "SIBGA - Valeur commerciale du véhicule",
+            "description": "Valeur commerciale officielle pour une plaque colombienne, dérivée des données d’immatriculation nationales."
         }
     }
 }

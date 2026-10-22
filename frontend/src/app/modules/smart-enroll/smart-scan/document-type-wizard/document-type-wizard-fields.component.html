@@ -1,0 +1,129 @@
+<div class="wizard-screen">
+    <header class="wizard-hero">
+        <div>
+            <span class="wizard-hero__eyebrow">{{ 'smartScan.wizard.' + copyKey + '.eyebrow' | transloco }}</span>
+            <h2>{{ 'smartScan.wizard.' + copyKey + '.title' | transloco }}</h2>
+            <p>{{ 'smartScan.wizard.' + copyKey + '.subtitle' | transloco }}</p>
+        </div>
+        <div class="wizard-hero__choice">
+            <span>{{ 'smartScan.wizard.' + copyKey + '.choiceLabel' | transloco }}</span>
+            <strong>{{ 'smartScan.wizard.fieldsStep.choice' | transloco: { count: wizard.filledFieldCount } }}</strong>
+        </div>
+    </header>
+
+    <div class="wizard-decision">
+        <section class="wizard-form">
+            <div class="section-heading">
+                <span>01</span>
+                <div>
+                    <h3>{{ 'smartScan.wizard.fieldsStep.sectionTitle' | transloco }}</h3>
+                    <p>{{ 'smartScan.wizard.fieldsStep.sectionHelp' | transloco }}</p>
+                </div>
+            </div>
+            <section class="field-box">
+                <h4 class="field-box__heading">{{ 'smartScan.wizard.frontPage' | transloco }}</h4>
+                @for (field of wizard.frontFields; track field) {
+                    <ng-container *ngTemplateOutlet="fieldEditor; context: { $implicit: field, index: $index }" />
+                }
+                <button mat-stroked-button type="button" (click)="wizard.addField(0)">
+                    {{ 'smartScan.wizard.addField' | transloco }}
+                </button>
+            </section>
+            @if (wizard.requiresBackSide) {
+                <section class="field-box">
+                    <h4 class="field-box__heading">{{ 'smartScan.wizard.backPage' | transloco }}</h4>
+                    @for (field of wizard.backFields; track field) {
+                        <ng-container *ngTemplateOutlet="fieldEditor; context: { $implicit: field, index: $index }" />
+                    }
+                    <button mat-stroked-button type="button" (click)="wizard.addField(1)">
+                        {{ 'smartScan.wizard.addField' | transloco }}
+                    </button>
+                </section>
+            }
+        </section>
+
+        <aside class="wizard-samples">
+            <div class="sample-frame">
+                @if (wizard.frontImage) {
+                    <img class="image-drop__preview" [src]="wizard.frontImage" alt="" />
+                }
+            </div>
+            @if (wizard.requiresBackSide && wizard.backImage) {
+                <div class="sample-frame">
+                    <img class="image-drop__preview" [src]="wizard.backImage" alt="" />
+                </div>
+            }
+            <button mat-stroked-button type="button" class="try-extract" [disabled]="!wizard.canTryExtraction()" (click)="wizard.tryExtraction()">
+                @if (wizard.extracting) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                    {{ 'smartScan.wizard.fieldsStep.tryExtract' | transloco }}
+                }
+            </button>
+            <p class="try-extract__hint">{{ 'smartScan.wizard.fieldsStep.tryExtractHint' | transloco }}</p>
+            @if (wizard.extractionError) {
+                <p class="wizard-error">{{ wizard.extractionError }}</p>
+            }
+            @if (wizard.extractionRows.length) {
+                <div class="extraction-list">
+                    <h3>{{ 'smartScan.wizard.fieldsStep.extractionResult' | transloco }}</h3>
+                    @for (row of wizard.extractionRows; track row.key) {
+                        <article>
+                            <strong>{{ row.key }}</strong>
+                            <span>{{ row.value }}</span>
+                        </article>
+                    }
+                </div>
+            } @else if (wizard.extractionAttempted && !wizard.extracting && !wizard.extractionError) {
+                <p class="try-extract__hint">{{ 'smartScan.wizard.fieldsStep.extractionEmpty' | transloco }}</p>
+            }
+        </aside>
+    </div>
+</div>
+
+<ng-template #fieldEditor let-field let-index="index">
+    @if (wizard.expandedField === field) {
+        <article class="field-card" [class.field-card--ready]="!!(field.name.trim() && field.mapKey.trim())">
+            <span class="field-card__icon"><mat-icon>data_object</mat-icon></span>
+            <div class="field-card__content">
+                <span class="field-card__title">
+                    <strong>{{ wizard.fieldLabel(field, index) }}</strong>
+                    <span class="field-card__actions">
+                        @if (wizard.requiresBackSide) {
+                            <button type="button" class="text-button" (click)="wizard.moveField(field, field.page === 1 ? 0 : 1)">
+                                {{ (field.page === 1 ? 'smartScan.wizard.moveToFront' : 'smartScan.wizard.moveToBack') | transloco }}
+                            </button>
+                        }
+                        <button type="button" class="text-button" (click)="wizard.removeField(field)">
+                            {{ 'smartScan.wizard.remove' | transloco }}
+                        </button>
+                    </span>
+                </span>
+                <div class="input-grid">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ 'smartScan.wizard.fieldName' | transloco }}</mat-label>
+                        <input matInput [(ngModel)]="field.name" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ 'smartScan.wizard.mapKey' | transloco }}</mat-label>
+                        <input matInput [(ngModel)]="field.mapKey" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ 'smartScan.wizard.fieldType' | transloco }}</mat-label>
+                        <mat-select [(ngModel)]="field.type">
+                            @for (type of wizard.fieldTypes; track type) {
+                                <mat-option [value]="type">{{ type }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+        </article>
+    } @else {
+        <button type="button" class="field-row" [class.field-row--ready]="!!(field.name.trim() && field.mapKey.trim())" (click)="wizard.toggleField(field)">
+            <strong>{{ wizard.fieldLabel(field, index) }}</strong>
+            <span class="field-row__key">{{ field.mapKey }}</span>
+            <span class="field-row__type">{{ field.type }}</span>
+        </button>
+    }
+</ng-template>

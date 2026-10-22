@@ -15,6 +15,7 @@ import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
 import { finalize, forkJoin, Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
+import { BarcodeValidationPanelComponent, type CedulaBarcodeValidation } from './barcode-validation-panel.component';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
 import {
@@ -226,6 +227,7 @@ const RESUME_DOCUMENT_OCR_EXCLUDE = new Set<string>([
         MatSnackBarModule,
         MatTooltipModule,
         NgxPrintDirective,
+        BarcodeValidationPanelComponent,
         TranslocoModule,
         WebhookEventsComponent,
     ],
@@ -1062,6 +1064,13 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         }
 
         return fields;
+    }
+
+    barcodeValidation(): CedulaBarcodeValidation | null {
+        const extraction = (this.record()?.documentValidation as { OCRExtraction?: { barcodeValidation?: CedulaBarcodeValidation } } | null)
+            ?.OCRExtraction;
+
+        return extraction?.barcodeValidation || null;
     }
 
     /** Translated label for a decoded failure reason. */

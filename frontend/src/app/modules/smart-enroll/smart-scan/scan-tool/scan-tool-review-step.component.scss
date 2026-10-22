@@ -1,0 +1,195 @@
+:host {
+    display: block;
+}
+
+.scan-tool-panel {
+    @apply bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden dark:bg-gray-900/50 dark:border-gray-700;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.scan-tool-strip {
+    @apply flex items-center gap-3 p-4 rounded-2xl border border-stone-200/90 bg-stone-50/80 dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+.gov-check-banner {
+    --banner-from: 238 242 255;
+    --banner-mid: 245 243 255;
+    --banner-to: 250 245 255;
+    --banner-border: 199 210 254;
+    --banner-accent: 79 70 229;
+    --banner-accent-2: 147 51 234;
+    --banner-icon: 67 56 202;
+    --banner-icon-2: 91 33 182;
+    --banner-ink: 30 27 75;
+    --banner-muted: 67 56 202;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    overflow: hidden;
+    padding: 16px;
+    border: 1px solid rgb(var(--banner-border) / 0.85);
+    border-radius: 16px;
+    background: linear-gradient(
+        105deg,
+        rgb(var(--banner-from) / 0.95) 0%,
+        rgb(var(--banner-mid) / 0.98) 45%,
+        rgb(var(--banner-to) / 0.96) 100%
+    );
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 12px 28px -18px rgb(var(--banner-accent) / 0.55);
+}
+
+.gov-check-banner--linked {
+    --banner-from: 236 253 245;
+    --banner-mid: 240 253 250;
+    --banner-to: 255 255 255;
+    --banner-border: 167 243 208;
+    --banner-accent: 5 150 105;
+    --banner-accent-2: 13 148 136;
+    --banner-icon: 4 120 87;
+    --banner-icon-2: 6 95 70;
+    --banner-ink: 6 78 59;
+    --banner-muted: 4 120 87;
+}
+
+.gov-check-banner__blob {
+    position: absolute;
+    z-index: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(48px);
+    opacity: 0.34;
+}
+
+.gov-check-banner__blob--tr {
+    top: -64px;
+    right: -28px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgb(var(--banner-accent) / 0.95) 0%, rgb(var(--banner-accent-2)) 55%, transparent 100%);
+}
+
+.gov-check-banner__blob--bl {
+    bottom: -48px;
+    left: -24px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgb(var(--banner-accent-2) / 0.9) 0%, rgb(var(--banner-accent)) 55%, transparent 100%);
+}
+
+.gov-check-banner__icon {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgb(var(--banner-icon)) 0%, rgb(var(--banner-icon-2)) 100%);
+    color: #fff;
+    box-shadow:
+        inset 0 0 0 1px rgb(255 255 255 / 0.28),
+        0 10px 18px -10px rgb(var(--banner-icon) / 0.9);
+
+    mat-icon {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        min-height: 22px;
+        font-size: 22px;
+        line-height: 22px;
+        color: #fff !important;
+    }
+}
+
+.gov-check-banner__copy {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 1 1 16rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    min-width: 0;
+}
+
+.gov-check-banner__pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgb(var(--banner-accent) / 0.25);
+    border-radius: 999px;
+    background: rgb(var(--banner-accent) / 0.08);
+    padding: 2px 10px;
+    color: rgb(var(--banner-muted));
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.gov-check-banner__title {
+    margin: 0;
+    color: rgb(var(--banner-ink));
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.gov-check-banner__url {
+    color: rgb(var(--banner-muted));
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+}
+
+.gov-check-banner__cta {
+    position: relative;
+    z-index: 1;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgb(var(--banner-accent)) 0%, rgb(var(--banner-accent-2)) 100%);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 16px -10px rgb(var(--banner-accent) / 0.9);
+}
+
+:host-context(.dark) .gov-check-banner {
+    --banner-from: 30 41 59;
+    --banner-mid: 30 27 75;
+    --banner-to: 49 46 129;
+    --banner-border: 67 56 202;
+    --banner-ink: 238 242 255;
+    --banner-muted: 199 210 254;
+    background: linear-gradient(
+        105deg,
+        rgb(var(--banner-from) / 0.92) 0%,
+        rgb(var(--banner-mid) / 0.55) 50%,
+        rgb(var(--banner-to) / 0.35) 100%
+    );
+    border-color: rgb(var(--banner-border) / 0.45);
+}
+
+:host-context(.dark) .gov-check-banner--linked {
+    --banner-from: 6 78 59;
+    --banner-mid: 15 23 42;
+    --banner-to: 19 78 74;
+    --banner-border: 6 95 70;
+    --banner-accent: 52 211 153;
+    --banner-accent-2: 45 212 191;
+    --banner-icon: 6 95 70;
+    --banner-icon-2: 4 120 87;
+    --banner-ink: 236 253 245;
+    --banner-muted: 167 243 208;
+}
+
+:host ::ng-deep .scan-tool-mat-btn-pill.mat-mdc-unelevated-button,
+:host ::ng-deep .scan-tool-mat-btn-pill.mat-mdc-outlined-button {
+    border-radius: 9999px;
+}

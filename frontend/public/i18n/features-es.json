@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "Consulta de Licencia de Conducción por Cédula en RUNT | Verifik API Colombia",
-            "description": "Valida licencias de conducción en Colombia mediante el número de cédula con la API de Verifik. Accede a datos oficiales del RUNT, incluyendo estado, categorías y vigencia."
+            "description": "Valida licencias de conducción en Colombia con el número de documento. Devuelve estado, categorías y vigencia según registros oficiales."
         },
         "peru_api_vehicle": {
             "title": "Información de Vehículo",
@@ -182,7 +182,7 @@
         },
         "colombia_api_vehicle": {
             "title": "RUNT — Vehículo (registro básico)",
-            "description": "Consulta datos de registro y características básicas del vehículo en RUNT con placa y documento del titular."
+            "description": "Consulta datos de registro y características básicas del vehículo en Colombia con placa y documento del titular."
         },
         "colombia_api_pico_placa": {
             "title": "Pico y Placa",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "Consulta Completa de Vehículo con Historial por Placa y Documento de Identificación RUNT",
-            "description": "Realiza la validación completa de vehículos en Colombia mediante el número de placa y documento de identificación con la API de Verifik. Conecta al RUNT y obtén datos oficiales e historial completo en segundos."
+            "description": "Valida vehículos en Colombia con número de placa y documento de identificación. Devuelve datos oficiales e historial en segundos."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "Registros de Vehículos por VIN en RUNT",
-            "description": "Verifica el historial y especificaciones técnicas de vehículos en Colombia usando el VIN. Detecta fraudes y valida la identidad vehicular con datos oficiales del RUNT."
+            "description": "Consulta información de vehículos en Colombia usando el VIN. Devuelve datos oficiales de registro e historial."
         },
         "peru_identity_extra_lookup": {
             "title": "Perú - Verificación de Identidad",
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "Validación Vehicular Simplificada por Placa en RUNT",
-            "description": "Consulta detalles esenciales del vehículo en el RUNT Colombia usando la placa. API rápida y eficiente para verificación básica."
+            "description": "Consulta detalles esenciales del vehículo en Colombia usando la placa. Consulta rápida para verificación básica."
         },
         "canada_api_driver_license_quebec": {
             "title": "Canadá - Licencia de Conducción",
@@ -594,7 +594,7 @@
         },
         "colombia_api_runt_owners": {
             "title": "Colombia - Verificación de Propietarios de Vehículos (RUNT)",
-            "description": "Verifica propiedad vehicular y propietarios registrados mediante RUNT."
+            "description": "Verifica propiedad vehicular y propietarios registrados con registros vehiculares oficiales."
         },
         "colombia_api_vehicle_owners": {
             "title": "Colombia - Historial de Propietarios del Vehículo",
@@ -918,11 +918,23 @@
         },
         "mexico_api_ine_ocr": {
             "title": "OCR INE",
-            "description": "Extrae campos del INE con OCR Gemini de Verifik y valida el estatus electoral con Nexcar (solo números) en una sola petición."
+            "description": "Extrae datos de una imagen de INE mexicana y valida el estatus en el registro electoral en una sola petición."
         },
         "mexico_api_ine_validate": {
             "title": "Validación INE",
             "description": "Valida una credencial para votar (INE) mexicana contra el padrón electoral usando CIC, OCR o clave de elector."
+        },
+        "mexico_api_cedula_profesional": {
+            "title": "México — Cédula profesional",
+            "description": "Consulta una cédula profesional mexicana por CURP, número de cédula o nombre. La CURP se busca de forma directa; si no hay coincidencia, se usa el nombre oficial del titular sin costo extra."
+        },
+        "mexico_api_health_worker": {
+            "title": "México — Licencia de profesionista de salud",
+            "description": "Valida que una persona tenga cédula de salud en México, incluida medicina, enfermería, psiquiatría, obstetricia, fisioterapia y optometría. Si solo tiene cédulas no sanitarias, la respuesta es 404."
+        },
+        "mexico_api_siged_certificado": {
+            "title": "México — Certificado de estudios (folio)",
+            "description": "Valida un certificado electrónico de estudios mexicano por folio. Se puede enviar fullName o CURP; si no coinciden, responde 409 name_mismatch. Si se envían ambos, la CURP tiene prioridad."
         },
         "colombia_api_copnia_license": {
             "title": "COPNIA matrícula profesional por número",
@@ -931,6 +943,38 @@
         "colombia_api_copnia": {
             "title": "COPNIA matrículas profesionales por documento",
             "description": "Consulta matrículas profesionales del COPNIA (Consejo Profesional Nacional de Ingeniería) por cédula mediante GET /v2/co/copnia."
+        },
+        "colombia_api_vehicle_valuation_sibga": {
+            "title": "SIBGA - Avalúo comercial de vehículo",
+            "description": "Avalúo comercial oficial para una placa colombiana, derivado de datos de registro vehicular nacional."
+        },
+        "smart_enroll_pyg": {
+            "title": "Smart Enroll Gratis",
+            "description": "Plan gratuito de Smart Enroll, con un cupo mensual de enrolamientos y escaneos de documentos."
+        },
+        "smart_enroll_plus": {
+            "title": "Smart Enroll Plus",
+            "description": "Plan Smart Enroll Plus, con límites mensuales más altos y prueba de vida."
+        },
+        "smart_enroll_business": {
+            "title": "Smart Enroll Business",
+            "description": "Plan Smart Enroll Business, con los límites mensuales más altos."
+        },
+        "smart_access_pyg": {
+            "title": "Smart Access Gratis",
+            "description": "Plan gratuito de Smart Access, con un cupo mensual de inicios de sesión por correo."
+        },
+        "smart_access_plus": {
+            "title": "Smart Access Plus",
+            "description": "Plan Smart Access Plus, con límites mensuales más altos."
+        },
+        "smart_access_business": {
+            "title": "Smart Access Business",
+            "description": "Plan Smart Access Business, con los límites mensuales más altos."
+        },
+        "colombia_api_runt_vehicle_by_plate_only": {
+            "title": "Vehículo RUNT solo por placa",
+            "description": "Consulta un vehículo en Colombia usando solo la placa, sin el documento del propietario."
         }
     }
 }

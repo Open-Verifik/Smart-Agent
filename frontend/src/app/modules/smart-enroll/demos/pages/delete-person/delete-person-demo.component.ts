@@ -20,6 +20,8 @@ import { CreatePersonResultComponent } from '../../shared/create-person-result.c
 import { DemoConfirmModalComponent } from '../../shared/demo-confirm-modal.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
 import { PersonSingleSelectComponent } from '../../shared/person-single-select.component';
@@ -78,6 +80,8 @@ const redactThumbnailsForDebug = (value: unknown): unknown => {
         FormsModule,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoStageHeroComponent,
+        DemoStageCardComponent,
         DemoRelatedDocsSectionComponent,
         DemoConfirmModalComponent,
         DemoResultActionsComponent,
@@ -112,6 +116,11 @@ export class DeletePersonDemoComponent implements OnInit {
     personMemberCodes: string[] = [];
     confirmOpen = false;
     relatedDocs: DemoRelatedDocItem[] = [];
+
+    get selectedPersonChip(): string {
+        const row = this.personRows.find((person) => person._id === this.selectedPersonId);
+        return row?.name || this._transloco.translate('smartEnrollDemos.demoStage.notSet');
+    }
 
     ngOnInit(): void {
         if (!this._api.ensureAuthenticated()) {

@@ -1,0 +1,185 @@
+<div class="flex flex-col h-full" *transloco="let t">
+    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('settings.usageReport.title') }}</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">{{ t('settings.usageReport.subtitle') }}</p>
+        </div>
+        @if (userClientId) {
+            <button mat-stroked-button class="rounded-lg h-10 shrink-0" [disabled]="exporting() || loading() || !report()" (click)="downloadCsv()">
+                <mat-icon class="mr-1 !h-5 !w-5 !text-xl">download</mat-icon>
+                {{ t(exporting() ? 'settings.usageReport.exporting' : 'settings.usageReport.downloadCsv') }}
+            </button>
+        }
+    </div>
+
+    @if (!userClientId) {
+        <app-settings-business-account-empty-state hintKey="settings.usageReport.signInHint" (userChange)="onBusinessAccountLinked($event)" />
+    } @else {
+        <section class="usage-filters mb-4">
+            <div class="usage-filters__stack">
+                <div class="usage-filters__field">
+                    <span class="usage-filters__label">{{ t('settings.usageReport.groupBy') }}</span>
+                    <div class="usage-filters__chips" role="group" [attr.aria-label]="t('settings.usageReport.groupBy')">
+                        @for (option of groupings; track option) {
+                            <button
+                                type="button"
+                                class="usage-filters__chip"
+                                [class.usage-filters__chip--active]="groupBy() === option"
+                                [attr.aria-pressed]="groupBy() === option"
+                                [disabled]="loading()"
+                                (click)="setGroupBy(option)"
+                            >
+                                {{ t('settings.usageReport.group.' + option) }}
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (costCenters().length) {
+                    <div class="usage-filters__field usage-filters__field--center">
+                        <label class="usage-filters__label" for="usage-report-cost-center">{{ t('settings.usageReport.costCenter') }}</label>
+                        <mat-select
+                            id="usage-report-cost-center"
+                            class="usage-filters__center"
+                            [value]="costCenter()"
+                            (selectionChange)="setCostCenter($event.value)"
+                            [disabled]="loading()"
+                            [attr.aria-label]="t('settings.usageReport.costCenter')"
+                        >
+                            <mat-option value="">{{ t('settings.usageReport.allCostCenters') }}</mat-option>
+                            @for (center of costCenters(); track center._id) {
+                                <mat-option [value]="center._id">{{ center.name }} · {{ center.code }}</mat-option>
+                            }
+                            <mat-option value="none">{{ t('settings.usageReport.noCostCenter') }}</mat-option>
+                        </mat-select>
+                    </div>
+                }
+
+                <div class="usage-filters__date-panel">
+                    <span class="usage-filters__date-title">{{ t('settings.usageReport.range') }}</span>
+                    <div class="usage-filters__chips" role="group" [attr.aria-label]="t('settings.usageReport.range')">
+                        @for (option of ranges; track option) {
+                            <button
+                                type="button"
+                                class="usage-filters__chip"
+                                [class.usage-filters__chip--active]="!customWindow() && range() === option"
+                                [attr.aria-pressed]="!customWindow() && range() === option"
+                                [disabled]="loading()"
+                                (click)="setRange(option)"
+                            >
+                                {{ t('settings.usageReport.ranges.' + option) }}
+                            </button>
+                        }
+                    </div>
+                    <div class="usage-filters__dates">
+                        <span>{{ period().start | date: 'mediumDate' }} – {{ period().end | date: 'mediumDate' }}</span>
+                        <mat-icon aria-hidden="true">calendar_today</mat-icon>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @if (report()?.source && report()!.source !== 'apiRequests') {
+            <div class="usage-source-note mb-4" role="status">
+                <div class="usage-source-note__blob usage-source-note__blob--tr" aria-hidden="true"></div>
+                <div class="usage-source-note__blob usage-source-note__blob--bl" aria-hidden="true"></div>
+                <div class="usage-source-note__body">
+                    <span class="usage-source-note__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path
+                                d="M19.5 3.5 18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V2l-1.5 1.5zM19 19c0 .55-.45 1-1 1s-1-.45-1-1v-3H8V5h11v14z"
+                            />
+                            <path d="M9 7h6v2H9zm7 0h2v2h-2zM9 11h6v2H9zm7 0h2v2h-2z" />
+                        </svg>
+                    </span>
+                    <p>
+                        {{
+                            t(
+                                report()!.source === 'credits+failedRequests'
+                                    ? 'settings.usageReport.sourceCreditsAndFailures'
+                                    : 'settings.usageReport.sourceCredits'
+                            )
+                        }}
+                    </p>
+                </div>
+            </div>
+        }
+
+        @if (loading()) {
+            <div class="flex items-center justify-center py-12"><mat-spinner diameter="32"></mat-spinner></div>
+        } @else if (failed()) {
+            <div class="content-card p-6 text-sm text-red-600 dark:text-red-400" role="alert">{{ t('settings.usageReport.loadError') }}</div>
+        } @else if (report()) {
+            @let data = report()!;
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.total') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.totalRequests | number }}</p>
+                </div>
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.ok') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.ok | number }}</p>
+                </div>
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.failed') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.failed + data.totals.timedOut | number }}</p>
+                </div>
+                <div class="content-card p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.cost') }}</p>
+                    <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ data.totals.costUSD | currency: 'USD' : 'symbol' : '1.2-2' }}</p>
+                </div>
+            </div>
+
+            @if (!data.groups.length) {
+                <div class="content-card p-8 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('settings.usageReport.empty') }}</div>
+            } @else {
+                @if (chart(); as options) {
+                    <div class="content-card p-4 mb-4">
+                        <apx-chart
+                            [chart]="options.chart!"
+                            [series]="options.series!"
+                            [colors]="options.colors!"
+                            [xaxis]="options.xaxis!"
+                            [yaxis]="options.yaxis!"
+                            [plotOptions]="options.plotOptions!"
+                            [dataLabels]="options.dataLabels!"
+                            [grid]="options.grid!"
+                            [legend]="options.legend!"
+                            [tooltip]="options.tooltip!"
+                        ></apx-chart>
+                    </div>
+                }
+                <div class="content-card overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50/50 dark:bg-gray-800/50 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            <tr>
+                                <th class="px-4 py-3 text-left">{{ t('settings.usageReport.group.' + (data.groupBy || 'month')) }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.total') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.ok') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.failed') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.timedOut') }}</th>
+                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.cost') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700 tabular-nums">
+                            @for (group of data.groups; track group.key) {
+                                <tr>
+                                    <td class="px-4 py-2.5 text-gray-900 dark:text-white max-w-xs truncate" [title]="label(group)">{{ label(group) }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.totalRequests | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.ok | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.failed | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.timedOut | number }}</td>
+                                    <td class="px-4 py-2.5 text-right">{{ group.costUSD | currency: 'USD' : 'symbol' : '1.2-4' }}</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                {{ t('settings.usageReport.footnote') }}
+                <a class="font-medium text-blue-600 dark:text-blue-400 hover:underline" [href]="docsUrl" target="_blank" rel="noopener">{{ t('settings.usageReport.docs') }}</a>
+            </p>
+        }
+    }
+</div>

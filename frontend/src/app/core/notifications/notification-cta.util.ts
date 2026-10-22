@@ -5,6 +5,7 @@ import { NotificationCta } from 'app/core/notifications/app-notifications.models
 export interface NotificationCtaOpenDeps {
     router: Router;
     quickChat?: QuickChatService;
+    openBell?: () => void;
 }
 
 /**
@@ -75,7 +76,7 @@ export const resolveInAppCtaPath = (
 
 /**
  * Open a notification CTA: in-app navigate for same-origin when not forced to a new tab;
- * open notifications hub for self-referential URLs; otherwise window.open.
+ * open the header bell for self-referential URLs; otherwise window.open.
  */
 export const openNotificationCta = (
     cta: NotificationCta | null | undefined,
@@ -86,7 +87,7 @@ export const openNotificationCta = (
     if (!url) return;
 
     if (isSelfReferentialSmartAgentCta(url, currentOrigin)) {
-        deps.quickChat?.requestOpenPanel({ tab: 'notifications' });
+        deps.openBell?.();
         return;
     }
 
@@ -99,7 +100,7 @@ export const openNotificationCta = (
     }
 
     if (inAppPath?.includes('openNotifications=1')) {
-        deps.quickChat?.requestOpenPanel({ tab: 'notifications' });
+        deps.openBell?.();
         return;
     }
 

@@ -767,6 +767,70 @@
                 </section>
             </div>
 
+            <section class="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div class="min-w-0">
+                        <h3 class="text-base font-semibold text-stone-950 dark:text-white">
+                            {{ t('settings.api_key.cost_center_title') }}
+                        </h3>
+                        <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                            {{ t('settings.api_key.cost_center_body') }}
+                        </p>
+                        <code
+                            class="mt-3 block overflow-x-auto whitespace-nowrap rounded-xl bg-stone-950 px-4 py-3 font-mono text-xs text-stone-100 dark:bg-black"
+                            >x-cost-center: SPAIN-OPS</code
+                        >
+                    </div>
+                    <a
+                        routerLink="/settings/cost-centers"
+                        class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                    >
+                        <span>{{ t('settings.api_key.cost_center_manage') }}</span>
+                        <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                    </a>
+                </div>
+
+                <div class="mt-6 border-t border-stone-200 pt-5 dark:border-gray-800">
+                    <h4 class="text-sm font-semibold text-stone-950 dark:text-white">
+                        {{ t('settings.api_key.project_cost_center_title') }}
+                    </h4>
+                    <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                        {{ t('settings.api_key.project_cost_center_body') }}
+                    </p>
+                    @if (!projects.length) {
+                        <p class="mt-3 text-sm text-stone-500 dark:text-stone-400">
+                            {{ t('settings.api_key.project_cost_center_empty') }}
+                        </p>
+                    } @else {
+                        <ul class="mt-4 flex flex-col gap-3">
+                            @for (project of projects; track project._id) {
+                                <li class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                    <span class="min-w-0 flex-1 truncate text-sm font-medium text-stone-800 dark:text-stone-100">{{ project.name }}</span>
+                                    <select
+                                        class="h-10 rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 sm:w-64"
+                                        [value]="projectCostCenter[project._id] || ''"
+                                        (change)="projectCostCenter[project._id] = $any($event.target).value"
+                                    >
+                                        <option value="">{{ t('settings.api_key.project_cost_center_none') }}</option>
+                                        @for (center of activeCostCenters; track center._id) {
+                                            <option [value]="center._id">{{ center.name }} · {{ center.code }}</option>
+                                        }
+                                    </select>
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-10 items-center justify-center rounded-lg bg-stone-950 px-4 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-stone-950"
+                                        [disabled]="savingProjectId === project._id"
+                                        (click)="saveProjectCostCenter(project._id)"
+                                    >
+                                        {{ savingProjectId === project._id ? t('settings.api_key.project_cost_center_saving') : t('settings.api_key.project_cost_center_save') }}
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </section>
+
             <section
                 class="rounded-2xl border border-sky-200/80 bg-gradient-to-br from-sky-50 via-white to-white p-5 shadow-sm dark:border-sky-900/50 dark:from-sky-950/20 dark:via-gray-900/70 dark:to-gray-900/70 md:p-6"
             >

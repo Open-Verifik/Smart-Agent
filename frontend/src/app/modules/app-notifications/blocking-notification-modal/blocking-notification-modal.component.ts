@@ -51,9 +51,29 @@ export class BlockingNotificationModalComponent {
     private readonly _router = inject(Router);
     private readonly _quickChat = inject(QuickChatService);
 
-    readonly item = this._data.item;
+    readonly viewItem = signal<InboxItem>(this._data.item);
+    readonly detailLoading = signal(true);
+    readonly detailError = signal<string | null>(null);
     actionBusy = signal(false);
+    actionError = signal<string | null>(null);
     legalAccepted = signal(false);
+
+    get item(): InboxItem {
+        return this.viewItem();
+    }
+
+    constructor() {
+        this._notifications.show(this._data.item.notificationId).subscribe({
+            next: (response) => {
+                if (response.data) this.viewItem.set(response.data);
+                this.detailLoading.set(false);
+            },
+            error: () => {
+                this.detailLoading.set(false);
+                this.detailError.set('appNotifications.inbox.errors.loadDetail');
+            },
+        });
+    }
 
     safeBodyHtml(body: string): SafeHtml {
         return trustNotificationBodyHtml(this._sanitizer, body);
@@ -62,7 +82,8 @@ export class BlockingNotificationModalComponent {
     primaryActionDisabled(): boolean {
         if (this.actionBusy()) return true;
         if (this.item.interactionMode === 'accept') {
-            return !this.legalAccepted() || !this.item.legal?.version;
+            if (!this.item.legal?.version) return true;
+            return Boolean(this.item.legal?.url) && !this.legalAccepted();
         }
         return false;
     }
@@ -78,17 +99,17 @@ export class BlockingNotificationModalComponent {
                 return;
             }
             this._notifications
-                .accept(id, { legalVersion: version, accepted: true })
+                .acceptAndForget(id, { legalVersion: version, accepted: true })
                 .subscribe({
                     next: () => this._closeSuccess(),
-                    error: () => this.actionBusy.set(false),
+                    error: () => this._failAction(),
                 });
             return;
         }
 
-        this._notifications.acknowledge(id).subscribe({
+        this._notifications.acknowledgeAndForget(id).subscribe({
             next: () => this._closeSuccess(),
-            error: () => this.actionBusy.set(false),
+            error: () => this._failAction(),
         });
     }
 
@@ -100,6 +121,7 @@ export class BlockingNotificationModalComponent {
         openNotificationCta(this.item.cta, {
             router: this._router,
             quickChat: this._quickChat,
+            openBell: () => this._notifications.requestOpenBell(),
         });
     }
 
@@ -114,7 +136,7 @@ export class BlockingNotificationModalComponent {
     goToAddCredits = (): void => {
         const id = this.item.notificationId;
         this.actionBusy.set(true);
-        this._notifications.acknowledge(id).subscribe({
+        this._notifications.acknowledgeAndForget(id).subscribe({
             next: () => this._closeAndGoToCredits(),
             error: () => this._closeAndGoToCredits(),
         });
@@ -122,7 +144,13 @@ export class BlockingNotificationModalComponent {
 
     private _closeSuccess(): void {
         this.actionBusy.set(false);
+        this.actionError.set(null);
         this._dialogRef.close(true);
+    }
+
+    private _failAction(): void {
+        this.actionBusy.set(false);
+        this.actionError.set('appNotifications.inbox.errors.action');
     }
 
     private _closeAndGoToCredits = (): void => {

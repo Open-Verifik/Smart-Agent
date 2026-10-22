@@ -11,9 +11,9 @@ import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
-import {
-    DemoPageShellComponent,
-} from '../../shared/demo-page-shell.component';
+import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
+import { DemoStageCardComponent } from '../../shared/demo-stage-card.component';
+import { DemoStageHeroComponent } from '../../shared/demo-stage-hero.component';
 import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-section.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
@@ -40,6 +40,8 @@ type Step = 'form' | 'processing' | 'result';
         FormsModule,
         TranslocoModule,
         DemoPageShellComponent,
+        DemoStageHeroComponent,
+        DemoStageCardComponent,
         DemoRelatedDocsSectionComponent,
         DemoResultActionsComponent,
     ],

@@ -26,6 +26,7 @@ import type { Collection } from '../biometrics/collections.types';
 import { mergeAccountCollections } from '../biometrics/collections.util';
 import type { Person } from '../biometrics/people.types';
 import { CollectionScopeBadgeComponent } from './collection-scope-badge.component';
+import { NationalitySelectComponent, normalizeNationalityCode } from './nationality-select.component';
 
 export const EDIT_PERSON_DIALOG_PANEL_CLASS = 'edit-person-dialog-panel';
 
@@ -53,6 +54,7 @@ export interface EditPersonDialogData {
         MatSliderModule,
         TranslocoModule,
         CollectionScopeBadgeComponent,
+        NationalitySelectComponent,
     ],
     templateUrl: './edit-person-dialog.component.html',
     styleUrl: './edit-person-dialog.component.scss',
@@ -200,7 +202,7 @@ export class EditPersonDialogComponent implements OnInit {
                 return;
             }
 
-            const nationality = formData.nationality ? formData.nationality.toLowerCase() : '';
+            const nationality = normalizeNationalityCode(formData.nationality);
 
             if (this.isLivenessCreate) {
                 this.dialogRef.close({
@@ -244,7 +246,7 @@ export class EditPersonDialogComponent implements OnInit {
                 ...formData,
                 collections: formData.collections || [],
                 date_of_birth: dob,
-                nationality: formData.nationality ? formData.nationality.toLowerCase() : '',
+                nationality: normalizeNationalityCode(formData.nationality),
                 notes: formData.notes || '',
             },
         });

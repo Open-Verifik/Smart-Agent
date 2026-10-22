@@ -1,10 +1,6 @@
-<div class="home-container">
-    @if (isAuthenticated()) {
-        <app-home-notification-banners></app-home-notification-banners>
-    }
-
+<div class="home-container" [class.home-container--signed-in]="isAuthenticated()">
     <!-- Welcome / Hero -->
-    <div class="mb-8">
+    <div class="home-welcome mb-8">
         @if (isAuthenticated()) {
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                 {{
@@ -25,6 +21,10 @@
             </p>
         }
     </div>
+
+    @if (isAuthenticated()) {
+        <app-home-notification-banners></app-home-notification-banners>
+    }
 
     @if (showCompanyVerificationCard()) {
         <section
@@ -248,11 +248,7 @@
                                       }
                         }}
                     </p>
-                    <a
-                        mat-flat-button
-                        routerLink="/add-credits"
-                        class="home-promo-card__cta"
-                    >
+                    <a mat-flat-button routerLink="/add-credits" class="home-promo-card__cta">
                         {{ 'addCredits.purchaseCredits' | transloco }}
                     </a>
                 </div>
@@ -278,7 +274,12 @@
                             transform="rotate(-8 110 85)"
                         />
                         <circle class="home-promo-card__badge-circle" cx="148" cy="48" r="22" />
-                        <text class="home-promo-card__badge-text" x="148" y="53" text-anchor="middle">
+                        <text
+                            class="home-promo-card__badge-text"
+                            x="148"
+                            y="53"
+                            text-anchor="middle"
+                        >
                             2x
                         </text>
                     </svg>
@@ -353,6 +354,12 @@
                                 </div>
                             </div>
                         </div>
+                    }
+
+                    @defer (on viewport) {
+                        <app-usage-globe [services]="globeServices()"></app-usage-globe>
+                    } @placeholder {
+                        <div class="usage-globe-placeholder"></div>
                     }
                 } @else {
                     <div class="sign-in-card p-6 text-center">
@@ -688,20 +695,6 @@
                         }
                     }
                 </div>
-            </section>
-
-            <!-- Tutorial Section -->
-            <section class="tutorial-section">
-                <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">
-                    {{ 'home.tutorial.title' | transloco }}
-                </h2>
-                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
-                    {{ 'home.tutorial.description' | transloco }}
-                </p>
-                <button mat-flat-button color="primary" (click)="openTutorial()">
-                    <mat-icon class="mr-2">school</mat-icon>
-                    {{ 'home.tutorial.start' | transloco }}
-                </button>
             </section>
         </div>
         <!-- /dashboard-wide -->

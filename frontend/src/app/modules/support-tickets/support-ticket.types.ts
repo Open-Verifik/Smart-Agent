@@ -72,9 +72,12 @@ export interface SupportTicketResponse {
     data: SupportTicket;
 }
 
+export type SupportTicketPriority = 'low' | 'normal' | 'high' | 'critical';
+
 export interface SupportTicketFormData {
     title: string;
     category: SupportTicketCategory;
+    priority?: SupportTicketPriority;
     threads: { message: string; attachments?: string[] }[];
     subject?: string;
     api?: string;

@@ -24,6 +24,8 @@ import { ProfileSettingsComponent } from './profile-settings/profile-settings.co
 import { StaffListComponent } from './staff-list';
 import { NotificationSettingsComponent } from './notification-settings/notification-settings.component';
 import { UsageHistoryComponent } from './usage-history/usage-history.component';
+import { UsageReportComponent } from './usage-report/usage-report.component';
+import { CostCentersComponent } from './cost-centers/cost-centers.component';
 import { WorkspaceSettingsComponent } from './workspace-settings/workspace-settings.component';
 import { getSettingsUser } from './utils/settings-business-user.util';
 
@@ -63,6 +65,8 @@ interface SettingsSection {
         WorkspaceSettingsComponent,
         NotificationSettingsComponent,
         UsageHistoryComponent,
+        UsageReportComponent,
+        CostCentersComponent,
     ],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss',
@@ -146,6 +150,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     title: 'settings.panels.usage_history',
                     description: 'settings.panels.usage_history_desc',
                 },
+                {
+                    id: 'usage_report',
+                    icon: 'heroicons_outline:globe-americas',
+                    title: 'settings.panels.usage_report',
+                    description: 'settings.panels.usage_report_desc',
+                },
             ],
         },
         {
@@ -157,6 +167,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     icon: 'heroicons_outline:key',
                     title: 'settings.panels.api_key',
                     description: 'settings.panels.api_key_desc',
+                },
+                {
+                    id: 'cost_centers',
+                    icon: 'heroicons_outline:rectangle-group',
+                    title: 'settings.panels.cost_centers',
+                    description: 'settings.panels.cost_centers_desc',
                 },
             ],
         },
@@ -171,7 +187,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         billing_details: 'billing-details',
         payment_history: 'payment-history',
         usage_history: 'usage-history',
+        usage_report: 'usage-report',
         api_key: 'api-key',
+        cost_centers: 'cost-centers',
     };
 
     private _slugToPanel: { [key: string]: string } = {
@@ -183,7 +201,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         'billing-details': 'billing_details',
         'payment-history': 'payment_history',
         'usage-history': 'usage_history',
+        'usage-report': 'usage_report',
         'api-key': 'api_key',
+        'cost-centers': 'cost_centers',
     };
 
     constructor(

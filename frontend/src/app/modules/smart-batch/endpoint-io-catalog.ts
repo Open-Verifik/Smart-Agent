@@ -4280,6 +4280,81 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "mexico_api_cedula_profesional": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "firstName",
+            "lastName"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "firstName",
+            "lastName",
+            "fullName",
+            "arrayName",
+            "matchMethod",
+            "ambiguous",
+            "matchNote",
+            "cedulas"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CURP",
+                "CEDULA"
+            ]
+        }
+    },
+    "mexico_api_health_worker": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "firstName",
+            "lastName"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "firstName",
+            "lastName",
+            "fullName",
+            "arrayName",
+            "matchMethod",
+            "ambiguous",
+            "matchNote",
+            "cedulas",
+            "isHealthWorker",
+            "nonHealthCount"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CURP",
+                "CEDULA"
+            ]
+        }
+    },
+    "mexico_api_siged_certificado": {
+        "inputs": [
+            "folio",
+            "fullName",
+            "curp"
+        ],
+        "outputs": [
+            "folio",
+            "curp",
+            "fullName",
+            "firstName",
+            "lastName",
+            "institution",
+            "career",
+            "level",
+            "federalEntity",
+            "issueDate",
+            "status",
+            "matchMethod"
+        ]
+    },
     "mexico_api_ine_validate": {
         "inputs": [
             "documentType",

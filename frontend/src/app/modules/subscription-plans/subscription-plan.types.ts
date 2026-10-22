@@ -84,6 +84,21 @@ export type BillingConfig = {
     };
 };
 
+export type MonthlyUsageMetric = {
+    _id: { year: number; month: number };
+    total: number;
+    ok: number;
+    failed: number;
+};
+
+/** Volume range (requests/month, inclusive) where a plan has the lowest monthly total. */
+export type PlanZone = {
+    planId: string;
+    name: string;
+    from: number;
+    to: number;
+};
+
 export type AppFeature = {
     _id: string;
     code: string;

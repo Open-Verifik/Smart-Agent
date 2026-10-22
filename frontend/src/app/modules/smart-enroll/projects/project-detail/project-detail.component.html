@@ -48,10 +48,20 @@
                             <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goToRecords()">
                                 {{ t('smartEnrollProjects.viewRecords') }}
                             </button>
-                            <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
-                                <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
-                                {{ t('smartEnrollProjects.setup.openSetup') }}
-                            </button>
+                            @if (incompleteWizard()) {
+                                <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
+                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                    {{ t('smartEnrollProjects.setup.openSetup') }}
+                                </button>
+                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="continueSetup()">
+                                    {{ t('smartEnrollProjects.setup.continue_setup') }}
+                                </button>
+                            } @else {
+                                <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
+                                    <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                    {{ t('smartEnrollProjects.setup.openSetup') }}
+                                </button>
+                            }
                         </div>
                     }
                 </div>

@@ -19,13 +19,11 @@ import {
     Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FuseConfirmationService } from '@fuse/services/confirmation';
-import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CountryService } from 'app/core/services/country.service';
 import {
@@ -53,7 +51,15 @@ import type { SmartAccessSecurity } from '../smart-access-projects.types';
 import type { AccessProjectLike } from '../smart-access-setup.service';
 import { SmartAccessSetupService } from '../smart-access-setup.service';
 import { AccessSignInPreviewComponent } from './preview/access-sign-in-preview.component';
+import {
+    SmartAccessLeaveDialogComponent,
+    type SmartAccessLeaveAction,
+} from './leave-dialog/smart-access-leave-dialog.component';
 import { patchSmartAccessSetupDevSample } from './smart-access-setup-dev-sample.util';
+import {
+    buildSmartAccessDraftPayload,
+    type WizardProgress,
+} from './smart-access-setup-draft.util';
 import { AccessLoginMethodsStepComponent } from './steps/access-login-methods-step.component';
 import { AccessWhitelistStepComponent } from './steps/access-whitelist-step.component';
 
@@ -161,7 +167,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
     private _setup = inject(SmartAccessSetupService);
     private _projects = inject(SmartAccessProjectsService);
     private _cdr = inject(ChangeDetectorRef);
-    private _confirm = inject(FuseConfirmationService);
+    private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
     private _snack = inject(MatSnackBar);
     private _countryService = inject(CountryService);
@@ -251,73 +257,97 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         return false;
     };
 
-    confirmNavigation(): MatDialogRef<FuseConfirmationDialogComponent> {
-        return this._confirm.open({
-            title: this._t('smartAccessProjects.setup.unsaved_changes'),
-            message: this._t('smartAccessProjects.setup.unsaved_changes_message'),
-            actions: {
-                confirm: {
-                    show: true,
-                    label: this._t('smartAccessProjects.setup.exit_without_saving'),
-                },
-                cancel: { show: true, label: this._t('cancel') },
-            },
+    confirmNavigation(): MatDialogRef<SmartAccessLeaveDialogComponent, SmartAccessLeaveAction> {
+        return this._dialog.open(SmartAccessLeaveDialogComponent, {
+            autoFocus: 'dialog',
+            panelClass: 'smart-access-leave-dialog-panel',
+            width: 'min(920px, calc(100vw - 1.5rem))',
+            maxWidth: '96vw',
         });
     }
 
-    saveProject(): Observable<{ data: AccessProjectLike }> {
+    savedLastStep(): number {
+        const value = Number(this.project?.lastStep ?? 0);
+        return Number.isFinite(value) ? value : 0;
+    }
+
+    /** Keeps in-memory progress aligned with the payload just stored. */
+    rememberWizardProgress(progress: WizardProgress, status?: string): void {
+        this.project = {
+            ...this.project,
+            currentStep: progress.currentStep,
+            lastStep: progress.lastStep,
+            ...(status ? { status } : {}),
+        };
+    }
+
+    saveProject(progress?: WizardProgress): Observable<{ data: AccessProjectLike }> {
         if (this.saving() || !this.isFormValidForStep(this.stepIndex)) return of();
         this.saving.set(true);
+        return this._persistProject(this._buildPayload(progress));
+    }
 
-        const body = this._buildPayload();
-        const v3Call = this.project?._id
-            ? this._setup.updateProject(this.project._id, body as any)
-            : this._setup.createProject(body as any);
+    /**
+     * Stores the fields entered so far without requiring the current step to be valid.
+     * The project and its login flow stay in draft.
+     */
+    saveDraft(progress: WizardProgress): Observable<{ data: AccessProjectLike }> {
+        if (this.saving() || !this.form) return of();
+        this.saving.set(true);
+        const raw = this.form.getRawValue() as Record<string, unknown>;
+        const body = buildSmartAccessDraftPayload(
+            raw,
+            progress,
+            this._t('smartAccessProjects.setup.draft_name')
+        );
+        return this._persistProject(body);
+    }
 
-        // On step 2 (Connect DB), if there is a pending CSV whitelist batch we
-        // chain a v2 `updateProjectFlow` call to persist bulk whitelist rows,
-        // matching legacy `_handleWhiteListChanges`.
-        if (this.stepIndex === 2) {
-            const pending = this._whitelistStep?.pendingCsvPayload ?? null;
-            const flowId = this.loginFlowShellId;
-            const pf = (this.form.getRawValue() as Record<string, unknown>)[
-                'projectFlow'
-            ] as Record<string, unknown>;
-            const security = pf['security'] as Record<string, unknown>;
-            const integrations = pf['integrations'] as Record<string, unknown>;
+    /**
+     * Persists a v3 project body. On the connect step, a pending CSV whitelist
+     * is written with the same v2 call the valid-step save already uses.
+     */
+    private _persistProject(body: Record<string, unknown>): Observable<{ data: AccessProjectLike }> {
+        const projectId = `${this.project?._id ?? ''}`.trim();
+        const v3Call = projectId
+            ? this._setup.updateProject(projectId, body as Partial<AccessProjectLike> & { projectFlowType?: 'login' })
+            : this._setup.createProject(body as Partial<AccessProjectLike> & { projectFlowType?: 'login' });
+        return this._withPendingWhitelist(v3Call);
+    }
 
-            if (pending && pending.whiteList.length > 0 && flowId) {
-                return v3Call.pipe(
-                    switchMap((v3Res) => {
-                        const v2Payload: Record<string, unknown> = {
-                            security: {
-                                strategy: 'whitelist',
-                                source: 'CSV',
-                                ...security,
-                            },
-                            webhook: integrations['webhook'] ?? null,
-                            redirectUrl: integrations['redirectUrl'] ?? '',
-                            whiteList: pending.whiteList,
-                            replaceList: pending.replaceList,
-                        };
-                        return this._projects
-                            .updateProjectFlow(flowId, v2Payload)
-                            .pipe(switchMap(() => of(v3Res)));
-                    }),
-                    finalize(() => {
-                        this.saving.set(false);
-                        if (this._whitelistStep) {
-                            this._whitelistStep.pendingCsvPayload = null;
-                            this._whitelistStep['_loadWhitelist']();
-                        }
-                    }),
-                    catchError((err) => throwError(() => err))
-                ) as Observable<{ data: AccessProjectLike }>;
-            }
+    private _withPendingWhitelist(
+        v3Call: Observable<{ data: AccessProjectLike }>
+    ): Observable<{ data: AccessProjectLike }> {
+        const pending = this.stepIndex === 2 ? (this._whitelistStep?.pendingCsvPayload ?? null) : null;
+        const flowId = this.loginFlowShellId;
+        if (!pending || pending.whiteList.length === 0 || !flowId) {
+            return v3Call.pipe(
+                finalize(() => this.saving.set(false)),
+                catchError((err) => throwError(() => err))
+            );
         }
 
+        const pf = (this.form.getRawValue() as Record<string, unknown>)['projectFlow'] as Record<string, unknown>;
+        const security = (pf?.['security'] ?? {}) as Record<string, unknown>;
+        const integrations = (pf?.['integrations'] ?? {}) as Record<string, unknown>;
         return v3Call.pipe(
-            finalize(() => this.saving.set(false)),
+            switchMap((v3Res) => {
+                const v2Payload: Record<string, unknown> = {
+                    security: { strategy: 'whitelist', source: 'CSV', ...security },
+                    webhook: integrations['webhook'] ?? null,
+                    redirectUrl: integrations['redirectUrl'] ?? '',
+                    whiteList: pending.whiteList,
+                    replaceList: pending.replaceList,
+                };
+                return this._projects.updateProjectFlow(flowId, v2Payload).pipe(switchMap(() => of(v3Res)));
+            }),
+            finalize(() => {
+                this.saving.set(false);
+                if (this._whitelistStep) {
+                    this._whitelistStep.pendingCsvPayload = null;
+                    this._whitelistStep['_loadWhitelist']();
+                }
+            }),
             catchError((err) => throwError(() => err))
         );
     }
@@ -650,11 +680,17 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         this.form.updateValueAndValidity({ emitEvent: false });
     }
 
-    private _buildPayload(): Partial<AccessProjectLike> & {
+    private _progressFields(progress?: WizardProgress): Record<string, number> {
+        if (!progress) return {};
+        return { currentStep: progress.currentStep, lastStep: progress.lastStep };
+    }
+
+    private _buildPayload(progress?: WizardProgress): Partial<AccessProjectLike> & {
         projectFlow?: Record<string, unknown>;
         projectFlowType: 'login';
     } {
         const raw = this.form.getRawValue() as Record<string, unknown>;
+        const progressFields = this._progressFields(progress);
 
         const dataProtection = raw['dataProtection'] as Record<string, unknown>;
         const branding = raw['branding'] as Record<string, unknown>;
@@ -668,6 +704,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             defaultLanguage: raw['defaultLanguage'] || 'en',
             privacyUrl: raw['privacyUrl'],
             termsAndConditionsUrl: raw['termsAndConditionsUrl'],
+            ...progressFields,
         };
 
         if (this.stepIndex === 0) {
@@ -694,8 +731,8 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             projectFlow = { ...projectFlow, loginSettings };
         } else if (this.stepIndex === 2) {
             projectFlow = { ...projectFlow, integrations, security };
-        } else if (this.stepIndex === 3) {
-            return { branding, projectFlowType: 'login' };
+        } else         if (this.stepIndex === 3) {
+            return { branding, projectFlowType: 'login', ...progressFields };
         }
 
         return { ...baseSlice, branding, projectFlow, projectFlowType: 'login' };

@@ -75,41 +75,45 @@
                                     </button>
                                 </div>
 
-                                <div class="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
-                                    <div class="flex flex-col gap-3">
-                                        <mat-button-toggle-group
-                                            [value]="datePreset"
-                                            (change)="onDatePresetChange($event.value)"
-                                            [disabled]="filtersBusy()"
-                                            class="rounded-xl"
-                                        >
-                                            @for (preset of datePresets; track preset) {
-                                                <mat-button-toggle [value]="preset">{{ t(datePresetKey(preset)) }}</mat-button-toggle>
-                                            }
-                                        </mat-button-toggle-group>
-                                        @if (datePreset === 'custom') {
-                                            <mat-form-field appearance="outline" class="history-date-range w-full sm:w-80" subscriptSizing="dynamic">
-                                                <mat-label>{{ t('history.dateRange') }}</mat-label>
-                                                <mat-date-range-input [rangePicker]="picker">
-                                                    <input
-                                                        matStartDate
-                                                        [formControl]="rangeStart"
-                                                        (dateChange)="onCustomRangeChange()"
-                                                        [placeholder]="t('history.dateStart')"
-                                                    />
-                                                    <input
-                                                        matEndDate
-                                                        [formControl]="rangeEnd"
-                                                        (dateChange)="onCustomRangeChange()"
-                                                        [placeholder]="t('history.dateEnd')"
-                                                    />
-                                                </mat-date-range-input>
-                                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                                                <mat-date-range-picker #picker></mat-date-range-picker>
-                                            </mat-form-field>
+                                <div class="history-date-panel">
+                                    <span class="history-date-panel__title">{{ t('history.dateRange') }}</span>
+                                    <div class="history-date-panel__chips" role="group" [attr.aria-label]="t('history.dateRange')">
+                                        @for (preset of datePresets; track preset) {
+                                            <button
+                                                type="button"
+                                                class="history-date-chip"
+                                                [class.history-date-chip--active]="datePreset === preset"
+                                                [attr.aria-pressed]="datePreset === preset"
+                                                [disabled]="filtersBusy()"
+                                                (click)="onDatePresetChange(preset)"
+                                            >
+                                                {{ t(datePresetKey(preset)) }}
+                                            </button>
                                         }
                                     </div>
+                                    @if (datePreset === 'custom') {
+                                    <mat-form-field appearance="outline" class="history-date-range" subscriptSizing="dynamic">
+                                        <mat-date-range-input [rangePicker]="picker" [disabled]="filtersBusy()">
+                                            <input
+                                                matStartDate
+                                                [formControl]="rangeStart"
+                                                (dateChange)="onCustomRangeChange()"
+                                                [placeholder]="t('history.dateStart')"
+                                            />
+                                            <input
+                                                matEndDate
+                                                [formControl]="rangeEnd"
+                                                (dateChange)="onCustomRangeChange()"
+                                                [placeholder]="t('history.dateEnd')"
+                                            />
+                                        </mat-date-range-input>
+                                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-date-range-picker #picker></mat-date-range-picker>
+                                    </mat-form-field>
+                                    }
+                                </div>
 
+                                <div class="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-end">
                                     <div class="min-w-[220px] flex-1">
                                         <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
                                             {{ t('history.filterService') }}
@@ -126,43 +130,130 @@
                                             }
                                         </select>
                                     </div>
+
+                                    @if (countryOptions().length || countryFilter) {
+                                        <div class="min-w-[180px]">
+                                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
+                                                {{ t('history.filterCountry') }}
+                                            </label>
+                                            <select
+                                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                                [ngModel]="countryFilter"
+                                                (ngModelChange)="onCountryFilterChange($event)"
+                                                [disabled]="filtersBusy()"
+                                            >
+                                                <option value="">{{ t('history.filterCountryAll') }}</option>
+                                                @for (country of countryOptions(); track country.code) {
+                                                    <option [value]="country.code">{{ country.name }}</option>
+                                                }
+                                                @if (countryFilter && !countryOptions().length) {
+                                                    <option [value]="countryFilter">{{ countryFilter }}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+
+                                    @if (costCenterOptions().length) {
+                                        <div class="min-w-[180px]">
+                                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
+                                                {{ t('history.filterCostCenter') }}
+                                            </label>
+                                            <select
+                                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                                [ngModel]="costCenterFilter"
+                                                (ngModelChange)="onCostCenterFilterChange($event)"
+                                                [disabled]="filtersBusy()"
+                                            >
+                                                <option value="">{{ t('history.filterCostCenterAll') }}</option>
+                                                @for (center of costCenterOptions(); track center._id) {
+                                                    <option [value]="center._id">{{ center.name }} · {{ center.code }}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
                     }
 
-                    @if (mode() === 'credits' && topEndpoints().length) {
+                    @if (mode() === 'credits' && (topEndpoints().length || countryFilter)) {
                         <section class="flex flex-col gap-3">
                             <h2 class="text-sm font-semibold text-stone-950 dark:text-white">
                                 {{ t('history.topEndpointsTitle') }}
                             </h2>
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                @for (item of topEndpoints(); track item._id) {
-                                    <button
-                                        type="button"
-                                        class="flex flex-col gap-3 rounded-2xl border p-4 text-left transition hover:border-stone-300 hover:shadow-sm dark:hover:border-gray-600"
-                                        [ngClass]="endpointCardClasses(item._id)"
-                                        (click)="filterByEndpoint(item._id)"
-                                    >
-                                        <div class="flex items-start gap-3">
-                                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
-                                                <mat-icon class="!h-4 !w-4 !text-base">query_stats</mat-icon>
-                                            </div>
-                                            <div class="min-w-0 flex-1">
-                                                <p class="text-sm font-medium leading-5 text-stone-950 dark:text-white">
-                                                    {{ endpointDisplayName(item) }}
-                                                </p>
-                                                <p class="mt-1 text-2xl font-semibold tracking-tight text-stone-950 dark:text-white">
-                                                    {{ item.total }}
-                                                </p>
-                                                <p class="text-xs text-stone-500 dark:text-stone-400">
-                                                    {{ t('history.requests') }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </button>
+                            @if (!topEndpoints().length) {
+                                <div class="rounded-2xl border border-stone-200/90 bg-white p-8 text-center text-sm text-stone-500 dark:border-gray-800 dark:bg-gray-900/70 dark:text-stone-400">
+                                    {{ t('settings.usageReport.empty') }}
+                                </div>
+                            } @else {
+                                <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+                                    <div class="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                        <p class="text-xs text-stone-500 dark:text-stone-400">{{ t('settings.usageReport.total') }}</p>
+                                        <p class="mt-1 text-2xl font-bold tabular-nums text-stone-950 dark:text-white">{{ topTotals().total | number }}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                        <p class="text-xs text-stone-500 dark:text-stone-400">{{ t('settings.usageReport.ok') }}</p>
+                                        <p class="mt-1 text-2xl font-bold tabular-nums text-stone-950 dark:text-white">{{ topTotals().ok | number }}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                        <p class="text-xs text-stone-500 dark:text-stone-400">{{ t('settings.usageReport.failed') }}</p>
+                                        <p class="mt-1 text-2xl font-bold tabular-nums text-stone-950 dark:text-white">{{ topTotals().failed | number }}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                        <p class="text-xs text-stone-500 dark:text-stone-400">{{ t('settings.usageReport.cost') }}</p>
+                                        <p class="mt-1 text-2xl font-bold tabular-nums text-stone-950 dark:text-white">{{ topTotals().costUSD | currency: 'USD' : 'symbol' : '1.2-2' }}</p>
+                                    </div>
+                                </div>
+                                @if (endpointChart(); as options) {
+                                    <div class="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70">
+                                        <apx-chart
+                                            [chart]="options.chart!"
+                                            [series]="options.series!"
+                                            [colors]="options.colors!"
+                                            [xaxis]="options.xaxis!"
+                                            [yaxis]="options.yaxis!"
+                                            [plotOptions]="options.plotOptions!"
+                                            [dataLabels]="options.dataLabels!"
+                                            [grid]="options.grid!"
+                                            [legend]="options.legend!"
+                                            [tooltip]="options.tooltip!"
+                                        ></apx-chart>
+                                    </div>
                                 }
-                            </div>
+                                <div class="overflow-x-auto rounded-2xl border border-stone-200/90 bg-white dark:border-gray-800 dark:bg-gray-900/70">
+                                    <table class="w-full text-sm">
+                                        <thead class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left">{{ t('settings.usageReport.group.endpoint') }}</th>
+                                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.total') }}</th>
+                                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.ok') }}</th>
+                                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.failed') }}</th>
+                                                <th class="px-4 py-3 text-right">{{ t('settings.usageReport.cost') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-stone-100 tabular-nums dark:divide-gray-800">
+                                            @for (item of topEndpoints(); track item._id) {
+                                                <tr>
+                                                    <td class="px-4 py-2.5">
+                                                        <button
+                                                            type="button"
+                                                            class="max-w-xs truncate text-left font-medium hover:underline"
+                                                            [ngClass]="isEndpointSelected(item._id) ? 'text-indigo-700 dark:text-indigo-300' : 'text-stone-950 dark:text-white'"
+                                                            (click)="filterByEndpoint(item._id)"
+                                                        >
+                                                            {{ endpointDisplayName(item) }}
+                                                        </button>
+                                                    </td>
+                                                    <td class="px-4 py-2.5 text-right">{{ item.total | number }}</td>
+                                                    <td class="px-4 py-2.5 text-right">{{ item.ok | number }}</td>
+                                                    <td class="px-4 py-2.5 text-right">{{ item.failed | number }}</td>
+                                                    <td class="px-4 py-2.5 text-right">{{ (item.costUSD || 0) | currency: 'USD' : 'symbol' : '1.2-4' }}</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
                         </section>
                     }
 

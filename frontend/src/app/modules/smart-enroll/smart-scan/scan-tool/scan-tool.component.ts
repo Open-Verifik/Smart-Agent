@@ -2,15 +2,18 @@ import { CommonModule, Location } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
+    DestroyRef,
     ElementRef,
     inject,
     OnDestroy,
     OnInit,
     ViewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,8 +23,17 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
+import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
 import { SmartScanService } from '../smart-scan.service';
-import type { DocumentType, DocumentClassification, DocumentTypeField, SmartCheckResult } from '../smart-scan.types';
+import { ScanToolReviewStepComponent } from './scan-tool-review-step.component';
+import { ScanToolSmartCheckResultComponent } from './scan-tool-smart-check-result.component';
+import type {
+    DocumentType,
+    DocumentClassification,
+    DocumentTypeField,
+    RecentDocumentType,
+    SmartCheckResult,
+} from '../smart-scan.types';
 
 type ScanToolStep = 'select' | 'preview' | 'upload' | 'results';
 
@@ -52,6 +64,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
         FormsModule,
         RouterModule,
         MatButtonModule,
+        MatDialogModule,
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
@@ -60,6 +73,8 @@ const COUNTRY_FLAGS: Record<string, string> = {
         MatMenuModule,
         MatProgressSpinnerModule,
         TranslocoModule,
+        ScanToolReviewStepComponent,
+        ScanToolSmartCheckResultComponent,
     ],
     templateUrl: './scan-tool.component.html',
     styleUrls: ['./scan-tool.component.scss'],
@@ -75,10 +90,15 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _location = inject(Location);
     private _transloco = inject(TranslocoService);
+    private _dialog = inject(MatDialog);
+    private _destroyRef = inject(DestroyRef);
 
     step: ScanToolStep = 'select';
+    /** Review or upload requested in the URL before the document type has loaded. */
+    private pendingStep: ScanToolStep | null = null;
 
     selectedCountry = '';
+    countryPickerOpen = false;
     searchQuery = '';
     selectedCategory = '';
     countries: string[] = [];
@@ -86,6 +106,10 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     documentTypesLoading = false;
     showMine = false;
     flippedCardId: string | null = null;
+    recentTypes: RecentDocumentType[] = [];
+    recentLoading = false;
+    private requestedCode = '';
+    private requestedValidationId = '';
 
     private _countriesSub: Subscription | null = null;
     private _documentTypesSub: Subscription | null = null;
@@ -124,7 +148,12 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this._scanService.resetScanState();
         this._scanService.documentTypes.set([]);
+        this.requestedCode = (this._route.snapshot.queryParamMap.get('documentType') || '').trim();
+        this.requestedValidationId = (this._route.snapshot.queryParamMap.get('documentValidation') || '').trim();
         const requestedCountry = this._route.snapshot.queryParamMap.get('country') || '';
+        this.bindStepToUrl();
+        if (this.requestedValidationId) this.loadRequestedValidation(this.requestedValidationId);
+        this.loadRecentTypes();
         this._countriesSub = this._scanService.getDocumentTypeCountries().subscribe({
             next: (countries) => {
                 this.countries = countries;
@@ -144,6 +173,116 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this._countriesSub?.unsubscribe();
         this._documentTypesSub?.unsubscribe();
+    }
+
+    get stepTitleKey(): string {
+        const titles: Record<ScanToolStep, string> = {
+            select: 'smartScan.stepSelectTitle',
+            preview: 'smartScan.stepReviewTitle',
+            upload: 'smartScan.stepUploadTitle',
+            results: 'smartScan.stepResultsTitle',
+        };
+        return titles[this.step];
+    }
+
+    get stepHelpKey(): string {
+        const help: Record<ScanToolStep, string> = {
+            select: 'smartScan.stepSelectHelp',
+            preview: 'smartScan.stepReviewHelp',
+            upload: 'smartScan.stepUploadHelp',
+            results: 'smartScan.stepResultsHelp',
+        };
+        return help[this.step];
+    }
+
+    get choiceLabel(): string {
+        const selected = this.selectedDocType();
+        if (!selected) return this._transloco.translate('smartScan.choiceNone');
+        return `${selected.code} — ${selected.name}`;
+    }
+
+    get choiceDetail(): string {
+        if (this.step === 'upload' || this.step === 'preview' || this.step === 'results') {
+            return this._transloco.translate(this.requiresBackSide ? 'smartScan.backRequired' : 'smartScan.onePhoto');
+        }
+        if (this.recentTypes.length) {
+            return this._transloco.translate('smartScan.recentCount', { count: this.recentTypes.length });
+        }
+        return this._transloco.translate('smartScan.choiceCatalog');
+    }
+
+    formatLastUsed(value: string | undefined): string {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+    }
+
+    /**
+     * Opens the document photo full screen so it can be zoomed.
+     */
+    openImagePreview(imageSrc: string | undefined, title?: string): void {
+        if (!imageSrc) return;
+        this._dialog.open(ImagePreviewDialogComponent, {
+            data: { imageSrc, title },
+            panelClass: 'image-preview-dialog-panel',
+            width: '100%',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            height: '100%',
+        });
+    }
+
+    useMyFields(documentType: DocumentType, event?: Event) {
+        event?.stopPropagation();
+        this._router.navigate(['/smart-enroll/smart-scan/document-type/new'], {
+            queryParams: { fork: documentType._id },
+        });
+    }
+
+    private loadRecentTypes() {
+        this.recentLoading = true;
+        this._scanService.getRecentDocumentTypes().subscribe({
+            next: (rows) => {
+                this.recentTypes = rows;
+                this.recentLoading = false;
+                if (this.requestedCode) this.openRequestedType(this.requestedCode);
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.recentLoading = false;
+                if (this.requestedCode) this.openRequestedType(this.requestedCode);
+                this._cdr.markForCheck();
+            },
+        });
+    }
+
+    private openRequestedType(code: string) {
+        const recent = this.recentTypes.find((row) => row.documentType?.code === code);
+        if (recent?.documentType) {
+            this.requestedCode = '';
+            this.openRequestedDocument(recent.documentType);
+            return;
+        }
+
+        this._scanService.getDocumentTypesByCode(code).subscribe({
+            next: (types) => {
+                const owned = types.find((type) => type.client);
+                const chosen = owned || types[0];
+                this.requestedCode = '';
+                if (chosen) this.openRequestedDocument(chosen);
+                else {
+                    this.pendingStep = null;
+                    this.writeStep(this.fallbackStep(), true);
+                }
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.requestedCode = '';
+                this.pendingStep = null;
+                this.writeStep(this.fallbackStep(), true);
+            },
+        });
     }
 
     getFlag(country: string): string {
@@ -179,10 +318,18 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         }
 
         this.selectedCountry = country;
+        this.countryPickerOpen = false;
         this.selectedCategory = '';
         this.searchQuery = '';
         this.flippedCardId = null;
         this.loadDocumentTypes(country);
+    }
+
+    /**
+     * Shows every country again without clearing the current choice.
+     */
+    openCountryPicker(): void {
+        this.countryPickerOpen = true;
     }
 
     toggleCategory(category: string) {
@@ -234,16 +381,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     }
 
     private restoreSelectStep() {
-        this.selectedCountry = this.lastCountry;
-        this.selectedCategory = this.lastCategory;
-        this.searchQuery = this.lastSearchQuery;
-        this.step = 'select';
-
-        if (this.selectedCountry && this.documentTypes().length === 0) {
-            this.loadDocumentTypes(this.selectedCountry);
-        }
-
-        this._cdr.markForCheck();
+        this.writeStep('select');
     }
 
     get filteredDocumentTypes(): DocumentType[] {
@@ -298,6 +436,101 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     }
 
     selectDocumentType(dt: DocumentType) {
+        this.pendingStep = null;
+        this.openDocument(dt, 'preview');
+    }
+
+    /**
+     * Opens a document requested from the URL, keeping upload when that step was requested.
+     */
+    private openRequestedDocument(dt: DocumentType) {
+        if (this.pendingStep === 'results' || this.requestedValidationId) {
+            this.loadDocumentContext(dt);
+            return;
+        }
+        const next = this.pendingStep === 'upload' ? 'upload' : 'preview';
+        this.pendingStep = null;
+        this.openDocument(dt, next);
+    }
+
+    /**
+     * Loads the document type and its templates without changing the active step.
+     */
+    private loadDocumentContext(dt: DocumentType) {
+        this._scanService.selectedDocumentType.set(dt);
+        this._scanService.getPromptTemplates(dt._id).subscribe({
+            next: () => {
+                const tpl = this._scanService.promptTemplates()[0];
+                this.requiresBackSide = tpl?.requiresBackSide ?? false;
+                this._scanService.selectedPromptTemplate.set(tpl ?? null);
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.requiresBackSide = false;
+                this._cdr.markForCheck();
+            },
+        });
+    }
+
+    /**
+     * Restores the scan result when reloading `?step=results&documentValidation=:id`.
+     */
+    private loadRequestedValidation(id: string) {
+        this._scanService.getScan(id).subscribe({
+            next: (res) => {
+                const scan = res?.data;
+                this.requestedValidationId = '';
+                if (!scan) {
+                    this.pendingStep = null;
+                    this.writeStep(this.fallbackStep(), true);
+                    return;
+                }
+                const score = scan.scoreValidation;
+                const savedSmartCheck =
+                    scan.smartCheck ?? (score?.status ? (score as SmartCheckResult) : null);
+                const ocrCost = scan.cost?.ocr ?? scan.creditsCharged ?? score?.ocrCreditsCharged;
+                const smartCheckCost = scan.cost?.smartCheck ?? score?.creditsCharged;
+                this._scanService.scanResult.set({
+                    _id: scan._id,
+                    documentType: scan.documentType,
+                    documentNumber: scan.documentNumber,
+                    OCRExtraction: scan.OCRExtraction,
+                    status: scan.status,
+                    url: scan.url,
+                    backUrl: scan.backUrl,
+                    cost:
+                        scan.cost ??
+                        (ocrCost != null || smartCheckCost != null
+                            ? {
+                                  ocr: ocrCost || 0,
+                                  smartCheck: smartCheckCost || 0,
+                                  total: Number(((ocrCost || 0) + (smartCheckCost || 0)).toFixed(6)),
+                              }
+                            : null),
+                    creditsCharged: ocrCost,
+                    smartCheck: savedSmartCheck,
+                    fieldMapping: scan.fieldMapping,
+                });
+                const cls = this.getClassification();
+                this.showClassificationReason = cls ? !cls.isMatch : false;
+                if (!this.selectedDocType() && scan.documentType && !this.requestedCode) {
+                    this.openRequestedType(scan.documentType);
+                }
+                if (this.pendingStep === 'results') {
+                    this.pendingStep = null;
+                    this.writeStep('results', true);
+                }
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.requestedValidationId = '';
+                this.pendingStep = null;
+                this.writeStep(this.fallbackStep(), true);
+            },
+        });
+    }
+
+    private openDocument(dt: DocumentType, next: ScanToolStep) {
         this._scanService.selectedDocumentType.set(dt);
 
         this.lastCountry = this.selectedCountry;
@@ -310,12 +543,12 @@ export class ScanToolComponent implements OnInit, OnDestroy {
                 const tpl = templates[0];
                 this.requiresBackSide = tpl?.requiresBackSide ?? false;
                 this._scanService.selectedPromptTemplate.set(tpl ?? null);
-                this.step = 'preview';
+                this.writeStep(next);
                 this._cdr.markForCheck();
             },
             error: () => {
                 this.requiresBackSide = false;
-                this.step = 'preview';
+                this.writeStep(next);
                 this._cdr.markForCheck();
             },
         });
@@ -333,8 +566,36 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         return tpl.fields.filter((f) => f.page === 1);
     }
 
+    /**
+     * Opens the field editor for an owned type, or starts a copy of a Verifik type.
+     */
+    changeSelectedFields(): void {
+        const documentType = this.selectedDocType();
+        if (!documentType) return;
+        if (documentType.client) {
+            this.editDocumentType(documentType);
+            return;
+        }
+        this.useMyFields(documentType);
+    }
+
+    /**
+     * Opens the SmartCheck step for an owned type, or starts a copy when the type is shared.
+     */
+    connectGovernmentCheck(): void {
+        const documentType = this.selectedDocType();
+        if (!documentType) return;
+        if (documentType.client) {
+            this._router.navigate(['/smart-enroll/smart-scan/document-type', documentType._id], {
+                queryParams: { step: 'smartCheck' },
+            });
+            return;
+        }
+        this.useMyFields(documentType);
+    }
+
     proceedToUpload() {
-        this.step = 'upload';
+        this.writeStep('upload');
     }
 
     backToSelect() {
@@ -342,7 +603,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     }
 
     backToPreview() {
-        this.step = 'preview';
+        this.writeStep('preview');
     }
 
     scanSimilar() {
@@ -437,7 +698,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         const templateId = this._scanService.selectedPromptTemplate()?._id;
         this._scanService.scanDocument(docType.code, image, backImage, templateId).subscribe({
             next: () => {
-                this.step = 'results';
+                this.writeStep('results', true);
                 const cls = this.getClassification();
                 this.showClassificationReason = cls ? !cls.isMatch : false;
                 this._cdr.markForCheck();
@@ -453,13 +714,16 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         if (this.frontUrl) URL.revokeObjectURL(this.frontUrl);
         if (this.backUrl) URL.revokeObjectURL(this.backUrl);
         this._scanService.resetScanState();
-        this.step = 'select';
         this.frontFile = null;
         this.frontUrl = null;
         this.backFile = null;
         this.backUrl = null;
         this.clearCountrySelection();
+        this.lastCountry = '';
+        this.lastCategory = '';
+        this.lastSearchQuery = '';
         this.showRawJson = false;
+        this.writeStep('select');
         this._cdr.markForCheck();
     }
 
@@ -490,11 +754,11 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         if (!front.size && !back.size) return [{ id: 'all', labelKey: '', fields: rows }];
 
         return [
-            { id: 'front', labelKey: 'smartScan.frontSideFields', fields: rows.filter((row) => front.has(row.key)) },
+            { id: 'front', labelKey: 'smartScan.frontPhotoTitle', fields: rows.filter((row) => front.has(row.key)) },
             {
                 id: 'back',
-                labelKey: 'smartScan.backSideFields',
-                fields: rows.filter((row) => back.has(row.key) && !front.has(row.key)),
+                labelKey: 'smartScan.backPhotoTitle',
+                fields: this.requiresBackSide ? rows.filter((row) => back.has(row.key)) : [],
             },
             {
                 id: 'other',
@@ -533,6 +797,24 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         return Math.round((cls?.confidence ?? 0) * 100);
     }
 
+    canOpenFlowStep(stepId: ScanToolStep): boolean {
+        if (stepId === 'select') return true;
+        if (stepId === 'preview' || stepId === 'upload') return Boolean(this.selectedDocType());
+        return Boolean(this.scanResult());
+    }
+
+    /**
+     * Moves to a step the scan has already reached.
+     */
+    goToFlowStep(stepId: ScanToolStep): void {
+        if (stepId === this.step || !this.canOpenFlowStep(stepId)) return;
+        if (stepId === 'select') {
+            this.restoreSelectStep();
+            return;
+        }
+        this.writeStep(stepId);
+    }
+
     isFlowStepCurrent(stepId: ScanToolStep): boolean {
         return this.step === stepId;
     }
@@ -541,5 +823,95 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         const currentIdx = this._flowStepOrder.indexOf(this.step);
         const stepIdx = this._flowStepOrder.indexOf(stepId);
         return stepIdx >= 0 && stepIdx < currentIdx;
+    }
+
+    /**
+     * Keeps ?step= aligned with the visible scan step. Reading it never starts a scan.
+     */
+    private bindStepToUrl() {
+        this._route.queryParamMap.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((params) => {
+            this.syncStepFromParam(params.get('step'));
+        });
+    }
+
+    private syncStepFromParam(raw: string | null) {
+        const requested = raw ? this.stepFromQuery(raw) : null;
+        if (!requested) {
+            this.writeStep('select', true);
+            return;
+        }
+        if (!this.canOpenFlowStep(requested)) {
+            if (this.requestedValidationId && requested === 'results') {
+                this.pendingStep = 'results';
+                return;
+            }
+            if (this.requestedCode && (requested === 'preview' || requested === 'upload')) {
+                this.pendingStep = requested;
+                return;
+            }
+            this.writeStep(this.fallbackStep(), true);
+            return;
+        }
+        this.pendingStep = null;
+        if (raw !== this.queryForStep(requested)) {
+            this.writeStep(requested, true);
+            return;
+        }
+        this.applyStep(requested);
+    }
+
+    private stepFromQuery(value: string): ScanToolStep | null {
+        if (value === 'select') return 'select';
+        if (value === 'review' || value === 'preview') return 'preview';
+        if (value === 'upload') return 'upload';
+        if (value === 'results') return 'results';
+        return null;
+    }
+
+    private queryForStep(step: ScanToolStep): string {
+        return step === 'preview' ? 'review' : step;
+    }
+
+    private fallbackStep(): ScanToolStep {
+        if (this.scanResult()) return 'results';
+        if (this.selectedDocType()) return 'preview';
+        return 'select';
+    }
+
+    private writeStep(step: ScanToolStep, replaceUrl = false) {
+        if (!this.canOpenFlowStep(step) && step !== 'select') return;
+        const queryStep = this.queryForStep(step);
+        const validationId = step === 'results' ? this.scanResult()?._id || null : null;
+        this.applyStep(step);
+        const currentParams = this._route.snapshot.queryParamMap;
+        if (
+            currentParams.get('step') === queryStep &&
+            (currentParams.get('documentValidation') || null) === validationId
+        ) {
+            return;
+        }
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: {
+                step: queryStep,
+                documentValidation: validationId,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl,
+        });
+    }
+
+    private applyStep(step: ScanToolStep) {
+        if (step === 'select' && this.step !== 'select') {
+            this.selectedCountry = this.lastCountry;
+            this.selectedCategory = this.lastCategory;
+            this.searchQuery = this.lastSearchQuery;
+            if (this.selectedCountry && this.documentTypes().length === 0) {
+                this.loadDocumentTypes(this.selectedCountry);
+            }
+        }
+        if (this.step === step) return;
+        this.step = step;
+        this._cdr.markForCheck();
     }
 }

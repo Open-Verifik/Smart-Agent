@@ -9,6 +9,7 @@ export interface HumanAuthnProject {
     target?: string;
     version?: number;
     currentStep?: number;
+    lastStep?: number;
     allowedCountries?: string[];
     contactEmail?: string;
     defaultLanguage?: string;

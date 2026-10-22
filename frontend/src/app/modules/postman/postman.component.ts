@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, DestroyRef, effect, inject, NgZone, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, ElementRef, inject, NgZone, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +27,21 @@ import { ApiEndpoint } from './postman.types';
 import { RequestEditorComponent } from './request-editor/request-editor.component';
 import { ResponseViewerComponent } from './response-viewer/response-viewer.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
+
+const PINNED_COUNTRIES_KEY = 'postman.pinnedCountries';
+
+/**
+ * Country names the explorer should keep on the left of the flag strip.
+ * @returns {string[]}
+ */
+const _readPinnedCountries = (): string[] => {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(PINNED_COUNTRIES_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed.filter((name) => typeof name === 'string' && name) : [];
+    } catch {
+        return [];
+    }
+};
 
 @Component({
     selector: 'app-postman',
@@ -137,63 +152,75 @@ import { SidebarComponent } from './sidebar/sidebar.component';
                         </button>
                     }
 
-                    <!-- Country Filters (Pill Style) -->
-                    <div
-                        class="postman-flag-scroller flex items-center gap-1 overflow-x-auto px-1 pt-1"
-                        [ngClass]="isMobile() ? 'flex-1 min-w-0' : 'max-w-[60%]'"
-                    >
-                        @for (country of countries(); track country.name) {
-                            @let ui = countryFlagUi(country.name);
-                            @let selected = selectedCountry() === country.name;
+                    <div class="postman-flag-strip" [ngClass]="isMobile() ? 'min-w-0 flex-1' : 'max-w-[60%]'">
+                        @if (pinnedCountries().length) {
+                            <div class="postman-flag-pins">
+                                @for (country of pinnedCountries(); track country.name) {
+                                    <ng-container *ngTemplateOutlet="countryFlag; context: { $implicit: country, pinned: true }" />
+                                }
+                            </div>
+                            <div class="postman-flag-divider" aria-hidden="true"></div>
+                        }
+                        <div class="postman-flag-scroll">
+                            <div #flagScroller class="postman-flag-scroller" (scroll)="updateFlagScroll()">
+                                @for (country of scrollCountries(); track country.name) {
+                                    <ng-container *ngTemplateOutlet="countryFlag; context: { $implicit: country, pinned: false }" />
+                                }
+                            </div>
+                            @if (canScrollLeft()) {
+                                <button type="button" class="postman-flag-arrow postman-flag-arrow--left" (click)="scrollFlags(-1)" [attr.aria-label]="'postman.flags.scrollLeft' | transloco">
+                                    <mat-icon>chevron_left</mat-icon>
+                                </button>
+                            }
+                            @if (canScrollRight()) {
+                                <button type="button" class="postman-flag-arrow postman-flag-arrow--right" (click)="scrollFlags(1)" [attr.aria-label]="'postman.flags.scrollRight' | transloco">
+                                    <mat-icon>chevron_right</mat-icon>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    <ng-template #countryFlag let-country let-pinned="pinned">
+                        @let ui = countryFlagUi(country.name);
+                        @let selected = selectedCountry() === country.name;
+                        <div class="postman-flag" [attr.data-country]="country.name">
                             <button
                                 type="button"
+                                class="postman-flag-btn"
+                                [class.postman-flag-btn--selected]="selected"
                                 (click)="toggleCountry(country.name)"
-                                [class.bg-white]="!selected"
-                                [class.shadow-sm]="!selected"
-                                [class.border-slate-200]="!selected"
-                                [class.dark:bg-slate-800]="!selected"
-                                [class.bg-slate-900]="selected"
-                                [class.text-white]="selected"
-                                [class.border-transparent]="selected"
-                                class="h-7 w-7 min-w-[1.75rem] flex items-center justify-center rounded-full border transition-all duration-200 relative group flex-shrink-0 aspect-square dark:border-slate-700"
+                                [attr.aria-pressed]="selected"
                                 [matTooltip]="country.name + ' (' + country.count + ')'"
                             >
                                 @switch (ui.k) {
                                     @case ('img') {
-                                        <img
-                                            [src]="ui.src"
-                                            alt=""
-                                            width="16"
-                                            height="16"
-                                            decoding="async"
-                                            loading="lazy"
-                                            class="h-4 w-4 rounded-full object-cover shadow-sm ring-1 ring-black/10 dark:ring-white/15"
-                                        />
+                                        <img [src]="ui.src" alt="" width="21" height="21" decoding="async" loading="lazy" />
                                     }
                                     @case ('globe') {
-                                        <mat-icon
-                                            class="!w-4 !h-4 !text-[16px]"
-                                            [class.text-white]="selected"
-                                            [class.text-slate-600]="!selected"
-                                            [class.dark:text-slate-300]="!selected"
-                                        >
-                                            public
-                                        </mat-icon>
+                                        <mat-icon>public</mat-icon>
                                     }
                                     @case ('initials') {
-                                        <span
-                                            class="text-[8px] font-bold leading-tight text-center px-0.5 max-w-full truncate"
-                                            [class.text-white]="selected"
-                                            [class.text-slate-700]="!selected"
-                                            [class.dark:text-slate-200]="!selected"
-                                        >
-                                            {{ ui.text }}
-                                        </span>
+                                        <span class="postman-flag-initials">{{ ui.text }}</span>
                                     }
                                 }
                             </button>
-                        }
-                    </div>
+                            <button
+                                type="button"
+                                class="postman-flag-pin"
+                                [class.postman-flag-pin--on]="pinned"
+                                (click)="togglePin(country.name, $event)"
+                                matTooltipPosition="above"
+                                [matTooltip]="(pinned ? 'postman.flags.unpin' : 'postman.flags.pin') | transloco: { country: country.name }"
+                                [attr.aria-label]="(pinned ? 'postman.flags.unpin' : 'postman.flags.pin') | transloco: { country: country.name }"
+                            >
+                                <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+                                    <path
+                                        fill="currentColor"
+                                        d="M4 1.25h4a.75.75 0 0 1 .75.75v1.1c0 .85-.55 1.55-1.3 1.8l-.15.05v.45h.9L6.75 7.1v2.15L6 10.1l-.75-.85V7.1L3.8 5.4h.9v-.45l-.15-.05c-.75-.25-1.3-.95-1.3-1.8V2A.75.75 0 0 1 4 1.25z"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    </ng-template>
 
                     <div class="flex items-center gap-3">
                         <!-- Payment Method Toggle (Privy-style: JWT | x402) -->
@@ -378,7 +405,43 @@ import { SidebarComponent } from './sidebar/sidebar.component';
                 overflow: hidden;
             }
 
+            .postman-flag-strip {
+                display: flex;
+                align-items: center;
+                min-width: 0;
+                gap: 0.35rem;
+            }
+
+            .postman-flag-pins {
+                display: flex;
+                flex-shrink: 0;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .postman-flag-divider {
+                width: 1px;
+                height: 1.35rem;
+                flex-shrink: 0;
+                background: rgb(203 213 225);
+            }
+
+            :host-context(.dark) .postman-flag-divider {
+                background: rgb(51 65 85);
+            }
+
+            .postman-flag-scroll {
+                position: relative;
+                min-width: 0;
+                flex: 1 1 auto;
+            }
+
             .postman-flag-scroller {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                overflow-x: auto;
+                padding: 0.15rem 0.15rem;
                 scrollbar-width: none;
                 -ms-overflow-style: none;
             }
@@ -387,6 +450,200 @@ import { SidebarComponent } from './sidebar/sidebar.component';
                 display: none;
                 width: 0;
                 height: 0;
+            }
+
+            .postman-flag {
+                position: relative;
+                flex-shrink: 0;
+            }
+
+            .postman-flag-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 2.275rem;
+                height: 2.275rem;
+                border-radius: 999px;
+                border: 1px solid rgb(226 232 240);
+                background: white;
+                box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+                transition:
+                    background-color 0.15s ease,
+                    border-color 0.15s ease,
+                    color 0.15s ease;
+
+                img {
+                    width: 1.3rem;
+                    height: 1.3rem;
+                    border-radius: 999px;
+                    object-fit: cover;
+                    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1);
+                }
+
+                mat-icon {
+                    width: 1.3rem;
+                    height: 1.3rem;
+                    font-size: 1.3rem;
+                    color: rgb(71 85 105);
+                }
+            }
+
+            .postman-flag-initials {
+                max-width: 100%;
+                padding: 0 0.1rem;
+                overflow: hidden;
+                color: rgb(51 65 85);
+                font-size: 0.65rem;
+                font-weight: 700;
+                line-height: 1;
+                text-overflow: ellipsis;
+            }
+
+            .postman-flag-btn--selected {
+                border-color: transparent;
+                background: rgb(15 23 42);
+                color: white;
+
+                mat-icon,
+                .postman-flag-initials {
+                    color: white;
+                }
+            }
+
+            :host-context(.dark) .postman-flag-btn:not(.postman-flag-btn--selected) {
+                border-color: rgb(51 65 85);
+                background: rgb(30 41 59);
+
+                mat-icon,
+                .postman-flag-initials {
+                    color: rgb(203 213 225);
+                }
+            }
+
+            .postman-flag-pin {
+                position: absolute;
+                right: -2px;
+                bottom: -2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-sizing: border-box;
+                width: 14px;
+                height: 14px;
+                min-width: 0;
+                padding: 0;
+                overflow: hidden;
+                border: 1px solid rgb(226 232 240);
+                border-radius: 999px;
+                background: white;
+                color: rgb(148 163 184);
+                line-height: 0;
+                box-shadow: 0 1px 2px rgb(15 23 42 / 0.16);
+                opacity: 0;
+                cursor: pointer;
+
+                svg {
+                    display: block;
+                    width: 10px;
+                    height: 10px;
+                    flex-shrink: 0;
+                }
+            }
+
+            .postman-flag:hover .postman-flag-pin,
+            .postman-flag:focus-within .postman-flag-pin,
+            .postman-flag-pin--on {
+                opacity: 1;
+            }
+
+            .postman-flag-pin--on {
+                color: rgb(15 23 42);
+            }
+
+            :host-context(.dark) .postman-flag-pin {
+                border-color: rgb(51 65 85);
+                background: rgb(30 41 59);
+                color: rgb(148 163 184);
+            }
+
+            :host-context(.dark) .postman-flag-pin--on {
+                color: rgb(248 250 252);
+            }
+
+            @media (hover: none) {
+                .postman-flag-pin {
+                    opacity: 1;
+                }
+            }
+
+            .postman-flag-arrow {
+                position: absolute;
+                top: 50%;
+                z-index: 2;
+                display: grid;
+                width: 1.35rem;
+                height: 1.35rem;
+                place-items: center;
+                border: 1px solid rgb(226 232 240);
+                border-radius: 999px;
+                background: rgb(248 250 252);
+                color: rgb(51 65 85);
+                box-shadow: 0 1px 3px rgb(15 23 42 / 0.12);
+                transform: translateY(-50%);
+
+                mat-icon {
+                    width: 1rem;
+                    height: 1rem;
+                    font-size: 1rem;
+                }
+            }
+
+            .postman-flag-arrow--left {
+                left: 0;
+            }
+
+            .postman-flag-arrow--right {
+                right: 0;
+            }
+
+            .postman-flag-arrow--left::before,
+            .postman-flag-arrow--right::before {
+                content: '';
+                position: absolute;
+                top: -0.45rem;
+                bottom: -0.45rem;
+                width: 1.15rem;
+                pointer-events: none;
+            }
+
+            .postman-flag-arrow--left::before {
+                left: 100%;
+                background: linear-gradient(to right, rgb(248 250 252), transparent);
+            }
+
+            .postman-flag-arrow--right::before {
+                right: 100%;
+                background: linear-gradient(to left, rgb(248 250 252), transparent);
+            }
+
+            :host-context(.dark) .postman-flag-arrow {
+                border-color: rgb(51 65 85);
+                background: rgb(15 23 42);
+                color: rgb(226 232 240);
+            }
+
+            :host-context(.dark) .postman-flag-arrow--left::before {
+                background: linear-gradient(to right, rgb(15 23 42), transparent);
+            }
+
+            :host-context(.dark) .postman-flag-arrow--right::before {
+                background: linear-gradient(to left, rgb(15 23 42), transparent);
+            }
+
+            :host-context(.dark) .postman-flag-pin:not(.postman-flag-pin--on) {
+                border-color: rgb(51 65 85);
+                background: rgb(15 23 42);
+                color: rgb(203 213 225);
             }
         `,
     ],
@@ -441,6 +698,22 @@ export class PostmanComponent {
             .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
     );
 
+    readonly flagScroller = viewChild<ElementRef<HTMLElement>>('flagScroller');
+    readonly pinnedNames = signal<string[]>(_readPinnedCountries());
+    readonly canScrollLeft = signal(false);
+    readonly canScrollRight = signal(false);
+    readonly pinnedCountries = computed(() => {
+        const byName = new Map(this.countries().map((country) => [country.name, country]));
+        return this.pinnedNames().flatMap((name) => {
+            const country = byName.get(name);
+            return country ? [country] : [];
+        });
+    });
+    readonly scrollCountries = computed(() => {
+        const pinned = new Set(this.pinnedNames());
+        return this.countries().filter((country) => !pinned.has(country.name));
+    });
+
     // Payment Method State
     paymentMethod = this._postmanService.paymentMethod;
 
@@ -479,12 +752,103 @@ export class PostmanComponent {
         return postmanCountryFlagUi(country);
     }
 
+    /**
+     * Keep a country in the left group, or return it to the scrolling row.
+     * @param {string} name
+     * @param {Event} event
+     */
+    togglePin = (name: string, event: Event): void => {
+        event.stopPropagation();
+        event.preventDefault();
+        const current = this.pinnedNames();
+        const next = current.includes(name) ? current.filter((item) => item !== name) : [...current, name];
+        this._storePins(next);
+    };
+
+    /**
+     * Move the scrolling flags by most of the visible width.
+     * @param {-1 | 1} direction
+     */
+    scrollFlags = (direction: -1 | 1): void => {
+        const scroller = this.flagScroller()?.nativeElement;
+        if (!scroller) return;
+        scroller.scrollBy({ left: direction * scroller.clientWidth * 0.8, behavior: 'smooth' });
+    };
+
+    /** Show an arrow only on the side that still has hidden flags. */
+    updateFlagScroll = (): void => {
+        const scroller = this.flagScroller()?.nativeElement;
+        if (!scroller) {
+            this.canScrollLeft.set(false);
+            this.canScrollRight.set(false);
+            return;
+        }
+        this.canScrollLeft.set(scroller.scrollLeft > 2);
+        this.canScrollRight.set(scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 2);
+    };
+
+    /**
+     * Persist pins and drop names that are no longer in the catalog.
+     */
+    private _watchFlagStrip = (): void => {
+        effect((onCleanup) => {
+            const scroller = this.flagScroller()?.nativeElement;
+            this.scrollCountries();
+            if (!scroller) return;
+            const observer = new ResizeObserver(() => this.updateFlagScroll());
+            observer.observe(scroller);
+            this.updateFlagScroll();
+            onCleanup(() => observer.disconnect());
+        });
+
+        effect(() => {
+            const selected = this.selectedCountry();
+            const scrolling = this.scrollCountries();
+            if (!selected || !scrolling.some((country) => country.name === selected)) return;
+            queueMicrotask(() => requestAnimationFrame(() => this._scrollSelectedIntoView(selected)));
+        });
+
+        effect(() => {
+            const known = new Set(this.countries().map((country) => country.name));
+            if (!known.size) return;
+            const next = this.pinnedNames().filter((name) => known.has(name));
+            if (next.length === this.pinnedNames().length) return;
+            this._storePins(next);
+        });
+    };
+
+    /**
+     * @param {string[]} names
+     */
+    private _storePins = (names: string[]): void => {
+        this.pinnedNames.set(names);
+        localStorage.setItem(PINNED_COUNTRIES_KEY, JSON.stringify(names));
+    };
+
+    /**
+     * Bring a selected flag into the visible part of the row.
+     * @param {string} name
+     */
+    private _scrollSelectedIntoView = (name: string): void => {
+        const scroller = this.flagScroller()?.nativeElement;
+        if (!scroller) return;
+        const flag = Array.from(scroller.querySelectorAll<HTMLElement>('[data-country]')).find((el) => el.dataset.country === name);
+        if (!flag) return;
+        const flagBox = flag.getBoundingClientRect();
+        const rowBox = scroller.getBoundingClientRect();
+        const left = flagBox.left - rowBox.left;
+        const right = flagBox.right - rowBox.right;
+        if (left < 0) scroller.scrollBy({ left: left - 8, behavior: 'smooth' });
+        else if (right > 0) scroller.scrollBy({ left: right + 8, behavior: 'smooth' });
+    };
+
     private _queryParamMap = toSignal(this._route.queryParamMap, {
         initialValue: this._route.snapshot.queryParamMap,
     });
 
     constructor() {
         this._destroyRef.onDestroy(() => this.stopDrag());
+        this._watchFlagStrip();
 
         // Track viewport size: anything below the `md` alias is treated as mobile.
         this._fuseMediaWatcherService.onMediaChange$
