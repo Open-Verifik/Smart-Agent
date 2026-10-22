@@ -4,7 +4,6 @@ import {
     ChangeDetectorRef,
     Component,
     computed,
-    DestroyRef,
     effect,
     HostListener,
     inject,
@@ -12,7 +11,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -29,11 +27,12 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, Subject, switchMap } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
+import { ReportPreviewComponent, reportPaperSizeMm } from '../report-preview/report-preview.component';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import {
     BatchConfiguration,
@@ -43,7 +42,6 @@ import {
 } from '../smart-batch.service';
 import {
     SampleReportData,
-    sanitizeTemplateForApi,
     SmartReport,
     SmartReportService,
     SmartReportTemplate,
@@ -122,6 +120,7 @@ const createReportViewerPaginatorIntl = (): MatPaginatorIntl => {
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
+        ReportPreviewComponent,
     ],
     templateUrl: './report-viewer.component.html',
     animations: [fuseAnimations],
@@ -137,8 +136,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
-    private _destroyRef = inject(DestroyRef);
-
     // Route params
     configId = signal<string | null>(null);
     batchId = signal<string | null>(null);
@@ -152,15 +149,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     templates = signal<SmartReportTemplate[]>([]);
     selectedTemplate = signal<SmartReportTemplate | null>(null);
     report = signal<SmartReport | null>(null);
-
-    /** Backend HTML preview (same renderer as PDF), shown in a sandboxed iframe. */
-    htmlPreviewUrl = signal<SafeResourceUrl | null>(null);
-    htmlPreviewLoading = signal(false);
-    htmlPreviewError = signal<string | null>(null);
-    private _htmlPreviewObjectUrl: string | null = null;
-    private _htmlPreviewDocument = '';
-    private readonly _htmlPreviewRequest$ = new Subject<void>();
-    private _htmlPreviewLoadSeq = 0;
 
     /** Backend-composed `report.*` model per row (same source as PDF generation). */
     private _composedReportsByRowIndex = signal<Record<number, Record<string, any>>>({});
@@ -360,6 +348,11 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         return all[idx] ?? { inputData: {}, results: {} };
     });
 
+    previewPaperWidthMm = computed(() => {
+        const template = this.selectedTemplate();
+        return reportPaperSizeMm(template?.pageSize, template?.orientation || 'portrait').width;
+    });
+
     goToPreviewPage(index: number): void {
         const max = this.previewDataForAllRows().length - 1;
         this.previewPageIndex.set(Math.min(Math.max(0, index), max));
@@ -389,79 +382,12 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             void this._refreshComposedReports();
         });
 
-        effect(() => {
-            if (this.stepResultsViewMode() !== 'pdf') return;
-            this.selectedTemplate();
-            this.configuration();
-            this.previewDataForCurrentPage();
-            this._composedReportsByRowIndex();
-            this._requestHtmlPreview();
-        });
-
-        this._htmlPreviewRequest$
-            .pipe(
-                debounceTime(400),
-                map(() => this._htmlPreviewRequestKey()),
-                distinctUntilChanged(),
-                switchMap((key) => {
-                    if (!key) {
-                        this.htmlPreviewLoading.set(false);
-                        this._releaseHtmlPreviewUrl();
-                        return of(null);
-                    }
-                    const loadSeq = ++this._htmlPreviewLoadSeq;
-                    this.htmlPreviewLoading.set(true);
-                    this.htmlPreviewError.set(null);
-                    const template = this.selectedTemplate()!;
-                    const sampleData = this._sampleDataForHtmlPreview();
-                    return this._reportService
-                        .previewHtml(template, sampleData, { preview: false })
-                        .pipe(
-                        map((html) => ({ loadSeq, html })),
-                        catchError(() => of({ loadSeq, html: null as string | null }))
-                    );
-                }),
-                takeUntilDestroyed(this._destroyRef)
-            )
-            .subscribe(({ loadSeq, html }) => {
-                if (loadSeq !== this._htmlPreviewLoadSeq) return;
-                this.htmlPreviewLoading.set(false);
-                if (html == null) {
-                    this.htmlPreviewError.set(
-                        this._transloco.translate('smartReport.previewFailed')
-                    );
-                    this._releaseHtmlPreviewUrl();
-                    return;
-                }
-                this._setHtmlPreviewDocument(html);
-            });
     }
 
     ngOnDestroy(): void {
         this._composedReportsLoadSeq += 1;
-        this._htmlPreviewLoadSeq += 1;
         this._clearJsonCopyTimer();
         this._clearGeneratedPdf();
-        this._releaseHtmlPreviewUrl();
-    }
-
-    refreshHtmlPreview(): void {
-        this._requestHtmlPreview();
-    }
-
-    private _requestHtmlPreview(): void {
-        this._htmlPreviewRequest$.next();
-    }
-
-    private _htmlPreviewRequestKey(): string {
-        const template = this.selectedTemplate();
-        const b = this.batch();
-        if (!template || !b?.rows?.length) return '';
-        return JSON.stringify({
-            template: sanitizeTemplateForApi(template, 'update'),
-            sample: this._sampleDataForHtmlPreview(),
-            printPreview: true,
-        });
     }
 
     private _batchStepsForSample(): SampleReportData['steps'] {
@@ -477,31 +403,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     ? { code: step.appFeature.code }
                     : undefined,
         }));
-    }
-
-    private _sampleDataForHtmlPreview(): SampleReportData {
-        return {
-            ...this._sampleDataForCurrentRow(),
-            steps: this._batchStepsForSample(),
-        };
-    }
-
-    private _setHtmlPreviewDocument(html: string): void {
-        this._releaseHtmlPreviewUrl();
-        this._htmlPreviewDocument = html;
-        const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-        this._htmlPreviewObjectUrl = url;
-        this.htmlPreviewUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
-        this.htmlPreviewError.set(null);
-    }
-
-    private _releaseHtmlPreviewUrl(): void {
-        if (this._htmlPreviewObjectUrl) {
-            URL.revokeObjectURL(this._htmlPreviewObjectUrl);
-            this._htmlPreviewObjectUrl = null;
-        }
-        this._htmlPreviewDocument = '';
-        this.htmlPreviewUrl.set(null);
     }
 
     private _rowResolutionOptions(
