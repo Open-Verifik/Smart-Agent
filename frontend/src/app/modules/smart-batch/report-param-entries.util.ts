@@ -76,7 +76,7 @@ export const orderRecordKeys = (
 
 export const collectLayoutSheetItems = (
     value: unknown,
-    options?: { hiddenKeys?: string[]; keyOrder?: string[] }
+    options?: { hiddenKeys?: string[]; keyOrder?: string[]; keyOverrides?: Record<string, unknown> }
 ): LayoutSheetItem[] => {
     const hiddenKeys = options?.hiddenKeys;
     const fields: LayoutSheetItem[] = collectScalarParams(value, {
@@ -93,6 +93,7 @@ export const collectLayoutSheetItems = (
     const tables: LayoutSheetItem[] = collectObjectTables(value, {
         hiddenKeys,
         keyOrder: options?.keyOrder,
+        keyOverrides: options?.keyOverrides,
     }).map((table) => ({
         kind: 'table',
         key: table.key,
@@ -126,18 +127,56 @@ export type LayoutParamGroup = {
 const BLOB_KEY_PATTERN = /base64|pdfbytes|pdfdata/i;
 const ROOT_TABLE_KEY = '__list';
 
-const humanizeSegment = (segment: string): string => {
-    if (/^\d+$/.test(segment)) return String(Number(segment) + 1);
-    return segment
+const PARAM_KEY_LABELS: Record<string, string> = {
+    tipoTarifa: 'Tipo de tarifa',
+    soat: 'SOAT',
+};
+
+const splitParamSegment = (segment: string): string =>
+    segment
         .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
         .replace(/[_-]+/g, ' ')
         .replace(/^./, (letter) => letter.toUpperCase())
         .trim();
+
+const humanizeSegment = (segment: string): string => {
+    if (/^\d+$/.test(segment)) return String(Number(segment) + 1);
+    return PARAM_KEY_LABELS[segment] ?? splitParamSegment(segment);
 };
+
+const paramKeyLeaf = (key: string): string =>
+    key.split('.').filter((part) => part && part !== ROOT_TABLE_KEY).pop() || key;
+
+/** Live RUNT extras that previews used to invent; they are not part of the sheet design. */
+const AUTO_OMITTED_PARAM_LEAVES = new Set(['tipoTarifa']);
+
+export const isAutoOmittedParamKey = (key: string): boolean =>
+    AUTO_OMITTED_PARAM_LEAVES.has(paramKeyLeaf(key));
+
+const sameLabel = (left: string, right: string): boolean =>
+    left.localeCompare(right, 'es', { sensitivity: 'accent' }) === 0 ||
+    left.toLocaleLowerCase('es').trim() === right.toLocaleLowerCase('es').trim();
 
 export const humanizeParamKey = (key: string): string =>
     key.split('.').filter((part) => part && part !== ROOT_TABLE_KEY).map(humanizeSegment).join(' · ') ||
     key;
+
+/** Prefer the Spanish field name over a leftover camelCase label. */
+export const displayParamLabel = (key: string, fallback?: string): string => {
+    const leaf = paramKeyLeaf(key);
+    const mapped = PARAM_KEY_LABELS[leaf];
+    const naive = splitParamSegment(leaf);
+    if (
+        fallback &&
+        !sameLabel(fallback, key) &&
+        !sameLabel(fallback, leaf) &&
+        !sameLabel(fallback, naive) &&
+        !(mapped && sameLabel(fallback, mapped))
+    ) {
+        return fallback;
+    }
+    return mapped || fallback || humanizeParamKey(key);
+};
 
 const isScalar = (value: unknown): boolean =>
     value != null && typeof value !== 'object';
@@ -234,14 +273,62 @@ export const remapLayoutOverrideKey = (storedKey: string, fromKey: string, toKey
     return storedKey;
 };
 
-export const valueAtDataPath = (root: unknown, dataPath?: string): unknown => {
-    if (!dataPath) return root;
+const PATH_KEY_ALIASES: Record<string, string[]> = {
+    cilidraje: ['cilindraje'],
+    cilindraje: ['cilidraje'],
+};
+
+const readPathKey = (current: unknown, part: string): unknown => {
+    if (current == null || typeof current !== 'object') return undefined;
+    const record = current as Record<string, unknown>;
+    if (Object.prototype.hasOwnProperty.call(record, part) || record[part] !== undefined) {
+        return record[part];
+    }
+    if (/^\d+$/.test(part)) {
+        const index = Number(part);
+        if (Number.isInteger(index) && record[index] !== undefined) return record[index];
+    }
+    for (const alias of PATH_KEY_ALIASES[part] ?? []) {
+        if (record[alias] !== undefined) return record[alias];
+    }
+    const nested = record['data'];
+    if (nested && typeof nested === 'object' && nested !== current) {
+        return readPathKey(nested, part);
+    }
+    return undefined;
+};
+
+const walkDataPath = (root: unknown, parts: string[]): unknown => {
     let current: unknown = root;
-    for (const part of dataPath.split('.')) {
-        if (current == null || typeof current !== 'object') return null;
-        current = (current as Record<string, unknown>)[part];
+    for (const part of parts) {
+        if (current == null || typeof current !== 'object') return undefined;
+        current = readPathKey(current, part);
     }
     return current;
+};
+
+export const valueAtDataPath = (root: unknown, dataPath?: string): unknown => {
+    if (!dataPath) return root;
+    const parts = dataPath.split('.').filter(Boolean);
+    const direct = walkDataPath(root, parts);
+    if (direct !== undefined) return direct;
+
+    // Cloned templates often keep `results.2.*` from the designer while the
+    // client batch stores that consult at another sequence (or under `.data`).
+    if (parts[0] === 'results' && parts.length > 2) {
+        const results = (root as { results?: Record<string | number, unknown> } | null)?.results;
+        if (!results || typeof results !== 'object') return null;
+        const addressed = String(parts[1]);
+        const rest = parts.slice(2);
+        const hits: unknown[] = [];
+        for (const [key, payload] of Object.entries(results)) {
+            if (String(key) === addressed) continue;
+            const found = walkDataPath(payload, rest);
+            if (found !== undefined) hits.push(found);
+        }
+        if (hits.length === 1) return hits[0];
+    }
+    return null;
 };
 
 export const isHiddenParamKey = (key: string, hiddenKeys?: string[]): boolean => {
@@ -295,7 +382,7 @@ export const collectScalarParams = (
     const seen = new WeakSet<object>();
 
     const push = (key: string, text: string): void => {
-        if (isHiddenParamKey(key, hidden) || rows.length >= maxItems) return;
+        if (isAutoOmittedParamKey(key) || isHiddenParamKey(key, hidden) || rows.length >= maxItems) return;
         rows.push({ key, label: humanizeParamKey(key), value: text });
     };
 
@@ -384,10 +471,56 @@ export const layoutTableRowIndex = (key: string): number | null => {
     return Number.isFinite(row) && row >= 0 ? row : null;
 };
 
-const orderColumnKeys = (columnKeys: string[], tableKey: string, keyOrder?: string[]): string[] => {
-    if (!keyOrder?.length || columnKeys.length < 2) return columnKeys;
+const columnLeafForTable = (tableKey: string, rawKey: string): string | null => {
+    const key = layoutTableRulesKey(rawKey);
+    if (!key) return null;
+    if (!tableKey || tableKey === ROOT_TABLE_KEY) {
+        return key.includes('.') ? null : key;
+    }
+    if (key === tableKey) return null;
+    if (!key.startsWith(`${tableKey}.`)) return null;
+    return key.slice(tableKey.length + 1).split('.')[0] || null;
+};
+
+/** Columns the designer already named, hid, or styled — extras from live data stay out. */
+export const designedTableColumns = (
+    tableKey: string,
+    available: string[],
+    options?: { keyOrder?: string[]; hiddenKeys?: string[]; keyOverrides?: Record<string, unknown> }
+): string[] | null => {
+    const refs = [...(options?.keyOrder ?? []), ...Object.keys(options?.keyOverrides ?? {})];
+    const designed: string[] = [];
+    for (const ref of refs) {
+        const leaf = columnLeafForTable(tableKey, ref);
+        if (leaf && available.includes(leaf) && !isAutoOmittedParamKey(leaf) && !designed.includes(leaf)) {
+            designed.push(leaf);
+        }
+    }
+    if (!designed.length) return null;
+    const rank = new Map(
+        (options?.keyOrder ?? []).map((key, index) => [columnLeafForTable(tableKey, key) ?? '', index])
+    );
+    return designed.sort((left, right) => (rank.get(left) ?? 9999) - (rank.get(right) ?? 9999));
+};
+
+const orderColumnKeys = (
+    columnKeys: string[],
+    tableKey: string,
+    options?: { keyOrder?: string[]; hiddenKeys?: string[]; keyOverrides?: Record<string, unknown> }
+): string[] => {
+    const designed = designedTableColumns(tableKey, columnKeys, options);
+    if (designed?.length) {
+        return designed.filter(
+            (column) =>
+                !isAutoOmittedParamKey(column) &&
+                !isHiddenParamKey(tableColumnPath(tableKey, column), options?.hiddenKeys)
+        );
+    }
+    const usable = columnKeys.filter((column) => !isAutoOmittedParamKey(column));
+    const keyOrder = options?.keyOrder;
+    if (!keyOrder?.length || usable.length < 2) return usable;
     const rank = new Map(keyOrder.map((key, index) => [key, index]));
-    return columnKeys
+    return usable
         .map((column, index) => ({ column, index }))
         .sort((left, right) => {
             const leftRank =
@@ -406,17 +539,17 @@ const orderColumnKeys = (columnKeys: string[], tableKey: string, keyOrder?: stri
 const tableFromRecords = (
     records: Record<string, unknown>[],
     key: string,
-    keyOrder?: string[]
+    options?: { keyOrder?: string[]; hiddenKeys?: string[]; keyOverrides?: Record<string, unknown> }
 ): NestedObjectTable | null => {
     const tableKey = key || ROOT_TABLE_KEY;
     const columnKeys: string[] = [];
     for (const record of records) {
         for (const column of Object.keys(record)) {
-            if (BLOB_KEY_PATTERN.test(column)) continue;
+            if (BLOB_KEY_PATTERN.test(column) || isAutoOmittedParamKey(column)) continue;
             if (!columnKeys.includes(column)) columnKeys.push(column);
         }
     }
-    const ordered = orderColumnKeys(columnKeys, tableKey, keyOrder);
+    const ordered = orderColumnKeys(columnKeys, tableKey, options);
     if (!ordered.length) return null;
     return {
         key: tableKey,
@@ -453,7 +586,13 @@ const withVisibleColumns = (table: NestedObjectTable, hiddenKeys?: string[]): Ne
 /** Arrays of objects become tables. Nested arrays become their own tables and grow with the data. */
 export const collectObjectTables = (
     value: unknown,
-    options?: { hiddenKeys?: string[]; maxTables?: number; keyOrder?: string[]; hideColumns?: boolean }
+    options?: {
+        hiddenKeys?: string[];
+        maxTables?: number;
+        keyOrder?: string[];
+        keyOverrides?: Record<string, unknown>;
+        hideColumns?: boolean;
+    }
 ): NestedObjectTable[] => {
     const hidden = options?.hiddenKeys ?? [];
     const maxTables = options?.maxTables ?? 12;
@@ -476,7 +615,11 @@ export const collectObjectTables = (
             for (const column of nestedColumns) delete copy[column];
             return copy;
         });
-        const table = tableFromRecords(flatRecords, key, keyOrder);
+        const table = tableFromRecords(flatRecords, key, {
+            keyOrder,
+            hiddenKeys: hidden,
+            keyOverrides: options?.keyOverrides,
+        });
         const visible = table ? (hideColumns ? withVisibleColumns(table, hidden) : table) : null;
         if (visible && !isHiddenParamKey(visible.key, hidden)) tables.push(visible);
         for (const column of nestedColumns) {

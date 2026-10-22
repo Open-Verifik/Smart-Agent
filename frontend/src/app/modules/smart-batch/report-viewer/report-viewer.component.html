@@ -400,7 +400,7 @@
                                         }
                                         @if (selectedTemplate() && batch()?.rows?.length) {
                                             <div
-                                                class="relative mx-auto max-w-none overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-100 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                                                class="relative mx-auto max-w-none border border-stone-200/90 bg-stone-100 shadow-sm dark:border-gray-800 dark:bg-gray-900"
                                                 [style.width.mm]="previewPaperWidthMm()"
                                             >
                                                 @if (htmlPreviewError()) {
@@ -420,10 +420,12 @@
                                                 } @else if (htmlPreviewUrl()) {
                                                     <iframe
                                                         [src]="htmlPreviewUrl()"
-                                                        sandbox
+                                                        sandbox="allow-same-origin"
+                                                        scrolling="no"
                                                         title="Report preview"
-                                                        class="min-h-[480px] w-full border-0 bg-white"
-                                                        style="height: 80vh"
+                                                        class="block w-full border-0 bg-white"
+                                                        [style.height.px]="htmlPreviewIframeHeightPx() ?? 480"
+                                                        (load)="onHtmlPreviewIframeLoad($event)"
                                                     ></iframe>
                                                 } @else {
                                                     <div

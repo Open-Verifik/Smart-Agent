@@ -260,7 +260,7 @@ export class SmartBatchService {
 
     cloneSystemPreset(systemKey: string) {
         return this._httpClient.post<{ data: CloneSystemPresetResult }>(
-            `${environment.apiUrl}/v2/smart-batch-presets/${systemKey}/clone`,
+            `${environment.apiUrl}/v2/smart-batch-presets/${encodeURIComponent(systemKey)}/clone`,
             {}
         );
     }

@@ -1465,6 +1465,8 @@
                                 [logoRotation]="logoRotation()"
                                 [sheetImages]="sheetImages()"
                                 [layerZ]="layoutLayerZMap()"
+                                [hiddenLayerIds]="layoutHiddenLayerIds()"
+                                [bodyTopPadding]="template.bodyTopPadding ?? 0"
                             ></report-preview>
                         } @else {
                             <p class="text-sm text-stone-500">{{ t('visitaGuide.needTemplate') }}</p>
@@ -1783,7 +1785,7 @@
                                 (contextmenu)="onLayoutCanvasContextMenu($event)"
                                 (mousemove)="onDocumentViewportMove($event)"
                                 (mouseleave)="onDocumentViewportLeave()"
-                                class="max-h-[78vh] min-h-[480px] overflow-auto overscroll-contain rounded-2xl border border-dashed border-stone-300 bg-stone-100/80 p-3 dark:border-gray-700 dark:bg-gray-900/40"
+                                class="max-h-[78vh] min-h-[480px] overflow-auto overscroll-contain rounded-none border border-dashed border-stone-300 bg-stone-100/80 p-3 dark:border-gray-700 dark:bg-gray-900/40"
                             >
                                 @if (!layoutSections().length) {
                                     <p class="px-4 py-16 text-center text-sm text-stone-400">
@@ -1836,6 +1838,7 @@
                                         [hiddenLayerIds]="layoutHiddenLayerIds()"
                                         [lockedLayerIds]="layoutLockedLayerIds()"
                                         [peekedLayerId]="peekedLayoutLayerId()"
+                                        [bodyTopPadding]="template.bodyTopPadding ?? 0"
                                         [logoAutoFitContent]="true"
                                         [clickable]="true"
                                         [customContextMenu]="true"
@@ -3611,6 +3614,8 @@
                                     [logoRotation]="logoRotation()"
                                     [sheetImages]="sheetImages()"
                                     [layerZ]="layoutLayerZMap()"
+                                    [hiddenLayerIds]="layoutHiddenLayerIds()"
+                                    [bodyTopPadding]="template.bodyTopPadding ?? 0"
                                     [logoAutoFitContent]="true"
                                 ></report-preview>
                             </div>
@@ -3752,7 +3757,7 @@
                                 @if (previewTemplate(); as template) {
                                     <div
                                         data-document-viewport
-                                        class="max-h-[78vh] overflow-auto overscroll-contain rounded-2xl border border-stone-200 bg-stone-100/80 p-3 dark:border-gray-800 dark:bg-gray-900/40"
+                                        class="max-h-[78vh] overflow-auto overscroll-contain rounded-none border border-stone-200 bg-stone-100/80 p-3 dark:border-gray-800 dark:bg-gray-900/40"
                                         (mousemove)="onDocumentViewportMove($event)"
                                         (mouseleave)="onDocumentViewportLeave()"
                                     >
@@ -3797,6 +3802,8 @@
                                         [logoRotation]="logoRotation()"
                                         [sheetImages]="sheetImages()"
                                         [layerZ]="layoutLayerZMap()"
+                                        [hiddenLayerIds]="layoutHiddenLayerIds()"
+                                        [bodyTopPadding]="template.bodyTopPadding ?? 0"
                                         [logoAutoFitContent]="true"
                                     ></report-preview>
                                     @if (previewRecords().length > 1) {

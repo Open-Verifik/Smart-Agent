@@ -81,6 +81,8 @@ import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
     collectObjectTables,
+    designedTableColumns,
+    isAutoOmittedParamKey,
     formatReportCellValue,
     layoutTableRulesKey,
     tableColumnPath,
@@ -608,7 +610,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     });
     /** Paint order for stamps and logos. Blocks and sheet images keep theirs on the model. */
     layoutOverlayZ = signal<Record<string, number>>({});
-    /** Hide and lock are editing aids. They are not written into the PDF. */
+    /** Hide and lock are stored on the template so preview, PDF and email match the sheet. */
     layoutLayerFlags = signal<Record<string, { hidden?: boolean; locked?: boolean }>>({});
     /** Locked layer the pointer is locating on the sheet. A click keeps it after the pointer leaves. */
     peekedLayoutLayerId = signal<string | null>(null);
@@ -1010,6 +1012,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             sheetImages: this.sheetImages(),
             customFonts: this.customFonts(),
             headerLogos: this.headerLogos(),
+            layoutLayerFlags: cloneReportValue(this.layoutLayerFlags()),
+            layoutOverlayZ: { ...this.layoutOverlayZ() },
+            bodyTopPadding: base.bodyTopPadding ?? 0,
+            sampleData: this.previewData(),
             sections: useLayout ? layout : this._sectionsForPreview(base),
         };
     });
@@ -6208,16 +6214,43 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             sections.map((section) => {
                 if (!section.dataPath) return section;
                 const value = valueAtDataPath(root, section.dataPath);
-                const discovered = collectLayoutSheetItems(value, { hiddenKeys: section.hiddenKeys }).map(
-                    (item) => item.key
-                );
+                const discovered = collectLayoutSheetItems(value, {
+                    hiddenKeys: section.hiddenKeys,
+                    keyOrder: section.keyOrder,
+                    keyOverrides: section.keyOverrides,
+                }).map((item) => item.key);
                 if (!discovered.length) return section;
                 const keyOrder = mergeLayoutKeyOrder(section.keyOrder, discovered);
+                let hiddenKeys = section.hiddenKeys;
+                for (const table of collectObjectTables(value, {
+                    hideColumns: false,
+                    keyOrder: section.keyOrder,
+                    hiddenKeys: section.hiddenKeys,
+                    keyOverrides: section.keyOverrides,
+                })) {
+                    const available = table.columns.map((column) => column.key);
+                    const designed = designedTableColumns(table.key, available, {
+                        keyOrder: section.keyOrder,
+                        keyOverrides: section.keyOverrides,
+                    });
+                    if (!designed?.length) continue;
+                    for (const column of available) {
+                        if (designed.includes(column) && !isAutoOmittedParamKey(column)) continue;
+                        hiddenKeys = setHiddenParamKey(hiddenKeys, tableColumnPath(table.key, column), false);
+                    }
+                }
                 const prev = section.keyOrder ?? [];
-                if (prev.length === keyOrder.length && prev.every((key, index) => key === keyOrder[index])) {
+                const hiddenSame =
+                    (hiddenKeys ?? []).length === (section.hiddenKeys ?? []).length &&
+                    (hiddenKeys ?? []).every((key, index) => key === (section.hiddenKeys ?? [])[index]);
+                if (
+                    prev.length === keyOrder.length &&
+                    prev.every((key, index) => key === keyOrder[index]) &&
+                    hiddenSame
+                ) {
                     return section;
                 }
-                return { ...section, keyOrder };
+                return { ...section, keyOrder, hiddenKeys };
             })
         );
     }
@@ -7156,7 +7189,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 width: this.logoWidth(),
                 height: this.logoHeight(),
                 rotation: this.logoRotation(),
-                autoFitContent: draft.logoSettings?.autoFitContent ?? true,
+                autoFitContent: true,
             },
             sheetImages: cloneReportValue(this.sheetImages()),
             customFonts: cloneReportValue(this.customFonts()),
@@ -7169,7 +7202,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             pageSize: this.pageSize(),
             orientation: this.orientation(),
             margins: draft.margins,
-            bodyTopPadding: draft.bodyTopPadding,
+            bodyTopPadding: draft.bodyTopPadding ?? 0,
             pdfEngine: this.pdfEngine(),
             security: this._securityPayload(),
             signature: this._signaturePayload(),

@@ -32,14 +32,19 @@ import {
     ReportSheetImage,
     ReportTextRole,
     SmartReportTemplate,
+    templateLayerZ,
 } from '../smart-report.service';
 import { HEADER_LOGO_BAND_TOP, HEADER_LOGO_INSET, companyLogoBand, fitHeaderLogoSize, headerLogoAlignAt, headerLogoBandHeight, placeCompanyLogos, PlacedHeaderLogo } from '../header-logos.util';
 import {
     chunkLayoutSheetItems,
     collectLayoutSheetItems,
+    displayParamLabel,
     formatReportCellValue,
+    humanizeParamKey,
+    isAutoOmittedParamKey,
     LayoutSheetChunk,
     tableColumnPath,
+    valueAtDataPath,
 } from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
 import {
@@ -138,6 +143,9 @@ export function reportPaperSizePx(
             .layer-quiet,
             .layer-quiet * {
                 pointer-events: none !important;
+            }
+            [data-report-page] {
+                border-radius: 0 !important;
             }
             .selection-outline {
                 outline: 2px solid rgba(129, 140, 248, 0.9);
@@ -1081,12 +1089,16 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     layerZIndex(id: string, fallback: number): number {
         const value = Number(this.layerZ()[id]);
         if (Number.isFinite(value) && value > 0) return clampReportSheetZ(Math.round(value));
+        const template = this.template();
+        const stored = Number(template ? templateLayerZ(template)[id] : NaN);
+        if (Number.isFinite(stored) && stored > 0) return clampReportSheetZ(Math.round(stored));
         const safe = Number.isFinite(fallback) ? fallback : 40;
         return clampReportSheetZ(Math.min(800, Math.max(1, Math.round(safe))));
     }
 
     isLayerHidden(id: string): boolean {
-        return this.hiddenLayerIds().includes(id);
+        if (this.hiddenLayerIds().includes(id)) return true;
+        return Boolean(this.template()?.layoutLayerFlags?.[id]?.hidden);
     }
 
     isLayerLocked(id: string): boolean {
@@ -3934,11 +3946,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     private _humanize(key: string): string {
-        return key
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/_/g, ' ')
-            .replace(/^./, (s) => s.toUpperCase())
-            .trim();
+        return humanizeParamKey(key);
     }
 
     // ============================================
@@ -3953,24 +3961,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Raw value at a path, as opposed to `resolveDataPath`'s display string. */
     private _valueAt(path: string | undefined): any {
         if (!path) return null;
-
-        let current: any = this.previewData();
-
-        for (const part of path.split('.')) {
-            if (current == null || typeof current !== 'object') return null;
-
-            if (Object.prototype.hasOwnProperty.call(current, part)) {
-                current = current[part];
-                continue;
-            }
-            if (/^\d+$/.test(part) && current[Number(part)] !== undefined) {
-                current = current[Number(part)];
-                continue;
-            }
-            return null;
-        }
-
-        return current ?? null;
+        const value = valueAtDataPath(this.previewData(), path);
+        return value === undefined ? null : value;
     }
 
     /** Records behind a `dataTable` or `repeater`, normalizing a lone object. */
@@ -4029,7 +4021,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             }
         }
 
-        const columns = keys.filter((key) => !hidden.has(key));
+        const columns = keys.filter((key) => !hidden.has(key) && !isAutoOmittedParamKey(key));
         const capped = this.fullContent() ? columns : columns.slice(0, section.maxColumns || 6);
         return capped.map((key) => ({ key, label: this._humanize(key) }));
     }
@@ -4099,11 +4091,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     entryLabel(section: ReportSection, entry: { key: string; label: string }): string {
-        return section.keyOverrides?.[entry.key]?.label || entry.label;
+        return displayParamLabel(entry.key, section.keyOverrides?.[entry.key]?.label || entry.label);
     }
 
     tableLabel(section: ReportSection, table: { key: string; label: string }): string {
-        return section.keyOverrides?.[table.key]?.label || table.label;
+        return displayParamLabel(table.key, section.keyOverrides?.[table.key]?.label || table.label);
     }
 
     tableFill(section: ReportSection, key: string): string {
@@ -4519,6 +4511,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             collectLayoutSheetItems(this._valueAt(section.dataPath), {
                 hiddenKeys: section.hiddenKeys,
                 keyOrder: section.keyOrder,
+                keyOverrides: section.keyOverrides,
             })
         );
     }
@@ -4625,7 +4618,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/>${fontHeadMarkup(this.template()?.customFonts)}<style>
 @page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
 html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
-.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
+.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;border-radius:0;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
 .print-sheet [data-report-page-inner]{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;box-sizing:border-box}
 .print-sheet [data-report-footer]{position:absolute;left:0;right:0;bottom:0;width:100%;top:auto}
 .print-sheet [data-report-top-chrome]{position:absolute;left:0;right:0;top:0;width:100%;bottom:auto}

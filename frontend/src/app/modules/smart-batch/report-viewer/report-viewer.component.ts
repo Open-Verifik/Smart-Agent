@@ -161,6 +161,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     htmlPreviewUrl = signal<SafeResourceUrl | null>(null);
     htmlPreviewLoading = signal(false);
     htmlPreviewError = signal<string | null>(null);
+    /** Full document height so the iframe does not scroll; the panel scrolls instead. */
+    htmlPreviewIframeHeightPx = signal<number | null>(null);
     private _htmlPreviewObjectUrl: string | null = null;
     private readonly _htmlPreviewRequest$ = new Subject<void>();
     private _htmlPreviewLoadSeq = 0;
@@ -483,6 +485,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         this._htmlPreviewObjectUrl = url;
         this.htmlPreviewUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
         this.htmlPreviewError.set(null);
+        this.htmlPreviewIframeHeightPx.set(null);
     }
 
     private _releaseHtmlPreviewUrl(): void {
@@ -491,6 +494,33 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             this._htmlPreviewObjectUrl = null;
         }
         this.htmlPreviewUrl.set(null);
+        this.htmlPreviewIframeHeightPx.set(null);
+    }
+
+    onHtmlPreviewIframeLoad(event: Event): void {
+        const iframe = event.target as HTMLIFrameElement | null;
+        if (!iframe) return;
+        this._syncHtmlPreviewIframeHeight(iframe);
+        window.setTimeout(() => this._syncHtmlPreviewIframeHeight(iframe), 150);
+        window.setTimeout(() => this._syncHtmlPreviewIframeHeight(iframe), 600);
+    }
+
+    private _syncHtmlPreviewIframeHeight(iframe: HTMLIFrameElement): void {
+        try {
+            const doc = iframe.contentDocument;
+            if (!doc) return;
+            const root = doc.documentElement;
+            const body = doc.body;
+            const height = Math.max(
+                root?.scrollHeight ?? 0,
+                root?.offsetHeight ?? 0,
+                body?.scrollHeight ?? 0,
+                body?.offsetHeight ?? 0
+            );
+            if (height > 0) this.htmlPreviewIframeHeightPx.set(height);
+        } catch {
+            /* sandbox without same-origin — keep fallback min height */
+        }
     }
 
     private _batchStepsForSample(): SampleReportData['steps'] {
