@@ -1699,23 +1699,116 @@
         </div>
     }
 
-    <!-- reportBlocks: a placeholder, since the composed model is built server-side. -->
     @if (section.type === 'reportBlocks') {
-        <div
-            class="mb-4 rounded-lg border border-dashed border-indigo-200 bg-indigo-50/40 px-3 py-4 text-center"
-        >
-            <mat-icon class="!h-5 !w-5 !text-xl text-indigo-400">dashboard_customize</mat-icon>
-            <p class="text-xs font-medium text-indigo-700">
-                {{ 'smartReport.sectionReportBlocks' | transloco }}
-            </p>
-            <p class="mt-0.5 text-[10px] text-indigo-500">
-                @if (section.blockIds?.length) {
-                    {{ section.blockIds.join(', ') }}
-                } @else {
-                    {{ 'smartReport.allBlocks' | transloco }}
+        @let resolved = reportBlocksSection(section);
+        @if (resolved) {
+            <div class="mb-4 space-y-4">
+                @for (block of resolved.blocks; track block.blockId) {
+                    <div class="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+                        <div
+                            class="flex items-center justify-between gap-3 border-b border-stone-100 px-4 py-3"
+                        >
+                            <span
+                                class="text-sm font-semibold text-stone-900"
+                                [style.font-family]="roleFontFamily(section, 'title')"
+                            >
+                                {{ block.title }}
+                            </span>
+                            <span
+                                class="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                                [ngClass]="reportBlockStatusClasses(block.statusVariant)"
+                            >
+                                {{ block.status }}
+                            </span>
+                        </div>
+                        <div class="px-4 py-3">
+                            @if (block.status === 'error') {
+                                <p class="text-sm text-rose-700">{{ block.errorMessage }}</p>
+                            } @else if (block.status === 'skipped') {
+                                <p class="text-sm text-amber-700">
+                                    {{ block.skipMessage || 'No ejecutado para este registro.' }}
+                                </p>
+                            } @else {
+                                @if (resolved.showDisplayRows && block.displayRows.length) {
+                                    <div
+                                        class="mb-3 grid gap-x-4 gap-y-2"
+                                        [style.grid-template-columns]="'repeat(2, minmax(0, 1fr))'"
+                                    >
+                                        @for (row of block.displayRows; track row.label) {
+                                            <div class="min-w-0 border-b border-stone-100 pb-2">
+                                                <div
+                                                    class="text-[11px] font-medium uppercase tracking-wide text-stone-500"
+                                                >
+                                                    {{ row.label }}
+                                                </div>
+                                                <div class="text-sm text-stone-900">{{ row.value }}</div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                @for (table of block.tables; track table.id) {
+                                    <div class="mb-3 last:mb-0">
+                                        @if (table.title) {
+                                            <div class="mb-2 text-xs font-semibold text-stone-700">
+                                                {{ table.title }}
+                                            </div>
+                                        }
+                                        @if (table.columns.length && table.rows.length) {
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full min-w-[320px] text-left text-sm">
+                                                    <thead>
+                                                        <tr class="border-b-2" [style.border-color]="primaryColor()">
+                                                            @for (col of table.columns; track col.key) {
+                                                                <th class="py-2 pr-3 font-medium text-stone-600">
+                                                                    {{ col.label }}
+                                                                </th>
+                                                            }
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @for (row of table.rows; track $index) {
+                                                            <tr class="border-b border-stone-100">
+                                                                @for (cell of row; track $index) {
+                                                                    <td class="py-2 pr-3 text-stone-900">
+                                                                        {{ cell }}
+                                                                    </td>
+                                                                }
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                @if (
+                                    block.status === 'empty' &&
+                                    !block.displayRows.length &&
+                                    !block.tables.length
+                                ) {
+                                    <p class="text-sm text-stone-400">Sin registros.</p>
+                                }
+                            }
+                        </div>
+                    </div>
                 }
-            </p>
-        </div>
+            </div>
+        } @else if (!fullContent()) {
+            <div
+                class="mb-4 rounded-lg border border-dashed border-indigo-200 bg-indigo-50/40 px-3 py-4 text-center"
+            >
+                <mat-icon class="!h-5 !w-5 !text-xl text-indigo-400">dashboard_customize</mat-icon>
+                <p class="text-xs font-medium text-indigo-700">
+                    {{ 'smartReport.sectionReportBlocks' | transloco }}
+                </p>
+            </div>
+        } @else {
+            <div
+                class="mb-4 rounded-lg border border-dashed border-stone-200 py-4 text-center text-xs text-stone-400"
+            >
+                {{ 'smartReport.noDataAtPath' | transloco: { path: section.dataPath || 'report' } }}
+            </div>
+        }
     }
 </ng-template>
 

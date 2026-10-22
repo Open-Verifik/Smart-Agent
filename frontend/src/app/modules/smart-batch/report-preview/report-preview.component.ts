@@ -42,6 +42,10 @@ import {
     tableColumnPath,
 } from '../report-param-entries.util';
 import { clampRowLineMark, clampRowLineWidth, defaultRowLineMark, rowLinePaint } from '../report-row-line.util';
+import {
+    resolveReportBlocksSection,
+    type ResolvedReportBlocksSection,
+} from '../report-blocks-preview.util';
 import { resolveTextRole } from '../report-text-role.util';
 import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
 import { availableFontWeights, fontHeadMarkup, fontWeightStep, nearestFontWeight, registerReportFonts, ReportFontWeight } from '../report-fonts.util';
@@ -3816,6 +3820,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     resolveTableData(section: ReportSection): { key: string; label: string; value: string }[] {
         return this.structuralEntries(section);
+    }
+
+    reportBlocksSection(section: ReportSection): ResolvedReportBlocksSection | null {
+        return resolveReportBlocksSection(section, this.previewData() as Record<string, unknown>);
+    }
+
+    reportBlockStatusClasses(variant: ResolvedReportBlocksSection['blocks'][number]['statusVariant']): string {
+        const map: Record<string, string> = {
+            success: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            danger: 'bg-rose-50 text-rose-800 border-rose-200',
+            warning: 'bg-amber-50 text-amber-800 border-amber-200',
+            neutral: 'bg-stone-50 text-stone-700 border-stone-200',
+        };
+        return map[variant] ?? map['neutral'];
     }
 
     /**
