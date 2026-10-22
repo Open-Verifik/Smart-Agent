@@ -7728,6 +7728,8 @@
             "reportPrepared": "El reporte está listo. Descárgalo desde la lista.",
             "reportDownload": "Descargar PDF",
             "reportRegenerate": "Regenerar PDF",
+            "reportResetReady": "Se quitó el reporte guardado. Elige una plantilla para generarlo de nuevo.",
+            "reportActions": "Reporte PDF",
             "reportView": "Ver reporte",
             "reportPreviewFailed": "No se pudo abrir el reporte guardado",
             "reportFailed": "No se pudo generar el reporte",

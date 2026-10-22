@@ -760,12 +760,12 @@
                                         mat-icon-button
                                         type="button"
                                         #assetReportMenu="matMenuTrigger"
-                                        [matMenuTriggerFor]="readyReport(asset) ? null : reportMenu"
+                                        [matMenuTriggerFor]="readyReport(asset) ? reportReadyMenu : reportMenu"
                                         (click)="onReportIcon(asset, assetReportMenu)"
                                         [disabled]="bulkWorking() || reportingAssetId() === asset._id"
                                         [matTooltip]="
                                             (readyReport(asset)
-                                                ? 'smartFleet.assets.reportView'
+                                                ? 'smartFleet.assets.reportActions'
                                                 : 'smartFleet.assets.generateReport'
                                             ) | transloco
                                         "
@@ -855,6 +855,18 @@
                     </tbody>
                 </table>
             </div>
+
+            <mat-menu #reportReadyMenu="matMenu" class="fleet-report-menu">
+                <button mat-menu-item type="button" (click)="previewReportTarget()">
+                    {{ 'smartFleet.assets.reportView' | transloco }}
+                </button>
+                <button mat-menu-item type="button" (click)="downloadReportTarget()">
+                    {{ 'smartFleet.assets.reportDownload' | transloco }}
+                </button>
+                <button mat-menu-item type="button" (click)="regenerateReportTarget()">
+                    {{ 'smartFleet.assets.reportRegenerate' | transloco }}
+                </button>
+            </mat-menu>
 
             <mat-menu #reportMenu="matMenu" class="fleet-report-menu">
                 <div class="fleet-report-menu-title" (click)="$event.stopPropagation()">

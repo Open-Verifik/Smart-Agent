@@ -19,6 +19,8 @@ export interface FleetReportPdfPreviewData {
     subtitle?: string;
     /** Name used when the client downloads the file from the preview. */
     fileName: string;
+    /** Clears saved report state and returns to template selection. */
+    onRegenerate?: () => void;
 }
 
 /** Shows a report that was already generated, read from the saved copy instead of building it again. */
@@ -61,9 +63,20 @@ export interface FleetReportPdfPreviewData {
                     <mat-spinner diameter="40"></mat-spinner>
                 </div>
 
-                <p *ngIf="failed()" class="text-sm text-rose-600">
-                    {{ 'smartFleet.assets.reportPreviewFailed' | transloco }}
-                </p>
+                <div *ngIf="failed()" class="flex flex-col items-start gap-3">
+                    <p class="text-sm text-rose-600">
+                        {{ 'smartFleet.assets.reportPreviewFailed' | transloco }}
+                    </p>
+                    <button
+                        *ngIf="data.onRegenerate"
+                        mat-stroked-button
+                        type="button"
+                        color="primary"
+                        (click)="regenerate()"
+                    >
+                        {{ 'smartFleet.assets.reportRegenerate' | transloco }}
+                    </button>
+                </div>
 
                 <iframe
                     *ngIf="safeUrl() as url"
@@ -120,6 +133,11 @@ export class FleetReportPdfPreviewDialogComponent implements OnInit, OnDestroy {
     }
 
     close(): void {
+        this._ref.close();
+    }
+
+    regenerate(): void {
+        this.data.onRegenerate?.();
         this._ref.close();
     }
 }

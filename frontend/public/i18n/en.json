@@ -7732,6 +7732,8 @@
             "reportPrepared": "The report is ready. Download it from the list.",
             "reportDownload": "Download PDF",
             "reportRegenerate": "Regenerate PDF",
+            "reportResetReady": "The saved report was cleared. Pick a template to generate it again.",
+            "reportActions": "PDF report",
             "reportView": "View report",
             "reportPreviewFailed": "The saved report could not be opened",
             "reportFailed": "The report could not be generated",

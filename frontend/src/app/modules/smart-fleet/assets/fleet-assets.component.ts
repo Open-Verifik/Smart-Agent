@@ -437,14 +437,57 @@ export class FleetAssetsComponent implements OnInit {
      * PDF is shown. With a report the PDF icon shows it; without one it opens the template menu.
      */
     onReportIcon(asset: FleetAsset, trigger: MatMenuTrigger): void {
-        if (this.readyReport(asset)) {
-            this.previewVehicleReport(asset);
-
-            return;
-        }
-
         this.reportTarget.set(asset);
         this.rememberReportMenu(trigger);
+    }
+
+    previewReportTarget(): void {
+        const asset = this.reportTarget();
+
+        if (asset) this.previewVehicleReport(asset);
+    }
+
+    downloadReportTarget(): void {
+        const asset = this.reportTarget();
+
+        if (asset) void this.downloadVehicleReport(asset);
+    }
+
+    regenerateReportTarget(): void {
+        const asset = this.reportTarget();
+
+        if (asset) void this.resetVehicleReportForRegeneration(asset);
+    }
+
+    /** Clears stale saved report metadata and opens the template picker again. */
+    async resetVehicleReportForRegeneration(asset: FleetAsset): Promise<void> {
+        if (!asset._id || this.reportingAssetId() || this.bulkWorking()) return;
+
+        this.closeReportMenu();
+
+        try {
+            const response = await firstValueFrom(this._fleetService.clearAssetReports(asset));
+
+            if (response.data) {
+                this._applyAssetUpdate(response.data);
+            }
+
+            this.readyReports.update((current) => {
+                const next = { ...current };
+                delete next[asset._id!];
+                return next;
+            });
+
+            this.reportTarget.set(asset);
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportResetReady'), undefined, {
+                duration: 5000,
+            });
+        } catch (err) {
+            console.error('[SmartFleet] clear saved report error', err);
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportFailed'), undefined, {
+                duration: 4000,
+            });
+        }
     }
 
     previewVehicleReport(asset: FleetAsset): void {
@@ -461,6 +504,7 @@ export class FleetAssetsComponent implements OnInit {
                     title: this.assetLabel(asset),
                     subtitle: ready.templateName,
                     fileName: fleetReportFileName(asset, ready.templateName),
+                    onRegenerate: () => void this.resetVehicleReportForRegeneration(asset),
                 },
                 autoFocus: false,
                 width: '960px',
@@ -494,9 +538,13 @@ export class FleetAssetsComponent implements OnInit {
             console.error('[SmartFleet] download report error', err);
             const detail = await this._reportErrorDetail(err);
 
-            this._snackBar.open(detail || this._transloco.translate('smartFleet.assets.reportFailed'), undefined, {
-                duration: 4000,
-            });
+            this._snackBar.open(
+                detail || this._transloco.translate('smartFleet.assets.reportPreviewFailed'),
+                this._transloco.translate('smartFleet.assets.reportRegenerate'),
+                { duration: 7000 }
+            )
+                .onAction()
+                .subscribe(() => void this.resetVehicleReportForRegeneration(asset));
         }
     }
 
@@ -1086,6 +1134,16 @@ export class FleetAssetsComponent implements OnInit {
 
         this._fleetService.assets.update(merge);
         this.bulkAssets.update(merge);
+    }
+
+    private _applyAssetUpdate(updated: FleetAsset): void {
+        if (!updated._id) return;
+
+        const patch = (list: FleetAsset[]) =>
+            list.map((item) => (item._id === updated._id ? { ...item, ...updated } : item));
+
+        this._fleetService.assets.update(patch);
+        this.bulkAssets.update(patch);
     }
 
     private async _consultBatchRows(

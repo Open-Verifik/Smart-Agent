@@ -655,6 +655,13 @@ export class SmartFleetService {
         });
     }
 
+    /** Drop saved PDF pointers so the vehicle can be reported again (e.g. after a template change). */
+    clearAssetReports(asset: FleetAsset) {
+        return this._httpClient.put<{ data: FleetAsset }>(`${environment.apiUrl}/v2/fleet-assets/${asset._id}`, {
+            metadata: { ...(asset.metadata ?? {}), fleetReports: [] },
+        });
+    }
+
     getAssets(options: FleetAssetFilters & { page?: number; perPage?: number } = {}) {
         const page = options.page ?? 1;
         const perPage = options.perPage ?? DEFAULT_PER_PAGE;
