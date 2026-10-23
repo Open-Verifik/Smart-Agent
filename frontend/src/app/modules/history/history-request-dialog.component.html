@@ -52,7 +52,7 @@
             } @else {
                 @if (isNotCharged(request)) {
                     <p class="text-sm leading-6 text-stone-600 dark:text-stone-300">
-                        {{ t('history.notChargedExplanation') }}
+                        {{ t(notChargedExplanationKey(request)) }}
                     </p>
                 }
                 @if (!isNotCharged(request) && hasDynamicQueryBilling(request) && getDynamicQueryTooltipParams(request); as billing) {

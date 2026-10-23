@@ -5947,6 +5947,7 @@
         "emptyPendingSubtitle": "As chamadas na fila ou sem resposta armazenada aparecerão aqui.",
         "notCharged": "Não cobrado",
         "notChargedExplanation": "Nenhuma resposta foi armazenada, então os créditos não foram subtraídos.",
+        "notChargedFailedExplanation": "A solicitação falhou, então os créditos não foram subtraídos.",
         "response": "Resposta",
         "openInApi": "Abrir na API",
         "requests": "solicitações",

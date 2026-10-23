@@ -27,6 +27,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { EMPTY, firstValueFrom, Subject } from 'rxjs';
 import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
+import { historyNotChargedExplanationKey, isHistoryRequestNotCharged } from '../../history/history-charge.util';
 import { HUMAN_AUTHN_FEATURE_CODES } from './human-authn-history.constants';
 import {
     HumanAuthnHistoryDetail,
@@ -295,6 +296,11 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
         return `$${Number(cost).toFixed(4)}`;
     };
 
+    isNotCharged = (row?: Parameters<typeof isHistoryRequestNotCharged>[0]): boolean => isHistoryRequestNotCharged(row);
+
+    notChargedExplanationKey = (row?: Parameters<typeof historyNotChargedExplanationKey>[0]): string =>
+        historyNotChargedExplanationKey(row);
+
     formatServiceLabel = (code: string): string => {
         const key = `humanAuthnHistory.services.${code}`;
         const translated = this._transloco.translate(key);
@@ -468,7 +474,7 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
         endpoint: row.endpoint ?? '',
         method: row.method ?? '',
         createdAt: row.createdAt ?? '',
-        cost: row.cost ?? null,
+        cost: this._exportCost(row),
     });
 
     private _mapExportSheetRow = (row: HumanAuthnHistoryRow): Record<string, string | number> => ({
@@ -477,8 +483,11 @@ export class HumanAuthnHistoryComponent implements OnInit, OnDestroy {
         [this._t('humanAuthnHistory.service')]: row.code ?? '',
         [this._t('humanAuthnHistory.endpoint')]: row.endpoint ?? '',
         [this._t('humanAuthnHistory.date')]: this.formatDate(row.createdAt),
-        [this._t('humanAuthnHistory.cost')]: row.cost ?? '',
+        [this._t('humanAuthnHistory.cost')]: this._exportCost(row),
     });
+
+    private _exportCost = (row: HumanAuthnHistoryRow): string =>
+        this.isNotCharged(row) ? this._t('history.notCharged') : this.formatCost(row.cost);
 
     private _exportFileName = (format: HistoryExportFormat): string => {
         const range = this._dateRangeForPreset(this.datePreset);

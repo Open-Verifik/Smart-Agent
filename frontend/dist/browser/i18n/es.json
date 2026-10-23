@@ -6381,6 +6381,7 @@
         "emptyPendingSubtitle": "Las llamadas en cola o sin respuesta almacenada aparecerán aquí.",
         "notCharged": "Sin cargo",
         "notChargedExplanation": "No se guardó una respuesta, así que no se restaron créditos.",
+        "notChargedFailedExplanation": "La solicitud falló, así que no se restaron créditos.",
         "response": "Respuesta",
         "openInApi": "Abrir en API",
         "requests": "solicitudes",
