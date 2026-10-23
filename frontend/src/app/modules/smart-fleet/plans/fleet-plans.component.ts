@@ -77,6 +77,8 @@ export class FleetPlansComponent implements OnInit {
     plan = computed(() => this.overview()?.plan ?? null);
     usage = computed(() => this.overview()?.usage ?? null);
     reports = computed(() => this.overview()?.reports ?? null);
+    monitoring = computed(() => this.overview()?.monitoring ?? null);
+    usageCreditsMonth = computed(() => this.overview()?.usageCreditsMonth ?? 0);
     activeAssets = computed(() => this.usage()?.activeAssets ?? 0);
 
     /** A plan set to cancel can still be resumed; picking a tier then starts a new subscription. */
@@ -95,7 +97,19 @@ export class FleetPlansComponent implements OnInit {
 
     monthlyTotal = computed(() => this.slots() * Number(this.tier()?.amount ?? 0));
     planMonthlyTotal = computed(() => (this.plan()?.assetLimit ?? 0) * Number(this.plan()?.amount ?? 0));
-    monitoringCredits = computed(() => this.slots() * (this.overview()?.projectedMonthlyCredits?.creditsPerAsset ?? 0));
+
+    /** Per-vehicle monitoring estimate; falls back to weekly RUNT reference when there are no rules yet. */
+    monitoringPerAsset = computed(() => {
+        const configured = this.overview()?.projectedMonthlyCredits?.creditsPerAsset ?? 0;
+        if (configured > 0) return configured;
+        return this.overview()?.usageReference?.weeklyRuntCheck?.creditsPerAsset ?? 0;
+    });
+
+    monitoringEstimateIsReference = computed(
+        () => !(this.overview()?.projectedMonthlyCredits?.creditsPerAsset) && this.monitoringPerAsset() > 0
+    );
+
+    monitoringCredits = computed(() => this.slots() * this.monitoringPerAsset());
     creditBreakdown = computed(() => this.overview()?.projectedMonthlyCredits?.breakdown ?? []);
     reportsCreditsMonth = computed(() => this.reports()?.credits ?? 0);
 

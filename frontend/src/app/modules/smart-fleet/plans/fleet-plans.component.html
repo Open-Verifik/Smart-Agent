@@ -139,6 +139,22 @@
 
                                 <div class="feature-card">
                                     <div class="feature-icon api">
+                                        <mat-icon>event_repeat</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t('smartFleet.plans.monitoringCreditsMonth') }}</span>
+                                        <span class="feature-value"
+                                            >{{ monitoring()?.credits || 0 | number: '1.0-2' }}
+                                            <span class="text-sm font-normal text-gray-500"
+                                                >({{ formatUsd(monitoring()?.credits || 0) }})</span
+                                            ></span
+                                        >
+                                    </div>
+                                    <mat-icon class="feature-status active">sync</mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon api">
                                         <mat-icon>description</mat-icon>
                                     </div>
                                     <div class="feature-content">
@@ -151,6 +167,22 @@
                                         >
                                     </div>
                                     <mat-icon class="feature-status active">receipt_long</mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon whitelabel">
+                                        <mat-icon>account_balance_wallet</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t('smartFleet.plans.usageCreditsMonth') }}</span>
+                                        <span class="feature-value"
+                                            >{{ usageCreditsMonth() | number: '1.0-2' }}
+                                            <span class="text-sm font-normal text-gray-500"
+                                                >({{ formatUsd(usageCreditsMonth()) }})</span
+                                            ></span
+                                        >
+                                    </div>
+                                    <mat-icon class="feature-status active">payments</mat-icon>
                                 </div>
                             </div>
 
@@ -405,6 +437,11 @@
                                 <span class="stat-label">{{ t('smartFleet.plans.monitoringCredits') }}</span>
                             </div>
                         </div>
+                        @if (monitoringEstimateIsReference()) {
+                            <p class="mx-4 mb-0 text-center text-xs text-gray-500">
+                                {{ t('smartFleet.plans.monitoringCreditsReferenceHint') }}
+                            </p>
+                        }
                         <div class="checkout-actions">
                             <button
                                 (click)="checkout()"
@@ -479,6 +516,13 @@
                                 usd: formatUsd(overview()?.projectedMonthlyCredits?.totalCredits || 0),
                             })
                         }}</span>
+                        <span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">{{
+                            t('smartFleet.plans.creditsMonitoringActualUsd', {
+                                credits: (monitoring()?.credits || 0 | number: '1.0-2'),
+                                usd: formatUsd(monitoring()?.credits || 0),
+                                runs: monitoring()?.runs || 0,
+                            })
+                        }}</span>
                     </div>
                 </div>
                 <div class="optional-card">
@@ -497,6 +541,15 @@
                     </div>
                 </div>
             </div>
+
+            <p class="optional-subtitle mt-3 text-sm font-medium text-stone-700 dark:text-stone-200">
+                {{
+                    t('smartFleet.plans.usageCreditsMonthSummary', {
+                        credits: usageCreditsMonth() | number: '1.0-2',
+                        usd: formatUsd(usageCreditsMonth()),
+                    })
+                }}
+            </p>
 
             @if (creditBreakdown().length) {
                 <div class="mt-5 rounded-xl border border-stone-200 bg-stone-50/60 p-4 dark:border-gray-700 dark:bg-gray-950/40">

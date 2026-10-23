@@ -407,13 +407,26 @@ export interface FleetPlanTier {
     available: boolean;
 }
 
+export interface FleetUsageReferenceLine {
+    featureCode: string;
+    frequency: FleetFrequency;
+    checksPerMonth: number;
+    pricePerCheck: number;
+    creditsPerAsset: number;
+}
+
 export interface FleetPlanOverview {
     tiers: FleetPlanTier[];
     plan: (FleetSubscription & { tier: FleetPlanTierKey | null }) | null;
     usage: { activeAssets: number; limit: number; freeLimit: number; maxSlots: number; enterpriseFrom: number };
     projectedMonthlyCredits: FleetCreditEstimate;
-    /** Credits the vehicle reports' endpoints billed this month. */
+    /** Scheduled + manual monitoring runs (FeatureRunner), endpoints billed once per run. */
+    monitoring: { since: string; credits: number; runs: number };
+    /** Credits the vehicle reports' endpoints billed this month (Smart Batch). */
     reports: { since: string; credits: number; batches: number; vehicles: number };
+    /** monitoring.credits + reports.credits this calendar month. */
+    usageCreditsMonth: number;
+    usageReference: { weeklyRuntCheck: FleetUsageReferenceLine };
 }
 
 export interface FleetCheckEndpointPath {

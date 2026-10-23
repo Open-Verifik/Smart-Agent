@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from 'app/core/auth/auth.service';
@@ -91,8 +92,8 @@ const BOLD_CONFIRM_RETRY_MS = 3000;
 const POST_PAYMENT_CREDIT_ATTEMPTS = 10;
 const POST_PAYMENT_CREDIT_RETRY_MS = 2500;
 
-/** Where Bold sends the customer back to; the API whitelists this path. */
-const BOLD_RETURN_PATH = '/reporte-placa';
+/** Bold return paths whitelisted on the API (must match {@link PlateReportComponent._boldReturnPath}). */
+const BOLD_RETURN_PATHS = ['/reporte-placa', '/informe-vehicular'] as const;
 /** Poll while Bold's embedded success screen is open (webhook/confirm can beat the redirect). */
 const BOLD_EMBEDDED_POLL_MS = 4000;
 const BOLD_EMBEDDED_POLL_MAX = 90;
@@ -111,6 +112,18 @@ const CURRENCY_OPTIONS: CurrencyOption[] = [
         disabled: true,
     },
 ];
+
+const FLOW_STEPS = [
+    { index: 0, labelKey: 'plateReport.stepData' },
+    { index: 1, labelKey: 'plateReport.stepPay' },
+    { index: 2, labelKey: 'plateReport.stepReport' },
+] as const;
+
+const REPORT_TIMELINE = [
+    { id: 'clone', labelKey: 'plateReport.timelinePrepare' },
+    { id: 'run', labelKey: 'plateReport.timelineSources' },
+    { id: 'pdf', labelKey: 'plateReport.timelinePdf' },
+] as const;
 
 @Component({
     selector: 'plate-report',
@@ -144,6 +157,9 @@ export class PlateReportComponent implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _transloco = inject(TranslocoService);
+    private _title = inject(Title);
+
+    readonly brandTitle = environment.plateReportBrandTitle ?? '';
 
     private _left = false;
     private _configId = '';
@@ -180,6 +196,8 @@ export class PlateReportComponent implements OnInit {
     readonly needsSignIn = signal(false);
 
     readonly currencyOptions = CURRENCY_OPTIONS;
+    readonly flowSteps = FLOW_STEPS;
+    readonly reportTimeline = REPORT_TIMELINE;
     /** Charge currency. Pesos are the only one enabled, and the one that unlocks PSE, Nequi and Bancolombia. */
     readonly currency = signal<BoldCurrency>('COP');
     /** Peso price of the report at today's rate; null until the quote resolves. */
@@ -202,6 +220,26 @@ export class PlateReportComponent implements OnInit {
         if (!quote || quote.currency !== 'COP') return '';
 
         return `${new Intl.NumberFormat('es-CO').format(quote.total)} COP`;
+    });
+
+    /** 0 datos, 1 pago, 2 reporte. Drives the step indicator above the card. */
+    readonly flowStep = computed(() => {
+        const phase = this.phase();
+        const step = this.workingStep();
+        if (phase === 'ready') return 2;
+        if (phase === 'payment') return 1;
+        if (phase === 'working') {
+            if (step === 'account') return 0;
+            if (step === 'payment') return 1;
+            return 2;
+        }
+        return 0;
+    });
+
+    /** The three lookup beats shown while the PDF is being built. */
+    readonly showReportTimeline = computed(() => {
+        const step = this.workingStep();
+        return this.phase() === 'working' && (step === 'clone' || step === 'run' || step === 'pdf');
     });
 
     private _orderId = '';
@@ -252,6 +290,7 @@ export class PlateReportComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this._title.setTitle(this._transloco.translate('plateReport.title'));
         this.signedIn.set(this._session.isTokenValid());
         const draft = readPlateReportDraft();
         if (draft) {
@@ -322,6 +361,16 @@ export class PlateReportComponent implements OnInit {
         return 'error_outline';
     }
 
+    /** Keeps Bold return URLs on the same public path the customer opened (aliases share one flow). */
+    private _boldReturnPath(): string {
+        const path = this._router.url.split('?')[0];
+        const match = BOLD_RETURN_PATHS.find(
+            (prefix) => path === prefix || path.startsWith(`${prefix}/`)
+        );
+
+        return match ?? BOLD_RETURN_PATHS[0];
+    }
+
     /**
      * Bold appends `bold-order-id` and often `bold-tx-status=approved` on the return URL
      * (see redirectionUrl in checkout config).
@@ -339,7 +388,7 @@ export class PlateReportComponent implements OnInit {
 
         this._orderId = orderId;
         this._remember('after-payment');
-        void this._router.navigate(['/reporte-placa'], { replaceUrl: true, queryParams: {} });
+        void this._router.navigate([this._boldReturnPath()], { replaceUrl: true, queryParams: {} });
 
         return { orderId, txHint };
     }
@@ -655,6 +704,23 @@ export class PlateReportComponent implements OnInit {
         return 'plateReport.workingClone';
     }
 
+    timelineState(id: 'clone' | 'run' | 'pdf'): 'done' | 'current' | 'wait' {
+        const order = ['clone', 'run', 'pdf'] as const;
+        const current = order.indexOf(this.workingStep() as (typeof order)[number]);
+        const index = order.indexOf(id);
+        if (current < 0 || index > current) return 'wait';
+        if (index < current) return 'done';
+        return 'current';
+    }
+
+    /** Returns to the data step without clearing what the customer already typed. */
+    backToForm(): void {
+        if (this.busy()) return;
+        this.errorKey.set(null);
+        this.errorDetail.set('');
+        this.phase.set('form');
+    }
+
     /** Pesos are the only enabled currency, so the order is always made in COP. */
     canPay(): boolean {
         return !this.busy() && this.currency() === 'COP' && !this.fxUnavailable();
@@ -679,16 +745,17 @@ export class PlateReportComponent implements OnInit {
                     product: REPORT_PRODUCT,
                     currency: 'COP',
                     origin: 'smart_agent',
-                    returnPath: BOLD_RETURN_PATH,
+                    returnPath: this._boldReturnPath(),
                 })
             );
 
-            let config = this._payment.alignBoldReturnUrl(response.data, BOLD_RETURN_PATH);
+            const returnPath = this._boldReturnPath();
+            let config = this._payment.alignBoldReturnUrl(response.data, returnPath);
             this._orderId = config.orderId;
             this._remember('after-payment');
 
             if (config.mode === 'redirect') {
-                config = this._payment.alignBoldReturnUrl(config, BOLD_RETURN_PATH);
+                config = this._payment.alignBoldReturnUrl(config, returnPath);
                 // Leaves the spinner up: the page is on its way to Bold.
                 this._payment.redirectToBoldCheckout(config);
                 return;

@@ -1,9 +1,36 @@
 <ng-container *transloco="let t">
     <section class="plate-report">
+        <ol class="steps" [attr.aria-label]="t('plateReport.stepsLabel')" [style.--step]="flowStep()">
+            @for (step of flowSteps; track step.index) {
+                <li
+                    class="steps__item"
+                    [class.is-current]="flowStep() === step.index"
+                    [class.is-done]="flowStep() > step.index"
+                >
+                    <span class="steps__dot" aria-hidden="true">
+                        @if (flowStep() > step.index) {
+                            <mat-icon>check</mat-icon>
+                        } @else {
+                            {{ step.index + 1 }}
+                        }
+                    </span>
+                    <span class="steps__label">{{ t(step.labelKey) }}</span>
+                </li>
+            }
+        </ol>
+
         <div class="plate-report__card">
-            <p class="plate-report__kicker">Verifik</p>
-            <h1>{{ t('plateReport.title') }}</h1>
-            <p class="plate-report__lead">{{ t('plateReport.subtitle') }}</p>
+            <header class="hero">
+                <span class="hero__mark" aria-hidden="true">
+                    <mat-icon>directions_car</mat-icon>
+                </span>
+                <div class="hero__copy">
+                    @if (brandTitle) {
+                        <p class="plate-report__kicker">{{ brandTitle }}</p>
+                    }
+                    <h1>{{ t('plateReport.title') }}</h1>
+                </div>
+            </header>
 
             @if (showBoldBanner() && boldReturnState(); as boldState) {
                 <div
@@ -17,11 +44,13 @@
                     "
                     role="status"
                 >
-                    @if (boldState === 'confirming') {
-                        <mat-spinner diameter="22"></mat-spinner>
-                    } @else {
-                        <mat-icon class="plate-report__bold-icon">{{ boldReturnIcon(boldState) }}</mat-icon>
-                    }
+                    <span class="plate-report__bold-mark" aria-hidden="true">
+                        @if (boldState === 'confirming') {
+                            <mat-spinner diameter="18"></mat-spinner>
+                        } @else {
+                            <mat-icon class="plate-report__bold-icon">{{ boldReturnIcon(boldState) }}</mat-icon>
+                        }
+                    </span>
                     <div class="plate-report__bold-copy">
                         <p class="plate-report__bold-text">{{ t('plateReport.bold.return.' + boldState) }}</p>
                         <div class="plate-report__bold-actions">
@@ -66,227 +95,328 @@
                 </div>
             }
 
-            @if (phase() === 'form') {
-                @if (signedIn()) {
-                    <p class="plate-report__note">{{ t('plateReport.signedIn') }}</p>
-                }
-                @if (reportPaid() && !plate().trim()) {
-                    <p class="plate-report__note plate-report__note--resume">{{ t('plateReport.paymentApprovedNeedPlate') }}</p>
-                } @else if (pendingNotice() && !boldReturnState()) {
-                    <p class="plate-report__note plate-report__note--resume">{{ t('plateReport.pendingNotice') }}</p>
-                }
+            <div class="stage">
+                @if (phase() === 'form') {
+                    <div class="phase">
+                        <p class="plate-report__lead">{{ t('plateReport.subtitle') }}</p>
 
-                <form (ngSubmit)="submitForm()">
-                    <label class="plate-report__field">
-                        <span>{{ t('plateReport.plate') }}</span>
-                        <input
-                            [ngModel]="plate()"
-                            (ngModelChange)="plate.set($event)"
-                            name="plate"
-                            autocomplete="off"
-                            autocapitalize="characters"
-                            [placeholder]="t('plateReport.platePlaceholder')"
-                            [disabled]="busy()"
-                            required
-                        />
-                    </label>
+                        <ul class="perks" aria-hidden="true">
+                            <li><mat-icon>badge</mat-icon>{{ t('plateReport.perkVehicle') }}</li>
+                            <li><mat-icon>gavel</mat-icon>{{ t('plateReport.perkFines') }}</li>
+                            <li><mat-icon>verified_user</mat-icon>{{ t('plateReport.perkSoat') }}</li>
+                        </ul>
 
-                    <label class="plate-report__field">
-                        <span>{{ t('plateReport.country') }}</span>
-                        <select
-                            [ngModel]="countryCode()"
-                            (ngModelChange)="countryCode.set($event)"
-                            name="country"
-                            [disabled]="busy()"
-                        >
-                            @for (country of countries; track country.countryCode) {
-                                <option [value]="country.countryCode">
-                                    {{ country.flag }} {{ country.name }} ({{ country.dialCode }})
-                                </option>
-                            }
-                        </select>
-                    </label>
-
-                    <label class="plate-report__field">
-                        <span>{{ t('plateReport.phone') }}</span>
-                        <input
-                            [ngModel]="phone()"
-                            (ngModelChange)="phone.set($event)"
-                            name="phone"
-                            type="tel"
-                            inputmode="tel"
-                            autocomplete="tel"
-                            [placeholder]="t('plateReport.phonePlaceholder')"
-                            [disabled]="busy()"
-                            required
-                        />
-                    </label>
-
-                    <label class="plate-report__field">
-                        <span>{{ t('plateReport.name') }} <small>({{ t('plateReport.optional') }})</small></span>
-                        <input
-                            [ngModel]="personName()"
-                            (ngModelChange)="personName.set($event)"
-                            name="name"
-                            autocomplete="name"
-                            [placeholder]="t('plateReport.namePlaceholder')"
-                            [disabled]="busy()"
-                        />
-                    </label>
-
-                    @if (fieldError(); as key) {
-                        <p class="plate-report__error" role="alert">{{ t(key) }}</p>
-                    }
-                    @if (errorKey(); as key) {
-                        <p class="plate-report__error" role="alert">
-                            {{ t(key) }}
-                            @if (errorDetail()) {
-                                <span>{{ errorDetail() }}</span>
-                            }
-                        </p>
-                    }
-
-                    <button mat-flat-button color="primary" type="submit" class="plate-report__submit" [disabled]="busy()">
-                        @if (busy()) {
-                            <mat-spinner diameter="18"></mat-spinner>
+                        @if (signedIn()) {
+                            <p class="plate-report__note">
+                                <mat-icon aria-hidden="true">how_to_reg</mat-icon>
+                                <span>{{ t('plateReport.signedIn') }}</span>
+                            </p>
                         }
-                        {{
-                            reportPaid()
-                                ? t('plateReport.continueToReady')
-                                : pendingNotice()
-                                  ? t('plateReport.continuePending')
-                                  : t('plateReport.continue')
-                        }}
-                    </button>
+                        @if (reportPaid() && !plate().trim()) {
+                            <p class="plate-report__note plate-report__note--ok">
+                                <mat-icon aria-hidden="true">check_circle</mat-icon>
+                                <span>{{ t('plateReport.paymentApprovedNeedPlate') }}</span>
+                            </p>
+                        } @else if (pendingNotice() && !boldReturnState()) {
+                            <p class="plate-report__note plate-report__note--resume">
+                                <mat-icon aria-hidden="true">schedule</mat-icon>
+                                <span>{{ t('plateReport.pendingNotice') }}</span>
+                            </p>
+                        }
 
-                    @if (!signedIn()) {
-                        <p class="plate-report__note" style="margin-top: 0.75rem;">
-                            {{ needsSignIn() ? t('plateReport.signInHint') : t('plateReport.haveAccount') }}
-                            <button
-                                mat-button
-                                color="primary"
-                                type="button"
-                                (click)="signIn()"
-                                [disabled]="busy()"
+                        <form (ngSubmit)="submitForm()">
+                            <label
+                                class="plate-report__field plate-report__field--plate"
+                                [class.is-invalid]="fieldError() === 'plateReport.plateInvalid'"
                             >
-                                {{ t('plateReport.signIn') }}
+                                <span>{{ t('plateReport.plate') }}</span>
+                                <span class="plate" [class.is-co]="countryCode() === 'co'">
+                                    <span class="plate__tag">{{ selectedCountry().countryCode }}</span>
+                                    <input
+                                        [ngModel]="plate()"
+                                        (ngModelChange)="plate.set($event)"
+                                        name="plate"
+                                        autocomplete="off"
+                                        autocapitalize="characters"
+                                        [placeholder]="t('plateReport.platePlaceholder')"
+                                        [disabled]="busy()"
+                                        required
+                                    />
+                                </span>
+                            </label>
+
+                            <div class="plate-report__field" [class.is-invalid]="fieldError() === 'plateReport.phoneInvalid'">
+                                <span id="plate-phone-label">{{ t('plateReport.phone') }}</span>
+                                <div class="combo">
+                                    <label class="combo__country">
+                                        <span class="combo__current" aria-hidden="true">
+                                            {{ selectedCountry().dialCode }}
+                                            <mat-icon>expand_more</mat-icon>
+                                        </span>
+                                        <select
+                                            [ngModel]="countryCode()"
+                                            (ngModelChange)="countryCode.set($event)"
+                                            name="country"
+                                            [attr.aria-label]="t('plateReport.country')"
+                                            [disabled]="busy()"
+                                        >
+                                            @for (country of countries; track country.countryCode) {
+                                                <option [value]="country.countryCode">
+                                                    {{ country.name }} ({{ country.dialCode }})
+                                                </option>
+                                            }
+                                        </select>
+                                    </label>
+                                    <input
+                                        [ngModel]="phone()"
+                                        (ngModelChange)="phone.set($event)"
+                                        name="phone"
+                                        type="tel"
+                                        inputmode="tel"
+                                        autocomplete="tel"
+                                        [attr.aria-labelledby]="'plate-phone-label'"
+                                        [placeholder]="t('plateReport.phonePlaceholder')"
+                                        [disabled]="busy()"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <label
+                                class="plate-report__field plate-report__field--quiet"
+                                [class.is-invalid]="fieldError() === 'plateReport.nameInvalid'"
+                            >
+                                <span>{{ t('plateReport.name') }} <small>({{ t('plateReport.optional') }})</small></span>
+                                <input
+                                    [ngModel]="personName()"
+                                    (ngModelChange)="personName.set($event)"
+                                    name="name"
+                                    autocomplete="name"
+                                    [placeholder]="t('plateReport.namePlaceholder')"
+                                    [disabled]="busy()"
+                                />
+                            </label>
+
+                            @if (fieldError(); as key) {
+                                <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+                            }
+                            @if (errorKey(); as key) {
+                                <p class="plate-report__error" role="alert">
+                                    {{ t(key) }}
+                                    @if (errorDetail()) {
+                                        <span>{{ errorDetail() }}</span>
+                                    }
+                                </p>
+                            }
+
+                            <button mat-flat-button color="primary" type="submit" class="plate-report__submit" [disabled]="busy()">
+                                @if (busy()) {
+                                    <mat-spinner diameter="18"></mat-spinner>
+                                }
+                                <span>
+                                    {{
+                                        reportPaid()
+                                            ? t('plateReport.continueToReady')
+                                            : pendingNotice()
+                                              ? t('plateReport.continuePending')
+                                              : t('plateReport.continue')
+                                    }}
+                                </span>
+                                @if (!busy()) {
+                                    <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+                                }
                             </button>
-                        </p>
-                    }
-                </form>
-            }
 
-            @if (phase() === 'working') {
-                <div class="plate-report__status" role="status">
-                    <mat-spinner diameter="36"></mat-spinner>
-                    <h2>{{ t('plateReport.workingTitle') }}</h2>
-                    <p>{{ t(statusKey()) }}</p>
-                </div>
-            }
-
-            @if (phase() === 'payment') {
-                <h2>{{ t('plateReport.paymentTitle') }}</h2>
-                <p class="plate-report__lead">{{ t('plateReport.paymentBody') }}</p>
-
-                <div class="plate-report__currency" role="radiogroup" [attr.aria-label]="t('plateReport.currencyLabel')">
-                    @for (option of currencyOptions; track option.code) {
-                        <button
-                            type="button"
-                            role="radio"
-                            class="plate-report__currency-option"
-                            [class.is-active]="currency() === option.code"
-                            [attr.aria-checked]="currency() === option.code"
-                            [disabled]="option.disabled || busy()"
-                            (click)="selectCurrency(option)"
-                        >
-                            <span class="plate-report__currency-code">{{ option.code }}</span>
-                            <span class="plate-report__currency-text">
-                                <strong>{{ t(option.labelKey) }}</strong>
-                                <small>{{ t(option.methodsKey) }}</small>
-                            </span>
-                        </button>
-                    }
-                </div>
-
-                @if (totalLabel()) {
-                    <p class="plate-report__quote">
-                        {{ t('plateReport.quoteTotal', { total: totalLabel() }) }}
-                    </p>
-                } @else if (quoteLoading()) {
-                    <p class="plate-report__quote">{{ t('addCredits.purchaseDialog.bold.quoteLoading') }}</p>
+                            @if (!signedIn()) {
+                                <p class="plate-report__signin">
+                                    {{ needsSignIn() ? t('plateReport.signInHint') : t('plateReport.haveAccount') }}
+                                    <button mat-button color="primary" type="button" (click)="signIn()" [disabled]="busy()">
+                                        {{ t('plateReport.signIn') }}
+                                    </button>
+                                </p>
+                            }
+                        </form>
+                    </div>
                 }
 
-                @if (fxUnavailable()) {
-                    <p class="plate-report__error" role="alert">{{ t('plateReport.fxUnavailable') }}</p>
-                }
+                @if (phase() === 'working') {
+                    <div class="phase plate-report__status" role="status">
+                        <div class="orbit" aria-hidden="true">
+                            <span class="orbit__ring"></span>
+                            <mat-icon>directions_car</mat-icon>
+                        </div>
+                        <h2>{{ t('plateReport.workingTitle') }}</h2>
+                        <p class="plate-report__lead">{{ t(statusKey()) }}</p>
 
-                @if (pseOnly()) {
-                    <p class="plate-report__note">{{ t('addCredits.purchaseDialog.bold.firstPurchasePseNote') }}</p>
-                }
-
-                @if (errorKey(); as key) {
-                    @if (!boldReturnState()) {
-                        <p class="plate-report__error" role="alert">{{ t(key) }}</p>
-                    }
-                }
-
-                @if (canShowPayButton()) {
-                <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="pay()" [disabled]="!canPay()">
-                    @if (busy()) {
-                        <mat-spinner diameter="18"></mat-spinner>
-                    }
-                    {{ totalLabel() ? t('plateReport.payAmount', { total: totalLabel() }) : t('plateReport.pay') }}
-                </button>
-                }
-
-                <p class="plate-report__hint">{{ t('plateReport.paymentHint') }}</p>
-                <p class="plate-report__hint plate-report__hint--bold">{{ t('plateReport.bold.embeddedHint') }}</p>
-            }
-
-            @if (phase() === 'ready') {
-                <h2>{{ t('plateReport.readyTitle') }}</h2>
-                <p class="plate-report__lead">{{ t('plateReport.readyBody') }}</p>
-                @if (reusedReport()) {
-                    <p class="plate-report__note">{{ t('plateReport.reused') }}</p>
-                } @else if (savedOnAccount()) {
-                    <p class="plate-report__note">{{ t('plateReport.savedNotice') }}</p>
-                }
-                @if (partial()) {
-                    <p class="plate-report__note">{{ t('plateReport.partial') }}</p>
-                }
-                @if (emailSent()) {
-                    <p class="plate-report__note">{{ t('plateReport.emailSent', { email: deliveryEmail() }) }}</p>
-                }
-                @if (errorKey(); as key) {
-                    <p class="plate-report__error" role="alert">{{ t(key) }}</p>
-                }
-                <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="download()">
-                    {{ t('plateReport.download') }}
-                </button>
-
-                <div class="plate-report__email-delivery" style="margin-top: 1.25rem; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 1.25rem;">
-                    <label class="plate-report__field">
-                        <span>{{ t('plateReport.sendEmailTo') }}</span>
-                        <input
-                            [ngModel]="contact()"
-                            (ngModelChange)="contact.set($event)"
-                            type="email"
-                            inputmode="email"
-                            autocomplete="email"
-                            [placeholder]="t('plateReport.emailPlaceholder')"
-                            [disabled]="busy()"
-                        />
-                    </label>
-                    <button mat-stroked-button type="button" class="plate-report__submit" (click)="sendEmail()" [disabled]="busy() || !deliveryEmail()">
-                        @if (busy()) {
-                            <mat-spinner diameter="18"></mat-spinner>
+                        @if (showReportTimeline()) {
+                            <ol class="timeline">
+                                @for (item of reportTimeline; track item.id) {
+                                    <li class="timeline__item" [class.is-done]="timelineState(item.id) === 'done'" [class.is-current]="timelineState(item.id) === 'current'">
+                                        <span class="timeline__dot" aria-hidden="true">
+                                            @if (timelineState(item.id) === 'done') {
+                                                <mat-icon>check</mat-icon>
+                                            } @else if (timelineState(item.id) === 'current') {
+                                                <span class="timeline__pulse"></span>
+                                            }
+                                        </span>
+                                        <span>{{ t(item.labelKey) }}</span>
+                                    </li>
+                                }
+                            </ol>
                         }
-                        {{ t('plateReport.sendEmail') }}
-                    </button>
-                </div>
+                    </div>
+                }
 
-                <button mat-button type="button" style="margin-top: 0.75rem;" (click)="reset()">{{ t('plateReport.newReport') }}</button>
-            }
+                @if (phase() === 'payment') {
+                    <div class="phase">
+                        <h2>{{ t('plateReport.paymentTitle') }}</h2>
+                        <p class="plate-report__lead">{{ t('plateReport.paymentBody') }}</p>
+
+                        <div class="summary">
+                            <div class="summary__plate">
+                                <span>{{ t('plateReport.plate') }}</span>
+                                <strong>{{ plate() || '—' }}</strong>
+                            </div>
+                            <div class="summary__price">
+                                @if (totalLabel()) {
+                                    <strong>{{ totalLabel() }}</strong>
+                                    <span>{{ t('plateReport.currencyCop') }}</span>
+                                } @else if (quoteLoading()) {
+                                    <span class="summary__loading">{{ t('addCredits.purchaseDialog.bold.quoteLoading') }}</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="plate-report__currency" role="radiogroup" [attr.aria-label]="t('plateReport.currencyLabel')">
+                            @for (option of currencyOptions; track option.code) {
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    class="plate-report__currency-option"
+                                    [class.is-active]="currency() === option.code"
+                                    [attr.aria-checked]="currency() === option.code"
+                                    [disabled]="option.disabled || busy()"
+                                    (click)="selectCurrency(option)"
+                                >
+                                    <span class="plate-report__currency-code">{{ option.code }}</span>
+                                    <span class="plate-report__currency-text">
+                                        <strong>{{ t(option.labelKey) }}</strong>
+                                        <small>{{ t(option.methodsKey) }}</small>
+                                    </span>
+                                    <span class="radio" aria-hidden="true"></span>
+                                </button>
+                            }
+                        </div>
+
+                        @if (fxUnavailable()) {
+                            <p class="plate-report__error" role="alert">{{ t('plateReport.fxUnavailable') }}</p>
+                        }
+
+                        @if (pseOnly()) {
+                            <p class="plate-report__note">
+                                <mat-icon aria-hidden="true">info</mat-icon>
+                                <span>{{ t('addCredits.purchaseDialog.bold.firstPurchasePseNote') }}</span>
+                            </p>
+                        }
+
+                        @if (errorKey(); as key) {
+                            @if (!boldReturnState()) {
+                                <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+                            }
+                        }
+
+                        @if (canShowPayButton()) {
+                            <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="pay()" [disabled]="!canPay()">
+                                @if (busy()) {
+                                    <mat-spinner diameter="18"></mat-spinner>
+                                }
+                                <mat-icon aria-hidden="true">lock</mat-icon>
+                                <span>{{ totalLabel() ? t('plateReport.payAmount', { total: totalLabel() }) : t('plateReport.pay') }}</span>
+                            </button>
+                        }
+
+                        <button mat-button type="button" class="plate-report__back" (click)="backToForm()" [disabled]="busy()">
+                            {{ t('plateReport.editData') }}
+                        </button>
+
+                        <p class="plate-report__hint">
+                            <mat-icon aria-hidden="true">lock</mat-icon>
+                            <span>{{ t('plateReport.paymentHint') }}</span>
+                        </p>
+                        <p class="plate-report__hint">{{ t('plateReport.bold.embeddedHint') }}</p>
+                    </div>
+                }
+
+                @if (phase() === 'ready') {
+                    <div class="phase ready">
+                        <div class="success" aria-hidden="true">
+                            <mat-icon>check</mat-icon>
+                        </div>
+                        <h2>{{ t('plateReport.readyTitle') }}</h2>
+                        <p class="plate-report__lead">{{ t('plateReport.readyBody') }}</p>
+                        @if (plate()) {
+                            <p class="ready__plate">{{ plate() }}</p>
+                        }
+
+                        @if (reusedReport()) {
+                            <p class="plate-report__note">
+                                <mat-icon aria-hidden="true">history</mat-icon>
+                                <span>{{ t('plateReport.reused') }}</span>
+                            </p>
+                        } @else if (savedOnAccount()) {
+                            <p class="plate-report__note plate-report__note--ok">
+                                <mat-icon aria-hidden="true">bookmark_added</mat-icon>
+                                <span>{{ t('plateReport.savedNotice') }}</span>
+                            </p>
+                        }
+                        @if (partial()) {
+                            <p class="plate-report__note plate-report__note--resume">
+                                <mat-icon aria-hidden="true">info</mat-icon>
+                                <span>{{ t('plateReport.partial') }}</span>
+                            </p>
+                        }
+                        @if (emailSent()) {
+                            <p class="plate-report__note plate-report__note--ok">
+                                <mat-icon aria-hidden="true">mark_email_read</mat-icon>
+                                <span>{{ t('plateReport.emailSent', { email: deliveryEmail() }) }}</span>
+                            </p>
+                        }
+                        @if (errorKey(); as key) {
+                            <p class="plate-report__error" role="alert">{{ t(key) }}</p>
+                        }
+
+                        <button mat-flat-button color="primary" type="button" class="plate-report__submit" (click)="download()">
+                            <mat-icon aria-hidden="true">download</mat-icon>
+                            <span>{{ t('plateReport.download') }}</span>
+                        </button>
+
+                        <div class="email-box">
+                            <label class="plate-report__field">
+                                <span>{{ t('plateReport.sendEmailTo') }}</span>
+                                <input
+                                    [ngModel]="contact()"
+                                    (ngModelChange)="contact.set($event)"
+                                    type="email"
+                                    inputmode="email"
+                                    autocomplete="email"
+                                    [placeholder]="t('plateReport.emailPlaceholder')"
+                                    [disabled]="busy()"
+                                />
+                            </label>
+                            <button mat-stroked-button type="button" class="plate-report__submit plate-report__submit--quiet" (click)="sendEmail()" [disabled]="busy() || !deliveryEmail()">
+                                @if (busy()) {
+                                    <mat-spinner diameter="18"></mat-spinner>
+                                } @else {
+                                    <mat-icon aria-hidden="true">mail</mat-icon>
+                                }
+                                <span>{{ t('plateReport.sendEmail') }}</span>
+                            </button>
+                        </div>
+
+                        <button mat-button type="button" class="plate-report__back" (click)="reset()">{{ t('plateReport.newReport') }}</button>
+                    </div>
+                }
+            </div>
         </div>
     </section>
 </ng-container>

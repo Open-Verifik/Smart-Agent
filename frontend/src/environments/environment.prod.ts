@@ -43,6 +43,9 @@ export const environment = {
     get plateReportTemplateId(): string {
         return '6ac91b76da239e3e07b95270';
     },
+    get plateReportBrandTitle(): string {
+        return 'Verifik';
+    },
     get kycBaseUrl(): string {
         return isStaging() ? 'https://staging-access.verifik.co' : 'https://access.verifik.co';
     },

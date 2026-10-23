@@ -14,6 +14,8 @@ const localDefaults = {
     plateReportProjectId: '6ad24bdb2467ba37a62beb72',
     plateReportFlowId: '6ad251f62467ba37a62beb7d',
     plateReportTemplateId: '6ac91b76da239e3e07b95270',
+    /** Hero kicker on the standalone plate report (white-label domains can override in prod). */
+    plateReportBrandTitle: 'Verifik',
     kycBaseUrl: 'https://access.app',
     rpcUrl: 'https://wild-bitter-meadow.avalanche-mainnet.quiknode.pro/e2565749ca44c2873fe2a0a747f5ac68ae7eb14f/ext/bc/C/rpc/',
     vkaContractAddress: '0x8fc4b00689812f449723CB473E0A7C060b10eD3f',
