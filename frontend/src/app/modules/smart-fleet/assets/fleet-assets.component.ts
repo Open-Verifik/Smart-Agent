@@ -129,6 +129,110 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
                 background: #ffffff;
             }
 
+            .fleet-report-menu-group {
+                border-bottom: 1px solid #e7e5e4;
+            }
+
+            .fleet-report-menu-group:last-child {
+                border-bottom: 0;
+            }
+
+            .fleet-report-menu-group--system {
+                background: #eef2ff;
+            }
+
+            .fleet-report-menu-group--mine {
+                background: #ecfdf5;
+            }
+
+            .fleet-report-menu-section {
+                padding: 10px 16px 6px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+
+            .fleet-report-menu-section--system {
+                background: #818cf8;
+                color: #ffffff;
+            }
+
+            .fleet-report-menu-section--mine {
+                background: #34d399;
+                color: #064e3b;
+            }
+
+            .fleet-report-menu-group--system .fleet-report-menu-row {
+                background: #eef2ff;
+                color: #312e81;
+            }
+
+            .fleet-report-menu-group--system .fleet-report-menu-row--stripe {
+                background: #e0e7ff;
+            }
+
+            .fleet-report-menu-group--system .fleet-report-menu-row:hover {
+                background: #c7d2fe !important;
+            }
+
+            .fleet-report-menu-group--mine .fleet-report-menu-row {
+                background: #ecfdf5;
+                color: #065f46;
+            }
+
+            .fleet-report-menu-group--mine .fleet-report-menu-row--stripe {
+                background: #d1fae5;
+            }
+
+            .fleet-report-menu-group--mine .fleet-report-menu-row:hover {
+                background: #a7f3d0 !important;
+            }
+
+            .dark .fleet-report-menu-group--system {
+                background: #1e1b4b;
+            }
+
+            .dark .fleet-report-menu-group--mine {
+                background: #064e3b;
+            }
+
+            .dark .fleet-report-menu-section--system {
+                background: #4f46e5;
+                color: #eef2ff;
+            }
+
+            .dark .fleet-report-menu-section--mine {
+                background: #10b981;
+                color: #ecfdf5;
+            }
+
+            .dark .fleet-report-menu-group--system .fleet-report-menu-row {
+                background: #1e1b4b;
+                color: #e0e7ff;
+            }
+
+            .dark .fleet-report-menu-group--system .fleet-report-menu-row--stripe {
+                background: #312e81;
+            }
+
+            .dark .fleet-report-menu-group--system .fleet-report-menu-row:hover {
+                background: #4338ca !important;
+            }
+
+            .dark .fleet-report-menu-group--mine .fleet-report-menu-row {
+                background: #064e3b;
+                color: #d1fae5;
+            }
+
+            .dark .fleet-report-menu-group--mine .fleet-report-menu-row--stripe {
+                background: #047857;
+            }
+
+            .dark .fleet-report-menu-group--mine .fleet-report-menu-row:hover {
+                background: #059669 !important;
+            }
+
             .fleet-report-menu-footer.mat-mdc-menu-item {
                 background: #f5f5f4;
                 border-top: 1px solid #e7e5e4;
@@ -179,10 +283,6 @@ const DEFAULT_DRAFT = (): FleetAsset => ({
                 white-space: nowrap;
                 color: inherit;
                 cursor: pointer;
-            }
-
-            .fleet-report-menu-row:hover {
-                background: rgba(120, 113, 108, 0.12);
             }
 
             .fleet-report-menu-icon {
@@ -253,6 +353,12 @@ export class FleetAssetsComponent implements OnInit {
     /** Vehicle whose report menu is open. */
     reportTarget = signal<FleetAsset | null>(null);
     reportTemplates = signal<SmartReportTemplate[]>([]);
+    systemReportTemplates = computed(() =>
+        this.reportTemplates().filter((template) => template.type === 'System')
+    );
+    myReportTemplates = computed(() =>
+        this.reportTemplates().filter((template) => template.type !== 'System')
+    );
     reportingAssetId = signal<string | null>(null);
     /** Report ready to download, keyed by vehicle. Nothing is saved to disk until the user asks. */
     readyReports = signal<Record<string, { reportId: string; templateName?: string; rowIndex?: number }>>({});
@@ -579,16 +685,16 @@ export class FleetAssetsComponent implements OnInit {
 
         try {
             const full = await firstValueFrom(this._reports.getTemplate(templateId));
-            const configId = this._configIdOf(full);
+            const resolved = await this._ensureFleetRunnableTemplate(full);
 
-            if (!configId) {
+            if (!resolved) {
                 this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsBatch'), undefined, {
                     duration: 4000,
                 });
                 return;
             }
 
-            const configuration = await firstValueFrom(this._batches.getConfiguration(configId));
+            const configuration = await firstValueFrom(this._batches.getConfiguration(resolved.configId));
             const steps = (configuration.data?.steps || []).filter((step) => step.enabled !== false);
 
             this.bulkSteps.set(steps);
@@ -808,6 +914,34 @@ export class FleetAssetsComponent implements OnInit {
         return typeof linked === 'string' ? linked : linked._id || linked.id || null;
     }
 
+    /**
+     * System presets ship without a client `batchConfiguration`. Clone (or reuse) the
+     * client-owned config + template pair before running Smart Fleet report batches.
+     */
+    private async _ensureFleetRunnableTemplate(
+        template: SmartReportTemplate
+    ): Promise<{ template: SmartReportTemplate; configId: string } | null> {
+        let runnable = template;
+        let configId = this._configIdOf(runnable);
+
+        if (!configId && runnable.type === 'System' && runnable.systemKey) {
+            const cloned = await firstValueFrom(this._batches.cloneSystemPreset(runnable.systemKey));
+            runnable = cloned.data?.template ?? runnable;
+            const config = cloned.data?.batchConfiguration;
+            configId =
+                this._configIdOf(runnable) ||
+                (config && typeof config === 'object'
+                    ? config._id || config.id || null
+                    : typeof config === 'string'
+                      ? config
+                      : null);
+        }
+
+        if (!configId) return null;
+
+        return { template: runnable, configId };
+    }
+
     /** Same plate column the external page resolves from the template's Smart Batch. */
     private _plateFieldFor(steps: BatchStep[]): string {
         const ordered = [...steps].sort((left, right) => left.sequence - right.sequence);
@@ -887,15 +1021,16 @@ export class FleetAssetsComponent implements OnInit {
         if (!template._id || !assets.length) return null;
 
         const full = await firstValueFrom(this._reports.getTemplate(template._id));
-        const configId = this._configIdOf(full);
+        const resolved = await this._ensureFleetRunnableTemplate(full);
 
-        if (!configId) {
+        if (!resolved) {
             this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsBatch'), undefined, {
                 duration: 4000,
             });
             return null;
         }
 
+        const { template: runnableTemplate, configId } = resolved;
         const configuration = await firstValueFrom(this._batches.getConfiguration(configId));
         const config = configuration.data;
         const steps = (config?.steps || []).filter((step) => step.enabled !== false);
@@ -929,7 +1064,7 @@ export class FleetAssetsComponent implements OnInit {
             config,
             steps,
             estimate: estimate.data,
-            template,
+            template: runnableTemplate,
         };
     }
 

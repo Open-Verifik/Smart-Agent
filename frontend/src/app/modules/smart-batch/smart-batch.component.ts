@@ -19,6 +19,10 @@ import { BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './sma
 import { BatchConfigurationRef, SampleReportData, SmartReportService, SmartReportTemplate, templateLayerZ } from './smart-report.service';
 import { SmartTemplateTransferService, TemplateImportError } from './smart-template-transfer.service';
 
+type WorkspaceConfigCard =
+    | { kind: 'owned'; id: string; config: BatchConfiguration }
+    | { kind: 'fromTemplate'; id: string; template: SmartReportTemplate };
+
 @Component({
     selector: 'smart-batch',
     standalone: true,
@@ -92,6 +96,38 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     clientTemplates = computed(() =>
         this.templates().filter((t) => t.type !== 'System')
     );
+
+    /** System templates that still need a client Smart Batch (not cloned yet). */
+    private _pendingTemplateBatches = computed(() => {
+        const clonedKeys = new Set(
+            this.clientTemplates()
+                .map((template) => template.clonedFromSystemKey)
+                .filter((key): key is string => Boolean(key))
+        );
+        return this.systemTemplates().filter(
+            (template) =>
+                this.isSystemPresetAvailable(template) &&
+                Boolean(template.systemKey) &&
+                !clonedKeys.has(template.systemKey as string)
+        );
+    });
+
+    /** Own configs plus Smart Batches that come with system templates, in one list. */
+    workspaceConfigs = computed((): WorkspaceConfigCard[] => {
+        const fromTemplates = this._pendingTemplateBatches().map((template) => ({
+            kind: 'fromTemplate' as const,
+            id: template.systemKey || template._id || template.name,
+            template,
+        }));
+        const owned = this.configurations()
+            .map((config) => ({
+                kind: 'owned' as const,
+                id: config._id ?? config.id ?? '',
+                config,
+            }))
+            .filter((card) => card.id);
+        return [...fromTemplates, ...owned];
+    });
 
     ngOnInit() {
         this._authGate.runWithAuthOrDialog({
@@ -212,6 +248,54 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         });
     }
 
+    openWorkspaceConfig(card: WorkspaceConfigCard): void {
+        if (card.kind === 'fromTemplate') {
+            if (!card.template.systemKey) return;
+            this._cloneAndNavigate(card.template.systemKey, 'dashboard');
+            return;
+        }
+        this.openDashboard(card.id);
+    }
+
+    workspaceConfigName(card: WorkspaceConfigCard): string {
+        return card.kind === 'fromTemplate' ? this.templateTitle(card.template) : card.config.name;
+    }
+
+    workspaceConfigDescription(card: WorkspaceConfigCard): string {
+        if (card.kind === 'fromTemplate') {
+            return this.templateDescription(card.template);
+        }
+        return card.config.description ?? '';
+    }
+
+    workspaceConfigCountry(card: WorkspaceConfigCard): string | undefined {
+        return card.kind === 'fromTemplate' ? card.template.country : card.config.country;
+    }
+
+    workspaceConfigSteps(card: WorkspaceConfigCard): number {
+        return card.kind === 'fromTemplate' ? this.getStepCount(card.template) : card.config.steps.length;
+    }
+
+    workspaceConfigInput(card: WorkspaceConfigCard): string {
+        return card.kind === 'fromTemplate' ? 'csv' : card.config.inputFormat;
+    }
+
+    workspaceConfigOutput(card: WorkspaceConfigCard): string {
+        return card.kind === 'fromTemplate' ? 'xlsx' : card.config.outputFormat;
+    }
+
+    workspaceConfigStrategy(card: WorkspaceConfigCard): string {
+        return card.kind === 'fromTemplate' ? 'sequential' : card.config.mergeStrategy;
+    }
+
+    workspaceConfigExecutor(card: WorkspaceConfigCard): SmartBatchExecutor | undefined {
+        return card.kind === 'fromTemplate' ? 'featureRunner' : card.config.executor;
+    }
+
+    workspaceConfigActive(card: WorkspaceConfigCard): boolean {
+        return card.kind === 'fromTemplate' ? true : card.config.isActive !== false;
+    }
+
     useClientTemplate(template: SmartReportTemplate, event: Event) {
         event.stopPropagation();
 
@@ -257,7 +341,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         this._router.navigate(['/smart-batch', configId, 'batch', 'new']);
     }
 
-    private _cloneAndNavigate(systemKey: string, mode: 'single' | 'batch'): void {
+    private _cloneAndNavigate(systemKey: string, mode: 'single' | 'batch' | 'dashboard'): void {
         if (this.isCloningPreset()) return;
 
         this.isCloningPreset.set(true);
@@ -277,6 +361,11 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
 
                 this._smartBatchService.getConfigurations().subscribe();
                 this._smartReportService.getTemplates().subscribe();
+
+                if (mode === 'dashboard') {
+                    this.openDashboard(configId);
+                    return;
+                }
 
                 this._navigateForMode(configId, mode);
             },

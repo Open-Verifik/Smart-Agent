@@ -546,9 +546,22 @@
                         (ngModelChange)="chooseBulkTemplate($event)"
                     >
                         <option value="">{{ 'smartFleet.assets.reportPickTemplate' | transloco }}</option>
-                        <option *ngFor="let template of reportTemplates()" [value]="template._id">
-                            {{ template.name }}
-                        </option>
+                        <optgroup
+                            *ngIf="systemReportTemplates().length"
+                            [label]="'smartFleet.assets.reportTemplatesSystem' | transloco"
+                        >
+                            <option *ngFor="let template of systemReportTemplates()" [value]="template._id">
+                                {{ template.name }}
+                            </option>
+                        </optgroup>
+                        <optgroup
+                            *ngIf="myReportTemplates().length"
+                            [label]="'smartFleet.assets.reportTemplatesMine' | transloco"
+                        >
+                            <option *ngFor="let template of myReportTemplates()" [value]="template._id">
+                                {{ template.name }}
+                            </option>
+                        </optgroup>
                     </select>
                     <p *ngIf="bulkKindLabels().length" class="text-sm text-stone-600 dark:text-stone-300">
                         {{ 'smartFleet.assets.bulkApplies' | transloco }}
@@ -876,30 +889,85 @@
                     <button mat-menu-item type="button" disabled *ngIf="!reportTemplates().length">
                         {{ 'smartFleet.assets.reportTemplateEmpty' | transloco }}
                     </button>
-                    <div class="fleet-report-menu-row" *ngFor="let template of reportTemplates()">
-                        <button
-                            type="button"
-                            class="fleet-report-menu-name"
-                            (click)="generateVehicleReport(template); closeReportMenu()"
+                    <div
+                        *ngIf="systemReportTemplates().length"
+                        class="fleet-report-menu-group fleet-report-menu-group--system"
+                    >
+                        <div
+                            class="fleet-report-menu-section fleet-report-menu-section--system"
+                            (click)="$event.stopPropagation()"
                         >
-                            {{ template.name }}
-                        </button>
-                        <button
-                            type="button"
-                            class="fleet-report-menu-icon"
-                            (click)="previewReportTemplate(template, $event)"
-                            [matTooltip]="'smartFleet.assets.reportPreview' | transloco"
+                            {{ 'smartFleet.assets.reportTemplatesSystem' | transloco }}
+                        </div>
+                        <div
+                            class="fleet-report-menu-row"
+                            *ngFor="let template of systemReportTemplates(); let i = index"
+                            [class.fleet-report-menu-row--stripe]="i % 2 === 1"
                         >
-                            <mat-icon class="icon-size-5">visibility</mat-icon>
-                        </button>
-                        <button
-                            type="button"
-                            class="fleet-report-menu-icon"
-                            (click)="editReportTemplate(template, $event)"
-                            [matTooltip]="'smartFleet.assets.reportEditTemplate' | transloco"
+                            <button
+                                type="button"
+                                class="fleet-report-menu-name"
+                                (click)="generateVehicleReport(template); closeReportMenu()"
+                            >
+                                {{ template.name }}
+                            </button>
+                            <button
+                                type="button"
+                                class="fleet-report-menu-icon"
+                                (click)="previewReportTemplate(template, $event)"
+                                [matTooltip]="'smartFleet.assets.reportPreview' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">visibility</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="fleet-report-menu-icon"
+                                (click)="editReportTemplate(template, $event)"
+                                [matTooltip]="'smartFleet.assets.reportEditTemplate' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">edit</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        *ngIf="myReportTemplates().length"
+                        class="fleet-report-menu-group fleet-report-menu-group--mine"
+                    >
+                        <div
+                            class="fleet-report-menu-section fleet-report-menu-section--mine"
+                            (click)="$event.stopPropagation()"
                         >
-                            <mat-icon class="icon-size-5">edit</mat-icon>
-                        </button>
+                            {{ 'smartFleet.assets.reportTemplatesMine' | transloco }}
+                        </div>
+                        <div
+                            class="fleet-report-menu-row"
+                            *ngFor="let template of myReportTemplates(); let i = index"
+                            [class.fleet-report-menu-row--stripe]="i % 2 === 1"
+                        >
+                            <button
+                                type="button"
+                                class="fleet-report-menu-name"
+                                (click)="generateVehicleReport(template); closeReportMenu()"
+                            >
+                                {{ template.name }}
+                            </button>
+                            <button
+                                type="button"
+                                class="fleet-report-menu-icon"
+                                (click)="previewReportTemplate(template, $event)"
+                                [matTooltip]="'smartFleet.assets.reportPreview' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">visibility</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="fleet-report-menu-icon"
+                                (click)="editReportTemplate(template, $event)"
+                                [matTooltip]="'smartFleet.assets.reportEditTemplate' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">edit</mat-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <button mat-menu-item type="button" class="fleet-report-menu-footer" (click)="createReportTemplate()">

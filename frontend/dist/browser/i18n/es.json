@@ -7673,6 +7673,8 @@
             "editRules": "Editar reglas",
             "generateReport": "Generar reporte",
             "reportPickTemplate": "Escoge la plantilla con la que quieres generar el PDF",
+            "reportTemplatesSystem": "Reportes de sistema",
+            "reportTemplatesMine": "Mis reportes",
             "reportPreview": "Ver vista previa",
             "reportEditTemplate": "Editar plantilla",
             "bulkReports": "Reportes masivos",

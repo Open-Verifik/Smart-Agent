@@ -7677,6 +7677,8 @@
             "editRules": "Edit rules",
             "generateReport": "Generate report",
             "reportPickTemplate": "Choose the template you want to use to generate the PDF",
+            "reportTemplatesSystem": "System reports",
+            "reportTemplatesMine": "My reports",
             "reportPreview": "Preview",
             "reportEditTemplate": "Edit template",
             "bulkReports": "Bulk reports",
