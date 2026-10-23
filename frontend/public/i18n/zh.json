@@ -5947,6 +5947,7 @@
         "emptyPendingSubtitle": "仍在队列中或没有已保存响应的调用将显示在这里。",
         "notCharged": "未扣费",
         "notChargedExplanation": "没有保存响应，因此未扣除积分。",
+        "notChargedFailedExplanation": "请求失败，因此未扣除积分。",
         "response": "响应",
         "openInApi": "在 API 中打开",
         "requests": "请求",

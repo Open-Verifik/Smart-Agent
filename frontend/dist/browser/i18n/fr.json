@@ -5808,6 +5808,7 @@
         "emptyPendingSubtitle": "Les appels encore en file ou sans réponse enregistrée apparaîtront ici.",
         "notCharged": "Non facturé",
         "notChargedExplanation": "Aucune réponse n'a été enregistrée, les crédits n'ont donc pas été déduits.",
+        "notChargedFailedExplanation": "La requête a échoué, les crédits n'ont donc pas été déduits.",
         "response": "Réponse",
         "openInApi": "Ouvrir dans l'API",
         "requests": "requêtes",

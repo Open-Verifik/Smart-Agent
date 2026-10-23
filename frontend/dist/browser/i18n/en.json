@@ -6417,6 +6417,7 @@
         "emptyPendingSubtitle": "Calls that are still queued or returned no stored response will appear here.",
         "notCharged": "Not charged",
         "notChargedExplanation": "No response was stored, so credits were not subtracted.",
+        "notChargedFailedExplanation": "This request failed, so credits were not subtracted.",
         "response": "Response",
         "openInApi": "Open in API",
         "requests": "requests",

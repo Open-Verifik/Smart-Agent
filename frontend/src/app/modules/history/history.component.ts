@@ -37,6 +37,7 @@ import {
     getHistoryBillingTooltipParams,
     isDynamicQueryPremiumAdjustment,
 } from '../postman/postman-billing.util';
+import { historyNotChargedExplanationKey, isHistoryRequestNotCharged } from './history-charge.util';
 import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
     PostmanHistoryPrefillPayload,
@@ -505,8 +506,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
         return this._t('history.statusSuccess');
     };
 
-    isNotCharged = (row?: { historyStatus?: string; status?: string; statusCode?: number } | null): boolean =>
-        this.resolveHistoryStatus(row) === 'pending';
+    isNotCharged = (row?: Parameters<typeof isHistoryRequestNotCharged>[0]): boolean => isHistoryRequestNotCharged(row);
+
+    notChargedExplanationKey = (row?: Parameters<typeof historyNotChargedExplanationKey>[0]): string =>
+        historyNotChargedExplanationKey(row);
 
     hasDynamicQueryBilling = (request: ApiRequest): boolean => isDynamicQueryPremiumAdjustment(request);
 

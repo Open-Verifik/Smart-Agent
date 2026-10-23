@@ -30,6 +30,7 @@ import { DateTime } from 'luxon';
 import { EMPTY, firstValueFrom, Subject } from 'rxjs';
 import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
+import { historyNotChargedExplanationKey, isHistoryRequestNotCharged } from '../../history/history-charge.util';
 import { FACE_RECOGNITION_CODES } from '../biometrics/biometrics.constants';
 import {
     ApiRequestDetail,
@@ -314,6 +315,14 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
         return `$${Number(cost).toFixed(4)}`;
     }
 
+    isNotCharged(row?: Parameters<typeof isHistoryRequestNotCharged>[0]): boolean {
+        return isHistoryRequestNotCharged(row);
+    }
+
+    notChargedExplanationKey(row?: Parameters<typeof historyNotChargedExplanationKey>[0]): string {
+        return historyNotChargedExplanationKey(row);
+    }
+
     formatServiceLabel(code: string): string {
         return code
             .replace(/^face_recognition_/, '')
@@ -483,7 +492,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
             endpoint: row.endpoint ?? '',
             method: row.method ?? '',
             createdAt: row.createdAt ?? '',
-            cost: row.cost ?? null,
+            cost: this._exportCost(row),
         };
     }
 
@@ -494,8 +503,12 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
             [this._t('smartEnrollUsageHistory.service')]: row.code ?? '',
             [this._t('smartEnrollUsageHistory.endpoint')]: row.endpoint ?? '',
             [this._t('smartEnrollUsageHistory.date')]: this.formatDate(row.createdAt),
-            [this._t('smartEnrollUsageHistory.cost')]: row.cost ?? '',
+            [this._t('smartEnrollUsageHistory.cost')]: this._exportCost(row),
         };
+    }
+
+    private _exportCost(row: ApiRequestRow): string {
+        return this.isNotCharged(row) ? this._t('history.notCharged') : this.formatCost(row.cost);
     }
 
     private _exportFileName(format: HistoryExportFormat): string {

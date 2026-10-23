@@ -13,6 +13,7 @@ import {
     getHistoryBillingTooltipParams,
     isDynamicQueryPremiumAdjustment,
 } from '../postman/postman-billing.util';
+import { historyNotChargedExplanationKey, isHistoryRequestNotCharged } from './history-charge.util';
 import { ApiRequest, HistoryService } from './history.service';
 
 export interface HistoryRequestDialogResult {
@@ -83,8 +84,10 @@ export class HistoryRequestDialogComponent implements OnInit, OnDestroy {
         return formatted === '-' ? '—' : `${formatted} credits`;
     };
 
-    isNotCharged = (row?: { historyStatus?: string; status?: string; statusCode?: number } | null): boolean =>
-        this._resolveHistoryStatus(row) === 'pending';
+    isNotCharged = (row?: Parameters<typeof isHistoryRequestNotCharged>[0]): boolean => isHistoryRequestNotCharged(row);
+
+    notChargedExplanationKey = (row?: Parameters<typeof historyNotChargedExplanationKey>[0]): string =>
+        historyNotChargedExplanationKey(row);
 
     hasDynamicQueryBilling = (request: ApiRequest): boolean => isDynamicQueryPremiumAdjustment(request);
 

@@ -5946,6 +5946,7 @@
         "emptyPendingSubtitle": "キュー中、または保存された応答がない呼び出しがここに表示されます。",
         "notCharged": "未請求",
         "notChargedExplanation": "応答が保存されていないため、クレジットは差し引かれていません。",
+        "notChargedFailedExplanation": "リクエストが失敗したため、クレジットは差し引かれていません。",
         "response": "レスポンス",
         "openInApi": "API で開く",
         "requests": "リクエスト",

@@ -421,7 +421,7 @@
                                                 <div class="inline-flex flex-col items-start gap-1">
                                                     @if (isNotCharged(row)) {
                                                         <span>{{ t('history.notCharged') }}</span>
-                                                        <span class="max-w-56 text-xs font-normal leading-5 text-stone-500 dark:text-stone-400">{{ t('history.notChargedExplanation') }}</span>
+                                                        <span class="max-w-56 text-xs font-normal leading-5 text-stone-500 dark:text-stone-400">{{ t(notChargedExplanationKey(row)) }}</span>
                                                     } @else {
                                                         <span>{{ formatCost(row.cost) }}</span>
                                                         @if (hasDynamicQueryBilling(row)) {
