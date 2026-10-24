@@ -1,4 +1,60 @@
 <ng-container *transloco="let t">
+    <ng-template #valueRulesButton>
+        @let ownRules = selectedCellRuleCount();
+        @let blockRules = selectedBlockRuleCount();
+        <button
+            type="button"
+            class="mt-2 flex w-full items-center gap-2 rounded-xl border border-emerald-300 bg-white px-2.5 py-2 text-left text-xs font-medium text-emerald-800 hover:bg-emerald-50 dark:border-emerald-800 dark:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+            [title]="t('reportRules.buttonHint')"
+            (click)="openSelectedValueRules()"
+        >
+            <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-100 font-mono text-[11px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
+            <span class="min-w-0 flex-1">
+                <span class="block">{{ t('reportRules.button') }}</span>
+                <span class="block text-[10px] font-normal text-stone-500 dark:text-stone-400">
+                    @if (ownRules) {
+                        {{ t('reportRules.countValue', { n: ownRules }) }}
+                    } @else if (blockRules) {
+                        {{ t('reportRules.countBlock', { n: blockRules }) }}
+                    } @else {
+                        {{ t('reportRules.buttonSub') }}
+                    }
+                </span>
+            </span>
+        </button>
+    </ng-template>
+    <ng-template #shapeRulesButton>
+        @let shapeRules = selectedBlockRuleCount();
+        <button
+            type="button"
+            class="mt-3 flex w-full items-center gap-2 rounded-xl border border-emerald-300 bg-white px-2.5 py-2 text-left text-xs font-medium text-emerald-800 hover:bg-emerald-50 dark:border-emerald-800 dark:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+            (click)="openSelectedShapeRules()"
+        >
+            <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-100 font-mono text-[11px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
+            <span class="min-w-0 flex-1">
+                <span class="block">{{ t('reportRules.shapeButton') }}</span>
+                <span class="block text-[10px] font-normal text-stone-500 dark:text-stone-400">
+                    {{ shapeRules ? t('reportRules.countShape', { n: shapeRules }) : t('reportRules.shapeButtonSub') }}
+                </span>
+            </span>
+        </button>
+    </ng-template>
+    <ng-template #imageRulesButton>
+        @let imageRules = selectedSheetImage() ? selectedSheetImageRuleCount() : selectedBlockRuleCount();
+        <button
+            type="button"
+            class="mt-3 flex w-full items-center gap-2 rounded-xl border border-emerald-300 bg-white px-2.5 py-2 text-left text-xs font-medium text-emerald-800 hover:bg-emerald-50 dark:border-emerald-800 dark:bg-transparent dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+            (click)="openSelectedImageRules()"
+        >
+            <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-100 font-mono text-[11px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
+            <span class="min-w-0 flex-1">
+                <span class="block">{{ t('reportRules.imageButton') }}</span>
+                <span class="block text-[10px] font-normal text-stone-500 dark:text-stone-400">
+                    {{ imageRules ? t('reportRules.countImage', { n: imageRules }) : t('reportRules.imageButtonSub') }}
+                </span>
+            </span>
+        </button>
+    </ng-template>
     <div
         class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950"
         [class.h-dvh]="isFillViewportStep()"
@@ -1409,6 +1465,8 @@
                                 [logoRotation]="logoRotation()"
                                 [sheetImages]="sheetImages()"
                                 [layerZ]="layoutLayerZMap()"
+                                [hiddenLayerIds]="layoutHiddenLayerIds()"
+                                [bodyTopPadding]="template.bodyTopPadding ?? 0"
                             ></report-preview>
                         } @else {
                             <p class="text-sm text-stone-500">{{ t('visitaGuide.needTemplate') }}</p>
@@ -1447,12 +1505,24 @@
                                         [class.opacity-80]="isCardOnLayout(card.sequence)"
                                     >
                                         <div class="flex items-start justify-between gap-2">
-                                            <span class="text-sm font-semibold text-stone-950 dark:text-white">{{
+                                            <span class="min-w-0 flex-1 text-sm font-semibold text-stone-950 dark:text-white">{{
                                                 card.label
                                             }}</span>
-                                            <span class="text-[10px] font-semibold uppercase text-stone-500">{{
-                                                t(resultStatusKey(card.status))
-                                            }}</span>
+                                            <div class="flex shrink-0 items-center gap-0.5">
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                                                    [matTooltip]="t('visitaGuide.layoutRemoveConsult')"
+                                                    [attr.aria-label]="t('visitaGuide.layoutRemoveConsult')"
+                                                    [disabled]="!canRemoveLayoutConsult() || isRemovingLayoutConsult()"
+                                                    (click)="removeLayoutConsult(card); $event.stopPropagation()"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 !text-[18px]">delete</mat-icon>
+                                                </button>
+                                                <span class="text-[10px] font-semibold uppercase text-stone-500">{{
+                                                    t(resultStatusKey(card.status))
+                                                }}</span>
+                                            </div>
                                         </div>
                                         @if (isCardOnLayout(card.sequence)) {
                                             <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutAddAnother') }}</p>
@@ -1468,61 +1538,128 @@
                                         </button>
                                     </article>
                                 }
+                                <button
+                                    type="button"
+                                    class="mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/40 px-3 text-sm font-semibold text-indigo-800 transition hover:border-indigo-400 hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-500/50 dark:bg-indigo-950/20 dark:text-indigo-200"
+                                    (click)="openLayoutAddConsultDialog()"
+                                    [disabled]="isAddingLayoutConsult()"
+                                >
+                                    @if (isAddingLayoutConsult()) {
+                                        <mat-spinner diameter="20"></mat-spinner>
+                                    } @else {
+                                        <mat-icon class="!text-[20px]">add_circle</mat-icon>
+                                    }
+                                    {{ t('visitaGuide.layoutAddConsult') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="text-center text-[11px] font-medium text-stone-500 underline-offset-2 hover:text-stone-700 hover:underline dark:text-stone-400 dark:hover:text-stone-200"
+                                    (click)="goToEndpointsFromLayout()"
+                                >
+                                    {{ t('visitaGuide.layoutBrowseEndpoints') }}
+                                </button>
                             </div>
 
                             <div class="min-w-0">
                             <div
-                                class="mb-2 flex items-center gap-0.5 overflow-visible rounded-xl border border-stone-200 bg-white px-1.5 py-1 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+                                class="mb-2 flex flex-wrap items-center gap-0.5 overflow-visible rounded-xl border border-stone-200 bg-white px-1.5 py-1 shadow-sm dark:border-gray-700 dark:bg-gray-900"
                             >
                                 <button
                                     type="button"
-                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                    [matTooltip]="t('visitaGuide.layoutAddTitle')"
+                                    class="layout-tool"
+                                    [class.is-active]="layoutMarqueeActive()"
+                                    [class.ring-2]="layoutMarqueeActive()"
+                                    [class.ring-indigo-400]="layoutMarqueeActive()"
+                                    [matTooltip]="t('visitaGuide.toolHint.select')"
+                                    [attr.aria-label]="t('visitaGuide.toolLabel.select')"
+                                    [attr.aria-pressed]="layoutMarqueeActive()"
+                                    (click)="toggleLayoutMarquee()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 3.5v17M3.5 12h17" stroke="#111827" stroke-width="1.8" stroke-linecap="round" />
+                                        <circle cx="12" cy="12" r="1.35" fill="#4f46e5" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.toolLabel.select') }}</span>
+                                </button>
+                                <span class="mx-1 h-8 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
+                                <button
+                                    type="button"
+                                    class="layout-tool"
+                                    [matTooltip]="t('visitaGuide.toolHint.title')"
                                     [attr.aria-label]="t('visitaGuide.layoutAddTitle')"
                                     (click)="addTitleBlock()"
                                 >
-                                    <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">title</mat-icon>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#ede9fe" />
+                                        <path d="M7 7.5h10M12 7.5v9.5" stroke="#6d28d9" stroke-width="2.6" stroke-linecap="round" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.layoutAddTitle') }}</span>
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                    [matTooltip]="t('visitaGuide.layoutAddText')"
+                                    class="layout-tool"
+                                    [matTooltip]="t('visitaGuide.toolHint.text')"
                                     [attr.aria-label]="t('visitaGuide.layoutAddText')"
                                     (click)="addTextBlock()"
                                 >
-                                    <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">notes</mat-icon>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#e0f2fe" />
+                                        <path d="M6 8h12M6 12h12M6 16h7.5" stroke="#0369a1" stroke-width="1.9" stroke-linecap="round" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.layoutAddText') }}</span>
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                    [matTooltip]="t('visitaGuide.layoutAddDivider')"
+                                    class="layout-tool"
+                                    [matTooltip]="t('visitaGuide.toolHint.divider')"
                                     [attr.aria-label]="t('visitaGuide.layoutAddDivider')"
                                     (click)="addDividerBlock()"
                                 >
-                                    <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">horizontal_rule</mat-icon>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#f5f5f4" />
+                                        <path d="M5.5 12h13" stroke="#44403c" stroke-width="2.4" stroke-linecap="round" />
+                                        <circle cx="5.5" cy="12" r="1.9" fill="#44403c" />
+                                        <circle cx="18.5" cy="12" r="1.9" fill="#44403c" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.layoutAddDivider') }}</span>
                                 </button>
-                                <span class="mx-1 h-5 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
-                                <div class="relative z-30 shrink-0">
+                                <span class="mx-1 h-8 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
+                                <div class="shrink-0">
                                     <button
                                         type="button"
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                        [ngClass]="layoutShapesOpen() ? 'bg-stone-100 dark:bg-gray-800' : ''"
-                                        [matTooltip]="t('visitaGuide.layoutShapes')"
+                                        class="layout-tool"
+                                        cdkOverlayOrigin
+                                        #shapesMenuOrigin="cdkOverlayOrigin"
+                                        [class.is-active]="layoutShapesOpen()"
+                                        [matTooltip]="t('visitaGuide.toolHint.shapes')"
                                         [attr.aria-label]="t('visitaGuide.layoutShapes')"
                                         [attr.aria-expanded]="layoutShapesOpen()"
                                         (click)="toggleLayoutShapesMenu($event)"
                                     >
-                                        <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">category</mat-icon>
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <rect x="2.5" y="10.5" width="9.5" height="9.5" rx="1.6" fill="#3b82f6" />
+                                            <circle cx="16.5" cy="15.25" r="4.75" fill="#f59e0b" />
+                                            <path d="M12 2.5l5 8h-10z" fill="#f43f5e" stroke="#f43f5e" stroke-width="1" stroke-linejoin="round" />
+                                        </svg>
+                                        <span class="layout-tool-label inline-flex items-center">
+                                            {{ t('visitaGuide.layoutShapes') }}
+                                            <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
+                                        </span>
                                     </button>
-                                    @if (layoutShapesOpen()) {
-                                        <button
-                                            type="button"
-                                            class="fixed inset-0 z-[30] cursor-default bg-transparent"
-                                            [attr.aria-label]="t('visitaGuide.layoutShapes')"
-                                            (click)="layoutShapesOpen.set(false)"
-                                        ></button>
+                                    <ng-template
+                                        cdkConnectedOverlay
+                                        [cdkConnectedOverlayOrigin]="shapesMenuOrigin"
+                                        [cdkConnectedOverlayOpen]="layoutShapesOpen()"
+                                        [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
+                                        [cdkConnectedOverlayHasBackdrop]="true"
+                                        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                                        cdkConnectedOverlayPanelClass="report-design-overlay-pane"
+                                        (backdropClick)="layoutShapesOpen.set(false)"
+                                        (overlayKeydown)="$event.key === 'Escape' && layoutShapesOpen.set(false)"
+                                        (detach)="layoutShapesOpen.set(false)"
+                                    >
                                         <div
-                                            class="absolute left-0 top-full z-[31] mt-1.5 flex w-max min-w-40 flex-col gap-0.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+                                            class="flex w-max min-w-40 flex-col gap-0.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
                                         >
                                             @for (tool of layoutShapeTools; track tool.kind) {
                                                 <button
@@ -1530,32 +1667,78 @@
                                                     class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
                                                     (click)="addShapeBlock(tool.kind); layoutShapesOpen.set(false)"
                                                 >
-                                                    <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">{{ tool.icon }}</mat-icon>
+                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-blue-500 dark:text-blue-400">{{ tool.icon }}</mat-icon>
                                                     <span class="whitespace-nowrap">{{ t(tool.labelKey) }}</span>
                                                 </button>
                                             }
                                         </div>
-                                    }
+                                    </ng-template>
                                 </div>
-                                <span class="mx-1 h-5 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
                                 <button
                                     type="button"
-                                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                    [matTooltip]="t('visitaGuide.layoutAddPage')"
+                                    class="layout-tool"
+                                    [matTooltip]="t('visitaGuide.toolHint.icon')"
+                                    [attr.aria-label]="t('visitaGuide.layoutAddIcon')"
+                                    (click)="addIconBlock()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#dcfce7" />
+                                        <path
+                                            d="M12 6.2l1.75 3.55 3.9.57-2.83 2.76.67 3.89L12 15.13l-3.49 1.84.67-3.89-2.83-2.76 3.9-.57z"
+                                            fill="#16a34a"
+                                            stroke="#16a34a"
+                                            stroke-width="0.8"
+                                            stroke-linejoin="round"
+                                        />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.toolLabel.icons') }}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="layout-tool"
+                                    [matTooltip]="t('visitaGuide.toolHint.emoji')"
+                                    [attr.aria-label]="t('reportEmojis.addTooltip')"
+                                    (click)="addEmojiBlock()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10" fill="#fcd34d" stroke="#f59e0b" stroke-width="1" />
+                                        <ellipse cx="8.8" cy="9.8" rx="1.25" ry="1.7" fill="#78350f" />
+                                        <ellipse cx="15.2" cy="9.8" rx="1.25" ry="1.7" fill="#78350f" />
+                                        <path d="M7.2 13.6c1.1 2.3 2.8 3.4 4.8 3.4s3.7-1.1 4.8-3.4z" fill="#78350f" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.toolLabel.emoji') }}</span>
+                                </button>
+                                <span class="mx-1 h-8 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
+                                <button
+                                    type="button"
+                                    class="layout-tool"
+                                    [matTooltip]="t('visitaGuide.toolHint.addPage')"
                                     [attr.aria-label]="t('visitaGuide.layoutAddPage')"
                                     (click)="addPageSheet()"
                                 >
-                                    <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">note_add</mat-icon>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M5 2.5h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-17a1 1 0 0 1 1-1z" fill="#ffffff" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
+                                        <path d="M14 2.5v5h5" fill="#e7e5e4" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
+                                        <circle cx="16.5" cy="17.5" r="5" fill="#10b981" />
+                                        <path d="M16.5 15v5M14 17.5h5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.layoutAddPage') }}</span>
                                 </button>
                                 @if (canRemoveLastPageSheet()) {
                                     <button
                                         type="button"
-                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                        [matTooltip]="t('visitaGuide.layoutRemovePage')"
+                                        class="layout-tool"
+                                        [matTooltip]="t('visitaGuide.toolHint.removePage')"
                                         [attr.aria-label]="t('visitaGuide.layoutRemovePage')"
                                         (click)="removeLastPageSheet()"
                                     >
-                                        <mat-icon class="!h-4 !w-4 !text-base text-stone-700 dark:text-stone-200">delete</mat-icon>
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M5 2.5h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-17a1 1 0 0 1 1-1z" fill="#ffffff" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
+                                            <path d="M14 2.5v5h5" fill="#e7e5e4" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
+                                            <circle cx="16.5" cy="17.5" r="5" fill="#ef4444" />
+                                            <path d="M14 17.5h5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
+                                        </svg>
+                                        <span class="layout-tool-label">{{ t('visitaGuide.layoutRemovePage') }}</span>
                                     </button>
                                 }
                                 <span class="mx-1 ml-auto h-5 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
@@ -1591,6 +1774,7 @@
                             <div class="flex items-start gap-3">
                             <div class="min-w-0 flex-1">
                             <div
+                                #layoutDocumentViewport
                                 cdkDropList
                                 id="visita-layout-canvas"
                                 data-document-viewport
@@ -1601,7 +1785,7 @@
                                 (contextmenu)="onLayoutCanvasContextMenu($event)"
                                 (mousemove)="onDocumentViewportMove($event)"
                                 (mouseleave)="onDocumentViewportLeave()"
-                                class="max-h-[78vh] min-h-[480px] overflow-auto overscroll-contain rounded-2xl border border-dashed border-stone-300 bg-stone-100/80 p-3 dark:border-gray-700 dark:bg-gray-900/40"
+                                class="max-h-[78vh] min-h-[480px] overflow-auto overscroll-contain rounded-none border border-dashed border-stone-300 bg-stone-100/80 p-3 dark:border-gray-700 dark:bg-gray-900/40"
                             >
                                 @if (!layoutSections().length) {
                                     <p class="px-4 py-16 text-center text-sm text-stone-400">
@@ -1653,30 +1837,39 @@
                                         [layerZ]="layoutLayerZMap()"
                                         [hiddenLayerIds]="layoutHiddenLayerIds()"
                                         [lockedLayerIds]="layoutLockedLayerIds()"
+                                        [peekedLayerId]="peekedLayoutLayerId()"
+                                        [bodyTopPadding]="template.bodyTopPadding ?? 0"
                                         [logoAutoFitContent]="true"
                                         [clickable]="true"
                                         [customContextMenu]="true"
                                         [reorderable]="true"
                                         [selectedSectionId]="selectedLayoutSectionId()"
+                                        [selectedSectionIds]="selectedLayoutSectionIds()"
                                         [selectedCellKey]="selectedLayoutCellKey()"
                                         [selectedCellPart]="selectedLayoutCellPart()"
                                         [selectedOverlay]="selectedLayoutOverlay()"
+                                        [selectedOverlayIds]="selectedLayoutOverlayIds()"
+                                        [marqueeMode]="layoutMarqueeActive()"
                                         [sectionClick]="onLayoutSectionClick"
                                         (cellSelect)="onLayoutCellSelect($event)"
                                         (cellContextMenu)="onLayoutCellContextMenu($event)"
                                         (cellPlace)="onLayoutCellPlace($event)"
                                         (inlineTextChange)="onLayoutInlineText($event)"
                                         (overlaySelect)="onLayoutOverlaySelect($event)"
+                                        (lockedLayerLocate)="onLockedLayerLocate($event)"
                                         (sectionContextMenu)="onLayoutSectionContextMenu($event)"
                                         (overlayContextMenu)="onLayoutOverlayContextMenu($event)"
                                         (paperContextMenu)="onLayoutPaperContextMenu($event)"
                                         (sectionFramesChange)="onLayoutSectionFrames($event)"
                                         (sectionFrameChange)="onLayoutSectionFrame($event)"
+                                        (cellSizeChange)="onLayoutCellSize($event)"
                                         (sectionRotationChange)="onLayoutSectionRotation($event)"
                                         (addPage)="addPageSheet()"
                                         (removePage)="removeLastPageSheet()"
                                         (sheetDragChange)="onSheetDragChange($event)"
                                         (backgroundClick)="dismissLayoutSurfaceEditor()"
+                                        (boxSelectionChange)="onLayoutBoxSelection($event)"
+                                        (groupOverlayMove)="onLayoutGroupOverlayMove($event)"
                                         (logoPositionChange)="onLayoutLogoPositionChange($event)"
                                         (logoSizeChange)="onLayoutLogoSizeChange($event)"
                                         (logoRotationChange)="onLayoutLogoRotationChange($event)"
@@ -1712,12 +1905,16 @@
                                         @for (layer of layoutLayers(); track layer.id) {
                                             <div
                                                 cdkDrag
-                                                class="flex items-center gap-1 rounded-lg border bg-white px-1 py-1 dark:bg-gray-950"
-                                                [class.border-indigo-400]="isLayoutLayerSelected(layer)"
-                                                [class.bg-indigo-50]="isLayoutLayerSelected(layer)"
-                                                [class.dark:bg-indigo-950]="isLayoutLayerSelected(layer)"
-                                                [class.border-stone-200]="!isLayoutLayerSelected(layer)"
-                                                [class.dark:border-gray-700]="!isLayoutLayerSelected(layer)"
+                                                [attr.data-layout-layer]="layer.id"
+                                                [cdkDragDisabled]="isLayoutLayerLocked(layer.id)"
+                                                class="flex items-center gap-1 rounded-lg border px-1 py-1"
+                                                (mouseenter)="onLockedLayerHover(layer, true)"
+                                                (mouseleave)="onLockedLayerHover(layer, false)"
+                                                [ngClass]="
+                                                    isLayoutLayerSelected(layer)
+                                                        ? 'border-indigo-600 bg-indigo-200 shadow-sm ring-2 ring-indigo-500 dark:border-indigo-300 dark:bg-indigo-700 dark:ring-indigo-300'
+                                                        : 'border-stone-200 bg-white dark:border-gray-700 dark:bg-gray-950'
+                                                "
                                                 [class.opacity-45]="isLayoutLayerHidden(layer.id)"
                                             >
                                                 <mat-icon
@@ -1728,14 +1925,26 @@
                                                 <button
                                                     type="button"
                                                     class="flex min-w-0 flex-1 items-center gap-1 text-left"
-                                                    (click)="selectLayoutLayer(layer)"
+                                                    (click)="selectLayoutLayer(layer, $event)"
                                                 >
-                                                    <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-stone-500">{{
-                                                        layer.icon
-                                                    }}</mat-icon>
-                                                    <span class="truncate text-xs text-stone-800 dark:text-stone-100">{{
-                                                        layer.label
-                                                    }}</span>
+                                                    <mat-icon
+                                                        class="!h-4 !w-4 shrink-0 !text-base"
+                                                        [ngClass]="
+                                                            isLayoutLayerSelected(layer)
+                                                                ? 'text-indigo-800 dark:text-white'
+                                                                : 'text-stone-500'
+                                                        "
+                                                        >{{ layer.icon }}</mat-icon
+                                                    >
+                                                    <span
+                                                        class="truncate text-xs"
+                                                        [ngClass]="
+                                                            isLayoutLayerSelected(layer)
+                                                                ? 'font-semibold text-indigo-950 dark:text-white'
+                                                                : 'text-stone-800 dark:text-stone-100'
+                                                        "
+                                                        >{{ layer.label }}</span
+                                                    >
                                                 </button>
                                                 <button
                                                     type="button"
@@ -1787,7 +1996,7 @@
                                 <div
                                     #layoutDocumentBackdrop
                                     class="visita-document-backdrop fixed inset-0 bg-stone-900/25 dark:bg-black/50"
-                                    style="z-index: 999980"
+                                    [style.z-index]="uiZ.backdrop"
                                     (click)="closeLayoutEditor()"
                                 ></div>
                             }
@@ -1797,8 +2006,8 @@
                                 [cdkDragDisabled]="layoutEditorKind() === 'page'"
                                 [cdkDragFreeDragPosition]="layoutEditorDrag()"
                                 (cdkDragEnded)="onLayoutEditorDragEnded($event)"
-                                class="visita-layout-editor z-[999990] flex flex-col bg-white dark:bg-gray-900"
-                                style="z-index: 999990"
+                                class="visita-layout-editor flex flex-col bg-white dark:bg-gray-900"
+                                [style.z-index]="uiZ.panel"
                                 [ngClass]="
                                     layoutEditorKind() === 'page'
                                         ? 'fixed right-0 top-0 h-screen w-full max-w-md border-l border-stone-200 dark:border-gray-800'
@@ -2585,6 +2794,9 @@
                                         </p>
                                         @if (selectedLayoutShowsParams()) {
                                             <p class="mt-1 text-[11px] text-stone-500">{{ t('visitaGuide.layoutCellHint') }}</p>
+                                            @if (!selectedLayoutCellKey()) {
+                                                <ng-container *ngTemplateOutlet="valueRulesButton"></ng-container>
+                                            }
                                             <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
                                                 {{ t('visitaGuide.layoutShowRowLines') }}
                                             </p>
@@ -2695,13 +2907,23 @@
                                                 <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutParamOrder') }}</p>
                                                 <div class="mt-2 max-h-56 space-y-1 overflow-y-auto">
                                                     @for (column of selectedDataTableColumns(); track column.key; let first = $first; let last = $last) {
-                                                        <div class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30">
+                                                        <div
+                                                            class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30"
+                                                            [class.ring-2]="selectedLayoutCellKey() === column.key"
+                                                            [class.ring-amber-500]="selectedLayoutCellKey() === column.key"
+                                                        >
                                                             <input
                                                                 type="checkbox"
                                                                 [ngModel]="column.visible"
                                                                 (ngModelChange)="setLayoutParamVisible(column.key, $event)"
                                                             />
-                                                            <span class="min-w-0 flex-1 truncate text-xs text-stone-700 dark:text-stone-200">{{ column.label }}</span>
+                                                            <button
+                                                                type="button"
+                                                                class="min-w-0 flex-1 truncate text-left text-xs text-stone-700 dark:text-stone-200"
+                                                                (click)="selectDataTableColumn(column.key)"
+                                                            >
+                                                                {{ column.label }}
+                                                            </button>
                                                             <button
                                                                 type="button"
                                                                 class="rounded px-1 text-xs text-stone-500 disabled:opacity-30"
@@ -2788,6 +3010,7 @@
                                                 <p class="mt-1 truncate text-xs text-stone-600 dark:text-stone-300">{{
                                                     selectedLayoutCellTitle()
                                                 }}</p>
+                                                <ng-container *ngTemplateOutlet="valueRulesButton"></ng-container>
                                                 @if (selectedLayoutTableColumns().length > 0) {
                                                     <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
                                                         {{ t('visitaGuide.layoutTableColumns') }}
@@ -3032,18 +3255,39 @@
                                         />
                                         }
                                         @if (selected.type === 'shape') {
-                                            <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
-                                            <select
-                                                class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                                [ngModel]="selected.shape || selected.staticContent"
-                                                (ngModelChange)="setSelectedLayoutShape($event)"
-                                            >
-                                                @for (tool of layoutShapeTools; track tool.kind) {
-                                                    <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
-                                                }
-                                            </select>
+                                            @if (selected.shape === 'icon') {
+                                                <span class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutIcon') }}</span>
+                                                <button
+                                                    type="button"
+                                                    class="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                                    (click)="replaceSelectedIcon()"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 !text-base">swap_horiz</mat-icon>
+                                                    {{ t('visitaGuide.layoutIconChange') }}
+                                                </button>
+                                                <label class="mt-2 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                                    <input
+                                                        type="checkbox"
+                                                        [ngModel]="!!selected.iconKeepColors"
+                                                        (ngModelChange)="setSelectedIconKeepColors($event)"
+                                                    />
+                                                    {{ t('visitaGuide.layoutIconKeepColors') }}
+                                                </label>
+                                            } @else {
+                                                <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
+                                                <select
+                                                    class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [ngModel]="selected.shape || selected.staticContent"
+                                                    (ngModelChange)="setSelectedLayoutShape($event)"
+                                                >
+                                                    @for (tool of layoutShapeTools; track tool.kind) {
+                                                        <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
+                                                    }
+                                                </select>
+                                            }
+                                            @if (selected.shape !== 'icon' || !selected.iconKeepColors) {
                                             <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
-                                                t('visitaGuide.layoutShapeFill')
+                                                t(selected.shape === 'icon' ? 'visitaGuide.layoutIconColor' : 'visitaGuide.layoutShapeFill')
                                             }}</span>
                                             <color-hex-field
                                                 class="mt-1 block"
@@ -3051,6 +3295,9 @@
                                                 (ngModelChange)="setSelectedLayoutColor($event)"
                                                 [ariaLabel]="t('visitaGuide.layoutShapeFill')"
                                             />
+                                            <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
+                                            }
+                                            @if (selected.shape !== 'icon') {
                                             <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
                                                 <input
                                                     type="checkbox"
@@ -3083,6 +3330,7 @@
                                                     (ngModelChange)="setSelectedLayoutBorderWidth($event)"
                                                 />
                                             }
+                                            }
                                             <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
                                                 <span>{{ t('visitaGuide.layoutRotation') }}</span>
                                                 <span>{{ selected.style?.rotation || 0 }}°</span>
@@ -3097,19 +3345,7 @@
                                                 (ngModelChange)="setSelectedLayoutRotation($event)"
                                             />
                                             @if (selected.shape === 'rectangle' || selected.shape === 'square' || !selected.shape) {
-                                                <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
-                                                    <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
-                                                    <span>{{ selected.style?.borderRadius || 0 }} px</span>
-                                                </label>
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max="48"
-                                                    step="1"
-                                                    class="mt-1 w-full"
-                                                    [ngModel]="selected.style?.borderRadius || 0"
-                                                    (ngModelChange)="setSelectedLayoutBorderRadius($event)"
-                                                />
+                                                <ng-container [ngTemplateOutlet]="shapeRadiusControls" />
                                             }
                                         }
                                         @if (selected.type === 'text' || selected.type === 'header') {
@@ -3126,9 +3362,17 @@
                                                 <p [class]="layoutRoleHeadingClass(role)">
                                                     {{ t(layoutRoleTitleKey(role)) }}
                                                 </p>
-                                                <label class="mt-2 block text-xs text-stone-500">{{
-                                                    t('smartReport.fontFamily')
-                                                }}</label>
+                                                <div class="mt-2 flex items-center justify-between gap-2">
+                                                    <label class="block text-xs text-stone-500">{{ t('smartReport.fontFamily') }}</label>
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex items-center gap-0.5 text-xs font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400"
+                                                        (click)="openFontManager(role)"
+                                                    >
+                                                        <mat-icon class="icon-size-4">add</mat-icon>
+                                                        {{ t('reportFonts.addFont') }}
+                                                    </button>
+                                                </div>
                                                 <select
                                                     class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                                     [ngModel]="layoutRoleFontFamily(role)"
@@ -3136,6 +3380,27 @@
                                                 >
                                                     @for (font of reportFonts; track font.value) {
                                                         <option [ngValue]="font.value">{{ t(font.labelKey) }}</option>
+                                                    }
+                                                    @if (customFontOptions().length) {
+                                                        <optgroup [label]="t('reportFonts.groupLabel')">
+                                                            @for (font of customFontOptions(); track font.value) {
+                                                                <option [ngValue]="font.value" [style.font-family]="font.value">{{ font.label }}</option>
+                                                            }
+                                                        </optgroup>
+                                                    }
+                                                    @if (isMissingFont(layoutRoleFontFamily(role))) {
+                                                        <option [ngValue]="layoutRoleFontFamily(role)">{{ layoutRoleFontFamily(role) }}</option>
+                                                    }
+                                                </select>
+                                                <label class="mt-2 block text-xs text-stone-500">{{ t('smartReport.fontWeight') }}</label>
+                                                <select
+                                                    class="mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [ngModel]="layoutRoleWeight(role)"
+                                                    (ngModelChange)="setLayoutRoleFontWeight(role, $event)"
+                                                    [attr.aria-label]="t('smartReport.fontWeight')"
+                                                >
+                                                    @for (weight of layoutRoleFontWeights(role); track weight) {
+                                                        <option [ngValue]="weight" [style.font-weight]="weight">{{ t('smartReport.fontWeights.' + weight) }}</option>
                                                     }
                                                 </select>
                                                 <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
@@ -3349,6 +3614,8 @@
                                     [logoRotation]="logoRotation()"
                                     [sheetImages]="sheetImages()"
                                     [layerZ]="layoutLayerZMap()"
+                                    [hiddenLayerIds]="layoutHiddenLayerIds()"
+                                    [bodyTopPadding]="template.bodyTopPadding ?? 0"
                                     [logoAutoFitContent]="true"
                                 ></report-preview>
                             </div>
@@ -3490,7 +3757,7 @@
                                 @if (previewTemplate(); as template) {
                                     <div
                                         data-document-viewport
-                                        class="max-h-[78vh] overflow-auto overscroll-contain rounded-2xl border border-stone-200 bg-stone-100/80 p-3 dark:border-gray-800 dark:bg-gray-900/40"
+                                        class="max-h-[78vh] overflow-auto overscroll-contain rounded-none border border-stone-200 bg-stone-100/80 p-3 dark:border-gray-800 dark:bg-gray-900/40"
                                         (mousemove)="onDocumentViewportMove($event)"
                                         (mouseleave)="onDocumentViewportLeave()"
                                     >
@@ -3535,6 +3802,8 @@
                                         [logoRotation]="logoRotation()"
                                         [sheetImages]="sheetImages()"
                                         [layerZ]="layoutLayerZMap()"
+                                        [hiddenLayerIds]="layoutHiddenLayerIds()"
+                                        [bodyTopPadding]="template.bodyTopPadding ?? 0"
                                         [logoAutoFitContent]="true"
                                     ></report-preview>
                                     @if (previewRecords().length > 1) {
@@ -3578,17 +3847,39 @@
     @if (step() === 'layout' && selectedLayoutShowsFormatBar() && layoutFormatAnchor(); as anchor) {
         <div
             #layoutFormatBarEl
-            class="visita-layout-format-bar fixed z-[999995] flex w-max overflow-hidden rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
-            style="z-index: 999995"
+            class="visita-layout-format-bar fixed flex w-max overflow-hidden rounded-2xl border border-stone-200 bg-white px-1.5 py-1 shadow-lg print:hidden dark:border-gray-700 dark:bg-gray-900"
+            [style.z-index]="uiZ.toolbar"
             [class.flex-col]="!anchor.opensUp"
             [class.flex-col-reverse]="anchor.opensUp"
             [style.left.px]="anchor.x"
             [style.top.px]="anchor.y"
             (pointerdown)="onLayoutFormatPointerDown($event)"
+            (mousedown)="onLayoutFormatMouseDown($event)"
             (click)="$event.stopPropagation()"
         >
             <div data-format-toolbar class="flex items-center gap-0.5">
-            @if (selectedLayoutUsesCompactOverlayBar()) {
+            @if (selectedLayoutCount() > 1) {
+                <button
+                    type="button"
+                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutLockSelection')"
+                    [matTooltip]="t('visitaGuide.layoutLockSelection')"
+                    (click)="lockSelectedLayoutItems($event)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">lock</mat-icon>
+                    {{ t('visitaGuide.layoutLockSelection') }}
+                </button>
+                <button
+                    type="button"
+                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40"
+                    [attr.aria-label]="t('visitaGuide.layoutDeleteSelection')"
+                    [matTooltip]="t('visitaGuide.layoutDeleteSelection')"
+                    (click)="deleteSelectedLayoutItems($event)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">delete</mat-icon>
+                    {{ t('visitaGuide.layoutDeleteSelection') }}
+                </button>
+            } @else if (selectedLayoutUsesCompactOverlayBar()) {
                 @if (selectedLayoutOverlay() === 'watermark') {
                     <button
                         type="button"
@@ -3684,6 +3975,20 @@
                     >
                         {{ t('visitaGuide.layoutWatermarkFullPage') }}
                     </button>
+                    <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                    <button
+                        type="button"
+                        class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                        [matTooltip]="t('reportRules.imageButton')"
+                        [attr.aria-label]="t('reportRules.imageButton')"
+                        (click)="openSelectedImageRules()"
+                    >
+                        <span class="font-mono italic">fx</span>
+                        {{ t('reportRules.toolbar') }}
+                        @if (selectedSheetImageRuleCount()) {
+                            <span class="rounded-full bg-emerald-600 px-1.5 text-[10px] leading-4 text-white">{{ selectedSheetImageRuleCount() }}</span>
+                        }
+                    </button>
                     } @else {
                     @if (selectedLayoutHeaderLogo(); as logo) {
                     @for (align of headerLogoAligns; track align) {
@@ -3726,13 +4031,20 @@
             } @else if (selectedLayoutSection()?.type === 'shape' || selectedLayoutSection()?.type === 'divider') {
                 <label
                     class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-stone-100 dark:hover:bg-gray-800"
-                    [matTooltip]="t('visitaGuide.layoutShapeFill')"
-                    [attr.aria-label]="t('visitaGuide.layoutShapeFill')"
+                    [matTooltip]="t(selectedLayoutIsLine() ? 'visitaGuide.layoutLineColor' : 'visitaGuide.layoutShapeFill')"
+                    [attr.aria-label]="t(selectedLayoutIsLine() ? 'visitaGuide.layoutLineColor' : 'visitaGuide.layoutShapeFill')"
                 >
-                    <span
-                        class="h-4 w-4 rounded border border-stone-300 dark:border-gray-600"
-                        [style.background-color]="selectedLayoutSection()?.style?.color || primaryColor()"
-                    ></span>
+                    @if (selectedLayoutIsLine()) {
+                        <span
+                            class="h-1 w-5 rounded-full"
+                            [style.background-color]="selectedLayoutSection()?.style?.color || primaryColor()"
+                        ></span>
+                    } @else {
+                        <span
+                            class="h-4 w-4 rounded border border-stone-300 dark:border-gray-600"
+                            [style.background-color]="selectedLayoutSection()?.style?.color || primaryColor()"
+                        ></span>
+                    }
                     <input
                         type="color"
                         class="absolute inset-0 cursor-pointer opacity-0"
@@ -3740,6 +4052,61 @@
                         (input)="onLayoutShapeFillPicker($event)"
                     />
                 </label>
+                @if (selectedLayoutIsLine()) {
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                <button
+                    type="button"
+                    class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutLineWidth')"
+                    [matTooltip]="t('visitaGuide.layoutLineWidth')"
+                    (click)="setSelectedLineWidth(selectedLineWidth() - 1)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">remove</mat-icon>
+                </button>
+                <span class="min-w-[2.25rem] text-center text-xs font-medium tabular-nums text-stone-800 dark:text-stone-100">{{ selectedLineWidth() }} px</span>
+                <button
+                    type="button"
+                    class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutLineWidth')"
+                    [matTooltip]="t('visitaGuide.layoutLineWidth')"
+                    (click)="setSelectedLineWidth(selectedLineWidth() + 1)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
+                </button>
+                @for (lineStyle of lineStyles; track lineStyle) {
+                    <button
+                        type="button"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                        [ngClass]="
+                            selectedLineStyle() === lineStyle
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-label]="t('visitaGuide.lineStyle.' + lineStyle)"
+                        [matTooltip]="t('visitaGuide.lineStyle.' + lineStyle)"
+                        (click)="setSelectedLineStyle(lineStyle)"
+                    >
+                        <span class="block w-5" [style.border-top]="'2px ' + lineStyle + ' currentColor'"></span>
+                    </button>
+                }
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                @for (preset of lineAngles; track preset.angle) {
+                    <button
+                        type="button"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                        [ngClass]="
+                            selectedLineAngleIs(preset.angle)
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-label]="t(preset.labelKey)"
+                        [matTooltip]="t(preset.labelKey)"
+                        (click)="setSelectedLineAngle(preset.angle)"
+                    >
+                        <span class="block w-4 border-t-2 border-current" [style.transform]="'rotate(' + preset.angle + 'deg)'"></span>
+                    </button>
+                }
+                }
                 @if (selectedLayoutSection()?.type === 'shape') {
                 <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
                 <button
@@ -3764,8 +4131,66 @@
                     <mat-icon class="!h-4 !w-4 !text-base">rotate_right</mat-icon>
                 </button>
                 }
-            } @else if (selectedLayoutSection()?.type === 'image' || selectedLayoutSection()?.type === 'spacer') {
+                @if (selectedLayoutSection()?.shape === 'icon') {
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                <button
+                    type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutIconChange')"
+                    [matTooltip]="t('visitaGuide.layoutIconChange')"
+                    (click)="replaceSelectedIcon()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">swap_horiz</mat-icon>
+                </button>
+                }
+                @if (selectedLayoutSection()?.type === 'shape' && !selectedLayoutSection()?.iconKeepColors) {
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                <button
+                    type="button"
+                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                    [matTooltip]="t('reportRules.shapeButton')"
+                    [attr.aria-label]="t('reportRules.shapeButton')"
+                    (click)="openSelectedShapeRules()"
+                >
+                    <span class="font-mono italic">fx</span>
+                    {{ t('reportRules.toolbar') }}
+                    @if (selectedBlockRuleCount()) {
+                        <span class="rounded-full bg-emerald-600 px-1.5 text-[10px] leading-4 text-white">{{ selectedBlockRuleCount() }}</span>
+                    }
+                </button>
+                }
+            } @else if (selectedLayoutSection()?.type === 'image') {
+                <button
+                    type="button"
+                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                    [matTooltip]="t('reportRules.imageButton')"
+                    [attr.aria-label]="t('reportRules.imageButton')"
+                    (click)="openSelectedImageRules()"
+                >
+                    <span class="font-mono italic">fx</span>
+                    {{ t('reportRules.toolbar') }}
+                    @if (selectedBlockRuleCount()) {
+                        <span class="rounded-full bg-emerald-600 px-1.5 text-[10px] leading-4 text-white">{{ selectedBlockRuleCount() }}</span>
+                    }
+                </button>
+            } @else if (selectedLayoutSection()?.type === 'spacer') {
             } @else {
+            @if (layoutFormatPart(); as part) {
+                <span
+                    class="mr-1 flex h-7 items-center gap-1 rounded-md border px-1.5 text-[11px] font-semibold"
+                    [ngClass]="
+                        part === 'label'
+                            ? 'border-lime-500 bg-lime-100 text-lime-800 dark:bg-lime-950/60 dark:text-lime-200'
+                            : 'border-orange-400 bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-200'
+                    "
+                >
+                    <span
+                        class="h-2.5 w-2.5 shrink-0 rounded-sm"
+                        [ngClass]="part === 'label' ? 'bg-lime-500' : 'bg-orange-400'"
+                    ></span>
+                    {{ t(layoutRoleTitleKey(part)) }}
+                </span>
+            }
             @for (align of layoutFormatAligns; track align) {
                 <button
                     type="button"
@@ -3797,6 +4222,16 @@
             >
                 B
             </button>
+            <select
+                class="h-8 max-w-28 rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                [ngModel]="layoutFormatWeight()"
+                (ngModelChange)="setLayoutFormatWeight($event)"
+                [attr.aria-label]="t('smartReport.fontWeight')"
+            >
+                @for (weight of layoutFormatWeights(); track weight) {
+                    <option [ngValue]="weight" [style.font-weight]="weight">{{ t('smartReport.fontWeights.' + weight) }}</option>
+                }
+            </select>
             <button
                 type="button"
                 class="flex h-8 w-8 items-center justify-center rounded-lg text-sm italic"
@@ -3825,6 +4260,61 @@
             >
                 U
             </button>
+            <button
+                type="button"
+                class="flex h-8 items-center justify-center gap-0.5 rounded-lg px-1.5 text-sm font-medium"
+                cdkOverlayOrigin
+                #textCaseOrigin="cdkOverlayOrigin"
+                [ngClass]="
+                    layoutFormatTextCase() !== 'none'
+                        ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                        : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                "
+                [attr.aria-label]="t('smartReport.textCase.label')"
+                [attr.aria-expanded]="layoutTextCaseOpen()"
+                [matTooltip]="t('smartReport.textCase.label')"
+                (click)="layoutTextCaseOpen.set(!layoutTextCaseOpen())"
+            >
+                Aa
+                <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
+            </button>
+            <ng-template
+                cdkConnectedOverlay
+                [cdkConnectedOverlayOrigin]="textCaseOrigin"
+                [cdkConnectedOverlayOpen]="layoutTextCaseOpen()"
+                [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
+                [cdkConnectedOverlayHasBackdrop]="true"
+                cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                cdkConnectedOverlayPanelClass="report-design-overlay-pane"
+                (backdropClick)="layoutTextCaseOpen.set(false)"
+                (overlayKeydown)="$event.key === 'Escape' && layoutTextCaseOpen.set(false)"
+                (detach)="layoutTextCaseOpen.set(false)"
+            >
+                <div
+                    role="menu"
+                    class="flex w-max min-w-44 flex-col gap-0.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+                >
+                    @for (mode of textCases; track mode) {
+                        <button
+                            type="button"
+                            role="menuitemradio"
+                            class="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left text-sm"
+                            [ngClass]="
+                                layoutFormatTextCase() === mode
+                                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-200'
+                                    : 'text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800'
+                            "
+                            [attr.aria-checked]="layoutFormatTextCase() === mode"
+                            (click)="setLayoutFormatTextCase(mode)"
+                        >
+                            <span class="whitespace-nowrap">{{ t('smartReport.textCase.' + mode) }}</span>
+                            @if (layoutFormatTextCase() === mode) {
+                                <mat-icon class="!h-4 !w-4 !text-base">check</mat-icon>
+                            }
+                        </button>
+                    }
+                </div>
+            </ng-template>
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -3847,7 +4337,25 @@
             >
                 <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
             </button>
+            @if (selectedLayoutShowsParams()) {
+                @let ruleCount = selectedCellRuleCount() || selectedBlockRuleCount();
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                <button
+                    type="button"
+                    class="relative flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                    [matTooltip]="t('reportRules.button')"
+                    [attr.aria-label]="t('reportRules.button')"
+                    (click)="openSelectedValueRules()"
+                >
+                    <span class="font-mono italic">fx</span>
+                    {{ t('reportRules.toolbar') }}
+                    @if (ruleCount) {
+                        <span class="rounded-full bg-emerald-600 px-1.5 text-[10px] leading-4 text-white">{{ ruleCount }}</span>
+                    }
+                </button>
             }
+            }
+            @if (selectedLayoutCount() <= 1) {
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -3868,7 +4376,28 @@
                     >expand_more</mat-icon
                 >
             </button>
+                @if (selectedLayoutLayerId(); as layerId) {
+                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                <button
+                    type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                    [attr.aria-pressed]="isLayoutLayerLocked(layerId)"
+                    [attr.aria-label]="
+                        t(isLayoutLayerLocked(layerId) ? 'visitaGuide.layoutLayerUnlock' : 'visitaGuide.layoutLayerLock')
+                    "
+                    [matTooltip]="
+                        t(isLayoutLayerLocked(layerId) ? 'visitaGuide.layoutLayerUnlock' : 'visitaGuide.layoutLayerLock')
+                    "
+                    (click)="toggleLayoutLayerLocked(layerId, $event)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">{{
+                        isLayoutLayerLocked(layerId) ? 'lock' : 'lock_open'
+                    }}</mat-icon>
+                </button>
+                }
+            }
             </div>
+            @if (selectedLayoutCount() <= 1) {
             <div class="layout-format-more" [class.is-open]="layoutFormatExpanded()">
                 <div class="layout-format-more-clip">
                 <div
@@ -3977,6 +4506,10 @@
                             </button>
                         } @else {
                             @if (selectedSheetImage(); as image) {
+                            <ng-container *ngTemplateOutlet="imageRulesButton"></ng-container>
+                            @if (sheetPreviewImageSrc(image); as imgSrc) {
+                                <img [src]="imgSrc" alt="" class="mt-2 max-h-20 rounded object-contain" />
+                            }
                             <div class="grid grid-cols-2 gap-2">
                                 <button
                                     type="button"
@@ -4048,6 +4581,25 @@
                     } @else if (selectedLayoutSection()?.type === 'shape' || selectedLayoutSection()?.type === 'divider' || selectedLayoutSection()?.type === 'image' || selectedLayoutSection()?.type === 'spacer') {
                         @if (selectedLayoutSection(); as selected) {
                             @if (selected.type === 'shape') {
+                            @if (selected.shape === 'icon') {
+                            <span class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutIcon') }}</span>
+                            <button
+                                type="button"
+                                class="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                (click)="replaceSelectedIcon()"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">swap_horiz</mat-icon>
+                                {{ t('visitaGuide.layoutIconChange') }}
+                            </button>
+                            <label class="mt-2 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                <input
+                                    type="checkbox"
+                                    [ngModel]="!!selected.iconKeepColors"
+                                    (ngModelChange)="setSelectedIconKeepColors($event)"
+                                />
+                                {{ t('visitaGuide.layoutIconKeepColors') }}
+                            </label>
+                            } @else {
                             <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutShapeKind') }}</label>
                             <select
                                 class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
@@ -4058,13 +4610,79 @@
                                     <option [ngValue]="tool.kind">{{ t(tool.labelKey) }}</option>
                                 }
                             </select>
-                            <span class="mt-2 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutShapeFill') }}</span>
+                            }
+                            @if (selected.shape !== 'icon' || !selected.iconKeepColors) {
+                            <span class="mt-2 block text-[11px] text-stone-500">{{
+                                t(
+                                    selected.shape === 'icon'
+                                        ? 'visitaGuide.layoutIconColor'
+                                        : selected.shape === 'line'
+                                          ? 'visitaGuide.layoutLineColor'
+                                          : 'visitaGuide.layoutShapeFill'
+                                )
+                            }}</span>
                             <color-hex-field
                                 class="mt-1 block"
                                 [ngModel]="selected.style?.color || primaryColor()"
                                 (ngModelChange)="setSelectedLayoutColor($event)"
-                                [ariaLabel]="t('visitaGuide.layoutShapeFill')"
+                                [ariaLabel]="t(selected.shape === 'line' ? 'visitaGuide.layoutLineColor' : 'visitaGuide.layoutShapeFill')"
                             />
+                            <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
+                            }
+                            @if (selected.shape === 'line') {
+                                <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
+                                    <span>{{ t('visitaGuide.layoutLineWidth') }}</span>
+                                    <span>{{ selectedLineWidth() }} px</span>
+                                </label>
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="12"
+                                    step="1"
+                                    class="mt-1 w-full"
+                                    [ngModel]="selectedLineWidth()"
+                                    (ngModelChange)="setSelectedLineWidth($event)"
+                                />
+                                <span class="mt-3 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutLineStyle') }}</span>
+                                <div class="mt-1 grid grid-cols-3 gap-1">
+                                    @for (lineStyle of lineStyles; track lineStyle) {
+                                        <button
+                                            type="button"
+                                            class="flex h-8 flex-col items-center justify-center gap-1 rounded-lg border text-[10px]"
+                                            [ngClass]="
+                                                selectedLineStyle() === lineStyle
+                                                    ? 'border-indigo-400 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-200'
+                                                    : 'border-stone-200 text-stone-600 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-300 dark:hover:bg-gray-800'
+                                            "
+                                            [attr.aria-label]="t('visitaGuide.lineStyle.' + lineStyle)"
+                                            (click)="setSelectedLineStyle(lineStyle)"
+                                        >
+                                            <span class="block w-8" [style.border-top]="'2px ' + lineStyle + ' currentColor'"></span>
+                                            {{ t('visitaGuide.lineStyle.' + lineStyle) }}
+                                        </button>
+                                    }
+                                </div>
+                                <span class="mt-3 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutLineDirection') }}</span>
+                                <div class="mt-1 grid grid-cols-4 gap-1">
+                                    @for (preset of lineAngles; track preset.angle) {
+                                        <button
+                                            type="button"
+                                            class="flex h-9 items-center justify-center rounded-lg border"
+                                            [ngClass]="
+                                                selectedLineAngleIs(preset.angle)
+                                                    ? 'border-indigo-400 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-200'
+                                                    : 'border-stone-200 text-stone-600 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-300 dark:hover:bg-gray-800'
+                                            "
+                                            [attr.aria-label]="t(preset.labelKey)"
+                                            [matTooltip]="t(preset.labelKey)"
+                                            (click)="setSelectedLineAngle(preset.angle)"
+                                        >
+                                            <span class="block w-5 border-t-2 border-current" [style.transform]="'rotate(' + preset.angle + 'deg)'"></span>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                            @if (selected.shape !== 'icon' && selected.shape !== 'line') {
                             <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
                                 <input
                                     type="checkbox"
@@ -4095,6 +4713,7 @@
                                     (ngModelChange)="setSelectedLayoutBorderWidth($event)"
                                 />
                             }
+                            }
                             <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
                                 <span>{{ t('visitaGuide.layoutRotation') }}</span>
                                 <span>{{ selected.style?.rotation || 0 }}°</span>
@@ -4109,19 +4728,7 @@
                                 (ngModelChange)="setSelectedLayoutRotation($event)"
                             />
                             @if (selected.shape === 'rectangle' || selected.shape === 'square' || !selected.shape) {
-                                <label class="mt-3 flex items-center justify-between text-xs text-stone-500">
-                                    <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
-                                    <span>{{ selected.style?.borderRadius || 0 }} px</span>
-                                </label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="48"
-                                    step="1"
-                                    class="mt-1 w-full"
-                                    [ngModel]="selected.style?.borderRadius || 0"
-                                    (ngModelChange)="setSelectedLayoutBorderRadius($event)"
-                                />
+                                <ng-container [ngTemplateOutlet]="shapeRadiusControls" />
                             }
                             }
                             @if (selected.type === 'divider' || selected.type === 'spacer' || selected.type === 'image') {
@@ -4148,21 +4755,15 @@
                                     (ngModelChange)="setSelectedLayoutPadding($event)"
                                 />
                             }
-                            @if (selected.type === 'image' && selected.staticContent) {
-                                <img [src]="selected.staticContent" alt="" class="mt-2 max-h-20 rounded object-contain" />
+                            @if (selected.type === 'image') {
+                                <ng-container *ngTemplateOutlet="imageRulesButton"></ng-container>
+                                @if (layoutPreviewImageSrc(selected); as imgSrc) {
+                                    <img [src]="imgSrc" alt="" class="mt-2 max-h-20 rounded object-contain" />
+                                }
                             }
                         }
                     } @else {
                     @if (selectedLayoutSection(); as selected) {
-                        @if ((selected.type === 'text' || selected.type === 'header') && !selectedLayoutCellKey()) {
-                            <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutBlockBody') }}</label>
-                            <textarea
-                                rows="2"
-                                class="mt-1 w-full rounded-lg border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                [ngModel]="selected.staticContent"
-                                (ngModelChange)="setSelectedLayoutBody($event)"
-                            ></textarea>
-                        }
                         @if (selectedLayoutCellKey() && selectedLayoutCellPart() === 'label') {
                             <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutCellLabelText') }}</label>
                             <input
@@ -4174,10 +4775,45 @@
                         }
                     }
                     @for (role of selectedLayoutTextRoles(); track role) {
-                        <p class="mt-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                        <div
+                            class="mt-2 rounded-lg border px-2 py-2"
+                            [ngClass]="
+                                role === 'label'
+                                    ? 'border-lime-500 bg-lime-50 dark:border-lime-500 dark:bg-lime-950/40'
+                                    : role === 'value'
+                                      ? 'border-orange-400 bg-orange-50 dark:border-orange-400 dark:bg-orange-950/40'
+                                      : 'border-transparent px-0 py-0'
+                            "
+                        >
+                        <p
+                            class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider"
+                            [ngClass]="
+                                role === 'label'
+                                    ? 'text-lime-800 dark:text-lime-200'
+                                    : role === 'value'
+                                      ? 'text-orange-800 dark:text-orange-200'
+                                      : 'text-stone-400'
+                            "
+                        >
+                            @if (role === 'label' || role === 'value') {
+                                <span
+                                    class="h-2.5 w-2.5 shrink-0 rounded-sm"
+                                    [ngClass]="role === 'label' ? 'bg-lime-500' : 'bg-orange-400'"
+                                ></span>
+                            }
                             {{ t(layoutRoleTitleKey(role)) }}
                         </p>
-                        <label class="mt-1 block text-[11px] text-stone-500">{{ t('smartReport.fontFamily') }}</label>
+                        <div class="mt-1 flex items-center justify-between gap-2">
+                            <label class="block text-[11px] text-stone-500">{{ t('smartReport.fontFamily') }}</label>
+                            <button
+                                type="button"
+                                class="inline-flex items-center gap-0.5 text-[11px] font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400"
+                                (click)="openFontManager(role)"
+                            >
+                                <mat-icon class="icon-size-3.5">add</mat-icon>
+                                {{ t('reportFonts.addFont') }}
+                            </button>
+                        </div>
                         <select
                             class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                             [ngModel]="layoutRoleFontFamily(role)"
@@ -4185,6 +4821,27 @@
                         >
                             @for (font of reportFonts; track font.value) {
                                 <option [ngValue]="font.value">{{ t(font.labelKey) }}</option>
+                            }
+                            @if (customFontOptions().length) {
+                                <optgroup [label]="t('reportFonts.groupLabel')">
+                                    @for (font of customFontOptions(); track font.value) {
+                                        <option [ngValue]="font.value" [style.font-family]="font.value">{{ font.label }}</option>
+                                    }
+                                </optgroup>
+                            }
+                            @if (isMissingFont(layoutRoleFontFamily(role))) {
+                                <option [ngValue]="layoutRoleFontFamily(role)">{{ layoutRoleFontFamily(role) }}</option>
+                            }
+                        </select>
+                        <label class="mt-1.5 block text-[11px] text-stone-500">{{ t('smartReport.fontWeight') }}</label>
+                        <select
+                            class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [ngModel]="layoutRoleWeight(role)"
+                            (ngModelChange)="setLayoutRoleFontWeight(role, $event)"
+                            [attr.aria-label]="t('smartReport.fontWeight')"
+                        >
+                            @for (weight of layoutRoleFontWeights(role); track weight) {
+                                <option [ngValue]="weight" [style.font-weight]="weight">{{ t('smartReport.fontWeights.' + weight) }}</option>
                             }
                         </select>
                         <span class="mt-1.5 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutBlockColor') }}</span>
@@ -4194,6 +4851,7 @@
                             (ngModelChange)="setLayoutRoleColor(role, $event)"
                             [ariaLabel]="t(layoutRoleTitleKey(role))"
                         />
+                        </div>
                     }
                     @if (selectedLayoutCellKey()) {
                         <p class="mt-3 truncate text-[11px] font-semibold uppercase tracking-wider text-violet-700">
@@ -4515,13 +5173,23 @@
                                 <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutParamOrder') }}</p>
                                 <div class="mt-2 max-h-40 space-y-1 overflow-y-auto">
                                     @for (column of selectedDataTableColumns(); track column.key; let first = $first; let last = $last) {
-                                        <div class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30">
+                                        <div
+                                            class="flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 dark:border-amber-900 dark:bg-amber-950/30"
+                                            [class.ring-2]="selectedLayoutCellKey() === column.key"
+                                            [class.ring-amber-500]="selectedLayoutCellKey() === column.key"
+                                        >
                                             <input
                                                 type="checkbox"
                                                 [ngModel]="column.visible"
                                                 (ngModelChange)="setLayoutParamVisible(column.key, $event)"
                                             />
-                                            <span class="min-w-0 flex-1 truncate text-xs text-stone-700 dark:text-stone-200">{{ column.label }}</span>
+                                            <button
+                                                type="button"
+                                                class="min-w-0 flex-1 truncate text-left text-xs text-stone-700 dark:text-stone-200"
+                                                (click)="selectDataTableColumn(column.key)"
+                                            >
+                                                {{ column.label }}
+                                            </button>
                                             <button
                                                 type="button"
                                                 class="rounded px-1 text-xs text-stone-500 disabled:opacity-30"
@@ -4594,7 +5262,7 @@
                     }
                     @if (selectedLayoutEditsWholeBlock()) {
                         @if (selectedLayoutSection(); as selected) {
-                            @if (selected.type !== 'shape') {
+                            @if (selected.type !== 'shape' && selected.type !== 'header' && selected.type !== 'text') {
                                 <label class="mt-3 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutBlockTitle') }}</label>
                                 <input
                                     type="text"
@@ -4631,13 +5299,14 @@
                 </div>
                 </div>
             </div>
+            }
         </div>
     }
     @if (layoutContextMenu(); as menu) {
         <div
             #layoutContextMenuEl
-            class="visita-layout-context-menu fixed z-[1000000] min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
-            style="z-index: 1000000"
+            class="visita-layout-context-menu fixed min-w-[12.5rem] overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            [style.z-index]="uiZ.menu"
             [style.left.px]="menu.x"
             [style.top.px]="menu.y"
             [style.max-height.px]="menu.maxHeight"
@@ -4669,6 +5338,42 @@
                     <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_copy</mat-icon>
                     {{ t('visitaGuide.layoutContextCopy') }}
                 </button>
+            }
+            @if (layoutContextAllowsImageRules()) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                    (click)="openImageRulesFromContextMenu(); $event.stopPropagation()"
+                >
+                    <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-emerald-100 font-mono text-[10px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
+                    {{ t('reportRules.imageButton') }}
+                </button>
+            }
+            @if (layoutContextSection(); as ctxSection) {
+                @if (
+                    !menu.cellKey &&
+                    ctxSection.type === 'shape' &&
+                    (ctxSection.shape !== 'icon' || !ctxSection.iconKeepColors)
+                ) {
+                    <button
+                        type="button"
+                        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                        (click)="openShapeRulesFromContextMenu(); $event.stopPropagation()"
+                    >
+                        <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-emerald-100 font-mono text-[10px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
+                        {{ t('reportRules.shapeButton') }}
+                    </button>
+                }
+                @if (menu.cellKey) {
+                    <button
+                        type="button"
+                        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                        (click)="openSelectedValueRules(); closeLayoutContextMenu(); $event.stopPropagation()"
+                    >
+                        <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-emerald-100 font-mono text-[10px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
+                        {{ t('reportRules.button') }}
+                    </button>
+                }
             }
             <button
                 type="button"
@@ -4731,6 +5436,22 @@
                     {{ t(tool.labelKey) }}
                 </button>
             }
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutIconFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">emoji_symbols</mat-icon>
+                {{ t('visitaGuide.layoutAddIcon') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutEmojiFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">add_reaction</mat-icon>
+                {{ t('reportEmojis.addTooltip') }}
+            </button>
             @if (menu.sectionId || menu.overlay) {
                 <button
                     type="button"
@@ -4751,4 +5472,54 @@
         class="hidden"
         (change)="onSheetImagesSelected($event)"
     />
+    <ng-template #shapeRadiusControls>
+        <div class="mt-3 flex items-center justify-between gap-2 text-xs text-stone-500">
+            <span>{{ t('visitaGuide.layoutBlockBorderRadius') }}</span>
+            <span class="flex items-center gap-1">
+                <input
+                    type="number"
+                    min="0"
+                    [max]="selectedShapeMaxRadius()"
+                    step="1"
+                    class="w-14 rounded-lg border border-stone-200 px-2 py-0.5 text-right text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    [attr.aria-label]="t('visitaGuide.layoutBlockBorderRadius')"
+                    [ngModel]="selectedShapeRadius()"
+                    (ngModelChange)="setSelectedShapeRadius($event)"
+                />
+                px
+            </span>
+        </div>
+        <input
+            type="range"
+            min="0"
+            [max]="selectedShapeMaxRadius()"
+            step="1"
+            class="mt-1 w-full"
+            [attr.aria-label]="t('visitaGuide.layoutBlockBorderRadius')"
+            [ngModel]="selectedShapeRadius()"
+            (ngModelChange)="setSelectedShapeRadius($event)"
+        />
+        <div class="mt-2 grid grid-cols-4 gap-1">
+            @for (preset of shapeRadiusPresets; track preset.id) {
+                <button
+                    type="button"
+                    class="flex h-11 flex-col items-center justify-center gap-1 rounded-lg border text-[10px]"
+                    [ngClass]="
+                        selectedShapeRadiusIs(preset.radius)
+                            ? 'border-indigo-400 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-200'
+                            : 'border-stone-200 text-stone-600 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-300 dark:hover:bg-gray-800'
+                    "
+                    [attr.aria-label]="t(preset.labelKey)"
+                    [matTooltip]="t(preset.labelKey)"
+                    (click)="setSelectedShapeRadius(preset.radius)"
+                >
+                    <span
+                        class="block h-3.5 w-6 border-2 border-current"
+                        [style.border-radius.px]="preset.radius === 0 ? 0 : preset.radius > 100 ? 999 : preset.radius / 3"
+                    ></span>
+                    {{ t(preset.labelKey) }}
+                </button>
+            }
+        </div>
+    </ng-template>
 </ng-container>

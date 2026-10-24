@@ -354,7 +354,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
                     this.project.set({
                         ...this.project()!,
                         ...updated,
-                        dataRetention: (updated.dataRetention as RetentionPolicy | null | undefined) ?? payload,
+                        dataRetention: payload as HumanAuthnProject['dataRetention'],
                     });
                 }
                 this.savingRetention.set(false);

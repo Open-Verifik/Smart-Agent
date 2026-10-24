@@ -18448,7 +18448,7 @@
             "type": "String",
             "required": false,
             "dependencyGroup": "1",
-            "description": "CURP or CEDULA. Required together with documentNumber.",
+            "description": "Set to CURP or CEDULA when using a document group (Explorer sets this automatically).",
             "enum": ["CURP", "CEDULA"]
           },
           {
@@ -18456,25 +18456,25 @@
             "type": "String",
             "required": false,
             "dependencyGroup": "1",
-            "description": "CURP or professional license number."
+            "description": "18-character CURP or professional license number, depending on the active document group."
           },
           {
             "field": "firstName",
             "type": "String",
             "required": false,
-            "dependencyGroup": "2",
-            "description": "Given name. Required together with lastName."
+            "dependencyGroup": "3",
+            "description": "Given name. Required together with lastName in the name group."
           },
           {
             "field": "lastName",
             "type": "String",
             "required": false,
-            "dependencyGroup": "2",
-            "description": "Surnames. Required together with firstName."
+            "dependencyGroup": "3",
+            "description": "Surnames. Required together with firstName in the name group."
           }
         ],
         "documentedParams": [
-          { "field": "documentType", "description": "CURP or CEDULA." },
+          { "field": "documentType", "description": "CURP or CEDULA for document groups." },
           { "field": "documentNumber", "description": "CURP or professional license number." },
           { "field": "firstName", "description": "Given name for an exact-name search." },
           { "field": "lastName", "description": "Surnames for an exact-name search." }
@@ -18529,7 +18529,7 @@
             "type": "String",
             "required": false,
             "dependencyGroup": "1",
-            "description": "CURP or CEDULA. Required together with documentNumber.",
+            "description": "Set to CURP or CEDULA when using a document group (Explorer sets this automatically).",
             "enum": ["CURP", "CEDULA"]
           },
           {
@@ -18537,25 +18537,25 @@
             "type": "String",
             "required": false,
             "dependencyGroup": "1",
-            "description": "CURP or professional license number."
+            "description": "18-character CURP or health-related professional license number, depending on the active document group."
           },
           {
             "field": "firstName",
             "type": "String",
             "required": false,
-            "dependencyGroup": "2",
-            "description": "Given name. Required together with lastName."
+            "dependencyGroup": "3",
+            "description": "Given name. Required together with lastName in the name group."
           },
           {
             "field": "lastName",
             "type": "String",
             "required": false,
-            "dependencyGroup": "2",
-            "description": "Surnames. Required together with firstName."
+            "dependencyGroup": "3",
+            "description": "Surnames. Required together with firstName in the name group."
           }
         ],
         "documentedParams": [
-          { "field": "documentType", "description": "CURP or CEDULA." },
+          { "field": "documentType", "description": "CURP or CEDULA for document groups." },
           { "field": "documentNumber", "description": "CURP or professional license number." },
           { "field": "firstName", "description": "Given name for an exact-name search." },
           { "field": "lastName", "description": "Surnames for an exact-name search." }

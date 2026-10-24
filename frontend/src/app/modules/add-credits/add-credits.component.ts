@@ -33,6 +33,7 @@ import {
     BoldOpenOrder,
     PaymentService,
 } from './services/payment.service';
+import { hasPlateReportDraft } from '../plate-report/plate-report.draft';
 
 export type AddCreditsSidebarPlanTier = {
     plan: SubscriptionPlan;
@@ -141,6 +142,9 @@ export class AddCreditsComponent implements OnInit {
 
     showBillingRequiredModal = false;
 
+    /** A plate report left this page to buy the credits it still needs. */
+    plateReportPending = signal(hasPlateReportDraft());
+
     /** Enables purchase/add-card when billing questionnaire is satisfied. */
     billingActionsAllowed = computed(
         () => this.billingCheckResolved() && this.hasBillingSetup(),
@@ -211,6 +215,12 @@ export class AddCreditsComponent implements OnInit {
                 if (state === 'approved') {
                     this.boldReturnState.set('approved');
                     this._refreshSessionAndBalance();
+                    if (hasPlateReportDraft()) {
+                        void this._router.navigate(['/reporte-placa'], {
+                            queryParams: { continuar: '1' },
+                            replaceUrl: true,
+                        });
+                    }
                     return;
                 }
 

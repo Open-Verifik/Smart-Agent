@@ -72,27 +72,31 @@ const withAlpha = (rgb: string, alpha: number): string => {
                     (blur)="onBlur()"
                 />
             </div>
-            <label class="flex items-center gap-2 text-[10px] text-stone-500 dark:text-stone-400">
-                <span class="w-[4.5rem] shrink-0">{{ 'visitaGuide.layoutColorTransparency' | transloco }}</span>
-                <input
-                    type="range"
-                    class="min-w-0 flex-1"
-                    min="0"
-                    max="100"
-                    step="1"
-                    [disabled]="disabled"
-                    [value]="transparencyPercent"
-                    [attr.aria-label]="'visitaGuide.layoutColorTransparency' | transloco"
-                    (input)="commitTransparency($event)"
-                />
-                <span class="w-8 shrink-0 text-right tabular-nums">{{ transparencyPercent }}%</span>
-            </label>
+            @if (showTransparency()) {
+                <label class="flex items-center gap-2 text-[10px] text-stone-500 dark:text-stone-400">
+                    <span class="w-[4.5rem] shrink-0">{{ 'visitaGuide.layoutColorTransparency' | transloco }}</span>
+                    <input
+                        type="range"
+                        class="min-w-0 flex-1"
+                        min="0"
+                        max="100"
+                        step="1"
+                        [disabled]="disabled"
+                        [value]="transparencyPercent"
+                        [attr.aria-label]="'visitaGuide.layoutColorTransparency' | transloco"
+                        (input)="commitTransparency($event)"
+                    />
+                    <span class="w-8 shrink-0 text-right tabular-nums">{{ transparencyPercent }}%</span>
+                </label>
+            }
         </div>
     `,
 })
 export class ColorHexFieldComponent implements ControlValueAccessor {
     placeholder = input('#RRGGBB');
     ariaLabel = input('Hex');
+    /** When false, only the swatch and hex text field are shown (e.g. conditional rule colors). */
+    showTransparency = input(true);
 
     /** Full color, including alpha when it is not opaque. */
     value = '#000000';

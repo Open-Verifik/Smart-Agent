@@ -58,7 +58,7 @@ describe('getPostmanXorParamLayout', () => {
         expect(layout.documentRows.map((row) => row.param.key)).toEqual(['documentNumber']);
     });
 
-    it('treats firstName and lastName as a name mode when both groups exist', () => {
+    it('uses the Mexico triple layout for professional license endpoints', () => {
         const layout = getPostmanXorParamLayout(
             endpoint({
                 code: 'mexico_api_cedula_profesional',
@@ -77,10 +77,9 @@ describe('getPostmanXorParamLayout', () => {
             })
         );
 
-        expect(layout.kind).toBe('xor');
-        if (layout.kind !== 'xor') return;
+        expect(layout.kind).toBe('mexicoLicenseTriple');
+        if (layout.kind !== 'mexicoLicenseTriple') return;
         expect(layout.nameRows.map((row) => row.param.key)).toEqual(['firstName', 'lastName']);
-        expect(layout.documentRows.map((row) => row.param.key)).toEqual(['documentType', 'documentNumber']);
     });
 
     it('keeps a single firstName and lastName pair flat when there is only one dependency group', () => {

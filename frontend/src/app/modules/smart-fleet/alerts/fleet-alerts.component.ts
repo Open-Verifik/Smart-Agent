@@ -10,10 +10,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { FleetNavComponent } from '../fleet-nav.component';
+import { FleetChannelIconComponent } from '../watch-rules/fleet-channel-icon.component';
 import {
     FleetAlert,
     FleetAlertStatus,
     FleetAsset,
+    FleetChannel,
     FleetSeverity,
     SmartFleetService,
 } from '../smart-fleet.service';
@@ -32,6 +35,8 @@ import {
         MatMenuModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        FleetNavComponent,
+        FleetChannelIconComponent,
     ],
     templateUrl: './fleet-alerts.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -221,6 +226,72 @@ export class FleetAlertsComponent implements OnInit {
         return typeof asset === 'string' ? asset : (asset._id ?? null);
     }
 
+    statusIcon(status: FleetAlertStatus): string {
+        switch (status) {
+            case 'open':
+                return 'notifications';
+            case 'acknowledged':
+                return 'done';
+            case 'resolved':
+                return 'task_alt';
+            default:
+                return 'inbox';
+        }
+    }
+
+    severityIcon(severity: string): string {
+        switch (severity) {
+            case 'critical':
+                return 'error';
+            case 'warning':
+                return 'warning_amber';
+            default:
+                return 'info';
+        }
+    }
+
+    alertIcon(type: string): string {
+        if (type.startsWith('soat')) return 'verified_user';
+        if (type.startsWith('rtm')) return 'build';
+        if (type === 'new_comparendo' || type === 'fine_amount_changed') return 'gavel';
+        if (type === 'ownership_changed') return 'badge';
+        if (type === 'new_claim') return 'car_crash';
+        if (type === 'check_failed') return 'cloud_off';
+
+        return 'notifications';
+    }
+
+    checkLabelKey(type: string): string {
+        if (type.startsWith('soat')) return 'smartFleet.checkType.soat';
+        if (type.startsWith('rtm')) return 'smartFleet.checkType.rtm';
+        if (type === 'new_comparendo' || type === 'fine_amount_changed') return 'smartFleet.checkType.comparendos';
+        if (type === 'ownership_changed') return 'smartFleet.checkType.ownership';
+        if (type === 'new_claim') return 'smartFleet.checkType.claims';
+        if (type === 'check_failed') return 'smartFleet.alerts.checkFailed';
+
+        return 'smartFleet.checkType.custom';
+    }
+
+    deliveryTone(status: string): string {
+        switch (status) {
+            case 'sent':
+                return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200';
+            case 'failed':
+                return 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-200';
+            case 'skipped':
+                return 'bg-stone-100 text-stone-400 dark:bg-gray-800 dark:text-stone-500';
+            default:
+                return 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300';
+        }
+    }
+
+    deliveryLabel(channel: FleetChannel, status: string): string {
+        const name = this._transloco.translate('smartFleet.channel.' + channel);
+        const state = this._transloco.translate('smartFleet.alerts.delivery.' + status);
+
+        return `${name}: ${state}`;
+    }
+
     severityClasses(severity: string): string {
         switch (severity) {
             case 'critical':
@@ -230,12 +301,6 @@ export class FleetAlertsComponent implements OnInit {
             default:
                 return 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300';
         }
-    }
-
-    deliverySummary(alert: FleetAlert): string {
-        if (!alert.deliveries?.length) return '—';
-
-        return alert.deliveries.map((delivery) => `${delivery.channel}: ${delivery.status}`).join(', ');
     }
 
     formatDate(value?: string | null): string {

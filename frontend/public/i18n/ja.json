@@ -489,6 +489,8 @@
         "layoutLayerHide": "隠す",
         "layoutLayerShow": "表示",
         "layoutLayerLock": "ロック",
+        "layoutLockSelection": "選択をロック",
+        "layoutDeleteSelection": "選択を削除",
         "layoutLayerUnlock": "ロック解除",
         "layoutLayerEmpty": "このシートにはまだ要素がありません。",
         "layoutLayerImage": "画像",
@@ -5616,6 +5618,10 @@
                 "otherParameters": "その他のパラメータ",
                 "requiredFieldLegend": "* 必須項目",
                 "includeCostDescription": "true の場合、レスポンスにクレジット情報ブロック（credits, creditsCharged, charged, featureCode）が含まれます。省略するには false にするか、この行を削除してください。",
+                "mexicoLicenseDocumentTypeCurpDescription": "この検索グループでは CURP に固定されます。",
+                "mexicoLicenseDocumentTypeCedulaDescription": "この検索グループでは免許番号タイプに固定されます。",
+                "mexicoLicenseCurpNumberDescription": "18 文字の CURP。",
+                "mexicoLicenseCedulaNumberDescription": "専門免許番号。",
                 "pickValue": "[{{values}}] から値を選択してください",
                 "sexoFemale": "女性（FEMENINO）",
                 "sexoMale": "男性（MASCULINO）"
@@ -5668,7 +5674,8 @@
                 "invalidEnum": "「{{field}}」の値「{{value}}」は無効です。次が期待されます：{{expected}}。",
                 "invalidJsonBody": "本文は有効なJSONである必要があります。",
                 "pathSegmentRequired": "URLパスの「{{segment}}」セグメントが必須です。",
-                "groupedModesBodyWithSerial": "使い方は1つだけにしてください。氏名で検索するか、書類番号で検索するか（必要な場合は性別も）、民事登録のシリアル番号で検索します。同じリクエストで方式を混ぜないでください。"
+                "groupedModesBodyWithSerial": "使い方は1つだけにしてください。氏名で検索するか、書類番号で検索するか（必要な場合は性別も）、民事登録のシリアル番号で検索します。同じリクエストで方式を混ぜないでください。",
+                "mexicoLicenseModesBody": "グループは1つだけ使用してください。CURPと書類番号、免許番号と書類種別、または書類フィールドなしの名と姓です。同じリクエストでグループを混在させないでください。"
             },
             "sandboxProfiles": {
                 "title": "Sandboxテストプロフィール",
@@ -9392,6 +9399,10 @@
         "searchModeOptionFullName": "オプション A — 氏名で検索",
         "searchModeOptionDocument": "オプション B — 文書で検索",
         "searchModeOptionSerial": "オプション C — シリアルで検索",
+        "searchModesIntroMexicoLicense": "入力グループは1つだけ使用してください。CURPと書類番号、専門免許番号、または名と姓です。同じリクエストでグループを混在させないでください。",
+        "searchModeOptionCurp": "グループ 1 — CURPで検索",
+        "searchModeOptionLicenseNumber": "グループ 2 — 免許番号で検索",
+        "searchModeOptionNameMexico": "グループ 3 — 氏名で検索",
         "dateOfBirthConditionalHint": "documentType が次のいずれかのとき、その行では dateOfBirth 列が必須です: {{values}}",
         "fieldConditional": "条件付き必須",
         "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。",

@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
     FleetCountryChoice,
@@ -14,17 +14,23 @@ import {
     getFleetCountryPlaceholders,
     mergeFleetCountries,
 } from '../fleet-country.util';
+import { FleetNavComponent } from '../fleet-nav.component';
 import {
     FleetAlert,
     FleetAlertDelivery,
     FleetAsset,
     FleetCheckType,
     FleetSnapshot,
+    FleetSavedReport,
     FleetWatchRule,
+    savedReportsOf,
     SmartFleetService,
 } from '../smart-fleet.service';
+import { SmartReportService } from 'app/modules/smart-batch/smart-report.service';
+import { firstValueFrom } from 'rxjs';
+import { fleetReportFileName, pdfBlobFromResponse } from './fleet-vehicle-report.util';
 
-type DetailTab = 'report' | 'timeline' | 'alerts' | 'rules' | 'inspect';
+type DetailTab = 'report' | 'pdfs' | 'timeline' | 'alerts' | 'rules' | 'inspect';
 
 /** One rendered row of a snapshot's normalized payload. */
 interface ReportRow {
@@ -89,6 +95,7 @@ const FIELD_MAP: Record<string, { key: string; label: string }[]> = {
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        FleetNavComponent,
     ],
     templateUrl: './fleet-asset-detail.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -96,8 +103,10 @@ const FIELD_MAP: Record<string, { key: string; label: string }[]> = {
 export class FleetAssetDetailComponent implements OnInit {
     private _fleetService = inject(SmartFleetService);
     private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
     private _transloco = inject(TranslocoService);
     private _snackBar = inject(MatSnackBar);
+    private _reports = inject(SmartReportService);
 
     assetId = signal<string>('');
     asset = signal<FleetAsset | null>(null);
@@ -112,8 +121,11 @@ export class FleetAssetDetailComponent implements OnInit {
     editDraft = signal<FleetAsset>({ country: 'co', type: 'vehicle' });
     countryOptions = signal<FleetCountryChoice[]>(mergeFleetCountries([{ code: 'co', available: true }]));
 
-    readonly tabs: DetailTab[] = ['report', 'timeline', 'alerts', 'rules', 'inspect'];
+    readonly tabs: DetailTab[] = ['report', 'pdfs', 'timeline', 'alerts', 'rules', 'inspect'];
     activeTab = signal<DetailTab>('report');
+
+    savedReports = computed(() => savedReportsOf(this.asset()));
+    downloadingReport = signal<string | null>(null);
 
     editPlaceholders = computed(() => getFleetCountryPlaceholders(this.editDraft().country));
 
@@ -358,6 +370,19 @@ export class FleetAssetDetailComponent implements OnInit {
 
                 const detail = (err as { error?: { message?: string; code?: string } })?.error;
                 const code = detail?.message || detail?.code || '';
+
+                if (String(code).includes('fleet_plan_required')) {
+                    this._snackBar
+                        .open(
+                            this._transloco.translate('smartFleet.assets.checkSkipped.fleet_plan_required'),
+                            this._transloco.translate('smartFleet.assets.viewPlans'),
+                            { duration: 8000 }
+                        )
+                        .onAction()
+                        .subscribe(() => void this._router.navigate(['/smart-fleet/plans']));
+                    return;
+                }
+
                 const known = [
                     'no_active_rules',
                     'no_due_rules',
@@ -376,6 +401,41 @@ export class FleetAssetDetailComponent implements OnInit {
                 );
             },
         });
+    }
+
+    reportKey(report: FleetSavedReport): string {
+        return `${report.reportId}:${report.rowIndex}`;
+    }
+
+    async downloadSavedReport(report: FleetSavedReport): Promise<void> {
+        const asset = this.asset();
+
+        if (!asset || this.downloadingReport()) return;
+
+        this.downloadingReport.set(this.reportKey(report));
+
+        try {
+            const pdf = await pdfBlobFromResponse(
+                await firstValueFrom(this._reports.downloadReport(report.reportId, report.rowIndex))
+            );
+
+            if (!pdf) throw new Error('pdf');
+
+            const url = URL.createObjectURL(pdf);
+            const anchor = document.createElement('a');
+
+            anchor.href = url;
+            anchor.download = fleetReportFileName(asset, report.templateName);
+            anchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        } catch (err) {
+            console.error('[SmartFleet] download saved report error', err);
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportFailed'), undefined, {
+                duration: 4000,
+            });
+        } finally {
+            this.downloadingReport.set(null);
+        }
     }
 
     acknowledge(alert: FleetAlert): void {
@@ -530,6 +590,14 @@ export class FleetAssetDetailComponent implements OnInit {
         return this._transloco.translate('smartFleet.rules.scopeFleet');
     }
 
+    snapshotErrorText(snapshot: FleetSnapshot): string | null {
+        const error = snapshot.error;
+
+        if (!error) return null;
+
+        return typeof error === 'string' ? error : error.message || null;
+    }
+
     private _loadAlerts(): void {
         this._fleetService
             .getAlerts({ asset: this.assetId(), status: 'all', perPage: 50 })
@@ -585,7 +653,7 @@ export class FleetAssetDetailComponent implements OnInit {
             checkType: snapshot.checkType,
             observedAt: snapshot.observedAt,
             isSuccessful: snapshot.isSuccessful !== false,
-            error: snapshot.error,
+            error: this.snapshotErrorText(snapshot),
             rows,
             listTitle: listKey,
             list: listKey ? (normalized[listKey] as Record<string, unknown>[]) : undefined,

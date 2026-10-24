@@ -22,6 +22,18 @@ export const appRoutes: Route[] = [
             ),
     },
 
+    /** Standalone plate report (no Verifik shell — for public / white-label domains). */
+    {
+        path: 'reporte-placa',
+        loadChildren: () =>
+            import('app/modules/plate-report/plate-report.routes').then((m) => m.default),
+    },
+    {
+        path: 'informe-vehicular',
+        loadChildren: () =>
+            import('app/modules/plate-report/plate-report.routes').then((m) => m.default),
+    },
+
     // Redirect empty path to '/home'
     { path: '', pathMatch: 'full', redirectTo: 'home' },
 

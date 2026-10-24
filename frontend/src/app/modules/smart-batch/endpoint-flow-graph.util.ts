@@ -592,16 +592,17 @@ export const chainStepFeedTemplatesFromGraph = (
     graph: FlowGraph,
     features: AppFeature[]
 ): Record<string, string>[] => {
-    const ordered = flattenFlowGraph(graph);
-    const seqById = new Map(ordered.map((feature, index) => [feature._id, index + 1]));
+    const seqByFeatureId = new Map(features.map((feature, index) => [feature._id, index + 1]));
     const indexById = new Map(features.map((feature, index) => [feature._id, index]));
     const templates = features.map(() => ({} as Record<string, string>));
     for (const edge of graph.edges) {
         if (edge.from === FLOW_START_ID || edge.from === FLOW_MERGE_ID) continue;
         if (edge.to === FLOW_MERGE_ID || edge.to === FLOW_RESULT_ID) continue;
         if (edge.toPort === '*' || edge.fromPort === '*') continue;
-        const fromSeq = seqById.get(edge.from);
-        const toIndex = indexById.get(edge.to);
+        const fromId = nodeById(graph, edge.from)?.feature?._id ?? edge.from;
+        const toId = nodeById(graph, edge.to)?.feature?._id ?? edge.to;
+        const fromSeq = seqByFeatureId.get(fromId);
+        const toIndex = indexById.get(toId);
         if (!fromSeq || toIndex == null) continue;
         templates[toIndex][edge.toPort] = `{{results.${fromSeq}.${edge.fromPort}}}`;
     }
