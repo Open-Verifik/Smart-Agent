@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
     RETENTION_TYPE_META,
@@ -17,7 +18,8 @@ import {
 import {
     computeIsCustomized,
     defaultRetentionPolicy,
-    faceImagesBlockCompare,
+    faceImagesHeldUntilHold,
+    setAllowManualDelete,
     setTypeRule,
     setWebhookHold,
     syncGlobalToGranular,
@@ -26,7 +28,8 @@ import {
 /**
  * Shared editor for an account or project retention policy.
  * Renders only the types the backend enforces, plus a store-only hours field
- * and a webhook hold clamped to 24–72. Manual delete is not offered.
+ * and a webhook hold clamped to 24–72. Manual erase is included because the backend gates it.
+ * `livenessResults` and `apiResponseLogs` are never part of the policy this form emits.
  */
 @Component({
     selector: 'app-retention-policy-form',
@@ -38,6 +41,7 @@ import {
         MatIconModule,
         MatInputModule,
         MatSelectModule,
+        MatSlideToggleModule,
         TranslocoModule,
     ],
     templateUrl: './retention-policy-form.component.html',
@@ -64,9 +68,14 @@ export class RetentionPolicyFormComponent {
         return computeIsCustomized(this.current);
     }
 
-    /** True when face images are `none`, which skips the selfie and blocks face comparison. */
-    get faceCompareBlocked(): boolean {
-        return faceImagesBlockCompare(this.current);
+    /** True when face images are `none`. The selfie stays until the hold ends, so comparison can run. */
+    get faceHeldUntilHold(): boolean {
+        return faceImagesHeldUntilHold(this.current);
+    }
+
+    /** True when document-presence photos are not uploaded. */
+    get documentLivenessNotUploaded(): boolean {
+        return this.current.types.documentLiveness?.mode === 'none';
     }
 
     /**
@@ -119,5 +128,13 @@ export class RetentionPolicyFormComponent {
      */
     setHold(raw: string | number | null): void {
         this.policyChange.emit(setWebhookHold(this.current, raw));
+    }
+
+    /**
+     * Sets whether administrators may call the manual erase endpoints.
+     * @param allowed - Toggle value.
+     */
+    setManualDelete(allowed: boolean): void {
+        this.policyChange.emit(setAllowManualDelete(this.current, allowed));
     }
 }

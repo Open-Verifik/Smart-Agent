@@ -6,7 +6,7 @@ import {
     computeAllSameMode,
     computeIsCustomized,
     defaultRetentionPolicy,
-    faceImagesBlockCompare,
+    faceImagesHeldUntilHold,
     getRetentionModeLabel,
     mapTypes,
     policyFromStored,
@@ -17,7 +17,7 @@ import {
 describe('retention utils', () => {
     it('cascades a baseline mode across the single CORE_TYPES list', () => {
         const updated = syncGlobalToGranular(defaultRetentionPolicy(), 'ephemeral');
-        expect(CORE_TYPES).toEqual(['documentImages', 'ocrExtraction', 'faceImages']);
+        expect(CORE_TYPES).toEqual(['documentImages', 'ocrExtraction', 'faceImages', 'documentLiveness']);
         expect(updated.mode).toBe('ephemeral');
         for (const type of CORE_TYPES) {
             expect(updated.types[type].mode).toBe('ephemeral');
@@ -34,7 +34,7 @@ describe('retention utils', () => {
         expect(policy.types.documentImages.retentionHours).toBe(168);
         expect(policy.types.faceImages).toEqual({ mode: 'none', retentionHours: null });
         expect(computeIsCustomized(policy)).toBe(true);
-        expect(faceImagesBlockCompare(policy)).toBe(true);
+        expect(faceImagesHeldUntilHold(policy)).toBe(true);
     });
 
     it('clamps the webhook hold to 24-72', () => {
@@ -44,25 +44,32 @@ describe('retention utils', () => {
         expect(clampWebhookHoldHours('nope')).toBe(24);
     });
 
-    it('reads stored policy without unenforced types or a face-image lock', () => {
+    it('keeps document liveness and manual erase, and drops rejected types', () => {
         const policy = policyFromStored({
             mode: 'store',
             webhookHoldHours: 3,
-            allowManualDelete: true,
+            allowManualDelete: false,
             types: {
                 documentImages: { mode: 'store', retentionHours: 48 },
-                faceImages: { mode: 'ephemeral' },
+                faceImages: { mode: 'none' },
                 documentLiveness: { mode: 'none' },
+                livenessResults: { mode: 'none' },
+                apiResponseLogs: { mode: 'store' },
                 webhookPayloads: { mode: 'none' },
             },
         });
         expect(policy?.webhookHoldHours).toBe(24);
-        expect(policy?.types.faceImages.mode).toBe('ephemeral');
-        expect(policy?.types.ocrExtraction.mode).toBe('store');
-        expect((policy as { types: Record<string, unknown> }).types['documentLiveness']).toBeUndefined();
+        expect(policy?.allowManualDelete).toBe(false);
+        expect(policy?.types.faceImages.mode).toBe('none');
+        expect(policy?.types.documentLiveness.mode).toBe('none');
+        expect(policy?.types && 'livenessResults' in policy.types).toBe(false);
+        expect(policy?.types && 'apiResponseLogs' in policy.types).toBe(false);
         const override = buildProjectRetentionOverride(policy);
-        expect(override?.allowManualDelete).toBeUndefined();
-        expect(override?.types && 'documentLiveness' in override.types).toBe(false);
+        expect(override?.allowManualDelete).toBe(false);
+        expect(override?.types?.documentLiveness).toEqual({ mode: 'none', retentionHours: null });
+        expect(override?.types && 'livenessResults' in override.types).toBe(false);
+        expect(override?.types && 'apiResponseLogs' in override.types).toBe(false);
+        expect(override?.types && 'webhookPayloads' in override.types).toBe(false);
     });
 
     it('uses one label helper', () => {

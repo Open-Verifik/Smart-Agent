@@ -23,7 +23,7 @@ import type { RetentionPolicy } from 'app/core/data-retention/retention.model';
 import {
     buildProjectRetentionOverride,
     defaultRetentionPolicy,
-    faceImagesBlockCompare,
+    faceImagesHeldUntilHold,
     getRetentionModeLabel,
     policyFromStored,
 } from 'app/core/data-retention/retention.util';
@@ -151,15 +151,18 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     effectiveDocMode = computed(() => this.effectivePolicy().types.documentImages.mode);
     effectiveFaceMode = computed(() => this.effectivePolicy().types.faceImages.mode);
     effectiveOcrMode = computed(() => this.effectivePolicy().types.ocrExtraction.mode);
+    effectiveLivenessMode = computed(() => this.effectivePolicy().types.documentLiveness.mode);
     effectiveWebhookHoldHours = computed(() => this.effectivePolicy().webhookHoldHours);
-    effectiveFaceCompareBlocked = computed(() => faceImagesBlockCompare(this.effectivePolicy()));
+    effectiveAllowManualDelete = computed(() => this.effectivePolicy().allowManualDelete);
+    effectiveFaceHeldUntilHold = computed(() => faceImagesHeldUntilHold(this.effectivePolicy()));
 
     effectiveIsCustomized = computed(() => {
         const policy = this.effectivePolicy();
         return (
             this.effectiveDocMode() !== policy.mode ||
             this.effectiveFaceMode() !== policy.mode ||
-            this.effectiveOcrMode() !== policy.mode
+            this.effectiveOcrMode() !== policy.mode ||
+            this.effectiveLivenessMode() !== policy.mode
         );
     });
 

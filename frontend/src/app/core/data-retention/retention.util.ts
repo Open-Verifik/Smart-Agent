@@ -1,5 +1,6 @@
 import {
     CORE_TYPES,
+    REJECTED_RETENTION_TYPES,
     RETENTION_MODE_LABEL_KEYS,
     WEBHOOK_HOLD_MAX,
     WEBHOOK_HOLD_MIN,
@@ -29,6 +30,7 @@ export function defaultRetentionPolicy(): RetentionPolicy {
     return {
         mode: 'store',
         webhookHoldHours: WEBHOOK_HOLD_MIN,
+        allowManualDelete: true,
         types: mapTypes(null, () => ({ mode: 'store', retentionHours: null })),
     };
 }
@@ -138,9 +140,20 @@ export function setWebhookHold(policy: RetentionPolicy, hours: unknown): Retenti
 }
 
 /**
- * Reads a stored override. Unknown types and `allowManualDelete` are dropped.
+ * Turns manual erase on or off. The backend gates
+ * `DELETE /v2/document-validations/:id/files`, `DELETE /v2/app-registrations/:id/data`,
+ * and `POST /v2/data-retention/erase` on this flag.
+ * @param policy - Current policy.
+ * @param allowed - Whether an administrator may erase one record's stored files.
+ */
+export function setAllowManualDelete(policy: RetentionPolicy, allowed: boolean): RetentionPolicy {
+    return { ...policy, allowManualDelete: allowed };
+}
+
+/**
+ * Reads a stored override. Rejected types are dropped and are never written back.
  * Returns null when nothing was saved, so the caller can inherit the account policy.
- * Face images are not forced to any mode.
+ * Face images are not forced to any mode. A missing `allowManualDelete` stays allowed.
  * @param stored - `ClientSettings.data` or `Project.dataRetention`.
  */
 export function policyFromStored(stored: StoredRetention | null | undefined): RetentionPolicy | null {
@@ -158,6 +171,7 @@ export function policyFromStored(stored: StoredRetention | null | undefined): Re
     const next: RetentionPolicy = {
         mode: baseline,
         webhookHoldHours: clampWebhookHoldHours(stored.webhookHoldHours ?? WEBHOOK_HOLD_MIN),
+        allowManualDelete: stored.allowManualDelete !== false,
         types,
     };
     const shared = computeAllSameMode(next);
@@ -166,7 +180,7 @@ export function policyFromStored(stored: StoredRetention | null | undefined): Re
 }
 
 /**
- * Project `dataRetention` body. Omits unenforced types and manual-delete.
+ * Project `dataRetention` body. Includes only enforced types and the manual-erase flag.
  * @param policy - Edited policy. Pass null to clear the project override.
  */
 export function buildProjectRetentionOverride(policy: RetentionPolicy | null): StoredRetention | null {
@@ -175,6 +189,7 @@ export function buildProjectRetentionOverride(policy: RetentionPolicy | null): S
     return {
         mode: normalized.mode,
         webhookHoldHours: normalized.webhookHoldHours,
+        allowManualDelete: normalized.allowManualDelete,
         types: mapTypes(normalized, (_type, rule) => ({ ...rule })),
         updatedAt: new Date().toISOString(),
     };
@@ -215,18 +230,22 @@ export function getRetentionModeLabel(
 }
 
 /**
- * True when face images are set to `none`. That mode skips saving the selfie, so face comparison cannot run.
+ * True when face images are `none`. The selfie is kept until the webhook hold ends, so comparison can still run.
  * @param policy - Policy being edited or displayed.
  */
-export function faceImagesBlockCompare(policy: RetentionPolicy | null | undefined): boolean {
+export function faceImagesHeldUntilHold(policy: RetentionPolicy | null | undefined): boolean {
     return policy?.types.faceImages?.mode === 'none';
 }
 
 function normalizePolicy(policy: RetentionPolicy): RetentionPolicy {
     const types = mapTypes(policy, (_type, rule) => normalizeTypeRule(rule));
+    for (const rejected of REJECTED_RETENTION_TYPES) {
+        delete (types as Record<string, unknown>)[rejected];
+    }
     const next: RetentionPolicy = {
         mode: asMode(policy.mode) ?? 'store',
         webhookHoldHours: clampWebhookHoldHours(policy.webhookHoldHours),
+        allowManualDelete: policy.allowManualDelete !== false,
         types,
     };
     const shared = computeAllSameMode(next);
