@@ -15,7 +15,9 @@ import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
 import { finalize, forkJoin, Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { BarcodeValidationPanelComponent, type CedulaBarcodeValidation } from './barcode-validation-panel.component';
+import type { DocumentClassification } from '../smart-scan/smart-scan.types';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
 import {
@@ -244,6 +246,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _snackBar = inject(MatSnackBar);
     private _clipboard = inject(Clipboard);
+    private _authGate = inject(AuthRequiredGateService);
 
     private readonly _resendForbiddenStatuses = new Set(['COMPLETED_WITHOUT_KYC', 'COMPLETED', 'FAILED']);
     readonly printSectionId = 'enrollment-print-section';
@@ -263,6 +266,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     record = signal<AppRegistrationDetail | null>(null);
     ocrDisplayKeys = signal<string[]>([]);
     ocrData = signal<Record<string, unknown>>({});
+    showClassificationReason = false;
     activeStep = signal<StepId>('information');
     deleteLoading = signal(false);
     deleteErrorKey = signal<string | null>(null);
@@ -279,6 +283,15 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             return;
         }
 
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => this._loadRecordDetails(),
+        });
+    }
+
+    private _loadRecordDetails(): void {
+        this.loading.set(true);
+        this.errorKey.set(null);
         this._sub = forkJoin({
             project: this._projectsService.getProject(this.projectId),
             record: this._projectsService.getAppRegistration(this.recordId),
@@ -1073,6 +1086,28 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         return extraction?.barcodeValidation || null;
     }
 
+    /**
+     * Classifier result stored on the scan, when the API returned one.
+     * Shown as its own card so it is not dumped into the extracted-field grid.
+     */
+    documentClassification(): DocumentClassification | null {
+        const dv = this.record()?.documentValidation as Record<string, unknown> | null | undefined;
+        const ocr = dv?.['OCRExtraction'] as Record<string, unknown> | undefined;
+        const cls = (ocr?.['documentClassification'] ??
+            ocr?.['classification'] ??
+            dv?.['documentClassification'] ??
+            dv?.['classification']) as DocumentClassification | undefined;
+        if (!cls || typeof cls !== 'object') return null;
+        return cls;
+    }
+
+    /** Confidence of the current classification, as a 0–100 display percent. */
+    get classificationConfidencePercent(): number {
+        const cls = this.documentClassification();
+        if (!cls) return 0;
+        return scoreToPercent(normalizeUnitScore(cls.confidence));
+    }
+
     /** Translated label for a decoded failure reason. */
     failedBiometricReasonKey(attempt: FailedBiometricAttempt): string {
         return `smartEnrollProjects.recordDetail.biometricReason.${attempt.reasonKey}`;
@@ -1720,6 +1755,11 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         const keys = cleanOcrExtraction(copy);
         this.ocrData.set(copy);
         this.ocrDisplayKeys.set(keys);
+
+        const cls = this.documentClassification();
+        if (cls) {
+            this.showClassificationReason = !cls.isMatch;
+        }
     }
 
     private _setupScrollSpy(): void {

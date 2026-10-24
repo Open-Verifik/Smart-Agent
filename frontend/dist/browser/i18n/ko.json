@@ -3316,6 +3316,7 @@
             "backScan": "뒷면",
             "documentFace": "문서 사진",
             "documentLiveness": "문서 라이브니스",
+            "documentClassification": "문서 분류",
             "barcode": {
                 "title": "뒷면 바코드",
                 "attempts": "읽기 시도 {{count}}회",

@@ -16,6 +16,7 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { pickEnrollmentFaceMedia } from '../app-registration-record.utils';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type {
@@ -82,6 +83,7 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
     private _router = inject(Router);
     private _projectsService = inject(SmartEnrollProjectsService);
     private _sanitizer = inject(DomSanitizer);
+    private _authGate = inject(AuthRequiredGateService);
     private _searchDebounce: ReturnType<typeof setTimeout> | null = null;
 
     readonly statusOptions = STATUS_OPTIONS;
@@ -124,8 +126,13 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
             this._router.navigate(['/smart-enroll/projects']);
             return;
         }
-        this._loadProjectName();
-        this.fetchRecords();
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => {
+                this._loadProjectName();
+                this.fetchRecords();
+            },
+        });
     }
 
     ngOnDestroy(): void {

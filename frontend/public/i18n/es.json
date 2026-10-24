@@ -3754,6 +3754,7 @@
             "backScan": "Reverso",
             "documentFace": "Retrato del documento",
             "documentLiveness": "Vivacidad del documento",
+            "documentClassification": "Clasificación del documento",
             "livenessPassed": "Aprobado",
             "livenessFailed": "Rechazado",
             "ocr": "Datos extraídos",

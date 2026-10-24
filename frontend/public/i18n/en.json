@@ -4259,6 +4259,7 @@
             "backScan": "Back",
             "documentFace": "Document portrait",
             "documentLiveness": "Document liveness",
+            "documentClassification": "Document classification",
             "livenessPassed": "Passed",
             "livenessFailed": "Failed",
             "ocr": "Extracted data",
