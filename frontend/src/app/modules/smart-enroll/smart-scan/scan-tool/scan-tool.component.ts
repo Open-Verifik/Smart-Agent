@@ -24,6 +24,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SmartScanService } from '../smart-scan.service';
 import { ScanToolReviewStepComponent } from './scan-tool-review-step.component';
 import { ScanToolSmartCheckResultComponent } from './scan-tool-smart-check-result.component';
@@ -92,6 +93,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     private _transloco = inject(TranslocoService);
     private _dialog = inject(MatDialog);
     private _destroyRef = inject(DestroyRef);
+    private _authGate = inject(AuthRequiredGateService);
 
     step: ScanToolStep = 'select';
     /** Review or upload requested in the URL before the document type has loaded. */
@@ -146,6 +148,13 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     private readonly _flowStepOrder: ScanToolStep[] = ['select', 'preview', 'upload', 'results'];
 
     ngOnInit() {
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => this._initScanTool(),
+        });
+    }
+
+    private _initScanTool(): void {
         this._scanService.resetScanState();
         this._scanService.documentTypes.set([]);
         this.requestedCode = (this._route.snapshot.queryParamMap.get('documentType') || '').trim();

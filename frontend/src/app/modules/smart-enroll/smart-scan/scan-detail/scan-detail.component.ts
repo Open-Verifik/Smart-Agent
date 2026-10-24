@@ -16,6 +16,7 @@ import {
     BarcodeValidationPanelComponent,
     type CedulaBarcodeValidation,
 } from '../../projects/barcode-validation-panel.component';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
 import { ScanDeleteConfirmDialogComponent } from '../scan-delete-confirm-dialog.component';
 import { ScanToolSmartCheckResultComponent } from '../scan-tool/scan-tool-smart-check-result.component';
@@ -57,6 +58,7 @@ export class ScanDetailComponent implements OnInit {
     private _transloco = inject(TranslocoService);
     private _highlightService = inject(FuseHighlightService);
     private _domSanitizer = inject(DomSanitizer);
+    private _authGate = inject(AuthRequiredGateService);
 
     scan: DocumentValidation | null = null;
     documentType: DocumentType | null = null;
@@ -77,6 +79,15 @@ export class ScanDetailComponent implements OnInit {
             return;
         }
 
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => this._loadScanDetail(id),
+        });
+    }
+
+    private _loadScanDetail(id: string): void {
+        this.loading = true;
+        this.errorMessage = null;
         this._scanService.getScan(id).subscribe({
             next: (res) => {
                 this.scan = res.data;

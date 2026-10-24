@@ -3,6 +3,7 @@ import {
     buildFailedBiometricAttempts,
     buildManualVerificationReasons,
     canRerunCompare,
+    cleanOcrExtraction,
     documentFaceReasonKey,
     documentFailureReasonKey,
     livenessAttemptUsage,
@@ -174,5 +175,45 @@ describe('livenessScoreBand', () => {
     it('gives no band when either number is unknown', () => {
         expect(livenessScoreBand(null, 65)).toBeNull();
         expect(livenessScoreBand(58, null)).toBeNull();
+    });
+});
+
+describe('cleanOcrExtraction', () => {
+    it('excludes documentClassification, barcodeValidation, and non-primitive objects from the OCR grid', () => {
+        const rawOcr = {
+            fullName: 'Sample Person',
+            documentNumber: '1023942104',
+            documentType: 'DRCC',
+            dateOfBirth: '07-05-1995',
+            documentClassification: {
+                requestedDocumentType: 'DRCC',
+                detectedDocumentType: 'DRCC',
+                detectedDocumentName: 'Sample licence',
+                isMatch: true,
+                confidence: 0.95,
+                reason: 'Header matches the requested type',
+            },
+            barcodeValidation: {
+                verdict: 'confirmed',
+            },
+            nestedObject: {
+                something: 'internal',
+            },
+        };
+
+        const keys = cleanOcrExtraction(rawOcr as Record<string, unknown>);
+
+        expect(keys).not.toContain('Document Classification');
+        expect(keys).not.toContain('documentClassification');
+        expect(keys).not.toContain('Barcode Validation');
+        expect(keys).not.toContain('barcodeValidation');
+        expect(keys).not.toContain('Nested Object');
+        expect(keys).not.toContain('nestedObject');
+        expect(rawOcr['documentClassification']).toBeUndefined();
+        expect(rawOcr['barcodeValidation']).toBeUndefined();
+        expect(rawOcr['nestedObject']).toBeUndefined();
+        expect(keys).toContain('Full Name');
+        expect(keys).toContain('Document Number');
+        expect(rawOcr['Full Name']).toBe('Sample Person');
     });
 });

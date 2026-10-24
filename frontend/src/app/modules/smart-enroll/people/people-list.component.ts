@@ -19,6 +19,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { DateTime } from 'luxon';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
@@ -65,6 +66,7 @@ export class PeopleListComponent implements OnInit, OnDestroy {
     private _snackBar = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private _authGate = inject(AuthRequiredGateService);
 
     private _minScoreChange$ = new Subject<number>();
     private _destroy$ = new Subject<void>();
@@ -82,9 +84,14 @@ export class PeopleListComponent implements OnInit, OnDestroy {
     readonly projectType = SMART_ENROLL_PROJECT_TYPE;
 
     ngOnInit(): void {
-        this._fetchRecords();
-        this._minScoreChange$.pipe(debounceTime(300), takeUntil(this._destroy$)).subscribe(() => {
-            if (this.selectedImagePreview) this._fetchRecords();
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => {
+                this._fetchRecords();
+                this._minScoreChange$.pipe(debounceTime(300), takeUntil(this._destroy$)).subscribe(() => {
+                    if (this.selectedImagePreview) this._fetchRecords();
+                });
+            },
         });
     }
 
@@ -140,27 +147,32 @@ export class PeopleListComponent implements OnInit, OnDestroy {
     }
 
     createPerson(): void {
-        const dialogRef = this._dialog.open(EditPersonDialogComponent, {
-            width: '640px',
-            maxWidth: '94vw',
-            panelClass: EDIT_PERSON_DIALOG_PANEL_CLASS,
-            data: { mode: 'create' },
-        });
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => {
+                const dialogRef = this._dialog.open(EditPersonDialogComponent, {
+                    width: '640px',
+                    maxWidth: '94vw',
+                    panelClass: EDIT_PERSON_DIALOG_PANEL_CLASS,
+                    data: { mode: 'create' },
+                });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            if (!result || result.action !== 'create') return;
-            this.loading.set(true);
+                dialogRef.afterClosed().subscribe((result) => {
+                    if (!result || result.action !== 'create') return;
+                    this.loading.set(true);
 
-            const request$ =
-                result.method === 'liveness'
-                    ? this._peopleService.createPersonWithLiveness(result.person)
-                    : this._peopleService.createPerson(result.person);
+                    const request$ =
+                        result.method === 'liveness'
+                            ? this._peopleService.createPersonWithLiveness(result.person)
+                            : this._peopleService.createPerson(result.person);
 
-            request$.subscribe({
-                next: () => this._fetchRecords(),
-                error: (err) => this._showCreateError(err, result.method === 'liveness'),
-                complete: () => this.loading.set(false),
-            });
+                    request$.subscribe({
+                        next: () => this._fetchRecords(),
+                        error: (err) => this._showCreateError(err, result.method === 'liveness'),
+                        complete: () => this.loading.set(false),
+                    });
+                });
+            },
         });
     }
 

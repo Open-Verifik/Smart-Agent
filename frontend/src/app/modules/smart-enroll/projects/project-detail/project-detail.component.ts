@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { documentFailureReasonKey, livenessFailureReasonKey } from '../app-registration-record.utils';
 import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
@@ -104,6 +105,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private _projectsService = inject(SmartEnrollProjectsService);
     private _clipboard = inject(Clipboard);
     private _transloco = inject(TranslocoService);
+    private _authGate = inject(AuthRequiredGateService);
 
     private _sectionSub?: Subscription;
 
@@ -362,6 +364,13 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             .pipe(map((q) => q.get('section')))
             .subscribe((s) => this.section.set(s));
 
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => this._loadProject(id),
+        });
+    }
+
+    private _loadProject(id: string): void {
         this._projectsService.getProjectFunnel(id).subscribe((funnel) => this.funnel.set(funnel));
 
         this._projectsService.getProject(id).subscribe({

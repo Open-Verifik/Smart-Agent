@@ -3275,6 +3275,7 @@
             "backScan": "Verso",
             "documentFace": "Portrait du document",
             "documentLiveness": "Vivacité du document",
+            "documentClassification": "Classification du document",
             "barcode": {
                 "title": "Code-barres du verso",
                 "attempts": "{{count}} tentatives de lecture",

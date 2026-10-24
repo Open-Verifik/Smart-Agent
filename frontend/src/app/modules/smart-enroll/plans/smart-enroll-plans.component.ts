@@ -153,8 +153,8 @@ export class SmartEnrollPlansComponent implements OnInit {
     ngOnInit(): void {
         this.subscribingToPlan = false;
         this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
             onAuthenticated: () => this._runPlansEntryAfterAuthGate(),
-            panelClass: 'auth-required-dialog',
         });
     }
 
