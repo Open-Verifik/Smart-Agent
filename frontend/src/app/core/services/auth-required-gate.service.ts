@@ -11,7 +11,6 @@ export interface RunWithAuthOrDialogOptions {
     onAuthenticated: () => void;
     dialogData?: Partial<AuthRequiredDialogData>;
     panelClass?: string;
-    directAuthModal?: boolean;
 }
 
 @Injectable({
@@ -25,23 +24,6 @@ export class AuthRequiredGateService {
     runWithAuthOrDialog(options: RunWithAuthOrDialogOptions): void {
         if (this._sessionService.hasValidAuthentication()) {
             options.onAuthenticated();
-            return;
-        }
-
-        if (options.directAuthModal) {
-            this._dialog
-                .open(AuthModalComponent, {
-                    panelClass: 'auth-modal-dialog',
-                    width: '400px',
-                })
-                .afterClosed()
-                .subscribe(() => {
-                    if (this._sessionService.hasValidAuthentication()) {
-                        options.onAuthenticated();
-                    } else {
-                        this._router.navigate(['/home']);
-                    }
-                });
             return;
         }
 

@@ -44,19 +44,6 @@
                                 {{ 'smartScan.viewEnrollmentRecord' | transloco }}
                             </a>
                         }
-                        @if (canDeleteFromStorage) {
-                            <button
-                                mat-stroked-button
-                                color="warn"
-                                type="button"
-                                class="rounded-full !border-red-300 !text-red-700 hover:!bg-red-50 dark:!border-red-800 dark:!text-red-400 dark:hover:!bg-red-950/30"
-                                (click)="confirmDelete()"
-                                [disabled]="deleteLoading"
-                            >
-                                <mat-icon class="icon-size-4 mr-1 text-red-600 dark:text-red-400">delete_outline</mat-icon>
-                                {{ 'smartScan.deleteFromStorage' | transloco }}
-                            </button>
-                        }
                         <button mat-flat-button color="primary" type="button" class="rounded-full" (click)="scanAnother()">
                             {{ 'smartScan.scanAnotherSame' | transloco: { code: scan.documentType } }}
                         </button>

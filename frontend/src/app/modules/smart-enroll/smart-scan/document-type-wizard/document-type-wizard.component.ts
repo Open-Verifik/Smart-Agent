@@ -13,7 +13,6 @@ import { DocumentTypeWizardFieldsComponent } from './document-type-wizard-fields
 import { DocumentTypeWizardSidesComponent } from './document-type-wizard-sides.component';
 import { DocumentTypeWizardSmartCheckComponent } from './document-type-wizard-smart-check.component';
 import { DOCUMENT_TYPE_WIZARD } from './document-type-wizard.token';
-import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 
 @Component({
     selector: 'document-type-wizard',
@@ -42,7 +41,6 @@ export class DocumentTypeWizardComponent implements OnInit {
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
-    private _authGate = inject(AuthRequiredGateService);
     /** True after replaceState swaps /document-type/new for /document-type/:id without remounting. */
     private urlRewritten = false;
 
@@ -88,13 +86,6 @@ export class DocumentTypeWizardComponent implements OnInit {
     extractionRows: Array<{ key: string; value: string }> = [];
 
     ngOnInit() {
-        this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
-            onAuthenticated: () => this._initWizard(),
-        });
-    }
-
-    private _initWizard(): void {
         const id = this._route.snapshot.paramMap.get('id');
         if (id) {
             this.openedAsEdit = true;

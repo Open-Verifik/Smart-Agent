@@ -3,7 +3,6 @@ import {
     isPurged,
     isNoStorage,
     isEphemeral,
-    canDeleteFromStorage,
     getRetentionBadge,
 } from './smart-scan-retention.util';
 import type { DocumentValidationRetention } from './smart-scan.types';
@@ -54,18 +53,6 @@ describe('smart-scan-retention.util', () => {
         it('should return false for store or none', () => {
             expect(isEphemeral({ mode: 'store' })).toBe(false);
             expect(isEphemeral({ mode: 'none' })).toBe(false);
-        });
-    });
-
-    describe('canDeleteFromStorage', () => {
-        it('should return true when url exists and record is not purged', () => {
-            expect(canDeleteFromStorage(true, { mode: 'store' })).toBe(true);
-            expect(canDeleteFromStorage(true, null)).toBe(true);
-        });
-
-        it('should return false when url is missing or already purged', () => {
-            expect(canDeleteFromStorage(false, { mode: 'store' })).toBe(false);
-            expect(canDeleteFromStorage(true, { mode: 'store', purgedAt: '2026-10-23T12:00:00Z' })).toBe(false);
         });
     });
 

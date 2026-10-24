@@ -1,121 +1,47 @@
 import { describe, expect, it } from 'vitest';
-import type { ProjectDataRetentionOverride } from '../../../smart-enroll/projects/smart-enroll-projects.types';
+import { buildProjectRetentionOverride, defaultRetentionPolicy, policyFromStored, setTypeRule } from '../../../../core/data-retention/retention.util';
 import type { HumanAuthnProject } from '../human-authn-projects.service';
 
-describe('HumanAuthnProjectDetail logic and previews', () => {
-    it('should always lock faceImages to none for HumanAuthn', () => {
-        let baselineMode: 'store' | 'ephemeral' | 'none' = 'store';
-        let docMode = baselineMode;
-        let ocrMode = baselineMode;
-        let livenessMode = baselineMode;
-        const faceMode = 'none'; // Fixed for HumanAuthn zero-knowledge architecture
-
-        const setGlobalMode = (mode: 'store' | 'ephemeral' | 'none') => {
-            baselineMode = mode;
-            docMode = mode;
-            ocrMode = mode;
-            livenessMode = mode;
-            // faceMode remains locked to none
-        };
-
-        setGlobalMode('ephemeral');
-        expect(baselineMode).toBe('ephemeral');
-        expect(docMode).toBe('ephemeral');
-        expect(ocrMode).toBe('ephemeral');
-        expect(livenessMode).toBe('ephemeral');
-        expect(faceMode).toBe('none');
-
-        setGlobalMode('store');
-        expect(docMode).toBe('store');
-        expect(faceMode).toBe('none');
+describe('Human Auth retention override', () => {
+    it('does not force face images to none', () => {
+        const policy = setTypeRule(defaultRetentionPolicy(), 'faceImages', { mode: 'store', retentionHours: null });
+        const payload = buildProjectRetentionOverride(policy);
+        expect(payload?.types?.faceImages.mode).toBe('store');
+        expect(payload?.types?.faceImages.mode).not.toBe('none');
     });
 
-    it('should correctly format payload for HumanAuthn project retention override', () => {
-        const payload: ProjectDataRetentionOverride = {
+    it('keeps a saved ephemeral face mode so comparison can run during the hold', () => {
+        const stored = policyFromStored({
             mode: 'ephemeral',
-            webhookHoldHours: 24,
-            allowManualDelete: true,
+            webhookHoldHours: 48,
             types: {
-                documentImages: { mode: 'ephemeral', retentionHours: null },
-                ocrExtraction: { mode: 'ephemeral', retentionHours: null },
-                faceImages: { mode: 'none', retentionHours: null }, // Locked
-                documentLiveness: { mode: 'ephemeral', retentionHours: null },
+                documentImages: { mode: 'ephemeral' },
+                ocrExtraction: { mode: 'ephemeral' },
+                faceImages: { mode: 'ephemeral' },
             },
-        };
-
-        expect(payload.mode).toBe('ephemeral');
-        expect(payload.webhookHoldHours).toBe(24);
-        expect(payload.allowManualDelete).toBe(true);
-        expect(payload.types?.documentImages?.mode).toBe('ephemeral');
-        expect(payload.types?.ocrExtraction?.mode).toBe('ephemeral');
-        expect(payload.types?.faceImages?.mode).toBe('none');
-        expect(payload.types?.documentLiveness?.mode).toBe('ephemeral');
+        });
+        expect(stored?.types.faceImages.mode).toBe('ephemeral');
+        expect(stored?.webhookHoldHours).toBe(48);
     });
 
-    it('should accurately compute preview models from mock HumanAuthn project', () => {
+    it('still reads the rest of a Human Auth project preview', () => {
         const project: HumanAuthnProject = {
             _id: '6aa49395c21ba7cd48d5e820',
-            name: 'Production HumanAuthn Flow',
+            name: 'Production Human Auth flow',
             status: 'active',
             target: 'personal',
-            branding: {
-                titleColor: '#0f172a',
-                buttonColor: '#2563eb',
-                backgroundColor: '#f8fafc',
-            },
             projectFlows: [
                 {
-                    _id: 'flow-123',
                     type: 'humanAuthn',
                     status: 'active',
-                    steps: {
-                        document: 'mandatory',
-                        humanAuthn: 'mandatory',
-                    },
-                    humanAuthn: {
-                        mode: 'active_user',
-                        tolerance: 'HARDENED',
-                        compareMinScore: 0.88,
-                        outputFormat: 'qrCode',
-                    },
-                    storage: {
-                        provider: 'ipfs',
-                    },
-                    documents: {
-                        attemptLimit: 3,
-                        verificationMethods: ['scan'],
-                        criminalHistoryVerification: true,
-                    },
-                    signUpForm: {
-                        fullName: true,
-                        fullNameStyle: 'together',
-                        email: true,
-                        emailGateway: 'mailgun',
-                    },
+                    steps: { document: 'mandatory', humanAuthn: 'mandatory' },
+                    humanAuthn: { mode: 'active_user', compareMinScore: 0.88 },
+                    storage: { provider: 'ipfs' },
                 },
             ],
-            dataRetention: {
-                mode: 'ephemeral',
-                webhookHoldHours: 48,
-                allowManualDelete: true,
-                types: {
-                    documentImages: { mode: 'ephemeral' },
-                    ocrExtraction: { mode: 'ephemeral' },
-                    faceImages: { mode: 'none' },
-                    documentLiveness: { mode: 'ephemeral' },
-                },
-            },
         };
-
         const flow = project.projectFlows![0];
-        const compareScorePct = Math.round((flow.humanAuthn?.compareMinScore ?? 0.85) * 100);
-
-        expect(flow.type).toBe('humanAuthn');
-        expect(flow.steps?.document).toBe('mandatory');
-        expect(flow.humanAuthn?.mode).toBe('active_user');
-        expect(compareScorePct).toBe(88);
-        expect(flow.storage?.provider).toBe('ipfs');
-        expect(project.dataRetention?.types?.faceImages?.mode).toBe('none');
-        expect(project.dataRetention?.types?.documentImages?.mode).toBe('ephemeral');
+        expect(Math.round((flow.humanAuthn?.compareMinScore ?? 0) * 100)).toBe(88);
+        expect(policyFromStored(project.dataRetention)).toBeNull();
     });
 });

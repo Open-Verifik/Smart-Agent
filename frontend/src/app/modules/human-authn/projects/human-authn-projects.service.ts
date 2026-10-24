@@ -200,6 +200,12 @@ export class HumanAuthnProjectsService {
             .pipe(map((res) => res?.data ?? []));
     }
 
+    /**
+     * Loads one Human Auth project with its flows.
+     * @param id - Project id.
+     * @returns The project, or null when the API returns an empty body.
+     * @throws The HTTP error when the request fails. The caller shows the snackbar.
+     */
     getProject(id: string): Observable<HumanAuthnProject | null> {
         return this._http
             .get<{ data?: HumanAuthnProject }>(`${this.apiUrl}/v3/projects/${id}`, {
@@ -211,13 +217,17 @@ export class HumanAuthnProjectsService {
             })
             .pipe(
                 map((res) => res?.data ?? null),
-                catchError((err) => {
-                    console.error('Error loading HumanAuthn project:', err);
-                    return throwError(() => err);
-                })
+                catchError((err) => throwError(() => err))
             );
     }
 
+    /**
+     * Updates a Human Auth project. Callers pass only the fields that changed.
+     * @param id - Project id.
+     * @param data - Partial project body, for example `{ dataRetention }`.
+     * @returns The updated project.
+     * @throws The HTTP error when the request fails.
+     */
     updateProject(id: string, data: Record<string, unknown>): Observable<{ data: HumanAuthnProject }> {
         return this._http
             .put<{ data: HumanAuthnProject }>(
@@ -229,12 +239,7 @@ export class HumanAuthnProjectsService {
                 },
                 { headers: this.authHeaders }
             )
-            .pipe(
-                catchError((err) => {
-                    console.error('Error updating HumanAuthn project:', err);
-                    return throwError(() => err);
-                })
-            );
+            .pipe(catchError((err) => throwError(() => err)));
     }
 }
 

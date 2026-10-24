@@ -28,7 +28,6 @@ import { Observable, Subject, of, takeUntil, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { FuseConfirmationService } from '@fuse/services/confirmation';
-import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 
 import { SmartAccessLeaveDialogComponent, type SmartAccessLeaveAction } from 'app/modules/smart-access/projects/setup/leave-dialog/smart-access-leave-dialog.component';
 import { draftProjectName, type WizardProgress } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
@@ -137,7 +136,6 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     private _transloco = inject(TranslocoService);
     private _confirm = inject(FuseConfirmationService);
     private _countryService = inject(CountryService);
-    private _authGate = inject(AuthRequiredGateService);
 
     private _unsub$ = new Subject<void>();
     private _DEBUG = false;
@@ -164,10 +162,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
-            onAuthenticated: () => this._initSubscribers(),
-        });
+        this._initSubscribers();
     }
 
     ngOnDestroy(): void {

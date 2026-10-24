@@ -67,8 +67,8 @@ export class ProjectListComponent implements OnInit {
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
             onAuthenticated: () => this._loadProjectsAfterAuthGate(),
+            panelClass: 'auth-required-dialog',
         });
     }
 

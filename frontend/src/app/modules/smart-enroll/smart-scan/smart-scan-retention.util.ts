@@ -19,13 +19,6 @@ export const isEphemeral = (retention?: DocumentValidationRetention | null): boo
     return retention?.mode === 'ephemeral' && !retention?.purgedAt;
 };
 
-export const canDeleteFromStorage = (
-    hasUrl: boolean,
-    retention?: DocumentValidationRetention | null
-): boolean => {
-    return Boolean(hasUrl && !retention?.purgedAt);
-};
-
 export const getRetentionBadge = (
     retention?: DocumentValidationRetention | null
 ): RetentionBadgeInfo | null => {

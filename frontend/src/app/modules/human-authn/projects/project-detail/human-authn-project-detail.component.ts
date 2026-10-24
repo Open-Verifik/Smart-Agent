@@ -17,6 +17,15 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import { DateTime } from 'luxon';
 
+import { RetentionPolicyFormComponent } from 'app/core/data-retention/retention-policy-form.component';
+import type { RetentionPolicy } from 'app/core/data-retention/retention.model';
+import {
+    buildProjectRetentionOverride,
+    defaultRetentionPolicy,
+    faceImagesBlockCompare,
+    getRetentionModeLabel,
+    policyFromStored,
+} from 'app/core/data-retention/retention.util';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import {
     isIncompleteSmartAccessWizard,
@@ -27,7 +36,6 @@ import type {
     HumanAuthnProjectFlow,
 } from '../human-authn-projects.service';
 import { HumanAuthnProjectsService } from '../human-authn-projects.service';
-import type { ProjectDataRetentionOverride } from '../../../smart-enroll/projects/smart-enroll-projects.types';
 
 export interface HumanAuthnSwatchEntry {
     key: string;
@@ -54,6 +62,7 @@ export interface HumanAuthnSwatchEntry {
         MatSnackBarModule,
         MatTooltipModule,
         TranslocoModule,
+        RetentionPolicyFormComponent,
     ],
     templateUrl: './human-authn-project-detail.component.html',
     styleUrls: ['./human-authn-project-detail.component.scss'],
@@ -205,67 +214,27 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
         };
     });
 
-    // --- Section 4b: Data Retention & Privacy ---
     editingRetention = signal(false);
     savingRetention = signal(false);
-
     retentionOverrideEnabled = signal(false);
-    retentionFormGlobalMode = signal<'store' | 'ephemeral' | 'none'>('store');
-    retentionFormDocMode = signal<'store' | 'ephemeral' | 'none'>('store');
-    // For HumanAuthn, biometric templates are mathematically zero-storage
-    retentionFormFaceMode = signal<'store' | 'ephemeral' | 'none'>('none');
-    retentionFormOcrMode = signal<'store' | 'ephemeral' | 'none'>('store');
-    retentionFormLivenessMode = signal<'store' | 'ephemeral' | 'none'>('store');
-    retentionFormWebhookHold = signal<number>(24);
-    retentionFormAllowManualDelete = signal(true);
+    retentionPolicy = signal<RetentionPolicy>(defaultRetentionPolicy());
 
-    retentionIsCustomized = computed(() => {
-        const m = this.retentionFormGlobalMode();
+    /** Saved override, or the account default when this project does not set one. */
+    effectivePolicy = computed(() => policyFromStored(this.project()?.dataRetention) ?? defaultRetentionPolicy());
+    effectiveRetentionIsOverride = computed(() => policyFromStored(this.project()?.dataRetention) != null);
+    effectiveDocMode = computed(() => this.effectivePolicy().types.documentImages.mode);
+    /** Face images follow the saved mode. `none` is not forced, because that skips the selfie and blocks face comparison. */
+    effectiveFaceMode = computed(() => this.effectivePolicy().types.faceImages.mode);
+    effectiveOcrMode = computed(() => this.effectivePolicy().types.ocrExtraction.mode);
+    effectiveWebhookHoldHours = computed(() => this.effectivePolicy().webhookHoldHours);
+    effectiveFaceCompareBlocked = computed(() => faceImagesBlockCompare(this.effectivePolicy()));
+    effectiveIsCustomized = computed(() => {
+        const policy = this.effectivePolicy();
         return (
-            this.retentionFormDocMode() !== m ||
-            this.retentionFormOcrMode() !== m ||
-            this.retentionFormLivenessMode() !== m
+            this.effectiveDocMode() !== policy.mode ||
+            this.effectiveFaceMode() !== policy.mode ||
+            this.effectiveOcrMode() !== policy.mode
         );
-    });
-
-    effectiveRetentionIsOverride = computed(() => {
-        const r = this.project()?.dataRetention;
-        return !!(r && (r.mode || r.types));
-    });
-
-    effectiveDocMode = computed<'store' | 'ephemeral' | 'none'>(() => {
-        const r = this.project()?.dataRetention;
-        return r?.types?.documentImages?.mode || r?.mode || 'store';
-    });
-
-    /** Biometric face templates are permanently none in HumanAuthn */
-    effectiveFaceMode = computed<'none'>(() => 'none');
-
-    effectiveOcrMode = computed<'store' | 'ephemeral' | 'none'>(() => {
-        const r = this.project()?.dataRetention;
-        return r?.types?.ocrExtraction?.mode || r?.mode || 'store';
-    });
-
-    effectiveLivenessMode = computed<'store' | 'ephemeral' | 'none'>(() => {
-        const r = this.project()?.dataRetention;
-        return r?.types?.documentLiveness?.mode || r?.mode || 'store';
-    });
-
-    effectiveWebhookHoldHours = computed<number>(() => {
-        const r = this.project()?.dataRetention;
-        return r?.webhookHoldHours || 24;
-    });
-
-    effectiveAllowManualDelete = computed<boolean>(() => {
-        const r = this.project()?.dataRetention;
-        return r?.allowManualDelete !== false;
-    });
-
-    effectiveIsCustomized = computed<boolean>(() => {
-        const d = this.effectiveDocMode();
-        const o = this.effectiveOcrMode();
-        const l = this.effectiveLivenessMode();
-        return !(d === o && o === l);
     });
 
     ngOnInit(): void {
@@ -297,10 +266,12 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
                     }
                     this.loading.set(false);
                 },
-                error: (err) => {
-                    console.error('Error fetching HumanAuthn project:', err);
+                error: () => {
                     this.errorKey.set('humanAuthnProjects.loadError');
                     this.loading.set(false);
+                    this._snackBar.open(this._transloco.translate('humanAuthnProjects.loadError'), undefined, {
+                        duration: 4000,
+                    });
                 },
             });
         });
@@ -343,108 +314,61 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
         return 'bg-rose-500';
     }
 
-    // --- Retention Edit Handlers ---
+    /** Opens the override editor. Face images keep their saved mode. */
     startEditingRetention(): void {
-        const current = this.project()?.dataRetention;
-        if (current && (current.mode || current.types)) {
-            this.retentionOverrideEnabled.set(true);
-            const m = current.mode || 'store';
-            this.retentionFormGlobalMode.set(m);
-            this.retentionFormDocMode.set(current.types?.documentImages?.mode || m);
-            this.retentionFormFaceMode.set('none'); // Always zero-storage
-            this.retentionFormOcrMode.set(current.types?.ocrExtraction?.mode || m);
-            this.retentionFormLivenessMode.set(current.types?.documentLiveness?.mode || m);
-            this.retentionFormWebhookHold.set(current.webhookHoldHours ?? 24);
-            this.retentionFormAllowManualDelete.set(current.allowManualDelete !== false);
-        } else {
-            this.retentionOverrideEnabled.set(false);
-            this.retentionFormGlobalMode.set('store');
-            this.retentionFormDocMode.set('store');
-            this.retentionFormFaceMode.set('none');
-            this.retentionFormOcrMode.set('store');
-            this.retentionFormLivenessMode.set('store');
-            this.retentionFormWebhookHold.set(24);
-            this.retentionFormAllowManualDelete.set(true);
-        }
+        const saved = policyFromStored(this.project()?.dataRetention);
+        this.retentionOverrideEnabled.set(saved != null);
+        this.retentionPolicy.set(saved ?? defaultRetentionPolicy());
         this.editingRetention.set(true);
     }
 
+    /** Closes the editor without writing. */
     cancelEditingRetention(): void {
         this.editingRetention.set(false);
     }
 
-    setProjectRetentionGlobalMode(mode: 'store' | 'ephemeral' | 'none'): void {
-        this.retentionFormGlobalMode.set(mode);
-        this.retentionFormDocMode.set(mode);
-        this.retentionFormOcrMode.set(mode);
-        this.retentionFormLivenessMode.set(mode);
-        this.retentionFormFaceMode.set('none'); // Always zero-storage
+    /** Stores the shared form's latest policy. */
+    onRetentionPolicyChange(policy: RetentionPolicy): void {
+        this.retentionPolicy.set(policy);
     }
 
-    onProjectGranularRuleChange(): void {
-        const d = this.retentionFormDocMode();
-        const o = this.retentionFormOcrMode();
-        const l = this.retentionFormLivenessMode();
-        if (d === o && o === l) {
-            this.retentionFormGlobalMode.set(d);
-        }
+    /** Label for a retention mode. */
+    getRetentionModeLabel(mode?: string | null): string {
+        return getRetentionModeLabel(this._transloco.translate.bind(this._transloco), mode);
     }
 
+    /**
+     * Saves the project override, or clears it.
+     * Face images are whatever the form says. They are not forced to `none`.
+     */
     saveRetention(): void {
-        const p = this.project();
-        if (!p?._id || this.savingRetention()) return;
+        const project = this.project();
+        if (!project?._id || this.savingRetention()) return;
         this.savingRetention.set(true);
+        const payload = this.retentionOverrideEnabled() ? buildProjectRetentionOverride(this.retentionPolicy()) : null;
 
-        const payload: ProjectDataRetentionOverride | null = this.retentionOverrideEnabled()
-            ? {
-                  mode: this.retentionFormGlobalMode(),
-                  webhookHoldHours: Math.max(1, Math.min(72, Number(this.retentionFormWebhookHold()) || 24)),
-                  allowManualDelete: this.retentionFormAllowManualDelete(),
-                  types: {
-                      documentImages: { mode: this.retentionFormDocMode() },
-                      faceImages: { mode: 'none' },
-                      ocrExtraction: { mode: this.retentionFormOcrMode() },
-                      documentLiveness: { mode: this.retentionFormLivenessMode() },
-                  },
-                  updatedAt: new Date(),
-              }
-            : null;
-
-        this._projectsService.updateProject(p._id, { dataRetention: payload }).subscribe({
+        this._projectsService.updateProject(project._id, { dataRetention: payload }).subscribe({
             next: (res) => {
                 const updated = res?.data;
                 if (updated) {
                     this.project.set({
                         ...this.project()!,
                         ...updated,
-                        dataRetention: updated.dataRetention ?? payload,
+                        dataRetention: (updated.dataRetention as RetentionPolicy | null | undefined) ?? payload,
                     });
                 }
                 this.savingRetention.set(false);
                 this.editingRetention.set(false);
-                this._snackBar.open(
-                    this._transloco.translate('smartEnrollProjects.detail.retention.saveSuccess'),
-                    'OK',
-                    { duration: 3000 }
-                );
+                this._snackBar.open(this._transloco.translate('smartEnrollProjects.detail.retention.savedSuccess'), undefined, {
+                    duration: 3000,
+                });
             },
-            error: (err) => {
-                console.error('[HumanAuthnProjectDetail] Failed to update dataRetention:', err);
+            error: () => {
                 this.savingRetention.set(false);
-                this._snackBar.open(
-                    this._transloco.translate('smartEnrollProjects.detail.retention.saveError'),
-                    'OK',
-                    { duration: 4000 }
-                );
+                this._snackBar.open(this._transloco.translate('smartEnrollProjects.detail.retention.saveError'), undefined, {
+                    duration: 4000,
+                });
             },
         });
-    }
-
-    getRetentionModeLabel(mode?: string | null): string {
-        if (!mode) return this._transloco.translate('smartEnrollProjects.detail.retention.accountDefault');
-        if (mode === 'none') return this._transloco.translate('smartEnrollProjects.detail.retention.modeNone');
-        if (mode === 'ephemeral') return this._transloco.translate('smartEnrollProjects.detail.retention.modeEphemeral');
-        if (mode === 'store') return this._transloco.translate('smartEnrollProjects.detail.retention.modeStore');
-        return mode;
     }
 }

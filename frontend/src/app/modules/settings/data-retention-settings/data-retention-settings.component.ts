@@ -12,51 +12,37 @@ import {
     SimpleChanges,
     ViewEncapsulation,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
-import { ClientSettings, SettingsService } from '../settings.service';
+import { RetentionPolicyFormComponent } from 'app/core/data-retention/retention-policy-form.component';
+import type { RetentionPolicy } from 'app/core/data-retention/retention.model';
+import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
+import { defaultRetentionPolicy, policyFromStored, type StoredRetention } from 'app/core/data-retention/retention.util';
+import { SettingsService } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
-import {
-    ClientDataRetentionConfig,
-    DEFAULT_CONFIG,
-    RetentionRuleConfig,
-    computeAllSameMode,
-    computeIsCustomized,
-    syncGlobalToGranular,
-} from './data-retention-settings.utils';
 
-export type { RetentionRuleConfig, ClientDataRetentionConfig };
-export { DEFAULT_CONFIG };
-
+/**
+ * Account-level data retention editor.
+ * Loads `ClientSettings.data` and saves only `{ client, data }`.
+ */
 @Component({
     selector: 'app-data-retention-settings',
     standalone: true,
     imports: [
         CommonModule,
-        FormsModule,
         MatButtonModule,
         MatIconModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatSlideToggleModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
-        MatTooltipModule,
         TranslocoModule,
         SettingsBusinessAccountEmptyStateComponent,
+        RetentionPolicyFormComponent,
     ],
     templateUrl: './data-retention-settings.component.html',
     styleUrl: './data-retention-settings.component.scss',
@@ -72,12 +58,11 @@ export class DataRetentionSettingsComponent implements OnInit, OnChanges, OnDest
     loading = true;
     saving = false;
     loaded = false;
-    clientSettings: (ClientSettings & { data?: ClientDataRetentionConfig }) | null = null;
-
-    config: ClientDataRetentionConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+    policy: RetentionPolicy = defaultRetentionPolicy();
 
     constructor(
         private _settingsService: SettingsService,
+        private _retentionService: DataRetentionService,
         private _snackBar: MatSnackBar,
         private _transloco: TranslocoService,
         private _cdr: ChangeDetectorRef
@@ -98,27 +83,12 @@ export class DataRetentionSettingsComponent implements OnInit, OnChanges, OnDest
         this._destroy$.complete();
     }
 
+    /** Business client id for the signed-in user, when the account is linked. */
     get userClientId(): string | undefined {
         return getBusinessUserClientId(this.user);
     }
 
-    get isCustomized(): boolean {
-        return computeIsCustomized(this.config);
-    }
-
-    setGlobalMode(mode: 'store' | 'ephemeral' | 'none'): void {
-        this.config = syncGlobalToGranular(this.config, mode);
-        this._cdr.markForCheck();
-    }
-
-    onGranularRuleChange(): void {
-        const sameMode = computeAllSameMode(this.config);
-        if (sameMode) {
-            this.config.mode = sameMode;
-        }
-        this._cdr.markForCheck();
-    }
-
+    /** Loads the current account policy. A missing `data` block keeps the store default. */
     loadSettings(): void {
         const clientId = this.userClientId;
         if (!clientId) {
@@ -143,34 +113,17 @@ export class DataRetentionSettingsComponent implements OnInit, OnChanges, OnDest
             )
             .subscribe({
                 next: (res) => {
-                    if (res?.data) {
-                        this.clientSettings = res.data as (ClientSettings & { data?: ClientDataRetentionConfig });
-                        if (this.clientSettings.data) {
-                            const fallbackMode = this.clientSettings.data.mode || 'store';
-                            this.config = {
-                                mode: fallbackMode,
-                                webhookHoldHours: this.clientSettings.data.webhookHoldHours || 24,
-                                allowManualDelete: this.clientSettings.data.allowManualDelete !== false,
-                                types: {
-                                    ...DEFAULT_CONFIG.types,
-                                    ...(this.clientSettings.data.types || {}),
-                                },
-                            };
-                            const types = this.config.types;
-                            if (!types.documentImages?.mode) types.documentImages = { ...types.documentImages, mode: fallbackMode };
-                            if (!types.faceImages?.mode) types.faceImages = { ...types.faceImages, mode: fallbackMode };
-                            if (!types.ocrExtraction?.mode) types.ocrExtraction = { ...types.ocrExtraction, mode: fallbackMode };
-                            if (!types.documentLiveness?.mode) types.documentLiveness = { ...types.documentLiveness, mode: fallbackMode };
-                        }
-                    }
-                    this._cdr.markForCheck();
+                    const doc = res?.data as { data?: StoredRetention } | undefined;
+                    this.applyLoadedPolicy(doc?.data);
                 },
-                error: (err) => {
-                    console.error('[DataRetentionSettings] Load failed:', err);
-                },
+                error: () => this.notify('settings.dataRetention.loadError', 4000),
             });
     }
 
+    /**
+     * Saves the retention policy. The request body is only `{ client, data }`.
+     * Billing fields from the loaded ClientSettings document are not sent.
+     */
     saveSettings(): void {
         const clientId = this.userClientId;
         if (!clientId || this.saving) return;
@@ -178,17 +131,8 @@ export class DataRetentionSettingsComponent implements OnInit, OnChanges, OnDest
         this.saving = true;
         this._cdr.markForCheck();
 
-        const payload: Partial<ClientSettings & { data: ClientDataRetentionConfig }> = {
-            ...(this.clientSettings || {}),
-            client: clientId,
-            data: {
-                ...this.config,
-                webhookHoldHours: Math.max(24, Math.min(72, Number(this.config.webhookHoldHours) || 24)),
-            },
-        };
-
-        this._settingsService
-            .saveBillingConfig(payload)
+        this._retentionService
+            .saveClientRetention(clientId, this.policy)
             .pipe(
                 takeUntil(this._destroy$),
                 finalize(() => {
@@ -198,23 +142,26 @@ export class DataRetentionSettingsComponent implements OnInit, OnChanges, OnDest
             )
             .subscribe({
                 next: (res) => {
-                    if (res?.data) {
-                        this.clientSettings = res.data as (ClientSettings & { data?: ClientDataRetentionConfig });
-                    }
-                    this._snackBar.open(
-                        this._transloco.translate('settings.dataRetention.savedSuccess'),
-                        undefined,
-                        { duration: 3000 }
-                    );
+                    const saved = (res?.data as { data?: StoredRetention } | undefined)?.data;
+                    if (saved) this.applyLoadedPolicy(saved);
+                    this.notify('settings.dataRetention.savedSuccess', 3000);
                 },
-                error: (err) => {
-                    console.error('[DataRetentionSettings] Save failed:', err);
-                    this._snackBar.open(
-                        this._transloco.translate('settings.dataRetention.saveError'),
-                        undefined,
-                        { duration: 4000 }
-                    );
-                },
+                error: () => this.notify('settings.dataRetention.saveError', 4000),
             });
+    }
+
+    /** Replaces the form policy from an API document. */
+    onPolicyChange(policy: RetentionPolicy): void {
+        this.policy = policy;
+        this._cdr.markForCheck();
+    }
+
+    private applyLoadedPolicy(stored: StoredRetention | undefined): void {
+        this.policy = policyFromStored(stored) ?? defaultRetentionPolicy();
+        this._cdr.markForCheck();
+    }
+
+    private notify(key: string, duration: number): void {
+        this._snackBar.open(this._transloco.translate(key), undefined, { duration });
     }
 }

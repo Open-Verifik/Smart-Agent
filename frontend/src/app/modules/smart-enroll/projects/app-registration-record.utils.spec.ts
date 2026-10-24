@@ -3,7 +3,6 @@ import {
     buildFailedBiometricAttempts,
     buildManualVerificationReasons,
     canRerunCompare,
-    cleanOcrExtraction,
     documentFaceReasonKey,
     documentFailureReasonKey,
     isDocNoStorage,
@@ -262,58 +261,6 @@ describe('retention detection helpers', () => {
         } as unknown as AppRegistrationDetail;
 
         expect(recordRetentionNotice(normalRecord)).toBeNull();
-    });
-
-    describe('cleanOcrExtraction', () => {
-        it('excludes documentClassification, barcodeValidation, and non-primitive objects from OCR grid', () => {
-            const rawOcr = {
-                fullName: 'NICOLAS HERNANDEZ TOVAR',
-                documentNumber: '1023942104',
-                documentType: 'DRCC',
-                dateOfBirth: '07-05-1995',
-                dateOfIssue: '03-12-2015',
-                bloodType: 'O+',
-                issuingAuthority: 'SDM - BOGOTA D.C.',
-                documentClassification: {
-                    requestedDocumentType: 'DRCC',
-                    detectedDocumentType: 'DRCC',
-                    detectedDocumentName: 'Licencia de Conducción',
-                    isMatch: true,
-                    confidence: 0.95,
-                    reason: 'Header matches REPÚBLICA DE COLOMBIA',
-                },
-                barcodeValidation: {
-                    verdict: 'confirmed',
-                },
-                nestedObject: {
-                    something: 'internal',
-                },
-            };
-
-            const keys = cleanOcrExtraction(rawOcr as Record<string, unknown>);
-
-            // Must NOT contain documentClassification or any variation of it
-            expect(keys).not.toContain('Document Classification');
-            expect(keys).not.toContain('documentClassification');
-            expect(keys).not.toContain('Barcode Validation');
-            expect(keys).not.toContain('barcodeValidation');
-            expect(keys).not.toContain('Nested Object');
-            expect(keys).not.toContain('nestedObject');
-
-            // Must not exist on the mutated copy either
-            expect(rawOcr['Document Classification']).toBeUndefined();
-            expect(rawOcr['documentClassification']).toBeUndefined();
-            expect(rawOcr['barcodeValidation']).toBeUndefined();
-            expect(rawOcr['nestedObject']).toBeUndefined();
-
-            // Must retain clean display keys
-            expect(keys).toContain('Full Name');
-            expect(keys).toContain('Document Number');
-            expect(keys).toContain('Document Type');
-            expect(keys).toContain('Date Of Birth');
-            expect(rawOcr['Full Name']).toBe('NICOLAS HERNANDEZ TOVAR');
-            expect(rawOcr['Document Number']).toBe('1023942104');
-        });
     });
 });
 

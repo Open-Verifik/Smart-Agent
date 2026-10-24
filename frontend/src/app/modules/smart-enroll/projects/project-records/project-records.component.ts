@@ -18,7 +18,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { isFaceNoStorage, isFacePurged, pickEnrollmentFaceMedia } from '../app-registration-record.utils';
-import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type {
     AppRegistrationListFilters,
@@ -86,7 +85,6 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
     private _router = inject(Router);
     private _projectsService = inject(SmartEnrollProjectsService);
     private _sanitizer = inject(DomSanitizer);
-    private _authGate = inject(AuthRequiredGateService);
     private _searchDebounce: ReturnType<typeof setTimeout> | null = null;
 
     readonly statusOptions = STATUS_OPTIONS;
@@ -131,13 +129,8 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
-            onAuthenticated: () => {
-                this._loadProjectName();
-                this.fetchRecords();
-            },
-        });
+        this._loadProjectName();
+        this.fetchRecords();
     }
 
     ngOnDestroy(): void {

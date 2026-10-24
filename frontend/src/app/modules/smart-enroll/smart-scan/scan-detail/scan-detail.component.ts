@@ -17,7 +17,6 @@ import {
     type CedulaBarcodeValidation,
 } from '../../projects/barcode-validation-panel.component';
 import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
-import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { ScanDeleteConfirmDialogComponent } from '../scan-delete-confirm-dialog.component';
 import { ScanToolSmartCheckResultComponent } from '../scan-tool/scan-tool-smart-check-result.component';
 import { SmartScanService } from '../smart-scan.service';
@@ -30,12 +29,7 @@ import {
     type ScanResult,
     type SmartCheckResult,
 } from '../smart-scan.types';
-import {
-    isPurged,
-    isNoStorage,
-    isEphemeral,
-    canDeleteFromStorage,
-} from '../smart-scan-retention.util';
+import { isEphemeral, isNoStorage, isPurged } from '../smart-scan-retention.util';
 
 @Component({
     selector: 'scan-detail',
@@ -64,7 +58,6 @@ export class ScanDetailComponent implements OnInit {
     private _transloco = inject(TranslocoService);
     private _highlightService = inject(FuseHighlightService);
     private _domSanitizer = inject(DomSanitizer);
-    private _authGate = inject(AuthRequiredGateService);
 
     scan: DocumentValidation | null = null;
     documentType: DocumentType | null = null;
@@ -85,15 +78,6 @@ export class ScanDetailComponent implements OnInit {
             return;
         }
 
-        this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
-            onAuthenticated: () => this._loadScanDetail(id),
-        });
-    }
-
-    private _loadScanDetail(id: string): void {
-        this.loading = true;
-        this.errorMessage = null;
         this._scanService.getScan(id).subscribe({
             next: (res) => {
                 this.scan = res.data;
@@ -228,10 +212,6 @@ export class ScanDetailComponent implements OnInit {
 
     get scheduledPurgeDate(): string | null {
         return this.scan?.retention?.purgeAfter ? this.formatDate(this.scan.retention.purgeAfter) : null;
-    }
-
-    get canDeleteFromStorage(): boolean {
-        return canDeleteFromStorage(Boolean(this.scan?.url), this.scan?.retention);
     }
 
     confirmDelete(): void {

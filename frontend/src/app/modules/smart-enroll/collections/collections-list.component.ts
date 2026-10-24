@@ -20,7 +20,6 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
-import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
@@ -78,7 +77,6 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
     private _snackBar = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
-    private _authGate = inject(AuthRequiredGateService);
 
     private _minScoreChange$ = new Subject<number>();
     private _destroy$ = new Subject<void>();
@@ -99,14 +97,9 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
     readonly projectType = SMART_ENROLL_PROJECT_TYPE;
 
     ngOnInit(): void {
-        this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
-            onAuthenticated: () => {
-                this._fetchRecords();
-                this._minScoreChange$.pipe(debounceTime(300), takeUntil(this._destroy$)).subscribe(() => {
-                    if (this.selectedImagePreview) this._fetchRecords();
-                });
-            },
+        this._fetchRecords();
+        this._minScoreChange$.pipe(debounceTime(300), takeUntil(this._destroy$)).subscribe(() => {
+            if (this.selectedImagePreview) this._fetchRecords();
         });
     }
 
@@ -166,51 +159,46 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
     }
 
     createCollection(people: Person[] = []): void {
-        this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
-            onAuthenticated: () => {
-                const dialogRef = this._dialog.open(CollectionDialogComponent, {
-                    width: '560px',
-                    maxWidth: '94vw',
-                    panelClass: COLLECTION_DIALOG_PANEL_CLASS,
-                    data: { mode: 'create' } as CollectionDialogData,
-                });
+        const dialogRef = this._dialog.open(CollectionDialogComponent, {
+            width: '560px',
+            maxWidth: '94vw',
+            panelClass: COLLECTION_DIALOG_PANEL_CLASS,
+            data: { mode: 'create' } as CollectionDialogData,
+        });
 
-                dialogRef.afterClosed().subscribe((result) => {
-                    if (!result || result.action !== 'create') return;
+        dialogRef.afterClosed().subscribe((result) => {
+            if (!result || result.action !== 'create') return;
 
-                    this.loading.set(true);
-                    this._collectionsService.createCollection(result.collection).subscribe({
-                        next: (response) => {
-                            const created = response?.data;
-                            const shouldMovePeople =
-                                people.length > 0 && this.expandedCollection && created?._id && created?.code;
+            this.loading.set(true);
+            this._collectionsService.createCollection(result.collection).subscribe({
+                next: (response) => {
+                    const created = response?.data;
+                    const shouldMovePeople =
+                        people.length > 0 && this.expandedCollection && created?._id && created?.code;
 
-                            if (!shouldMovePeople) {
-                                this._fetchRecords();
-                                return;
-                            }
+                    if (!shouldMovePeople) {
+                        this._fetchRecords();
+                        return;
+                    }
 
-                            const peopleIds = people.map((person) => person._id);
-                            this._collectionsService
-                                .movePeopleToCollection(
-                                    peopleIds,
-                                    { _id: this.expandedCollection!._id, code: this.expandedCollection!.code },
-                                    { _id: created._id, code: created.code }
-                                )
-                                .subscribe({
-                                    next: () => this._fetchRecords(),
-                                    error: () => this._showError('smartEnrollCollections.moveError'),
-                                    complete: () => this.loading.set(false),
-                                });
-                        },
-                        error: () => {
-                            this._showError('smartEnrollCollections.createError');
-                            this.loading.set(false);
-                        },
-                    });
-                });
-            },
+                    const peopleIds = people.map((person) => person._id);
+                    this._collectionsService
+                        .movePeopleToCollection(
+                            peopleIds,
+                            { _id: this.expandedCollection!._id, code: this.expandedCollection!.code },
+                            { _id: created._id, code: created.code }
+                        )
+                        .subscribe({
+                            next: () => this._fetchRecords(),
+                            error: () => this._showError('smartEnrollCollections.moveError'),
+                            complete: () => this.loading.set(false),
+                        });
+                },
+                error: () => {
+                    this._showError('smartEnrollCollections.createError');
+                    this.loading.set(false);
+                },
+            });
         });
     }
 

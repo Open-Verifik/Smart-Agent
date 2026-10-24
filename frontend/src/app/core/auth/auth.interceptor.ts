@@ -85,9 +85,12 @@ export const authInterceptor = (
                             '[AuthInterceptor] Backend API 401 with wallet auth, skipping logout:',
                             error.url
                         );
-                    } else {
-                        // Any 401 Unauthorized without wallet auth means session is expired or invalid
+                    } else if (isSessionExpired || !isBackendApiCall) {
+                        // Session is definitely expired or this is a non-backend call
                         handleSessionExpiration(authService, sessionService, router);
+                    } else {
+                        // Backend API call without clear session expiration - just log
+                        console.error('[AuthInterceptor] Backend API 401 Error:', error);
                     }
                 }
             }

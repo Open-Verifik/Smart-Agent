@@ -119,8 +119,8 @@ export class ScanListComponent implements OnInit {
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
-            directAuthModal: true,
             onAuthenticated: () => this._initScanListFromRoute(),
+            panelClass: 'auth-required-dialog',
         });
     }
 
