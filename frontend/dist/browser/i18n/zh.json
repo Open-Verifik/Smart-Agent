@@ -3316,6 +3316,7 @@
             "backScan": "背面",
             "documentFace": "证件人像",
             "documentLiveness": "证件活体",
+            "documentClassification": "文件分类",
             "barcode": {
                 "title": "背面条形码",
                 "attempts": "读取尝试 {{count}} 次",
