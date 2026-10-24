@@ -10,7 +10,11 @@
         "hello": "Bonjour, {{name}}",
         "dashboardSubtitle": "Composez une checklist vivante pour les personnes, véhicules et entreprises.",
         "newChecklist": "Nouvelle checklist",
-        "stats": { "lists": "Checklists", "countries": "Pays", "services": "Services enregistrés" },
+        "stats": {
+            "lists": "Checklists",
+            "countries": "Pays",
+            "services": "Services enregistrés"
+        },
         "yourLists": "Vos listes",
         "loading": "Chargement de vos checklists…",
         "emptyTitle": "Commencez par un pays.",
@@ -2490,8 +2494,8 @@
         "mineFilterMine": "Créés par mon équipe",
         "mineBadge": "Mon équipe",
         "addDocumentType": "Ajouter un type de document",
-            "addDocumentTypeHint": "Vous ne le trouvez pas ? Ajoutez un document pour ce pays.",
-            "editDocumentType": "Modifier",
+        "addDocumentTypeHint": "Vous ne le trouvez pas ? Ajoutez un document pour ce pays.",
+        "editDocumentType": "Modifier",
         "smartCheckResult": "SmartCheck",
         "smartCheckMissing": "Champs manquants :",
         "smartCheckStatus": {
@@ -2902,8 +2906,8 @@
         "dateStart": "Date de début",
         "dateEnd": "Date de fin",
         "step": {
-            "all": "Toutes les étapes",
             "1": "Jamais commencé",
+            "all": "Toutes les étapes",
             "not_started": "Jamais commencé",
             "instructions": "Instructions",
             "signUpForm": "Formulaire d'inscription",
@@ -3184,6 +3188,35 @@
                     "personal": "Inscription individuelle",
                     "business": "Inscription entreprise"
                 }
+            },
+            "retention": {
+                "title": "Conservation des données et confidentialité",
+                "subtitle": "Stockage cloud, conservation éphémère et politique de non-stockage pour ce projet",
+                "accountDefault": "Hérité du compte",
+                "accountDefaultDesc": "Ce projet applique la politique globale définie dans les paramètres du compte.",
+                "projectOverride": "Personnalisé pour ce projet",
+                "projectOverrideDesc": "Ce projet remplace les règles globales du compte par des règles spécifiques.",
+                "editSection": "Configurer",
+                "overrideToggle": "Remplacer la politique de conservation du compte pour ce projet",
+                "overrideToggleDesc": "Activez cette option pour définir des règles de stockage exclusives à ce projet.",
+                "globalModeTitle": "Mode de stockage du projet",
+                "modeStore": "Stocker",
+                "modeStoreDesc": "Conserve les photos et données extraites dans le cloud (comportement standard).",
+                "modeEphemeral": "Éphémère",
+                "modeEphemeralDesc": "Conserve les données jusqu'à livraison des webhooks ou expiration TTL, puis les purge.",
+                "modeNone": "Sans stockage (None)",
+                "modeNoneDesc": "Traite les images en mémoire pour l'OCR et la biométrie ; ne les stocke jamais.",
+                "docImages": "Photos des documents",
+                "faceImages": "Selfies KYC et visages",
+                "webhookHold": "Garantie webhooks (heures)",
+                "manualDelete": "Autoriser la suppression manuelle",
+                "allowed": "Autorisé",
+                "notAllowed": "Non autorisé",
+                "cancel": "Annuler",
+                "save": "Enregistrer",
+                "saving": "Enregistrement...",
+                "savedSuccess": "Paramètres de conservation du projet enregistrés avec succès.",
+                "saveError": "Échec de l'enregistrement des paramètres de conservation du projet."
             }
         },
         "recordDetail": {
@@ -3295,6 +3328,7 @@
             },
             "livenessPassed": "Réussi",
             "livenessFailed": "Échoué",
+            "documentClassification": "Classification du document",
             "ocr": "Données extraites",
             "livenessScore": "Score de vivacité",
             "livenessMinimum": "Seuil de vivacité",
@@ -3672,7 +3706,19 @@
                 "lastNameMatchPercentage": "Correspondance nom %",
                 "fullNameMatchPercentage": "Correspondance nom complet %",
                 "namesMatch": "Correspondance des noms"
-            }
+            },
+            "retentionNoStorageTitle": "Photo non stockée",
+            "retentionNoStorageDesc": "Conformément à la politique de confidentialité, le selfie n'a pas été sauvegardé et a été traité exclusivement en mémoire.",
+            "retentionPurgedTitle": "Photo purgée",
+            "retentionPurgedDesc": "Le selfie a été purgé du cloud conformément à la politique de conservation.",
+            "docNoStorage": "Document non stocké",
+            "docNoStorageDesc": "Les images n'ont pas été persistées. Les données OCR ont été extraites en temps réel.",
+            "docPurged": "Document purgé",
+            "docPurgedDesc": "Les photos du document ont été purgées conformément à la politique de conservation.",
+            "retentionBannerNoStorageTitle": "Confidentialité active : Mode sans stockage",
+            "retentionBannerNoStorageDesc": "Cet enregistrement a été traité selon la politique de non-stockage (#1672). Les données biométriques et documents ont été validés en mémoire et jamais sauvegardés dans le cloud.",
+            "retentionBannerPurgedTitle": "Enregistrement purgé par politique de conservation",
+            "retentionBannerPurgedDesc": "Les images de cet enregistrement ont atteint leur limite de cycle de vie et ont été automatiquement purgées du stockage."
         },
         "setup": {
             "title": "Configuration",
@@ -4170,7 +4216,11 @@
                     "uploadFailed": "Impossible de téléverser le fichier."
                 }
             }
-        }
+        },
+        "retentionPurgedTooltip": "Image purgée conformément à la politique de conservation des données",
+        "retentionNoStorageTooltip": "Mode sans stockage : traité en mémoire et non conservé dans le cloud",
+        "retentionBadgeNoStorage": "Sans Stockage",
+        "retentionBadgePurged": "Purgé"
     },
     "smartAccessProjects": {
         "title": "Projects",
@@ -4671,7 +4721,9 @@
             "api_key": "Clé API",
             "api_key_desc": "Gérer vos jetons d'accès API",
             "webhooks": "Webhooks",
-            "webhooks_desc": "Configurer les points de terminaison webhook"
+            "webhooks_desc": "Configurer les points de terminaison webhook",
+            "data_retention": "Confidentialité et rétention",
+            "data_retention_desc": "Configurez le cycle de vie des données, le stockage éphémère et le mode sans rétention"
         },
         "notifications": {
             "title": "Notifications",
@@ -5220,7 +5272,37 @@
             "missing_billing_field": "Renseignez ce champ de facturation.",
             "nit_format_invalid": "Saisissez un NIT valide."
         },
-        "plans": "Plans"
+        "plans": "Plans",
+        "dataRetention": {
+            "title": "Conservation des données et confidentialité",
+            "subtitle": "Gérez le stockage cloud, la rétention éphémère et le mode strict sans stockage (#1672)",
+            "businessAccountRequired": "Un compte d'entreprise est requis pour configurer les politiques de conservation des données.",
+            "globalModeTitle": "Mode de stockage global",
+            "globalModeDesc": "Définit la politique par défaut pour toutes les images de vérification et données extraites de votre compte.",
+            "modeStore": "Stocker",
+            "modeStoreDesc": "Conserve les images et résultats dans le cloud (comportement standard avec durées de rétention optionnelles).",
+            "modeEphemeral": "Éphémère",
+            "modeEphemeralDesc": "Conserve les données jusqu'à livraison du webhook ou courte période de rétention, puis purge.",
+            "modeNone": "Sans stockage",
+            "modeNoneDesc": "Traite les images uniquement en mémoire pour l'OCR et la vérification ; ne les enregistre jamais sur le cloud.",
+            "granularRulesTitle": "Règles spécifiques par type de données",
+            "granularRulesDesc": "Remplacez la politique pour certains types d'images ou d'enregistrements selon vos exigences légales.",
+            "typeDocumentImages": "Images des documents (Recto / Verso)",
+            "typeDocumentImagesDesc": "Photos prises ou importées de pièces d'identité, passeports et permis.",
+            "typeFaceImages": "Selfies KYC et images faciales",
+            "typeFaceImagesDesc": "Photos de visages et selfies de vérification biométrique.",
+            "typeOcrExtraction": "Extractions de texte OCR",
+            "typeOcrExtractionDesc": "Noms, numéros de document, dates et données extraites.",
+            "typeDocumentLiveness": "Preuve de présence physique du document",
+            "typeDocumentLivenessDesc": "Photographies de contrôle de présence physique du document.",
+            "webhookHoldTitle": "Garantie de livraison des webhooks",
+            "webhookHoldDesc": "Délai minimal (en heures) de conservation des données pendant les tentatives de livraison des webhooks avant purge.",
+            "allowManualDeleteTitle": "Autoriser la suppression manuelle",
+            "allowManualDeleteDesc": "Permet aux administrateurs de purger immédiatement des images individuelles depuis le détail SmartScan ou SmartEnroll.",
+            "saveButton": "Enregistrer la configuration",
+            "savedSuccess": "Paramètres de conservation enregistrés avec succès.",
+            "saveError": "Échec de l'enregistrement des paramètres de conservation des données."
+        }
     },
     "userMenu": {
         "welcome": "Bienvenue :",

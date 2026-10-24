@@ -128,7 +128,16 @@ export class HumanAuthnProjectsComponent implements OnInit {
 
     openProject(project: HumanAuthnProject, event?: Event): void {
         event?.stopPropagation();
-        const step = isIncompleteSmartAccessWizard(project, 7) ? resumeStepIndex(project, 7) : 0;
+        if (this.isIncomplete(project)) {
+            const step = resumeStepIndex(project, 7);
+            this._router.navigate(['/human-authn/projects', project._id, 'setup', String(step)]);
+            return;
+        }
+        this._router.navigate(['/human-authn/projects', project._id]);
+    }
+
+    openSetup(project: HumanAuthnProject, step = 0, event?: Event): void {
+        event?.stopPropagation();
         this._router.navigate(['/human-authn/projects', project._id, 'setup', String(step)]);
     }
 

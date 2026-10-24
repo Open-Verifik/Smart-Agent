@@ -1,6 +1,12 @@
-import type { AppRegistrationDetail, AppRegistrationRow, EnrollProject } from './smart-enroll-projects.types';
+import type {
+    AppRegistrationDetail,
+    AppRegistrationRow,
+    EnrollProject,
+    ProjectDataRetentionOverride,
+    RecordRetentionInfo,
+} from './smart-enroll-projects.types';
 
-export type FaceMediaRef = { base64?: string; url?: string };
+export type FaceMediaRef = { base64?: string; url?: string; retention?: RecordRetentionInfo };
 
 /**
  * Selfie source for list/detail: top-level `face` then `biometricValidation.face`.
@@ -42,8 +48,20 @@ export const cleanOcrExtraction = (ocr: Record<string, unknown> | null | undefin
     if (!ocr || typeof ocr !== 'object') return [];
 
     delete ocr.barcodeValidation;
+    delete ocr.documentClassification;
+    delete ocr['Document Classification'];
+    delete ocr.classification;
 
     Object.keys(ocr).forEach((key) => {
+        if (
+            key.toLowerCase().includes('classification') ||
+            key.toLowerCase().includes('barcodevalidation') ||
+            (ocr[key] != null && typeof ocr[key] === 'object' && !Array.isArray(ocr[key]))
+        ) {
+            delete (ocr as Record<string, unknown>)[key];
+            return;
+        }
+
         const camelCaseKey = key
             .replace(/([A-Z])/g, ' $1')
             .replace(/^./, (char) => char.toUpperCase());
@@ -148,8 +166,17 @@ export const resolveCompareStatus = (record: AppRegistrationDetail | null): Comp
 };
 
 /** True when a reviewer can usefully ask for the compare to be run again. */
-export const canRerunCompare = (record: AppRegistrationDetail | null): boolean =>
-    ['failed', 'notRun', 'missingDocumentFace'].includes(resolveCompareStatus(record));
+export const canRerunCompare = (record: AppRegistrationDetail | null): boolean => {
+    if (!record) return false;
+    if (isDocPurged(record) && !record.documentFace) return false;
+    return ['failed', 'notRun', 'missingDocumentFace'].includes(resolveCompareStatus(record));
+};
+
+/** True when the document must be re-scanned because its storage expired per 24h retention policy */
+export const requiresDocumentRescan = (record: AppRegistrationDetail | null): boolean => {
+    if (!record) return false;
+    return isDocPurged(record) && (!record.compareFaceVerification || resolveCompareStatus(record) !== 'passed');
+};
 
 /** Reasons the backend records for a scan that arrived without a cropped portrait. */
 const DOCUMENT_FACE_REASONS = new Set(['document_face_not_provided']);
@@ -834,3 +861,107 @@ export const resolveOtpStepState = (
 
     return isOtpGatewayConfigured(record, channel) ? 'warn' : 'info';
 };
+
+/**
+ * Checks whether an enrollee's selfie is in no-storage mode.
+ */
+export const isFaceNoStorage = (
+    record: AppRegistrationRow | AppRegistrationDetail | null | undefined,
+    projectRetention?: ProjectDataRetentionOverride | null
+): boolean => {
+    if (!record) return false;
+    const face = record.face as { retention?: RecordRetentionInfo; base64?: string; url?: string } | null | undefined;
+    const bioFace = record.biometricValidation?.face as { retention?: RecordRetentionInfo; base64?: string; url?: string } | null | undefined;
+    const r = face?.retention || bioFace?.retention || record.retention;
+    if (r?.mode === 'none' && !r?.purgedAt) return true;
+
+    // Inferred: if no media exists and project is set to 'none' and the record reached a selfie/liveness step
+    const hasMedia = Boolean(face?.base64 || face?.url || bioFace?.base64 || bioFace?.url);
+    if (!hasMedia && (projectRetention?.mode === 'none' || projectRetention?.types?.faceImages?.mode === 'none')) {
+        const step = record.currentStep;
+        if (step === 'liveness' || step === 'end' || record.status === 'COMPLETED' || record.biometricValidation) {
+            return true;
+        }
+    }
+    return false;
+};
+
+/**
+ * Checks whether an enrollee's selfie was purged.
+ */
+export const isFacePurged = (
+    record: AppRegistrationRow | AppRegistrationDetail | null | undefined
+): boolean => {
+    if (!record) return false;
+    const face = record.face as { retention?: RecordRetentionInfo } | null | undefined;
+    const bioFace = record.biometricValidation?.face as { retention?: RecordRetentionInfo } | null | undefined;
+    const r = face?.retention || bioFace?.retention || record.retention;
+    return Boolean(r?.purgedAt);
+};
+
+/**
+ * Checks whether document images are in no-storage mode.
+ */
+export const isDocNoStorage = (
+    record: AppRegistrationDetail | null | undefined,
+    projectRetention?: ProjectDataRetentionOverride | null
+): boolean => {
+    if (!record) return false;
+    const doc = record.documentValidation as { retention?: RecordRetentionInfo; url?: string; backUrl?: string } | null | undefined;
+    if (doc?.retention?.mode === 'none' && !doc?.retention?.purgedAt) return true;
+
+    const hasDocMedia = Boolean(doc?.url || doc?.backUrl);
+    if (doc && !hasDocMedia && (projectRetention?.mode === 'none' || projectRetention?.types?.documentImages?.mode === 'none')) {
+        return true;
+    }
+    return false;
+};
+
+/**
+ * Checks whether document images were purged.
+ */
+export const isDocPurged = (
+    record: AppRegistrationDetail | null | undefined
+): boolean => {
+    if (!record) return false;
+    const doc = record.documentValidation as { retention?: RecordRetentionInfo } | null | undefined;
+    return Boolean(doc?.retention?.purgedAt);
+};
+
+export interface RecordRetentionNotice {
+    type: 'noStorage' | 'purged';
+    icon: string;
+    title: string;
+    description: string;
+}
+
+/**
+ * Returns a banner notice if any portion of the record was purged or subject to no-storage mode.
+ */
+export const recordRetentionNotice = (
+    record: AppRegistrationDetail | null | undefined,
+    projectRetention?: ProjectDataRetentionOverride | null
+): RecordRetentionNotice | null => {
+    if (!record) return null;
+
+    if (isFacePurged(record) || isDocPurged(record)) {
+        return {
+            type: 'purged',
+            icon: 'heroicons_outline:trash',
+            title: 'smartEnrollProjects.recordDetail.retentionBannerPurgedTitle',
+            description: 'smartEnrollProjects.recordDetail.retentionBannerPurgedDesc',
+        };
+    }
+
+    if (isFaceNoStorage(record, projectRetention) || isDocNoStorage(record, projectRetention)) {
+        return {
+            type: 'noStorage',
+            icon: 'heroicons_outline:shield-check',
+            title: 'smartEnrollProjects.recordDetail.retentionBannerNoStorageTitle',
+            description: 'smartEnrollProjects.recordDetail.retentionBannerNoStorageDesc',
+        };
+    }
+
+    return null;
+};
+

@@ -68,6 +68,24 @@
             "fromField": "depuis {{field}}",
             "unmappedRequired": "Champ requis",
             "smartCheckHint": "Reliez un endpoint de ce pays. Son code de document peut différer du vôtre."
-        }
+        },
+        "deleteFromStorage": "Supprimer l'image",
+        "retentionPurged": "Purgé",
+        "retentionPurgedTooltip": "L'image a été définitivement supprimée du stockage conformément à la politique de conservation",
+        "retentionPurgedNotice": "Purgé selon la politique de conservation",
+        "retentionNoStorage": "Sans stockage",
+        "retentionNoStorageTooltip": "Traité de façon transitoire en mémoire. Les images ne sont jamais enregistrées dans le cloud",
+        "retentionNoStorageNotice": "Traitement en mémoire uniquement",
+        "retentionEphemeral": "Éphémère",
+        "retentionEphemeralTooltip": "Programmé pour être purgé après expiration de la rétention ou livraison des webhooks",
+        "retentionPurgedBannerTitle": "Image de document purgée",
+        "retentionPurgedBannerDesc": "Cette image de document a été définitivement supprimée du stockage cloud le {{date}} par politique de conservation (Motif : {{reason}}). Les données extraites restent accessibles.",
+        "retentionNoStorageBannerTitle": "Mode sans stockage actif",
+        "retentionNoStorageBannerDesc": "Ce scan a été traité en mémoire transitoire. Les images du document n'ont jamais été écrites sur un stockage permanent.",
+        "retentionEphemeralBannerTitle": "Stockage éphémère actif",
+        "retentionEphemeralBannerDesc": "Cette image de document est conservée temporairement et programmée pour une purge définitive le {{date}}.",
+        "imagePurgedPlaceholderTitle": "Image non conservée",
+        "imagePurgedPlaceholderDesc": "L'image originale du document a été supprimée le {{date}} conformément à la politique de conservation des données de votre organisation.",
+        "imageUnavailableDesc": "L'image du document n'est pas disponible."
     }
 }

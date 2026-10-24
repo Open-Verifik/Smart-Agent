@@ -11,6 +11,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
 import { SettingsService, StaffMember } from 'app/modules/settings/settings.service';
 import { resolveStaffSaveErrorMessage } from 'app/modules/settings/utils/staff-save-error.util';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { DateTime } from 'luxon';
 import { forkJoin, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -49,6 +50,7 @@ export class ProjectStaffComponent implements OnInit {
     private _countryService = inject(CountryService);
     private _snackBar = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
+    private _authGate = inject(AuthRequiredGateService);
 
     project = signal<EnrollProject | null>(null);
     projectMembers = signal<EnrollProjectMember[]>([]);
@@ -88,26 +90,32 @@ export class ProjectStaffComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this._clientUser = this._parseUser();
         const projectId = this._route.snapshot.paramMap.get('projectId');
         if (!projectId) {
             this._goToProjects();
             return;
         }
-        this._projectsService.getProject(projectId).subscribe({
-            next: (p) => {
-                if (!p) {
-                    this.loadError.set('smartEnrollProjects.projectNotFound');
-                    this.loading.set(false);
-                    return;
-                }
-                this.project.set(p);
-                this._loadWorkspaceStaffLimits();
-                this._loadMembers();
-            },
-            error: () => {
-                this.loadError.set('smartEnrollProjects.loadError');
-                this.loading.set(false);
+
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => {
+                this._clientUser = this._parseUser();
+                this._projectsService.getProject(projectId).subscribe({
+                    next: (p) => {
+                        if (!p) {
+                            this.loadError.set('smartEnrollProjects.projectNotFound');
+                            this.loading.set(false);
+                            return;
+                        }
+                        this.project.set(p);
+                        this._loadWorkspaceStaffLimits();
+                        this._loadMembers();
+                    },
+                    error: () => {
+                        this.loadError.set('smartEnrollProjects.loadError');
+                        this.loading.set(false);
+                    },
+                });
             },
         });
     }

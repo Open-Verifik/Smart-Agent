@@ -10,7 +10,11 @@
         "hello": "안녕하세요, {{name}}",
         "dashboardSubtitle": "사람, 차량, 사업자를 위한 체크리스트를 만들고 바로 실행하거나 배치로 보내세요.",
         "newChecklist": "새 체크리스트",
-        "stats": { "lists": "체크리스트", "countries": "국가", "services": "저장된 서비스" },
+        "stats": {
+            "lists": "체크리스트",
+            "countries": "국가",
+            "services": "저장된 서비스"
+        },
         "yourLists": "내 목록",
         "loading": "체크리스트를 불러오는 중…",
         "emptyTitle": "국가부터 선택하세요.",
@@ -2531,8 +2535,8 @@
         "mineFilterMine": "우리 팀이 만든 문서",
         "mineBadge": "우리 팀",
         "addDocumentType": "문서 유형 추가",
-            "addDocumentTypeHint": "없나요? 이 국가의 문서를 추가하세요.",
-            "editDocumentType": "편집",
+        "addDocumentTypeHint": "없나요? 이 국가의 문서를 추가하세요.",
+        "editDocumentType": "편집",
         "smartCheckResult": "SmartCheck",
         "smartCheckMissing": "누락된 필드:",
         "smartCheckStatus": {
@@ -2943,8 +2947,8 @@
         "dateStart": "시작일",
         "dateEnd": "종료일",
         "step": {
-            "all": "모든 단계",
             "1": "시작하지 않음",
+            "all": "모든 단계",
             "not_started": "시작하지 않음",
             "instructions": "안내",
             "signUpForm": "가입 양식",
@@ -3225,6 +3229,35 @@
                     "personal": "개인 온보딩",
                     "business": "기업 온보딩"
                 }
+            },
+            "retention": {
+                "title": "데이터 보존 및 개인정보 보호",
+                "subtitle": "이 프로젝트의 클라우드 저장, 임시 보존 및 무저장 정책",
+                "accountDefault": "계정 기본값 상속",
+                "accountDefaultDesc": "이 프로젝트는 계정 설정에서 정의된 글로벌 데이터 보존 정책을 사용합니다.",
+                "projectOverride": "이 프로젝트 전용 설정",
+                "projectOverrideDesc": "이 프로젝트는 특정 규칙으로 계정 정책을 재정의합니다.",
+                "editSection": "설정",
+                "overrideToggle": "이 프로젝트에 대한 계정 데이터 보존 정책 재정의",
+                "overrideToggleDesc": "이 프로젝트의 인증에 대한 전용 저장 규칙을 정의하려면 활성화하세요.",
+                "globalModeTitle": "프로젝트 저장 모드",
+                "modeStore": "저장",
+                "modeStoreDesc": "사진 및 추출 데이터를 클라우드에 영구 저장합니다(표준 동작).",
+                "modeEphemeral": "임시 저장",
+                "modeEphemeralDesc": "웹훅 전송 또는 짧은 TTL 만료 시까지 데이터를 유지한 후 삭제합니다.",
+                "modeNone": "무저장 (None)",
+                "modeNoneDesc": "OCR 및 생체 인식을 위해 메모리에서만 이미지를 처리하며 절대 저장하지 않습니다.",
+                "docImages": "신분증 사진",
+                "faceImages": "KYC 셀카 및 얼굴 사진",
+                "webhookHold": "웹훅 전송 보장 (시간)",
+                "manualDelete": "수동 삭제 허용",
+                "allowed": "허용됨",
+                "notAllowed": "허용 안 됨",
+                "cancel": "취소",
+                "save": "변경사항 저장",
+                "saving": "저장 중...",
+                "savedSuccess": "프로젝트 데이터 보존 설정이 성공적으로 저장되었습니다.",
+                "saveError": "프로젝트 데이터 보존 설정 저장에 실패했습니다."
             }
         },
         "recordDetail": {
@@ -3336,6 +3369,7 @@
             },
             "livenessPassed": "통과",
             "livenessFailed": "실패",
+            "documentClassification": "문서 분류",
             "ocr": "추출 데이터",
             "livenessScore": "라이브니스 점수",
             "livenessMinimum": "라이브니스 최소 점수",
@@ -3713,7 +3747,19 @@
                 "lastNameMatchPercentage": "성 일치 %",
                 "fullNameMatchPercentage": "전체 이름 일치 %",
                 "namesMatch": "이름 일치 여부"
-            }
+            },
+            "retentionNoStorageTitle": "사진이 저장되지 않음",
+            "retentionNoStorageDesc": "개인정보 보호 정책에 따라 셀카는 저장되지 않고 메모리에서만 처리되었습니다.",
+            "retentionPurgedTitle": "사진 삭제됨",
+            "retentionPurgedDesc": "데이터 보존 정책에 따라 셀카가 클라우드에서 삭제되었습니다.",
+            "docNoStorage": "신분증이 저장되지 않음",
+            "docNoStorageDesc": "이미지가 저장되지 않았습니다. OCR 데이터는 실시간으로 추출되었습니다.",
+            "docPurged": "신분증 삭제됨",
+            "docPurgedDesc": "보존 정책에 따라 신분증 사진이 삭제되었습니다.",
+            "retentionBannerNoStorageTitle": "개인정보 보호 활성화: 무저장 모드",
+            "retentionBannerNoStorageDesc": "이 기록은 무저장 정책 (#1672) 에 따라 처리되었습니다. 생체 이미지 및 신분증은 메모리에서만 검증되었으며 클라우드에 저장되지 않았습니다.",
+            "retentionBannerPurgedTitle": "데이터 보존 정책에 의해 삭제된 기록",
+            "retentionBannerPurgedDesc": "이 기록의 이미지는 수명 주기에 도달하여 저장소에서 자동으로 삭제되었습니다."
         },
         "setup": {
             "title": "설정",
@@ -4211,7 +4257,11 @@
             "dev_quick_fill": "샘플 데이터 채우기",
             "dev_quick_fill_hint": "로컬 전용: 유효한 필드를 미리 채워 마법사를 더 빠르게 진행합니다.",
             "dev_quick_fill_applied": "샘플 데이터가 적용되었습니다."
-        }
+        },
+        "retentionPurgedTooltip": "데이터 보존 정책에 따라 이미지가 삭제되었습니다",
+        "retentionNoStorageTooltip": "무저장 모드: 메모리에서만 처리되며 클라우드에 저장되지 않습니다",
+        "retentionBadgeNoStorage": "무저장",
+        "retentionBadgePurged": "삭제됨"
     },
     "smartAccessProjects": {
         "title": "프로젝트",
@@ -4737,9 +4787,21 @@
             "exporting": "내보내는 중…",
             "exportError": "CSV를 내보내지 못했습니다. 다시 시도하세요.",
             "groupBy": "그룹 기준",
-            "group": { "month": "월", "day": "일", "country": "국가", "costCenter": "비용 센터", "endpoint": "엔드포인트" },
+            "group": {
+                "month": "월",
+                "day": "일",
+                "country": "국가",
+                "costCenter": "비용 센터",
+                "endpoint": "엔드포인트"
+            },
             "range": "기간",
-            "ranges": { "last_30_days": "최근 30일", "this_month": "이번 달", "last_month": "지난달", "last_3_months": "최근 3개월", "last_12_months": "최근 12개월" },
+            "ranges": {
+                "last_30_days": "최근 30일",
+                "this_month": "이번 달",
+                "last_month": "지난달",
+                "last_3_months": "최근 3개월",
+                "last_12_months": "최근 12개월"
+            },
             "costCenter": "비용 센터",
             "allCostCenters": "모든 비용 센터",
             "noCostCenter": "비용 센터 없음",
@@ -4791,7 +4853,9 @@
             "usage_report": "사용 보고서",
             "usage_report_desc": "월, 국가, 비용 센터 또는 엔드포인트별 요청과 비용, CSV 내보내기 포함",
             "cost_centers": "비용 센터",
-            "cost_centers_desc": "팀이나 국가별로 요청을 태그해 사용량과 청구를 나눕니다"
+            "cost_centers_desc": "팀이나 국가별로 요청을 태그해 사용량과 청구를 나눕니다",
+            "data_retention": "개인정보 보호 및 데이터 보존",
+            "data_retention_desc": "데이터 수명 주기, 임시 저장 및 무보존 정책을 구성합니다"
         },
         "profile": {
             "title": "프로필 설정",
@@ -5355,6 +5419,36 @@
             "products": {
                 "allRecords": "모든 기록"
             }
+        },
+        "dataRetention": {
+            "title": "데이터 보존 및 개인정보 보호",
+            "subtitle": "클라우드 저장, 임시 보존 및 엄격한 무보존 모드 (#1672) 관리",
+            "businessAccountRequired": "데이터 보존 정책을 구성하려면 비즈니스 계정이 필요합니다.",
+            "globalModeTitle": "글로벌 저장 모드",
+            "globalModeDesc": "계정 전체의 모든 검증 이미지 및 추출 데이터에 대한 기본 정책을 정의합니다.",
+            "modeStore": "저장",
+            "modeStoreDesc": "이미지와 결과를 클라우드에 보존합니다(선택적 TTL 제한이 있는 표준 동작).",
+            "modeEphemeral": "임시 저장",
+            "modeEphemeralDesc": "웹훅 전송 또는 짧은 보존 기간까지만 데이터를 유지한 후 자동으로 삭제합니다.",
+            "modeNone": "무저장",
+            "modeNoneDesc": "OCR 및 검증을 위해 메모리에서만 이미지를 처리하며 클라우드 저장소에 절대 저장하지 않습니다.",
+            "granularRulesTitle": "데이터 유형별 개별 규칙",
+            "granularRulesDesc": "법적 요구 사항에 따라 특정 이미지 또는 기록 유형의 정책을 재정의합니다.",
+            "typeDocumentImages": "신분증 이미지 (앞면 / 뒷면)",
+            "typeDocumentImagesDesc": "신분증, 여권, 운전면허증 촬영 또는 업로드 사진.",
+            "typeFaceImages": "KYC 셀카 및 얼굴 이미지",
+            "typeFaceImagesDesc": "얼굴 사진 및 생체 인식 셀카.",
+            "typeOcrExtraction": "OCR 텍스트 추출 데이터",
+            "typeOcrExtractionDesc": "이름, 신분증 번호, 날짜 및 추출된 필드.",
+            "typeDocumentLiveness": "신분증 물리적 존재 확인",
+            "typeDocumentLivenessDesc": "신분증 실물 여부를 확인하기 위한 사진.",
+            "webhookHoldTitle": "웹훅 전송 보장 기간",
+            "webhookHoldDesc": "데이터 삭제 전 웹훅 자동 재전송을 시도하는 최소 보존 시간(시간 단위).",
+            "allowManualDeleteTitle": "수동 삭제 허용",
+            "allowManualDeleteDesc": "관리자가 SmartScan 또는 SmartEnroll 상세 화면에서 개별 이미지를 즉시 삭제할 수 있도록 허용합니다.",
+            "saveButton": "설정 저장",
+            "savedSuccess": "데이터 보존 설정이 성공적으로 저장되었습니다.",
+            "saveError": "데이터 보존 설정 저장에 실패했습니다."
         }
     },
     "userMenu": {

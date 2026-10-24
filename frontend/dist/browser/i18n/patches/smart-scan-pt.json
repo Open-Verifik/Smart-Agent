@@ -68,6 +68,24 @@
             "fromField": "de {{field}}",
             "unmappedRequired": "Falta mapear",
             "smartCheckHint": "Vincule qualquer endpoint deste país. O código do documento pode ser diferente do seu."
-        }
+        },
+        "deleteFromStorage": "Eliminar Imagem",
+        "retentionPurged": "Eliminado",
+        "retentionPurgedTooltip": "Os dados da imagem foram permanentemente excluídos do armazenamento de acordo com a política de retenção",
+        "retentionPurgedNotice": "Eliminado por política de retenção",
+        "retentionNoStorage": "Sem Armazenamento",
+        "retentionNoStorageTooltip": "Processado transitoriamente em memória. As imagens nunca são gravadas no armazenamento em nuvem",
+        "retentionNoStorageNotice": "Apenas processamento em memória",
+        "retentionEphemeral": "Efêmero",
+        "retentionEphemeralTooltip": "Programado para ser eliminado após expirar o período de retenção ou envio dos webhooks",
+        "retentionPurgedBannerTitle": "Imagem de Documento Eliminada",
+        "retentionPurgedBannerDesc": "Esta imagem de documento foi permanentemente excluída do armazenamento em nuvem em {{date}} por política de retenção (Motivo: {{reason}}). Os dados extraídos permanecem acessíveis.",
+        "retentionNoStorageBannerTitle": "Modo Sem Armazenamento Ativo",
+        "retentionNoStorageBannerDesc": "Esta verificação foi processada em memória transitória. As imagens de documentos nunca foram salvas no armazenamento permanente.",
+        "retentionEphemeralBannerTitle": "Armazenamento Efêmero Ativo",
+        "retentionEphemeralBannerDesc": "Esta imagem de documento é mantida temporariamente e está programada para eliminação permanente em {{date}}.",
+        "imagePurgedPlaceholderTitle": "Imagem Não Mais Armazenada",
+        "imagePurgedPlaceholderDesc": "A imagem original do documento foi excluída em {{date}} de acordo com a política de retenção de dados da sua organização.",
+        "imageUnavailableDesc": "A imagem do documento não está disponível."
     }
 }

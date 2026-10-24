@@ -4,13 +4,54 @@ import { environment } from 'environments/environment';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
 
+import type { ProjectDataRetentionOverride } from '../../smart-enroll/projects/smart-enroll-projects.types';
+
 export interface HumanAuthnProjectFlow {
     _id?: string;
     type?: string;
     target?: string;
     status?: string;
-    humanAuthn?: { mode?: string; livenessAtCreation?: boolean };
+    humanAuthn?: {
+        mode?: string;
+        livenessAtCreation?: boolean;
+        outputFormat?: string;
+        tolerance?: string;
+        compareMinScore?: number;
+        verifierKey?: string;
+        publicDataKeys?: string[];
+    };
     storage?: { provider?: string };
+    integrations?: {
+        redirectUrl?: string;
+        webhook?: string | { _id?: string; name?: string } | null;
+    };
+    steps?: {
+        document?: 'mandatory' | 'optional' | 'skip';
+        humanAuthn?: 'mandatory';
+    };
+    documents?: {
+        attemptLimit?: number;
+        colombianBarcodeValidation?: boolean;
+        criminalHistoryVerification?: boolean;
+        criminalHistoryVerificationEndpoints?: string[];
+        documentTypes?: any[];
+        informationVerification?: boolean;
+        screening?: boolean;
+        verificationMethods?: string[];
+    };
+    signUpForm?: {
+        additionalFields?: string[];
+        allowAdditionalFields?: boolean;
+        countryCode?: string;
+        email?: boolean;
+        emailGateway?: string;
+        fullName?: boolean;
+        fullNameStyle?: string;
+        phone?: boolean;
+        phoneGateway?: string;
+        showPrivacyNotice?: boolean;
+        showTermsAndConditions?: boolean;
+    };
 }
 
 export interface HumanAuthnProjectMember {
@@ -18,14 +59,44 @@ export interface HumanAuthnProjectMember {
     staff?: { name?: string };
 }
 
+export interface HumanAuthnProjectBranding {
+    backgroundColor?: string;
+    buttonColor?: string;
+    buttonTextColor?: string;
+    image?: string;
+    imageBackgroundColor?: string;
+    logo?: string;
+    textColor?: string;
+    titleColor?: string;
+}
+
+export interface HumanAuthnProjectDataProtection {
+    address?: string;
+    address2?: string;
+    city?: string;
+    country?: string;
+    email?: string;
+    name?: string;
+    postalCode?: string;
+}
+
 export interface HumanAuthnProject {
     _id: string;
     name: string;
     status?: string;
+    target?: string;
+    version?: number;
     currentStep?: number;
     lastStep?: number;
     demoMode?: boolean;
-    branding?: { logo?: string };
+    allowedCountries?: string[];
+    contactEmail?: string;
+    defaultLanguage?: string;
+    privacyUrl?: string;
+    termsAndConditionsUrl?: string;
+    dataProtection?: HumanAuthnProjectDataProtection;
+    branding?: HumanAuthnProjectBranding;
+    dataRetention?: ProjectDataRetentionOverride | null;
     updatedAt?: string;
     createdAt?: string;
     projectFlows?: HumanAuthnProjectFlow[];
@@ -128,4 +199,42 @@ export class HumanAuthnProjectsService {
             })
             .pipe(map((res) => res?.data ?? []));
     }
+
+    getProject(id: string): Observable<HumanAuthnProject | null> {
+        return this._http
+            .get<{ data?: HumanAuthnProject }>(`${this.apiUrl}/v3/projects/${id}`, {
+                params: {
+                    populates: 'projectFlows',
+                    projectFlowType: 'humanAuthn',
+                },
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((res) => res?.data ?? null),
+                catchError((err) => {
+                    console.error('Error loading HumanAuthn project:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    updateProject(id: string, data: Record<string, unknown>): Observable<{ data: HumanAuthnProject }> {
+        return this._http
+            .put<{ data: HumanAuthnProject }>(
+                `${this.apiUrl}/v3/projects/${id}`,
+                {
+                    ...data,
+                    projectFlowType: 'humanAuthn',
+                    target: 'personal',
+                },
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error updating HumanAuthn project:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
 }
+

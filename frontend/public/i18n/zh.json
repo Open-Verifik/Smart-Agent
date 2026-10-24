@@ -10,7 +10,11 @@
         "hello": "你好，{{name}}",
         "dashboardSubtitle": "为人员、车辆和企业建立一份活的核验清单，然后单独试跑或批量处理。",
         "newChecklist": "新建清单",
-        "stats": { "lists": "清单", "countries": "国家", "services": "已保存服务" },
+        "stats": {
+            "lists": "清单",
+            "countries": "国家",
+            "services": "已保存服务"
+        },
         "yourLists": "你的清单",
         "loading": "正在加载清单…",
         "emptyTitle": "先选国家。",
@@ -2531,8 +2535,8 @@
         "mineFilterMine": "我的团队创建的",
         "mineBadge": "我的团队",
         "addDocumentType": "添加证件类型",
-            "addDocumentTypeHint": "没有找到？为这个国家添加一种证件。",
-            "editDocumentType": "编辑",
+        "addDocumentTypeHint": "没有找到？为这个国家添加一种证件。",
+        "editDocumentType": "编辑",
         "smartCheckResult": "SmartCheck",
         "smartCheckMissing": "缺少字段：",
         "smartCheckStatus": {
@@ -2943,8 +2947,8 @@
         "dateStart": "开始日期",
         "dateEnd": "结束日期",
         "step": {
-            "all": "全部步骤",
             "1": "从未开始",
+            "all": "全部步骤",
             "not_started": "从未开始",
             "instructions": "说明",
             "signUpForm": "注册表单",
@@ -3225,6 +3229,35 @@
                     "personal": "个人注册",
                     "business": "企业注册"
                 }
+            },
+            "retention": {
+                "title": "数据保留与隐私",
+                "subtitle": "此项目的云存储、临时保留和无存储策略",
+                "accountDefault": "继承自账户",
+                "accountDefaultDesc": "此项目使用在账户设置中定义的全局数据保留策略。",
+                "projectOverride": "为此项目自定义",
+                "projectOverrideDesc": "此项目通过特定规则覆盖账户策略。",
+                "editSection": "配置",
+                "overrideToggle": "为此项目覆盖账户数据保留策略",
+                "overrideToggleDesc": "启用此选项可为此项目的验证定义专属存储规则。",
+                "globalModeTitle": "项目存储模式",
+                "modeStore": "存储",
+                "modeStoreDesc": "在云端持久保存照片和提取数据（标准行为）。",
+                "modeEphemeral": "临时存储",
+                "modeEphemeralDesc": "数据仅保留至 Webhook 传递或短 TTL 到期，然后清除。",
+                "modeNone": "无存储 (None)",
+                "modeNoneDesc": "仅在内存中处理图像进行 OCR 和生物特征识别；绝不存储。",
+                "docImages": "证件照片",
+                "faceImages": "KYC 自拍与面部照片",
+                "webhookHold": "Webhook 传递保障（小时）",
+                "manualDelete": "允许手动删除",
+                "allowed": "允许",
+                "notAllowed": "不允许",
+                "cancel": "取消",
+                "save": "保存更改",
+                "saving": "保存中...",
+                "savedSuccess": "项目数据保留设置已成功保存。",
+                "saveError": "保存项目数据保留设置失败。"
             }
         },
         "recordDetail": {
@@ -3336,6 +3369,7 @@
             },
             "livenessPassed": "通过",
             "livenessFailed": "未通过",
+            "documentClassification": "文件分类",
             "ocr": "识别字段",
             "livenessScore": "活体分数",
             "livenessMinimum": "活体最低分",
@@ -3713,7 +3747,19 @@
                 "lastNameMatchPercentage": "姓匹配 %",
                 "fullNameMatchPercentage": "全名匹配 %",
                 "namesMatch": "姓名是否匹配"
-            }
+            },
+            "retentionNoStorageTitle": "照片未存储",
+            "retentionNoStorageDesc": "根据隐私策略，自拍未保存，仅在内存中处理。",
+            "retentionPurgedTitle": "照片已清除",
+            "retentionPurgedDesc": "自拍已根据数据保留策略从云端清除。",
+            "docNoStorage": "证件未存储",
+            "docNoStorageDesc": "未持久化图像。OCR 数据已实时提取。",
+            "docPurged": "证件已清除",
+            "docPurgedDesc": "证件照片已根据保留策略清除。",
+            "retentionBannerNoStorageTitle": "隐私保护生效：无存储模式",
+            "retentionBannerNoStorageDesc": "此记录根据无存储策略 (#1672) 处理。生物特征图像和证件仅在内存中验证，从未持久保存到云端。",
+            "retentionBannerPurgedTitle": "记录已按保留策略清除",
+            "retentionBannerPurgedDesc": "此记录的图像已达到生命周期上限，已自动从存储中清除。"
         },
         "setup": {
             "title": "设置",
@@ -4211,7 +4257,11 @@
             "dev_quick_fill": "填充示例数据",
             "dev_quick_fill_hint": "仅本地：预填有效字段以更快完成向导。",
             "dev_quick_fill_applied": "已应用示例数据。"
-        }
+        },
+        "retentionPurgedTooltip": "根据数据保留策略，图像已被清除",
+        "retentionNoStorageTooltip": "无存储模式：仅在内存中处理，未保存在云端",
+        "retentionBadgeNoStorage": "无存储",
+        "retentionBadgePurged": "已清除"
     },
     "smartAccessProjects": {
         "title": "项目",
@@ -4737,9 +4787,21 @@
             "exporting": "正在导出…",
             "exportError": "无法导出 CSV。请重试。",
             "groupBy": "分组方式",
-            "group": { "month": "月", "day": "日", "country": "国家", "costCenter": "成本中心", "endpoint": "端点" },
+            "group": {
+                "month": "月",
+                "day": "日",
+                "country": "国家",
+                "costCenter": "成本中心",
+                "endpoint": "端点"
+            },
             "range": "时段",
-            "ranges": { "last_30_days": "最近 30 天", "this_month": "本月", "last_month": "上月", "last_3_months": "最近 3 个月", "last_12_months": "最近 12 个月" },
+            "ranges": {
+                "last_30_days": "最近 30 天",
+                "this_month": "本月",
+                "last_month": "上月",
+                "last_3_months": "最近 3 个月",
+                "last_12_months": "最近 12 个月"
+            },
             "costCenter": "成本中心",
             "allCostCenters": "所有成本中心",
             "noCostCenter": "无成本中心",
@@ -4791,7 +4853,9 @@
             "usage_report": "用量报告",
             "usage_report_desc": "按月、国家、成本中心或端点查看请求和费用，并可导出 CSV",
             "cost_centers": "成本中心",
-            "cost_centers_desc": "按团队或国家标记请求，以拆分用量和账单"
+            "cost_centers_desc": "按团队或国家标记请求，以拆分用量和账单",
+            "data_retention": "隐私与数据保留",
+            "data_retention_desc": "配置数据生命周期、临时存储和零保留策略"
         },
         "profile": {
             "title": "个人资料设置",
@@ -5355,6 +5419,36 @@
             "products": {
                 "allRecords": "全部记录"
             }
+        },
+        "dataRetention": {
+            "title": "数据保留与隐私",
+            "subtitle": "管理云存储、临时保留和严格的零保留模式 (#1672)",
+            "businessAccountRequired": "需要企业账户才能配置数据保留策略。",
+            "globalModeTitle": "全局存储模式",
+            "globalModeDesc": "为您账户下的所有验证图像和提取数据定义默认策略。",
+            "modeStore": "存储",
+            "modeStoreDesc": "在云端保留图像和结果（标准行为，可选保留期限制）。",
+            "modeEphemeral": "临时存储",
+            "modeEphemeralDesc": "数据仅保留至 Webhook 传递或短保留期结束，然后清除。",
+            "modeNone": "无存储",
+            "modeNoneDesc": "仅在内存中处理图像以进行 OCR 和验证；绝不保存到持久存储。",
+            "granularRulesTitle": "按数据类型的特定规则",
+            "granularRulesDesc": "根据法律要求覆盖特定类型图像或记录的策略。",
+            "typeDocumentImages": "证件图像（正面/背面）",
+            "typeDocumentImagesDesc": "拍摄或上传的身份证、护照和驾照照片。",
+            "typeFaceImages": "KYC 自拍与面部图像",
+            "typeFaceImagesDesc": "面部照片和生物特征识别自拍。",
+            "typeOcrExtraction": "OCR 文本提取数据",
+            "typeOcrExtractionDesc": "姓名、证件号码、日期和提取的字段。",
+            "typeDocumentLiveness": "证件活体检测",
+            "typeDocumentLivenessDesc": "用于验证证件实体真实性的照片。",
+            "webhookHoldTitle": "Webhook 传递保障期",
+            "webhookHoldDesc": "Webhook 自动尝试传递期间保留数据的最短时间（小时），之后再执行清除。",
+            "allowManualDeleteTitle": "允许手动删除",
+            "allowManualDeleteDesc": "允许管理员在 SmartScan 或 SmartEnroll 详情页中立即手动清除单张图像。",
+            "saveButton": "保存设置",
+            "savedSuccess": "数据保留设置已成功保存。",
+            "saveError": "保存数据保留设置失败。"
         }
     },
     "userMenu": {

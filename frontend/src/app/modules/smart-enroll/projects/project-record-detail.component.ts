@@ -15,9 +15,11 @@ import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
 import { finalize, forkJoin, Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { BarcodeValidationPanelComponent, type CedulaBarcodeValidation } from './barcode-validation-panel.component';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
+import type { DocumentClassification } from '../smart-scan/smart-scan.types';
 import {
     CaptureRequirementsDialogComponent,
     type CaptureRequirementsDialogData,
@@ -58,7 +60,11 @@ import {
     compareMinScoreDisplayPercent,
     documentFaceReasonKey,
     governmentNameResponse,
+    isDocNoStorage,
+    isDocPurged,
     isDocumentTypeUndetected,
+    isFaceNoStorage,
+    isFacePurged,
     isNameVerificationPerformed,
     livenessAttemptUsage,
     livenessMinScoreDisplayPercent,
@@ -67,6 +73,8 @@ import {
     normalizeUnitScore,
     pickEnrollmentFaceMedia,
     recordFullName,
+    recordRetentionNotice,
+    requiresDocumentRescan,
     resolveCompareStatus,
     resolveLivenessMinScoreUnit,
     resolveOtpStepState,
@@ -78,6 +86,7 @@ import {
     type GovernmentNameResponse,
     type ManualVerificationReason,
     type NameVerificationSkip,
+    type RecordRetentionNotice,
     type StepId,
     type StepState,
 } from './app-registration-record.utils';
@@ -244,6 +253,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _snackBar = inject(MatSnackBar);
     private _clipboard = inject(Clipboard);
+    private _authGate = inject(AuthRequiredGateService);
 
     private readonly _resendForbiddenStatuses = new Set(['COMPLETED_WITHOUT_KYC', 'COMPLETED', 'FAILED']);
     readonly printSectionId = 'enrollment-print-section';
@@ -263,6 +273,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     record = signal<AppRegistrationDetail | null>(null);
     ocrDisplayKeys = signal<string[]>([]);
     ocrData = signal<Record<string, unknown>>({});
+    showClassificationReason = false;
     activeStep = signal<StepId>('information');
     deleteLoading = signal(false);
     deleteErrorKey = signal<string | null>(null);
@@ -279,6 +290,15 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             return;
         }
 
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => this._loadRecordDetails(),
+        });
+    }
+
+    private _loadRecordDetails(): void {
+        this.loading.set(true);
+        this.errorKey.set(null);
         this._sub = forkJoin({
             project: this._projectsService.getProject(this.projectId),
             record: this._projectsService.getAppRegistration(this.recordId),
@@ -968,6 +988,30 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         return '';
     }
 
+    isRecordFaceNoStorage(r: AppRegistrationDetail | null): boolean {
+        return isFaceNoStorage(r, this.project()?.dataRetention);
+    }
+
+    isRecordFacePurged(r: AppRegistrationDetail | null): boolean {
+        return isFacePurged(r);
+    }
+
+    isRecordDocNoStorage(r: AppRegistrationDetail | null): boolean {
+        return isDocNoStorage(r, this.project()?.dataRetention);
+    }
+
+    isRecordDocPurged(r: AppRegistrationDetail | null): boolean {
+        return isDocPurged(r);
+    }
+
+    isRecordRescanRequired(r: AppRegistrationDetail | null): boolean {
+        return requiresDocumentRescan(r);
+    }
+
+    retentionNotice(r: AppRegistrationDetail | null): RecordRetentionNotice | null {
+        return recordRetentionNotice(r, this.project()?.dataRetention);
+    }
+
     showNameMatch(): boolean {
         return showNameVerificationSection(this.project(), this.record());
     }
@@ -1071,6 +1115,20 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             ?.OCRExtraction;
 
         return extraction?.barcodeValidation || null;
+    }
+
+    documentClassification(): DocumentClassification | null {
+        const dv = this.record()?.documentValidation as Record<string, any> | null | undefined;
+        const ocr = (dv?.OCRExtraction ?? this.record()?.['OCRExtraction']) as Record<string, any> | undefined;
+        const cls = (ocr?.documentClassification ?? ocr?.classification ?? dv?.documentClassification ?? dv?.classification) as DocumentClassification | undefined;
+        if (!cls || typeof cls !== 'object') return null;
+        return cls;
+    }
+
+    get classificationConfidencePercent(): number {
+        const cls = this.documentClassification();
+        if (!cls) return 0;
+        return scoreToPercent(normalizeUnitScore(cls.confidence));
     }
 
     /** Translated label for a decoded failure reason. */
@@ -1720,6 +1778,11 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         const keys = cleanOcrExtraction(copy);
         this.ocrData.set(copy);
         this.ocrDisplayKeys.set(keys);
+
+        const cls = this.documentClassification();
+        if (cls) {
+            this.showClassificationReason = !cls.isMatch;
+        }
     }
 
     private _setupScrollSpy(): void {

@@ -26,6 +26,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { DateTime } from 'luxon';
 import { EMPTY, firstValueFrom, Subject } from 'rxjs';
 import { catchError, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
@@ -87,6 +88,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     private _cdr = inject(ChangeDetectorRef);
     private _transloco = inject(TranslocoService);
     private _snack = inject(MatSnackBar);
+    private _authGate = inject(AuthRequiredGateService);
     private _searchChange$ = new Subject<string>();
     private _reload$ = new Subject<void>();
     private _destroy$ = new Subject<void>();
@@ -113,42 +115,47 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     detailLoading = signal(false);
 
     ngOnInit(): void {
-        this._reload$
-            .pipe(
-                switchMap(() => {
-                    this.loading.set(true);
-                    const params: UsageHistoryListParams = {
-                        page: this.pageIndex() + 1,
-                        limit: this.pageSize(),
-                        ...this._buildFilterParams(),
-                    };
+        this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
+            onAuthenticated: () => {
+                this._reload$
+                    .pipe(
+                        switchMap(() => {
+                            this.loading.set(true);
+                            const params: UsageHistoryListParams = {
+                                page: this.pageIndex() + 1,
+                                limit: this.pageSize(),
+                                ...this._buildFilterParams(),
+                            };
 
-                    return this._service.listRequests(params).pipe(
-                        catchError(() => {
-                            this.dataSource.data = [];
-                            this.total.set(null);
-                            this.loading.set(false);
-                            this._cdr.markForCheck();
-                            return EMPTY;
-                        })
-                    );
-                }),
-                takeUntil(this._destroy$)
-            )
-            .subscribe((res) => {
-                this.dataSource.data = res.data || [];
-                this.total.set(res.total ?? null);
-                this.loading.set(false);
-                this._cdr.markForCheck();
-            });
+                            return this._service.listRequests(params).pipe(
+                                catchError(() => {
+                                    this.dataSource.data = [];
+                                    this.total.set(null);
+                                    this.loading.set(false);
+                                    this._cdr.markForCheck();
+                                    return EMPTY;
+                                })
+                            );
+                        }),
+                        takeUntil(this._destroy$)
+                    )
+                    .subscribe((res) => {
+                        this.dataSource.data = res.data || [];
+                        this.total.set(res.total ?? null);
+                        this.loading.set(false);
+                        this._cdr.markForCheck();
+                    });
 
-        this._searchChange$.pipe(debounceTime(350), takeUntil(this._destroy$)).subscribe(() => {
-            this.pageIndex.set(0);
-            this.loadData();
+                this._searchChange$.pipe(debounceTime(350), takeUntil(this._destroy$)).subscribe(() => {
+                    this.pageIndex.set(0);
+                    this.loadData();
+                });
+
+                this.loadData();
+                this._loadTopSales();
+            },
         });
-
-        this.loadData();
-        this._loadTopSales();
     }
 
     ngOnDestroy(): void {

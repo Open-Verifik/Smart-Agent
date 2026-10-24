@@ -3,11 +3,17 @@ import {
     buildFailedBiometricAttempts,
     buildManualVerificationReasons,
     canRerunCompare,
+    cleanOcrExtraction,
     documentFaceReasonKey,
     documentFailureReasonKey,
+    isDocNoStorage,
+    isDocPurged,
+    isFaceNoStorage,
+    isFacePurged,
     livenessAttemptUsage,
     livenessScoreBand,
     nameVerificationSkip,
+    recordRetentionNotice,
     resolveCompareStatus,
     resolveOtpStepState,
 } from './app-registration-record.utils';
@@ -176,3 +182,138 @@ describe('livenessScoreBand', () => {
         expect(livenessScoreBand(58, null)).toBeNull();
     });
 });
+
+describe('retention detection helpers', () => {
+    it('detects face no-storage via stamped retention metadata', () => {
+        const record = {
+            face: { retention: { mode: 'none' } },
+        } as unknown as AppRegistrationDetail;
+
+        expect(isFaceNoStorage(record)).toBe(true);
+        expect(isFacePurged(record)).toBe(false);
+    });
+
+    it('detects face purged via stamped purgedAt date', () => {
+        const record = {
+            face: { retention: { mode: 'fixed_period', purgedAt: '2026-10-23T12:00:00Z' } },
+        } as unknown as AppRegistrationDetail;
+
+        expect(isFacePurged(record)).toBe(true);
+        expect(isFaceNoStorage(record)).toBe(false);
+    });
+
+    it('infers face no-storage when no media was saved and project retention is none', () => {
+        const record = {
+            status: 'COMPLETED',
+            currentStep: 'end',
+            face: { base64: null, url: null },
+            biometricValidation: { status: 'validated' },
+        } as unknown as AppRegistrationDetail;
+
+        const projectRetention = {
+            enabled: true,
+            mode: 'none' as const,
+        };
+
+        expect(isFaceNoStorage(record, projectRetention)).toBe(true);
+    });
+
+    it('detects document no-storage and purge status', () => {
+        const noStorageDoc = {
+            documentValidation: {
+                status: 'validated',
+                retention: { mode: 'none' },
+            },
+        } as unknown as AppRegistrationDetail;
+
+        const purgedDoc = {
+            documentValidation: {
+                status: 'validated',
+                retention: { mode: 'fixed_period', purgedAt: '2026-10-23T12:00:00Z' },
+            },
+        } as unknown as AppRegistrationDetail;
+
+        expect(isDocNoStorage(noStorageDoc)).toBe(true);
+        expect(isDocPurged(noStorageDoc)).toBe(false);
+
+        expect(isDocPurged(purgedDoc)).toBe(true);
+        expect(isDocNoStorage(purgedDoc)).toBe(false);
+    });
+
+    it('builds correct recordRetentionNotice for purged and no-storage records', () => {
+        const purgedRecord = {
+            face: { retention: { purgedAt: '2026-10-23T12:00:00Z' } },
+        } as unknown as AppRegistrationDetail;
+
+        const noticePurged = recordRetentionNotice(purgedRecord);
+        expect(noticePurged?.type).toBe('purged');
+        expect(noticePurged?.icon).toBe('heroicons_outline:trash');
+
+        const noStorageRecord = {
+            face: { retention: { mode: 'none' } },
+        } as unknown as AppRegistrationDetail;
+
+        const noticeNoStorage = recordRetentionNotice(noStorageRecord);
+        expect(noticeNoStorage?.type).toBe('noStorage');
+        expect(noticeNoStorage?.icon).toBe('heroicons_outline:shield-check');
+
+        const normalRecord = {
+            face: { url: 'https://cdn.example.com/selfie.jpg' },
+        } as unknown as AppRegistrationDetail;
+
+        expect(recordRetentionNotice(normalRecord)).toBeNull();
+    });
+
+    describe('cleanOcrExtraction', () => {
+        it('excludes documentClassification, barcodeValidation, and non-primitive objects from OCR grid', () => {
+            const rawOcr = {
+                fullName: 'NICOLAS HERNANDEZ TOVAR',
+                documentNumber: '1023942104',
+                documentType: 'DRCC',
+                dateOfBirth: '07-05-1995',
+                dateOfIssue: '03-12-2015',
+                bloodType: 'O+',
+                issuingAuthority: 'SDM - BOGOTA D.C.',
+                documentClassification: {
+                    requestedDocumentType: 'DRCC',
+                    detectedDocumentType: 'DRCC',
+                    detectedDocumentName: 'Licencia de Conducción',
+                    isMatch: true,
+                    confidence: 0.95,
+                    reason: 'Header matches REPÚBLICA DE COLOMBIA',
+                },
+                barcodeValidation: {
+                    verdict: 'confirmed',
+                },
+                nestedObject: {
+                    something: 'internal',
+                },
+            };
+
+            const keys = cleanOcrExtraction(rawOcr as Record<string, unknown>);
+
+            // Must NOT contain documentClassification or any variation of it
+            expect(keys).not.toContain('Document Classification');
+            expect(keys).not.toContain('documentClassification');
+            expect(keys).not.toContain('Barcode Validation');
+            expect(keys).not.toContain('barcodeValidation');
+            expect(keys).not.toContain('Nested Object');
+            expect(keys).not.toContain('nestedObject');
+
+            // Must not exist on the mutated copy either
+            expect(rawOcr['Document Classification']).toBeUndefined();
+            expect(rawOcr['documentClassification']).toBeUndefined();
+            expect(rawOcr['barcodeValidation']).toBeUndefined();
+            expect(rawOcr['nestedObject']).toBeUndefined();
+
+            // Must retain clean display keys
+            expect(keys).toContain('Full Name');
+            expect(keys).toContain('Document Number');
+            expect(keys).toContain('Document Type');
+            expect(keys).toContain('Date Of Birth');
+            expect(rawOcr['Full Name']).toBe('NICOLAS HERNANDEZ TOVAR');
+            expect(rawOcr['Document Number']).toBe('1023942104');
+        });
+    });
+});
+

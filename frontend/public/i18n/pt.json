@@ -10,7 +10,11 @@
         "hello": "Olá, {{name}}",
         "dashboardSubtitle": "Monte uma checklist viva de pessoas, veículos e empresas — teste ou envie em lote.",
         "newChecklist": "Nova checklist",
-        "stats": { "lists": "Checklists", "countries": "Países", "services": "Serviços salvos" },
+        "stats": {
+            "lists": "Checklists",
+            "countries": "Países",
+            "services": "Serviços salvos"
+        },
         "yourLists": "Suas listas",
         "loading": "Carregando suas checklists…",
         "emptyTitle": "Comece por um país.",
@@ -2531,8 +2535,8 @@
         "mineFilterMine": "Criados pela minha equipe",
         "mineBadge": "Minha equipe",
         "addDocumentType": "Adicionar tipo de documento",
-            "addDocumentTypeHint": "Não encontrou? Adicione um documento para este país.",
-            "editDocumentType": "Editar",
+        "addDocumentTypeHint": "Não encontrou? Adicione um documento para este país.",
+        "editDocumentType": "Editar",
         "smartCheckResult": "SmartCheck",
         "smartCheckMissing": "Campos ausentes:",
         "smartCheckStatus": {
@@ -2943,8 +2947,8 @@
         "dateStart": "Data inicial",
         "dateEnd": "Data final",
         "step": {
-            "all": "Todas as etapas",
             "1": "Nunca começou",
+            "all": "Todas as etapas",
             "not_started": "Nunca começou",
             "instructions": "Instruções",
             "signUpForm": "Formulário de cadastro",
@@ -3225,6 +3229,35 @@
                     "personal": "Registo individual",
                     "business": "Registo empresarial"
                 }
+            },
+            "retention": {
+                "title": "Retenção de Dados e Privacidade",
+                "subtitle": "Políticas de armazenamento em nuvem, retenção efêmera e sem armazenamento para este projeto",
+                "accountDefault": "Herdado da Conta",
+                "accountDefaultDesc": "Este projeto utiliza a política global de retenção definida nas Configurações da Conta.",
+                "projectOverride": "Personalizado para este Projeto",
+                "projectOverrideDesc": "Este projeto substitui as políticas da conta por regras específicas.",
+                "editSection": "Configurar",
+                "overrideToggle": "Substituir a política de retenção da conta para este projeto",
+                "overrideToggleDesc": "Ative esta opção para definir regras de armazenamento exclusivas para as verificações deste projeto.",
+                "globalModeTitle": "Modo de Armazenamento do Projeto",
+                "modeStore": "Armazenar",
+                "modeStoreDesc": "Mantém fotos e dados extraídos na nuvem (comportamento padrão).",
+                "modeEphemeral": "Efêmero",
+                "modeEphemeralDesc": "Conserva os dados apenas até a entrega de webhooks ou expiração do TTL, depois elimina.",
+                "modeNone": "Sem Armazenamento (None)",
+                "modeNoneDesc": "Processa imagens em memória para OCR e biometria; nunca as armazena.",
+                "docImages": "Fotos de Documentos",
+                "faceImages": "Selfies KYC e Rostos",
+                "webhookHold": "Garantia de Webhooks (horas)",
+                "manualDelete": "Permitir eliminação manual",
+                "allowed": "Permitida",
+                "notAllowed": "Não permitida",
+                "cancel": "Cancelar",
+                "save": "Salvar Alterações",
+                "saving": "Salvando...",
+                "savedSuccess": "Configurações de retenção do projeto salvas com sucesso.",
+                "saveError": "Erro ao salvar as configurações de retenção do projeto."
             }
         },
         "recordDetail": {
@@ -3336,6 +3369,7 @@
             },
             "livenessPassed": "Aprovado",
             "livenessFailed": "Reprovado",
+            "documentClassification": "Classificação do documento",
             "ocr": "Dados extraídos",
             "livenessScore": "Pontuação de vivacidade",
             "livenessMinimum": "Mínimo de vivacidade",
@@ -3713,7 +3747,19 @@
                 "lastNameMatchPercentage": "Correspondência apelido %",
                 "fullNameMatchPercentage": "Correspondência nome completo %",
                 "namesMatch": "Correspondência de nomes"
-            }
+            },
+            "retentionNoStorageTitle": "Foto Não Armazenada",
+            "retentionNoStorageDesc": "Por política de privacidade, a selfie não foi salva e foi processada exclusivamente em memória.",
+            "retentionPurgedTitle": "Foto Eliminada",
+            "retentionPurgedDesc": "A selfie foi eliminada da nuvem de acordo com a política de retenção.",
+            "docNoStorage": "Documento Não Armazenado",
+            "docNoStorageDesc": "As imagens não foram persistidas. Os dados de OCR foram extraídos em tempo real.",
+            "docPurged": "Documento Eliminado",
+            "docPurgedDesc": "As fotos do documento foram eliminadas de acordo com a política de retenção.",
+            "retentionBannerNoStorageTitle": "Privacidade Ativa: Modo Sem Armazenamento",
+            "retentionBannerNoStorageDesc": "Este registro foi processado sob a política de não armazenamento (#1672). As imagens biométricas e documentos foram validados em memória e nunca salvos na nuvem.",
+            "retentionBannerPurgedTitle": "Registro Eliminado por Retenção",
+            "retentionBannerPurgedDesc": "As imagens deste registro atingiram o limite do ciclo de vida e foram eliminadas automaticamente do armazenamento."
         },
         "setup": {
             "title": "Configuração",
@@ -4211,7 +4257,11 @@
             "dev_quick_fill": "Preencher dados de exemplo",
             "dev_quick_fill_hint": "Somente local: pré-carrega campos válidos para avançar mais rápido no assistente.",
             "dev_quick_fill_applied": "Dados de exemplo aplicados."
-        }
+        },
+        "retentionPurgedTooltip": "Imagem eliminada pela política de retenção de dados",
+        "retentionNoStorageTooltip": "Modo sem armazenamento: processado em memória e não armazenado na nuvem",
+        "retentionBadgeNoStorage": "Sem Armazenamento",
+        "retentionBadgePurged": "Eliminado"
     },
     "smartAccessProjects": {
         "title": "Projetos",
@@ -4737,9 +4787,21 @@
             "exporting": "Exportando…",
             "exportError": "Não foi possível exportar o CSV. Tente novamente.",
             "groupBy": "Agrupar por",
-            "group": { "month": "Mês", "day": "Dia", "country": "País", "costCenter": "Centro de custo", "endpoint": "Endpoint" },
+            "group": {
+                "month": "Mês",
+                "day": "Dia",
+                "country": "País",
+                "costCenter": "Centro de custo",
+                "endpoint": "Endpoint"
+            },
             "range": "Período",
-            "ranges": { "last_30_days": "Últimos 30 dias", "this_month": "Este mês", "last_month": "Mês passado", "last_3_months": "Últimos 3 meses", "last_12_months": "Últimos 12 meses" },
+            "ranges": {
+                "last_30_days": "Últimos 30 dias",
+                "this_month": "Este mês",
+                "last_month": "Mês passado",
+                "last_3_months": "Últimos 3 meses",
+                "last_12_months": "Últimos 12 meses"
+            },
             "costCenter": "Centro de custo",
             "allCostCenters": "Todos os centros de custo",
             "noCostCenter": "Sem centro de custo",
@@ -4791,7 +4853,9 @@
             "usage_report": "Relatório de uso",
             "usage_report_desc": "Solicitações e custo por mês, país, centro de custo ou endpoint, com exportação CSV",
             "cost_centers": "Centros de custo",
-            "cost_centers_desc": "Marque solicitações por equipe ou país para separar o uso e o faturamento"
+            "cost_centers_desc": "Marque solicitações por equipe ou país para separar o uso e o faturamento",
+            "data_retention": "Privacidade e Retenção de Dados",
+            "data_retention_desc": "Configure o ciclo de vida dos dados, armazenamento efêmero e políticas de retenção zero"
         },
         "profile": {
             "title": "Configurações de Perfil",
@@ -5355,6 +5419,36 @@
             "products": {
                 "allRecords": "Todos os registros"
             }
+        },
+        "dataRetention": {
+            "title": "Retenção de Dados e Privacidade",
+            "subtitle": "Gerencie armazenamento em nuvem, retenção efêmera e o modo estrito de retenção zero (#1672)",
+            "businessAccountRequired": "É necessária uma conta corporativa para configurar as políticas de retenção de dados.",
+            "globalModeTitle": "Modo Global de Armazenamento",
+            "globalModeDesc": "Define a política padrão para todas as imagens de verificação e dados extraídos da sua conta.",
+            "modeStore": "Armazenar",
+            "modeStoreDesc": "Conserva as imagens e resultados na nuvem (comportamento padrão com limites opcionais).",
+            "modeEphemeral": "Efêmero",
+            "modeEphemeralDesc": "Conserva os dados apenas até a entrega do webhook ou curto período de retenção, depois elimina.",
+            "modeNone": "Sem Armazenamento",
+            "modeNoneDesc": "Processa as imagens apenas em memória para OCR e verificação; nunca as persiste no armazenamento.",
+            "granularRulesTitle": "Regras Específicas por Tipo de Dado",
+            "granularRulesDesc": "Substitua a política para tipos específicos de imagens ou registros de acordo com suas exigências legais.",
+            "typeDocumentImages": "Imagens de Documentos (Frente / Verso)",
+            "typeDocumentImagesDesc": "Fotos tiradas ou enviadas de documentos de identidade, passaportes e carteiras de motorista.",
+            "typeFaceImages": "Selfies KYC e Imagens Faciais",
+            "typeFaceImagesDesc": "Fotos de rostos e selfies de verificação biométrica.",
+            "typeOcrExtraction": "Extrações de Texto OCR",
+            "typeOcrExtractionDesc": "Nomes, números de documento, datas e dados extraídos.",
+            "typeDocumentLiveness": "Prova de Vida de Documentos",
+            "typeDocumentLivenessDesc": "Fotografias de verificação de presença física do documento.",
+            "webhookHoldTitle": "Garantia de Retenção para Webhooks",
+            "webhookHoldDesc": "Tempo mínimo (em horas) para reter dados enquanto os webhooks tentam o envio automático antes de eliminar.",
+            "allowManualDeleteTitle": "Permitir Eliminação Manual",
+            "allowManualDeleteDesc": "Permite que os administradores eliminem imagens individuais imediatamente a partir dos detalhes do SmartScan ou SmartEnroll.",
+            "saveButton": "Salvar Configurações",
+            "savedSuccess": "Configurações de retenção salvas com sucesso.",
+            "saveError": "Erro ao salvar as configurações de retenção de dados."
         }
     },
     "userMenu": {

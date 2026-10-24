@@ -68,6 +68,24 @@
             "fromField": "{{field}} から",
             "unmappedRequired": "未設定",
             "smartCheckHint": "この国の政府エンドポイントをリンクできます。文書コードが一致しなくても選べます。"
-        }
+        },
+        "deleteFromStorage": "画像を削除",
+        "retentionPurged": "削除済み",
+        "retentionPurgedTooltip": "画像データはデータ保持ポリシーに従ってストレージから完全に削除されました",
+        "retentionPurgedNotice": "データ保持ポリシーにより削除済み",
+        "retentionNoStorage": "ストレージなし",
+        "retentionNoStorageTooltip": "一時メモリ内でのみ処理されました。画像はクラウドストレージに一切保存されません",
+        "retentionNoStorageNotice": "メモリ内処理のみ",
+        "retentionEphemeral": "エフェメラル",
+        "retentionEphemeralTooltip": "保持期間またはWebhook保証の期限が切れ次第、消去される予定です",
+        "retentionPurgedBannerTitle": "書類画像は削除されました",
+        "retentionPurgedBannerDesc": "この書類画像は {{date}} にデータ保持ポリシーによりクラウドストレージから完全に削除されました (理由: {{reason}})。抽出されたデータは引き続き利用可能です。",
+        "retentionNoStorageBannerTitle": "ストレージなしモード有効",
+        "retentionNoStorageBannerDesc": "このスキャンは一時メモリ内で処理されました。書類画像は永続クラウドストレージに一切保存されていません。",
+        "retentionEphemeralBannerTitle": "エフェメラルストレージ有効",
+        "retentionEphemeralBannerDesc": "この書類画像は一時的に保持されており、{{date}} に完全削除される予定です。",
+        "imagePurgedPlaceholderTitle": "画像は保存されていません",
+        "imagePurgedPlaceholderDesc": "組織のデータ保持ポリシーに従い、オリジナルの書類画像は {{date}} に削除されました。",
+        "imageUnavailableDesc": "書類画像は利用できません。"
     }
 }

@@ -184,7 +184,7 @@
                             <div class="meta">{{ t('humanAuthnProjects.updated') }}: {{ formatUpdated(project.updatedAt) }}</div>
 
                             <div class="card-actions" (click)="$event.stopPropagation()">
-                                <button type="button" class="btn-live" (click)="openProject(project, $event)">
+                                <button type="button" class="btn-live" (click)="openSetup(project, 0, $event)">
                                     <mat-icon class="btn-live-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
                                     {{ t('humanAuthnProjects.list.openSetup') }}
                                 </button>

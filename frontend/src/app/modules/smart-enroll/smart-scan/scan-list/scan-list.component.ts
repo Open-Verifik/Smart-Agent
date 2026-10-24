@@ -22,11 +22,19 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SmartScanService } from '../smart-scan.service';
 import type { DocumentValidation } from '../smart-scan.types';
+
+import {
+    isPurged,
+    isNoStorage,
+    isEphemeral,
+    getRetentionBadge,
+} from '../smart-scan-retention.util';
 
 interface ScanFilters {
     documentType: string;
@@ -62,6 +70,7 @@ const EMPTY_FILTERS: ScanFilters = {
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatTooltipModule,
         TranslocoModule,
     ],
     templateUrl: './scan-list.component.html',
@@ -97,6 +106,11 @@ export class ScanListComponent implements OnInit {
         'EXPIRED', 'ACTIVE_BUT_UNVERIFIED',
     ];
 
+    readonly isPurged = isPurged;
+    readonly isNoStorage = isNoStorage;
+    readonly isEphemeral = isEphemeral;
+    readonly getRetentionBadge = getRetentionBadge;
+
     constructor() {
         effect(() => {
             this.dataSource.data = this.filteredScans;
@@ -105,8 +119,8 @@ export class ScanListComponent implements OnInit {
 
     ngOnInit(): void {
         this._authGate.runWithAuthOrDialog({
+            directAuthModal: true,
             onAuthenticated: () => this._initScanListFromRoute(),
-            panelClass: 'auth-required-dialog',
         });
     }
 
