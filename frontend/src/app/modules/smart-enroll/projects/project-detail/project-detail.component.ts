@@ -18,6 +18,7 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
+import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
 import { RetentionPolicyFormComponent } from 'app/core/data-retention/retention-policy-form.component';
 import type { RetentionPolicy } from 'app/core/data-retention/retention.model';
 import {
@@ -124,6 +125,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _projectsService = inject(SmartEnrollProjectsService);
+    private _retention = inject(DataRetentionService);
     private _clipboard = inject(Clipboard);
     private _transloco = inject(TranslocoService);
     private _snackBar = inject(MatSnackBar);
@@ -651,6 +653,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             next: (res) => {
                 this.savingRetention.set(false);
                 this.editingRetention.set(false);
+                this._retention.forgetProjectRetention(id);
                 this._applySavedProject(id, res?.data);
                 this._snackBar.open(this._transloco.translate('smartEnrollProjects.detail.retention.savedSuccess'), undefined, {
                     duration: 3000,

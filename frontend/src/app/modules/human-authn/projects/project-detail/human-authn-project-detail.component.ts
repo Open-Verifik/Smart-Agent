@@ -17,6 +17,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
 import { DateTime } from 'luxon';
 
+import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
 import { RetentionPolicyFormComponent } from 'app/core/data-retention/retention-policy-form.component';
 import type { RetentionPolicy } from 'app/core/data-retention/retention.model';
 import {
@@ -71,6 +72,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _projectsService = inject(HumanAuthnProjectsService);
+    private _retention = inject(DataRetentionService);
     private _clipboard = inject(Clipboard);
     private _transloco = inject(TranslocoService);
     private _snackBar = inject(MatSnackBar);
@@ -352,6 +354,7 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
 
         this._projectsService.updateProject(project._id, { dataRetention: payload }).subscribe({
             next: (res) => {
+                this._retention.forgetProjectRetention(project._id);
                 const updated = res?.data;
                 if (updated) {
                     this.project.set({

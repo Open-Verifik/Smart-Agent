@@ -47,6 +47,7 @@
                         <button mat-flat-button color="primary" type="button" class="rounded-full" (click)="scanAnother()">
                             {{ 'smartScan.scanAnotherSame' | transloco: { code: scan.documentType } }}
                         </button>
+                        <ng-container *ngTemplateOutlet="eraseScanButton"></ng-container>
                     </div>
                 }
             </div>
@@ -54,6 +55,13 @@
     </header>
 
     <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+        @if (eraseErrorKey) {
+            <div
+                class="mx-auto mb-6 w-full max-w-5xl rounded-2xl border border-red-200/90 bg-red-50/90 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+            >
+                {{ eraseErrorKey | transloco }}
+            </div>
+        }
         @if (isPurged) {
             <div
                 class="mx-auto mb-6 w-full max-w-5xl rounded-2xl border border-stone-300/90 bg-stone-100/90 p-4 text-sm text-stone-800 dark:border-gray-800 dark:bg-gray-900/60 dark:text-stone-300 flex items-start gap-3 shadow-sm"
@@ -470,7 +478,8 @@
                     }
                 </div>
 
-                <div class="flex justify-end">
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <ng-container *ngTemplateOutlet="eraseScanButton"></ng-container>
                     <button
                         mat-stroked-button
                         type="button"
@@ -493,4 +502,29 @@
             </div>
         }
     </main>
+
+    <ng-template #eraseScanButton>
+        <span
+            class="inline-flex"
+            [matTooltip]="allowManualDelete === false ? ('settings.dataRetention.eraseDisabled' | transloco) : ''"
+            [matTooltipDisabled]="allowManualDelete !== false"
+        >
+            <button
+                mat-stroked-button
+                color="warn"
+                type="button"
+                class="rounded-full"
+                [class.pointer-events-none]="allowManualDelete === false"
+                [disabled]="eraseAccessLoading || allowManualDelete === false || eraseLoading || deleteLoading"
+                (click)="confirmEraseData()"
+            >
+                @if (eraseLoading) {
+                    <mat-spinner class="mr-2 inline-block" diameter="18"></mat-spinner>
+                } @else {
+                    <mat-icon class="icon-size-5 mr-1">delete_forever</mat-icon>
+                }
+                {{ 'settings.dataRetention.eraseData' | transloco }}
+            </button>
+        </span>
+    </ng-template>
 </div>
