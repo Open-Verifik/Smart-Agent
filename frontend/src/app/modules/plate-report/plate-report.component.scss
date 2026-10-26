@@ -16,9 +16,12 @@
 }
 
 .plate-report {
+    box-sizing: border-box;
+    width: 100%;
     max-width: 34rem;
     margin: 0 auto;
-    padding: 1.25rem 1rem 3rem;
+    padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+        max(3rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
 .steps {
@@ -1007,6 +1010,41 @@ h2 {
 
     75% {
         transform: translateX(3px);
+    }
+}
+
+@media (max-width: 479px) {
+    .steps__label {
+        font-size: 0.62rem;
+        line-height: 1.15;
+        max-width: 5.5rem;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 1.35rem;
+    }
+
+    .plate-report__card {
+        padding: 1.1rem 1rem 1.25rem;
+        border-radius: 1.15rem;
+    }
+
+    .combo__country {
+        flex: 0 0 4.75rem;
+    }
+
+    .plate-report__currency-option {
+        padding: 0.65rem 0.75rem;
+    }
+
+    .email-box {
+        gap: 0.65rem;
+    }
+
+    .orbit {
+        transform: scale(0.92);
+        transform-origin: center top;
     }
 }
 
