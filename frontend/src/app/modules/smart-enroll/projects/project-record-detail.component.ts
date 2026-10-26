@@ -99,6 +99,7 @@ import type {
     ManualReviewLogEntry,
     ResolvableAppRegistrationStatus,
 } from './smart-enroll-projects.types';
+import type { DocumentClassification } from '../smart-scan/smart-scan.types';
 
 /** Name-match metrics for one source, with an explicit "did the lookup run" flag. */
 interface NameMatchColumn {
@@ -1198,6 +1199,18 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             ?.OCRExtraction;
 
         return extraction?.barcodeValidation || null;
+    }
+
+    documentClassification(): DocumentClassification | null {
+        const extraction = (this.record()?.documentValidation as { OCRExtraction?: { documentClassification?: DocumentClassification } } | null)
+            ?.OCRExtraction;
+
+        return extraction?.documentClassification || null;
+    }
+
+    classificationConfidencePercent(classification: DocumentClassification | null): number {
+        if (!classification || typeof classification.confidence !== 'number') return 0;
+        return Math.round(classification.confidence > 1 ? classification.confidence : classification.confidence * 100);
     }
 
     /** Translated label for a decoded failure reason. */

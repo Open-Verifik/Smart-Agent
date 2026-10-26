@@ -48,8 +48,14 @@ export const cleanOcrExtraction = (ocr: Record<string, unknown> | null | undefin
     if (!ocr || typeof ocr !== 'object') return [];
 
     delete ocr.barcodeValidation;
+    delete ocr.documentClassification;
+    delete ocr.smartCheck;
 
     Object.keys(ocr).forEach((key) => {
+        if (key.startsWith('_') || (typeof ocr[key] === 'object' && ocr[key] !== null)) {
+            delete (ocr as Record<string, unknown>)[key];
+            return;
+        }
         const camelCaseKey = key
             .replace(/([A-Z])/g, ' $1')
             .replace(/^./, (char) => char.toUpperCase());
