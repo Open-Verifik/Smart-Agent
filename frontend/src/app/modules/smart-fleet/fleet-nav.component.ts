@@ -19,15 +19,14 @@ interface FleetNavItem {
     encapsulation: ViewEncapsulation.None,
     template: `
         <div class="flex flex-col gap-3">
-            <div class="fleet-nav-scroll -mx-1 px-1">
             <nav
-                class="flex gap-1.5 rounded-2xl border border-stone-200/90 bg-white p-1.5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-wrap sm:p-2"
+                class="fleet-nav rounded-2xl border border-stone-200/90 bg-white p-1.5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-2"
                 [attr.aria-label]="'smartFleet.title' | transloco"
             >
                 <a
                     *ngFor="let item of items"
                     [routerLink]="item.link"
-                    class="inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors sm:gap-2.5 sm:px-5 sm:py-3 sm:text-base"
+                    class="fleet-nav__link inline-flex flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-2 text-xs font-medium transition-colors sm:flex-row sm:justify-start sm:gap-2.5 sm:px-5 sm:py-3 sm:text-base"
                     [class.bg-stone-900]="isActive(item)"
                     [class.text-white]="isActive(item)"
                     [class.text-stone-600]="!isActive(item)"
@@ -35,17 +34,16 @@ interface FleetNavItem {
                     [class.dark:text-stone-300]="!isActive(item)"
                     [class.dark:hover:bg-gray-800]="!isActive(item)"
                 >
-                    <mat-icon class="icon-size-5">{{ item.icon }}</mat-icon>
-                    {{ item.label | transloco }}
+                    <mat-icon class="icon-size-5 shrink-0">{{ item.icon }}</mat-icon>
+                    <span class="fleet-nav__label">{{ item.label | transloco }}</span>
                 </a>
             </nav>
-            </div>
             @if (onFreePlan() && !isActive(plansItem)) {
                 <div
-                    class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
+                    class="fleet-free-plan-banner flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
                 >
                     <div class="flex items-center gap-2">
-                        <mat-icon class="icon-size-5 text-current">info</mat-icon>
+                        <mat-icon class="icon-size-5 shrink-0 text-current">info</mat-icon>
                         <span>{{ 'smartFleet.freePlanNotice' | transloco }}</span>
                     </div>
                     <a
