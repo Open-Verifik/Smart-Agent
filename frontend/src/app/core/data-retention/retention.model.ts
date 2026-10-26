@@ -39,6 +39,36 @@ export interface RetentionTypeRule {
     retentionHours: number | null;
 }
 
+/** Preset duration option for Store mode retention dropdown. */
+export interface RetentionDurationPreset {
+    value: number | null | 'custom';
+    labelKey: string;
+    hours: number | null;
+}
+
+/**
+ * Human-friendly duration presets for Store mode:
+ * 12h, 24h, 36h, 48h, 1w, 2w, 1m, 3m, 6m, 12m, 2y, 3y, 5y, 10y, Indefinite, Custom.
+ */
+export const RETENTION_DURATION_PRESETS: readonly RetentionDurationPreset[] = [
+    { value: null, labelKey: 'settings.dataRetention.durationForever', hours: null },
+    { value: 12, labelKey: 'settings.dataRetention.duration12h', hours: 12 },
+    { value: 24, labelKey: 'settings.dataRetention.duration24h', hours: 24 },
+    { value: 36, labelKey: 'settings.dataRetention.duration36h', hours: 36 },
+    { value: 48, labelKey: 'settings.dataRetention.duration48h', hours: 48 },
+    { value: 168, labelKey: 'settings.dataRetention.duration1w', hours: 168 },
+    { value: 336, labelKey: 'settings.dataRetention.duration2w', hours: 336 },
+    { value: 720, labelKey: 'settings.dataRetention.duration1m', hours: 720 },
+    { value: 2160, labelKey: 'settings.dataRetention.duration3m', hours: 2160 },
+    { value: 4320, labelKey: 'settings.dataRetention.duration6m', hours: 4320 },
+    { value: 8760, labelKey: 'settings.dataRetention.duration12m', hours: 8760 },
+    { value: 17520, labelKey: 'settings.dataRetention.duration2y', hours: 17520 },
+    { value: 26280, labelKey: 'settings.dataRetention.duration3y', hours: 26280 },
+    { value: 43800, labelKey: 'settings.dataRetention.duration5y', hours: 43800 },
+    { value: 87600, labelKey: 'settings.dataRetention.duration10y', hours: 87600 },
+    { value: 'custom', labelKey: 'settings.dataRetention.durationCustom', hours: null },
+] as const;
+
 /** Account or project policy limited to enforced types. */
 export interface RetentionPolicy {
     mode: RetentionMode;
