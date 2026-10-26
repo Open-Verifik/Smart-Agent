@@ -65,13 +65,17 @@
                             <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ row.descriptionKey | transloco }}</p>
                         </div>
                     </div>
-                    <div class="flex shrink-0 flex-wrap items-center gap-3">
+                    <div class="flex shrink-0 flex-wrap items-end gap-3">
                         @if (current.types[row.type].mode === 'store') {
-                            <mat-form-field appearance="outline" class="w-56 fuse-mat-dense" subscriptSizing="dynamic">
-                                <mat-label>{{ 'settings.dataRetention.retentionDuration' | transloco }}</mat-label>
+                            <div class="flex flex-col gap-1 w-56">
+                                <label class="retention-field__label">
+                                    {{ 'settings.dataRetention.retentionDuration' | transloco }}
+                                </label>
                                 <mat-select
-                                    [ngModel]="getDurationValue(row.type)"
-                                    (ngModelChange)="onDurationSelect(row.type, $event)"
+                                    class="retention-field__select"
+                                    [value]="getDurationValue(row.type)"
+                                    (selectionChange)="onDurationSelect(row.type, $event.value)"
+                                    [attr.aria-label]="'settings.dataRetention.retentionDuration' | transloco"
                                 >
                                     @for (opt of durationPresets; track opt.value) {
                                         <mat-option [value]="opt.value">
@@ -79,25 +83,36 @@
                                         </mat-option>
                                     }
                                 </mat-select>
-                            </mat-form-field>
+                            </div>
+
                             @if (isCustomDuration(row.type)) {
-                                <mat-form-field appearance="outline" class="w-28 fuse-mat-dense" subscriptSizing="dynamic">
-                                    <mat-label>{{ 'settings.dataRetention.customHours' | transloco }}</mat-label>
-                                    <input
-                                        matInput
-                                        type="number"
-                                        min="1"
-                                        [ngModel]="current.types[row.type].retentionHours"
-                                        (ngModelChange)="setRetentionHours(row.type, $event)"
-                                    />
-                                    <span matSuffix class="mr-2 text-xs font-semibold text-gray-400">h</span>
-                                </mat-form-field>
+                                <div class="flex flex-col gap-1 w-24">
+                                    <label class="retention-field__label">
+                                        {{ 'settings.dataRetention.customHours' | transloco }}
+                                    </label>
+                                    <div class="relative flex items-center">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            class="retention-field__input pr-6"
+                                            [ngModel]="current.types[row.type].retentionHours"
+                                            (ngModelChange)="setRetentionHours(row.type, $event)"
+                                        />
+                                        <span class="absolute right-2.5 text-xs font-semibold text-gray-400 pointer-events-none">h</span>
+                                    </div>
+                                </div>
                             }
                         }
-                        <mat-form-field appearance="outline" class="w-44 fuse-mat-dense" subscriptSizing="dynamic">
+
+                        <div class="flex flex-col gap-1 w-40">
+                            <label class="retention-field__label">
+                                {{ 'settings.dataRetention.storageMode' | transloco }}
+                            </label>
                             <mat-select
-                                [ngModel]="current.types[row.type].mode"
-                                (ngModelChange)="setTypeMode(row.type, $event)"
+                                class="retention-field__select"
+                                [value]="current.types[row.type].mode"
+                                (selectionChange)="setTypeMode(row.type, $event.value)"
+                                [attr.aria-label]="'settings.dataRetention.storageMode' | transloco"
                             >
                                 @for (mode of modes; track mode) {
                                     <mat-option [value]="mode">
@@ -105,7 +120,7 @@
                                     </mat-option>
                                 }
                             </mat-select>
-                        </mat-form-field>
+                        </div>
                     </div>
                 </div>
             }
@@ -123,7 +138,7 @@
         }
     </div>
 
-    <div class="flex items-start justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-800/60">
+    <div class="flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-800/60">
         <div class="min-w-0">
             <p class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ 'settings.dataRetention.webhookHoldTitle' | transloco }}
@@ -132,17 +147,19 @@
                 {{ 'settings.dataRetention.webhookHoldDesc' | transloco }}
             </p>
         </div>
-        <mat-form-field appearance="outline" class="w-28 shrink-0 fuse-mat-dense" subscriptSizing="dynamic">
-            <input
-                matInput
-                type="number"
-                [min]="holdMin"
-                [max]="holdMax"
-                [ngModel]="current.webhookHoldHours"
-                (ngModelChange)="setHold($event)"
-            />
-            <span matSuffix class="mr-2 text-xs font-semibold text-gray-400">h</span>
-        </mat-form-field>
+        <div class="flex flex-col gap-1 w-28 shrink-0">
+            <div class="relative flex items-center">
+                <input
+                    type="number"
+                    [min]="holdMin"
+                    [max]="holdMax"
+                    class="retention-field__input pr-6"
+                    [ngModel]="current.webhookHoldHours"
+                    (ngModelChange)="setHold($event)"
+                />
+                <span class="absolute right-2.5 text-xs font-semibold text-gray-400 pointer-events-none">h</span>
+            </div>
+        </div>
     </div>
 
     <div class="flex items-start justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-800/60">

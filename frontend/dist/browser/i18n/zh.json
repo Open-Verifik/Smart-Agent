@@ -5443,6 +5443,7 @@
             "typeOcrExtractionDesc": "姓名、证件号码、日期以及从证件读取的其他字段。",
             "retentionHours": "保留小时数",
             "retentionDuration": "保留时长",
+            "storageMode": "存储模式",
             "customHours": "小时数",
             "durationForever": "无限期（永久保留）",
             "duration12h": "12小时",

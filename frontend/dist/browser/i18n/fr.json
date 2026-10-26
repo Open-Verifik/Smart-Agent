@@ -5298,6 +5298,7 @@
             "granularSynced": "Tous les types alignés",
             "retentionHours": "Conserver (heures)",
             "retentionDuration": "Durée de conservation",
+            "storageMode": "Mode de stockage",
             "customHours": "Heures",
             "durationForever": "Indéfini (conserver toujours)",
             "duration12h": "12 heures",

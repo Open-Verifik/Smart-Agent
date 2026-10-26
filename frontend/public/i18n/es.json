@@ -5322,6 +5322,7 @@
             "typeOcrExtractionDesc": "Nombres, números de documento, fechas y otros campos leídos del documento.",
             "retentionHours": "Conservar (horas)",
             "retentionDuration": "Tiempo de conservación",
+            "storageMode": "Modo de almacenamiento",
             "customHours": "Horas",
             "durationForever": "Indefinido (conservar siempre)",
             "duration12h": "12 horas",
