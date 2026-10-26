@@ -5443,6 +5443,7 @@
             "typeOcrExtractionDesc": "氏名、書類番号、日付など、書類から読み取った項目。",
             "retentionHours": "保持時間（時間）",
             "retentionDuration": "保持期間",
+            "storageMode": "保存モード",
             "customHours": "時間数",
             "durationForever": "無期限（永続保持）",
             "duration12h": "12時間",

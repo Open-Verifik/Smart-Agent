@@ -5328,6 +5328,7 @@
             "typeDocumentLivenessDesc": "Photos that check the document is physically present. None means those photos are not uploaded.",
             "retentionHours": "Keep for (hours)",
             "retentionDuration": "Keep duration",
+            "storageMode": "Storage mode",
             "customHours": "Hours",
             "durationForever": "Indefinite (keep forever)",
             "duration12h": "12 hours",

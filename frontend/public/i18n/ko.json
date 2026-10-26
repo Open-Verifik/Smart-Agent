@@ -5443,6 +5443,7 @@
             "typeOcrExtractionDesc": "이름, 문서 번호, 날짜 등 문서에서 읽은 항목.",
             "retentionHours": "보관 시간(시간)",
             "retentionDuration": "보관 기간",
+            "storageMode": "보관 모드",
             "customHours": "시간",
             "durationForever": "무기한 (영구 보관)",
             "duration12h": "12시간",
