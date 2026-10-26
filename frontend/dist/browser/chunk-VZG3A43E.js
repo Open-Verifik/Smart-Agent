@@ -1,0 +1,1 @@
+var r=()=>{try{let t=localStorage.getItem("verifik_account");return t?JSON.parse(t):null}catch{return null}},c=t=>{let e=r();return e?._id?e._id:t?._id},i=t=>{let e=r();return e?._id?e:t??null};export{r as a,c as b,i as c};

@@ -4,12 +4,19 @@ import {
     collectLayoutSheetItems,
     collectObjectTables,
     collectScalarParams,
+    designedTableColumns,
+    displayParamLabel,
     flattenSampleResultsForPdf,
+    formatReportCellValue,
+    humanizeParamKey,
     isHiddenParamKey,
     layoutParamGroups,
+    layoutTableRulesKey,
+    layoutTableRowIndex,
     relativeLayoutItemKey,
     setHiddenParamKey,
     sortByKeyOrder,
+    valueAtDataPath,
 } from './report-param-entries.util';
 
 const nestedPayload = {
@@ -19,6 +26,77 @@ const nestedPayload = {
         { name: 'Luis', id: 2 },
     ],
 };
+
+describe('valueAtDataPath', () => {
+    const runt = {
+        informacionGeneral: { marca: 'KIA', cilidraje: '1600' },
+        vin: 'VIN123',
+    };
+
+    it('reads nested results paths', () => {
+        expect(valueAtDataPath({ results: { 2: runt } }, 'results.2.informacionGeneral.marca')).toBe('KIA');
+    });
+
+    it('unwraps a data envelope on the consult payload', () => {
+        expect(
+            valueAtDataPath({ results: { 2: { data: runt } } }, 'results.2.informacionGeneral.marca')
+        ).toBe('KIA');
+    });
+
+    it('finds the consult when the cloned batch stored it at another sequence', () => {
+        expect(
+            valueAtDataPath({ results: { 1: runt } }, 'results.2.informacionGeneral.marca')
+        ).toBe('KIA');
+    });
+
+    it('still finds the consult when the addressed slot has a partial payload', () => {
+        expect(
+            valueAtDataPath(
+                {
+                    results: {
+                        1: runt,
+                        2: { informacionGeneral: {} },
+                    },
+                },
+                'results.2.informacionGeneral.marca'
+            )
+        ).toBe('KIA');
+    });
+
+    it('aliases cilidraje and cilindraje', () => {
+        expect(
+            valueAtDataPath({ results: { 1: { informacionGeneral: { cilindraje: '1400' } } } }, 'results.1.informacionGeneral.cilidraje')
+        ).toBe('1400');
+    });
+});
+
+describe('humanizeParamKey', () => {
+    it('uses a Spanish label for tipoTarifa instead of the raw field name', () => {
+        expect(humanizeParamKey('tipoTarifa')).toBe('Tipo de tarifa');
+        expect(displayParamLabel('soat.tipoTarifa', 'Tipo tarifa')).toBe('Tipo de tarifa');
+        expect(displayParamLabel('soat.tipoTarifa', 'Tarifa pactada')).toBe('Tarifa pactada');
+    });
+});
+
+describe('layoutTableRulesKey', () => {
+    it('strips row index from table cell store keys', () => {
+        expect(layoutTableRulesKey('ownershipDuration#0')).toBe('ownershipDuration');
+        expect(layoutTableRulesKey('owners.documentNumber#12')).toBe('owners.documentNumber');
+        expect(layoutTableRulesKey('plate')).toBe('plate');
+    });
+
+    it('parses row index from store keys', () => {
+        expect(layoutTableRowIndex('ownershipDuration#2')).toBe(2);
+        expect(layoutTableRowIndex('plate')).toBeNull();
+    });
+});
+
+describe('formatReportCellValue', () => {
+    it('formats colombian vehicle ownership duration objects', () => {
+        expect(formatReportCellValue({ years: 8, months: 6, days: 23 })).toBe('8 años, 6 meses, 23 días');
+        expect(formatReportCellValue({ anios: 2, meses: 4, dias: 0 })).toBe('2 años, 4 meses');
+    });
+});
 
 describe('collectScalarParams', () => {
     it('flattens nested objects into dotted keys', () => {
@@ -128,6 +206,34 @@ describe('collectLayoutSheetItems', () => {
         if (cars?.kind !== 'table') return;
         expect(cars.table.rows.map((row) => row.plate)).toEqual(['A', 'B', 'C']);
         expect(items.find((item) => item.key === 'owners' && item.kind === 'table')).toBeTruthy();
+    });
+});
+
+describe('designedTableColumns', () => {
+    it('keeps extra RUNT columns like tipoTarifa out of a designed SOAT table', () => {
+        const soat = {
+            soat: [
+                { noPoliza: '1', estado: 'VENCIDO', tipoTarifa: '221', fechaExpedicion: '01/01/2020' },
+            ],
+        };
+        const tables = collectObjectTables(soat, {
+            keyOrder: ['soat.noPoliza', 'soat.fechaExpedicion', 'soat.estado'],
+        });
+        expect(tables[0]?.columns.map((column) => column.key)).toEqual(['noPoliza', 'fechaExpedicion', 'estado']);
+        expect(collectObjectTables(soat)[0]?.columns.map((column) => column.key)).not.toContain('tipoTarifa');
+        expect(
+            collectObjectTables(soat, {
+                keyOrder: ['soat.noPoliza', 'soat.tipoTarifa', 'soat.estado'],
+            })[0]?.columns.map((column) => column.key)
+        ).toEqual(['noPoliza', 'estado']);
+        expect(designedTableColumns('soat', ['noPoliza', 'estado', 'tipoTarifa'], {
+            keyOverrides: { 'soat.estado': { label: 'Estado' } },
+        })).toEqual(['estado']);
+        expect(
+            designedTableColumns('soat', ['noPoliza', 'estado', 'tipoTarifa'], {
+                keyOrder: ['soat.noPoliza', 'soat.tipoTarifa', 'soat.estado'],
+            })
+        ).toEqual(['noPoliza', 'estado']);
     });
 });
 

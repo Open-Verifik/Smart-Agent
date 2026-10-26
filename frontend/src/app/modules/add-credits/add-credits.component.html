@@ -39,6 +39,26 @@
             </div>
         </header>
 
+        <section
+            *ngIf="plateReportPending()"
+            class="border-b border-indigo-200/90 bg-indigo-50 px-5 py-4 dark:border-indigo-900/60 dark:bg-indigo-950/40 md:px-8"
+        >
+            <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p class="m-0 text-sm leading-relaxed text-indigo-950 dark:text-indigo-100">
+                    {{ t('plateReport.continueFromPayment') }}
+                </p>
+                <a
+                    mat-flat-button
+                    color="primary"
+                    routerLink="/reporte-placa"
+                    [queryParams]="{ continuar: '1' }"
+                    class="!min-h-10 shrink-0 !rounded-lg"
+                >
+                    {{ t('plateReport.continueAction') }}
+                </a>
+            </div>
+        </section>
+
         <!-- Where a Bold order stands: settled, still at the bank, or never paid -->
         <section
             *ngIf="boldReturnState() as boldState"

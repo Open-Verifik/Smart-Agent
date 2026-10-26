@@ -68,6 +68,24 @@
             "fromField": "来自 {{field}}",
             "unmappedRequired": "需选择字段",
             "smartCheckHint": "可以链接该国的任意政府接口。文档代码不必与接口代码相同。"
-        }
+        },
+        "deleteFromStorage": "删除图像",
+        "retentionPurged": "已清除",
+        "retentionPurgedTooltip": "图像数据已根据数据保留策略从存储中永久删除",
+        "retentionPurgedNotice": "根据保留策略已清除",
+        "retentionNoStorage": "无存储",
+        "retentionNoStorageTooltip": "仅在临时内存中处理。图像从未保存在云存储中",
+        "retentionNoStorageNotice": "仅内存处理",
+        "retentionEphemeral": "临时存储",
+        "retentionEphemeralTooltip": "计划在保留期或 Webhook 保障期结束后清除",
+        "retentionPurgedBannerTitle": "证件图像已清除",
+        "retentionPurgedBannerDesc": "此证件图像已于 {{date}} 根据保留策略从云存储中永久删除（原因：{{reason}}）。提取的数据仍然可用。",
+        "retentionNoStorageBannerTitle": "无存储模式已激活",
+        "retentionNoStorageBannerDesc": "本次扫描在临时内存中处理。证件图像从未写入永久云存储。",
+        "retentionEphemeralBannerTitle": "临时存储已激活",
+        "retentionEphemeralBannerDesc": "此证件图像为临时保留，计划于 {{date}} 永久清除。",
+        "imagePurgedPlaceholderTitle": "图像已不再存储",
+        "imagePurgedPlaceholderDesc": "原始证件图像已于 {{date}} 根据贵组织的数据保留策略删除。",
+        "imageUnavailableDesc": "证件图像不可用。"
     }
 }

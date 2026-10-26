@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — 운전면허",
-            "description": "콜롬비아 RUNT에서 운전면허 상태·카테고리·유효기간 등을 문서번호로 조회합니다."
+            "description": "문서번호로 콜롬비아 운전면허 상태·카테고리·유효기간 등을 조회합니다."
         },
         "peru_api_vehicle": {
             "title": "페루 — 차량 정보",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — 차량（번호판+신분증）",
-            "description": "번호판과 신분증만으로 RUNT 차량 정보를 조회합니다."
+            "description": "번호판과 신분증만으로 콜롬비아 차량 정보를 조회합니다."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — VIN 차량 확인",
-            "description": "콜롬비아 RUNT에서 VIN으로 차량의 상세 이력·기술 정보를 조회합니다."
+            "description": "VIN으로 콜롬비아 차량의 등록 데이터 및 상세 이력·기술 정보를 조회합니다."
         },
         "peru_identity_extra_lookup": {
             "title": "페루 - 국민ID 검증",
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — 번호판별 차량（간편·별칭）",
-            "description": "번호판과 명의인 신분증으로 RUNT 차량 핵심 정보를 조회합니다."
+            "description": "번호판과 명의인 신분증으로 콜롬비아 차량 핵심 정보를 조회합니다."
         },
         "canada_api_driver_license_quebec": {
             "title": "퀘벡 — 운전면허",
@@ -594,7 +594,7 @@
         },
         "colombia_api_runt_owners": {
             "title": "콜롬비아 - 차량 소유자(RUNT)",
-            "description": "Verify vehicle ownership and registered owners through the RUNT system."
+            "description": "공식 차량 등록 정보로 소유자 및 등록 명의인을 확인합니다."
         },
         "colombia_api_vehicle_owners": {
             "title": "콜롬비아 - 차량 소유자 이력",
@@ -946,7 +946,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 차량 상업 평가액",
-            "description": "콜롬비아 번호판의 교통부(SIBGA) 공식 상업 평가액. RUNT 데이터를 자동으로 대응합니다."
+            "description": "콜롬비아 번호판의 공식 상업 평가액. 전국 차량 등록 데이터를 기반으로 합니다."
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll 무료",
@@ -974,7 +974,7 @@
         },
         "colombia_api_runt_vehicle_by_plate_only": {
             "title": "RUNT 번호판만 차량 조회",
-            "description": "소유자 서류 없이 번호판만으로 콜롬비아 RUNT 차량을 조회합니다."
+            "description": "소유자 서류 없이 번호판만으로 콜롬비아 차량을 조회합니다."
         }
     }
 }

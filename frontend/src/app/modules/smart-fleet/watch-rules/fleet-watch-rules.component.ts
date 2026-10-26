@@ -1,16 +1,29 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import {
+    Component,
+    computed,
+    DestroyRef,
+    inject,
+    OnInit,
+    signal,
+    ViewEncapsulation,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { FleetNavComponent } from '../fleet-nav.component';
+import { FleetAssetRulesBoardComponent } from './fleet-asset-rules-board.component';
+import { FleetVehicleIconComponent } from '../assets/fleet-vehicle-icon.component';
+import { FleetChannelIconComponent, fleetChannelTone } from './fleet-channel-icon.component';
 import {
     FleetAsset,
     FleetAvailableCheck,
@@ -19,9 +32,16 @@ import {
     FleetCheckType,
     FleetFrequency,
     FleetRuleEstimate,
+    FleetGroupRef,
     FleetWatchRule,
     FleetWatchRuleSchedule,
     SmartFleetService,
+    fleetAssetSupportsCheck,
+    parseFleetPhones,
+    normalizeFleetGroup,
+    FLEET_GROUP_COLOR_DEFAULT,
+    FLEET_GROUP_ICON_DEFAULT,
+    FleetGroupIcon,
 } from '../smart-fleet.service';
 
 /** Public docs for fleet_alert_* webhook events. */
@@ -38,6 +58,8 @@ interface RuleDraft {
     channels: FleetChannel[];
     emailRecipients: string;
     webhookUrl?: string;
+    smsRecipients: string;
+    whatsappRecipients: string;
 }
 
 const EMPTY_DRAFT: RuleDraft = {
@@ -46,6 +68,8 @@ const EMPTY_DRAFT: RuleDraft = {
     intervalDays: 3,
     channels: ['email', 'inApp'],
     emailRecipients: '',
+    smsRecipients: '',
+    whatsappRecipients: '',
 };
 
 const FREQUENCY_DAYS: Record<Exclude<FleetFrequency, 'custom'>, number> = {
@@ -70,6 +94,10 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        FleetNavComponent,
+        FleetAssetRulesBoardComponent,
+        FleetChannelIconComponent,
+        FleetVehicleIconComponent,
     ],
     templateUrl: './fleet-watch-rules.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -81,21 +109,32 @@ export class FleetWatchRulesComponent implements OnInit {
     private _snackBar = inject(MatSnackBar);
     private _confirm = inject(FuseConfirmationService);
     private _route = inject(ActivatedRoute);
+    private _router = inject(Router);
+    private _destroyRef = inject(DestroyRef);
 
     rules = this._fleetService.watchRules;
     isLoading = this._fleetService.isLoadingRules;
 
     availableChecks = signal<FleetAvailableCheck[]>([]);
     assets = signal<FleetAsset[]>([]);
+    savedGroups = signal<FleetGroupRef[]>([]);
     groups = computed(() => {
-        const names = new Set<string>();
+        const names = new Set<string>(this.savedGroups().map((group) => group.name));
 
         for (const asset of this.assets()) {
             if (asset.group) names.add(asset.group);
         }
 
-        return [...names].sort();
+        return [...names].sort((left, right) => left.localeCompare(right));
     });
+
+    groupColor(name: string): string {
+        return this.savedGroups().find((group) => group.name === name)?.color || FLEET_GROUP_COLOR_DEFAULT;
+    }
+
+    groupIcon(name: string): FleetGroupIcon {
+        return this.savedGroups().find((group) => group.name === name)?.icon || FLEET_GROUP_ICON_DEFAULT;
+    }
 
     readonly frequencies: FleetFrequency[] = [
         'daily',
@@ -104,11 +143,29 @@ export class FleetWatchRulesComponent implements OnInit {
         'monthly',
         'custom',
     ];
-    readonly channelOptions: FleetChannel[] = ['email', 'webhook', 'inApp'];
+    readonly channelOptions: FleetChannel[] = ['email', 'webhook', 'inApp', 'sms', 'whatsapp'];
+
+    channelTone(channel: FleetChannel, selected: boolean): string {
+        return selected ? 'bg-white/20 text-white' : fleetChannelTone(channel);
+    }
     readonly scopes: RuleDraft['scope'][] = ['fleet', 'group', 'asset'];
     readonly webhookDocsUrl = FLEET_WEBHOOK_DOCS_URL;
 
     showForm = signal(false);
+    /** Vehicle opened from the list via "Editar reglas". */
+    composeAssetId = signal<string | null>(null);
+    composeGroup = signal<string | null>(null);
+    composeFleet = signal(false);
+    composeLibrary = signal(false);
+    composing = computed(
+        () =>
+            Boolean(
+                this.composeAssetId() || this.composeGroup() || this.composeFleet() || this.composeLibrary()
+            )
+    );
+    assigningRuleId = signal<string | null>(null);
+    /** Which list is open on the first screen: a vehicle or a group. */
+    pickKind = signal<'asset' | 'group' | null>(null);
     isSaving = signal(false);
     /** When set, Save updates this rule instead of creating a new one. */
     editingRuleId = signal<string | null>(null);
@@ -202,6 +259,19 @@ export class FleetWatchRulesComponent implements OnInit {
     });
 
     ngOnInit(): void {
+        this._route.queryParamMap.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((params) => {
+            const editing = Boolean(params.get('edit'));
+
+            this.composeAssetId.set(editing ? null : params.get('asset'));
+            this.composeGroup.set(editing || params.get('asset') ? null : params.get('group'));
+            const bare = !editing && !params.get('asset') && !params.get('group');
+
+            this.composeFleet.set(bare && params.get('scope') === 'fleet');
+            this.composeLibrary.set(bare && params.get('scope') === 'library');
+
+            if (this.composing()) this.showForm.set(false);
+        });
+
         this._authGate.runWithAuthOrDialog({
             onAuthenticated: () => this._load(),
             panelClass: 'auth-required-dialog',
@@ -253,7 +323,90 @@ export class FleetWatchRulesComponent implements OnInit {
         if (!rule) return;
 
         this.closeDetail();
-        this.startEdit(rule);
+        this.openTarget(this.targetQuery(rule));
+    }
+
+    /** Fleet and unassigned open at once. A vehicle or a group first shows that list. */
+    choosePick(kind: 'asset' | 'group' | 'fleet' | 'library'): void {
+        if (kind === 'fleet') {
+            this.openTarget({ scope: 'fleet' });
+
+            return;
+        }
+
+        if (kind === 'library') {
+            this.openTarget({ scope: 'library' });
+
+            return;
+        }
+
+        this.pickKind.set(this.pickKind() === kind ? null : kind);
+    }
+
+    /** Same three targets as the vehicles step: one vehicle, one group, or the whole fleet. */
+    openTarget(query: Record<string, string>): void {
+        this.showForm.set(false);
+        this._router.navigate(['/smart-fleet/watch-rules'], { queryParams: query });
+    }
+
+    clearTarget(): void {
+        this.showForm.set(false);
+        this._router.navigate(['/smart-fleet/watch-rules']);
+    }
+
+    targetQuery(rule: FleetWatchRule): Record<string, string> {
+        const assetId = typeof rule.asset === 'string' ? rule.asset : rule.asset?._id;
+
+        if (rule.unassigned) return { scope: 'library' };
+
+        if (assetId) return { asset: assetId };
+
+        if (rule.group) return { group: rule.group };
+
+        return { scope: 'fleet' };
+    }
+
+    unassignedRules(): FleetWatchRule[] {
+        return this.rules().filter((rule) => rule.unassigned);
+    }
+
+    vehiclesForRule(rule: FleetWatchRule): FleetAsset[] {
+        const check = this.availableChecks().find((entry) => entry.checkType === rule.checkType);
+
+        if (!check) return [];
+
+        return this.assets().filter((asset) => fleetAssetSupportsCheck(check, asset));
+    }
+
+    assignRule(rule: FleetWatchRule, assetId: string, event: Event): void {
+        event.stopPropagation();
+
+        if (!rule._id || !assetId) return;
+
+        this.assigningRuleId.set(rule._id);
+
+        this._fleetService
+            .updateWatchRule(rule._id, { asset: assetId, group: null, unassigned: false })
+            .subscribe({
+                next: () => {
+                    this.assigningRuleId.set(null);
+                    this._snackBar.open(this._transloco.translate('smartFleet.rules.assigned'), undefined, {
+                        duration: 3000,
+                    });
+                    this._loadRules();
+                },
+                error: (err) => {
+                    this.assigningRuleId.set(null);
+                    console.error('[SmartFleet] assign rule error', err);
+                    this._snackBar.open(this._transloco.translate('smartFleet.rules.assignFailed'), undefined, {
+                        duration: 5000,
+                    });
+                },
+            });
+    }
+
+    groupSize(name: string): number {
+        return this.assets().filter((asset) => asset.group === name).length;
     }
 
     intervalLabel(intervalMs?: number): string {
@@ -385,6 +538,8 @@ export class FleetWatchRulesComponent implements OnInit {
             channels: [...(rule.channels || ['email', 'inApp'])],
             emailRecipients: (rule.emailRecipients || []).join(', '),
             webhookUrl: rule.webhookUrl || undefined,
+            smsRecipients: (rule.smsRecipients || []).join(', '),
+            whatsappRecipients: (rule.whatsappRecipients || []).join(', '),
         });
         this.showForm.set(true);
         this._refreshEstimate();
@@ -415,6 +570,10 @@ export class FleetWatchRulesComponent implements OnInit {
                       .split(',')
                       .map((value) => value.trim())
                       .filter(Boolean)
+                : [],
+            smsRecipients: draft.channels.includes('sms') ? parseFleetPhones(draft.smsRecipients) : [],
+            whatsappRecipients: draft.channels.includes('whatsapp')
+                ? parseFleetPhones(draft.whatsappRecipients)
                 : [],
         };
 
@@ -502,6 +661,8 @@ export class FleetWatchRulesComponent implements OnInit {
     }
 
     scopeLabel(rule: FleetWatchRule): string {
+        if (rule.unassigned) return this._transloco.translate('smartFleet.rules.scopeUnassigned');
+
         if (rule.asset) {
             const asset = typeof rule.asset === 'string' ? null : rule.asset;
 
@@ -525,6 +686,11 @@ export class FleetWatchRulesComponent implements OnInit {
             next: (response) => this.assets.set(response.data ?? []),
             error: (err) => console.error('[SmartFleet] getAssets error', err),
         });
+
+        this._fleetService.listGroups().subscribe({
+            next: (response) => this.savedGroups.set((response.data ?? []).map((entry) => normalizeFleetGroup(entry))),
+            error: (err) => console.error('[SmartFleet] listGroups error', err),
+        });
     }
 
     /**
@@ -539,23 +705,14 @@ export class FleetWatchRulesComponent implements OnInit {
         if (editId) {
             const rule = this.rules().find((entry) => entry._id === editId);
 
-            if (rule) {
-                this.startEdit(rule);
+            if (rule) this.openTarget(this.targetQuery(rule));
 
-                return;
-            }
+            return;
         }
 
-        if (create === '1' || assetId) {
-            this.editingRuleId.set(null);
-            this.draft.set({
-                ...EMPTY_DRAFT,
-                scope: assetId ? 'asset' : 'fleet',
-                asset: assetId || undefined,
-            });
-            this.showForm.set(true);
-            this._refreshEstimate();
-        }
+        if (assetId || params.get('group') || params.get('scope') === 'fleet') return;
+
+        if (create === '1') this.clearTarget();
     }
 
     private _loadRules(onLoaded?: () => void): void {

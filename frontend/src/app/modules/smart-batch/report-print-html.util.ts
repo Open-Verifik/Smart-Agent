@@ -1,10 +1,15 @@
 /** Join per-record print documents into one Puppeteer HTML file. */
 export const mergePrintHtmlDocuments = (documents: string[]): string | undefined => {
     const bodies: string[] = [];
+    let fontHead = '';
     let pageWidthMm = 210;
     let pageHeightMm = 297;
     for (const document of documents) {
         if (!document.includes('<html')) continue;
+        if (!fontHead) {
+            const head = document.match(/<head>([\s\S]*?)<\/head>/i)?.[1] ?? '';
+            fontHead = (head.match(/<link rel="stylesheet"[^>]*>|<style data-report-fonts>[\s\S]*?<\/style>/gi) ?? []).join('');
+        }
         const sizeMatch = document.match(/@page\s*\{\s*size:\s*([\d.]+)mm\s+([\d.]+)mm/i);
         if (sizeMatch) {
             pageWidthMm = Number(sizeMatch[1]) || pageWidthMm;
@@ -21,13 +26,13 @@ export const mergePrintHtmlDocuments = (documents: string[]): string | undefined
     const totalHeightMm = pages * pageHeightMm;
     const style = `@page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
 html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${totalHeightMm}mm;overflow:hidden;background:#fff}
-.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
+.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;border-radius:0;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
 .print-sheet [data-report-page-inner]{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;box-sizing:border-box}
 .print-sheet [data-report-footer]{position:absolute;left:0;right:0;bottom:0;width:100%;top:auto}
 .print-sheet [data-report-top-chrome]{position:absolute;left:0;right:0;top:0;width:100%;bottom:auto}
 .print-sheet + .print-sheet{break-before:page;page-break-before:always}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}`;
-    return `<!DOCTYPE html><html data-print-pages="${pages}"><head><meta charset="utf-8"/><style>${style}</style></head><body>${joined}</body></html>`;
+    return `<!DOCTYPE html><html data-print-pages="${pages}"><head><meta charset="utf-8"/>${fontHead}<style>${style}</style></head><body>${joined}</body></html>`;
 };
 
 const collectPrintTokens = (value: unknown, into: string[] = [], depth = 0): string[] => {

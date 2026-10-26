@@ -7,6 +7,12 @@ import gmp82iInput from './gmp82i-input.json';
 import gmp82iRunt from './gmp82i-runt-vehicle-by-plate.json';
 import gmp82iSimitAgreements from './gmp82i-simit-agreements-empty.json';
 import gmp82iSimitPlate from './gmp82i-simit-plate.json';
+import { enrichRuntVehicleHistory } from './fixture-runt-history.util';
+
+const gmp82iRuntEnriched = enrichRuntVehicleHistory(gmp82iRunt as Record<string, unknown>, {
+    seed: 821,
+    plate: 'GMP82I',
+});
 
 /**
  * Batch row for GMP82I — RUNT owner matches (HERO HUNK 125 R moto), clean SIMIT,
@@ -16,7 +22,7 @@ export const GMP82I_BATCH_ROW = {
     rowIndex: 0,
     inputData: gmp82iInput,
     results: {
-        1: gmp82iRunt,
+        1: gmp82iRuntEnriched,
         2: gmp82iSimitPlate,
         3: gmp82iSimitAgreements,
         4: gmp82iFasecoldaSinister,

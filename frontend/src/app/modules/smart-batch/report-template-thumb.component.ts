@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, effect, ElementRef, input, signal, viewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ReportPreviewComponent } from './report-preview/report-preview.component';
-import { SampleReportData, SmartReportTemplate } from './smart-report.service';
+import { SampleReportData, SmartReportTemplate, templateLayerZ } from './smart-report.service';
 
 const MM_TO_PX = 3.7795275591;
 
@@ -26,9 +26,11 @@ const MM_TO_PX = 3.7795275591;
                             [primaryColor]="template().primaryColor || '#4F46E5'"
                             [pageBackgroundColor]="template().pageBackgroundColor || '#ffffff'"
                             [orientation]="template().orientation || 'portrait'"
+                            [pageSize]="template().pageSize || 'A4'"
+                            [layerZ]="layerZ()"
                             [clickable]="false"
-                            [logoUrl]="template().logo || null"
-                            [logoEnabled]="!!template().logo"
+                            [logoUrl]="template().headerLogos?.length ? null : template().logo || null"
+                            [logoEnabled]="!template().headerLogos?.length && !!template().logo"
                             [logoX]="template().logoSettings?.x ?? 32"
                             [logoY]="template().logoSettings?.y ?? 32"
                             [logoWidth]="template().logoSettings?.width ?? 160"
@@ -38,6 +40,7 @@ const MM_TO_PX = 3.7795275591;
                             [sheetImages]="template().sheetImages ?? []"
                             [bodyTopPadding]="template().bodyTopPadding ?? 0"
                             [legend]="template().legend || ''"
+                            [legendPosition]="template().legendPosition || 'left'"
                             [showPageNumbers]="template().showPageNumbers || false"
                             [pageNumberPosition]="template().pageNumberPosition || 'bottom-center'"
                             [watermarkEnabled]="template().watermark?.enabled || false"
@@ -104,6 +107,7 @@ export class ReportTemplateThumbComponent {
     private _scale = signal(0.128);
 
     isLandscape = computed(() => this.template().orientation === 'landscape');
+    layerZ = computed(() => templateLayerZ(this.template()));
     pageWidthMm = computed(() => (this.isLandscape() ? 297 : 210));
     pageHeightMm = computed(() => (this.isLandscape() ? 210 : 297));
     sheetScale = computed(() => `scale(${this._scale()})`);

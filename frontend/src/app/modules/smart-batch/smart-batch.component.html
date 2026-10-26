@@ -1,4 +1,11 @@
 <ng-container *transloco="let t">
+    <input
+        #templateImportInput
+        type="file"
+        accept=".json,application/json"
+        class="hidden"
+        (change)="importTemplate($event)"
+    />
     <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
         <header
             class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
@@ -60,6 +67,20 @@
                         @if (activeTab() === 'templates') {
                             <button
                                 type="button"
+                                class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-800 transition hover:bg-stone-50 disabled:opacity-60 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                [disabled]="isImportingTemplate()"
+                                [matTooltip]="t('smartBatchLanding.importTemplateHint')"
+                                (click)="templateImportInput.click()"
+                            >
+                                @if (isImportingTemplate()) {
+                                    <mat-progress-spinner mode="indeterminate" diameter="16"></mat-progress-spinner>
+                                } @else {
+                                    <mat-icon class="!h-4 !w-4 !text-base">upload_file</mat-icon>
+                                }
+                                {{ t(isImportingTemplate() ? 'smartBatchLanding.importingTemplate' : 'smartBatchLanding.importTemplate') }}
+                            </button>
+                            <button
+                                type="button"
                                 class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
                                 (click)="createBlankTemplate()"
                             >
@@ -110,16 +131,20 @@
         <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
             <div class="mx-auto flex w-full max-w-7xl flex-col gap-8">
                 @if (activeTab() === 'configurations') {
-                    @if (isLoading()) {
+                    @if (isLoading() || isCloningPreset()) {
                         <div
                             class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 py-20 dark:border-gray-800"
                         >
                             <mat-spinner diameter="40"></mat-spinner>
                             <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">
-                                {{ t('smartBatchLanding.loadingConfigurations') }}
+                                {{
+                                    isCloningPreset()
+                                        ? t('smartBatchSystemPresets.cloning')
+                                        : t('smartBatchLanding.loadingConfigurations')
+                                }}
                             </p>
                         </div>
-                    } @else if (configurations().length === 0) {
+                    } @else if (workspaceConfigs().length === 0) {
                         <div
                             class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 px-5 py-16 text-center dark:border-gray-800"
                         >
@@ -144,53 +169,55 @@
                         </div>
                     } @else {
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            @for (config of configurations(); track config._id ?? config.id) {
+                            @for (card of workspaceConfigs(); track card.kind + ':' + card.id) {
                                 <article
-                                    (click)="openDashboard(config._id ?? config.id ?? '')"
+                                    (click)="openWorkspaceConfig(card)"
                                     class="group relative cursor-pointer rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition hover:border-stone-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-gray-700"
                                 >
-                                    <div
-                                        class="absolute right-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100"
-                                    >
-                                        <button
-                                            type="button"
-                                            mat-icon-button
-                                            (click)="editConfiguration(config._id ?? config.id ?? '', $event)"
-                                            [matTooltip]="t('smartBatchLanding.edit')"
+                                    @if (card.kind === 'owned') {
+                                        <div
+                                            class="absolute right-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100"
                                         >
-                                            <mat-icon class="icon-size-5">edit</mat-icon>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            mat-icon-button
-                                            color="warn"
-                                            (click)="deleteConfiguration(config._id ?? config.id ?? '', $event)"
-                                            [matTooltip]="t('smartBatchLanding.delete')"
-                                        >
-                                            <mat-icon class="icon-size-5">delete</mat-icon>
-                                        </button>
-                                    </div>
+                                            <button
+                                                type="button"
+                                                mat-icon-button
+                                                (click)="editConfiguration(card.id, $event)"
+                                                [matTooltip]="t('smartBatchLanding.edit')"
+                                            >
+                                                <mat-icon class="icon-size-5">edit</mat-icon>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                mat-icon-button
+                                                color="warn"
+                                                (click)="deleteConfiguration(card.id, $event)"
+                                                [matTooltip]="t('smartBatchLanding.delete')"
+                                            >
+                                                <mat-icon class="icon-size-5">delete</mat-icon>
+                                            </button>
+                                        </div>
+                                    }
 
                                     <div class="flex items-start gap-3">
                                         <div
                                             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-xl dark:border-gray-800 dark:bg-gray-950"
                                         >
-                                            {{ getCountryFlag(config.country) }}
+                                            {{ getCountryFlag(workspaceConfigCountry(card)) }}
                                         </div>
                                         <div class="min-w-0 pr-16">
                                             <h3
                                                 class="line-clamp-1 text-base font-semibold text-stone-950 dark:text-white"
                                             >
-                                                {{ config.name }}
+                                                {{ workspaceConfigName(card) }}
                                             </h3>
                                             <div class="mt-2 flex flex-wrap gap-2">
                                                 <span
                                                     class="inline-flex rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
                                                 >
-                                                    {{ config.inputFormat | uppercase }} →
-                                                    {{ config.outputFormat | uppercase }}
+                                                    {{ workspaceConfigInput(card) | uppercase }} →
+                                                    {{ workspaceConfigOutput(card) | uppercase }}
                                                 </span>
-                                                @if (!config.isActive) {
+                                                @if (!workspaceConfigActive(card)) {
                                                     <span
                                                         class="inline-flex rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[11px] font-medium text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
                                                     >
@@ -199,9 +226,9 @@
                                                 }
                                                 <span
                                                     class="inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide"
-                                                    [class]="executorBadgeClasses(config.executor)"
+                                                    [class]="executorBadgeClasses(workspaceConfigExecutor(card))"
                                                 >
-                                                    {{ t(executorBadgeKey(config.executor)) }}
+                                                    {{ t(executorBadgeKey(workspaceConfigExecutor(card))) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -210,7 +237,7 @@
                                     <p
                                         class="mt-4 line-clamp-2 min-h-[2.5rem] text-sm leading-relaxed text-stone-500 dark:text-stone-400"
                                     >
-                                        {{ config.description || t('smartBatchLanding.noDescription') }}
+                                        {{ workspaceConfigDescription(card) || t('smartBatchLanding.noDescription') }}
                                     </p>
 
                                     <div
@@ -222,7 +249,7 @@
                                                 >{{ t('smartBatchLanding.steps') }}</span
                                             >
                                             <p class="mt-1 text-lg font-semibold text-stone-950 dark:text-white">
-                                                {{ config.steps.length }}
+                                                {{ workspaceConfigSteps(card) }}
                                             </p>
                                         </div>
                                         <div class="rounded-xl border border-stone-200 p-3 dark:border-gray-800">
@@ -233,7 +260,7 @@
                                             <p
                                                 class="mt-1 truncate text-sm font-medium capitalize text-stone-950 dark:text-white"
                                             >
-                                                {{ config.mergeStrategy.replace('-', ' ') }}
+                                                {{ workspaceConfigStrategy(card).replace('-', ' ') }}
                                             </p>
                                         </div>
                                     </div>
@@ -490,6 +517,15 @@
                                             <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
                                             {{ t('smartBatchLanding.createBlankTemplate') }}
                                         </button>
+                                        <button
+                                            type="button"
+                                            class="mt-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-100 disabled:opacity-60 dark:text-stone-200 dark:hover:bg-gray-800"
+                                            [disabled]="isImportingTemplate()"
+                                            (click)="templateImportInput.click()"
+                                        >
+                                            <mat-icon class="!h-4 !w-4 !text-base">upload_file</mat-icon>
+                                            {{ t('smartBatchLanding.importTemplate') }}
+                                        </button>
                                     </div>
                                 } @else {
                                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -506,6 +542,19 @@
                                                         [matTooltip]="t('smartBatchLanding.edit')"
                                                     >
                                                         <mat-icon class="icon-size-5">edit</mat-icon>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        mat-icon-button
+                                                        [disabled]="exportingTemplateId() !== null"
+                                                        (click)="exportTemplate(template, $event)"
+                                                        [matTooltip]="t('smartBatchLanding.exportTemplate')"
+                                                    >
+                                                        @if (exportingTemplateId() === template._id) {
+                                                            <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+                                                        } @else {
+                                                            <mat-icon class="icon-size-5">download</mat-icon>
+                                                        }
                                                     </button>
                                                     <button
                                                         type="button"
@@ -633,12 +682,15 @@
                         <report-preview
                             [template]="preview"
                             [previewData]="previewData()"
+                            [fullContent]="true"
                             [primaryColor]="preview.primaryColor || '#4F46E5'"
                             [pageBackgroundColor]="preview.pageBackgroundColor || '#ffffff'"
                             [orientation]="preview.orientation || 'portrait'"
+                            [pageSize]="preview.pageSize || 'A4'"
+                            [layerZ]="previewLayerZ(preview)"
                             [clickable]="false"
-                            [logoUrl]="preview.logo || null"
-                            [logoEnabled]="!!preview.logo"
+                            [logoUrl]="preview.headerLogos?.length ? null : preview.logo || null"
+                            [logoEnabled]="!preview.headerLogos?.length && !!preview.logo"
                             [logoX]="preview.logoSettings?.x ?? 32"
                             [logoY]="preview.logoSettings?.y ?? 32"
                             [logoWidth]="preview.logoSettings?.width ?? 160"
@@ -648,6 +700,7 @@
                             [sheetImages]="preview.sheetImages ?? []"
                             [bodyTopPadding]="preview.bodyTopPadding ?? 0"
                             [legend]="preview.legend || ''"
+                            [legendPosition]="preview.legendPosition || 'left'"
                             [showPageNumbers]="preview.showPageNumbers || false"
                             [pageNumberPosition]="preview.pageNumberPosition || 'bottom-center'"
                             [watermarkEnabled]="preview.watermark?.enabled || false"

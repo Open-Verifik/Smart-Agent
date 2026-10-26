@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — Carteira de motorista",
-            "description": "Consulte no RUNT Colômbia status, categorias e validade da CNH pelo documento do condutor."
+            "description": "Consulte status, categorias e validade da CNH na Colômbia pelo documento do condutor."
         },
         "peru_api_vehicle": {
             "title": "Informações de veículo",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — Veículo por placa e documento",
-            "description": "Validação RUNT por placa e documento do proprietário."
+            "description": "Validação de veículo na Colômbia por placa e documento do proprietário."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — Veículo por VIN",
-            "description": "Consulta histórico e dados técnicos do veículo no RUNT Colômbia usando o VIN."
+            "description": "Consulta histórico e dados técnicos do veículo na Colômbia usando o VIN."
         },
         "peru_identity_extra_lookup": {
             "title": "Peru - Verificação de Identidade Nacional",
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — Veículo simplificado por placa",
-            "description": "Consulta RUNT simplificada com dados essenciais do veículo por placa."
+            "description": "Consulta simplificada com dados essenciais do veículo na Colômbia por placa."
         },
         "canada_api_driver_license_quebec": {
             "title": "Quebec — Carteira de motorista",
@@ -594,7 +594,7 @@
         },
         "colombia_api_runt_owners": {
             "title": "Colômbia - Proprietários (RUNT)",
-            "description": "Verify vehicle ownership and registered owners through the RUNT system."
+            "description": "Verifique a propriedade do veículo e os proprietários registrados com base em registros oficiais."
         },
         "colombia_api_vehicle_owners": {
             "title": "Colômbia - Histórico de proprietários do veículo",
@@ -946,7 +946,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - Avaliação comercial do veículo",
-            "description": "Valor comercial oficial do Ministerio de Transporte (SIBGA) para uma placa colombiana, homologado automaticamente a partir do RUNT."
+            "description": "Valor comercial oficial para uma placa colombiana, derivado de dados de registro veicular nacional."
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll Grátis",
@@ -974,7 +974,7 @@
         },
         "colombia_api_runt_vehicle_by_plate_only": {
             "title": "Veículo RUNT somente pela placa",
-            "description": "Consulte um veículo no RUNT colombiano usando apenas a placa, sem o documento do proprietário."
+            "description": "Consulte um veículo na Colômbia usando apenas a placa, sem o documento do proprietário."
         }
     }
 }

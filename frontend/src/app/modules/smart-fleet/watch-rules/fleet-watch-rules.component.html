@@ -3,22 +3,7 @@
         class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
     >
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
-            <div
-                class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
-            >
-                <a
-                    routerLink="/smart-fleet"
-                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                    >{{ 'smartFleet.title' | transloco }}</a
-                >
-                <mat-icon
-                    class="icon-size-4 mx-2 text-stone-400"
-                    svgIcon="heroicons_solid:chevron-right"
-                ></mat-icon>
-                <span class="cursor-default text-stone-600 dark:text-stone-300">{{
-                    'smartFleet.nav.watchRules' | transloco
-                }}</span>
-            </div>
+            <fleet-nav />
 
             <div class="flex flex-wrap items-start justify-between gap-3">
                 <div class="flex min-w-0 items-start gap-3">
@@ -43,14 +28,13 @@
                     </div>
                 </div>
                 <button
-                    mat-flat-button
-                    color="primary"
+                    *ngIf="composing()"
+                    mat-stroked-button
                     type="button"
-                    (click)="toggleForm()"
+                    (click)="clearTarget()"
                     class="shrink-0 rounded-xl !px-6 !py-2"
                 >
-                    <mat-icon class="mr-2 icon-size-5">{{ showForm() ? 'close' : 'add' }}</mat-icon>
-                    {{ (showForm() ? 'smartFleet.cancel' : 'smartFleet.rules.addRule') | transloco }}
+                    {{ 'smartFleet.rules.changeTarget' | transloco }}
                 </button>
             </div>
         </div>
@@ -58,6 +42,176 @@
 
     <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+            <section
+                *ngIf="!composing()"
+                class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+            >
+                <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                    {{ 'smartFleet.rules.pickTitle' | transloco }}
+                </h2>
+                <p class="mt-1 max-w-3xl text-sm text-stone-500 dark:text-stone-400">
+                    {{ 'smartFleet.rules.pickHint' | transloco }}
+                </p>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <button
+                        type="button"
+                        (click)="choosePick('asset')"
+                        class="rounded-2xl border p-4 text-left"
+                        [class.border-indigo-500]="pickKind() === 'asset'"
+                        [class.bg-indigo-50]="pickKind() === 'asset'"
+                        [class.border-stone-200]="pickKind() !== 'asset'"
+                        [class.dark:border-gray-700]="pickKind() !== 'asset'"
+                    >
+                        <mat-icon class="icon-size-6 text-indigo-600">directions_car</mat-icon>
+                        <span class="mt-3 block text-sm font-semibold text-stone-900 dark:text-white">{{
+                            'smartFleet.rules.scope_asset' | transloco
+                        }}</span>
+                        <span class="mt-1 block text-xs text-stone-500">{{
+                            'smartFleet.rules.pickAssetHint' | transloco
+                        }}</span>
+                    </button>
+                    <button
+                        type="button"
+                        (click)="choosePick('group')"
+                        class="rounded-2xl border p-4 text-left"
+                        [class.border-indigo-500]="pickKind() === 'group'"
+                        [class.bg-indigo-50]="pickKind() === 'group'"
+                        [class.border-stone-200]="pickKind() !== 'group'"
+                        [class.dark:border-gray-700]="pickKind() !== 'group'"
+                    >
+                        <mat-icon class="icon-size-6 text-indigo-600">workspaces</mat-icon>
+                        <span class="mt-3 block text-sm font-semibold text-stone-900 dark:text-white">{{
+                            'smartFleet.rules.scope_group' | transloco
+                        }}</span>
+                        <span class="mt-1 block text-xs text-stone-500">{{
+                            'smartFleet.rules.pickGroupHint' | transloco
+                        }}</span>
+                    </button>
+                    <button
+                        type="button"
+                        (click)="choosePick('fleet')"
+                        class="rounded-2xl border border-stone-200 p-4 text-left hover:border-indigo-300 dark:border-gray-700"
+                    >
+                        <mat-icon class="icon-size-6 text-indigo-600">local_shipping</mat-icon>
+                        <span class="mt-3 block text-sm font-semibold text-stone-900 dark:text-white">{{
+                            'smartFleet.rules.scope_fleet' | transloco
+                        }}</span>
+                        <span class="mt-1 block text-xs text-stone-500">{{
+                            'smartFleet.rules.pickFleetHint' | transloco: { count: assets().length }
+                        }}</span>
+                    </button>
+                    <button
+                        type="button"
+                        (click)="choosePick('library')"
+                        class="rounded-2xl border border-stone-200 p-4 text-left hover:border-indigo-300 dark:border-gray-700"
+                    >
+                        <mat-icon class="icon-size-6 text-indigo-600">bookmark_add</mat-icon>
+                        <span class="mt-3 block text-sm font-semibold text-stone-900 dark:text-white">{{
+                            'smartFleet.rules.pickLibraryCard' | transloco
+                        }}</span>
+                        <span class="mt-1 block text-xs text-stone-500">{{
+                            'smartFleet.rules.pickLibraryCardHint' | transloco
+                        }}</span>
+                    </button>
+                </div>
+
+                <div *ngIf="pickKind() === 'group'" class="mt-4 rounded-2xl border border-stone-200 p-4 dark:border-gray-700">
+                    <p *ngIf="!groups().length" class="text-sm text-stone-500">
+                        <a routerLink="/smart-fleet/assets" class="font-medium text-indigo-700 hover:underline">{{
+                            'smartFleet.rules.pickGroupEmpty' | transloco
+                        }}</a>
+                    </p>
+                    <ul class="flex max-h-64 flex-col gap-1 overflow-auto">
+                        <li *ngFor="let group of groups()">
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm hover:bg-stone-100 dark:hover:bg-gray-800"
+                                (click)="openTarget({ group: group })"
+                            >
+                                <span class="flex min-w-0 items-center gap-2">
+                                    <fleet-vehicle-icon
+                                        [icon]="groupIcon(group)"
+                                        class="h-5 w-8 shrink-0"
+                                        [style.color]="groupColor(group)"
+                                    ></fleet-vehicle-icon>
+                                    <span
+                                        class="h-3 w-3 shrink-0 rounded-full"
+                                        [style.background]="groupColor(group)"
+                                    ></span>
+                                    <span class="truncate font-medium text-stone-900 dark:text-white">{{ group }}</span>
+                                </span>
+                                <span class="shrink-0 text-xs text-stone-500">{{ groupSize(group) }}</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div *ngIf="pickKind() === 'asset'" class="mt-4 rounded-2xl border border-stone-200 p-4 dark:border-gray-700">
+                    <p *ngIf="!assets().length" class="text-sm text-stone-500">
+                        <a
+                            routerLink="/smart-fleet/assets"
+                            [queryParams]="{ add: 1 }"
+                            class="font-medium text-indigo-700 hover:underline"
+                            >{{ 'smartFleet.rules.pickAssetEmpty' | transloco }}</a
+                        >
+                    </p>
+                    <ul class="flex max-h-64 flex-col gap-1 overflow-auto">
+                        <li *ngFor="let asset of assets()">
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-stone-100 dark:hover:bg-gray-800"
+                                (click)="openTarget({ asset: asset._id! })"
+                            >
+                                <span class="truncate font-mono font-medium text-stone-900 dark:text-white">{{
+                                    asset.plate || asset.vin
+                                }}</span>
+                                <span class="shrink-0 truncate text-xs text-stone-500" *ngIf="asset.group">{{
+                                    asset.group
+                                }}</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div *ngIf="unassignedRules().length" class="mt-6 border-t border-stone-200 pt-4 dark:border-gray-800">
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'smartFleet.rules.boardLibraryTitle' | transloco }}
+                    </h3>
+                    <ul class="mt-3 flex flex-col gap-2">
+                        <li
+                            *ngFor="let rule of unassignedRules()"
+                            class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-stone-200 px-3 py-2 dark:border-gray-700"
+                        >
+                            <span class="text-sm font-medium text-stone-900 dark:text-white">{{
+                                'smartFleet.checkType.' + rule.checkType | transloco
+                            }}</span>
+                            <select
+                                class="rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                [disabled]="assigningRuleId() === rule._id"
+                                (change)="assignRule(rule, $any($event.target).value, $event)"
+                            >
+                                <option value="">{{ 'smartFleet.rules.assignNone' | transloco }}</option>
+                                <option *ngFor="let vehicle of vehiclesForRule(rule)" [value]="vehicle._id">
+                                    {{ vehicle.plate || vehicle.vin }}
+                                </option>
+                            </select>
+                            <span class="w-full text-xs text-stone-500" *ngIf="!vehiclesForRule(rule).length">{{
+                                'smartFleet.rules.assignEmpty' | transloco
+                            }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            <fleet-asset-rules-board *ngIf="composeFleet()" />
+            <fleet-asset-rules-board *ngIf="composeLibrary()" [library]="true" />
+            <fleet-asset-rules-board
+                *ngIf="composeAssetId() as assetId"
+                [assetId]="assetId"
+            />
+            <fleet-asset-rules-board
+                *ngIf="composeGroup() as groupName"
+                [groupName]="groupName"
+            />
             <!-- Rule form -->
             <div
                 *ngIf="showForm()"
@@ -68,8 +222,11 @@
                 </h2>
 
                 <!-- Scope -->
-                <div class="mt-4">
-                    <span class="text-xs font-medium uppercase text-stone-500">{{
+                <div class="mt-5">
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'smartFleet.rules.stepWho' | transloco }}
+                    </h3>
+                    <span class="mt-3 block text-xs font-medium uppercase text-stone-500">{{
                         'smartFleet.rules.scope' | transloco
                     }}</span>
                     <div class="mt-2 flex flex-wrap gap-1">
@@ -132,8 +289,11 @@
                 </div>
 
                 <!-- Check type -->
-                <div class="mt-4">
-                    <span class="text-xs font-medium uppercase text-stone-500">{{
+                <div class="mt-6 border-t border-stone-200/90 pt-5 dark:border-gray-800">
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'smartFleet.rules.stepWhat' | transloco }}
+                    </h3>
+                    <span class="mt-3 block text-xs font-medium uppercase text-stone-500">{{
                         'smartFleet.rules.checkType' | transloco
                     }}</span>
                     <div class="mt-2 grid gap-2 md:grid-cols-3">
@@ -282,6 +442,12 @@
                     </div>
                 </div>
 
+                <div class="mt-6 border-t border-stone-200/90 pt-5 dark:border-gray-800">
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'smartFleet.rules.stepWhen' | transloco }}
+                    </h3>
+                </div>
+
                 <div class="mt-4 grid gap-4 md:grid-cols-2">
                     <div>
                         <span class="text-xs font-medium uppercase text-stone-500">{{
@@ -364,17 +530,29 @@
                     <span class="text-xs font-medium uppercase text-stone-500">{{
                         'smartFleet.rules.channels' | transloco
                     }}</span>
-                    <div class="mt-2 flex flex-wrap gap-1">
+                    <div class="mt-2 flex flex-wrap gap-2">
                         <button
                             *ngFor="let channel of channelOptions"
                             type="button"
                             (click)="toggleChannel(channel)"
-                            class="rounded-xl px-3 py-1.5 text-sm font-medium transition-colors"
+                            class="inline-flex items-center gap-2.5 rounded-xl border px-3 py-1.5 text-sm font-medium transition-colors"
+                            [class.border-indigo-600]="isChannelSelected(channel)"
                             [class.bg-indigo-600]="isChannelSelected(channel)"
                             [class.text-white]="isChannelSelected(channel)"
-                            [class.text-stone-600]="!isChannelSelected(channel)"
-                            [class.hover:bg-stone-100]="!isChannelSelected(channel)"
+                            [class.border-stone-200]="!isChannelSelected(channel)"
+                            [class.bg-white]="!isChannelSelected(channel)"
+                            [class.text-stone-800]="!isChannelSelected(channel)"
+                            [class.hover:border-stone-300]="!isChannelSelected(channel)"
+                            [class.dark:border-gray-700]="!isChannelSelected(channel)"
+                            [class.dark:bg-gray-900]="!isChannelSelected(channel)"
+                            [class.dark:text-stone-100]="!isChannelSelected(channel)"
                         >
+                            <span
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                [ngClass]="channelTone(channel, isChannelSelected(channel))"
+                            >
+                                <fleet-channel-icon [channel]="channel" />
+                            </span>
                             {{ 'smartFleet.channel.' + channel | transloco }}
                         </button>
                     </div>
@@ -395,6 +573,38 @@
                         />
                         <span class="text-xs text-stone-500">{{
                             'smartFleet.rules.emailHint' | transloco
+                        }}</span>
+                    </label>
+
+                    <label class="flex flex-col gap-1" *ngIf="isChannelSelected('sms')">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.rules.smsRecipients' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().smsRecipients"
+                            (ngModelChange)="setField('smsRecipients', $event)"
+                            name="smsRecipients"
+                            placeholder="+573001112233"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                        <span class="text-xs text-stone-500">{{ 'smartFleet.rules.smsHint' | transloco }}</span>
+                    </label>
+
+                    <label class="flex flex-col gap-1" *ngIf="isChannelSelected('whatsapp')">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.rules.whatsappRecipients' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().whatsappRecipients"
+                            (ngModelChange)="setField('whatsappRecipients', $event)"
+                            name="whatsappRecipients"
+                            placeholder="+573001112233"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                        <span class="text-xs text-stone-500">{{
+                            'smartFleet.rules.whatsappHint' | transloco
                         }}</span>
                     </label>
 
@@ -700,8 +910,14 @@
                                     }}</span
                                 >
                             </td>
-                            <td class="px-5 py-3 text-stone-600 dark:text-stone-300">
-                                {{ scopeLabel(rule) }}
+                            <td class="px-5 py-3">
+                                <a
+                                    class="font-medium text-indigo-700 hover:underline dark:text-indigo-300"
+                                    [routerLink]="['/smart-fleet/watch-rules']"
+                                    [queryParams]="targetQuery(rule)"
+                                    (click)="$event.stopPropagation()"
+                                    >{{ scopeLabel(rule) }}</a
+                                >
                             </td>
                             <td class="px-5 py-3 text-stone-600 dark:text-stone-300">
                                 {{ frequencyLabel(rule) }}
@@ -721,7 +937,7 @@
                                     <button
                                         mat-icon-button
                                         type="button"
-                                        (click)="startEdit(rule, $event)"
+                                        (click)="openTarget(targetQuery(rule)); $event.stopPropagation()"
                                         [matTooltip]="'smartFleet.rules.edit' | transloco"
                                     >
                                         <mat-icon class="icon-size-5">edit</mat-icon>

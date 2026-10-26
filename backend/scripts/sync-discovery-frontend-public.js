@@ -13,7 +13,11 @@ const manifest = require("../src/config/tools-manifest.json");
 const buildOpenApiFromManifest = require("../src/utils/buildOpenApiFromManifest");
 const { buildWellKnownX402 } = buildOpenApiFromManifest;
 
-const publicOrigin = (process.env.PUBLIC_ORIGIN || "https://ai.verifik.co").replace(/\/$/, "");
+const stagingFlag = process.argv.includes("--staging");
+const publicOrigin = (
+	process.env.PUBLIC_ORIGIN ||
+	(stagingFlag ? "https://staging.verifik.co" : "https://ai.verifik.co")
+).replace(/\/$/, "");
 
 const frontendPublic = path.resolve(__dirname, "../../frontend/public");
 const wellKnownDir = path.join(frontendPublic, ".well-known");

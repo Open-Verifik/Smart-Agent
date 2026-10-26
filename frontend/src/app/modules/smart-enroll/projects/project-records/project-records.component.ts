@@ -14,15 +14,17 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
-import { pickEnrollmentFaceMedia } from '../app-registration-record.utils';
+import { isFaceNoStorage, isFacePurged, pickEnrollmentFaceMedia } from '../app-registration-record.utils';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type {
     AppRegistrationListFilters,
     AppRegistrationRow,
     AppRegistrationStatus,
     AppRegistrationStep,
+    EnrollProject,
 } from '../smart-enroll-projects.types';
 
 type DatePreset = 'all' | 'today' | 'thisWeek' | 'lastWeek' | 'thisMonth' | 'custom';
@@ -73,6 +75,7 @@ const DATE_PRESETS: DatePreset[] = ['all', 'today', 'thisWeek', 'lastWeek', 'thi
         MatSelectModule,
         MatSortModule,
         MatTableModule,
+        MatTooltipModule,
         TranslocoModule,
     ],
     templateUrl: './project-records.component.html',
@@ -93,6 +96,7 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
     loading = signal(true);
     errorKey = signal<string | null>(null);
     projectId = '';
+    project = signal<EnrollProject | null>(null);
     projectName = signal<string | null>(null);
     total = signal(0);
     readonly pageSizeOptions = [10, 25, 50];
@@ -124,6 +128,7 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
             this._router.navigate(['/smart-enroll/projects']);
             return;
         }
+
         this._loadProjectName();
         this.fetchRecords();
     }
@@ -247,10 +252,24 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
         return null;
     }
 
+    isRowNoStorage(row: AppRegistrationRow): boolean {
+        return isFaceNoStorage(row, this.project()?.dataRetention);
+    }
+
+    isRowPurged(row: AppRegistrationRow): boolean {
+        return isFacePurged(row);
+    }
+
     private _loadProjectName(): void {
         this._projectsService.getProject(this.projectId).subscribe({
-            next: (p) => this.projectName.set(p?.name ?? null),
-            error: () => this.projectName.set(null),
+            next: (p) => {
+                this.project.set(p);
+                this.projectName.set(p?.name ?? null);
+            },
+            error: () => {
+                this.project.set(null);
+                this.projectName.set(null);
+            },
         });
     }
 

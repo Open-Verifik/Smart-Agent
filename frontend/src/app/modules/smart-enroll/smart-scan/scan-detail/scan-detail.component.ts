@@ -8,8 +8,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
+import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
+import { manualEraseErrorKey, projectIdFromRef } from 'app/core/data-retention/manual-erase.util';
 import { DateTime } from 'luxon';
 import { FuseHighlightService } from '@fuse/components/highlight/highlight.service';
 import {
@@ -29,6 +33,7 @@ import {
     type ScanResult,
     type SmartCheckResult,
 } from '../smart-scan.types';
+import { isEphemeral, isNoStorage, isPurged } from '../smart-scan-retention.util';
 
 @Component({
     selector: 'scan-detail',
@@ -43,6 +48,8 @@ import {
         BarcodeValidationPanelComponent,
         ScanToolSmartCheckResultComponent,
         MatProgressSpinnerModule,
+        MatSnackBarModule,
+        MatTooltipModule,
         TranslocoModule,
     ],
     templateUrl: './scan-detail.component.html',
@@ -54,6 +61,8 @@ export class ScanDetailComponent implements OnInit {
     private _scanService = inject(SmartScanService);
     private _cdr = inject(ChangeDetectorRef);
     private _dialog = inject(MatDialog);
+    private _snackBar = inject(MatSnackBar);
+    private _retention = inject(DataRetentionService);
     private _transloco = inject(TranslocoService);
     private _highlightService = inject(FuseHighlightService);
     private _domSanitizer = inject(DomSanitizer);
@@ -65,6 +74,11 @@ export class ScanDetailComponent implements OnInit {
     errorMessage: string | null = null;
     deleteLoading = false;
     deleteError: string | null = null;
+    /** `null` means the flag could not be resolved, so the button stays available. */
+    allowManualDelete: boolean | null = null;
+    eraseAccessLoading = false;
+    eraseLoading = false;
+    eraseErrorKey: string | null = null;
     showRawJson = false;
     showClassificationReason = false;
     copyFeedback = false;
@@ -85,6 +99,7 @@ export class ScanDetailComponent implements OnInit {
                 this.loading = false;
                 this.loadTemplateFields();
                 this.loadDocumentTypeMeta();
+                this.loadEraseAccess();
                 this._cdr.markForCheck();
             },
             error: () => {
@@ -193,6 +208,86 @@ export class ScanDetailComponent implements OnInit {
         return !this.scan?.backUrl && !back;
     }
 
+    get isPurged(): boolean {
+        return isPurged(this.scan?.retention);
+    }
+
+    get isNoStorage(): boolean {
+        return isNoStorage(this.scan?.retention);
+    }
+
+    get isEphemeral(): boolean {
+        return isEphemeral(this.scan?.retention);
+    }
+
+    get purgeDate(): string | null {
+        return this.scan?.retention?.purgedAt ? this.formatDate(this.scan.retention.purgedAt) : null;
+    }
+
+    get scheduledPurgeDate(): string | null {
+        return this.scan?.retention?.purgeAfter ? this.formatDate(this.scan.retention.purgeAfter) : null;
+    }
+
+    /**
+     * Reads the effective allowManualDelete once for this scan's project.
+     * The service caches the account and project settings.
+     */
+    loadEraseAccess(): void {
+        this.eraseAccessLoading = true;
+        this._retention
+            .resolveAllowManualDelete({ projectId: projectIdFromRef(this.scan?.project) })
+            .pipe(
+                finalize(() => {
+                    this.eraseAccessLoading = false;
+                    this._cdr.markForCheck();
+                })
+            )
+            .subscribe((allowed) => {
+                this.allowManualDelete = allowed;
+            });
+    }
+
+    /** Asks, then erases stored images for this scan and reloads the purged view. */
+    confirmEraseData(): void {
+        if (!this.scan?._id || this.eraseLoading || this.eraseAccessLoading || this.allowManualDelete === false) return;
+
+        this.eraseErrorKey = null;
+        this._dialog
+            .open(ScanDeleteConfirmDialogComponent, {
+                width: '440px',
+                data: {
+                    titleKey: 'settings.dataRetention.eraseConfirmTitle',
+                    messageKey: 'settings.dataRetention.eraseConfirmScan',
+                    cancelKey: 'settings.dataRetention.eraseConfirmCancel',
+                    confirmKey: 'settings.dataRetention.eraseConfirmAction',
+                },
+            })
+            .afterClosed()
+            .subscribe((confirmed) => {
+                if (!confirmed || !this.scan?._id) return;
+                const id = this.scan._id;
+                this.eraseLoading = true;
+                this._cdr.markForCheck();
+                this._retention
+                    .eraseDocumentValidationFiles(id)
+                    .pipe(
+                        finalize(() => {
+                            this.eraseLoading = false;
+                            this._cdr.markForCheck();
+                        })
+                    )
+                    .subscribe({
+                        next: () => {
+                            this._snackBar.open(this._transloco.translate('settings.dataRetention.eraseSuccess'), undefined, {
+                                duration: 4000,
+                            });
+                            this.reloadScan(id);
+                        },
+                        error: (err: unknown) => this.showEraseError(err),
+                    });
+            });
+    }
+
     confirmDelete(): void {
         if (!this.scan?._id || this.deleteLoading) return;
 
@@ -232,6 +327,28 @@ export class ScanDetailComponent implements OnInit {
                         },
                     });
             });
+    }
+
+    private reloadScan(id: string): void {
+        this._scanService.getScan(id).subscribe({
+            next: (res) => {
+                this.scan = res.data;
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.eraseErrorKey = 'settings.dataRetention.eraseRefreshFailed';
+                this._snackBar.open(this._transloco.translate(this.eraseErrorKey), undefined, { duration: 5000 });
+                this._cdr.markForCheck();
+            },
+        });
+    }
+
+    private showEraseError(err: unknown): void {
+        const key = manualEraseErrorKey(err);
+        if (key === 'settings.dataRetention.eraseDisabled') this.allowManualDelete = false;
+        this.eraseErrorKey = key;
+        this._snackBar.open(this._transloco.translate(key), undefined, { duration: 5000 });
+        this._cdr.markForCheck();
     }
 
     enrollmentRecordLink(): string[] | null {

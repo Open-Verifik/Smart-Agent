@@ -23,7 +23,7 @@ import type {
 const SCAN_METHODS = ['SCAN_AGENT', 'SCAN_STUDIO', 'SCAN_PROMPT'];
 
 const SCAN_LIST_COLUMNS =
-    '_id url documentType documentNumber status validationMethod country createdAt OCRExtraction';
+    '_id url backUrl documentType documentNumber status validationMethod country createdAt OCRExtraction retention';
 
 @Injectable({
     providedIn: 'root',

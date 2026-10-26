@@ -661,6 +661,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
                 amount: this.selectedAmount,
                 currency: this.boldCurrency,
                 origin: 'smart_agent',
+                returnPath: '/add-credits',
             })
             .subscribe({
                 next: (response) => void this._openBoldCheckout(response.data),

@@ -27,6 +27,21 @@
     }
 }
 
+/* Report layout (Visita + report builder): sheet blocks cap at 9000; chrome stays above. */
+body.report-design-active {
+    .cdk-overlay-container {
+        z-index: 1006000 !important;
+    }
+
+    .cdk-overlay-connected-position-bounding-box {
+        z-index: 1006000 !important;
+    }
+
+    .report-design-overlay-pane {
+        z-index: 1006000 !important;
+    }
+}
+
 /* API Explorer — rename endpoint / folder dialogs (rounded shell on overlay) */
 .postman-rename-endpoint-dialog-shell .mat-mdc-dialog-container,
 .postman-folder-dialog-shell .mat-mdc-dialog-container {

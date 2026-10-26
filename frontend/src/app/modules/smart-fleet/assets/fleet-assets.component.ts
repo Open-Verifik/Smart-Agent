@@ -1,16 +1,33 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
+import { BatchBrowserRunnerService } from 'app/modules/smart-batch/batch-browser-runner.service';
+import {
+    BatchConfiguration,
+    BatchStep,
+    SmartBatch,
+    SmartBatchService,
+} from 'app/modules/smart-batch/smart-batch.service';
+import { SmartReportService, SmartReportTemplate } from 'app/modules/smart-batch/smart-report.service';
+import { ReportBuilderPreviewDataService } from 'app/modules/smart-batch/report-builder-preview-data.service';
+import {
+    assetMatchesTemplate,
+    ReportInputKind,
+    templateAcceptedKinds,
+} from './fleet-report-compatibility.util';
+import { assetCoverages, CoverageChip, coverageChipClasses } from './fleet-coverage.util';
+import { buildFleetVehicleSample, fleetReportFileName, pdfBlobFromResponse } from './fleet-vehicle-report.util';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import {
     FleetCountryChoice,
@@ -18,18 +35,49 @@ import {
     getFleetCountryPlaceholders,
     mergeFleetCountries,
 } from '../fleet-country.util';
+import { FleetNavComponent } from '../fleet-nav.component';
+import { FleetGroupsBoardComponent } from './fleet-groups-board.component';
+import { FleetReportProgressDialogComponent } from './fleet-report-progress-dialog.component';
+import {
+    batchConsultTerminalStatus,
+    FleetReportProgressHub,
+    fleetReportPercentFromStage,
+    isFleetBatchServerManaged,
+    nextPendingStepForRow,
+    consultDoneCount,
+    PreparedFleetReport,
+    progressPollTerminalStatus,
+    stepFeatureLabel,
+} from './fleet-report-progress';
+import {
+    FleetReportPdfPreviewData,
+    FleetReportPdfPreviewDialogComponent,
+} from './fleet-report-pdf-preview-dialog.component';
+import { FleetTemplatePreviewDialogComponent } from './fleet-template-preview-dialog.component';
+import { FleetVehicleIconComponent } from './fleet-vehicle-icon.component';
 import {
     FleetAsset,
     FleetAvailableCheck,
+    FleetCoverageFilter,
+    FleetIdentifierFilter,
+    FleetSnapshot,
+    savedReportsOf,
     SmartFleetService,
 } from '../smart-fleet.service';
 
 /** Column order for the import template, matching what the server-side parser expects. */
 const IMPORT_HEADERS = ['plate', 'vin', 'nickname', 'group', 'documentType', 'documentNumber'];
 
-type IdentifierMode = 'plate' | 'vin';
+type IdentifierMode = 'plate' | 'plateOnly' | 'vin';
 
-const DEFAULT_DRAFT = (): FleetAsset => ({ country: 'co', type: 'vehicle' });
+/** Document types accepted by the Colombia vehicle lookup. CC is cédula. */
+const CO_DOCUMENT_TYPES = ['CC', 'CE', 'TI', 'PA', 'RC'] as const;
+
+const DEFAULT_DRAFT = (): FleetAsset => ({
+    country: 'co',
+    type: 'vehicle',
+    ownerDocumentType: 'CC',
+});
 
 @Component({
     selector: 'fleet-assets',
@@ -42,12 +90,215 @@ const DEFAULT_DRAFT = (): FleetAsset => ({ country: 'co', type: 'vehicle' });
         MatButtonModule,
         MatIconModule,
         MatTooltipModule,
+        MatDialogModule,
         MatMenuModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        FleetNavComponent,
+        FleetGroupsBoardComponent,
+        FleetVehicleIconComponent,
     ],
     templateUrl: './fleet-assets.component.html',
     encapsulation: ViewEncapsulation.None,
+    styles: [
+        `
+            .fleet-report-menu.mat-mdc-menu-panel {
+                max-width: 22rem;
+                overflow: hidden;
+            }
+
+            .fleet-report-menu .mat-mdc-menu-content {
+                padding: 0;
+            }
+
+            .fleet-report-menu-title {
+                padding: 12px 16px;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.35;
+                white-space: normal;
+                background: #f5f5f4;
+                border-bottom: 1px solid #e7e5e4;
+                color: #292524;
+            }
+
+            .fleet-report-menu-list {
+                max-height: 16rem;
+                overflow-y: auto;
+                padding: 4px 0;
+                background: #ffffff;
+            }
+
+            .fleet-report-menu-group {
+                border-bottom: 1px solid #e7e5e4;
+            }
+
+            .fleet-report-menu-group:last-child {
+                border-bottom: 0;
+            }
+
+            .fleet-report-menu-group--system {
+                background: #eef2ff;
+            }
+
+            .fleet-report-menu-group--mine {
+                background: #ecfdf5;
+            }
+
+            .fleet-report-menu-section {
+                padding: 10px 16px 6px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+
+            .fleet-report-menu-section--system {
+                background: #818cf8;
+                color: #ffffff;
+            }
+
+            .fleet-report-menu-section--mine {
+                background: #34d399;
+                color: #064e3b;
+            }
+
+            .fleet-report-menu-group--system .fleet-report-menu-row {
+                background: #eef2ff;
+                color: #312e81;
+            }
+
+            .fleet-report-menu-group--system .fleet-report-menu-row--stripe {
+                background: #e0e7ff;
+            }
+
+            .fleet-report-menu-group--system .fleet-report-menu-row:hover {
+                background: #c7d2fe !important;
+            }
+
+            .fleet-report-menu-group--mine .fleet-report-menu-row {
+                background: #ecfdf5;
+                color: #065f46;
+            }
+
+            .fleet-report-menu-group--mine .fleet-report-menu-row--stripe {
+                background: #d1fae5;
+            }
+
+            .fleet-report-menu-group--mine .fleet-report-menu-row:hover {
+                background: #a7f3d0 !important;
+            }
+
+            .dark .fleet-report-menu-group--system {
+                background: #1e1b4b;
+            }
+
+            .dark .fleet-report-menu-group--mine {
+                background: #064e3b;
+            }
+
+            .dark .fleet-report-menu-section--system {
+                background: #4f46e5;
+                color: #eef2ff;
+            }
+
+            .dark .fleet-report-menu-section--mine {
+                background: #10b981;
+                color: #ecfdf5;
+            }
+
+            .dark .fleet-report-menu-group--system .fleet-report-menu-row {
+                background: #1e1b4b;
+                color: #e0e7ff;
+            }
+
+            .dark .fleet-report-menu-group--system .fleet-report-menu-row--stripe {
+                background: #312e81;
+            }
+
+            .dark .fleet-report-menu-group--system .fleet-report-menu-row:hover {
+                background: #4338ca !important;
+            }
+
+            .dark .fleet-report-menu-group--mine .fleet-report-menu-row {
+                background: #064e3b;
+                color: #d1fae5;
+            }
+
+            .dark .fleet-report-menu-group--mine .fleet-report-menu-row--stripe {
+                background: #047857;
+            }
+
+            .dark .fleet-report-menu-group--mine .fleet-report-menu-row:hover {
+                background: #059669 !important;
+            }
+
+            .fleet-report-menu-footer.mat-mdc-menu-item {
+                background: #f5f5f4;
+                border-top: 1px solid #e7e5e4;
+                color: #4338ca;
+                font-weight: 600;
+            }
+
+            .fleet-report-menu-footer.mat-mdc-menu-item:hover {
+                background: #e7e5e4;
+            }
+
+            .dark .fleet-report-menu-title,
+            .dark .fleet-report-menu-footer.mat-mdc-menu-item {
+                background: #1f2937;
+                border-color: #374151;
+                color: #e7e5e4;
+            }
+
+            .dark .fleet-report-menu-footer.mat-mdc-menu-item {
+                color: #a5b4fc;
+            }
+
+            .dark .fleet-report-menu-footer.mat-mdc-menu-item:hover {
+                background: #374151;
+            }
+
+            .dark .fleet-report-menu-list {
+                background: #111827;
+            }
+
+            .fleet-report-menu-row {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+                padding: 0 4px 0 8px;
+            }
+
+            .fleet-report-menu-name {
+                min-width: 0;
+                flex: 1;
+                overflow: hidden;
+                border: 0;
+                background: transparent;
+                padding: 8px;
+                text-align: left;
+                font-size: 14px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: inherit;
+                cursor: pointer;
+            }
+
+            .fleet-report-menu-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border: 0;
+                border-radius: 8px;
+                background: transparent;
+                color: inherit;
+                cursor: pointer;
+            }
+        `,
+    ],
 })
 export class FleetAssetsComponent implements OnInit {
     private _fleetService = inject(SmartFleetService);
@@ -56,6 +307,15 @@ export class FleetAssetsComponent implements OnInit {
     private _snackBar = inject(MatSnackBar);
     private _confirm = inject(FuseConfirmationService);
     private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
+    private _reports = inject(SmartReportService);
+    private _batches = inject(SmartBatchService);
+    private _browserRunner = inject(BatchBrowserRunnerService);
+    private _previewData = inject(ReportBuilderPreviewDataService);
+    private _dialog = inject(MatDialog);
+    private _reportMenu?: MatMenuTrigger;
+
+    @ViewChild(FleetGroupsBoardComponent) private _groupsBoard?: FleetGroupsBoardComponent;
 
     assets = this._fleetService.assets;
     isLoading = this._fleetService.isLoadingAssets;
@@ -78,15 +338,57 @@ export class FleetAssetsComponent implements OnInit {
     canGoNext = computed(() => this.page() < this.pages() && !this.isLoading());
 
     search = signal('');
+    filterGroup = signal('');
+    filterIdentifier = signal<FleetIdentifierFilter | ''>('');
+    filterCoverage = signal<FleetCoverageFilter | ''>('');
+    filterActive = signal<'all' | 'active' | 'paused'>('all');
+    filterAlerts = signal(false);
     isCreating = signal(false);
     isImporting = signal(false);
     checkingAssetId = signal<string | null>(null);
 
     showCreateForm = signal(false);
+    /** Vehicle whose row menu is assigning a group. */
+    groupTarget = signal<FleetAsset | null>(null);
+    /** Vehicle whose report menu is open. */
+    reportTarget = signal<FleetAsset | null>(null);
+    reportTemplates = signal<SmartReportTemplate[]>([]);
+    systemReportTemplates = computed(() =>
+        this.reportTemplates().filter((template) => template.type === 'System')
+    );
+    myReportTemplates = computed(() =>
+        this.reportTemplates().filter((template) => template.type !== 'System')
+    );
+    reportingAssetId = signal<string | null>(null);
+    /** Report ready to download, keyed by vehicle. Nothing is saved to disk until the user asks. */
+    readyReports = signal<Record<string, { reportId: string; templateName?: string; rowIndex?: number }>>({});
+    bulkMode = signal(false);
+    bulkLoading = signal(false);
+    bulkWorking = signal(false);
+    bulkTemplateId = signal('');
+    bulkAssets = signal<FleetAsset[]>([]);
+    bulkSteps = signal<BatchStep[]>([]);
+    bulkSelected = signal<Record<string, boolean>>({});
+    bulkReady = signal(false);
+    /** Rows finished out of the batch while the bulk run is going. */
+    bulkProgress = signal<{ stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number } | null>(
+        null
+    );
+    bulkProgressPercent = computed(() => {
+        const progress = this.bulkProgress();
+
+        if (!progress) return 0;
+        if (progress.stage === 'prepare') return 5;
+        if (progress.stage === 'pdf') return 92;
+        if (progress.stage === 'save') return 97;
+
+        return progress.total ? 5 + Math.round((progress.done / progress.total) * 85) : 5;
+    });
     /** When set, the shared form updates this asset instead of creating. */
     editingAssetId = signal<string | null>(null);
     draft = signal<FleetAsset>(DEFAULT_DRAFT());
     identifierMode = signal<IdentifierMode>('plate');
+    readonly documentTypes = CO_DOCUMENT_TYPES;
     availableChecks = signal<FleetAvailableCheck[]>([]);
 
     /** Live + Coming soon countries for the create/import selectors. */
@@ -156,7 +458,15 @@ export class FleetAssetsComponent implements OnInit {
             onAuthenticated: () => {
                 this._loadCountries();
                 this._loadAvailableChecks();
+                this._loadReportTemplates();
                 this.loadPage(1);
+
+                if (this._route.snapshot.queryParamMap.get('add') === '1') {
+                    this.editingAssetId.set(null);
+                    this.identifierMode.set('plate');
+                    this.draft.set(DEFAULT_DRAFT());
+                    this.showCreateForm.set(true);
+                }
             },
             panelClass: 'auth-required-dialog',
         });
@@ -167,6 +477,1045 @@ export class FleetAssetsComponent implements OnInit {
             next: (response) => this.availableChecks.set(response.data?.checks ?? []),
             error: (err) => console.error('[SmartFleet] getAvailableChecks error', err),
         });
+    }
+
+    private _loadReportTemplates(): void {
+        this._reports.getTemplates().subscribe({
+            next: (templates) => {
+                const rank = (template: SmartReportTemplate) => (template.category === 'vehicle' ? 0 : 1);
+
+                this.reportTemplates.set(
+                    [...(templates ?? [])].sort(
+                        (left, right) => rank(left) - rank(right) || left.name.localeCompare(right.name)
+                    )
+                );
+            },
+            error: (err) => console.error('[SmartFleet] getTemplates error', err),
+        });
+    }
+
+    async generateVehicleReport(template: SmartReportTemplate): Promise<void> {
+        const asset = this.reportTarget();
+
+        if (!asset?._id || !template._id || this.reportingAssetId() || this.bulkWorking()) return;
+
+        // Already reported: show what was saved instead of running (and charging) the lookup again.
+        if (this.readyReport(asset)) {
+            this.previewVehicleReport(asset);
+
+            return;
+        }
+
+        this.reportingAssetId.set(asset._id);
+        const { hub, ref } = this._openReportProgressDialog(this.assetLabel(asset), 1);
+
+        try {
+            const ready = await this._generateForAssets(template, [asset], undefined, hub);
+
+            if (!ready) {
+                if (ref.getState() === 0) ref.close();
+
+                return;
+            }
+
+            hub.finish();
+            this._snackBar.open(this._reportDoneMessage('smartFleet.assets.reportPrepared', ready.credits), undefined, {
+                duration: 5000,
+            });
+        } catch (err) {
+            console.error('[SmartFleet] generate report error', err);
+            const detail = await this._reportErrorDetail(err);
+
+            hub.fail(detail || this._transloco.translate('smartFleet.assets.reportFailed'));
+        } finally {
+            this.reportingAssetId.set(null);
+        }
+    }
+
+    readyReport(asset: FleetAsset): { reportId: string; templateName?: string; rowIndex?: number } | null {
+        if (!asset._id) return null;
+
+        return this.readyReports()[asset._id] ?? savedReportsOf(asset)[0] ?? null;
+    }
+
+    /**
+     * A vehicle is reported once: the first time the lookup runs and is charged, every later time the saved
+     * PDF is shown. With a report the PDF icon shows it; without one it opens the template menu.
+     */
+    onReportIcon(asset: FleetAsset, trigger: MatMenuTrigger): void {
+        this.reportTarget.set(asset);
+        this.rememberReportMenu(trigger);
+    }
+
+    previewReportTarget(): void {
+        const asset = this.reportTarget();
+
+        if (asset) this.previewVehicleReport(asset);
+    }
+
+    downloadReportTarget(): void {
+        const asset = this.reportTarget();
+
+        if (asset) void this.downloadVehicleReport(asset);
+    }
+
+    regenerateReportTarget(): void {
+        const asset = this.reportTarget();
+
+        if (asset) void this.resetVehicleReportForRegeneration(asset);
+    }
+
+    /** Clears stale saved report metadata and opens the template picker again. */
+    async resetVehicleReportForRegeneration(asset: FleetAsset): Promise<void> {
+        if (!asset._id || this.reportingAssetId() || this.bulkWorking()) return;
+
+        this.closeReportMenu();
+
+        try {
+            const response = await firstValueFrom(this._fleetService.clearAssetReports(asset));
+
+            if (response.data) {
+                this._applyAssetUpdate(response.data);
+            }
+
+            this.readyReports.update((current) => {
+                const next = { ...current };
+                delete next[asset._id!];
+                return next;
+            });
+
+            this.reportTarget.set(asset);
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportResetReady'), undefined, {
+                duration: 5000,
+            });
+        } catch (err) {
+            console.error('[SmartFleet] clear saved report error', err);
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportFailed'), undefined, {
+                duration: 4000,
+            });
+        }
+    }
+
+    previewVehicleReport(asset: FleetAsset): void {
+        const ready = this.readyReport(asset);
+
+        if (!ready || this.reportingAssetId() || this.bulkWorking()) return;
+
+        this._dialog.open<FleetReportPdfPreviewDialogComponent, FleetReportPdfPreviewData>(
+            FleetReportPdfPreviewDialogComponent,
+            {
+                data: {
+                    reportId: ready.reportId,
+                    rowIndex: ready.rowIndex ?? 0,
+                    title: this.assetLabel(asset),
+                    subtitle: ready.templateName,
+                    fileName: fleetReportFileName(asset, ready.templateName),
+                    onRegenerate: () => void this.resetVehicleReportForRegeneration(asset),
+                },
+                autoFocus: false,
+                width: '960px',
+                maxWidth: '96vw',
+                height: '90vh',
+                maxHeight: '96vh',
+            }
+        );
+    }
+
+    async downloadVehicleReport(asset: FleetAsset): Promise<void> {
+        const ready = this.readyReport(asset);
+
+        if (!ready || this.reportingAssetId() || this.bulkWorking()) return;
+
+        try {
+            const pdf = await pdfBlobFromResponse(
+                await firstValueFrom(this._reports.downloadReport(ready.reportId, ready.rowIndex ?? 0))
+            );
+
+            if (!pdf) throw new Error('pdf');
+
+            const url = URL.createObjectURL(pdf);
+            const anchor = document.createElement('a');
+
+            anchor.href = url;
+            anchor.download = fleetReportFileName(asset, ready.templateName);
+            anchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        } catch (err) {
+            console.error('[SmartFleet] download report error', err);
+            const detail = await this._reportErrorDetail(err);
+
+            this._snackBar.open(
+                detail || this._transloco.translate('smartFleet.assets.reportPreviewFailed'),
+                this._transloco.translate('smartFleet.assets.reportRegenerate'),
+                { duration: 7000 }
+            )
+                .onAction()
+                .subscribe(() => void this.resetVehicleReportForRegeneration(asset));
+        }
+    }
+
+    async toggleBulkMode(): Promise<void> {
+        if (this.bulkWorking()) return;
+
+        const next = !this.bulkMode();
+
+        this.bulkMode.set(next);
+
+        if (!next || this.bulkAssets().length) return;
+
+        this.bulkLoading.set(true);
+
+        try {
+            this.bulkAssets.set(await this._fleetService.findAllAssets());
+        } catch (err) {
+            console.error('[SmartFleet] bulk assets error', err);
+            this.bulkMode.set(false);
+        } finally {
+            this.bulkLoading.set(false);
+        }
+    }
+
+    async chooseBulkTemplate(templateId: string): Promise<void> {
+        this.bulkTemplateId.set(templateId);
+        this.bulkSteps.set([]);
+        this.bulkSelected.set({});
+        this.bulkReady.set(false);
+
+        if (!templateId) return;
+
+        try {
+            const full = await firstValueFrom(this._reports.getTemplate(templateId));
+            const resolved = await this._ensureFleetRunnableTemplate(full);
+
+            if (!resolved) {
+                this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsBatch'), undefined, {
+                    duration: 4000,
+                });
+                return;
+            }
+
+            const configuration = await firstValueFrom(this._batches.getConfiguration(resolved.configId));
+            const steps = (configuration.data?.steps || []).filter((step) => step.enabled !== false);
+
+            this.bulkSteps.set(steps);
+            this.bulkSelected.set(
+                Object.fromEntries(
+                    this.bulkAssets()
+                        .filter((asset) => asset._id && !this.readyReport(asset) && assetMatchesTemplate(asset, steps))
+                        .map((asset) => [asset._id!, true])
+                )
+            );
+            this.bulkReady.set(true);
+        } catch (err) {
+            console.error('[SmartFleet] bulk template error', err);
+            this.bulkTemplateId.set('');
+        }
+    }
+
+    /** Vehicles the template applies to, whether or not they already have a report. */
+    private _bulkMatching(): FleetAsset[] {
+        const steps = this.bulkSteps();
+
+        if (!this.bulkTemplateId() || !this.bulkReady()) return [];
+
+        return this.bulkAssets().filter((asset) => assetMatchesTemplate(asset, steps));
+    }
+
+    /** Vehicles that can still be reported: they apply to the template and have no report yet. */
+    bulkCompatible(): FleetAsset[] {
+        return this._bulkMatching().filter((asset) => !this.readyReport(asset));
+    }
+
+    /** Vehicles left out because the template does not apply to them. */
+    bulkSkippedCount(): number {
+        if (!this.bulkTemplateId() || !this.bulkReady()) return 0;
+
+        return this.bulkAssets().length - this._bulkMatching().length;
+    }
+
+    /** Vehicles left out because they were already reported, so they are not generated or charged again. */
+    bulkAlreadyReportedCount(): number {
+        return this._bulkMatching().length - this.bulkCompatible().length;
+    }
+
+    bulkKindLabels(): string[] {
+        const labels: Record<ReportInputKind, string> = {
+            plate: this._transloco.translate('smartFleet.assets.bulkNeedPlate'),
+            document: this._transloco.translate('smartFleet.assets.bulkNeedDocument'),
+            vin: this._transloco.translate('smartFleet.assets.bulkNeedVin'),
+        };
+
+        return templateAcceptedKinds(this.bulkSteps()).map((kind) => labels[kind]);
+    }
+
+    bulkChecked(asset: FleetAsset): boolean {
+        return Boolean(asset._id && this.bulkSelected()[asset._id]);
+    }
+
+    toggleBulkAsset(asset: FleetAsset): void {
+        if (!asset._id || this.bulkWorking()) return;
+
+        this.bulkSelected.update((current) => ({ ...current, [asset._id!]: !current[asset._id!] }));
+    }
+
+    selectBulkCompatible(selected: boolean): void {
+        if (this.bulkWorking()) return;
+
+        this.bulkSelected.set(
+            selected
+                ? Object.fromEntries(this.bulkCompatible().map((asset) => [asset._id!, true]))
+                : {}
+        );
+    }
+
+    bulkSelectedAssets(): FleetAsset[] {
+        const selected = this.bulkSelected();
+
+        return this.bulkCompatible().filter((asset) => asset._id && selected[asset._id]);
+    }
+
+    async generateBulkReports(): Promise<void> {
+        const template = this.reportTemplates().find((item) => item._id === this.bulkTemplateId());
+        const assets = this.bulkSelectedAssets();
+
+        if (!template || !assets.length || this.bulkWorking() || this.reportingAssetId()) return;
+
+        this.bulkWorking.set(true);
+        this.bulkProgress.set({ stage: 'prepare', done: 0, total: assets.length });
+        const bulkTitle = this._transloco.translate('smartFleet.assets.reportProgressBulkTitle', {
+            count: assets.length,
+        });
+        const { hub, ref } = this._openReportProgressDialog(bulkTitle, assets.length);
+
+        try {
+            const ready = await this._generateForAssets(
+                template,
+                assets,
+                (progress) => {
+                    this.bulkProgress.set(progress);
+                    hub.setPercent(fleetReportPercentFromStage(progress.stage, progress.done, progress.total));
+                },
+                hub
+            );
+
+            if (!ready) {
+                if (ref.getState() === 0) ref.close();
+
+                return;
+            }
+
+            hub.finish();
+            this._snackBar.open(this._reportDoneMessage('smartFleet.assets.bulkPrepared', ready.credits), undefined, {
+                duration: 5000,
+            });
+        } catch (err) {
+            console.error('[SmartFleet] bulk report error', err);
+            const detail = await this._reportErrorDetail(err);
+
+            hub.fail(detail || this._transloco.translate('smartFleet.assets.reportFailed'));
+        } finally {
+            this.bulkProgress.set(null);
+            this.bulkWorking.set(false);
+        }
+    }
+
+    assetLabel(asset: FleetAsset): string {
+        return asset.plate || asset.vin || asset.nickname || '—';
+    }
+
+    rememberReportMenu(trigger: MatMenuTrigger): void {
+        this._reportMenu = trigger;
+    }
+
+    closeReportMenu(): void {
+        this._reportMenu?.closeMenu();
+    }
+
+    previewReportTemplate(template: SmartReportTemplate, event: Event): void {
+        event.stopPropagation();
+        this.closeReportMenu();
+        this._dialog.open(FleetTemplatePreviewDialogComponent, {
+            data: { templateId: template._id, fallback: template },
+            autoFocus: false,
+            maxWidth: '96vw',
+            maxHeight: '96vh',
+            panelClass: 'fleet-template-preview-panel',
+        });
+    }
+
+    editReportTemplate(template: SmartReportTemplate, event: Event): void {
+        event.stopPropagation();
+        this.closeReportMenu();
+
+        if (!template._id) return;
+
+        const configId = this._configIdOf(template);
+
+        void this._router.navigate(['/smart-batch'], {
+            queryParams: {
+                step: 'layout',
+                templateId: template._id,
+                intent: 'template',
+                ...(configId ? { configId } : {}),
+            },
+        });
+    }
+
+    async createReportTemplate(): Promise<void> {
+        const asset = this.reportTarget();
+
+        if (!asset) return;
+
+        let sample = buildFleetVehicleSample(asset, []);
+
+        if (asset._id) {
+            try {
+                sample = await this._sampleFor(asset);
+            } catch (err) {
+                console.error('[SmartFleet] report sample error', err);
+            }
+        }
+
+        this._previewData.setPendingPreviewData(sample);
+        void this._router.navigate(['/smart-batch'], {
+            queryParams: {
+                step: 'country',
+                intent: 'template',
+                templateChoice: 'scratch',
+            },
+        });
+    }
+
+    private async _reportErrorDetail(err: unknown): Promise<string> {
+        if (err instanceof Error && err.message && err.message !== 'pdf' && !err.message.startsWith('Http failure')) {
+            return err.message;
+        }
+
+        const body = (err as { error?: unknown })?.error;
+
+        if (body instanceof Blob) {
+            try {
+                const parsed = JSON.parse(await body.text()) as { message?: string };
+
+                return parsed.message || '';
+            } catch {
+                return '';
+            }
+        }
+
+        return '';
+    }
+
+    private _configIdOf(template: SmartReportTemplate): string | null {
+        const linked = template.batchConfiguration;
+
+        if (!linked) return null;
+
+        return typeof linked === 'string' ? linked : linked._id || linked.id || null;
+    }
+
+    /**
+     * System presets ship without a client `batchConfiguration`. Clone (or reuse) the
+     * client-owned config + template pair before running Smart Fleet report batches.
+     */
+    private async _ensureFleetRunnableTemplate(
+        template: SmartReportTemplate
+    ): Promise<{ template: SmartReportTemplate; configId: string } | null> {
+        let runnable = template;
+        let configId = this._configIdOf(runnable);
+
+        if (!configId && runnable.type === 'System' && runnable.systemKey) {
+            const cloned = await firstValueFrom(this._batches.cloneSystemPreset(runnable.systemKey));
+            runnable = cloned.data?.template ?? runnable;
+            const config = cloned.data?.batchConfiguration;
+            configId =
+                this._configIdOf(runnable) ||
+                (config && typeof config === 'object'
+                    ? config._id || config.id || null
+                    : typeof config === 'string'
+                      ? config
+                      : null);
+        }
+
+        if (!configId) return null;
+
+        return { template: runnable, configId };
+    }
+
+    /** Same plate column the external page resolves from the template's Smart Batch. */
+    private _plateFieldFor(steps: BatchStep[]): string {
+        const ordered = [...steps].sort((left, right) => left.sequence - right.sequence);
+
+        for (const step of ordered) {
+            const feature = typeof step.appFeature === 'object' ? step.appFeature : null;
+
+            for (const dependency of feature?.dependencies || []) {
+                if (dependency.field && this._isPlateField(dependency.field)) return dependency.field;
+            }
+
+            const mapping = step.inputFieldMapping;
+
+            if (!mapping || typeof mapping !== 'object') continue;
+
+            for (const key of Object.keys(mapping as Record<string, unknown>)) {
+                if (this._isPlateField(key)) return key;
+            }
+        }
+
+        return 'plate';
+    }
+
+    private _isPlateField(field: string): boolean {
+        const token = field.replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+        return /^(plate|placa|licenseplate|vehicleplate)$/.test(token) || token.includes('placa') || token.endsWith('plate');
+    }
+
+    /** One row, like the page: the plate field, plus document or VIN when this vehicle has them. */
+    private _batchInputFor(asset: FleetAsset, steps: BatchStep[]): Record<string, string> {
+        const plateField = this._plateFieldFor(steps);
+        const input: Record<string, string> = {};
+
+        if (asset.plate) {
+            input[plateField] = asset.plate;
+            if (plateField !== 'plate') input.plate = asset.plate;
+        }
+
+        if (asset.ownerDocumentType) input.documentType = asset.ownerDocumentType;
+        if (asset.ownerDocumentNumber) input.documentNumber = asset.ownerDocumentNumber;
+        if (asset.vin) input.vin = asset.vin;
+
+        return input;
+    }
+
+    /**
+     * Same Smart Batch path as one vehicle: create the rows, run the template's
+     * steps, then keep one report so each vehicle can be downloaded on its own.
+     */
+    private _openReportProgressDialog(title: string, vehicleCount: number): {
+        hub: FleetReportProgressHub;
+        ref: MatDialogRef<FleetReportProgressDialogComponent>;
+    } {
+        const hub = new FleetReportProgressHub();
+
+        hub.title.set(title);
+        hub.vehicleCount.set(vehicleCount);
+        hub.phase.set('estimate');
+        hub.estimateLoading.set(true);
+
+        const ref = this._dialog.open(FleetReportProgressDialogComponent, {
+            disableClose: true,
+            width: '540px',
+            maxWidth: '96vw',
+            panelClass: 'fleet-report-progress-dialog-panel',
+            data: { hub },
+        });
+
+        return { hub, ref };
+    }
+
+    private async _prepareFleetReportBatch(
+        template: SmartReportTemplate,
+        assets: FleetAsset[]
+    ): Promise<PreparedFleetReport | null> {
+        if (!template._id || !assets.length) return null;
+
+        const full = await firstValueFrom(this._reports.getTemplate(template._id));
+        const resolved = await this._ensureFleetRunnableTemplate(full);
+
+        if (!resolved) {
+            this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsBatch'), undefined, {
+                duration: 4000,
+            });
+            return null;
+        }
+
+        const { template: runnableTemplate, configId } = resolved;
+        const configuration = await firstValueFrom(this._batches.getConfiguration(configId));
+        const config = configuration.data;
+        const steps = (config?.steps || []).filter((step) => step.enabled !== false);
+
+        if (!config || !steps.length) return null;
+
+        const batchName = (
+            assets.length === 1
+                ? assets[0].nickname || assets[0].plate || assets[0].vin || 'Vehículo'
+                : `Informes ${assets.length}`
+        ).slice(0, 150);
+        const created = await firstValueFrom(
+            this._batches.createSmartBatch({
+                batchConfiguration: configId,
+                name: batchName,
+                source: 'smart_fleet',
+                rows: assets.map((asset) => ({ inputData: this._batchInputFor(asset, steps) })),
+            })
+        );
+        const batchId = created.data?._id;
+
+        if (!batchId) throw new Error('batch');
+
+        const estimate = await firstValueFrom(this._batches.getBatchEstimate(batchId));
+
+        if (!estimate.data) throw new Error('estimate');
+
+        return {
+            batchId,
+            batchName,
+            config,
+            steps,
+            estimate: estimate.data,
+            template: runnableTemplate,
+        };
+    }
+
+    private async _discardFleetReportBatch(batchId: string): Promise<void> {
+        try {
+            await firstValueFrom(this._batches.cancelSmartBatch(batchId));
+        } catch (err) {
+            console.error('[SmartFleet] discard report batch error', err);
+        }
+    }
+
+    private async _executeFleetReportBatch(
+        prepared: PreparedFleetReport,
+        assets: FleetAsset[],
+        onProgress?: (progress: { stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number }) => void,
+        hub?: FleetReportProgressHub
+    ): Promise<{ credits: number } | null> {
+        const { batchId, batchName, config, steps, template } = prepared;
+        const total = assets.length;
+        const notify = (stage: 'prepare' | 'consult' | 'pdf' | 'save', done = 0) => {
+            onProgress?.({ stage, done, total });
+            hub?.setPercent(fleetReportPercentFromStage(stage, done, total));
+        };
+
+        hub?.setPercent(5);
+        hub?.beginStep('smartFleet.assets.reportProgressStartConsult');
+
+        notify('consult', 0);
+
+        const started = await firstValueFrom(this._batches.startSmartBatch(batchId));
+        let batch = started.data?.rows?.length
+            ? started.data
+            : (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
+
+        const status = await this._consultBatchRows(
+            batchId,
+            batch,
+            config,
+            steps,
+            assets,
+            total,
+            hub,
+            (done) => notify('consult', done)
+        );
+
+        if (status === 'failed') {
+            throw new Error(this._transloco.translate('smartFleet.assets.reportNoData'));
+        }
+
+        const credits = await this._creditsSpentOn(batchId);
+
+        hub?.beginStep('smartFleet.assets.reportProgressBuildReport');
+
+        notify('pdf', total);
+
+        const report = await firstValueFrom(
+            this._reports.createReport({
+                template: template._id,
+                smartBatch: batchId,
+                name: batchName,
+            })
+        );
+
+        if (!report._id) throw new Error('pdf');
+
+        const reportId = report._id;
+        const createdAt = new Date().toISOString();
+
+        this.readyReports.update((current) => {
+            const next = { ...current };
+
+            assets.forEach((asset, index) => {
+                if (!asset._id) return;
+
+                next[asset._id] = { reportId, templateName: template.name, rowIndex: index };
+            });
+
+            return next;
+        });
+
+        hub?.beginStep('smartFleet.assets.reportProgressSaveFleet');
+
+        notify('save', total);
+        await this._saveReports(assets, { reportId, templateName: template.name, createdAt }, hub);
+
+        return { credits };
+    }
+
+    private async _generateForAssets(
+        template: SmartReportTemplate,
+        assets: FleetAsset[],
+        onProgress?: (progress: { stage: 'prepare' | 'consult' | 'pdf' | 'save'; done: number; total: number }) => void,
+        hub?: FleetReportProgressHub
+    ): Promise<{ credits: number } | null> {
+        if (!template._id || !assets.length) return null;
+
+        let prepared: PreparedFleetReport | null = null;
+
+        try {
+            prepared = await this._prepareFleetReportBatch(template, assets);
+        } finally {
+            hub?.estimateLoading.set(false);
+        }
+
+        if (!prepared) return null;
+
+        hub?.estimate.set(prepared.estimate);
+
+        if (!hub) {
+            if (prepared.estimate.sufficientCredits === false) {
+                this._snackBar.open(this._transloco.translate('smartFleet.assets.reportNeedsCredits'), undefined, {
+                    duration: 4000,
+                });
+                await this._discardFleetReportBatch(prepared.batchId);
+
+                return null;
+            }
+
+            return this._executeFleetReportBatch(prepared, assets, onProgress);
+        }
+
+        const confirmed = await hub.waitForCostConfirm();
+
+        if (!confirmed) {
+            await this._discardFleetReportBatch(prepared.batchId);
+
+            return null;
+        }
+
+        return this._executeFleetReportBatch(prepared, assets, onProgress, hub);
+    }
+
+    private _reportDoneMessage(key: string, credits: number): string {
+        const message = this._transloco.translate(key);
+
+        if (!credits) return message;
+
+        return `${message} · ${this._transloco.translate('smartFleet.assets.reportCredits', {
+            credits: Number(credits.toFixed(2)),
+        })}`;
+    }
+
+    /** What the template's endpoints billed, as recorded on the batch; 0 when unknown. */
+    private async _creditsSpentOn(batchId: string): Promise<number> {
+        try {
+            const batch = await firstValueFrom(this._batches.getSmartBatch(batchId));
+            const spent = Number(batch.data?.creditsSpent);
+
+            return Number.isFinite(spent) && spent > 0 ? spent : 0;
+        } catch (err) {
+            console.error('[SmartFleet] report credits error', err);
+            return 0;
+        }
+    }
+
+    /** History on each vehicle. A failed save only loses the history entry, not the PDF. */
+    private async _saveReports(
+        assets: FleetAsset[],
+        entry: { reportId: string; templateName?: string; createdAt: string },
+        hub?: FleetReportProgressHub
+    ): Promise<void> {
+        const saved: Record<string, FleetAsset> = {};
+        const chunkSize = 5;
+        let savedCount = 0;
+
+        for (let start = 0; start < assets.length; start += chunkSize) {
+            const chunk = assets.slice(start, start + chunkSize);
+
+            await Promise.all(
+                chunk.map(async (asset, offset) => {
+                    if (!asset._id) return;
+
+                    const index = start + offset + 1;
+
+                    if (assets.length > 1) {
+                        hub?.beginStep('smartFleet.assets.reportProgressSaveVehicle', {
+                            label: this.assetLabel(asset),
+                            current: index,
+                            total: assets.length,
+                        });
+                    }
+
+                    try {
+                        const response = await firstValueFrom(
+                            this._fleetService.saveAssetReport(asset, { ...entry, rowIndex: start + offset })
+                        );
+
+                        if (response.data) saved[asset._id] = response.data;
+                        savedCount += 1;
+                        hub?.setPercent(
+                            fleetReportPercentFromStage('save', savedCount, assets.length)
+                        );
+                    } catch (err) {
+                        console.error('[SmartFleet] save report history error', err);
+                    }
+                })
+            );
+        }
+
+        const merge = (list: FleetAsset[]) =>
+            list.map((item) => (item._id && saved[item._id] ? { ...item, metadata: saved[item._id].metadata } : item));
+
+        this._fleetService.assets.update(merge);
+        this.bulkAssets.update(merge);
+    }
+
+    private _applyAssetUpdate(updated: FleetAsset): void {
+        if (!updated._id) return;
+
+        const patch = (list: FleetAsset[]) =>
+            list.map((item) => (item._id === updated._id ? { ...item, ...updated } : item));
+
+        this._fleetService.assets.update(patch);
+        this.bulkAssets.update(patch);
+    }
+
+    private async _consultBatchRows(
+        batchId: string,
+        batch: SmartBatch | undefined,
+        config: BatchConfiguration | undefined,
+        steps: BatchStep[],
+        assets: FleetAsset[],
+        total: number,
+        hub?: FleetReportProgressHub,
+        onDone?: (done: number) => void
+    ): Promise<string> {
+        let working = batch;
+
+        if (!working?.rows?.length) {
+            working = (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
+        }
+
+        let progressPeek = null;
+
+        try {
+            progressPeek = (await firstValueFrom(this._batches.getBatchProgress(batchId))).data;
+        } catch (err) {
+            console.error('[SmartFleet] batch progress peek error', err);
+        }
+
+        const serverManaged = isFleetBatchServerManaged(config?.executor, working, progressPeek);
+
+        hub?.setRunMode(serverManaged ? 'async' : 'sync');
+        hub?.beginStep(
+            serverManaged
+                ? 'smartFleet.assets.reportProgressRunAsync'
+                : 'smartFleet.assets.reportProgressRunSync'
+        );
+
+        if (serverManaged) {
+            hub?.beginStep('smartFleet.assets.reportProgressAsyncQueue');
+
+            return this._pollBatch(
+                batchId,
+                Math.max(180_000, total * 90_000),
+                onDone,
+                hub,
+                steps,
+                assets,
+                total
+            );
+        }
+
+        hub?.beginStep('smartFleet.assets.reportProgressSyncInTab');
+
+        let status = await this._runBatchInBrowser(working!, steps, assets, onDone, hub);
+        let refreshed = (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;
+        const stillOpen = (refreshed?.rows || []).some(
+            (row) => row.status === 'pending' || row.status === 'processing'
+        );
+
+        if (stillOpen) {
+            let secondPeek = null;
+
+            try {
+                secondPeek = (await firstValueFrom(this._batches.getBatchProgress(batchId))).data;
+            } catch {
+                /* ignore */
+            }
+
+            if (isFleetBatchServerManaged(config?.executor, refreshed, secondPeek)) {
+                hub?.beginStep('smartFleet.assets.reportProgressAsyncQueue');
+                status = await this._pollBatch(
+                    batchId,
+                    Math.max(180_000, total * 90_000),
+                    onDone,
+                    hub,
+                    steps,
+                    assets,
+                    total
+                );
+            } else {
+                status = batchConsultTerminalStatus(refreshed);
+            }
+        }
+
+        return status;
+    }
+
+    private async _pollBatch(
+        batchId: string,
+        waitMs = 180_000,
+        onDone?: (done: number) => void,
+        hub?: FleetReportProgressHub,
+        steps: BatchStep[] = [],
+        assets: FleetAsset[] = [],
+        total = 0
+    ): Promise<string> {
+        const started = Date.now();
+        let idlePolls = 0;
+
+        while (Date.now() - started < waitMs) {
+            const [progress, batchRes] = await Promise.all([
+                firstValueFrom(this._batches.getBatchProgress(batchId)),
+                firstValueFrom(this._batches.getSmartBatch(batchId)),
+            ]);
+            const payload = progress.data;
+            const liveBatch = batchRes.data;
+            const { done, total: rowTotal } = consultDoneCount(liveBatch, payload, total, steps);
+
+            onDone?.(done);
+
+            const terminal = progressPollTerminalStatus(payload, liveBatch, steps);
+
+            if (terminal) return terminal;
+
+            let endpointLabel = '';
+
+            if (steps.length && liveBatch?.rows?.length) {
+                const activeRow =
+                    liveBatch.rows.find((row) => row.status === 'processing') ??
+                    liveBatch.rows.find((row) => row.status === 'pending');
+                const step = activeRow ? nextPendingStepForRow(activeRow, steps) : null;
+
+                if (step) endpointLabel = stepFeatureLabel(step);
+            }
+
+            if (hub && rowTotal) {
+                hub.pulseStep('smartFleet.assets.reportProgressAsyncRows', {
+                    done,
+                    total: rowTotal,
+                    detail: endpointLabel
+                        ? ` · ${this._transloco.translate('smartFleet.assets.reportProgressAsyncConsulting', { endpoint: endpointLabel })}`
+                        : '',
+                });
+            }
+
+            if (payload?.serverSide === false && done === 0) {
+                idlePolls += 1;
+            } else {
+                idlePolls = 0;
+            }
+
+            if (idlePolls >= 3 && steps.length && payload?.serverSide === false) {
+                hub?.setRunMode('sync');
+                hub?.beginStep('smartFleet.assets.reportProgressSyncInTab');
+
+                return this._runBatchInBrowser(liveBatch, steps, assets, onDone, hub);
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+
+        throw new Error(this._transloco.translate('smartFleet.assets.reportStillRunning'));
+    }
+
+    /** Browser executor: this tab calls each feature, then writes the row. */
+    private async _runBatchInBrowser(
+        batch: SmartBatch,
+        steps: BatchStep[],
+        assets: FleetAsset[],
+        onDone?: (done: number) => void,
+        hub?: FleetReportProgressHub
+    ): Promise<string> {
+        const batchId = batch._id;
+
+        if (!batchId) return 'failed';
+
+        if (this._browserRunner.running()) {
+            this._browserRunner.stop();
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        let working = batch;
+
+        if (!working.rows?.length) {
+            working = (await firstValueFrom(this._batches.getSmartBatch(batchId))).data ?? working;
+        }
+
+        let latest = working;
+        const assetByRow = new Map(
+            (working.rows || []).map((row, index) => [row.rowIndex, assets[index] ?? assets[0]])
+        );
+        let runError: unknown;
+
+        await this._browserRunner.runBatch(
+            working,
+            steps,
+            (next) => {
+                latest = next;
+                onDone?.(
+                    (next.rows || []).filter(
+                        (row) =>
+                            row.status === 'completed' || row.status === 'partial' || row.status === 'failed'
+                    ).length
+                );
+            },
+            (error) => {
+                runError = error;
+            },
+            {
+                onStepStart: ({ step, rowIndex }) => {
+                    const asset = assetByRow.get(rowIndex);
+                    const endpoint = stepFeatureLabel(step);
+
+                    if (assets.length > 1 && asset) {
+                        hub?.pulseStep('smartFleet.assets.reportProgressConsultEndpointRow', {
+                            endpoint,
+                            vehicle: this.assetLabel(asset),
+                        });
+                    } else {
+                        hub?.pulseStep('smartFleet.assets.reportProgressConsultEndpoint', { endpoint });
+                    }
+                },
+                onStepComplete: ({ ok }) => {
+                    if (ok) hub?.completeActiveStep();
+                },
+            }
+        );
+
+        if (runError) throw runError;
+
+        latest = (await firstValueFrom(this._batches.getSmartBatch(batchId))).data ?? latest;
+
+        return batchConsultTerminalStatus(latest);
+    }
+
+    private async _sampleFor(asset: FleetAsset, steps: BatchStep[] = []) {
+        const response = await firstValueFrom(
+            this._fleetService.getAssetTimeline(asset._id!, { limit: 40, includeRaw: true })
+        );
+
+        return buildFleetVehicleSample(asset, this._snapshotsOf(response.data), steps);
+    }
+
+    private _snapshotsOf(
+        data: FleetSnapshot[] | { snapshots?: FleetSnapshot[] } | undefined
+    ): FleetSnapshot[] {
+        if (Array.isArray(data)) return data;
+
+        return data?.snapshots ?? [];
     }
 
     private _loadCountries(): void {
@@ -201,24 +1550,91 @@ export class FleetAssetsComponent implements OnInit {
     }
 
     loadPage(page: number): void {
-        this._fleetService.getAssets({ page, search: this.search() || undefined }).subscribe({
-            error: (err) => this._reportFailure('smartFleet.assets.loadFailed', err),
-        });
+        const active = this.filterActive();
+
+        this._fleetService
+            .getAssets({
+                page,
+                search: this.search() || undefined,
+                group: this.filterGroup() || undefined,
+                identifier: this.filterIdentifier() || undefined,
+                coverage: this.filterCoverage() || undefined,
+                hasAlerts: this.filterAlerts() || undefined,
+                isActive: active === 'active' ? true : active === 'paused' ? false : undefined,
+            })
+            .subscribe({
+                error: (err) => this._reportFailure('smartFleet.assets.loadFailed', err),
+            });
+    }
+
+    hasFilters(): boolean {
+        return Boolean(
+            this.filterGroup() ||
+                this.filterIdentifier() ||
+                this.filterCoverage() ||
+                this.filterAlerts() ||
+                this.filterActive() !== 'all'
+        );
+    }
+
+    applyFilters(): void {
+        if (this.bulkWorking()) return;
+
+        this.loadPage(1);
+    }
+
+    clearFilters(): void {
+        if (this.bulkWorking()) return;
+
+        this.filterGroup.set('');
+        this.filterIdentifier.set('');
+        this.filterCoverage.set('');
+        this.filterAlerts.set(false);
+        this.filterActive.set('all');
+        this.loadPage(1);
+    }
+
+    coverages(asset: FleetAsset): CoverageChip[] {
+        return assetCoverages(asset);
+    }
+
+    coverageClasses(chip: CoverageChip): string {
+        return coverageChipClasses(chip.tone);
+    }
+
+    coverageText(chip: CoverageChip): string {
+        if (chip.tone === 'unknown') return this._transloco.translate('smartFleet.assets.coverageUnknown');
+
+        const label = this._transloco.translate(`smartFleet.checkType.${chip.checkType}`);
+
+        if (chip.tone === 'expired') {
+            return `${label} · ${this._transloco.translate('smartFleet.assets.coverageExpired')}`;
+        }
+
+        return `${label} · ${this._transloco.translate('smartFleet.assets.coverageDays', { days: chip.days })}`;
     }
 
     previousPage(): void {
-        if (this.canGoPrevious()) this.loadPage(this.page() - 1);
+        if (this.bulkWorking() || !this.canGoPrevious()) return;
+
+        this.loadPage(this.page() - 1);
     }
 
     nextPage(): void {
-        if (this.canGoNext()) this.loadPage(this.page() + 1);
+        if (this.bulkWorking() || !this.canGoNext()) return;
+
+        this.loadPage(this.page() + 1);
     }
 
     applySearch(): void {
+        if (this.bulkWorking()) return;
+
         this.loadPage(1);
     }
 
     toggleCreateForm(): void {
+        if (this.bulkWorking()) return;
+
         if (this.showCreateForm()) {
             this._closeForm();
 
@@ -234,22 +1650,48 @@ export class FleetAssetsComponent implements OnInit {
     setIdentifierMode(mode: IdentifierMode): void {
         this.identifierMode.set(mode);
 
-        if (mode === 'plate') {
-            this.updateDraft('vin', '');
-        } else {
-            this.draft.update((draft) => ({
-                ...draft,
-                plate: '',
-                ownerDocumentType: '',
-                ownerDocumentNumber: '',
-            }));
-        }
+        // Drop the unused identifier instead of sending an empty string.
+        // The API rejects "" with "vin is not allowed to be empty".
+        this.draft.update((draft) => {
+            if (mode === 'vin') {
+                const {
+                    plate: _plate,
+                    ownerDocumentType: _ownerDocumentType,
+                    ownerDocumentNumber: _ownerDocumentNumber,
+                    ...rest
+                } = draft;
+
+                return rest;
+            }
+
+            const { vin: _vin, ...withoutVin } = draft;
+
+            if (mode === 'plateOnly') {
+                const {
+                    ownerDocumentType: _ownerDocumentType,
+                    ownerDocumentNumber: _ownerDocumentNumber,
+                    ...rest
+                } = withoutVin;
+
+                return rest;
+            }
+
+            return {
+                ...withoutVin,
+                ownerDocumentType: withoutVin.ownerDocumentType || 'CC',
+            };
+        });
     }
 
     /** Open the shared form populated from an existing vehicle. */
     startEdit(asset: FleetAsset): void {
-        const mode: IdentifierMode =
-            asset.vin && !asset.ownerDocumentNumber ? 'vin' : 'plate';
+        if (this.bulkWorking()) return;
+
+        const mode: IdentifierMode = asset.vin && !asset.plate
+            ? 'vin'
+            : asset.plate && !asset.ownerDocumentNumber
+              ? 'plateOnly'
+              : 'plate';
 
         this.editingAssetId.set(asset._id!);
         this.identifierMode.set(mode);
@@ -283,6 +1725,25 @@ export class FleetAssetsComponent implements OnInit {
         this.draft.update((draft) => ({ ...draft, [field]: value }));
     }
 
+    /** Groups created on this page, plus the vehicle's current group if it is not listed yet. */
+    groupOptions(): string[] {
+        const names = new Set(this._groupsBoard?.groupNames() ?? []);
+        const current = this.draft().group?.trim();
+
+        if (current) names.add(current);
+
+        return [...names].sort((left, right) => left.localeCompare(right));
+    }
+
+    setDraftGroup(value: string): void {
+        const name = value.trim();
+
+        this.draft.update((draft) => ({
+            ...draft,
+            group: name || (this.editingAssetId() ? null : undefined),
+        }));
+    }
+
     setDraftCountry(code: string): void {
         const option = this.countryOptions().find((entry) => entry.code === code);
 
@@ -309,13 +1770,15 @@ export class FleetAssetsComponent implements OnInit {
 
         const plate = draft.plate?.trim() || '';
         const vin = draft.vin?.trim() || '';
+        const hasPlateOnly = this.identifierMode() === 'plateOnly' && plate.length >= 4;
         const hasPlatePath =
+            this.identifierMode() === 'plate' &&
             plate.length >= 4 &&
             Boolean(draft.ownerDocumentType?.trim()) &&
             Boolean(draft.ownerDocumentNumber?.trim());
-        const hasVinPath = vin.length >= 5;
+        const hasVinPath = this.identifierMode() === 'vin' && vin.length >= 5;
 
-        return hasPlatePath || hasVinPath;
+        return hasPlateOnly || hasPlatePath || hasVinPath;
     });
 
     saveAsset(): void {
@@ -351,6 +1814,7 @@ export class FleetAssetsComponent implements OnInit {
                     { duration: 3000 }
                 );
                 this.loadPage(editingId ? this.page() : 1);
+                this._groupsBoard?.reload();
             },
             error: (err) => {
                 this.isCreating.set(false);
@@ -363,6 +1827,8 @@ export class FleetAssetsComponent implements OnInit {
     }
 
     async deleteAsset(asset: FleetAsset): Promise<void> {
+        if (this.bulkWorking()) return;
+
         const confirmed = await firstValueFrom(
             this._confirm
                 .open({
@@ -388,12 +1854,15 @@ export class FleetAssetsComponent implements OnInit {
                     duration: 3000,
                 });
                 this.loadPage(this.page());
+                this._groupsBoard?.reload();
             },
             error: (err) => this._reportFailure('smartFleet.assets.deleteFailed', err),
         });
     }
 
     toggleActive(asset: FleetAsset): void {
+        if (this.bulkWorking()) return;
+
         this._fleetService.updateAsset(asset._id!, { isActive: !asset.isActive }).subscribe({
             next: () => this.loadPage(this.page()),
             error: (err) => this._reportFailure('smartFleet.assets.updateFailed', err),
@@ -405,6 +1874,8 @@ export class FleetAssetsComponent implements OnInit {
      * error when there is nothing to run or nothing to pay with, so surface that verbatim.
      */
     checkNow(asset: FleetAsset): void {
+        if (this.bulkWorking()) return;
+
         this.checkingAssetId.set(asset._id!);
 
         this._fleetService.checkAssetNow(asset._id!).subscribe({
@@ -424,6 +1895,19 @@ export class FleetAssetsComponent implements OnInit {
 
                 const detail = (err as { error?: { message?: string; code?: string } })?.error;
                 const code = detail?.message || detail?.code || '';
+
+                if (String(code).includes('fleet_plan_required')) {
+                    this._snackBar
+                        .open(
+                            this._transloco.translate('smartFleet.assets.checkSkipped.fleet_plan_required'),
+                            this._transloco.translate('smartFleet.assets.viewPlans'),
+                            { duration: 8000 }
+                        )
+                        .onAction()
+                        .subscribe(() => void this._router.navigate(['/smart-fleet/plans']));
+                    return;
+                }
+
                 const known = [
                     'no_active_rules',
                     'no_due_rules',
@@ -461,6 +1945,7 @@ export class FleetAssetsComponent implements OnInit {
             'insufficient_credits',
             'client_inactive',
             'missing_identifiers',
+            'fleet_plan_required',
         ];
 
         return known.includes(reason)
@@ -501,6 +1986,7 @@ export class FleetAssetsComponent implements OnInit {
                         { duration: 5000 }
                     );
                     this.loadPage(1);
+                    this._groupsBoard?.reload();
                 },
                 error: (err) => {
                     this.isImporting.set(false);
@@ -539,7 +2025,38 @@ export class FleetAssetsComponent implements OnInit {
     }
 
     openAsset(asset: FleetAsset): void {
+        if (this.bulkWorking()) return;
+
         this._router.navigate(['/smart-fleet/assets', asset._id]);
+    }
+
+    assignGroup(group: string | null): void {
+        if (this.bulkWorking()) return;
+
+        const asset = this.groupTarget();
+
+        if (!asset?._id || (asset.group || null) === group) return;
+
+        this._fleetService.updateAsset(asset._id, { group }).subscribe({
+            next: () => {
+                this._snackBar.open(
+                    this._transloco.translate('smartFleet.assets.groupAssigned'),
+                    undefined,
+                    { duration: 3000 }
+                );
+                this.loadPage(this.page());
+                this._groupsBoard?.reload();
+            },
+            error: (err) => this._reportFailure('smartFleet.groups.moveFailed', err),
+        });
+    }
+
+    editRules(asset: FleetAsset): void {
+        if (!asset._id || this.bulkWorking()) return;
+
+        this._router.navigate(['/smart-fleet/watch-rules'], {
+            queryParams: { asset: asset._id },
+        });
     }
 
     alertBadgeClasses(asset: FleetAsset): string {
@@ -567,6 +2084,20 @@ export class FleetAssetsComponent implements OnInit {
     private _reportFailure(key: string, error: unknown): void {
         const detail = (error as { error?: { message?: string; code?: string } })?.error;
         const code = detail?.code || '';
+
+        if (`${code} ${detail?.message || ''}`.includes('fleet_asset_limit_reached')) {
+            console.error('[SmartFleet]', key, error);
+            this._snackBar
+                .open(
+                    this._transloco.translate('smartFleet.assets.limitReached'),
+                    this._transloco.translate('smartFleet.assets.limitReachedAction'),
+                    { duration: 8000 }
+                )
+                .onAction()
+                .subscribe(() => void this._router.navigate(['/smart-fleet/plans']));
+            return;
+        }
+
         const message =
             code.includes('fleet_asset_owner_docs_or_vin_required') ||
             String(detail?.message || '').includes('fleet_asset_owner_docs_or_vin_required')

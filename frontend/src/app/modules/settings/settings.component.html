@@ -146,6 +146,12 @@
                     [user]="settingsUser"
                     (userChange)="onUserChanged($event)"
                 ></app-staff-list>
+
+                <app-data-retention-settings
+                    *ngIf="selectedPanel === 'data_retention'"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
+                ></app-data-retention-settings>
             </div>
         </mat-sidenav-content>
     </mat-sidenav-container>

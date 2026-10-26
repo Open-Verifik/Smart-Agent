@@ -2,6 +2,8 @@ import {
     buildColombiaVehicleReport,
     hasColombiaVehicleReportSteps,
 } from './colombia-vehicle-report/colombia-vehicle-report.composer';
+import { reportModelHasBlocks, reportModelHasRenderableContent } from './report-blocks-preview.util';
+import { valueAtDataPath } from './report-param-entries.util';
 import type { BatchStep } from './smart-batch.service';
 import { ReportSection, SmartReportTemplate } from './smart-report.service';
 
@@ -20,14 +22,7 @@ export interface TemplateMatchResult {
  * e.g. "results.1.fullName" -> value at that path
  */
 function resolvePath(path: string, data: Record<string, any>): any {
-    if (!path || !data) return undefined;
-    const parts = path.split('.');
-    let current: any = data;
-    for (const part of parts) {
-        if (current == null || typeof current !== 'object') return undefined;
-        current = current[part];
-    }
-    return current;
+    return valueAtDataPath(data, path);
 }
 
 /**
@@ -99,14 +94,10 @@ export function buildRowDataForResolution(
         results: row.results ?? {},
     };
 
-    if (options?.report) {
-        data.report = options.report;
-        return data;
-    }
-
     const steps = options?.steps ?? [];
+    let localReport: Record<string, any> | undefined;
     if (steps.length > 0 && hasColombiaVehicleReportSteps(steps)) {
-        data.report = buildColombiaVehicleReport(
+        localReport = buildColombiaVehicleReport(
             {
                 rowIndex: row.rowIndex ?? 0,
                 inputData: row.inputData,
@@ -115,7 +106,18 @@ export function buildRowDataForResolution(
             },
             steps,
             { batchName: options?.batchName }
-        );
+        ) as Record<string, any>;
+    }
+
+    if (reportModelHasRenderableContent(options?.report)) {
+        data.report = options!.report!;
+        return data;
+    }
+
+    if (reportModelHasRenderableContent(localReport)) {
+        data.report = localReport!;
+    } else if (reportModelHasBlocks(localReport)) {
+        data.report = localReport!;
     }
 
     return data;

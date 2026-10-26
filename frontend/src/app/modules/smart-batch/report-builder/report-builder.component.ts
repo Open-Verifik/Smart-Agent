@@ -20,6 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -27,7 +28,24 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, firstValueFrom, map, of, Subject, switchMap } from 'rxjs';
+import {
+    appendFeatureToBatchSteps,
+    batchStepFeatureId,
+    batchStepLabel,
+    orderedBatchSteps,
+    removeFeatureFromBatchSteps,
+} from '../batch-config-steps.util';
+import {
+    buildStepSequenceMap,
+    ensureResultSlots,
+    purgeResultSequence,
+    removeReportSectionsForSequence,
+    remapReportSectionPaths,
+    remapResultsRecord,
+    trimResultsToSteps,
+} from '../batch-step-sequence.util';
+import { REPORT_DESIGN_BODY_CLASS } from '../report-design-z-index.constants';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { clearBuilderSectionsDraft, readBuilderSectionsDraft, writeBuilderSectionsDraft } from './report-builder-draft';
@@ -43,7 +61,7 @@ import {
 import { REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS } from '../report-fonts.util';
 import { materializeSectionTypography } from '../report-text-role.util';
 import { ReportInlineTextChange, ReportOverlayId, ReportPreviewComponent } from '../report-preview/report-preview.component';
-import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
+import { AppFeature, BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 import {
     cloneReportValue,
     DataNode,
@@ -61,6 +79,7 @@ import {
 import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.component';
 import { SignaturePadDialogComponent } from './signature-pad-dialog/signature-pad-dialog.component';
 import { LayoutTextDialogComponent } from './layout-text-dialog/layout-text-dialog.component';
+import { ReportBuilderAddConsultDialogComponent } from './report-builder-add-consult-dialog.component';
 
 /**
  * Minimum allowed X / Y (in canonical 96 DPI px) for absolutely-positioned
@@ -89,6 +108,7 @@ const OVERLAY_MIN_Y = 52;
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         MatSnackBarModule,
         MatSlideToggleModule,
@@ -116,7 +136,13 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     templateId = signal<string | null>(null);
     /** Optional batch configuration link persisted with the template. */
     linkedConfigId = signal<string | null>(null);
+    /** Full Smart Batch configuration tied to this template (steps include populated features). */
+    linkedConfiguration = signal<BatchConfiguration | null>(null);
+    isUpdatingConsults = signal(false);
     configurations = this._batchService.configurations;
+
+    /** Consultation endpoints on the linked configuration, in run order. */
+    readonly consultSteps = computed(() => orderedBatchSteps(this.linkedConfiguration()?.steps));
 
     template = signal<SmartReportTemplate | null>(null);
     // State
@@ -282,7 +308,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
         },
     ];
 
-    readonly shapeKinds = REPORT_SHAPE_KINDS;
+    readonly shapeKinds = REPORT_SHAPE_KINDS.filter((kind) => kind !== 'icon');
 
     /** Palette groups, in the order they appear in the "Add sections" panel. */
     readonly sectionGroups: { key: 'content' | 'data' | 'layout'; labelKey: string }[] = [
@@ -387,6 +413,11 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
             this._loadIntrospection();
         });
 
+        effect(() => {
+            const configId = this.linkedConfigId();
+            untracked(() => void this._loadLinkedConfiguration(configId));
+        });
+
         this.templateForm = this._fb.group({
             name: ['', [Validators.required, Validators.maxLength(150)]],
             description: ['', Validators.maxLength(500)],
@@ -437,6 +468,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        document.body.classList.add(REPORT_DESIGN_BODY_CLASS);
         this._applyPreviewDataFromRouterState();
         this._batchService.getConfigurations().subscribe();
         this._watchExactPreview();
@@ -464,6 +496,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        document.body.classList.remove(REPORT_DESIGN_BODY_CLASS);
         this._releaseExactPreviewUrl();
     }
 
@@ -478,6 +511,180 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
      * shape-to-section-type mapping stay in one place: any path the palette offers is
      * guaranteed to resolve when the document is rendered.
      */
+    consultStepLabel(step: BatchStep): string {
+        return batchStepLabel(step);
+    }
+
+    /** Opens the endpoint picker and appends the choice to the linked Smart Batch configuration. */
+    openAddConsultDialog(): void {
+        const config = this.linkedConfiguration();
+        const configId = this.linkedConfigId();
+
+        if (!configId || !config) {
+            this._snack.open(
+                this._transloco.translate('smartReport.consultLinkConfigFirst'),
+                this._transloco.translate('smartReport.close'),
+                { duration: 5000 }
+            );
+            return;
+        }
+
+        const excludeFeatureIds = (config.steps ?? [])
+            .map((step) => batchStepFeatureId(step))
+            .filter((id): id is string => Boolean(id));
+
+        this._dialog
+            .open(ReportBuilderAddConsultDialogComponent, {
+                width: '480px',
+                maxWidth: '95vw',
+                data: { country: config.country, excludeFeatureIds },
+            })
+            .afterClosed()
+            .subscribe((feature) => {
+                if (!feature?._id) return;
+                void this._appendConsultToLinkedConfig(feature);
+            });
+    }
+
+    canRemoveConsultStep(step: BatchStep): boolean {
+        return orderedBatchSteps(this.linkedConfiguration()?.steps).length > 1;
+    }
+
+    removeConsultStep(step: BatchStep): void {
+        void this._removeConsultFromLinkedConfig(step);
+    }
+
+    editLinkedConfiguration(): void {
+        const configId = this.linkedConfigId();
+        if (!configId) return;
+
+        void this._router.navigate(['/smart-batch/edit', configId]);
+    }
+
+    private async _appendConsultToLinkedConfig(feature: AppFeature): Promise<void> {
+        const configId = this.linkedConfigId();
+        const config = this.linkedConfiguration();
+        if (!configId || !config) return;
+
+        const previousSteps = config.steps ?? [];
+        const steps = appendFeatureToBatchSteps(previousSteps, feature);
+        this.isUpdatingConsults.set(true);
+
+        try {
+            const updated = await firstValueFrom(this._batchService.updateConfiguration(configId, { steps }));
+            const seqMap = buildStepSequenceMap(previousSteps, updated.data.steps);
+            if (seqMap.size) {
+                this.sections.update((list) => remapReportSectionPaths(list, seqMap));
+            }
+            this.linkedConfiguration.set(updated.data);
+            this._syncPreviewResultsWithSteps(updated.data, seqMap);
+            this._snack.open(
+                this._transloco.translate('smartReport.consultAdded', {
+                    name: feature.nameES || feature.name || feature.code,
+                }),
+                this._transloco.translate('smartReport.close'),
+                { duration: 4000 }
+            );
+        } catch (error) {
+            console.error('[ReportBuilder] could not add consult to configuration', error);
+            this._snack.open(
+                this._transloco.translate('smartReport.consultAddFailed'),
+                this._transloco.translate('smartReport.close'),
+                { duration: 5000 }
+            );
+        } finally {
+            this.isUpdatingConsults.set(false);
+        }
+    }
+
+    private async _removeConsultFromLinkedConfig(step: BatchStep): Promise<void> {
+        const configId = this.linkedConfigId();
+        const config = this.linkedConfiguration();
+        const featureId = batchStepFeatureId(step);
+        if (!configId || !config || !featureId) return;
+
+        if (orderedBatchSteps(config.steps).length <= 1) {
+            this._snack.open(
+                this._transloco.translate('smartReport.consultRemoveLast'),
+                this._transloco.translate('smartReport.close'),
+                { duration: 4500 }
+            );
+            return;
+        }
+
+        const removedSequence = step.sequence;
+        const previousSteps = config.steps ?? [];
+        const steps = removeFeatureFromBatchSteps(previousSteps, featureId);
+
+        this.sections.update((list) => removeReportSectionsForSequence(list, removedSequence));
+        this.isUpdatingConsults.set(true);
+
+        try {
+            const updated = await firstValueFrom(this._batchService.updateConfiguration(configId, { steps }));
+            const seqMap = buildStepSequenceMap(previousSteps, updated.data.steps);
+            if (seqMap.size) {
+                this.sections.update((list) => remapReportSectionPaths(list, seqMap));
+            }
+            this.linkedConfiguration.set(updated.data);
+            this._syncPreviewResultsWithSteps(updated.data, seqMap, removedSequence);
+            this._snack.open(
+                this._transloco.translate('smartReport.consultRemoved', {
+                    name: batchStepLabel(step),
+                }),
+                this._transloco.translate('smartReport.close'),
+                { duration: 4000 }
+            );
+        } catch (error) {
+            console.error('[ReportBuilder] could not remove consult from configuration', error);
+            this._snack.open(
+                this._transloco.translate('smartReport.consultRemoveFailed'),
+                this._transloco.translate('smartReport.close'),
+                { duration: 5000 }
+            );
+        } finally {
+            this.isUpdatingConsults.set(false);
+        }
+    }
+
+    private async _loadLinkedConfiguration(configId: string | null): Promise<void> {
+        if (!configId) {
+            this.linkedConfiguration.set(null);
+            return;
+        }
+
+        try {
+            const response = await firstValueFrom(this._batchService.getConfiguration(configId));
+            this.linkedConfiguration.set(response.data);
+            this._syncPreviewResultsWithSteps(response.data);
+        } catch (error) {
+            console.error('[ReportBuilder] could not load linked configuration', error);
+            this.linkedConfiguration.set(null);
+        }
+    }
+
+    /** Reserves `results.<n>` slots and remaps payloads when step numbers change. */
+    private _syncPreviewResultsWithSteps(
+        config: BatchConfiguration,
+        seqMap: Map<number, number> = new Map(),
+        removedSequence?: number
+    ): void {
+        const steps = orderedBatchSteps(config.steps);
+        if (!steps.length) return;
+
+        const current = this.previewData();
+        let results = { ...(current.results ?? {}) };
+        if (removedSequence != null) {
+            results = purgeResultSequence(results, removedSequence);
+        }
+        if (seqMap.size) {
+            results = remapResultsRecord(results, seqMap);
+        }
+        results = ensureResultSlots(results, config.steps);
+        results = trimResultsToSteps(results, config.steps);
+
+        this.previewData.set({ ...current, results });
+    }
+
     private _loadIntrospection(): void {
         this.isIntrospecting.set(true);
 
@@ -1091,6 +1298,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     setShowRowLines(section: ReportSection, enabled: boolean): void {
         this.updateSection(section.id, { showRowLines: enabled });
+    }
+
+    updateDividerSpacing(section: ReportSection, raw: string): void {
+        this.updateSection(section.id, {
+            style: { ...(section.style ?? {}), padding: raw },
+        });
     }
 
     sectionTypesForGroup(group: 'content' | 'data' | 'layout'): typeof this.sectionTypes {
@@ -1741,6 +1954,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     setLinkedConfigId(value: string | null): void {
         this.linkedConfigId.set(value || null);
+        if (!value) this.linkedConfiguration.set(null);
     }
 
     getConfigOptionLabel(config: BatchConfiguration): string {
