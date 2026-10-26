@@ -67,16 +67,32 @@
                     </div>
                     <div class="flex shrink-0 flex-wrap items-center gap-3">
                         @if (current.types[row.type].mode === 'store') {
-                            <mat-form-field appearance="outline" class="w-36 fuse-mat-dense" subscriptSizing="dynamic">
-                                <mat-label>{{ 'settings.dataRetention.retentionHours' | transloco }}</mat-label>
-                                <input
-                                    matInput
-                                    type="number"
-                                    min="1"
-                                    [ngModel]="current.types[row.type].retentionHours"
-                                    (ngModelChange)="setRetentionHours(row.type, $event)"
-                                />
+                            <mat-form-field appearance="outline" class="w-56 fuse-mat-dense" subscriptSizing="dynamic">
+                                <mat-label>{{ 'settings.dataRetention.retentionDuration' | transloco }}</mat-label>
+                                <mat-select
+                                    [ngModel]="getDurationValue(row.type)"
+                                    (ngModelChange)="onDurationSelect(row.type, $event)"
+                                >
+                                    @for (opt of durationPresets; track opt.value) {
+                                        <mat-option [value]="opt.value">
+                                            {{ opt.labelKey | transloco }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
                             </mat-form-field>
+                            @if (isCustomDuration(row.type)) {
+                                <mat-form-field appearance="outline" class="w-28 fuse-mat-dense" subscriptSizing="dynamic">
+                                    <mat-label>{{ 'settings.dataRetention.customHours' | transloco }}</mat-label>
+                                    <input
+                                        matInput
+                                        type="number"
+                                        min="1"
+                                        [ngModel]="current.types[row.type].retentionHours"
+                                        (ngModelChange)="setRetentionHours(row.type, $event)"
+                                    />
+                                    <span matSuffix class="mr-2 text-xs font-semibold text-gray-400">h</span>
+                                </mat-form-field>
+                            }
                         }
                         <mat-form-field appearance="outline" class="w-44 fuse-mat-dense" subscriptSizing="dynamic">
                             <mat-select

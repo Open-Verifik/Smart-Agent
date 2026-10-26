@@ -8,10 +8,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
+    RETENTION_DURATION_PRESETS,
     RETENTION_TYPE_META,
     WEBHOOK_HOLD_MAX,
     WEBHOOK_HOLD_MIN,
     type RetentionDataType,
+    type RetentionDurationPreset,
     type RetentionMode,
     type RetentionPolicy,
 } from './retention.model';
@@ -57,6 +59,50 @@ export class RetentionPolicyFormComponent {
     readonly holdMin = WEBHOOK_HOLD_MIN;
     readonly holdMax = WEBHOOK_HOLD_MAX;
     readonly modes: RetentionMode[] = ['store', 'ephemeral', 'none'];
+    readonly durationPresets = RETENTION_DURATION_PRESETS;
+
+    /** Tracks which data types currently have custom input selected. */
+    customDurationTypes: Partial<Record<RetentionDataType, boolean>> = {};
+
+    /**
+     * Returns the selected duration option for a type.
+     * Matches a preset number or null (Indefinite).
+     * If custom was selected or hours is not in the preset list, returns 'custom'.
+     */
+    getDurationValue(type: RetentionDataType): number | null | 'custom' {
+        if (this.customDurationTypes[type]) {
+            return 'custom';
+        }
+        const hours = this.current.types[type]?.retentionHours;
+        if (hours === null || hours === undefined) {
+            return null;
+        }
+        const match = this.durationPresets.find((p) => p.value === hours);
+        return match ? (match.value as number) : 'custom';
+    }
+
+    /**
+     * True if custom hours input should be visible for this type.
+     */
+    isCustomDuration(type: RetentionDataType): boolean {
+        return this.getDurationValue(type) === 'custom';
+    }
+
+    /**
+     * Handles dropdown change for duration.
+     */
+    onDurationSelect(type: RetentionDataType, value: number | null | 'custom'): void {
+        if (value === 'custom') {
+            this.customDurationTypes[type] = true;
+            const currentHours = this.current.types[type]?.retentionHours;
+            if (!currentHours) {
+                this.setRetentionHours(type, 72);
+            }
+        } else {
+            this.customDurationTypes[type] = false;
+            this.setRetentionHours(type, value);
+        }
+    }
 
     /** Policy shown in the template. */
     get current(): RetentionPolicy {

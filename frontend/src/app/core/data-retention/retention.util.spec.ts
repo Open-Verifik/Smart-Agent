@@ -86,4 +86,25 @@ describe('retention utils', () => {
         });
         expect(seen).toEqual([...CORE_TYPES]);
     });
+
+    it('defines complete duration presets for Store mode', async () => {
+        const { RETENTION_DURATION_PRESETS } = await import('./retention.model');
+        const values = RETENTION_DURATION_PRESETS.map((p) => p.value);
+        expect(values).toContain(null);
+        expect(values).toContain(12);
+        expect(values).toContain(24);
+        expect(values).toContain(36);
+        expect(values).toContain(48);
+        expect(values).toContain(168);
+        expect(values).toContain(336);
+        expect(values).toContain(720);
+        expect(values).toContain(2160);
+        expect(values).toContain(4320);
+        expect(values).toContain(8760);
+        expect(values).toContain(17520);
+        expect(values).toContain(26280);
+        expect(values).toContain(43800);
+        expect(values).toContain(87600);
+        expect(values).toContain('custom');
+    });
 });
