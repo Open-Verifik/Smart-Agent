@@ -617,6 +617,7 @@ export class FleetAssetsComponent implements OnInit {
                 maxWidth: '96vw',
                 height: '90vh',
                 maxHeight: '96vh',
+                panelClass: 'fleet-report-pdf-dialog-panel',
             }
         );
     }

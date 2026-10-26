@@ -874,7 +874,8 @@
                     {{ 'smartFleet.rules.empty' | transloco }}
                 </p>
 
-                <table class="w-full" *ngIf="rules().length">
+                <div class="fleet-table-wrap fleet-table-wrap--bleed fleet-table-wrap--wide" *ngIf="rules().length">
+                <table class="w-full">
                     <thead class="bg-stone-50 dark:bg-gray-950/50">
                         <tr class="text-left text-xs font-medium uppercase text-stone-500">
                             <th class="px-5 py-3">{{ 'smartFleet.rules.check' | transloco }}</th>
@@ -971,6 +972,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </main>

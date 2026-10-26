@@ -19,14 +19,15 @@ interface FleetNavItem {
     encapsulation: ViewEncapsulation.None,
     template: `
         <div class="flex flex-col gap-3">
+            <div class="fleet-nav-scroll -mx-1 px-1">
             <nav
-                class="flex flex-wrap gap-1.5 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                class="flex gap-1.5 rounded-2xl border border-stone-200/90 bg-white p-1.5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-wrap sm:p-2"
                 [attr.aria-label]="'smartFleet.title' | transloco"
             >
                 <a
                     *ngFor="let item of items"
                     [routerLink]="item.link"
-                    class="inline-flex items-center gap-2.5 rounded-xl px-5 py-3 text-base font-medium transition-colors"
+                    class="inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors sm:gap-2.5 sm:px-5 sm:py-3 sm:text-base"
                     [class.bg-stone-900]="isActive(item)"
                     [class.text-white]="isActive(item)"
                     [class.text-stone-600]="!isActive(item)"
@@ -38,6 +39,7 @@ interface FleetNavItem {
                     {{ item.label | transloco }}
                 </a>
             </nav>
+            </div>
             @if (onFreePlan() && !isActive(plansItem)) {
                 <div
                     class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
