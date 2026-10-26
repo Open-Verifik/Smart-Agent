@@ -169,6 +169,23 @@
                                         decoding="async"
                                         class="h-10 w-10 shrink-0 rounded-full border border-stone-200/90 object-cover dark:border-gray-600"
                                     />
+                                } @else if (isRowNoStorage(row) || isRowPurged(row)) {
+                                    <div
+                                        class="group relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-sky-300/80 bg-gradient-to-br from-sky-100 via-indigo-50 to-blue-100 shadow-inner dark:border-sky-800/80 dark:from-sky-950/60 dark:via-gray-900 dark:to-indigo-950/60"
+                                        [matTooltip]="(isRowPurged(row) ? 'smartEnrollProjects.retentionPurgedTooltip' : 'smartEnrollProjects.retentionNoStorageTooltip') | transloco"
+                                    >
+                                        <!-- Frosted blurry background silhouette -->
+                                        <div class="absolute inset-0 flex items-center justify-center filter blur-[1.5px] opacity-50">
+                                            <mat-icon class="!h-7 !w-7 text-sky-500 dark:text-sky-300">person</mat-icon>
+                                        </div>
+                                        <!-- Privacy shield overlay -->
+                                        <div class="relative z-10 flex h-5 w-5 items-center justify-center rounded-full bg-white/95 shadow-sm dark:bg-gray-800/95">
+                                            <mat-icon
+                                                class="!h-3.5 !w-3.5 text-sky-600 dark:text-sky-400"
+                                                [svgIcon]="isRowPurged(row) ? 'heroicons_outline:trash' : 'heroicons_outline:shield-check'"
+                                            ></mat-icon>
+                                        </div>
+                                    </div>
                                 } @else {
                                     <div
                                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-dashed border-stone-300/90 bg-stone-100/80 dark:border-gray-600 dark:bg-gray-800/60"

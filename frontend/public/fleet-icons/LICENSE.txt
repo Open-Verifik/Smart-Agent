@@ -1,0 +1,6 @@
+Material Design Icons by Pictogrammers
+https://pictogrammers.com/library/mdi/
+
+These vehicle icons are licensed under the Apache License, Version 2.0.
+https://github.com/Templarian/MaterialDesign/blob/master/LICENSE
+https://www.apache.org/licenses/LICENSE-2.0

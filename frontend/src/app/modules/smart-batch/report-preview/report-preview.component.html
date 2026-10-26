@@ -6,6 +6,7 @@
 -->
 <div
     class="relative mx-auto"
+    data-report-zoom-stack
     [style.width.px]="zoomedStackWidthPx()"
     [style.height.px]="zoomedStackHeightPx()"
 >
@@ -14,6 +15,8 @@
     [style.width]="pageWidthCss()"
     [style.transform]="zoomInnerTransform()"
     [style.transform-origin]="'top left'"
+    [class.is-marquee]="marqueeMode()"
+    [class.is-grabbing]="sheetGrabbing()"
     (click)="onPaperClick($event)"
     (contextmenu)="onPaperContextMenu($event)"
 >
@@ -27,7 +30,7 @@
             data-report-page
             [attr.data-report-row]="previewData()?.rowIndex"
             [attr.data-report-page-index]="pageIndex"
-            class="mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-lg"
+            class="mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-none"
             [class.shadow-lg]="!thumbnailMode()"
             [style.width]="pageWidthCss()"
             [style.max-width]="pageWidthCss()"
@@ -42,14 +45,15 @@
                 @if (watermarkPattern() === 'single') {
                     <div
                         class="pointer-events-none absolute inset-0 overflow-hidden"
-                        [style.z-index]="layerZIndex('watermark', 900)"
-                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
+                        [style.z-index]="layerPaintZ('watermark', 900)"
+                        [style.visibility]="layerVisibility('watermark')"
+                        [style.opacity]="layerPeekOpacity('watermark')"
                     >
                         <div
                             data-overlay-box
                             data-overlay-id="watermark"
                             class="absolute flex items-center justify-center"
-                            [class.cursor-move]="isOverlaySelected('watermark')"
+                            [class.cursor-move]="isOverlayChosen('watermark')"
                             [class.cursor-pointer]="clickable() && isFirst && !isOverlaySelected('watermark')"
                             [class.layer-quiet]="isLayerQuiet('watermark')"
                         [class.pointer-events-auto]="clickable() && isFirst && !isLayerQuiet('watermark')"
@@ -59,7 +63,8 @@
                             [style.top.px]="viewWatermarkY"
                             [style.width.px]="viewWatermarkWidth"
                             [style.height.px]="viewWatermarkHeight"
-                            [style.border]="watermarkOverlayBorder"
+                            [style.outline]="watermarkOverlayBorder"
+                            style="outline-offset: 6px"
                             (pointerdown)="startMove($event, 'watermark')"
                             (click)="selectOverlay('watermark', $event)"
                             (contextmenu)="onOverlayContextMenu('watermark', $event)"
@@ -87,7 +92,8 @@
                             @if (isOverlaySelected('watermark') && !isLayerQuiet('watermark')) {
                                 <div
                                     data-overlay-handle
-                                    class="absolute left-1/2 top-1 z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    class="absolute left-1/2 z-30 flex h-6 w-6 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    [style.top.px]="rotateHandleTop(viewWatermarkY)"
                                     (pointerdown)="startRotate($event, 'watermark')"
                                 >
                                     <mat-icon
@@ -98,7 +104,7 @@
                                 </div>
                                 <div
                                     data-overlay-handle
-                                    class="absolute bottom-1 right-1 z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
+                                    class="absolute bottom-[-19px] right-[-19px] z-30 flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-full border border-amber-400 bg-white shadow-md hover:bg-amber-50"
                                     (pointerdown)="startResize($event, 'watermark')"
                                 >
                                     <mat-icon
@@ -112,9 +118,13 @@
                     </div>
                 } @else {
                     <div
+                        data-overlay-id="watermark"
                         class="pointer-events-none absolute inset-0 overflow-hidden"
-                        [style.z-index]="layerZIndex('watermark', 900)"
-                        [style.visibility]="isLayerHidden('watermark') ? 'hidden' : null"
+                        [style.z-index]="layerPaintZ('watermark', 900)"
+                        [style.visibility]="layerVisibility('watermark')"
+                        [style.opacity]="layerPeekOpacity('watermark')"
+                        [style.outline]="isLayerPeeked('watermark') ? '2px dashed rgba(217, 119, 6, 0.9)' : null"
+                        [style.outline-offset.px]="6"
                         style="
                             display: grid;
                             grid-template-columns: repeat(3, 1fr);
@@ -152,14 +162,15 @@
             @if (signatureEnabled() && signatureImage() && pageIndex === (signaturePage() || 0)) {
                 <div
                     class="absolute inset-0 pointer-events-none"
-                    [style.z-index]="layerZIndex('signature', 120)"
-                    [style.visibility]="isLayerHidden('signature') ? 'hidden' : null"
+                    [style.z-index]="layerPaintZ('signature', 120)"
+                    [style.visibility]="layerVisibility('signature')"
+                    [style.opacity]="layerPeekOpacity('signature')"
                 >
                     <div
                         data-overlay-box
                         data-overlay-id="signature"
                         class="absolute"
-                        [class.cursor-move]="isOverlaySelected('signature')"
+                        [class.cursor-move]="isOverlayChosen('signature')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('signature')"
                         [class.layer-quiet]="isLayerQuiet('signature')"
                         [class.pointer-events-auto]="clickable() && !isLayerQuiet('signature')"
@@ -168,7 +179,8 @@
                         [style.top.px]="viewSignatureY"
                         [style.width.px]="viewSignatureWidth"
                         [style.height.px]="viewSignatureHeight"
-                        [style.border]="signatureOverlayBorder"
+                        [style.outline]="signatureOverlayBorder"
+                        style="outline-offset: 6px"
                         (pointerdown)="startMove($event, 'signature')"
                         (click)="selectOverlay('signature', $event)"
                         (contextmenu)="onOverlayContextMenu('signature', $event)"
@@ -181,7 +193,7 @@
                         @if (isOverlaySelected('signature') && !isLayerQuiet('signature')) {
                             <div
                                 data-overlay-handle
-                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                class="absolute bottom-[-19px] right-[-19px] z-30 flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
                                 (pointerdown)="startResize($event, 'signature')"
                             >
                                 <mat-icon
@@ -207,8 +219,9 @@
                 @for (logo of headerLogoViews(); track logo.id) {
                     <div
                         class="pointer-events-none absolute inset-0"
-                        [style.z-index]="layerZIndex(headerOverlayId(logo.id), 850)"
-                        [style.visibility]="isLayerHidden(headerOverlayId(logo.id)) ? 'hidden' : null"
+                        [style.z-index]="layerPaintZ(headerOverlayId(logo.id), 850)"
+                        [style.visibility]="layerVisibility(headerOverlayId(logo.id))"
+                        [style.opacity]="layerPeekOpacity(headerOverlayId(logo.id))"
                     >
                         <div
                             data-overlay-box
@@ -222,7 +235,8 @@
                             [style.top.px]="logo.viewY"
                             [style.width.px]="logo.viewWidth"
                             [style.height.px]="logo.viewHeight"
-                            [style.border]="headerLogoBorder(logo.id)"
+                            [style.outline]="headerLogoBorder(logo.id)"
+                            style="outline-offset: 6px"
                             (pointerdown)="startHeaderLogoMove($event, logo.id)"
                             (pointermove)="onHeaderLogoMove($event)"
                             (pointerup)="stopHeaderLogoMove($event)"
@@ -239,7 +253,7 @@
                             @if (clickable() && isOverlaySelected(headerOverlayId(logo.id)) && !isLayerQuiet(headerOverlayId(logo.id))) {
                                 <div
                                     data-overlay-handle
-                                    class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                    class="absolute bottom-[-19px] right-[-19px] z-30 flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
                                     (pointerdown)="startHeaderLogoResize($event, logo.id)"
                                     (pointermove)="onHeaderLogoResize($event)"
                                     (pointerup)="stopHeaderLogoResize($event)"
@@ -267,14 +281,15 @@
             @if (isFirst && logoEnabled() && logoUrl() && !headerLogoViews().length) {
                 <div
                     class="absolute inset-0 pointer-events-none"
-                    [style.z-index]="layerZIndex('logo', 80)"
-                    [style.visibility]="isLayerHidden('logo') ? 'hidden' : null"
+                    [style.z-index]="layerPaintZ('logo', 80)"
+                    [style.visibility]="layerVisibility('logo')"
+                    [style.opacity]="layerPeekOpacity('logo')"
                 >
                     <div
                         data-overlay-box
                         data-overlay-id="logo"
                         class="absolute"
-                        [class.cursor-move]="isOverlaySelected('logo')"
+                        [class.cursor-move]="isOverlayChosen('logo')"
                         [class.cursor-pointer]="clickable() && !isOverlaySelected('logo')"
                         [class.layer-quiet]="isLayerQuiet('logo')"
                         [class.pointer-events-auto]="clickable() && !isLayerQuiet('logo')"
@@ -284,7 +299,8 @@
                         [style.top.px]="viewLogoY"
                         [style.width.px]="viewLogoWidth"
                         [style.height.px]="viewLogoHeight"
-                        [style.border]="logoOverlayBorder"
+                        [style.outline]="logoOverlayBorder"
+                        style="outline-offset: 6px"
                         (pointerdown)="startMove($event, 'logo')"
                         (click)="selectOverlay('logo', $event)"
                         (contextmenu)="onOverlayContextMenu('logo', $event)"
@@ -299,7 +315,8 @@
                         @if (isOverlaySelected('logo') && !isLayerQuiet('logo')) {
                             <div
                                 data-overlay-handle
-                                class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                class="absolute left-1/2 z-30 flex h-6 w-6 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                [style.top.px]="rotateHandleTop(viewLogoY)"
                                 (pointerdown)="startRotate($event, 'logo')"
                             >
                                 <mat-icon
@@ -310,7 +327,7 @@
                             </div>
                             <div
                                 data-overlay-handle
-                                class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                class="absolute bottom-[-19px] right-[-19px] z-30 flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
                                 (pointerdown)="startResize($event, 'logo')"
                             >
                                 <mat-icon
@@ -330,14 +347,15 @@
                             class="absolute inset-0 pointer-events-none"
                             data-sheet-image
                             [attr.data-sheet-image-page]="image.page ?? 0"
-                            [style.z-index]="layerZIndex(sheetOverlayId(image.id), image.zIndex || 48)"
-                            [style.visibility]="isLayerHidden(sheetOverlayId(image.id)) ? 'hidden' : null"
+                            [style.z-index]="layerPaintZ(sheetOverlayId(image.id), image.zIndex || 48)"
+                            [style.visibility]="layerVisibility(sheetOverlayId(image.id))"
+                            [style.opacity]="layerPeekOpacity(sheetOverlayId(image.id))"
                         >
                             <div
                                 data-overlay-box
                                 [attr.data-overlay-id]="sheetOverlayId(image.id)"
                                 class="absolute"
-                                [class.cursor-move]="isOverlaySelected(sheetOverlayId(image.id))"
+                                [class.cursor-move]="isOverlayChosen(sheetOverlayId(image.id))"
                                 [class.cursor-pointer]="clickable() && !isOverlaySelected(sheetOverlayId(image.id))"
                                 [class.layer-quiet]="isLayerQuiet(sheetOverlayId(image.id))"
                                 [class.pointer-events-auto]="clickable() && !isLayerQuiet(sheetOverlayId(image.id))"
@@ -347,22 +365,24 @@
                                 [style.top.px]="sheetImageView(image).y"
                                 [style.width.px]="sheetImageView(image).width"
                                 [style.height.px]="sheetImageView(image).height"
-                                [style.border]="sheetImageBorder(image.id)"
+                                [style.outline]="sheetImageBorder(image.id)"
+                                style="outline-offset: 6px"
                                 (pointerdown)="startMove($event, sheetOverlayId(image.id))"
                                 (click)="selectOverlay(sheetOverlayId(image.id), $event)"
                                 (contextmenu)="onOverlayContextMenu(sheetOverlayId(image.id), $event)"
                             >
                                 <img
-                                    [src]="image.src"
+                                    [src]="sheetImageSrc(image)"
                                     alt=""
-                                    class="h-full w-full object-cover pointer-events-none select-none"
+                                    class="h-full w-full object-contain pointer-events-none select-none"
                                     [style.transform]="'rotate(' + (image.rotation || 0) + 'deg)'"
                                     draggable="false"
                                 />
                                 @if (isOverlaySelected(sheetOverlayId(image.id)) && !isLayerQuiet(sheetOverlayId(image.id))) {
                                     <div
                                         data-overlay-handle
-                                        class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        class="absolute left-1/2 z-30 flex h-6 w-6 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        [style.top.px]="rotateHandleTop(sheetImageView(image).y)"
                                         (pointerdown)="startRotate($event, sheetOverlayId(image.id))"
                                     >
                                         <mat-icon
@@ -373,7 +393,7 @@
                                     </div>
                                     <div
                                         data-overlay-handle
-                                        class="absolute bottom-[-10px] right-[-10px] z-30 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                        class="absolute bottom-[-19px] right-[-19px] z-30 flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
                                         (pointerdown)="startResize($event, sheetOverlayId(image.id))"
                                     >
                                         <mat-icon
@@ -443,6 +463,7 @@
                     <div
                         data-report-section
                         [class.layer-quiet]="isLayerQuiet('sec:' + section.id)"
+                        [class.is-text-editing]="editingText()?.sectionId === section.id"
                         [attr.data-section-id]="section.id"
                         [attr.data-section-type]="section.type"
                         [class.relative]="!hasFreeLayout()"
@@ -451,12 +472,12 @@
                         [style.touch-action]="reorderable() ? 'none' : null"
                         [class.mb-3]="!hasFreeLayout()"
                         [class.cursor-pointer]="clickable() && !reorderable()"
+                        [class.select-none]="reorderable()"
                         [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
                         [class.cursor-grabbing]="draggingSectionId() === section.id"
                         [class.opacity-90]="draggingSectionId() === section.id"
-                        [class.ring-2]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)"
-                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)"
-                        [class.rounded-md]="clickable() && selectedSectionId() === section.id && !selectedCellKey() && selectedCellPart() !== 'title' && !isShapeSection(section)"
+                        [class.selection-outline]="showsSectionOutline(section)"
+                        [class.selection-outline-tight]="hugsText(section)"
                         [style.background-color]="isShapeSection(section) ? null : sectionFrameBackground(section)"
                         [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"
                         [style.border-radius.px]="isShapeSection(section) ? 0 : sectionFrameRadius(section)"
@@ -466,20 +487,24 @@
                         (contextmenu)="onSectionContextMenu(section, $event)"
                         (pointerdown)="onSectionPointerDown(section, $event)"
                     >
-                        @if (clickable() && reorderable() && (selectedSectionId() === section.id || draggingSectionId() === section.id)) {
+                        @if (clickable() && reorderable() && !isLayerQuiet('sec:' + section.id) && (isSectionChosen(section) || draggingSectionId() === section.id)) {
                             <div
                                 data-print-hide
-                                class="absolute -left-1 -top-1 z-30 flex h-6 w-6 items-center justify-center rounded-full border border-indigo-200 bg-white text-indigo-500 shadow-sm"
+                                data-move-badge
+                                class="absolute z-30 flex h-5 w-5 items-center justify-center rounded-full border border-indigo-200 bg-white text-indigo-500 shadow-sm"
+                                [style.left.px]="moveBadgeOffset(section.frame?.x)"
+                                [style.top.px]="moveBadgeOffset(section.frame?.y)"
                                 title="Mover"
                             >
-                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]" style="pointer-events: none">open_with</mat-icon>
+                                <mat-icon class="!h-3 !w-3 !text-[12px]" style="pointer-events: none">open_with</mat-icon>
                             </div>
                         }
-                        @if (clickable() && isShapeSection(section) && selectedSectionId() === section.id) {
+                        @if (clickable() && isShapeSection(section) && selectedSectionId() === section.id && !isLayerQuiet('sec:' + section.id)) {
                             <div
                                 data-print-hide
                                 data-section-handle
-                                class="absolute left-1/2 top-[-12px] z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                class="absolute left-1/2 z-30 flex h-6 w-6 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                [style.top.px]="rotateHandleTop(section.frame?.y)"
                                 (pointerdown)="startSectionRotate(section, $event)"
                             >
                                 <mat-icon class="!h-4 !w-4 !text-[16px] text-indigo-500" style="pointer-events: none">rotate_right</mat-icon>
@@ -512,6 +537,30 @@
                                 class="absolute bottom-[-8px] right-[-8px] z-30 h-4 w-4 cursor-nwse-resize rounded-sm border border-indigo-400 bg-white shadow"
                                 (pointerdown)="startSectionResize(section, $event, 'se')"
                             ></button>
+                        }
+                        @if (
+                            clickable() &&
+                            reorderable() &&
+                            hasFreeLayout() &&
+                            !isShapeSection(section) &&
+                            !hugsText(section) &&
+                            !isLayerQuiet('sec:' + section.id) &&
+                            selectedSectionId() === section.id &&
+                            !selectedCellKey() &&
+                            !draggingSectionId()
+                        ) {
+                            @for (handle of blockResizeHandles; track handle.id) {
+                                <button
+                                    type="button"
+                                    data-print-hide
+                                    data-section-handle
+                                    [attr.aria-label]="'smartReport.resizeBlock' | transloco"
+                                    [title]="'smartReport.resizeBlock' | transloco"
+                                    class="absolute z-30 border border-indigo-400 bg-white shadow"
+                                    [ngClass]="handle.cls"
+                                    (pointerdown)="startSectionResize(section, $event, handle.id)"
+                                ></button>
+                            }
                         }
                         @if (isSectionDropBefore(section)) {
                             <div class="pointer-events-none absolute left-1 right-1 top-0 z-20 h-1 rounded-full bg-indigo-500"></div>
@@ -706,9 +755,45 @@
     which the builder shows in its "Exact" iframe. The canvas only needs enough to
     recognize, select and reorder a block.
 -->
+<!-- Edge handles on the selected cell. `axes` is any of 'x' (grid columns), 'y' (height), 'w' (table column width). -->
+<ng-template #cellResizeHandles let-section="section" let-key="key" let-axes="axes" let-measure="measure">
+    @if (!measure && clickable() && reorderable() && isCellSelected(section, key) && !isLayerQuiet('sec:' + section.id)) {
+        @if (axes.includes('x') || axes.includes('w')) {
+            <button
+                type="button"
+                data-print-hide
+                data-cell-handle
+                [attr.aria-label]="'smartReport.resizeCellWidth' | transloco"
+                [title]="'smartReport.resizeCellWidth' | transloco"
+                class="absolute right-[-5px] top-1/2 z-20 h-5 w-2.5 -translate-y-1/2 cursor-ew-resize rounded-full border border-indigo-400 bg-white shadow"
+                (pointerdown)="startCellResize(section, key, axes.includes('w') ? 'w' : 'x', $event)"
+                (dblclick)="resetCellSize(section, key, axes.includes('w') ? 'w' : 'x', $event)"
+                (click)="$event.stopPropagation()"
+            ></button>
+        }
+        @if (axes.includes('y')) {
+            <button
+                type="button"
+                data-print-hide
+                data-cell-handle
+                [attr.aria-label]="'smartReport.resizeCellHeight' | transloco"
+                [title]="'smartReport.resizeCellHeight' | transloco"
+                class="absolute bottom-[-5px] left-1/2 z-20 h-2.5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border border-indigo-400 bg-white shadow"
+                (pointerdown)="startCellResize(section, key, 'y', $event)"
+                (dblclick)="resetCellSize(section, key, 'y', $event)"
+                (click)="$event.stopPropagation()"
+            ></button>
+        }
+    }
+</ng-template>
 <ng-template #sectionBody let-section="section" let-measure="measure">
     @if (section.type === 'header') {
-        <div class="mb-4" [style.text-align]="roleTextAlign(section, 'title')">
+        <div
+            [class.mb-4]="!hasFreeLayout()"
+            [class.w-fit]="hasFreeLayout()"
+            [style.text-align]="roleTextAlign(section, 'title')"
+            [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
+        >
             <h2
                 data-sheet-role="title"
                 [style.font-size.px]="roleFontSize(section, 'title')"
@@ -716,7 +801,9 @@
                 [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                 [style.font-family]="roleFontFamily(section, 'title')"
                 [style.color]="roleColor(section, 'title')"
-                class="inline-block max-w-full leading-tight"
+                [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
+                class="inline-block whitespace-pre-wrap leading-tight"
+                [class.max-w-full]="!hasFreeLayout()"
                 [class.ring-2]="isTitleSelected(section)"
                 [class.ring-inset]="isTitleSelected(section)"
                 [class.ring-indigo-400]="isTitleSelected(section)"
@@ -725,14 +812,14 @@
             >
                 <ng-container
                     [ngTemplateOutlet]="sheetText"
-                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.staticContent || section.label || ('smartReport.untitled' | transloco), measure)"
+                    [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.staticContent || section.label || ('smartReport.untitled' | transloco), measure, true)"
                 ></ng-container>
             </h2>
         </div>
     }
 
     @if (section.type === 'text') {
-        <div class="mb-3">
+        <div [class.mb-3]="!hasFreeLayout()" [class.w-fit]="hasFreeLayout()">
             <p
                 [style.font-size.px]="roleFontSize(section, 'title')"
                 [style.font-weight]="roleFontWeight(section, 'title')"
@@ -740,7 +827,9 @@
                 [style.font-family]="roleFontFamily(section, 'title')"
                 [style.text-align]="roleTextAlign(section, 'title')"
                 [style.color]="roleColor(section, 'title')"
+                [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
                 class="leading-relaxed whitespace-pre-wrap"
+                [class.inline-block]="hasFreeLayout()"
             >
                 <ng-container
                     [ngTemplateOutlet]="sheetText"
@@ -756,7 +845,11 @@
             [ngStyle]="rowLineBg(section)"
         >
             <div
+                data-field-part="label"
                 class="min-w-0 break-words tracking-wide"
+                [class.ring-1]="isFieldPartSelected(section, 'label')"
+                [class.ring-lime-500]="isFieldPartSelected(section, 'label')"
+                [class.rounded-sm]="isFieldPartSelected(section, 'label')"
                 [style.font-size.px]="roleFontSize(section, 'label')"
                 [style.font-weight]="roleFontWeight(section, 'label')"
                 [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
@@ -770,7 +863,11 @@
                 ></ng-container>
             </div>
             <div
+                data-field-part="value"
                 class="min-w-0 break-words"
+                [class.ring-1]="isFieldPartSelected(section, 'value')"
+                [class.ring-orange-400]="isFieldPartSelected(section, 'value')"
+                [class.rounded-sm]="isFieldPartSelected(section, 'value')"
                 [style.font-size.px]="roleFontSize(section, 'value')"
                 [style.font-weight]="roleFontWeight(section, 'value')"
                 [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
@@ -860,10 +957,24 @@
     }
 
     @if (section.type === 'image') {
-        <div class="mb-4" [style.text-align]="roleTextAlign(section, 'title')">
-            @if (section.staticContent) {
+        @let framed = hasFreeLayout() && !!displayFrame(section)?.height;
+        @let imgSrc = imageSource(section);
+        <div
+            [class.mb-4]="!framed"
+            [class.h-full]="framed"
+            [class.w-full]="framed"
+            [style.text-align]="roleTextAlign(section, 'title')"
+        >
+            @if (imgSrc && framed) {
                 <img
-                    [src]="section.staticContent"
+                    [src]="imgSrc"
+                    [alt]="section.label || ('smartReport.image' | transloco)"
+                    class="block h-full w-full object-contain"
+                    draggable="false"
+                />
+            } @else if (imgSrc) {
+                <img
+                    [src]="imgSrc"
                     [alt]="section.label || ('smartReport.image' | transloco)"
                     class="max-h-32 inline-block rounded"
                     style="max-width: 100%"
@@ -880,13 +991,30 @@
 
     @if (section.type === 'divider') {
         <hr
-            class="my-4"
-            [style.border-color]="section.style?.color || '#E5E7EB'"
-            style="border-width: 1px"
+            [style.margin-top.px]="dividerMargin(section)"
+            [style.margin-bottom.px]="dividerMargin(section)"
+            style="border: 0; height: 0"
+            [style.border-top]="dividerBorderTop(section)"
         />
     }
 
-    @if (section.type === 'shape') {
+    @if (section.type === 'shape' && shapeKind(section) === 'icon') {
+        <div
+            class="report-icon h-full w-full min-h-[12px] overflow-visible"
+            data-report-icon
+            [style.transform]="shapeRotateStyle(section)"
+            style="transform-origin: center center; line-height: 0"
+            [innerHTML]="iconMarkup(section)"
+        ></div>
+    }
+
+    @if (section.type === 'shape' && shapeKind(section) === 'line') {
+        <div class="flex h-full w-full min-h-[8px] items-center overflow-visible">
+            <div class="w-full" [style.border-top]="lineStroke(section)"></div>
+        </div>
+    }
+
+    @if (section.type === 'shape' && shapeKind(section) !== 'icon' && shapeKind(section) !== 'line') {
         <div
             class="h-full w-full min-h-[12px] overflow-visible"
             [style.transform]="shapeRotateStyle(section)"
@@ -956,7 +1084,8 @@
                             y="2"
                             width="96"
                             height="96"
-                            [attr.rx]="shapeRectRadius(section)"
+                            [attr.rx]="shapeRectRadius(section, 'x')"
+                            [attr.ry]="shapeRectRadius(section, 'y')"
                             [attr.fill]="shapeFill(section)"
                             [attr.stroke]="shapeStroke(section)"
                             [attr.stroke-width]="shapeStrokeWidth(section)"
@@ -1001,13 +1130,17 @@
                         <tr class="border-b-2" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
                                 <th
-                                    class="py-1.5 pr-3 text-left"
+                                    class="cursor-pointer py-1.5 pr-3 text-left"
+                                    [class.ring-1]="isCellSelected(section, column.key, 'label')"
+                                    [class.ring-lime-500]="isCellSelected(section, column.key, 'label')"
                                     [style.font-family]="roleFontFamily(section, 'label')"
                                     [style.font-size.px]="roleFontSize(section, 'label')"
                                     [style.font-weight]="roleFontWeight(section, 'label')"
                                     [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                                     [style.text-align]="roleTextAlign(section, 'label')"
                                     [style.color]="roleColor(section, 'label')"
+                                    (click)="onCellActivate(section, column.key, 'label', $event)"
+                                    (contextmenu)="onCellContextMenu(section, column.key, $event)"
                                 >
                                     <ng-container
                                         [ngTemplateOutlet]="sheetText"
@@ -1022,13 +1155,17 @@
                             <tr [ngStyle]="rowLineBg(section)">
                                 @for (cell of row; track $index; let colIndex = $index) {
                                     <td
-                                        class="py-1.5 pr-3"
+                                        class="cursor-pointer py-1.5 pr-3"
+                                        [class.ring-1]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
+                                        [class.ring-orange-400]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
                                         [style.font-family]="roleFontFamily(section, 'value')"
                                         [style.font-size.px]="roleFontSize(section, 'value')"
                                         [style.font-weight]="roleFontWeight(section, 'value')"
                                         [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                                         [style.text-align]="roleTextAlign(section, 'value')"
                                         [style.color]="roleColor(section, 'value')"
+                                        (click)="onCellActivate(section, structuralColumns(section)[colIndex].key, 'value', $event)"
+                                        (contextmenu)="onCellContextMenu(section, structuralColumns(section)[colIndex].key, $event)"
                                     >
                                         <ng-container
                                             [ngTemplateOutlet]="sheetText"
@@ -1086,13 +1223,15 @@
                                 <div
                                     data-report-cell
                                     [attr.data-cell-key]="entry.key"
-                                    class="min-w-0 px-2 py-1.5"
+                                    class="relative min-w-0 px-2 py-1.5"
                                     [class.ring-2]="isCellSelected(section, entry.key)"
                                     [class.ring-inset]="isCellSelected(section, entry.key)"
                                     [class.ring-indigo-400]="isCellSelected(section, entry.key)"
                                     [class.cursor-pointer]="clickable() && !reorderable()"
                                     [class.cursor-grab]="clickable() && reorderable()"
                                     [ngStyle]="rowLineBg(section, entry.key, last)"
+                                    [style.grid-column]="cellGridColumn(section, entry.key)"
+                                    [style.min-height.px]="cellMinHeight(section, entry.key)"
                                     [style.background-color]="cellBackground(section, entry.key) || null"
                                     [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
                                     [style.border-radius.px]="cellRadius(section, entry.key)"
@@ -1100,6 +1239,10 @@
                                     (pointerdown)="onCellPointerDown(section, entry.key, $event)"
                                     (contextmenu)="onCellContextMenu(section, entry.key, $event)"
                                 >
+                                    <ng-container
+                                        [ngTemplateOutlet]="cellResizeHandles"
+                                        [ngTemplateOutletContext]="{ section: section, key: entry.key, axes: 'xy', measure: measure }"
+                                    ></ng-container>
                                     <div
                                         data-cell-part="label"
                                         class="min-w-0 break-words tracking-wide"
@@ -1183,9 +1326,10 @@
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="cursor-pointer border-b py-1 pr-2 text-left"
+                                                class="relative cursor-pointer border-b py-1 pr-2 text-left"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [style.width.px]="columnWidth(section, tableColumnKey(chunk.table.key, column.key))"
                                                 [style.border-color]="tableEdge(section, chunk.table.key)"
                                                 [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
                                                 [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
@@ -1199,6 +1343,10 @@
                                                 <ng-container
                                                     [ngTemplateOutlet]="sheetText"
                                                     [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
+                                                ></ng-container>
+                                                <ng-container
+                                                    [ngTemplateOutlet]="cellResizeHandles"
+                                                    [ngTemplateOutletContext]="{ section: section, key: tableColumnKey(chunk.table.key, column.key), axes: 'w', measure: measure }"
                                                 ></ng-container>
                                             </th>
                                         }
@@ -1254,6 +1402,7 @@
             @if (section.label) {
                 <span
                     class="tracking-wide"
+                    [style.font-family]="roleFontFamily(section, 'label')"
                     [style.font-size.px]="roleFontSize(section, 'label')"
                     [style.font-weight]="roleFontWeight(section, 'label')"
                     [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
@@ -1267,6 +1416,7 @@
             }
             <span
                 class="inline-flex items-center rounded-full border px-2.5 py-0.5"
+                [style.font-family]="roleFontFamily(section, 'value')"
                 [style.font-size.px]="roleFontSize(section, 'value')"
                 [style.font-weight]="roleFontWeight(section, 'value')"
                 [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
@@ -1332,13 +1482,14 @@
                                 <div
                                     data-report-cell
                                     [attr.data-cell-key]="entry.key"
-                                    class="flex gap-2 px-2 py-1"
+                                    class="relative flex gap-2 px-2 py-1"
                                     [class.ring-2]="isCellSelected(section, entry.key)"
                                     [class.ring-inset]="isCellSelected(section, entry.key)"
                                     [class.ring-indigo-400]="isCellSelected(section, entry.key)"
                                     [class.cursor-pointer]="clickable() && !reorderable()"
                                     [class.cursor-grab]="clickable() && reorderable()"
                                     [ngStyle]="rowLineBg(section, entry.key, last)"
+                                    [style.min-height.px]="cellMinHeight(section, entry.key)"
                                     [style.background-color]="cellBackground(section, entry.key) || null"
                                     [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"
                                     [style.border-radius.px]="cellRadius(section, entry.key)"
@@ -1346,6 +1497,10 @@
                                     (pointerdown)="onCellPointerDown(section, entry.key, $event)"
                                     (contextmenu)="onCellContextMenu(section, entry.key, $event)"
                                 >
+                                    <ng-container
+                                        [ngTemplateOutlet]="cellResizeHandles"
+                                        [ngTemplateOutletContext]="{ section: section, key: entry.key, axes: 'y', measure: measure }"
+                                    ></ng-container>
                                     <span
                                         data-cell-part="label"
                                         class="min-w-0 break-words"
@@ -1426,9 +1581,10 @@
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="cursor-pointer border-b py-1 pr-2 text-left"
+                                                class="relative cursor-pointer border-b py-1 pr-2 text-left"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
+                                                [style.width.px]="columnWidth(section, tableColumnKey(chunk.table.key, column.key))"
                                                 [style.border-color]="tableEdge(section, chunk.table.key)"
                                                 [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
                                                 [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
@@ -1442,6 +1598,10 @@
                                                 <ng-container
                                                     [ngTemplateOutlet]="sheetText"
                                                     [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
+                                                ></ng-container>
+                                                <ng-container
+                                                    [ngTemplateOutlet]="cellResizeHandles"
+                                                    [ngTemplateOutletContext]="{ section: section, key: tableColumnKey(chunk.table.key, column.key), axes: 'w', measure: measure }"
                                                 ></ng-container>
                                             </th>
                                         }
@@ -1505,7 +1665,7 @@
                 </h4>
             }
             @if (structuralRecords(section).length > 0) {
-                @for (record of structuralRecords(section).slice(0, 2); track $index) {
+                @for (record of (fullContent() ? structuralRecords(section) : structuralRecords(section).slice(0, 2)); track $index) {
                     <div class="mb-1.5 rounded-lg border border-gray-200 px-3 py-2">
                         <div class="text-xs font-semibold text-gray-700">
                             <ng-container
@@ -1539,23 +1699,116 @@
         </div>
     }
 
-    <!-- reportBlocks: a placeholder, since the composed model is built server-side. -->
     @if (section.type === 'reportBlocks') {
-        <div
-            class="mb-4 rounded-lg border border-dashed border-indigo-200 bg-indigo-50/40 px-3 py-4 text-center"
-        >
-            <mat-icon class="!h-5 !w-5 !text-xl text-indigo-400">dashboard_customize</mat-icon>
-            <p class="text-xs font-medium text-indigo-700">
-                {{ 'smartReport.sectionReportBlocks' | transloco }}
-            </p>
-            <p class="mt-0.5 text-[10px] text-indigo-500">
-                @if (section.blockIds?.length) {
-                    {{ section.blockIds.join(', ') }}
-                } @else {
-                    {{ 'smartReport.allBlocks' | transloco }}
+        @let resolved = reportBlocksSection(section);
+        @if (resolved) {
+            <div class="mb-4 space-y-4">
+                @for (block of resolved.blocks; track block.blockId) {
+                    <div class="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+                        <div
+                            class="flex items-center justify-between gap-3 border-b border-stone-100 px-4 py-3"
+                        >
+                            <span
+                                class="text-sm font-semibold text-stone-900"
+                                [style.font-family]="roleFontFamily(section, 'title')"
+                            >
+                                {{ block.title }}
+                            </span>
+                            <span
+                                class="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                                [ngClass]="reportBlockStatusClasses(block.statusVariant)"
+                            >
+                                {{ block.status }}
+                            </span>
+                        </div>
+                        <div class="px-4 py-3">
+                            @if (block.status === 'error') {
+                                <p class="text-sm text-rose-700">{{ block.errorMessage }}</p>
+                            } @else if (block.status === 'skipped') {
+                                <p class="text-sm text-amber-700">
+                                    {{ block.skipMessage || 'No ejecutado para este registro.' }}
+                                </p>
+                            } @else {
+                                @if (resolved.showDisplayRows && block.displayRows.length) {
+                                    <div
+                                        class="mb-3 grid gap-x-4 gap-y-2"
+                                        [style.grid-template-columns]="'repeat(2, minmax(0, 1fr))'"
+                                    >
+                                        @for (row of block.displayRows; track row.label) {
+                                            <div class="min-w-0 border-b border-stone-100 pb-2">
+                                                <div
+                                                    class="text-[11px] font-medium uppercase tracking-wide text-stone-500"
+                                                >
+                                                    {{ row.label }}
+                                                </div>
+                                                <div class="text-sm text-stone-900">{{ row.value }}</div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                @for (table of block.tables; track table.id) {
+                                    <div class="mb-3 last:mb-0">
+                                        @if (table.title) {
+                                            <div class="mb-2 text-xs font-semibold text-stone-700">
+                                                {{ table.title }}
+                                            </div>
+                                        }
+                                        @if (table.columns.length && table.rows.length) {
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full min-w-[320px] text-left text-sm">
+                                                    <thead>
+                                                        <tr class="border-b-2" [style.border-color]="primaryColor()">
+                                                            @for (col of table.columns; track col.key) {
+                                                                <th class="py-2 pr-3 font-medium text-stone-600">
+                                                                    {{ col.label }}
+                                                                </th>
+                                                            }
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @for (row of table.rows; track $index) {
+                                                            <tr class="border-b border-stone-100">
+                                                                @for (cell of row; track $index) {
+                                                                    <td class="py-2 pr-3 text-stone-900">
+                                                                        {{ cell }}
+                                                                    </td>
+                                                                }
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                @if (
+                                    block.status === 'empty' &&
+                                    !block.displayRows.length &&
+                                    !block.tables.length
+                                ) {
+                                    <p class="text-sm text-stone-400">Sin registros.</p>
+                                }
+                            }
+                        </div>
+                    </div>
                 }
-            </p>
-        </div>
+            </div>
+        } @else if (!fullContent()) {
+            <div
+                class="mb-4 rounded-lg border border-dashed border-indigo-200 bg-indigo-50/40 px-3 py-4 text-center"
+            >
+                <mat-icon class="!h-5 !w-5 !text-xl text-indigo-400">dashboard_customize</mat-icon>
+                <p class="text-xs font-medium text-indigo-700">
+                    {{ 'smartReport.sectionReportBlocks' | transloco }}
+                </p>
+            </div>
+        } @else {
+            <div
+                class="mb-4 rounded-lg border border-dashed border-stone-200 py-4 text-center text-xs text-stone-400"
+            >
+                {{ 'smartReport.noDataAtPath' | transloco: { path: section.dataPath || 'report' } }}
+            </div>
+        }
     }
 </ng-template>
 
@@ -1570,11 +1823,15 @@
     let-measure="measure"
 >
     @if (canInlineEdit(measure) && isEditingText(section.id, kind, key)) {
-        @if (multiline) {
+        @if (multiline || isCanvasText(kind)) {
             <textarea
                 data-inline-edit
-                rows="3"
-                class="m-0 min-w-[4rem] w-full resize-y bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit outline-none ring-1 ring-indigo-400 rounded-sm"
+                rows="1"
+                class="m-0 min-h-[1em] resize-none select-text overflow-hidden border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit [text-align:inherit] [font-style:inherit] [font-weight:inherit] [text-decoration:inherit] outline-none"
+                [class.block]="!hugsText(section)"
+                [class.w-full]="!hugsText(section)"
+                [class.hug-field]="hugsText(section)"
+                [style.max-width.px]="hugsText(section) ? textHugMaxCss(section) : null"
                 [value]="inlineDraft()"
                 (input)="onInlineDraftInput($event)"
                 (blur)="commitInlineEdit()"
@@ -1587,7 +1844,7 @@
             <input
                 data-inline-edit
                 type="text"
-                class="m-0 min-w-[4rem] w-full bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit outline-none ring-1 ring-indigo-400 rounded-sm"
+                class="m-0 min-w-[4rem] w-full select-text border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit [text-align:inherit] [text-decoration:inherit] outline-none"
                 [value]="inlineDraft()"
                 (input)="onInlineDraftInput($event)"
                 (blur)="commitInlineEdit()"
@@ -1598,13 +1855,35 @@
             />
         }
     } @else {
-        <span
-            data-sheet-text
-            class="inline-block min-h-[1em] min-w-[1ch]"
-            [class.cursor-text]="canInlineEdit(measure)"
-            (pointerdown)="$event.stopPropagation()"
-            (click)="startInlineEdit(section, kind, $event, key, fallback)"
-            >{{ liveSheetText(section, kind, key, fallback) || '\u00a0' }}</span
-        >
+        @let rule = cellRule(section, kind, key, fallback);
+        @if (rule) {
+            <span
+                data-sheet-text
+                [attr.data-text-kind]="kind"
+                data-value-rule
+                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
+                [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
+                [style.color]="rule.color || null"
+                [style.background-color]="rule.backgroundColor || null"
+                [style.font-weight]="rule.bold ? 700 : null"
+                [style.padding]="rule.backgroundColor ? '0.05em 0.5em' : null"
+                [style.border-radius]="rule.backgroundColor ? '999px' : null"
+                (pointerdown)="onSheetTextPointerDown(kind, $event)"
+                (click)="onSheetTextClick(section, kind, $event, key, fallback)"
+                (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
+                ><span [innerHTML]="ruleBadge(rule)"></span>{{ rule.text || sheetDisplayText(section, kind, key, fallback) || '\u00a0' }}</span
+            >
+        } @else {
+            <span
+                data-sheet-text
+                [attr.data-text-kind]="kind"
+                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
+                [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
+                (pointerdown)="onSheetTextPointerDown(kind, $event)"
+                (click)="onSheetTextClick(section, kind, $event, key, fallback)"
+                (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
+                >{{ sheetDisplayText(section, kind, key, fallback) || '\u00a0' }}</span
+            >
+        }
     }
 </ng-template>

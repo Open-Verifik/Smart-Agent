@@ -201,7 +201,7 @@ Key configuration options:
 
 For local development, `environment.ts` uses `https://verifik.app` as the API. For production builds, the app detects staging at runtime when the hostname is **`staging.verifik.co`** or **`x402.on-forge.com`** (legacy) and uses `https://staging-api.verifik.co` for API calls; otherwise it uses `https://prod.verifik.co`.
 
-**Staging deploy:** build locally (`npx ng build --configuration=production`), commit `frontend/dist/`, push, then on the server run `git pull` in `/home/forge/staging.verifik.co` (Forge serves `frontend/dist/browser`). Do not run `npm run build` on the server unless dependencies are intentionally managed there.
+**Staging deploy:** build locally with **`npm run build:staging`** (production bundle + OpenAPI `servers.url` for staging). Commit `frontend/dist/`, push, then on the server run `git pull` in `/home/forge/staging.verifik.co` (Forge serves `frontend/dist/browser`). Do not run `npm run build` on the server unless dependencies are intentionally managed there. Never commit a dev build (`ng serve` / `ng build --configuration=development`) — it embeds `localhost:3001` for `apiUrl`.
 
 ### Deployment
 

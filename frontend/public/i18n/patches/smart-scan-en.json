@@ -68,6 +68,24 @@
             "fromField": "from {{field}}",
             "unmappedRequired": "Needs a field",
             "smartCheckHint": "Link any government endpoint from this country. It does not have to use this document's code."
-        }
+        },
+        "deleteFromStorage": "Delete Image",
+        "retentionPurged": "Purged",
+        "retentionPurgedTooltip": "Image data has been permanently deleted from storage per data retention policy",
+        "retentionPurgedNotice": "Purged per retention policy",
+        "retentionNoStorage": "No Storage",
+        "retentionNoStorageTooltip": "Processed transiently in memory. Images were never stored in cloud storage",
+        "retentionNoStorageNotice": "In-memory processing only",
+        "retentionEphemeral": "Ephemeral",
+        "retentionEphemeralTooltip": "Scheduled to be purged once the retention or webhook hold expires",
+        "retentionPurgedBannerTitle": "Document Image Purged",
+        "retentionPurgedBannerDesc": "This document image was permanently deleted from cloud storage on {{date}} per retention policy (Reason: {{reason}}). Extracted data remains accessible.",
+        "retentionNoStorageBannerTitle": "No-Storage Mode Active",
+        "retentionNoStorageBannerDesc": "This scan was processed in transient memory. Document images were never written to permanent cloud storage.",
+        "retentionEphemeralBannerTitle": "Ephemeral Storage Active",
+        "retentionEphemeralBannerDesc": "This document image is held temporarily and is scheduled for permanent purge on {{date}}.",
+        "imagePurgedPlaceholderTitle": "Image No Longer Stored",
+        "imagePurgedPlaceholderDesc": "The original document image was deleted on {{date}} according to your organization's data retention policy.",
+        "imageUnavailableDesc": "Document image is not available."
     }
 }

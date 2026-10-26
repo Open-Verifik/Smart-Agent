@@ -1,0 +1,389 @@
+<div
+    class="rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm dark:border-indigo-900 dark:bg-gray-900"
+>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="min-w-0">
+            <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                <ng-container *ngIf="mode() === 'asset'">{{
+                    'smartFleet.rules.boardTitle' | transloco: { plate: plateLabel() }
+                }}</ng-container>
+                <ng-container *ngIf="mode() === 'group'">{{
+                    'smartFleet.rules.boardGroupTitle' | transloco: { group: groupName }
+                }}</ng-container>
+                <ng-container *ngIf="mode() === 'fleet'">{{
+                    'smartFleet.rules.boardFleetTitle' | transloco
+                }}</ng-container>
+                <ng-container *ngIf="mode() === 'library'">{{
+                    'smartFleet.rules.boardLibraryTitle' | transloco
+                }}</ng-container>
+            </h2>
+            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                <ng-container *ngIf="mode() === 'asset'">{{
+                    'smartFleet.rules.boardSubtitle' | transloco
+                }}</ng-container>
+                <ng-container *ngIf="mode() === 'group'">{{
+                    'smartFleet.rules.boardGroupSubtitle' | transloco
+                }}</ng-container>
+                <ng-container *ngIf="mode() === 'fleet'">{{
+                    'smartFleet.rules.boardFleetSubtitle' | transloco
+                }}</ng-container>
+                <ng-container *ngIf="mode() === 'library'">{{
+                    'smartFleet.rules.boardLibrarySubtitle' | transloco
+                }}</ng-container>
+            </p>
+            <div class="mt-3 flex flex-wrap gap-1">
+                <a
+                    *ngIf="assetId"
+                    routerLink="/smart-fleet/watch-rules"
+                    [queryParams]="{ asset: assetId }"
+                    class="rounded-lg px-2.5 py-1 text-xs font-medium"
+                    [class.bg-stone-900]="mode() === 'asset'"
+                    [class.text-white]="mode() === 'asset'"
+                    [class.text-stone-600]="mode() !== 'asset'"
+                >
+                    {{ 'smartFleet.rules.scopeAsset' | transloco }}
+                </a>
+                <a
+                    *ngIf="linkedGroup() as name"
+                    routerLink="/smart-fleet/watch-rules"
+                    [queryParams]="{ group: name }"
+                    class="rounded-lg px-2.5 py-1 text-xs font-medium"
+                    [class.bg-stone-900]="mode() === 'group'"
+                    [class.text-white]="mode() === 'group'"
+                    [class.text-stone-600]="mode() !== 'group'"
+                >
+                    {{ 'smartFleet.rules.scopeGroupNamed' | transloco: { name: name } }}
+                </a>
+                <a
+                    routerLink="/smart-fleet/watch-rules"
+                    [queryParams]="{ scope: 'fleet' }"
+                    class="rounded-lg px-2.5 py-1 text-xs font-medium"
+                    [class.bg-stone-900]="mode() === 'fleet'"
+                    [class.text-white]="mode() === 'fleet'"
+                    [class.text-stone-600]="mode() !== 'fleet'"
+                >
+                    {{ 'smartFleet.rules.scopeFleet' | transloco }}
+                </a>
+            </div>
+        </div>
+        <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            [disabled]="!canSave()"
+            (click)="save()"
+            class="shrink-0 rounded-xl !px-6 !py-2"
+        >
+            <mat-spinner *ngIf="isSaving()" diameter="18" class="mr-2"></mat-spinner>
+            {{ 'smartFleet.rules.saveBoard' | transloco }}
+        </button>
+    </div>
+
+    <div class="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 dark:border-indigo-900 dark:bg-indigo-950/30" *ngIf="!isLoading() && mode() === 'group'">
+        <p class="text-sm font-medium text-indigo-950 dark:text-indigo-100">
+            {{ 'smartFleet.rules.coversTitle' | transloco: { count: covered().length } }}
+        </p>
+        <p class="mt-1 text-xs text-indigo-800 dark:text-indigo-200" *ngIf="!covered().length">
+            {{ 'smartFleet.rules.coversEmpty' | transloco }}
+        </p>
+        <div class="mt-2 flex flex-wrap gap-1.5" *ngIf="covered().length">
+            <span
+                *ngFor="let vehicle of covered()"
+                class="rounded-lg bg-white px-2 py-1 font-mono text-xs font-semibold text-stone-800 dark:bg-gray-900 dark:text-stone-100"
+                >{{ vehicle.plate || vehicle.vin }}</span
+            >
+        </div>
+    </div>
+
+    <div
+        class="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-3 dark:border-gray-800 dark:bg-gray-950/40"
+        *ngIf="!isLoading() && mode() === 'asset' && inherited().length"
+    >
+        <p class="text-sm font-medium text-stone-900 dark:text-white">
+            {{ 'smartFleet.rules.inheritedTitle' | transloco: { group: asset()?.group } }}
+        </p>
+        <p class="mt-1 text-xs text-stone-500">{{ 'smartFleet.rules.inheritedHint' | transloco }}</p>
+        <ul class="mt-2 flex flex-col gap-1">
+            <li *ngFor="let rule of inherited()" class="text-sm text-stone-700 dark:text-stone-200">
+                {{ 'smartFleet.checkType.' + rule.checkType | transloco }}
+                · {{ 'smartFleet.frequency.' + (rule.frequency || 'weekly') | transloco }}
+            </li>
+        </ul>
+    </div>
+
+    <div class="flex justify-center py-16" *ngIf="isLoading()">
+        <mat-spinner diameter="36"></mat-spinner>
+    </div>
+
+    <div class="mt-5 flex flex-col gap-5" *ngIf="!isLoading()">
+        <section class="rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/40">
+            <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                {{ 'smartFleet.rules.availableTitle' | transloco }}
+            </h3>
+            <p class="mt-1 text-xs text-stone-500">{{ 'smartFleet.rules.dragHint' | transloco }}</p>
+            <p class="mt-3 text-sm text-stone-500" *ngIf="!available().length">
+                {{ 'smartFleet.rules.allAdded' | transloco }}
+            </p>
+            <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                <button
+                    *ngFor="let check of available()"
+                    type="button"
+                    (click)="addCheck(check)"
+                    [disabled]="!isReady(check)"
+                    class="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white p-3 text-left disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-900"
+                >
+                    <span class="min-w-0">
+                        <span class="block text-sm font-semibold text-stone-900 dark:text-white">{{
+                            'smartFleet.checkType.' + check.checkType | transloco
+                        }}</span>
+                        <span class="mt-1 block truncate font-mono text-xs text-stone-500">{{
+                            endpointLabel(check)
+                        }}</span>
+                        <span class="mt-1 block text-xs text-amber-700 dark:text-amber-300" *ngIf="!isReady(check)">{{
+                            blockedReason(check)
+                        }}</span>
+                    </span>
+                    <span
+                        class="shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
+                        [class.bg-indigo-600]="isReady(check)"
+                        [class.bg-stone-300]="!isReady(check)"
+                        >{{ 'smartFleet.rules.addCheck' | transloco }}</span
+                    >
+                </button>
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4 dark:border-indigo-900 dark:bg-indigo-950/20">
+            <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                {{ 'smartFleet.rules.monitoredTitle' | transloco }}
+            </h3>
+            <p class="mt-1 text-xs text-stone-500">{{ 'smartFleet.rules.dropHint' | transloco }}</p>
+            <label
+                class="mt-3 flex items-center gap-2 text-xs text-stone-600 dark:text-stone-300"
+                *ngIf="mode() !== 'asset' && testPool().length"
+            >
+                <span>{{ 'smartFleet.rules.testOn' | transloco }}</span>
+                <select
+                    class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    [ngModel]="testAssetId()"
+                    (ngModelChange)="testAssetId.set($event)"
+                >
+                    <option *ngFor="let vehicle of testPool()" [value]="vehicle._id">
+                        {{ vehicle.plate || vehicle.vin }}
+                    </option>
+                </select>
+            </label>
+            <p
+                class="mt-2 text-xs text-amber-700 dark:text-amber-300"
+                *ngIf="mode() !== 'asset' && !testPool().length"
+            >
+                {{ 'smartFleet.rules.testNeedVehicle' | transloco }}
+            </p>
+            <div class="mt-3 flex flex-col gap-3">
+                <p
+                    *ngIf="!monitored().length"
+                    class="rounded-xl border border-dashed border-indigo-300 px-3 py-8 text-center text-sm text-stone-500"
+                >
+                    {{ 'smartFleet.rules.emptyMonitored' | transloco }}
+                </p>
+                <article
+                    *ngFor="let card of monitored()"
+                    class="rounded-xl border border-stone-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                >
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-stone-900 dark:text-white">
+                                {{ 'smartFleet.checkType.' + card.check.checkType | transloco }}
+                            </p>
+                            <p class="mt-0.5 truncate font-mono text-xs text-stone-500">
+                                {{ endpointLabel(card.check) }}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            (click)="removeCard(card)"
+                            [matTooltip]="'smartFleet.rules.removeEndpoint' | transloco"
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                        >
+                            <mat-icon class="icon-size-5">delete</mat-icon>
+                        </button>
+                    </div>
+                    <label class="mt-3 flex flex-col gap-1" *ngIf="mode() === 'library'">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.rules.assignVehicle' | transloco
+                        }}</span>
+                        <select
+                            class="rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [ngModel]="card.assignAssetId"
+                            (ngModelChange)="setAssignAsset(card, $event)"
+                        >
+                            <option value="">{{ 'smartFleet.rules.assignNone' | transloco }}</option>
+                            <option *ngFor="let vehicle of vehiclesFor(card.check)" [value]="vehicle._id">
+                                {{ vehicle.plate || vehicle.vin }}
+                            </option>
+                        </select>
+                        <span class="text-xs text-stone-500" *ngIf="!vehiclesFor(card.check).length">{{
+                            'smartFleet.rules.assignEmpty' | transloco
+                        }}</span>
+                        <span class="text-xs text-stone-500" *ngIf="vehiclesFor(card.check).length">{{
+                            'smartFleet.rules.assignVehicleHint' | transloco
+                        }}</span>
+                    </label>
+
+                    <p class="mt-3 text-xs font-medium uppercase text-stone-500">
+                        {{ 'smartFleet.rules.period' | transloco }}
+                    </p>
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        <button
+                            *ngFor="let frequency of frequencies"
+                            type="button"
+                            (click)="setFrequency(card, frequency)"
+                            class="rounded-lg px-2.5 py-1 text-xs font-medium transition-colors"
+                            [class.bg-stone-900]="card.frequency === frequency"
+                            [class.text-white]="card.frequency === frequency"
+                            [class.text-stone-600]="card.frequency !== frequency"
+                            [class.hover:bg-stone-100]="card.frequency !== frequency"
+                        >
+                            {{ 'smartFleet.frequency.' + frequency | transloco }}
+                        </button>
+                    </div>
+                    <label class="mt-2 flex flex-col gap-1" *ngIf="card.frequency === 'custom'">
+                        <span class="text-xs text-stone-500">{{
+                            'smartFleet.rules.intervalDaysLabel' | transloco
+                        }}</span>
+                        <input
+                            type="number"
+                            min="1"
+                            max="90"
+                            [ngModel]="card.intervalDays"
+                            (ngModelChange)="setIntervalDays(card, $event)"
+                            class="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                    <label class="mt-2 flex flex-col gap-1" *ngIf="card.check.kind === 'threshold'">
+                        <span class="text-xs text-stone-500">{{
+                            'smartFleet.rules.thresholdDays' | transloco
+                        }}</span>
+                        <input
+                            type="number"
+                            min="0"
+                            max="365"
+                            [ngModel]="card.thresholdDays"
+                            (ngModelChange)="setThresholdDays(card, $event)"
+                            class="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+
+                    <p class="mt-3 text-xs font-medium uppercase text-stone-500">
+                        {{ 'smartFleet.rules.notifyVia' | transloco }}
+                    </p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button
+                            *ngFor="let channel of channelOptions"
+                            type="button"
+                            (click)="toggleChannel(card, channel)"
+                            class="inline-flex items-center gap-2.5 rounded-xl border px-3 py-1.5 text-sm font-medium transition-colors"
+                            [class.border-indigo-600]="card.channels.includes(channel)"
+                            [class.bg-indigo-600]="card.channels.includes(channel)"
+                            [class.text-white]="card.channels.includes(channel)"
+                            [class.border-stone-200]="!card.channels.includes(channel)"
+                            [class.bg-white]="!card.channels.includes(channel)"
+                            [class.text-stone-800]="!card.channels.includes(channel)"
+                            [class.dark:border-gray-700]="!card.channels.includes(channel)"
+                            [class.dark:bg-gray-900]="!card.channels.includes(channel)"
+                            [class.dark:text-stone-100]="!card.channels.includes(channel)"
+                        >
+                            <span
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                [ngClass]="channelTone(channel, card.channels.includes(channel))"
+                            >
+                                <fleet-channel-icon [channel]="channel" />
+                            </span>
+                            {{ 'smartFleet.channel.' + channel | transloco }}
+                        </button>
+                    </div>
+                    <label class="mt-2 flex flex-col gap-1" *ngIf="card.channels.includes('email')">
+                        <span class="text-xs text-stone-500">{{
+                            'smartFleet.rules.emailRecipients' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="card.emailRecipients"
+                            (ngModelChange)="setEmail(card, $event)"
+                            placeholder="ops@empresa.com"
+                            class="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                    <label class="mt-2 flex flex-col gap-1" *ngIf="card.channels.includes('sms')">
+                        <span class="text-xs text-stone-500">{{
+                            'smartFleet.rules.smsRecipients' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="card.smsRecipients"
+                            (ngModelChange)="setSms(card, $event)"
+                            placeholder="+573001112233"
+                            class="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                    <label class="mt-2 flex flex-col gap-1" *ngIf="card.channels.includes('whatsapp')">
+                        <span class="text-xs text-stone-500">{{
+                            'smartFleet.rules.whatsappRecipients' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="card.whatsappRecipients"
+                            (ngModelChange)="setWhatsapp(card, $event)"
+                            placeholder="+573001112233"
+                            class="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                    <label class="mt-2 flex flex-col gap-1" *ngIf="card.channels.includes('webhook')">
+                        <span class="text-xs text-stone-500">{{
+                            'smartFleet.rules.webhookUrl' | transloco
+                        }}</span>
+                        <input
+                            type="url"
+                            [ngModel]="card.webhookUrl"
+                            (ngModelChange)="setWebhook(card, $event)"
+                            placeholder="https://ejemplo.com/hooks/flota"
+                            class="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+
+                    <div class="mt-3 flex items-center gap-2">
+                        <button
+                            type="button"
+                            (click)="test(card)"
+                            [disabled]="!canTest(card)"
+                            [matTooltip]="'smartFleet.rules.testHint' | transloco"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 px-2.5 py-1 text-xs font-medium text-stone-800 disabled:opacity-50 dark:border-gray-600 dark:text-stone-100"
+                        >
+                            <mat-spinner
+                                *ngIf="testingCheck() === card.check.checkType"
+                                diameter="14"
+                            ></mat-spinner>
+                            {{ 'smartFleet.rules.test' | transloco }}
+                        </button>
+                    </div>
+                    <div
+                        *ngIf="testResult()?.checkType === card.check.checkType"
+                        class="mt-2 rounded-lg px-3 py-2 text-xs"
+                        [ngClass]="{
+                            'bg-emerald-50 text-emerald-900': testResult()!.tone === 'ok',
+                            'bg-amber-50 text-amber-900': testResult()!.tone === 'warn',
+                            'bg-red-50 text-red-900': testResult()!.tone === 'error'
+                        }"
+                    >
+                        <p>{{ testResult()!.message }}</p>
+                        <ul class="mt-1 flex flex-col gap-0.5" *ngIf="testResult()!.rows.length">
+                            <li *ngFor="let row of testResult()!.rows">
+                                <span class="font-medium">{{ row.label }}:</span> {{ row.value }}
+                            </li>
+                        </ul>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</div>

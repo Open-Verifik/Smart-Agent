@@ -130,6 +130,7 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
         const flow = project?.projectFlows?.[0] || this._setup.getDefaultProjectFlow();
         this.form = this._fb.group({
             name: [project.name || '', Validators.required],
+            dataRetention: [project.dataRetention ?? null],
             target: ['personal'],
             version: [3],
             currentStep: [this.stepIndex + 1],
@@ -381,7 +382,12 @@ export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
                 },
             };
         }
-        if (this.stepIndex === 4) return { projectFlow: { ...flow, storage: projectFlow.storage } };
+        if (this.stepIndex === 4) {
+            return {
+                projectFlow: { ...flow, storage: projectFlow.storage },
+                ...(value.dataRetention !== undefined ? { dataRetention: value.dataRetention } : {}),
+            };
+        }
         if (this.stepIndex === 5) return { projectFlow: { ...flow, integrations: projectFlow.integrations } };
         return { branding };
     }

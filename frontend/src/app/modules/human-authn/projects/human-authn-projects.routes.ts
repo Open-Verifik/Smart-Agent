@@ -31,4 +31,11 @@ export default [
             import('./setup/human-authn-setup-host.component').then((m) => m.HumanAuthnSetupHostComponent),
         canDeactivate: [HumanAuthnSetupSaveGuard],
     },
+    {
+        path: ':projectId',
+        loadComponent: () =>
+            import('./project-detail/human-authn-project-detail.component').then(
+                (m) => m.HumanAuthnProjectDetailComponent
+            ),
+    },
 ] as Routes;

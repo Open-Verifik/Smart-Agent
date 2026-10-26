@@ -68,6 +68,24 @@
             "fromField": "{{field}}에서",
             "unmappedRequired": "필드 필요",
             "smartCheckHint": "이 나라의 정부 엔드포인트를 연결할 수 있습니다. 문서 코드가 달라도 선택할 수 있습니다."
-        }
+        },
+        "deleteFromStorage": "이미지 삭제",
+        "retentionPurged": "삭제됨",
+        "retentionPurgedTooltip": "데이터 보존 정책에 따라 이미지 데이터가 저장소에서 영구 삭제되었습니다",
+        "retentionPurgedNotice": "보존 정책에 따라 삭제됨",
+        "retentionNoStorage": "무저장",
+        "retentionNoStorageTooltip": "임시 메모리에서만 처리되었습니다. 이미지는 클라우드 저장소에 절대 저장되지 않습니다",
+        "retentionNoStorageNotice": "메모리 전용 처리",
+        "retentionEphemeral": "임시 저장",
+        "retentionEphemeralTooltip": "보존 기간 또는 웹훅 보장 기간이 만료되면 삭제될 예정입니다",
+        "retentionPurgedBannerTitle": "신분증 이미지 삭제됨",
+        "retentionPurgedBannerDesc": "이 신분증 이미지는 {{date}}에 데이터 보존 정책에 따라 클라우드 저장소에서 영구 삭제되었습니다 (사유: {{reason}}). 추출된 데이터는 계속 사용할 수 있습니다.",
+        "retentionNoStorageBannerTitle": "무저장 모드 활성화됨",
+        "retentionNoStorageBannerDesc": "이 스캔은 임시 메모리에서 처리되었습니다. 신분증 이미지는 영구 클라우드 저장소에 저장되지 않았습니다.",
+        "retentionEphemeralBannerTitle": "임시 저장소 활성화됨",
+        "retentionEphemeralBannerDesc": "이 신분증 이미지는 임시로 보관 중이며, {{date}}에 영구 삭제될 예정입니다.",
+        "imagePurgedPlaceholderTitle": "이미지가 더 이상 저장되지 않음",
+        "imagePurgedPlaceholderDesc": "조직의 데이터 보존 정책에 따라 원본 신분증 이미지가 {{date}}에 삭제되었습니다.",
+        "imageUnavailableDesc": "신분증 이미지를 사용할 수 없습니다."
     }
 }

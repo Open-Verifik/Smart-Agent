@@ -10,7 +10,11 @@
         "hello": "こんにちは、{{name}}",
         "dashboardSubtitle": "人・車両・法人のチェックリストを作り、個別実行や一括処理につなげます。",
         "newChecklist": "新しいチェックリスト",
-        "stats": { "lists": "チェックリスト", "countries": "国", "services": "保存したサービス" },
+        "stats": {
+            "lists": "チェックリスト",
+            "countries": "国",
+            "services": "保存したサービス"
+        },
         "yourLists": "あなたのリスト",
         "loading": "読み込み中…",
         "emptyTitle": "国から始めましょう。",
@@ -485,6 +489,8 @@
         "layoutLayerHide": "隠す",
         "layoutLayerShow": "表示",
         "layoutLayerLock": "ロック",
+        "layoutLockSelection": "選択をロック",
+        "layoutDeleteSelection": "選択を削除",
         "layoutLayerUnlock": "ロック解除",
         "layoutLayerEmpty": "このシートにはまだ要素がありません。",
         "layoutLayerImage": "画像",
@@ -2531,8 +2537,8 @@
         "mineFilterMine": "自分のチームが作成",
         "mineBadge": "自分のチーム",
         "addDocumentType": "書類タイプを追加",
-            "addDocumentTypeHint": "見つかりませんか？この国の書類を追加できます。",
-            "editDocumentType": "編集",
+        "addDocumentTypeHint": "見つかりませんか？この国の書類を追加できます。",
+        "editDocumentType": "編集",
         "smartCheckResult": "SmartCheck",
         "smartCheckMissing": "不足している項目:",
         "smartCheckStatus": {
@@ -2943,8 +2949,8 @@
         "dateStart": "開始日",
         "dateEnd": "終了日",
         "step": {
-            "all": "すべてのステップ",
             "1": "未開始",
+            "all": "すべてのステップ",
             "not_started": "未開始",
             "instructions": "説明",
             "signUpForm": "登録フォーム",
@@ -3225,6 +3231,35 @@
                     "personal": "個人オンボーディング",
                     "business": "法人オンボーディング"
                 }
+            },
+            "retention": {
+                "title": "データ保持とプライバシー",
+                "subtitle": "このプロジェクトのクラウドストレージ、エフェメラル保持、およびゼロストレージポリシー",
+                "accountDefault": "アカウント設定を継承",
+                "accountDefaultDesc": "このプロジェクトはアカウント設定で定義されたグローバルデータ保持ポリシーを使用します。",
+                "projectOverride": "このプロジェクトのカスタム設定",
+                "projectOverrideDesc": "このプロジェクトは特定のルールでアカウントポリシーを上書きします。",
+                "editSection": "設定",
+                "overrideToggle": "このプロジェクトのアカウントデータ保持ポリシーを上書きする",
+                "overrideToggleDesc": "このプロジェクトの検証専用のストレージルールを定義するには有効にしてください。",
+                "globalModeTitle": "プロジェクトのストレージモード",
+                "modeStore": "保存",
+                "modeStoreDesc": "写真と抽出データをクラウドに永続保存します（標準動作）。",
+                "modeEphemeral": "エフェメラル",
+                "modeEphemeralDesc": "Webhook配信または短いTTLまでのみデータを保持し、その後消去します。",
+                "modeNone": "ストレージなし (None)",
+                "modeNoneDesc": "OCRと生体認証のためにメモリ内でのみ画像を処理し、決して保存しません。",
+                "docImages": "本人確認書類の写真",
+                "faceImages": "KYCセルフィーと顔画像",
+                "webhookHold": "Webhook配信保証 (時間)",
+                "manualDelete": "手動削除を許可",
+                "allowed": "許可",
+                "notAllowed": "不許可",
+                "cancel": "キャンセル",
+                "save": "変更を保存",
+                "saving": "保存中...",
+                "savedSuccess": "プロジェクトのデータ保持設定が正常に保存されました。",
+                "saveError": "プロジェクトのデータ保持設定の保存に失敗しました。"
             }
         },
         "recordDetail": {
@@ -3713,7 +3748,19 @@
                 "lastNameMatchPercentage": "姓の一致率",
                 "fullNameMatchPercentage": "フルネーム一致率",
                 "namesMatch": "氏名一致"
-            }
+            },
+            "retentionNoStorageTitle": "写真は保存されていません",
+            "retentionNoStorageDesc": "プライバシーポリシーに基づき、セルフィーは保存されず、メモリ内でのみ処理されました。",
+            "retentionPurgedTitle": "写真は削除されました",
+            "retentionPurgedDesc": "セルフィーはデータ保持ポリシーに従ってクラウドから消去されました。",
+            "docNoStorage": "書類は保存されていません",
+            "docNoStorageDesc": "画像は永続化されていません。OCRデータはリアルタイムで抽出されました。",
+            "docPurged": "書類は削除されました",
+            "docPurgedDesc": "書類写真はデータ保持ポリシーに従って削除されました。",
+            "retentionBannerNoStorageTitle": "プライバシー保護有効：ストレージなしモード",
+            "retentionBannerNoStorageDesc": "このレコードはゼロストレージポリシー (#1672) で処理されました。生体画像と書類はメモリ内でのみ検証され、クラウドに保存されることはありませんでした。",
+            "retentionBannerPurgedTitle": "データ保持ポリシーにより削除されたレコード",
+            "retentionBannerPurgedDesc": "このレコードの画像はライフサイクル制限に達したため、ストレージから自動的に削除されました。"
         },
         "setup": {
             "title": "セットアップ",
@@ -4211,7 +4258,11 @@
             "dev_quick_fill": "サンプルデータを入力",
             "dev_quick_fill_hint": "ローカルのみ：有効なフィールドを事前入力してウィザードを高速化。",
             "dev_quick_fill_applied": "サンプルデータを適用しました。"
-        }
+        },
+        "retentionPurgedTooltip": "データ保持ポリシーに従って画像が削除されました",
+        "retentionNoStorageTooltip": "ストレージなしモード：メモリ内でのみ処理され、クラウドには保存されません",
+        "retentionBadgeNoStorage": "保存なし",
+        "retentionBadgePurged": "削除済み"
     },
     "smartAccessProjects": {
         "title": "プロジェクト",
@@ -4737,9 +4788,21 @@
             "exporting": "書き出しています…",
             "exportError": "CSV を書き出せませんでした。もう一度お試しください。",
             "groupBy": "グループ",
-            "group": { "month": "月", "day": "日", "country": "国", "costCenter": "コストセンター", "endpoint": "エンドポイント" },
+            "group": {
+                "month": "月",
+                "day": "日",
+                "country": "国",
+                "costCenter": "コストセンター",
+                "endpoint": "エンドポイント"
+            },
             "range": "期間",
-            "ranges": { "last_30_days": "過去 30 日", "this_month": "今月", "last_month": "先月", "last_3_months": "過去 3 か月", "last_12_months": "過去 12 か月" },
+            "ranges": {
+                "last_30_days": "過去 30 日",
+                "this_month": "今月",
+                "last_month": "先月",
+                "last_3_months": "過去 3 か月",
+                "last_12_months": "過去 12 か月"
+            },
             "costCenter": "コストセンター",
             "allCostCenters": "すべてのコストセンター",
             "noCostCenter": "コストセンターなし",
@@ -4791,7 +4854,9 @@
             "usage_report": "利用レポート",
             "usage_report_desc": "月、国、コストセンター、エンドポイント別のリクエストと費用。CSV 書き出し付き",
             "cost_centers": "コストセンター",
-            "cost_centers_desc": "チームまたは国でリクエストをタグ付けし、利用と請求を分ける"
+            "cost_centers_desc": "チームまたは国でリクエストをタグ付けし、利用と請求を分ける",
+            "data_retention": "プライバシーとデータ保持",
+            "data_retention_desc": "データのライフサイクル、エフェメラルストレージ、ゼロ保持ポリシーを設定します"
         },
         "profile": {
             "title": "プロフィール設定",
@@ -5355,6 +5420,54 @@
             "products": {
                 "allRecords": "すべての記録"
             }
+        },
+        "dataRetention": {
+            "title": "データ保持とプライバシー",
+            "subtitle": "書類画像、顔画像、抽出した項目をどれだけ保持するかを選びます。すでに保存された記録は、この変更では削除されません。",
+            "businessAccountRequired": "データ保持ポリシーを設定するにはビジネスアカウントが必要です。",
+            "globalModeTitle": "グローバルストレージモード",
+            "globalModeDesc": "アカウント全体のすべての検証画像と抽出データのデフォルトポリシーを定義します。",
+            "modeStore": "保存",
+            "modeStoreDesc": "データを保持します。種類ごとに時間を指定するとその後削除されます。空欄のままにすると、ポリシーを変えるまで保持します。",
+            "modeEphemeral": "一時保持",
+            "modeEphemeralDesc": "Webhookの保留が終わるまで保持します（Webhookがある場合は24〜72時間、ない場合は次の削除処理まで）。時間数は使いません。登録の応答から画像リンクは外れます。保留中は顔照合を実行できます。",
+            "modeNone": "なし",
+            "modeNoneDesc": "削除のタイミングは一時保持と同じで、登録の応答から画像リンクは外れます。顔画像をなしにしてもWebhookの保留が終わるまで残るため、照合は実行できます。書類の現物確認写真をなしにすると、その写真はアップロードされません。",
+            "granularRulesTitle": "データタイプごとの個別ルール",
+            "granularRulesDesc": "法的要件に応じて、特定の画像やレコードタイプのポリシーを上書きします。",
+            "typeDocumentImages": "書類画像 (表面 / 裏面)",
+            "typeDocumentImagesDesc": "身分証明書、パスポート、運転免許証の撮影またはアップロード写真。",
+            "typeFaceImages": "KYCセルフィーと顔画像",
+            "typeFaceImagesDesc": "顔写真および生体検証セルフィー。",
+            "typeOcrExtraction": "書類から読み取った項目",
+            "typeOcrExtractionDesc": "氏名、書類番号、日付など、書類から読み取った項目。",
+            "retentionHours": "保持時間（時間）",
+            "retentionHoursHint": "空欄にすると、保存モードのデータはポリシーを変えるまで保持されます。時間数は保存モードだけに使われます。",
+            "retentionHoursForever": "ポリシーを変えるまで",
+            "faceNoneWarning": "顔画像をなしにすると、Webhookの保留が終わるまで保持され、その後削除されます。その間は顔照合を実行できます。",
+            "documentLivenessNoneNote": "書類の現物確認写真をなしにすると、その写真はアップロードされません。",
+            "typeDocumentLiveness": "書類の現物確認写真",
+            "typeDocumentLivenessDesc": "書類がその場にあることを確認する写真です。なしにすると、その写真はアップロードされません。",
+            "webhookHoldTitle": "Webhookの保留",
+            "webhookHoldDesc": "Webhookがあるとき、一時保持となしのデータを残す時間です。24から72です。Webhookがない場合、次の削除処理の対象になります。",
+            "loadError": "データ保持設定を読み込めませんでした。",
+            "allowManualDeleteTitle": "手動削除を許可",
+            "allowManualDeleteDesc": "SmartScanまたはSmartEnrollの詳細画面から、管理者が個々の画像を即座に消去できるようにします。",
+            "eraseData": "データを消去",
+            "eraseDisabled": "手動消去はデータ保持設定でオフになっています。",
+            "eraseConfirmTitle": "保存されたデータを消去しますか？",
+            "eraseConfirmScan": "このスキャンの保存済み画像を完全に削除します。元に戻すことはできません。",
+            "eraseConfirmEnrollment": "この登録の保存済み画像と個人データを完全に削除します。元に戻すことはできません。",
+            "eraseConfirmCancel": "キャンセル",
+            "eraseConfirmAction": "データを消去",
+            "eraseSuccess": "保存されたデータを消去しました。",
+            "eraseNotFound": "この記録は見つかりませんでした。",
+            "eraseUnsupported": "この記録の保存データは消去できません。",
+            "eraseFailed": "保存されたデータを消去できませんでした。もう一度お試しください。",
+            "eraseRefreshFailed": "保存されたデータは消去されましたが、このページを更新できませんでした。変更を見るには再読み込みしてください。",
+            "saveButton": "設定を保存",
+            "savedSuccess": "データ保持設定が正常に保存されました。",
+            "saveError": "データ保持設定の保存に失敗しました。"
         }
     },
     "userMenu": {

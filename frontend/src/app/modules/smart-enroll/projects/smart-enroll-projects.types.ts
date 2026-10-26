@@ -78,6 +78,36 @@ export interface EnrollProjectDataProtection {
     postalCode?: string;
 }
 
+export interface ProjectRetentionRuleConfig {
+    mode?: 'store' | 'ephemeral' | 'none';
+    retentionHours?: number | null;
+}
+
+export interface ProjectDataRetentionOverride {
+    mode?: 'store' | 'ephemeral' | 'none';
+    webhookHoldHours?: number;
+    allowManualDelete?: boolean;
+    types?: {
+        documentImages?: ProjectRetentionRuleConfig;
+        ocrExtraction?: ProjectRetentionRuleConfig;
+        faceImages?: ProjectRetentionRuleConfig;
+        documentLiveness?: ProjectRetentionRuleConfig;
+        livenessResults?: ProjectRetentionRuleConfig;
+        webhookPayloads?: ProjectRetentionRuleConfig;
+        apiResponseLogs?: ProjectRetentionRuleConfig;
+    };
+    updatedAt?: string | Date;
+}
+
+export interface RecordRetentionInfo {
+    mode?: 'store' | 'ephemeral' | 'none';
+    purgeAfter?: string | Date | null;
+    holdUntil?: string | Date | null;
+    purgedAt?: string | Date | null;
+    purgeReason?: string;
+    purgeAttempts?: number;
+}
+
 export interface EnrollProject {
     _id: string;
     name?: string;
@@ -92,6 +122,7 @@ export interface EnrollProject {
     target?: 'personal' | 'business';
     branding?: EnrollProjectBranding;
     dataProtection?: EnrollProjectDataProtection;
+    dataRetention?: ProjectDataRetentionOverride | null;
     status?: string;
     currentStep?: number;
     lastStep?: number;
@@ -118,7 +149,7 @@ export interface AppRegistrationRow {
      */
     currentStep?: string;
     /** Liveness selfie (`IdentityImage`) when populated */
-    face?: { base64?: string; url?: string } | null;
+    face?: { base64?: string; url?: string; retention?: RecordRetentionInfo } | null;
     emailValidation?: { email?: string; status?: string; updatedAt?: string; createdAt?: string };
     phoneValidation?: { phone?: string; countryCode?: string; status?: string; updatedAt?: string; createdAt?: string };
     biometricValidation?: {
@@ -126,10 +157,11 @@ export interface AppRegistrationRow {
         livenessScore?: number;
         updatedAt?: string;
         response?: unknown;
-        face?: { base64?: string; url?: string } | null;
+        face?: { base64?: string; url?: string; retention?: RecordRetentionInfo } | null;
     };
     informationValidation?: Record<string, unknown> | null;
     consentSession?: ConsentSessionDetail | null;
+    retention?: RecordRetentionInfo | null;
 }
 
 export interface ConsentSessionDetail {

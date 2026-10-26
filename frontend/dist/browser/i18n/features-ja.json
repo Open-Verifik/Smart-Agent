@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — 運転免許",
-            "description": "コロンビア RUNT で運転免許の状態・区分・有効期限などを証明書番号から照会します。"
+            "description": "証明書番号からコロンビアの運転免許の状態・区分・有効期限などを照会します。"
         },
         "peru_api_vehicle": {
             "title": "ペルー — 車両情報（ナンバープレート）",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — 車両（プレート＋身分証のみ）",
-            "description": "ナンバーと身分証のみで RUNT 車両情報を照会します。"
+            "description": "ナンバーと身分証のみでコロンビアの車両情報を照会します。"
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — VIN別車両",
-            "description": "コロンビア RUNT で VIN から車両の詳細履歴・技術情報を取得します。"
+            "description": "VIN からコロンビアの車両の登録データおよび履歴・技術情報を取得します。"
         },
         "peru_identity_extra_lookup": {
             "title": "ペルー - 国民ID検証",
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — ナンバー別車両（簡易・別名）",
-            "description": "ナンバーと名義人証番号から RUNT 車両の要点情報を取得します。"
+            "description": "ナンバーと名義人証番号からコロンビアの車両の要点情報を取得します。"
         },
         "canada_api_driver_license_quebec": {
             "title": "ケベック — 運転免許",
@@ -594,7 +594,7 @@
         },
         "colombia_api_runt_owners": {
             "title": "コロンビア - 車両所有者(RUNT)",
-            "description": "Verify vehicle ownership and registered owners through the RUNT system."
+            "description": "公式の車両登録情報から所有者と登録名義人を確認します。"
         },
         "colombia_api_vehicle_owners": {
             "title": "コロンビア - 車両所有者履歴",
@@ -946,7 +946,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 車両の商業評価額",
-            "description": "コロンビアナンバーの運輸省（SIBGA）公式商業評価額。RUNTのデータを自動で対応付けます。"
+            "description": "コロンビアナンバーの公式商業評価額。全国の車両登録データに基づき算出します。"
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll 無料",
@@ -974,7 +974,7 @@
         },
         "colombia_api_runt_vehicle_by_plate_only": {
             "title": "RUNT車両検索（ナンバーのみ）",
-            "description": "所有者の書類なしで、ナンバープレートだけでコロンビアの RUNT 車両を照会します。"
+            "description": "所有者の書類なしで、ナンバープレートだけでコロンビアの車両を照会します。"
         }
     }
 }
