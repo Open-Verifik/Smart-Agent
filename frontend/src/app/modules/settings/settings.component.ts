@@ -27,6 +27,7 @@ import { UsageHistoryComponent } from './usage-history/usage-history.component';
 import { UsageReportComponent } from './usage-report/usage-report.component';
 import { CostCentersComponent } from './cost-centers/cost-centers.component';
 import { WorkspaceSettingsComponent } from './workspace-settings/workspace-settings.component';
+import { DataRetentionSettingsComponent } from './data-retention-settings/data-retention-settings.component';
 import { getSettingsUser } from './utils/settings-business-user.util';
 
 interface SettingsPanel {
@@ -67,6 +68,7 @@ interface SettingsSection {
         UsageHistoryComponent,
         UsageReportComponent,
         CostCentersComponent,
+        DataRetentionSettingsComponent,
     ],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss',
@@ -126,6 +128,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     title: 'settings.panels.team',
                     description: 'settings.panels.team_desc',
                 },
+                {
+                    id: 'data_retention',
+                    icon: 'heroicons_outline:shield-check',
+                    title: 'settings.panels.data_retention',
+                    description: 'settings.panels.data_retention_desc',
+                },
             ],
         },
         {
@@ -184,6 +192,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         notifications: 'notifications',
         general: 'general',
         team: 'team',
+        data_retention: 'data-retention',
         billing_details: 'billing-details',
         payment_history: 'payment-history',
         usage_history: 'usage-history',
@@ -198,6 +207,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         notifications: 'notifications',
         general: 'general',
         team: 'team',
+        'data-retention': 'data_retention',
         'billing-details': 'billing_details',
         'payment-history': 'payment_history',
         'usage-history': 'usage_history',

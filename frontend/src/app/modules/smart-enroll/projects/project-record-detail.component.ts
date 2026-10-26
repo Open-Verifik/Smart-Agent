@@ -15,6 +15,8 @@ import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
 import { finalize, forkJoin, Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
+import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
+import { manualEraseErrorKey } from 'app/core/data-retention/manual-erase.util';
 import { BarcodeValidationPanelComponent, type CedulaBarcodeValidation } from './barcode-validation-panel.component';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
@@ -58,7 +60,11 @@ import {
     compareMinScoreDisplayPercent,
     documentFaceReasonKey,
     governmentNameResponse,
+    isDocNoStorage,
+    isDocPurged,
     isDocumentTypeUndetected,
+    isFaceNoStorage,
+    isFacePurged,
     isNameVerificationPerformed,
     livenessAttemptUsage,
     livenessMinScoreDisplayPercent,
@@ -67,6 +73,8 @@ import {
     normalizeUnitScore,
     pickEnrollmentFaceMedia,
     recordFullName,
+    recordRetentionNotice,
+    requiresDocumentRescan,
     resolveCompareStatus,
     resolveLivenessMinScoreUnit,
     resolveOtpStepState,
@@ -78,6 +86,7 @@ import {
     type GovernmentNameResponse,
     type ManualVerificationReason,
     type NameVerificationSkip,
+    type RecordRetentionNotice,
     type StepId,
     type StepState,
 } from './app-registration-record.utils';
@@ -90,6 +99,7 @@ import type {
     ManualReviewLogEntry,
     ResolvableAppRegistrationStatus,
 } from './smart-enroll-projects.types';
+import type { DocumentClassification } from '../smart-scan/smart-scan.types';
 
 /** Name-match metrics for one source, with an explicit "did the lookup run" flag. */
 interface NameMatchColumn {
@@ -243,6 +253,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     private _cdr = inject(ChangeDetectorRef);
     private _dialog = inject(MatDialog);
     private _snackBar = inject(MatSnackBar);
+    private _retention = inject(DataRetentionService);
     private _clipboard = inject(Clipboard);
 
     private readonly _resendForbiddenStatuses = new Set(['COMPLETED_WITHOUT_KYC', 'COMPLETED', 'FAILED']);
@@ -266,6 +277,11 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     activeStep = signal<StepId>('information');
     deleteLoading = signal(false);
     deleteErrorKey = signal<string | null>(null);
+    /** `null` means the flag could not be resolved, so the button stays available. */
+    allowManualDelete = signal<boolean | null>(null);
+    eraseAccessLoading = signal(false);
+    eraseLoading = signal(false);
+    eraseErrorKey = signal<string | null>(null);
     exportLoading = signal(false);
     devView = signal(false);
     nameActionLoading = signal(false);
@@ -298,6 +314,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
                 this.project.set(project);
                 this.record.set(record);
                 this._initOcr(record);
+                this.loadEraseAccess();
                 this.loading.set(false);
                 this._cdr.markForCheck();
                 queueMicrotask(() => this._setupScrollSpy());
@@ -490,6 +507,69 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         });
     }
 
+    /**
+     * Login rows are app logins, not app registrations, so they have no erase route.
+     */
+    showManualErase(): boolean {
+        const record = this.record();
+        if (!record) return false;
+        const flow = record.projectFlow as { type?: string } | undefined;
+        return flow?.type !== 'login';
+    }
+
+    /**
+     * Uses the project already loaded on this page, then the cached account setting.
+     */
+    loadEraseAccess(): void {
+        const project = this.project();
+        this.eraseAccessLoading.set(true);
+        this._retention
+            .resolveAllowManualDelete({
+                projectId: this.projectId,
+                projectRetention: project?.dataRetention ?? null,
+                projectRetentionLoaded: project != null,
+            })
+            .pipe(finalize(() => this.eraseAccessLoading.set(false)))
+            .subscribe((allowed) => this.allowManualDelete.set(allowed));
+    }
+
+    /** Asks, then erases stored data for this enrollee and reloads the purged view. */
+    confirmEraseData(): void {
+        const record = this.record();
+        if (!record?._id || this.eraseLoading() || this.eraseAccessLoading() || this.allowManualDelete() === false) return;
+        if (!this.showManualErase()) return;
+
+        this.eraseErrorKey.set(null);
+        this._dialog
+            .open(ScanDeleteConfirmDialogComponent, {
+                width: '440px',
+                data: {
+                    titleKey: 'settings.dataRetention.eraseConfirmTitle',
+                    messageKey: 'settings.dataRetention.eraseConfirmEnrollment',
+                    cancelKey: 'settings.dataRetention.eraseConfirmCancel',
+                    confirmKey: 'settings.dataRetention.eraseConfirmAction',
+                },
+            })
+            .afterClosed()
+            .subscribe((confirmed) => {
+                if (!confirmed || !this.record()?._id) return;
+                const id = this.record()!._id;
+                this.eraseLoading.set(true);
+                this._retention
+                    .eraseAppRegistrationData(id)
+                    .pipe(finalize(() => this.eraseLoading.set(false)))
+                    .subscribe({
+                        next: () => {
+                            this._snackBar.open(this._transloco.translate('settings.dataRetention.eraseSuccess'), undefined, {
+                                duration: 4000,
+                            });
+                            this.reloadRecord(id);
+                        },
+                        error: (err: unknown) => this.showEraseError(err),
+                    });
+            });
+    }
+
     confirmDeleteRecord(): void {
         const r = this.record();
         if (!r?._id || this.deleteLoading()) return;
@@ -528,6 +608,30 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
                         },
                     });
             });
+    }
+
+    private reloadRecord(id: string): void {
+        this._projectsService.getAppRegistration(id).subscribe({
+            next: (record) => {
+                if (!record) return;
+                this.record.set(record);
+                this._initOcr(record);
+                this._cdr.markForCheck();
+            },
+            error: () => {
+                this.eraseErrorKey.set('settings.dataRetention.eraseRefreshFailed');
+                this._snackBar.open(this._transloco.translate('settings.dataRetention.eraseRefreshFailed'), undefined, {
+                    duration: 5000,
+                });
+            },
+        });
+    }
+
+    private showEraseError(err: unknown): void {
+        const key = manualEraseErrorKey(err);
+        if (key === 'settings.dataRetention.eraseDisabled') this.allowManualDelete.set(false);
+        this.eraseErrorKey.set(key);
+        this._snackBar.open(this._transloco.translate(key), undefined, { duration: 5000 });
     }
 
     canResendLink(): boolean {
@@ -968,6 +1072,30 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         return '';
     }
 
+    isRecordFaceNoStorage(r: AppRegistrationDetail | null): boolean {
+        return isFaceNoStorage(r, this.project()?.dataRetention);
+    }
+
+    isRecordFacePurged(r: AppRegistrationDetail | null): boolean {
+        return isFacePurged(r);
+    }
+
+    isRecordDocNoStorage(r: AppRegistrationDetail | null): boolean {
+        return isDocNoStorage(r, this.project()?.dataRetention);
+    }
+
+    isRecordDocPurged(r: AppRegistrationDetail | null): boolean {
+        return isDocPurged(r);
+    }
+
+    isRecordRescanRequired(r: AppRegistrationDetail | null): boolean {
+        return requiresDocumentRescan(r);
+    }
+
+    retentionNotice(r: AppRegistrationDetail | null): RecordRetentionNotice | null {
+        return recordRetentionNotice(r, this.project()?.dataRetention);
+    }
+
     showNameMatch(): boolean {
         return showNameVerificationSection(this.project(), this.record());
     }
@@ -1071,6 +1199,18 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             ?.OCRExtraction;
 
         return extraction?.barcodeValidation || null;
+    }
+
+    documentClassification(): DocumentClassification | null {
+        const extraction = (this.record()?.documentValidation as { OCRExtraction?: { documentClassification?: DocumentClassification } } | null)
+            ?.OCRExtraction;
+
+        return extraction?.documentClassification || null;
+    }
+
+    classificationConfidencePercent(classification: DocumentClassification | null): number {
+        if (!classification || typeof classification.confidence !== 'number') return 0;
+        return Math.round(classification.confidence > 1 ? classification.confidence : classification.confidence * 100);
     }
 
     /** Translated label for a decoded failure reason. */

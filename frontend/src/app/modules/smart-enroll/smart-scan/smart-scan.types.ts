@@ -7,6 +7,16 @@ export interface DocumentValidationAppRegistrationRef {
     project?: string | DocumentValidationProjectRef;
 }
 
+export interface DocumentValidationRetention {
+    mode?: 'store' | 'ephemeral' | 'none';
+    purgeAfter?: string | null;
+    holdUntil?: string | null;
+    webhookDeliveredAt?: string | null;
+    purgedAt?: string | null;
+    purgeReason?: string | null;
+    purgeAttempts?: number;
+}
+
 export interface DocumentValidation {
     _id: string;
     documentType: string;
@@ -35,6 +45,7 @@ export interface DocumentValidation {
     creditsCharged?: number;
     smartCheck?: SmartCheckResult | null;
     scoreValidation?: (Partial<SmartCheckResult> & { ocrCreditsCharged?: number; creditsCharged?: number }) | null;
+    retention?: DocumentValidationRetention;
 }
 
 export interface ScanCostBreakdown {
@@ -192,4 +203,5 @@ export interface ScanResult {
         front?: Record<string, boolean>;
         back?: Record<string, boolean>;
     };
+    retention?: DocumentValidationRetention;
 }

@@ -107,20 +107,44 @@
                                         loading="lazy"
                                     />
                                 } @else {
-                                    <div class="flex items-center justify-center h-full">
-                                        <mat-icon
-                                            class="icon-size-16 text-hint"
-                                            [svgIcon]="'heroicons_outline:document'"
-                                        ></mat-icon>
+                                    <div class="flex flex-col items-center justify-center h-full p-4 text-center">
+                                        @if (isPurged(scan)) {
+                                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-stone-200/80 text-stone-600 dark:bg-stone-800 dark:text-stone-300 mb-2">
+                                                <mat-icon class="icon-size-6" [svgIcon]="'heroicons_outline:shield-check'"></mat-icon>
+                                            </div>
+                                            <span class="text-xs font-semibold text-stone-600 dark:text-stone-300">{{ 'smartScan.retentionPurged' | transloco }}</span>
+                                            <span class="text-[11px] text-stone-400 mt-0.5">{{ 'smartScan.retentionPurgedNotice' | transloco }}</span>
+                                        } @else if (isNoStorage(scan)) {
+                                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 mb-2">
+                                                <mat-icon class="icon-size-6" [svgIcon]="'heroicons_outline:shield-exclamation'"></mat-icon>
+                                            </div>
+                                            <span class="text-xs font-semibold text-sky-800 dark:text-sky-300">{{ 'smartScan.retentionNoStorage' | transloco }}</span>
+                                            <span class="text-[11px] text-stone-400 mt-0.5">{{ 'smartScan.retentionNoStorageNotice' | transloco }}</span>
+                                        } @else {
+                                            <mat-icon
+                                                class="icon-size-16 text-hint"
+                                                [svgIcon]="'heroicons_outline:document'"
+                                            ></mat-icon>
+                                        }
                                     </div>
                                 }
-                                <div class="absolute top-2 right-2">
+                                <div class="absolute top-2 right-2 flex flex-col items-end gap-1">
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                         [ngClass]="getStatusColor(scan.status)"
                                     >
                                         {{ getStatusLabel(scan.status) | transloco }}
                                     </span>
+                                    @if (getRetentionBadge(scan); as ret) {
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase shadow-sm"
+                                            [ngClass]="ret.class"
+                                            [matTooltip]="ret.tooltip | transloco"
+                                        >
+                                            <mat-icon class="icon-size-3" [svgIcon]="ret.icon"></mat-icon>
+                                            {{ ret.label | transloco }}
+                                        </span>
+                                    }
                                 </div>
                             </div>
                             <div class="p-4">
@@ -178,6 +202,22 @@
                                             class="w-14 h-10 object-cover rounded"
                                             loading="lazy"
                                         />
+                                    } @else if (isPurged(scan)) {
+                                        <div
+                                            class="w-14 h-10 bg-stone-200/90 dark:bg-stone-800 rounded flex flex-col items-center justify-center text-stone-600 dark:text-stone-300"
+                                            [matTooltip]="'smartScan.retentionPurgedTooltip' | transloco"
+                                        >
+                                            <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:shield-check'"></mat-icon>
+                                            <span class="text-[9px] font-semibold leading-none mt-0.5">PURGED</span>
+                                        </div>
+                                    } @else if (isNoStorage(scan)) {
+                                        <div
+                                            class="w-14 h-10 bg-sky-100 dark:bg-sky-950/40 rounded flex flex-col items-center justify-center text-sky-700 dark:text-sky-300"
+                                            [matTooltip]="'smartScan.retentionNoStorageTooltip' | transloco"
+                                        >
+                                            <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:shield-exclamation'"></mat-icon>
+                                            <span class="text-[9px] font-semibold leading-none mt-0.5">NO-STORE</span>
+                                        </div>
                                     } @else {
                                         <div class="w-14 h-10 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center">
                                             <mat-icon class="icon-size-5 text-hint" [svgIcon]="'heroicons_outline:document'"></mat-icon>
@@ -200,12 +240,23 @@
                             <ng-container matColumnDef="status">
                                 <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.status' | transloco }}</th>
                                 <td mat-cell *matCellDef="let scan">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                        [ngClass]="getStatusColor(scan.status)"
-                                    >
-                                        {{ getStatusLabel(scan.status) | transloco }}
-                                    </span>
+                                    <div class="flex flex-col gap-1 items-start">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                            [ngClass]="getStatusColor(scan.status)"
+                                        >
+                                            {{ getStatusLabel(scan.status) | transloco }}
+                                        </span>
+                                        @if (getRetentionBadge(scan); as ret) {
+                                            <span
+                                                class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded uppercase"
+                                                [ngClass]="ret.class"
+                                                [matTooltip]="ret.tooltip | transloco"
+                                            >
+                                                {{ ret.label | transloco }}
+                                            </span>
+                                        }
+                                    </div>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="method">

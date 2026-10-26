@@ -158,5 +158,44 @@
                 </article>
             </div>
         </section>
+
+        <!-- Section 04: Data Retention & Privacy Policy -->
+        <section class="storage-retention">
+            <div class="section-heading">
+                <span>04</span>
+                <div class="section-heading__content">
+                    <div class="section-heading__title-row">
+                        <h3>{{ t('smartEnrollProjects.detail.retention.title') }}</h3>
+                        <mat-slide-toggle
+                            color="primary"
+                            [checked]="retentionOverride"
+                            (change)="onRetentionToggle($event.checked)"
+                        >
+                            <span class="storage-retention__toggle-label">
+                                {{ retentionOverride ? t('smartEnrollProjects.detail.retention.projectOverride') : t('smartEnrollProjects.detail.retention.accountDefault') }}
+                            </span>
+                        </mat-slide-toggle>
+                    </div>
+                    <p>{{ t('smartEnrollProjects.detail.retention.subtitle') }}</p>
+                </div>
+            </div>
+
+            @if (retentionOverride) {
+                <app-retention-policy-form
+                    [policy]="retentionPolicy"
+                    (policyChange)="onRetentionPolicyChange($event)"
+                ></app-retention-policy-form>
+            } @else {
+                <div class="retention-inherited-card">
+                    <div class="retention-inherited-card__icon">
+                        <mat-icon>corporate_fare</mat-icon>
+                    </div>
+                    <div>
+                        <strong>{{ t('smartEnrollProjects.detail.retention.accountDefault') }}</strong>
+                        <p>{{ t('smartEnrollProjects.detail.retention.accountDefaultDesc') }}</p>
+                    </div>
+                </div>
+            }
+        </section>
     </div>
 </ng-container>
