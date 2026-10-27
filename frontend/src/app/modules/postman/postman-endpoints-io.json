@@ -2061,6 +2061,237 @@
       ]
     },
     {
+      "code": "colombia_api_cedula_barcode",
+      "name": "Colombia - Cédula back barcode",
+      "nameES": "Colombia - Código de barras (reverso cédula)",
+      "country": "Colombia",
+      "category": "identity",
+      "group": "verification",
+      "method": "POST",
+      "url": "v2/co/cedula/barcode",
+      "description": "Read and decode the PDF417 barcode on the back of a Colombian cédula (CC). Send backImage (HTTPS URL or base64). Optionally cross-check against documentNumber, firstName, lastName, gender, dateOfBirth, and bloodType. Returns verdict decoded | unreadable, or with cross-check confirmed | mismatch | unreadable. Successful reads are billed (200), including unreadable; 409 validation errors are not charged.",
+      "descriptionES": "Lee y decodifica el código PDF417 del reverso de la cédula colombiana (CC). Envía backImage (URL HTTPS o base64). Opcionalmente cruza con documentNumber, firstName, lastName, gender, dateOfBirth y bloodType. Veredicto decoded | unreadable, o con cruce confirmed | mismatch | unreadable. Las respuestas 200 se cobran (incluido unreadable); los 409 de validación no se cobran.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "backImage",
+            "type": "String",
+            "required": true,
+            "description": "Back of the cédula as a public HTTPS URL or base64 data URL."
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CC"
+            ],
+            "description": "Document type (default CC)."
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Optional cross-check: document number from the front."
+          },
+          {
+            "field": "firstName",
+            "type": "String",
+            "required": false,
+            "description": "Optional cross-check: first name(s)."
+          },
+          {
+            "field": "lastName",
+            "type": "String",
+            "required": false,
+            "description": "Optional cross-check: last name(s)."
+          },
+          {
+            "field": "gender",
+            "type": "String",
+            "required": false,
+            "description": "Optional cross-check: gender (M/F)."
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Optional cross-check: date of birth."
+          },
+          {
+            "field": "bloodType",
+            "type": "String",
+            "required": false,
+            "description": "Optional cross-check: blood type."
+          },
+          {
+            "field": "barcodeReadAttempts",
+            "type": "Number",
+            "required": false,
+            "description": "Optional retry count for barcode decode."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "backImage",
+            "description": "Required. Back image URL or base64."
+          },
+          {
+            "field": "documentType",
+            "description": "**`CC`** (default)."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Optional cross-check against decoded barcode."
+          },
+          {
+            "field": "firstName",
+            "description": "Optional cross-check."
+          },
+          {
+            "field": "lastName",
+            "description": "Optional cross-check."
+          },
+          {
+            "field": "gender",
+            "description": "Optional cross-check (M/F)."
+          },
+          {
+            "field": "dateOfBirth",
+            "description": "Optional cross-check."
+          },
+          {
+            "field": "bloodType",
+            "description": "Optional cross-check."
+          },
+          {
+            "field": "barcodeReadAttempts",
+            "description": "Optional decode retries."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (decoded)",
+          "body": {
+            "data": {
+              "verdict": "decoded",
+              "barcode": {
+                "documentNumber": "1234567890",
+                "primerNombre": "MARIA",
+                "segundoNombre": "ELENA",
+                "primerApellido": "GOMEZ",
+                "segundoApellido": "LOPEZ",
+                "gender": "F",
+                "dateOfBirth": "1990-05-01",
+                "bloodType": "O+",
+                "fullName": "MARIA ELENA GOMEZ LOPEZ"
+              },
+              "decoded": true,
+              "attempts": 1
+            },
+            "signature": {
+              "dateTime": "October 21, 2026 8:00 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "200",
+          "label": "200 (confirmed)",
+          "body": {
+            "data": {
+              "verdict": "confirmed",
+              "barcode": {
+                "documentNumber": "1234567890",
+                "primerNombre": "MARIA",
+                "segundoNombre": "ELENA",
+                "primerApellido": "GOMEZ",
+                "segundoApellido": "LOPEZ",
+                "gender": "F",
+                "dateOfBirth": "1990-05-01",
+                "bloodType": "O+",
+                "fullName": "MARIA ELENA GOMEZ LOPEZ"
+              },
+              "matchScores": {
+                "documentNumber": 1,
+                "fullName": 1
+              },
+              "disagreements": [],
+              "attempts": 1
+            },
+            "signature": {
+              "dateTime": "October 21, 2026 8:00 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "200",
+          "label": "200 (mismatch)",
+          "body": {
+            "data": {
+              "verdict": "mismatch",
+              "barcode": {
+                "documentNumber": "1234567890",
+                "fullName": "MARIA ELENA GOMEZ LOPEZ"
+              },
+              "matchScores": {
+                "documentNumber": 0.2
+              },
+              "disagreements": [
+                "documentNumber"
+              ],
+              "attempts": 2
+            },
+            "signature": {
+              "dateTime": "October 21, 2026 8:00 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "200",
+          "label": "200 (unreadable)",
+          "body": {
+            "data": {
+              "verdict": "unreadable",
+              "barcode": null,
+              "decoded": false,
+              "attempts": 3,
+              "reason": "barcode_not_found"
+            },
+            "signature": {
+              "dateTime": "October 21, 2026 8:00 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "backImage is required"
+          }
+        }
+      ]
+    },
+    {
       "code": "colombia_api_adres",
       "name": "Colombia — ADRES affiliation",
       "nameES": "Colombia — Afiliación ADRES",

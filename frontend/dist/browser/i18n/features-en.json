@@ -12,6 +12,10 @@
             "title": "Colombian Citizen",
             "description": "Validate Colombian identity by document number (CC, CE, PPT, NIT, or PEP) via GET /v2/co/cedula."
         },
+        "colombia_api_cedula_barcode": {
+            "title": "Colombian cédula back barcode",
+            "description": "Decode the PDF417 barcode on the back of a Colombian CC via POST /v2/co/cedula/barcode. Optional cross-check against front-side fields; returns verdict, decoded barcode fields, and disagreements when applicable."
+        },
         "colombia_special_api_police_identity_lookup": {
             "title": "Colombian Police Record Check",
             "description": "Colombian police record check service"

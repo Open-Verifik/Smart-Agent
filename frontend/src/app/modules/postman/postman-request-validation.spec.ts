@@ -170,3 +170,26 @@ describe('getPostmanRequestValidationIssues name mode', () => {
         expect(issues.map((issue) => issue.translationKey)).toContain('createBatch.validationXorNeitherMode');
     });
 });
+
+describe('getPostmanRequestValidationIssues colombia cedula barcode', () => {
+    const barcodeEndpoint = (): ApiEndpoint =>
+        ({
+            id: 'co-barcode',
+            label: 'Colombia cédula barcode',
+            code: 'colombia_api_cedula_barcode',
+            method: 'POST',
+            url: '/v2/co/cedula/barcode',
+            dependencies: [{ field: 'backImage', type: 'String', required: true }],
+            body: { backImage: '' },
+        }) as ApiEndpoint;
+
+    it('requires backImage in the POST JSON body', () => {
+        const issues = getPostmanRequestValidationIssues(barcodeEndpoint(), '{}');
+        expect(issues.map((issue) => issue.field)).toContain('backImage');
+    });
+
+    it('accepts a body with backImage', () => {
+        const body = JSON.stringify({ backImage: 'data:image/jpeg;base64,abc' });
+        expect(getPostmanRequestValidationIssues(barcodeEndpoint(), body)).toEqual([]);
+    });
+});

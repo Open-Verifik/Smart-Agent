@@ -428,6 +428,64 @@
 			}
 		},
 		{
+			"id": "colombia_api_cedula_barcode",
+			"name": "Colombia - Cédula back barcode",
+			"category": "Colombia - Cédula back barcode",
+			"url": "https://ai.verifik.co/api/co/cedula/barcode",
+			"verifikPath": "/v2/co/cedula/barcode",
+			"method": "POST",
+			"description": "Read and decode the PDF417 barcode on the back of a Colombian cédula (CC). Optionally cross-check decoded fields against document number, name, gender, date of birth, and blood type. POST /v2/co/cedula/barcode.",
+			"country": "Colombia",
+			"priceUsd": 0.2,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"backImage": {
+						"type": "string",
+						"description": "Back of the cédula as a public HTTPS URL or base64 data URL."
+					},
+					"documentType": {
+						"type": "string",
+						"description": "Document type (default CC).",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Optional cross-check: document number from the front."
+					},
+					"firstName": {
+						"type": "string",
+						"description": "Optional cross-check: first name(s)."
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Optional cross-check: last name(s)."
+					},
+					"gender": {
+						"type": "string",
+						"description": "Optional cross-check: gender (M/F)."
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Optional cross-check: date of birth."
+					},
+					"bloodType": {
+						"type": "string",
+						"description": "Optional cross-check: blood type."
+					},
+					"barcodeReadAttempts": {
+						"type": "number",
+						"description": "Optional retry count for barcode decode (server default when omitted)."
+					}
+				},
+				"required": [
+					"backImage"
+				]
+			}
+		},
+		{
 			"id": "colombia_api_adres",
 			"name": "Colombia — ADRES affiliation",
 			"category": "Colombia — ADRES affiliation",
