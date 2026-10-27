@@ -9,12 +9,12 @@
             "description": "访问私人公民信息 为 Colombian nationals. 此服务提供全面的个人数据 包括 detailed identity verification. 联系Verifik客户服务了解更多详情."
         },
         "colombia_api_identity_lookup": {
-            "title": "哥伦比亚公民",
-            "description": "通过证件号（CC、CE、PPT、NIT 或 PEP）核验哥伦比亚身份。GET /v2/co/cedula。"
+            "title": "哥伦比亚公民（CC / PPT）",
+            "description": "使用 CC 或 PPT 号码核验哥伦比亚公民身份，对接 Registraduría 等官方数据源。"
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "警方犯罪记录核查",
-            "description": "哥伦比亚警方犯罪记录核查服务。"
+            "description": "通过 GET 或 POST /v2/co/policia/consultar 查询哥伦比亚警方犯罪记录。"
         },
         "world_api_dea": {
             "title": "DEA 背景核查",
@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — 驾驶证",
-            "description": "在哥伦比亚按身份证件查询驾驶证状态、类别与有效期等信息。"
+            "description": "在哥伦比亚 RUNT 中按身份证件查询驾驶证状态、类别与有效期等信息。"
         },
         "peru_api_vehicle": {
             "title": "车辆（号牌）",
@@ -182,7 +182,7 @@
         },
         "colombia_api_vehicle": {
             "title": "RUNT — 车辆(基本登记)",
-            "description": "在哥伦比亚使用车牌与车主证件查询车辆登记与基本特征。"
+            "description": "通过哥伦比亚 RUNT 使用车牌与车主证件查询车辆登记与基本特征。"
         },
         "colombia_api_pico_placa": {
             "title": "波哥大 — Pico y Placa",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — 按车牌查询车辆（完整）",
-            "description": "在哥伦比亚使用车牌与车主证件查询车辆完整历史与技术报告。"
+            "description": "通过哥伦比亚 RUNT 使用车牌与车主证件查询车辆完整历史与技术报告。"
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — 按 VIN 查询车辆",
-            "description": "在哥伦比亚使用车辆识别代号（VIN）查询官方登记数据及完整历史与技术信息。"
+            "description": "通过哥伦比亚 RUNT 使用车辆识别代号（VIN）查询完整历史与技术信息。"
         },
         "peru_identity_extra_lookup": {
             "title": "秘鲁 - 国民身份证验证",
@@ -429,7 +429,7 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "world_api_phone_lookup": {
-            "title": "电话号码查询",
+            "title": "🌐 全球 — 电话号码查询",
             "description": "通过 GET 或 POST /v2/look-ups/phone 查询全球电话号码。返回名册上的机主姓名及相关资料字段（如有）。"
         },
         "Mexico_api_ine_model_e": {
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — 按车牌查询车辆（简化）",
-            "description": "在哥伦比亚使用车牌与车主证件号查询核心车辆信息。"
+            "description": "通过哥伦比亚 RUNT 使用车牌与车主证件号查询核心车辆信息。"
         },
         "canada_api_driver_license_quebec": {
             "title": "魁北克 — 驾驶证",
@@ -593,8 +593,8 @@
             "description": "使用 Verifik KYB API 通过企业名称核验美国企业。"
         },
         "colombia_api_runt_owners": {
-            "title": "哥伦比亚 - 车辆所有者(RUNT)",
-            "description": "根据官方车辆登记信息核验车辆所有权与登记车主。"
+            "title": "RUNT — 按车牌查询车辆所有人",
+            "description": "仅使用车牌查询哥伦比亚车辆及其所有权记录。"
         },
         "colombia_api_vehicle_owners": {
             "title": "哥伦比亚 - 车辆所有人历史",
@@ -822,7 +822,7 @@
         },
         "peru_identity_extra_lookup_v3": {
             "title": "DNI（扩展信息）",
-            "description": "使用 Verifik 的 KYC API 对秘鲁公民进行扩展身份核验，获取 DNI（国民身份证）的详细信息（地址、出生日期、照片、婚姻状态等）。直接对接官方数据源，在数秒内完成身份验证。"
+            "description": "使用 Verifik 的 KYC API 对秘鲁公民进行扩展身份核验，获取 DNI（国民身份证）的详细信息。直接对接官方数据源，在数秒内完成身份验证。"
         },
         "colombia_api_identity_ppt_foreigner_id": {
             "title": "PPT（临时保护许可）",
@@ -914,10 +914,10 @@
         },
         "colombia_api_identity_lookup_procuraduria": {
             "title": "通过 Procuraduría 查询公民",
-            "description": "通过 GET /v2/co/procuraduria 仅从 Procuraduría 提取姓名（CC、CE、PPT、NIT 或 PEP）。不返回纪律记录。"
+            "description": "通过 GET/POST /v2/co/procuraduria 验证哥伦比亚证件并提取姓名（仅 Procuraduría，不含纪律记录）。"
         },
         "mexico_api_ine_ocr": {
-            "title": "墨西哥 INE 证件识别",
+            "title": "INE OCR",
             "description": "通过 OCR 从墨西哥 INE 正反面图像中提取个人与证件字段。"
         },
         "mexico_api_ine_validate": {
@@ -925,16 +925,16 @@
             "description": "使用 CIC、OCR 或 clave de elector，对照选举登记册验证墨西哥选民证（INE）。"
         },
         "mexico_api_cedula_profesional": {
-            "title": "墨西哥 — 专业执照",
-            "description": "按 CURP、执照号或姓名查询墨西哥专业执照。先直接匹配 CURP；没有直接命中时，使用持有人的官方姓名做精确匹配，不另收费。"
+            "title": "专业执照",
+            "description": "通过 CURP、执照号码或姓名，在官方专业执照登记册中查询墨西哥专业执照。"
         },
         "mexico_api_health_worker": {
-            "title": "墨西哥 — 卫生从业人员执照",
-            "description": "确认某人持有墨西哥卫生相关专业执照，包括医学、护理、精神病学、产科、物理治疗和验光。仅有非卫生执照时返回 404。"
+            "title": "卫生从业人员执照",
+            "description": "确认某人持有墨西哥卫生相关专业执照。仅持有非卫生执照时返回 404。"
         },
         "mexico_api_siged_certificado": {
-            "title": "墨西哥 — 学历证书（folio）",
-            "description": "按 folio 验证墨西哥电子学历证书。可以同时发送 fullName 或 CURP；不一致时返回 409 name_mismatch。两者都发送时，CURP 优先。"
+            "title": "学历证书（folio）",
+            "description": "通过 folio，对照官方学历证书登记册验证墨西哥电子学历证书。"
         },
         "colombia_api_copnia_license": {
             "title": "按注册号查询 COPNIA 执照",
@@ -946,7 +946,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 车辆商业估价",
-            "description": "哥伦比亚车牌的官方商业估价，基于全国车辆登记数据。"
+            "description": "哥伦比亚车牌的交通部（SIBGA）官方商业估价，由 RUNT 数据自动对照。"
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll 免费版",
@@ -973,8 +973,20 @@
             "description": "Smart Access 商业方案，月度额度最高。"
         },
         "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "仅凭车牌查询 RUNT 车辆",
-            "description": "仅用车牌查询哥伦比亚车辆，无需车主证件。"
+            "title": "RUNT - 仅凭车牌查询车辆记录",
+            "description": "仅使用车牌查询哥伦比亚 RUNT 车辆，无需车主证件类型或号码。"
+        },
+        "colombia_api_driver_basic": {
+            "title": "RUNT — 驾驶证 (Basic)",
+            "description": "通过 /v3/co/runt/conductor 查询 RUNT 驾驶证。必须提供 primerApellido。Basic 价格。"
+        },
+        "chile_api_vehicle_stolen": {
+            "title": "智利 — 被盗车辆",
+            "description": "查询智利车辆是否有有效的被盗或盗窃报案（encargo por robo o hurto）。"
+        },
+        "chile_api_driver_license_block": {
+            "title": "智利 — 驾驶证冻结与暂停记录",
+            "description": "通过 RUN 查询智利民事登记处（Registro Civil）全国驾驶证冻结登记系统：验证驾驶证是否被吊销或限制、持有人姓名及冻结明细，适用于车队管理与 KYC 合规。"
         }
     }
 }

@@ -4,7 +4,7 @@
             "documents": {
                 "colombianBarcode": {
                     "title": "Código de barras da cédula colombiana",
-                    "subtitle": "Lê o código de barras no verso da cédula e compara com a frente. Uma diferença envia o cadastro para verificação manual."
+                    "subtitle": "Proteção antifraude: decodifica o código PDF417 do verso e o compara com a frente para detectar cédulas alteradas ou falsificadas."
                 }
             }
         }

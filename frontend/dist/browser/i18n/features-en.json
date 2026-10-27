@@ -13,8 +13,8 @@
             "description": "Validate Colombian identity by document number (CC, CE, PPT, NIT, or PEP) via GET /v2/co/cedula."
         },
         "colombia_api_cedula_barcode": {
-            "title": "Colombian cédula back barcode",
-            "description": "Decode the PDF417 barcode on the back of a Colombian CC via POST /v2/co/cedula/barcode. Optional cross-check against front-side fields; returns verdict, decoded barcode fields, and disagreements when applicable."
+            "title": "Cédula barcode (PDF417)",
+            "description": "Decode and optionally cross-check the PDF417 barcode on the back of a Colombian cédula from a rear image via POST /v2/co/cedula/barcode."
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "Colombian Police Record Check",
@@ -61,7 +61,7 @@
             "description": "US vehicle validation service for retrieving vehicle information using license plate and state"
         },
         "world_api_onu": {
-            "title": "ONU Background Check",
+            "title": "UN Background Check",
             "description": "This API provides a simple and efficient way to verify whether a person or entity is listed on the United Nations sanctions list. By submitting identifying information such as document type and document number, users can quickly determine if an individual or organization is subject to international sanctions."
         },
         "feature_kyc_solution": {
@@ -137,7 +137,7 @@
             "description": "FBI background check service"
         },
         "mexico_identity_lookup": {
-            "title": "Mexican Citizen",
+            "title": "CURP",
             "description": "Validate the identity of individuals in Mexico using CURP with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
         },
         "ecuador_api_identity_lookup": {
@@ -145,8 +145,8 @@
             "description": "Validate the identity of individuals in Ecuador with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
         },
         "colombia_api_driver": {
-            "title": "RUNT - Driver's License",
-            "description": "Verify Colombian driver's licenses using the document number. Returns license status, categories, and expiration dates from official records."
+            "title": "RUNT - Driver's License (Premium)",
+            "description": "Verify driver''s licenses in Colombia using the document number with the Verifik API. Omit primerApellido to pay Premium (name lookup included) or send it to pay the Basic rate."
         },
         "peru_api_vehicle": {
             "title": "Vehicle Information",
@@ -381,8 +381,8 @@
             "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF. Returns identity fields, the criminal-record statement, and the certificate as base64-encoded PDF."
         },
         "chile_api_transport_vehicle": {
-            "title": "Public Transport Vehicle",
-            "description": "Query Chile public transport vehicle registration (RNT) by license plate via GET /v2/cl/transport-vehicle."
+            "title": "Vehicle in the transport register (D80)",
+            "description": "Confirm a Chilean taxi or D80 vehicle by plate in the Ministry of Transport (MTT) register. Returns serviceType, vehicleStatus, and service expiry from the transport vehicle endpoint."
         },
         "chile_api_vehicle_soap": {
             "title": "Vehicle SOAP",
@@ -597,8 +597,8 @@
             "description": "Validate US companies by business name with Verifik's KYB API."
         },
         "colombia_api_runt_owners": {
-            "title": "Colombia - Vehicle Owners Verification (RUNT)",
-            "description": "Verify vehicle ownership and registered owners using official national vehicle records."
+            "title": "RUNT - Vehicle owners by plate",
+            "description": "Retrieve a Colombian vehicle and its ownership records using only the license plate."
         },
         "colombia_api_vehicle_owners": {
             "title": "Colombia - Vehicle Owner History",
@@ -869,11 +869,11 @@
             "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "HumanID with liveness (active user)",
-            "description": "Create a HumanID with decrypt-side liveness. History bills this code when requireLiveness is enabled; the HTTP path is the same as Encrypt HumanID."
+            "title": "Encrypt HumanID",
+            "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
         },
         "zelf-proof-encrypt-qr": {
-            "title": "Encrypt HumanID QR",
+            "title": "Encrypt HumanID QR Code",
             "description": "Create a HumanID and encapsulate it in a QR code"
         },
         "zelf-proof-decrypt": {
@@ -929,16 +929,16 @@
             "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector."
         },
         "mexico_api_cedula_profesional": {
-            "title": "Mexico — Professional License",
-            "description": "Look up a Mexican professional license by CURP, license number, or name. CURP is matched directly first; when there is no direct match, the CURP holder's official name is used for an exact-name match at no extra cost."
+            "title": "Professional License",
+            "description": "Look up a Mexican professional license by CURP, license number, or name in the official professional registry."
         },
         "mexico_api_health_worker": {
-            "title": "Mexico — Health Worker License",
-            "description": "Validate that a person holds a Mexican health-related professional license, including medicine, nursing, psychiatry, obstetrics, physiotherapy, and optometry. A person with only non-health licenses returns 404."
+            "title": "Health Worker License",
+            "description": "Confirm that a person holds a Mexican health-related professional license. A person with only non-health licenses returns 404."
         },
         "mexico_api_siged_certificado": {
-            "title": "Mexico — Education Certificate (folio)",
-            "description": "Validate a Mexican electronic education certificate by folio. Optionally send fullName or CURP; a mismatch returns 409 name_mismatch. When both are sent, CURP wins."
+            "title": "Education Certificate (folio)",
+            "description": "Validate a Mexican electronic education certificate by folio against the official education-certificate registry."
         },
         "colombia_api_copnia_license": {
             "title": "COPNIA professional license by matrícula",
@@ -977,8 +977,40 @@
             "description": "Smart Access Business plan, with the highest monthly limits."
         },
         "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "RUNT Vehicle by Plate Only",
-            "description": "Query a Colombian vehicle using only the license plate, without the owner's document."
+            "title": "RUNT - Vehicle Records by Plate Only",
+            "description": "Query a Colombian RUNT vehicle using only the license plate, without the owner's document type or number."
+        },
+        "colombia_api_driver_basic": {
+            "title": "RUNT - Driver's License (Basic)",
+            "description": "Verify Colombian driver licenses via RUNT on /v3/co/runt/conductor. primerApellido is required. Billed at the Basic conductor rate."
+        },
+        "chile_api_vehicle_stolen": {
+            "title": "Stolen Vehicle",
+            "description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto)."
+        },
+        "face_recognition_persons_live": {
+            "title": "Create a Person with Liveness",
+            "description": "Enroll a person with liveness verification, face search for duplicates, and optional merge into an existing match."
+        },
+        "face_recognition_persons": {
+            "title": "Persons",
+            "description": "Manage person records and biometric data in your verification system"
+        },
+        "face_recognition_collections": {
+            "title": "List All Collections",
+            "description": "Fetch all collections generated by a specific client. The only parameter required is to send the access token. With this, Verifik will identify the collections generated by this user."
+        },
+        "colombia_api_adres": {
+            "title": "ADRES (BDUA affiliation)",
+            "description": "Query Colombian ADRES / BDUA health affiliation status via GET /v2/co/adres."
+        },
+        "chile_api_driver_license_block": {
+            "title": "Driver License Block Register",
+            "description": "Query the Chile Registro Civil nationwide driver-license block register by RUN: check if a driver license is blocked, holder name, and block details for fleet and KYC compliance."
+        },
+        "face_recognition_liveness_score": {
+            "title": "Liveness Score",
+            "description": "Liveness score for a single face image (stable public API)"
         }
     }
 }

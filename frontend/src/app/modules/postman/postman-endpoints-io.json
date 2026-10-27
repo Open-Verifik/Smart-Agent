@@ -2069,8 +2069,8 @@
       "group": "verification",
       "method": "POST",
       "url": "v2/co/cedula/barcode",
-      "description": "Read and decode the PDF417 barcode on the back of a Colombian cédula (CC). Send backImage (HTTPS URL or base64). Optionally cross-check against documentNumber, firstName, lastName, gender, dateOfBirth, and bloodType. Returns verdict decoded | unreadable, or with cross-check confirmed | mismatch | unreadable. Successful reads are billed (200), including unreadable; 409 validation errors are not charged.",
-      "descriptionES": "Lee y decodifica el código PDF417 del reverso de la cédula colombiana (CC). Envía backImage (URL HTTPS o base64). Opcionalmente cruza con documentNumber, firstName, lastName, gender, dateOfBirth y bloodType. Veredicto decoded | unreadable, o con cruce confirmed | mismatch | unreadable. Las respuestas 200 se cobran (incluido unreadable); los 409 de validación no se cobran.",
+      "description": "Anti-fraud verification: read and decode the PDF417 barcode on the back of a Colombian cédula (CC). Send backImage (HTTPS URL or base64). Cross-check against front fields to detect card alterations, tampering, and counterfeiting. Returns verdict decoded | unreadable, or with cross-check confirmed | mismatch | unreadable. Successful reads are billed (200), including unreadable; 409 validation errors are not charged.",
+      "descriptionES": "Verificación antifraude: lee y decodifica el código PDF417 del reverso de la cédula colombiana (CC). Envía backImage (URL HTTPS o base64). Cruza con los datos del frente para detectar cédulas alteradas o falsificadas. Veredicto decoded | unreadable, o con cruce confirmed | mismatch | unreadable. Las respuestas 200 se cobran (incluido unreadable); los 409 de validación no se cobran.",
       "price": 0.2,
       "isAvailable": true,
       "catalogHidden": false,
@@ -8740,6 +8740,80 @@
           "body": {
             "code": "MissingParameter",
             "message": "missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "chile_api_driver_license_block",
+      "name": "Chile - Driver License Block Register",
+      "nameES": "Chile - Bloqueo de Licencia de Conducir (Registro Civil)",
+      "country": "Chile",
+      "category": "transit",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/cl/driver-license/block",
+      "description": "Query the Chile Registro Civil nationwide driver-license block register by RUN. Returns whether the license is blocked, holder name when available, and block metadata when a block exists.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentNumber",
+            "description": "Chilean RUN with check digit, e.g. 18347440-5 (dots optional)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentNumber": "18347440-5",
+              "fullName": "MACÍAS IBARRA LEONARDO ANTONIO",
+              "hasBlock": false,
+              "blockStatusText": "NO SE REGISTRA BLOQUEO para los datos ingresados"
+            },
+            "signature": {
+              "dateTime": "October 27, 2026 10:07 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "B752U"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "invalid_check_digit",
+            "message": "documentNumber has a check digit (DV) that does not match the RUN/RUT. Send the number with the correct check digit, or without it."
           }
         }
       ]

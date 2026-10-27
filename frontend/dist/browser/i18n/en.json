@@ -3859,7 +3859,7 @@
                 },
                 "colombianBarcode": {
                     "title": "Colombian cédula barcode",
-                    "subtitle": "Read the barcode on the back of the cédula and compare it with the front. A mismatch sends the enrollment to manual verification."
+                    "subtitle": "Anti-fraud protection: decode the rear PDF417 barcode and cross-check it against the front. Detects forged or tampered cards and flags mismatches for manual review."
                 },
                 "screening": {
                     "title": "Database screening",

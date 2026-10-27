@@ -5,10 +5,10 @@
                 "title": "Back barcode",
                 "attempts": "{{count}} read attempts",
                 "unreadableWarning": "The enrollment can pass. The back barcode could not be read, so this stays as a warning.",
-                "mismatchLead": "The back barcode does not match the front. The card may have been altered.",
+                "mismatchLead": "Fraud alert: The back barcode does not match the front card. This document indicates potential alteration or forgery.",
                 "verdict": {
                     "confirmed": "Matches the front",
-                    "mismatch": "Possible alteration",
+                    "mismatch": "Alteration / Fraud detected",
                     "unreadable": "Back not validated",
                     "decoded": "Barcode decoded"
                 },
@@ -70,7 +70,7 @@
         },
         "colombianBarcode": {
             "title": "Colombian cédula barcode",
-            "subtitle": "Read the PDF417 on the back and compare it with the front extraction when a back photo is included."
+            "subtitle": "Anti-fraud protection: decode the rear PDF417 barcode and cross-check it against front extraction to detect altered or counterfeit cédulas."
         }
     }
 }

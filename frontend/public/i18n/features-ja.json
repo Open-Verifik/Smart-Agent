@@ -14,7 +14,7 @@
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "コロンビア — 警察記録照会",
-            "description": "コロンビアの警察記録照会サービス。"
+            "description": "GET または POST /v2/co/policia/consultar でコロンビアの警察記録を照会します。"
         },
         "world_api_dea": {
             "title": "DEA 身元照会",
@@ -54,7 +54,7 @@
         },
         "usa_api_vehicle": {
             "title": "アメリカ合衆国 — 車両情報（ナンバー・州）",
-            "description": "GET /v2/usa/vehicle。plate と state で米国登録車両を照会します。"
+            "description": "一時的に利用不可 — VIN による米国車両照会を利用してください"
         },
         "world_api_onu": {
             "title": "国連（ONU）身元照会",
@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — 運転免許",
-            "description": "証明書番号からコロンビアの運転免許の状態・区分・有効期限などを照会します。"
+            "description": "コロンビア RUNT で運転免許の状態・区分・有効期限などを証明書番号から照会します。"
         },
         "peru_api_vehicle": {
             "title": "ペルー — 車両情報（ナンバープレート）",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — 車両（プレート＋身分証のみ）",
-            "description": "ナンバーと身分証のみでコロンビアの車両情報を照会します。"
+            "description": "ナンバーと身分証のみで RUNT 車両情報を照会します。"
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — VIN別車両",
-            "description": "VIN からコロンビアの車両の登録データおよび履歴・技術情報を取得します。"
+            "description": "コロンビア RUNT で VIN から車両の詳細履歴・技術情報を取得します。"
         },
         "peru_identity_extra_lookup": {
             "title": "ペルー - 国民ID検証",
@@ -429,7 +429,7 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "world_api_phone_lookup": {
-            "title": "電話番号照会",
+            "title": "🌐 グローバル — 電話番号照会",
             "description": "GET または POST /v2/look-ups/phone で世界の電話番号を照会します。掲載されている名義人名と関連プロファイル項目を返します。"
         },
         "Mexico_api_ine_model_e": {
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — ナンバー別車両（簡易・別名）",
-            "description": "ナンバーと名義人証番号からコロンビアの車両の要点情報を取得します。"
+            "description": "ナンバーと名義人証番号から RUNT 車両の要点情報を取得します。"
         },
         "canada_api_driver_license_quebec": {
             "title": "ケベック — 運転免許",
@@ -582,7 +582,7 @@
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Fasecolda — ナンバー別車両価格",
-            "description": "ナンバープレートで Fasecolda 車両価格・仕様情報を取得します。"
+            "description": "デュアルソース仕様照合と信頼度スコア内訳を備えたコロンビア Fasecolda ナンバー別車両価格 API"
         },
         "colombia_api_vehicle_valores_fasecolda_by_code": {
             "title": "Fasecolda — コード別車両価格",
@@ -593,8 +593,8 @@
             "description": "SEC EDGAR を用いた米国企業の法人名検索・企業情報取得。POST /v2/usa/company。"
         },
         "colombia_api_runt_owners": {
-            "title": "コロンビア - 車両所有者(RUNT)",
-            "description": "公式の車両登録情報から所有者と登録名義人を確認します。"
+            "title": "RUNT — ナンバー別の車両所有者",
+            "description": "ナンバーのみでコロンビア車両と所有履歴を取得します。"
         },
         "colombia_api_vehicle_owners": {
             "title": "コロンビア - 車両所有者履歴",
@@ -822,7 +822,7 @@
         },
         "peru_identity_extra_lookup_v3": {
             "title": "ペルー — DNI（拡張データ）",
-            "description": "Verifik の KYC API を使用して、ペルー市民の DNI（国民身分証明書）に関する拡張情報（住所、生年月日、写真、配偶者の有無など）を取得します。公式の RENIEC データに直接接続し、数秒で本人確認を行います。"
+            "description": "Verifik の KYC API を使用して、ペルー市民の DNI（国民身分証明書）に関する拡張情報を取得します。公式の RENIEC データに直接接続し、数秒で本人確認を行います。"
         },
         "colombia_api_identity_ppt_foreigner_id": {
             "title": "コロンビア — PPT（一時保護許可）",
@@ -913,8 +913,8 @@
             "description": "GET /v2/co/cedula/registraduria（Registraduría SCCRC のみ）で文書番号によりコロンビア出生民事登録を照会します。"
         },
         "colombia_api_identity_lookup_procuraduria": {
-            "title": "コロンビア — Procuraduría 市民照会",
-            "description": "GET /v2/co/procuraduria で Procuraduría から氏名のみを取得します（CC、CE、PPT、NIT、PEP）。懲戒記録は返しません。"
+            "title": "コロンビア — Procuraduría による市民照会",
+            "description": "GET/POST /v2/co/procuraduria でコロンビアの書類を検証し氏名を抽出します（Procuraduría のみ、懲戒記録なし）。"
         },
         "mexico_api_ine_ocr": {
             "title": "メキシコ — INE OCR",
@@ -926,15 +926,15 @@
         },
         "mexico_api_cedula_profesional": {
             "title": "メキシコ — 専門免許",
-            "description": "CURP、免許番号、または氏名でメキシコの専門免許を照会します。まず CURP を直接照合し、直接一致がない場合は追加料金なしで所持者の公式氏名を完全一致で使います。"
+            "description": "CURP、免許番号、または氏名で、公式の専門免許登録からメキシコの専門免許を照会します。"
         },
         "mexico_api_health_worker": {
             "title": "メキシコ — 医療従事者の免許",
-            "description": "医学、看護、精神医学、産科、理学療法、検眼を含むメキシコの医療関連専門免許の有無を確認します。医療以外の免許しかない場合は 404 を返します。"
+            "description": "対象者がメキシコの保健関連の専門免許を保有していることを確認します。非保健の免許のみの場合は 404 を返します。"
         },
         "mexico_api_siged_certificado": {
             "title": "メキシコ — 学業証明書（folio）",
-            "description": "folio でメキシコの電子学業証明書を検証します。fullName または CURP を送れます。不一致の場合は 409 name_mismatch を返します。両方送った場合は CURP が優先されます。"
+            "description": "folio により、公式の学業証明書登録に対してメキシコの電子学業証明書を検証します。"
         },
         "colombia_api_copnia_license": {
             "title": "コロンビア — 登録番号で COPNIA 免許を照会",
@@ -946,7 +946,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 車両の商業評価額",
-            "description": "コロンビアナンバーの公式商業評価額。全国の車両登録データに基づき算出します。"
+            "description": "コロンビアナンバーの運輸省（SIBGA）公式商業評価額。RUNTのデータを自動で対応付けます。"
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll 無料",
@@ -973,8 +973,20 @@
             "description": "Smart Access ビジネスプラン。月間上限が最も高くなります。"
         },
         "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "RUNT車両検索（ナンバーのみ）",
-            "description": "所有者の書類なしで、ナンバープレートだけでコロンビアの車両を照会します。"
+            "title": "RUNT - ナンバープレートのみの車両記録",
+            "description": "所有者の書類種別・番号なしで、ナンバープレートのみによりコロンビア RUNT の車両を照会します。"
+        },
+        "colombia_api_driver_basic": {
+            "title": "RUNT — 運転免許 (Basic)",
+            "description": "/v3/co/runt/conductor で RUNT 運転免許を照会します。primerApellido 必須。Basic 料金。"
+        },
+        "chile_api_vehicle_stolen": {
+            "title": "チリ — 盗難車両",
+            "description": "チリ車両に有効な盗難・窃盗届出（encargo por robo o hurto）があるかを照会します。"
+        },
+        "chile_api_driver_license_block": {
+            "title": "チリ — 運転免許停止・失効登録簿",
+            "description": "RUNを指定してチリRegistro Civilの全国運転免許ブロック・停止登録簿を照会します。免許停止の有無、名義人氏名、ブロック詳細を確認し、フリート管理およびKYCコンプライアンスに役立ちます。"
         }
     }
 }
