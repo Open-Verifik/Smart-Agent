@@ -1,0 +1,37 @@
+<div class="data-retention-settings flex min-h-0 flex-1 flex-col">
+    <app-settings-business-account-empty-state
+        *ngIf="!loading && !userClientId"
+        [message]="'settings.dataRetention.businessAccountRequired' | transloco"
+    ></app-settings-business-account-empty-state>
+
+    <div *ngIf="loading" class="flex flex-1 items-center justify-center py-20">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading && userClientId" class="space-y-6">
+        <div>
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {{ 'settings.dataRetention.title' | transloco }}
+            </h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {{ 'settings.dataRetention.subtitle' | transloco }}
+            </p>
+        </div>
+
+        <app-retention-policy-form [policy]="policy" (policyChange)="onPolicyChange($event)"></app-retention-policy-form>
+
+        <div class="flex justify-end pt-2">
+            <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="saveSettings()"
+                [disabled]="saving"
+                class="rounded-xl px-8 font-medium"
+            >
+                <mat-spinner *ngIf="saving" diameter="20" class="mr-2"></mat-spinner>
+                {{ 'settings.dataRetention.saveButton' | transloco }}
+            </button>
+        </div>
+    </div>
+</div>

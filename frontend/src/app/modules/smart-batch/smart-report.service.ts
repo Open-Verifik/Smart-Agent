@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
+import type { ReportCustomFont, ReportFontWeight } from './report-fonts.util';
+import type { ReportValueRule } from './report-value-rules.util';
 
 export type ReportSectionType =
     | 'header'
@@ -27,6 +29,8 @@ export const REPORT_SHAPE_KINDS = [
     'triangle',
     'diamond',
     'bullet',
+    'icon',
+    'line',
 ] as const;
 
 export type ReportShapeKind = (typeof REPORT_SHAPE_KINDS)[number];
@@ -57,9 +61,20 @@ export interface ReportSectionFrame {
     width?: number;
     height?: number;
     page?: number;
+    /** Height the designer dragged a data block to; content can still grow past it. */
+    minHeight?: number;
 }
 
-export interface ReportSheetImage {
+/** Conditional image swap on a floating sheet image (same fields as layout image blocks). */
+export type ReportSheetImageRuleBinding = {
+    valueRules?: ReportValueRule[];
+    ruleField?: string;
+    ruleColumnKey?: string;
+    ruleRulesSectionId?: string;
+    ruleTableMode?: 'all' | 'any';
+};
+
+export interface ReportSheetImage extends ReportSheetImageRuleBinding {
     id: string;
     src: string;
     x: number;
@@ -88,18 +103,23 @@ export interface ReportHeaderLogo {
 
 export interface ReportTextRoleStyle {
     fontSize?: number;
-    fontWeight?: 'normal' | 'bold';
+    fontWeight?: ReportFontWeight;
     fontStyle?: 'normal' | 'italic';
     textDecoration?: 'none' | 'underline';
     fontFamily?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
     color?: string;
+    /** Letter case applied to the text, see `applyTextCase`. */
+    textCase?: 'none' | 'upper' | 'lower' | 'sentence' | 'title';
 }
 
 /** Per-parameter cell inside a keyValueGrid / card / table. */
 export interface ReportKeyOverride {
     label?: string;
-    /** Shown instead of the consulted value when the sheet text was rewritten. */
+    /**
+     * @deprecated Text typed over a value by older builds. Ignored by the sheet and
+     * the PDF, and dropped on save: values always come from the query.
+     */
     value?: string;
     backgroundColor?: string;
     /** Table chip. Omitted means visible. */
@@ -117,6 +137,14 @@ export interface ReportKeyOverride {
     rowLineMark?: number;
     labelStyle?: ReportTextRoleStyle;
     valueStyle?: ReportTextRoleStyle;
+    /** Conditional formatting for this value; replaces the block-wide `valueRules`. */
+    rules?: ReportValueRule[];
+    /** Grid columns a field cell covers, from 1 to the block's `columnsPerRow`. */
+    colSpan?: number;
+    /** Cell height in sheet px; content can still grow past it. */
+    minHeight?: number;
+    /** Table column width in sheet px. */
+    width?: number;
 }
 
 export interface ReportSectionCondition {
@@ -134,6 +162,12 @@ export interface ReportSection {
     staticContent?: string;
     /** Decorative shape when `type` is `shape`. */
     shape?: ReportShapeKind;
+    /** Cleaned standalone `<svg>` when `shape` is `icon`. */
+    iconSvg?: string;
+    /** Where the icon came from, e.g. `mat_solid:directions_car` or `mdi:car`. */
+    iconName?: string;
+    /** Multicolor icons keep their own colors instead of `style.color`. */
+    iconKeepColors?: boolean;
 
     /** dataTable: explicit columns; derived from the row keys when omitted. */
     columns?: { key: string; label?: string }[];
@@ -158,6 +192,19 @@ export interface ReportSection {
     rowLineMark?: number;
     /** Independent label, value, and cell chrome per parameter key. */
     keyOverrides?: Record<string, ReportKeyOverride>;
+    /**
+     * Conditional formatting for every value in the block without its own rules.
+     * On shapes and icons the rules test `ruleField` and recolor the shape.
+     */
+    valueRules?: ReportValueRule[];
+    /** Full data path a shape's `valueRules` read, e.g. `results.2.soat.0.estado`. */
+    ruleField?: string;
+    /** When `ruleField` is a table array, column key (e.g. `rtm.estado`) whose cell rules apply first. */
+    ruleColumnKey?: string;
+    /** Block that owns the column's conditional rules. */
+    ruleRulesSectionId?: string;
+    /** How table row effective values combine before shape rules run. */
+    ruleTableMode?: 'all' | 'any';
 
     /** repeater: `{field}` placeholders resolved against each array item. */
     itemTitle?: string;
@@ -175,7 +222,7 @@ export interface ReportSection {
 
     style?: {
         fontSize?: number;
-        fontWeight?: 'normal' | 'bold';
+        fontWeight?: ReportFontWeight;
         fontStyle?: 'normal' | 'italic';
         textDecoration?: 'none' | 'underline';
         fontFamily?: string;
@@ -309,6 +356,15 @@ export interface SmartReportTemplate {
     /** Extra logos/images placed freely on the sheet (canonical 96 DPI px). */
     sheetImages?: ReportSheetImage[];
 
+    /** Fonts loaded for this template (Google Fonts, remote URL or uploaded file). */
+    customFonts?: ReportCustomFont[];
+
+    /** Per-layer lock and hide. Keys match the layers panel (`sec:id`, `img:id`, `hdr:id`, overlays). */
+    layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean }>;
+
+    /** Paint order for watermark, signature, logo and header logos. */
+    layoutOverlayZ?: Record<string, number>;
+
     /** Company logos locked to the header band and repeated on every page. */
     headerLogos?: ReportHeaderLogo[];
 
@@ -333,6 +389,24 @@ export interface SmartReportTemplate {
     createdAt?: string;
     updatedAt?: string;
 }
+
+/** Same paint order the layout editor uses, so a saved template previews with every layer. */
+export const templateLayerZ = (template: SmartReportTemplate): Record<string, number> => {
+    const map: Record<string, number> = {};
+    for (const [id, z] of Object.entries(template.layoutOverlayZ ?? {})) {
+        const value = Number(z);
+        if (Number.isFinite(value) && value > 0) map[id] = value;
+    }
+    for (const section of template.sections ?? []) {
+        const z = Number(section.style?.zIndex);
+        if (section.id && Number.isFinite(z) && z > 0) map[`sec:${section.id}`] = z;
+    }
+    (template.sheetImages ?? []).forEach((image, index) => {
+        const z = Number(image.zIndex);
+        map[`img:${image.id}`] = Number.isFinite(z) && z > 0 ? z : 48 + index;
+    });
+    return map;
+};
 
 const SYSTEM_TEMPLATE_FIELDS = [
     'type',
@@ -468,6 +542,8 @@ export interface SampleReportData {
     errors?: { step: number; message: string; code: string }[];
     /** Pre-composed Colombia vehicle report (optional; built at runtime when omitted). */
     report?: Record<string, any>;
+    /** Batch steps so the PDF composer can match each result to its feature, same as Smart Batch. */
+    steps?: { sequence: number; enabled?: boolean; featureCode?: string; appFeature?: { code?: string } }[];
 }
 
 @Injectable({
@@ -575,7 +651,8 @@ export class SmartReportService {
      */
     previewHtml(
         template: Partial<SmartReportTemplate>,
-        sampleData: SampleReportData
+        sampleData: SampleReportData,
+        options?: { preview?: boolean }
     ): Observable<string> {
         return this._httpClient
             .post<{
@@ -583,6 +660,7 @@ export class SmartReportService {
             }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, {
                 ...sanitizeTemplateForApi(template, 'create'),
                 sampleData,
+                ...(options?.preview === false ? { preview: false } : {}),
             })
             .pipe(map((res) => res.data.html));
     }

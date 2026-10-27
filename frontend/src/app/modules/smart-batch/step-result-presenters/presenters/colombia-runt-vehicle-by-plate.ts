@@ -59,6 +59,58 @@ const buildProceduresTable = (items: unknown): ReportTableModel | undefined => {
     };
 };
 
+const buildSoatTable = (items: unknown): ReportTableModel | undefined => {
+    if (!Array.isArray(items) || items.length === 0) return undefined;
+    return {
+        id: 'runt-soat',
+        title: 'Historial SOAT',
+        columns: [
+            { key: 'noPoliza', label: 'Póliza' },
+            { key: 'estado', label: 'Estado' },
+            { key: 'fechaVigencia', label: 'Vigencia desde' },
+            { key: 'fechaVencimiento', label: 'Vence' },
+            { key: 'entidadExpideSoat', label: 'Aseguradora' },
+        ],
+        rows: items.map((item) => {
+            const policy = (item ?? {}) as Record<string, unknown>;
+            return {
+                noPoliza: String(policy.noPoliza ?? '—'),
+                estado: String(policy.estado ?? '—'),
+                fechaVigencia: String(policy.fechaVigencia ?? '—'),
+                fechaVencimiento: String(policy.fechaVencimiento ?? '—'),
+                entidadExpideSoat: String(policy.entidadExpideSoat ?? '—'),
+            };
+        }),
+    };
+};
+
+const buildRtmTable = (items: unknown): ReportTableModel | undefined => {
+    if (!Array.isArray(items) || items.length === 0) return undefined;
+    return {
+        id: 'runt-rtm',
+        title: 'Historial RTM',
+        columns: [
+            { key: 'nroCertificado', label: 'Certificado' },
+            { key: 'estado', label: 'Estado' },
+            { key: 'vigente', label: 'Vigente' },
+            { key: 'fechaExpedicion', label: 'Expedida' },
+            { key: 'fechaVencimiento', label: 'Vence' },
+            { key: 'cdaExpide', label: 'CDA' },
+        ],
+        rows: items.map((item) => {
+            const certificate = (item ?? {}) as Record<string, unknown>;
+            return {
+                nroCertificado: String(certificate.nroCertificado ?? '—'),
+                estado: String(certificate.estado ?? '—'),
+                vigente: formatYesNo(certificate.vigente),
+                fechaExpedicion: String(certificate.fechaExpedicion ?? '—'),
+                fechaVencimiento: String(certificate.fechaVencimiento ?? '—'),
+                cdaExpide: String(certificate.cdaExpide ?? '—'),
+            };
+        }),
+    };
+};
+
 export const presentColombiaRuntVehicleByPlate: StepResultPresenter = (data) => {
     if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
     const o = data as Record<string, unknown>;
@@ -138,7 +190,10 @@ export const presentColombiaRuntVehicleByPlate: StepResultPresenter = (data) => 
 export const extractColombiaRuntTables = (data: unknown): ReportTableModel[] => {
     if (!data || typeof data !== 'object' || Array.isArray(data)) return [];
     const o = data as Record<string, unknown>;
-    return [buildLiensTable(o.garantiasFavorDe), buildProceduresTable(o.solicitudes)].filter(
-        (t): t is ReportTableModel => !!t
-    );
+    return [
+        buildSoatTable(o.soat),
+        buildRtmTable(o.tecnoMecanica),
+        buildLiensTable(o.garantiasFavorDe),
+        buildProceduresTable(o.solicitudes),
+    ].filter((t): t is ReportTableModel => !!t);
 };

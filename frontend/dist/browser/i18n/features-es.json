@@ -12,10 +12,6 @@
             "title": "Ciudadano Colombiano",
             "description": "Valida identidad colombiana por número de documento (CC, CE, PPT, NIT o PEP) mediante GET /v2/co/cedula."
         },
-        "colombia_api_cedula_barcode": {
-            "title": "Código de barras reverso cédula (Colombia)",
-            "description": "Decodifica el código PDF417 del reverso de la CC colombiana con POST /v2/co/cedula/barcode. Cruce opcional con datos del frente; devuelve veredicto, campos del código y discrepancias."
-        },
         "colombia_special_api_police_identity_lookup": {
             "title": "Verificación de Antecedentes Policiales",
             "description": "El servicio de Verificación de Antecedentes Policiales de Colombia permite a los usuarios verificar el historial criminal de un individuo en Colombia proporcionando su número de documento de identificación. Verifica cualquier asunto legal pendiente con las autoridades judiciales colombianas, de conformidad con el Artículo 248 de la Constitución Colombiana."

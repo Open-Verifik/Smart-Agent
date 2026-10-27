@@ -7,6 +7,12 @@ import dsv067Input from './dsv067-input.json';
 import dsv067Runt from './dsv067-runt-vehicle-by-plate.json';
 import dsv067SimitAgreements from './dsv067-simit-agreements-empty.json';
 import dsv067SimitPlate from './dsv067-simit-plate.json';
+import { enrichRuntVehicleHistory } from './fixture-runt-history.util';
+
+const dsv067RuntEnriched = enrichRuntVehicleHistory(dsv067Runt as Record<string, unknown>, {
+    seed: 670,
+    plate: 'DSV067',
+});
 
 /**
  * DSV067 — Mazda CX-5 2018: full Fasecolda catalog match, SOAT vigente, RTM flag NO
@@ -17,7 +23,7 @@ export const DSV067_BATCH_ROW = {
     rowIndex: 0,
     inputData: dsv067Input,
     results: {
-        1: dsv067Runt,
+        1: dsv067RuntEnriched,
         2: dsv067SimitPlate,
         3: dsv067SimitAgreements,
         4: dsv067FasecoldaSinister,

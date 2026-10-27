@@ -1,16 +1,18 @@
 import { ReportKeyOverride, ReportSection, ReportTextRole, ReportTextRoleStyle } from './smart-report.service';
-import { REPORT_FONT_STACKS, ReportTextAlign } from './report-fonts.util';
+import { isReportFontWeight, REPORT_FONT_STACKS, ReportFontWeight, ReportTextAlign } from './report-fonts.util';
 import { collectLayoutSheetItems, valueAtDataPath } from './report-param-entries.util';
 import { defaultRowLineMark } from './report-row-line.util';
+import { isReportTextCase, ReportTextCase } from './report-text-case.util';
 
 export type ResolvedTextRoleStyle = {
     fontFamily: string;
     fontSize: number;
-    fontWeight: 'normal' | 'bold';
+    fontWeight: ReportFontWeight;
     fontStyle: 'normal' | 'italic';
     textDecoration: 'none' | 'underline';
     textAlign: ReportTextAlign;
     color: string;
+    textCase: ReportTextCase;
 };
 
 const DEFAULT_FAMILY = REPORT_FONT_STACKS[0].value;
@@ -60,12 +62,13 @@ export const resolveTextRole = (
 
     const size = Number(nested?.fontSize ?? (role === 'title' ? style?.fontSize : undefined));
     const align = nested?.textAlign ?? (role === 'title' ? style?.textAlign : undefined);
+    const rawWeight = nested?.fontWeight || (role === 'title' ? style?.fontWeight : undefined) || defaultWeight;
 
     return {
         fontFamily:
             nested?.fontFamily || (role === 'title' ? style?.fontFamily : undefined) || DEFAULT_FAMILY,
         fontSize: Number.isFinite(size) && size > 0 ? size : defaultSize,
-        fontWeight: nested?.fontWeight || (role === 'title' ? style?.fontWeight : undefined) || defaultWeight,
+        fontWeight: isReportFontWeight(rawWeight) ? rawWeight : defaultWeight,
         fontStyle:
             nested?.fontStyle ||
             (role === 'title' ? style?.fontStyle : undefined) ||
@@ -79,6 +82,7 @@ export const resolveTextRole = (
                 ? align
                 : defaultAlign,
         color: nested?.color || fallbackColor || defaultColor,
+        textCase: isReportTextCase(nested?.textCase) ? nested.textCase : 'none',
     };
 };
 
@@ -90,6 +94,7 @@ const roleStyle = (resolved: ResolvedTextRoleStyle): ReportTextRoleStyle => ({
     textDecoration: resolved.textDecoration,
     textAlign: resolved.textAlign,
     color: resolved.color,
+    ...(resolved.textCase !== 'none' ? { textCase: resolved.textCase } : {}),
 });
 
 const TITLE_MIRROR_TYPES = new Set<ReportSection['type']>([
@@ -163,10 +168,6 @@ const stampNestedTables = (
             override.borderColor = override.borderColor || mixWithBlack(fill, 0.62);
             override.borderRadius = Number.isFinite(radius) && radius >= 0 ? radius : 8;
             override.showTableBadge = override.showTableBadge !== false;
-        }
-        if (current.labelStyle || current.valueStyle) {
-            override.labelStyle = roleStyle(resolveTextRole(section, 'label', primaryColor, key));
-            override.valueStyle = roleStyle(resolveTextRole(section, 'value', primaryColor, key));
         }
         next[key] = override;
     }
@@ -255,6 +256,21 @@ export const materializeSectionTypography = (
 
     if (section.type === 'keyValueGrid' && !next.columnsPerRow) next.columnsPerRow = 2;
     if (section.type === 'dataTable' && !next.maxColumns) next.maxColumns = 6;
+    if (next.keyOverrides) next.keyOverrides = withoutFixedValues(next.keyOverrides);
 
+    return next;
+};
+
+/** Values come from each query; text typed over a value by older builds is dropped. */
+const withoutFixedValues = (overrides: Record<string, ReportKeyOverride>): Record<string, ReportKeyOverride> => {
+    const next: Record<string, ReportKeyOverride> = {};
+    for (const [key, override] of Object.entries(overrides)) {
+        if (!override || !('value' in override)) {
+            next[key] = override;
+            continue;
+        }
+        const { value: _fixed, ...rest } = override;
+        if (Object.keys(rest).length) next[key] = rest;
+    }
     return next;
 };

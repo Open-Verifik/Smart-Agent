@@ -14,7 +14,6 @@
     "POST /api/communication/email",
     "GET /api/co/cedula",
     "GET /api/co/cedula/rethus",
-    "POST /api/co/cedula/barcode",
     "POST /api/co/adres",
     "POST /api/co/contraloria/certificado",
     "GET /api/ve/cedula",

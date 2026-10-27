@@ -4,14 +4,30 @@ import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
+import { DataRetentionService } from 'app/core/data-retention/data-retention.service';
+import { RetentionPolicyFormComponent } from 'app/core/data-retention/retention-policy-form.component';
+import type { RetentionPolicy } from 'app/core/data-retention/retention.model';
+import {
+    buildProjectRetentionOverride,
+    defaultRetentionPolicy,
+    faceImagesHeldUntilHold,
+    getRetentionModeLabel,
+    policyFromStored,
+} from 'app/core/data-retention/retention.util';
 import { documentFailureReasonKey, livenessFailureReasonKey } from '../app-registration-record.utils';
 import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
@@ -91,10 +107,17 @@ interface SwatchEntry {
         RouterModule,
         ClipboardModule,
         MatButtonModule,
+        MatFormFieldModule,
         MatIconModule,
+        MatInputModule,
         MatProgressSpinnerModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatSnackBarModule,
+        MatTooltipModule,
         TranslocoModule,
         ProjectFlowOtpEmailEditorComponent,
+        RetentionPolicyFormComponent,
     ],
     templateUrl: './project-detail.component.html',
 })
@@ -102,8 +125,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _projectsService = inject(SmartEnrollProjectsService);
+    private _retention = inject(DataRetentionService);
     private _clipboard = inject(Clipboard);
     private _transloco = inject(TranslocoService);
+    private _snackBar = inject(MatSnackBar);
 
     private _sectionSub?: Subscription;
 
@@ -113,6 +138,36 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     errorKey = signal<string | null>(null);
     section = signal<string | null>(null);
     showOtpEmailEditor = signal(false);
+
+    editingRetention = signal(false);
+    savingRetention = signal(false);
+    retentionOverrideEnabled = signal(false);
+    retentionPolicy = signal<RetentionPolicy>(defaultRetentionPolicy());
+
+    /** Saved project override, or the account default when this project does not override it. */
+    effectivePolicy = computed(() => policyFromStored(this.project()?.dataRetention) ?? defaultRetentionPolicy());
+
+    /** True when the project stores its own retention object. */
+    effectiveRetentionIsOverride = computed(() => policyFromStored(this.project()?.dataRetention) != null);
+
+    effectiveDocMode = computed(() => this.effectivePolicy().types.documentImages.mode);
+    effectiveFaceMode = computed(() => this.effectivePolicy().types.faceImages.mode);
+    effectiveOcrMode = computed(() => this.effectivePolicy().types.ocrExtraction.mode);
+    effectiveLivenessMode = computed(() => this.effectivePolicy().types.documentLiveness.mode);
+    effectiveWebhookHoldHours = computed(() => this.effectivePolicy().webhookHoldHours);
+    effectiveAllowManualDelete = computed(() => this.effectivePolicy().allowManualDelete);
+    effectiveFaceHeldUntilHold = computed(() => faceImagesHeldUntilHold(this.effectivePolicy()));
+
+    effectiveIsCustomized = computed(() => {
+        const policy = this.effectivePolicy();
+        return (
+            this.effectiveDocMode() !== policy.mode ||
+            this.effectiveFaceMode() !== policy.mode ||
+            this.effectiveOcrMode() !== policy.mode ||
+            this.effectiveLivenessMode() !== policy.mode
+        );
+    });
+
     /** Null until the aggregation returns, or when it fails; the card simply does not render. */
     funnel = signal<AppRegistrationFunnel | null>(null);
 
@@ -362,6 +417,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             .pipe(map((q) => q.get('section')))
             .subscribe((s) => this.section.set(s));
 
+        this._loadProject(id);
+    }
+
+    private _loadProject(id: string): void {
+        this.loading.set(true);
+        this.errorKey.set(null);
         this._projectsService.getProjectFunnel(id).subscribe((funnel) => this.funnel.set(funnel));
 
         this._projectsService.getProject(id).subscribe({
@@ -553,4 +614,71 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             buttonTextColor: b.buttonTextColor,
         };
     });
+
+    /** Opens the override editor from the saved project policy. */
+    startEditingRetention(): void {
+        const saved = policyFromStored(this.project()?.dataRetention);
+        this.retentionOverrideEnabled.set(saved != null);
+        this.retentionPolicy.set(saved ?? defaultRetentionPolicy());
+        this.editingRetention.set(true);
+    }
+
+    /** Closes the editor without writing. */
+    cancelEditingRetention(): void {
+        this.editingRetention.set(false);
+    }
+
+    /** Stores the shared form's latest policy. */
+    onRetentionPolicyChange(policy: RetentionPolicy): void {
+        this.retentionPolicy.set(policy);
+    }
+
+    /** Label for a retention mode. Empty means the account default. */
+    getRetentionModeLabel(mode?: string | null): string {
+        return getRetentionModeLabel(this._transloco.translate.bind(this._transloco), mode);
+    }
+
+    /**
+     * Saves the project override, or clears it.
+     * The body includes only enforced types and a 24–72 hour webhook hold.
+     */
+    saveRetention(): void {
+        const id = this.project()?._id;
+        if (!id || this.savingRetention()) return;
+
+        this.savingRetention.set(true);
+        const payload = this.retentionOverrideEnabled() ? buildProjectRetentionOverride(this.retentionPolicy()) : null;
+
+        this._projectsService.updateProject(id, { dataRetention: payload }).subscribe({
+            next: (res) => {
+                this.savingRetention.set(false);
+                this.editingRetention.set(false);
+                this._retention.forgetProjectRetention(id);
+                this._applySavedProject(id, res?.data);
+                this._snackBar.open(this._transloco.translate('smartEnrollProjects.detail.retention.savedSuccess'), undefined, {
+                    duration: 3000,
+                });
+            },
+            error: () => {
+                this.savingRetention.set(false);
+                this._snackBar.open(this._transloco.translate('smartEnrollProjects.detail.retention.saveError'), undefined, {
+                    duration: 4000,
+                });
+            },
+        });
+    }
+
+    /** Keeps project flows if the update response omits them, then reloads. */
+    private _applySavedProject(id: string, data: EnrollProject | undefined): void {
+        if (data) {
+            const currentFlows = this.project()?.projectFlows;
+            this.project.set({
+                ...data,
+                projectFlows: data.projectFlows?.length ? data.projectFlows : currentFlows,
+            });
+        }
+        this._projectsService.getProject(id).subscribe((project) => {
+            if (project) this.project.set(project);
+        });
+    }
 }

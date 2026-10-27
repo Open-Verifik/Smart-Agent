@@ -68,6 +68,24 @@
             "fromField": "desde {{field}}",
             "unmappedRequired": "Falta asignar",
             "smartCheckHint": "Vincula cualquier endpoint de este país. No tiene que usar el código de este documento."
-        }
+        },
+        "deleteFromStorage": "Eliminar imagen",
+        "retentionPurged": "Depurado",
+        "retentionPurgedTooltip": "La imagen ha sido eliminada permanentemente del almacenamiento según la política de retención",
+        "retentionPurgedNotice": "Depurado por política de retención",
+        "retentionNoStorage": "Sin almacenamiento",
+        "retentionNoStorageTooltip": "Procesado transitoriamente en memoria. Las imágenes nunca se guardan en almacenamiento",
+        "retentionNoStorageNotice": "Solo procesamiento en memoria",
+        "retentionEphemeral": "Efímero",
+        "retentionEphemeralTooltip": "Programado para depurarse una vez venza la retención o entrega de webhooks",
+        "retentionPurgedBannerTitle": "Imagen de documento depurada",
+        "retentionPurgedBannerDesc": "Esta imagen de documento fue eliminada permanentemente del almacenamiento el {{date}} por política de retención (Motivo: {{reason}}). Los datos extraídos permanecen accesibles.",
+        "retentionNoStorageBannerTitle": "Modo sin almacenamiento activo",
+        "retentionNoStorageBannerDesc": "Este escaneo fue procesado en memoria transitoria. Las imágenes nunca se guardaron en almacenamiento permanente.",
+        "retentionEphemeralBannerTitle": "Almacenamiento efímero activo",
+        "retentionEphemeralBannerDesc": "Esta imagen de documento se mantiene temporalmente y está programada para eliminarse el {{date}}.",
+        "imagePurgedPlaceholderTitle": "Imagen ya no almacenada",
+        "imagePurgedPlaceholderDesc": "La imagen original del documento fue eliminada el {{date}} de acuerdo con la política de retención de datos de su organización.",
+        "imageUnavailableDesc": "La imagen del documento no está disponible."
     }
 }

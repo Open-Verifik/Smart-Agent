@@ -3,22 +3,7 @@
         class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
     >
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
-            <div
-                class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
-            >
-                <a
-                    routerLink="/smart-fleet"
-                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                    >{{ 'smartFleet.title' | transloco }}</a
-                >
-                <mat-icon
-                    class="icon-size-4 mx-2 text-stone-400"
-                    svgIcon="heroicons_solid:chevron-right"
-                ></mat-icon>
-                <span class="cursor-default text-stone-600 dark:text-stone-300">{{
-                    'smartFleet.nav.alerts' | transloco
-                }}</span>
-            </div>
+            <fleet-nav />
 
             <div class="flex flex-wrap items-start justify-between gap-3">
                 <div class="flex min-w-0 items-start gap-3">
@@ -83,12 +68,13 @@
                         *ngFor="let option of statuses"
                         type="button"
                         (click)="setStatus(option)"
-                        class="rounded-xl px-3 py-1.5 text-sm font-medium transition-colors"
+                        class="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors"
                         [class.bg-stone-900]="status() === option"
                         [class.text-white]="status() === option"
                         [class.text-stone-600]="status() !== option"
                         [class.hover:bg-stone-100]="status() !== option"
                     >
+                        <mat-icon class="icon-size-4">{{ statusIcon(option) }}</mat-icon>
                         {{ 'smartFleet.alerts.status_' + option | transloco }}
                     </button>
                 </div>
@@ -98,11 +84,12 @@
                         *ngFor="let option of severities"
                         type="button"
                         (click)="setSeverity(option)"
-                        class="rounded-full px-3 py-1 text-xs font-semibold transition-all"
+                        class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-all"
                         [ngClass]="severityClasses(option)"
                         [class.ring-2]="severity() === option"
                         [class.ring-offset-1]="severity() === option"
                     >
+                        <mat-icon class="icon-size-4">{{ severityIcon(option) }}</mat-icon>
                         {{ 'smartFleet.severity.' + option | transloco }}
                     </button>
                 </div>
@@ -119,12 +106,19 @@
                     <mat-spinner diameter="36"></mat-spinner>
                 </div>
 
-                <p
-                    class="px-5 py-12 text-center text-sm text-stone-500 dark:text-stone-400"
+                <div
+                    class="flex flex-col items-center gap-2 px-5 py-16 text-center"
                     *ngIf="!isLoading() && !alerts().length"
                 >
-                    {{ 'smartFleet.alerts.empty' | transloco }}
-                </p>
+                    <span
+                        class="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-stone-400 dark:bg-gray-800"
+                    >
+                        <mat-icon class="icon-size-8">notifications_off</mat-icon>
+                    </span>
+                    <p class="text-sm text-stone-500 dark:text-stone-400">
+                        {{ 'smartFleet.alerts.empty' | transloco }}
+                    </p>
+                </div>
 
                 <div *ngIf="alerts().length">
                     <div
@@ -156,48 +150,74 @@
                             />
 
                             <span
-                                class="mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold uppercase"
+                                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
                                 [ngClass]="severityClasses(alert.severity)"
-                                >{{ 'smartFleet.severity.' + alert.severity | transloco }}</span
                             >
+                                <mat-icon class="icon-size-6">{{ alertIcon(alert.type) }}</mat-icon>
+                            </span>
 
                             <div class="min-w-0 flex-1">
                                 <div class="flex flex-wrap items-center gap-2">
+                                    <span
+                                        class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                        [ngClass]="severityClasses(alert.severity)"
+                                    >
+                                        <mat-icon class="icon-size-4">{{ severityIcon(alert.severity) }}</mat-icon>
+                                        {{ 'smartFleet.severity.' + alert.severity | transloco }}
+                                    </span>
+                                    <span class="text-xs font-medium text-stone-500">{{
+                                        checkLabelKey(alert.type) | transloco
+                                    }}</span>
                                     <a
                                         *ngIf="assetId(alert)"
                                         [routerLink]="['/smart-fleet/assets', assetId(alert)]"
-                                        class="rounded-lg bg-stone-100 px-2 py-0.5 font-mono text-xs font-semibold text-stone-800 hover:bg-stone-200 dark:bg-gray-800 dark:text-stone-200"
-                                        >{{ assetLabel(alert) }}</a
+                                        class="inline-flex items-center gap-1 rounded-lg bg-stone-100 px-2 py-0.5 font-mono text-xs font-semibold text-stone-800 hover:bg-stone-200 dark:bg-gray-800 dark:text-stone-200"
                                     >
-                                    <span
-                                        class="text-sm font-semibold text-stone-900 dark:text-white"
-                                        >{{ alert.title }}</span
-                                    >
+                                        <mat-icon class="icon-size-4">directions_car</mat-icon>
+                                        {{ assetLabel(alert) }}
+                                    </a>
                                 </div>
-                                <p class="mt-1 text-xs text-stone-600 dark:text-stone-300">
+                                <p class="mt-1.5 text-sm font-semibold text-stone-900 dark:text-white">
+                                    {{ alert.title }}
+                                </p>
+                                <p class="mt-1 text-xs text-stone-600 dark:text-stone-300" *ngIf="alert.message">
                                     {{ alert.message }}
                                 </p>
-                                <p class="mt-1 text-xs text-stone-400">
-                                    {{ formatDate(alert.detectedAt) }} ·
-                                    {{ deliverySummary(alert) }}
-                                </p>
+                                <div class="mt-2 flex flex-wrap items-center gap-2">
+                                    <span class="inline-flex items-center gap-1 text-xs text-stone-400">
+                                        <mat-icon class="icon-size-4">schedule</mat-icon>
+                                        {{ formatDate(alert.detectedAt) }}
+                                    </span>
+                                    <span
+                                        *ngFor="let delivery of alert.deliveries"
+                                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                                        [ngClass]="deliveryTone(delivery.status)"
+                                        [matTooltip]="deliveryLabel(delivery.channel, delivery.status)"
+                                    >
+                                        <fleet-channel-icon [channel]="delivery.channel" />
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="flex shrink-0 items-center gap-2">
                                 <button
-                                    mat-stroked-button
                                     type="button"
                                     *ngIf="!alert.acknowledgedAt"
                                     (click)="acknowledge(alert)"
-                                    class="rounded-xl"
+                                    [matTooltip]="'smartFleet.alerts.acknowledge' | transloco"
+                                    [attr.aria-label]="'smartFleet.alerts.acknowledge' | transloco"
+                                    class="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
                                 >
+                                    <mat-icon class="icon-size-5">done</mat-icon>
                                     {{ 'smartFleet.alerts.acknowledge' | transloco }}
                                 </button>
                                 <span
-                                    class="text-xs text-emerald-600 dark:text-emerald-400"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400"
                                     *ngIf="alert.acknowledgedAt"
-                                    >{{ 'smartFleet.alerts.acknowledged' | transloco }}</span
                                 >
+                                    <mat-icon class="icon-size-4">check_circle</mat-icon>
+                                    {{ 'smartFleet.alerts.acknowledged' | transloco }}
+                                </span>
                             </div>
                         </div>
                     </div>

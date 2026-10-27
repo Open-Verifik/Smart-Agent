@@ -47,6 +47,9 @@ export interface CreditPurchaseResponse {
  */
 export type BoldCurrency = 'USD' | 'COP';
 
+/** Products the API sells at its own fixed peso price instead of a USD credit amount. */
+export type BoldProduct = 'plate_report';
+
 /** Rails Bold will offer for the chosen currency, as reported by the backend. */
 export type BoldMethod = 'card' | 'pse' | 'nequi' | 'bancolombia';
 
@@ -296,22 +299,51 @@ export class PaymentService {
         });
     }
 
+    /** Peso price of a fixed-price product, without creating an order. */
+    getBoldProductQuote(product: BoldProduct) {
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.get<{ data: BoldQuote }>(`${this.apiUrl}/v2/credits/bold/quote`, {
+            headers,
+            params: { product, currency: 'COP' },
+        });
+    }
+
     /**
      * Opens a Bold order (hosted checkout, no saved card). Returns the signed config the browser
      * hands to Bold; credits are only granted once Bold confirms the sale.
      */
-    createBoldCheckout(request: { amount: number; currency?: BoldCurrency; origin?: string }) {
+    createBoldCheckout(request: {
+        /** Whole USD of credits. Left out for a fixed-price `product`, which the API prices itself. */
+        amount?: number;
+        currency?: BoldCurrency;
+        /** Fixed-price product (e.g. `plate_report`), always charged in pesos at the API's price. */
+        product?: BoldProduct;
+        origin?: string;
+        /** Page Bold sends the customer back to; the API only honours its own whitelist. */
+        returnPath?: string;
+        /** Current browser origin so local dev (`localhost:4201`) can be signed into Bold's redirect. */
+        returnOrigin?: string;
+    }) {
         this.error.set(null);
 
         const token = localStorage.getItem('accessToken');
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
+        const returnOrigin =
+            request.returnOrigin ??
+            (typeof window !== 'undefined' ? window.location.origin : undefined);
+
         return this._httpClient.post<{ data: BoldCheckoutConfig }>(
             `${this.apiUrl}/v2/credits/bold/checkout`,
             {
-                amount: request.amount,
-                currency: request.currency || 'USD',
+                ...(request.product
+                    ? { product: request.product, currency: 'COP' }
+                    : { amount: request.amount, currency: request.currency || 'USD' }),
                 origin: request.origin || 'smart_agent',
+                ...(request.returnPath ? { returnPath: request.returnPath } : {}),
+                ...(returnOrigin ? { returnOrigin } : {}),
             },
             { headers }
         );
@@ -382,6 +414,28 @@ export class PaymentService {
      * Opens Bold's gateway over the current page. Bold navigates to `redirectionUrl` when the
      * customer finishes, so the caller should not wait for a result.
      */
+    /**
+     * Bold's `redirectionUrl` is built with the server `smartAgentUrl` (often production). While developing
+     * on localhost, send the customer back to this tab after «Volver a la tienda».
+     */
+    alignBoldReturnUrl(config: BoldCheckoutConfig, returnPath: string): BoldCheckoutConfig {
+        if (typeof window === 'undefined') return config;
+
+        const path = returnPath.startsWith('/') ? returnPath : `/${returnPath}`;
+        const here = `${window.location.origin}${path}`;
+
+        try {
+            const configured = new URL(config.redirectionUrl);
+            if (configured.origin === window.location.origin && configured.pathname === path) {
+                return config;
+            }
+        } catch {
+            // Fall through and rewrite to the current origin.
+        }
+
+        return { ...config, redirectionUrl: here, originUrl: here };
+    }
+
     openBoldCheckout(config: BoldCheckoutConfig): void {
         if (!window.BoldCheckout) {
             throw new Error('bold_script_load_failed');
@@ -399,6 +453,11 @@ export class PaymentService {
             ...(config.originUrl ? { originUrl: config.originUrl } : {}),
             ...(config.customerData ? { customerData: config.customerData } : {}),
         });
+
+        checkout.updateConfig('redirectionUrl', config.redirectionUrl);
+        if (config.originUrl) {
+            checkout.updateConfig('originUrl', config.originUrl);
+        }
 
         checkout.open();
     }

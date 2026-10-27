@@ -9,8 +9,7 @@
                 "verdict": {
                     "confirmed": "Matches the front",
                     "mismatch": "Possible alteration",
-                    "unreadable": "Back not validated",
-                    "decoded": "Barcode decoded"
+                    "unreadable": "Back not validated"
                 },
                 "field": {
                     "fullName": "Name on barcode",
@@ -67,10 +66,6 @@
         "wizard": {
             "moveToFront": "Move to front",
             "moveToBack": "Move to back"
-        },
-        "colombianBarcode": {
-            "title": "Colombian cédula barcode",
-            "subtitle": "Read the PDF417 on the back and compare it with the front extraction when a back photo is included."
         }
     }
 }
