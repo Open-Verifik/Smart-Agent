@@ -1,9 +1,9 @@
 <ng-container *transloco="let t">
     <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
         <header
-            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-3 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
         >
-            <div class="mx-auto flex w-full max-w-3xl flex-col gap-5">
+            <div class="flex w-full flex-col gap-4">
                 <div
                     class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
                 >
@@ -51,14 +51,15 @@
                     }}</span>
                 </div>
 
-                <div class="flex items-start gap-4">
+                <div class="flex min-w-0 flex-1 flex-col gap-5">
+                <div class="flex items-start gap-3">
                     <button
                         type="button"
                         (click)="goBack()"
-                        class="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                        class="sb-back-btn"
                         [attr.aria-label]="t('smartBatchSystemPresets.back')"
                     >
-                        <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
+                        <mat-icon>arrow_back</mat-icon>
                     </button>
                     <div class="min-w-0 flex-1">
                         <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
@@ -72,6 +73,7 @@
                             }
                         </p>
                     </div>
+                </div>
                 </div>
             </div>
         </header>

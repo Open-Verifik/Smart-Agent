@@ -138,9 +138,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
                 }
                 this._route.queryParamMap.subscribe((params) => {
                     const queryTab = params.get('tab');
-                    if (queryTab === 'templates') {
-                        this.activeTab.set('templates');
-                    }
+                    this.activeTab.set(queryTab === 'templates' ? 'templates' : 'configurations');
                 });
                 this._loadLandingData();
             },
@@ -213,6 +211,15 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
 
     setActiveTab(tab: 'configurations' | 'templates') {
         this.activeTab.set(tab);
+        const current = this._route.snapshot.queryParamMap.get('tab');
+        const wanted = tab === 'templates' ? 'templates' : null;
+        if ((current || null) === wanted) return;
+        void this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { tab: wanted },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     previousConfigPage() {
@@ -236,7 +243,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     }
 
     createBlankTemplate(): void {
-        this._router.navigate(['/smart-batch'], { queryParams: { start: 'report' } });
+        this._router.navigate(['/smart-batch', 'guide', 'country'], { queryParams: { intent: 'report' } });
     }
 
     useSystemTemplate(template: SmartReportTemplate, event: Event) {
@@ -245,6 +252,60 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
 
         this._openUseTemplateDialog(template, (mode) => {
             this._cloneAndNavigate(template.systemKey!, mode);
+        });
+    }
+
+    /** System templates stay read-only. This clones one and opens that copy in the editor. */
+    editSystemTemplateCopy(template: SmartReportTemplate, event: Event): void {
+        event.stopPropagation();
+        const systemKey = template.systemKey;
+        if (!systemKey || !this.isSystemPresetAvailable(template) || this.isCloningPreset()) return;
+
+        this.closeTemplatePreview();
+        this.isCloningPreset.set(true);
+        this._smartBatchService.cloneSystemPreset(systemKey).subscribe({
+            next: (res) => {
+                this.isCloningPreset.set(false);
+                const configId = res.data.batchConfiguration._id ?? res.data.batchConfiguration.id;
+                const templateId = res.data.template?._id ?? '';
+                if (!templateId) {
+                    this._snackBar.open(
+                        this._transloco.translate('smartBatchSystemPresets.cloneFailed'),
+                        undefined,
+                        { duration: 4000 }
+                    );
+                    return;
+                }
+
+                this._smartBatchService.getConfigurations().subscribe();
+                this._smartReportService.getTemplates().subscribe();
+
+                if (res.data.reused) {
+                    this._snackBar.open(
+                        this._transloco.translate('smartBatchSystemPresets.openingCopy'),
+                        undefined,
+                        { duration: 3500 }
+                    );
+                }
+
+                void this._router.navigate(['/smart-batch', 'guide', 'layout'], {
+                    queryParams: {
+                        templateId,
+                        intent: 'template',
+                        templateChoice: 'mine',
+                        ...(configId ? { configId } : {}),
+                    },
+                });
+            },
+            error: (err) => {
+                this.isCloningPreset.set(false);
+                console.error('[SmartBatch] cloneSystemPreset for edit error', err);
+                this._snackBar.open(
+                    this._transloco.translate('smartBatchSystemPresets.cloneFailed'),
+                    undefined,
+                    { duration: 4000 }
+                );
+            },
         });
     }
 
@@ -440,7 +501,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
 
             this._smartBatchService.getConfigurations({ page: this.configPage() }).subscribe();
             this._smartReportService.getTemplates().subscribe();
-            this.activeTab.set('templates');
+            this.setActiveTab('templates');
 
             const messageKey = result.securityDisabled ? 'smartBatchLanding.importDoneNoPassword' : 'smartBatchLanding.importDone';
             this._snackBar.open(
@@ -483,9 +544,8 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         if (!templateId) return;
 
         const configId = this.resolveBatchConfigRef(template.batchConfiguration).id;
-        void this._router.navigate(['/smart-batch'], {
+        void this._router.navigate(['/smart-batch', 'guide', 'layout'], {
             queryParams: {
-                step: 'layout',
                 templateId,
                 intent: 'template',
                 ...(configId ? { configId } : {}),

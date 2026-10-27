@@ -11,6 +11,13 @@ export default [
             ),
     },
     {
+        path: 'guide/:step',
+        loadComponent: () =>
+            import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
+                (m) => m.VisitaGuideComponent
+            ),
+    },
+    {
         path: 'workspace',
         component: SmartBatchComponent,
     },

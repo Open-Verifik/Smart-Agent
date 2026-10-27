@@ -8,9 +8,9 @@
     />
     <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
         <header
-            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-3 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
         >
-            <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+            <div class="flex w-full flex-col gap-5">
                 <div
                     class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
                 >
@@ -31,15 +31,17 @@
                     }}</span>
                 </div>
 
-                <a
-                    routerLink="/smart-batch"
-                    class="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                >
-                    <mat-icon class="icon-size-4">arrow_back</mat-icon>
-                    {{ t('smartBatchLanding.backToGuide') }}
-                </a>
+                <div class="flex items-start gap-3">
+                    <a
+                        routerLink="/smart-batch"
+                        class="sb-back-btn"
+                        [attr.aria-label]="t('smartBatchLanding.backToGuide')"
+                        [matTooltip]="t('smartBatchLanding.backToGuide')"
+                    >
+                        <mat-icon>arrow_back</mat-icon>
+                    </a>
 
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div class="flex min-w-0 flex-1 flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div class="max-w-2xl">
                         <div class="flex flex-wrap items-center gap-2">
                             <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
@@ -89,6 +91,7 @@
                             </button>
                         }
                     </div>
+                </div>
                 </div>
 
                 <div
@@ -450,14 +453,25 @@
                                                 </div>
 
                                                 @if (isSystemPresetAvailable(template)) {
-                                                    <button
-                                                        type="button"
-                                                        class="mt-5 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
-                                                        (click)="useSystemTemplate(template, $event)"
-                                                    >
-                                                        {{ t('smartBatchSystemPresets.useTemplate') }}
-                                                        <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
-                                                    </button>
+                                                    <div class="mt-5 flex flex-col gap-2">
+                                                        <button
+                                                            type="button"
+                                                            class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                                            (click)="useSystemTemplate(template, $event)"
+                                                        >
+                                                            {{ t('smartBatchSystemPresets.useTemplate') }}
+                                                            <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-950 transition hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-white"
+                                                            [matTooltip]="t('smartBatchSystemPresets.editCopyHint')"
+                                                            (click)="editSystemTemplateCopy(template, $event)"
+                                                        >
+                                                            <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
+                                                            {{ t('smartBatchSystemPresets.editCopy') }}
+                                                        </button>
+                                                    </div>
                                                 } @else {
                                                     <button
                                                         type="button"
@@ -663,14 +677,27 @@
                             {{ templateTitle(preview) }}
                         </h2>
                     </div>
-                    <button
-                        type="button"
-                        mat-icon-button
-                        (click)="closeTemplatePreview()"
-                        [attr.aria-label]="t('smartBatchLanding.templatePreviewClose')"
-                    >
-                        <mat-icon>close</mat-icon>
-                    </button>
+                    <div class="flex shrink-0 items-center gap-2">
+                        @if (preview.type === 'System' && isSystemPresetAvailable(preview)) {
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-950 transition hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-white"
+                                [matTooltip]="t('smartBatchSystemPresets.editCopyHint')"
+                                (click)="editSystemTemplateCopy(preview, $event)"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
+                                {{ t('smartBatchSystemPresets.editCopy') }}
+                            </button>
+                        }
+                        <button
+                            type="button"
+                            mat-icon-button
+                            (click)="closeTemplatePreview()"
+                            [attr.aria-label]="t('smartBatchLanding.templatePreviewClose')"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
                 </div>
                 <div class="min-h-[50vh] flex-1 overflow-auto bg-stone-100 p-4 dark:bg-gray-900 sm:p-6">
                     @if (previewLoading()) {

@@ -1549,9 +1549,8 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const batchId = b?._id ?? this.batchId();
         const templateId = createNew ? null : this.selectedTemplate()?._id;
 
-        this._router.navigate(['/smart-batch'], {
+        this._router.navigate(['/smart-batch', 'guide', 'layout'], {
             queryParams: {
-                step: 'layout',
                 intent: 'template',
                 configId,
                 ...(batchId ? { batchId } : {}),
