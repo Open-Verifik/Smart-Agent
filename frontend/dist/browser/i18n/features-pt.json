@@ -14,7 +14,7 @@
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "Antecedentes na Polícia Nacional",
-            "description": "Consulta de antecedentes judiciais na Polícia Nacional da Colômbia."
+            "description": "Consulta de antecedentes judiciais na Polícia Nacional da Colômbia via GET ou POST /v2/co/policia/consultar"
         },
         "world_api_dea": {
             "title": "Verificação de antecedentes DEA",
@@ -54,7 +54,7 @@
         },
         "usa_api_vehicle": {
             "title": "Estados Unidos — Veículo por placa",
-            "description": "Consulta veicular nos EUA por placa e estado (decodificação estilo NHTSA). GET /v2/usa/vehicle."
+            "description": "Temporariamente indisponível — use a consulta veicular nos EUA por VIN"
         },
         "world_api_onu": {
             "title": "Verificação de sanções da ONU",
@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — Carteira de motorista",
-            "description": "Consulte status, categorias e validade da CNH na Colômbia pelo documento do condutor."
+            "description": "Consulte no RUNT Colômbia status, categorias e validade da CNH pelo documento do condutor."
         },
         "peru_api_vehicle": {
             "title": "Informações de veículo",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — Veículo por placa e documento",
-            "description": "Validação de veículo na Colômbia por placa e documento do proprietário."
+            "description": "Validação RUNT por placa e documento do proprietário."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — Veículo por VIN",
-            "description": "Consulta histórico e dados técnicos do veículo na Colômbia usando o VIN."
+            "description": "Consulta histórico e dados técnicos do veículo no RUNT Colômbia usando o VIN."
         },
         "peru_identity_extra_lookup": {
             "title": "Peru - Verificação de Identidade Nacional",
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — Veículo simplificado por placa",
-            "description": "Consulta simplificada com dados essenciais do veículo na Colômbia por placa."
+            "description": "Consulta RUNT simplificada com dados essenciais do veículo por placa."
         },
         "canada_api_driver_license_quebec": {
             "title": "Quebec — Carteira de motorista",
@@ -582,7 +582,7 @@
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Fasecolda — Valores por placa",
-            "description": "Valores comerciais e dados do veículo Fasecolda por placa."
+            "description": "Valores comerciais e dados do veículo Fasecolda por placa com cruzamento entre fontes e detalhamento de confiança."
         },
         "colombia_api_vehicle_valores_fasecolda_by_code": {
             "title": "Fasecolda — Valores por código",
@@ -593,8 +593,8 @@
             "description": "Consulta de empresas nos EUA via SEC EDGAR. POST /v2/usa/company com o campo business no corpo JSON."
         },
         "colombia_api_runt_owners": {
-            "title": "Colômbia - Proprietários (RUNT)",
-            "description": "Verifique a propriedade do veículo e os proprietários registrados com base em registros oficiais."
+            "title": "RUNT — Proprietários do veículo por placa",
+            "description": "Consulte um veículo colombiano e seus registros de propriedade usando somente a placa."
         },
         "colombia_api_vehicle_owners": {
             "title": "Colômbia - Histórico de proprietários do veículo",
@@ -749,7 +749,7 @@
             "description": "Decodificação de veículo nos EUA por VIN de 17 caracteres (NHTSA). GET /v2/usa/vehicle-by-vin."
         },
         "colombia_api_identity_ce_foreigner_id": {
-            "title": "CE (Cédula de Estrangeiro)",
+            "title": "CE (Cédula de Extranjería)",
             "description": "Consulte a CE junto à Migración Colombia."
         },
         "colombia_api_vehicle_fines_bogota": {
@@ -914,7 +914,7 @@
         },
         "colombia_api_identity_lookup_procuraduria": {
             "title": "Consulta de cidadão via Procuraduría",
-            "description": "Consulta de identidade só de nomes na Procuraduría (CC, CE, PPT, NIT ou PEP) via GET /v2/co/procuraduria. Não devolve antecedentes disciplinares."
+            "description": "Valide um documento colombiano e extraia nomes via GET/POST /v2/co/procuraduria (somente Procuraduría, sem antecedentes disciplinares)."
         },
         "mexico_api_ine_ocr": {
             "title": "OCR INE",
@@ -925,16 +925,16 @@
             "description": "Valide uma credencial de eleitor mexicana (INE) no cadastro eleitoral usando CIC, OCR ou clave de elector."
         },
         "mexico_api_cedula_profesional": {
-            "title": "México — Licença profissional",
-            "description": "Consulte uma licença profissional mexicana por CURP, número da licença ou nome. A CURP é buscada primeiro; sem correspondência direta, o nome oficial do titular é usado sem custo extra."
+            "title": "Licença profissional",
+            "description": "Consulte uma licença profissional mexicana por CURP, número da licença ou nome no registro oficial de profissionais."
         },
         "mexico_api_health_worker": {
-            "title": "México — Licença de profissional de saúde",
-            "description": "Valide que uma pessoa possui licença de saúde mexicana, incluindo medicina, enfermagem, psiquiatria, obstetrícia, fisioterapia e optometria. Quem só tem licenças fora da saúde recebe 404."
+            "title": "Licença de profissional de saúde",
+            "description": "Confirme que uma pessoa possui uma licença profissional mexicana da área da saúde. Quem tem apenas licenças fora da saúde recebe 404."
         },
         "mexico_api_siged_certificado": {
-            "title": "México — Certificado de estudos (folio)",
-            "description": "Valide um certificado eletrônico de estudos mexicano por folio. É possível enviar fullName ou CURP; uma divergência retorna 409 name_mismatch. Se ambos forem enviados, a CURP prevalece."
+            "title": "Certificado de estudos (folio)",
+            "description": "Valide um certificado eletrônico de estudos mexicano pelo folio no registro oficial de certificados de estudos."
         },
         "colombia_api_copnia_license": {
             "title": "Licença COPNIA por matrícula",
@@ -946,7 +946,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - Avaliação comercial do veículo",
-            "description": "Valor comercial oficial para uma placa colombiana, derivado de dados de registro veicular nacional."
+            "description": "Valor comercial oficial do Ministerio de Transporte (SIBGA) para uma placa colombiana, homologado automaticamente a partir do RUNT."
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll Grátis",
@@ -973,8 +973,20 @@
             "description": "Plano Smart Access Business, com os limites mensais mais altos."
         },
         "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "Veículo RUNT somente pela placa",
-            "description": "Consulte um veículo na Colômbia usando apenas a placa, sem o documento do proprietário."
+            "title": "RUNT - Registros de veículo somente pela placa",
+            "description": "Consulte um veículo RUNT colombiano usando somente a placa, sem tipo nem número de documento do titular."
+        },
+        "colombia_api_driver_basic": {
+            "title": "RUNT — Carteira de motorista (Basic)",
+            "description": "Consulte a CNH no RUNT em /v3/co/runt/conductor. primerApellido é obrigatório. Tarifa Basic."
+        },
+        "chile_api_vehicle_stolen": {
+            "title": "Veículo roubado",
+            "description": "Consulte se um veículo chileno tem um registro ativo de roubo ou furto (encargo por robo o hurto)."
+        },
+        "chile_api_driver_license_block": {
+            "title": "Registro de Bloqueio de Carteira de Motorista",
+            "description": "Consulte o registro nacional de bloqueio de carteira de motorista do Registro Civil chileno por RUN: verifique se a CNH está bloqueada, nome do titular e detalhes do bloqueio para conformidade de frota e KYC."
         }
     }
 }

@@ -13,8 +13,8 @@
             "description": "Valida identidad colombiana por número de documento (CC, CE, PPT, NIT o PEP) mediante GET /v2/co/cedula."
         },
         "colombia_api_cedula_barcode": {
-            "title": "Código de barras reverso cédula (Colombia)",
-            "description": "Decodifica el código PDF417 del reverso de la CC colombiana con POST /v2/co/cedula/barcode. Cruce opcional con datos del frente; devuelve veredicto, campos del código y discrepancias."
+            "title": "Código de barras de cédula (PDF417)",
+            "description": "Decodifica y opcionalmente contrasta el código PDF417 del reverso de una cédula colombiana con POST /v2/co/cedula/barcode."
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "Verificación de Antecedentes Policiales",
@@ -57,8 +57,8 @@
             "description": "Verifica las pólizas activas y vigencia del SOAT (Seguro Obligatorio de Accidentes de Tránsito) para una placa dada."
         },
         "usa_api_vehicle": {
-            "title": "Estados Unidos - Información de Vehículos",
-            "description": "Servicio de validación de vehículos estadounidenses para recuperar información vehicular usando placa de matrícula y estado"
+            "title": "Estados Unidos - Información del Vehículo",
+            "description": "Temporalmente no disponible — usa la consulta de vehículos de EE. UU. por VIN"
         },
         "world_api_onu": {
             "title": "Verificación de Antecedentes ONU",
@@ -137,7 +137,7 @@
             "description": "El servicio de verificación de antecedentes del FBI permite a los desarrolladores verificar si una persona o documento aparece en la base de datos del FBI. Al proporcionar el tipo de documento y número de documento, o el nombre completo, los usuarios pueden recuperar información sobre el individuo, incluyendo su nombre completo, primer nombre y apellido, si se encuentra una coincidencia."
         },
         "mexico_identity_lookup": {
-            "title": "Ciudadano Mexicano",
+            "title": "CURP",
             "description": "Valida la identidad de personas en México usando CURP con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
         },
         "ecuador_api_identity_lookup": {
@@ -145,8 +145,8 @@
             "description": "Valida la identidad de personas en Ecuador con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
         },
         "colombia_api_driver": {
-            "title": "Consulta de Licencia de Conducción por Cédula en RUNT | Verifik API Colombia",
-            "description": "Valida licencias de conducción en Colombia con el número de documento. Devuelve estado, categorías y vigencia según registros oficiales."
+            "title": "Consulta de Licencia de Conducción por Cédula en RUNT (Premium) | Verifik API Colombia",
+            "description": "Valida licencias de conducción en Colombia mediante el número de cédula. Omite primerApellido para pagar Premium (incluye consulta de nombre) o envíalo para pagar la tarifa Básica."
         },
         "peru_api_vehicle": {
             "title": "Información de Vehículo",
@@ -493,8 +493,8 @@
             "description": "Proporciona servicios confiables de verificación y validación."
         },
         "canada_api_driver_license_ontario": {
-            "title": "Licencia de Conducir de Ontario",
-            "description": "Valida licencias de conducir de Ontario, Canadá con la API KYC de Verifik"
+            "title": "Validación de Licencias de Conducir en Canadá",
+            "description": "Valida licencias de conducir canadienses con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos de licencias en segundos."
         },
         "canada_api_ontario_plate": {
             "title": "Vencimiento de Placa Ontario",
@@ -597,8 +597,8 @@
             "description": "Valida empresas estadounidenses usando búsqueda por nombre empresarial."
         },
         "colombia_api_runt_owners": {
-            "title": "Colombia - Verificación de Propietarios de Vehículos (RUNT)",
-            "description": "Verifica propiedad vehicular y propietarios registrados con registros vehiculares oficiales."
+            "title": "RUNT - Propietarios de vehículo por placa",
+            "description": "Consulta un vehículo colombiano y sus registros de propiedad usando únicamente la placa."
         },
         "colombia_api_vehicle_owners": {
             "title": "Colombia - Historial de Propietarios del Vehículo",
@@ -869,20 +869,20 @@
             "description": "Crear un HumanID (credencial verificable) encriptando metadatos y almacenándolo en IPFS"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "HumanID con detección de vida (usuario activo)",
-            "description": "Crea un HumanID con liveness al descifrar. El historial factura este código cuando requireLiveness está activo; la ruta HTTP es la misma que Encriptar HumanID."
+            "title": "Encriptar HumanID",
+            "description": "Crear un HumanID (credencial verificable) encriptando metadatos y almacenándolo en IPFS"
         },
         "zelf-proof-encrypt-qr": {
-            "title": "Encriptar HumanID QR",
-            "description": "Crea un HumanID y lo devuelve como imagen QR"
+            "title": "Encriptar HumanID Código QR",
+            "description": "Crear un HumanID y encapsularlo en un código QR"
         },
         "zelf-proof-decrypt": {
             "title": "Desencriptar HumanID",
             "description": "Desencripta un HumanID con un rostro en vivo para recuperar los metadatos"
         },
         "zelf-proof-preview": {
-            "title": "Vista previa HumanID",
-            "description": "Vista previa de los datos públicos de un HumanID sin desencriptar metadatos privados"
+            "title": "Vista Previa HumanID",
+            "description": "Examinar un HumanID para ver sus metadatos y configuración sin realizar verificación biométrica"
         },
         "biometrics_api_create_person": {
             "title": "Biometría - Crear Persona (sin detección de vida)",
@@ -929,16 +929,16 @@
             "description": "Valida una credencial para votar (INE) mexicana contra el padrón electoral usando CIC, OCR o clave de elector."
         },
         "mexico_api_cedula_profesional": {
-            "title": "México — Cédula profesional",
-            "description": "Consulta una cédula profesional mexicana por CURP, número de cédula o nombre. La CURP se busca de forma directa; si no hay coincidencia, se usa el nombre oficial del titular sin costo extra."
+            "title": "Cédula profesional",
+            "description": "Consulta una cédula profesional mexicana por CURP, número de cédula o nombre en el registro oficial de profesionistas."
         },
         "mexico_api_health_worker": {
-            "title": "México — Licencia de profesionista de salud",
-            "description": "Valida que una persona tenga cédula de salud en México, incluida medicina, enfermería, psiquiatría, obstetricia, fisioterapia y optometría. Si solo tiene cédulas no sanitarias, la respuesta es 404."
+            "title": "Licencia de profesionista de salud",
+            "description": "Confirma que una persona tiene una licencia profesional mexicana relacionada con la salud. Quien solo tiene licencias ajenas a la salud responde 404."
         },
         "mexico_api_siged_certificado": {
-            "title": "México — Certificado de estudios (folio)",
-            "description": "Valida un certificado electrónico de estudios mexicano por folio. Se puede enviar fullName o CURP; si no coinciden, responde 409 name_mismatch. Si se envían ambos, la CURP tiene prioridad."
+            "title": "Certificado de estudios (folio)",
+            "description": "Valida un certificado electrónico de estudios mexicano por folio contra el registro oficial de certificados."
         },
         "colombia_api_copnia_license": {
             "title": "COPNIA matrícula profesional por número",
@@ -977,8 +977,36 @@
             "description": "Plan Smart Access Business, con los límites mensuales más altos."
         },
         "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "Vehículo RUNT solo por placa",
-            "description": "Consulta un vehículo en Colombia usando solo la placa, sin el documento del propietario."
+            "title": "RUNT - Registros de vehículos solo por placa",
+            "description": "Consulta un vehículo en RUNT usando solo la placa, sin tipo ni número de documento del propietario."
+        },
+        "chile_api_driver_license_block": {
+            "title": "Bloqueo de Licencia de Conducir (Registro Civil)",
+            "description": "Consulta el registro nacional de bloqueo de licencias de conducir del Registro Civil de Chile por RUN: verifica si existe bloqueo o suspensión, nombre del titular y detalles legales."
+        },
+        "colombia_api_driver_basic": {
+            "title": "Consulta de Licencia de Conducción en RUNT (Básico) | Verifik API Colombia",
+            "description": "Valida licencias de conducción en Colombia en /v3/co/runt/conductor. primerApellido es obligatorio. Se cobra la tarifa Básica de conductor."
+        },
+        "chile_api_vehicle_stolen": {
+            "title": "Vehículo Robado",
+            "description": "Consulta si un vehículo chileno tiene un encargo vigente por robo o hurto."
+        },
+        "face_recognition_persons": {
+            "title": "Personas",
+            "description": "Gestiona registros de personas y datos biométricos en tu sistema de verificación"
+        },
+        "face_recognition_persons_live": {
+            "title": "Crear una Persona con Detección de Vida",
+            "description": "Inscribe una persona con verificación de vida, búsqueda facial de duplicados y alta o actualización según coincidencias."
+        },
+        "face_recognition_collections": {
+            "title": "Listar Todas las Colecciones",
+            "description": "Obtén todas las colecciones generadas por un cliente específico. El único parámetro requerido es enviar el token de acceso. Con esto, Verifik identificará las colecciones generadas por este usuario."
+        },
+        "face_recognition_liveness_score": {
+            "title": "Puntaje de Vitalidad",
+            "description": "Puntaje de vitalidad para una imagen facial (API pública estable)"
         }
     }
 }
