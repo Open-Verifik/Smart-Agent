@@ -2141,6 +2141,19 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "restrictions"
         ]
     },
+    "chile_api_driver_license_block": {
+        "inputs": [
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentNumber",
+            "fullName",
+            "hasBlock",
+            "blockStatusText",
+            "licenseNumber",
+            "block"
+        ]
+    },
     "api_autodata_manufacturers": {
         "inputs": [],
         "outputs": []
