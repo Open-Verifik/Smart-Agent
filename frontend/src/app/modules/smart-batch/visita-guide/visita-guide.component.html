@@ -62,23 +62,23 @@
         [class.overflow-hidden]="isFillViewportStep()"
     >
         <header
-            class="shrink-0 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90"
-            [class.py-2]="isReportStudio()"
-            [class.py-5]="!isReportStudio() && !isEndpointsStep()"
-            [class.py-3]="!isReportStudio() && isEndpointsStep()"
-            [class.px-5]="!isEndpointsStep()"
-            [class.md:px-8]="!isEndpointsStep()"
-            [class.px-3]="isEndpointsStep()"
-            [class.md:px-4]="isEndpointsStep()"
+            class="shrink-0 border-b border-stone-200/90 bg-white/90 px-5 py-3 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
         >
-            <div
-                class="mx-auto flex w-full flex-col"
-                [class.gap-4]="!isReportStudio() && !isEndpointsStep()"
-                [class.gap-2]="isReportStudio() || isEndpointsStep()"
-                [class.max-w-3xl]="!isWideStep()"
-                [class.max-w-7xl]="isWideStep() && !isReportStudio() && !isEndpointsStep()"
-                [class.max-w-none]="isReportStudio() || isEndpointsStep()"
-            >
+            <div class="flex w-full items-start gap-3">
+                @if (canGoBack()) {
+                    <button
+                        type="button"
+                        (click)="goBack()"
+                        class="sb-back-btn"
+                        [attr.aria-label]="t('visitaGuide.back')"
+                    >
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                } @else {
+                    <span class="sb-back-btn pointer-events-none invisible" aria-hidden="true"></span>
+                }
+
+                <div class="flex min-w-0 flex-1 flex-col gap-2">
                 @if (!isReportStudio() && !isEndpointsStep()) {
                 <div
                     class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
@@ -96,29 +96,15 @@
                 }
 
                 <div
-                    class="flex items-center gap-2"
+                    class="flex min-w-0 items-center gap-2"
                     [class.flex-wrap]="!isReportStudio()"
                     [class.gap-3]="!isReportStudio()"
                 >
-                    @if (canGoBack()) {
-                        <button
-                            type="button"
-                            (click)="goBack()"
-                            class="inline-flex shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
-                            [class.h-9]="isReportStudio()"
-                            [class.w-9]="isReportStudio()"
-                            [class.h-10]="!isReportStudio()"
-                            [class.w-10]="!isReportStudio()"
-                            [attr.aria-label]="t('visitaGuide.back')"
-                        >
-                            <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
-                        </button>
-                    }
                     @if (isReportStudio()) {
                         <button
                             type="button"
                             (click)="startOver()"
-                            class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                            class="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
                             [matTooltip]="t('visitaGuide.backToStart')"
                         >
                             <mat-icon class="!h-5 !w-5 !text-[20px]">home</mat-icon>
@@ -380,6 +366,7 @@
                         }
                     </div>
                 }
+                </div>
             </div>
         </header>
 

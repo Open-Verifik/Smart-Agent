@@ -1,7 +1,7 @@
 import { GuideTemplateChoice } from './visita-guide-state.service';
 import { GuideEntity, GuideIntent, GuideMode, GuideStepId } from './visita-guide.catalog';
 
-const STEPS = new Set<GuideStepId>([
+export const GUIDE_STEPS = new Set<GuideStepId>([
     'intent',
     'entity',
     'country',
@@ -46,7 +46,7 @@ export const parseGuideUrl = (params: { get(name: string): string | null }): Gui
     const mappedStep: GuideStepId | null =
         stepRaw === 'preview' || stepRaw === 'customize' || stepRaw === 'include'
             ? 'layout'
-            : stepRaw && STEPS.has(stepRaw as GuideStepId)
+            : stepRaw && GUIDE_STEPS.has(stepRaw as GuideStepId)
               ? (stepRaw as GuideStepId)
               : null;
     const start = read(params, 'start');
@@ -82,6 +82,13 @@ export const parseGuideUrl = (params: { get(name: string): string | null }): Gui
             .filter(Boolean),
     };
 };
+
+/** Start screen lives at `/smart-batch`. Every later step has its own path. */
+export const guideStepPath = (step: GuideStepId | null): string =>
+    !step || step === 'intent' ? '/smart-batch' : `/smart-batch/guide/${step}`;
+
+export const isGuideStep = (value: string | null): value is GuideStepId =>
+    Boolean(value && GUIDE_STEPS.has(value as GuideStepId));
 
 export const serializeGuideUrl = (state: GuideUrlState): Record<string, string | null> => ({
     step: state.step,

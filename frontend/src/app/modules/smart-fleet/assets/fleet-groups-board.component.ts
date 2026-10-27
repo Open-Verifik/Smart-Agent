@@ -54,58 +54,143 @@ function identifierKind(asset: FleetAsset): IdentifierKind {
     selector: 'fleet-group-name-dialog',
     standalone: true,
     imports: [CommonModule, FormsModule, TranslocoModule, MatDialogModule, MatButtonModule, FleetVehicleIconComponent],
+    encapsulation: ViewEncapsulation.None,
+    styles: [
+        `
+            fleet-group-name-dialog {
+                display: flex;
+                flex-direction: column;
+                max-height: 100%;
+                min-height: 0;
+            }
+
+            fleet-group-name-dialog .fleet-group-dialog__body {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                max-height: none !important;
+                padding: 0.5rem 1.25rem 1rem !important;
+            }
+
+            /* Vehicle type tiles: big icon, full label (wraps instead of being cut off) */
+            fleet-group-name-dialog .fleet-group-dialog__tile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                min-height: 6.5rem;
+                padding: 0.75rem 0.375rem;
+                text-align: center;
+                border-radius: 1rem;
+                transition:
+                    border-color 120ms,
+                    background-color 120ms;
+            }
+
+            fleet-group-name-dialog .fleet-group-dialog__tile fleet-vehicle-icon {
+                width: 3.25rem;
+                height: 2.25rem;
+            }
+
+            fleet-group-name-dialog .fleet-group-dialog__tile-label {
+                font-size: 0.875rem;
+                font-weight: 500;
+                line-height: 1.15;
+                overflow-wrap: anywhere;
+                hyphens: auto;
+            }
+
+            fleet-group-name-dialog .fleet-group-dialog__actions {
+                gap: 0.75rem;
+                padding: 0.75rem 1.25rem 1rem !important;
+                border-top: 1px solid rgb(231 229 228);
+            }
+
+            fleet-group-name-dialog .fleet-group-dialog__actions .mat-mdc-button-base {
+                min-height: 3rem;
+                padding-inline: 1.5rem;
+                font-size: 1rem;
+            }
+
+            @media (max-width: 639px) {
+                fleet-group-name-dialog .fleet-group-dialog__actions {
+                    flex-direction: column-reverse;
+                    align-items: stretch;
+                }
+
+                fleet-group-name-dialog .fleet-group-dialog__actions .mat-mdc-button-base {
+                    width: 100%;
+                    margin: 0;
+                }
+            }
+        `,
+    ],
     template: `
-        <h2 mat-dialog-title class="text-lg font-semibold">
+        <h2 mat-dialog-title class="!px-5 !pt-5 text-xl font-semibold">
             {{ 'smartFleet.groups.promptTitle' | transloco }}
         </h2>
-        <mat-dialog-content>
-            <label class="mt-2 flex flex-col gap-1">
-                <span class="text-sm text-stone-600">{{ 'smartFleet.groups.promptLabel' | transloco }}</span>
+        <mat-dialog-content class="fleet-group-dialog__body">
+            <label class="mt-1 flex flex-col gap-2">
+                <span class="text-base font-medium text-stone-700 dark:text-stone-200">{{
+                    'smartFleet.groups.promptLabel' | transloco
+                }}</span>
                 <input
                     type="text"
                     [(ngModel)]="name"
                     (keyup.enter)="confirm()"
                     [placeholder]="'smartFleet.groups.namePlaceholder' | transloco"
-                    class="rounded-xl border border-stone-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none"
+                    class="min-h-[3rem] rounded-xl border border-stone-300 px-4 py-3 text-base focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-900"
                 />
             </label>
-            <p class="mb-2 mt-4 text-sm text-stone-600">{{ 'smartFleet.groups.pickColor' | transloco }}</p>
-            <div class="flex flex-wrap gap-2">
+
+            <p class="mb-3 mt-6 text-base font-medium text-stone-700 dark:text-stone-200">
+                {{ 'smartFleet.groups.pickColor' | transloco }}
+            </p>
+            <div class="flex flex-wrap gap-3">
                 <button
                     *ngFor="let swatch of colors"
                     type="button"
                     (click)="color = swatch"
-                    class="h-8 w-8 rounded-full border-2"
+                    class="h-11 w-11 rounded-full border-[3px] transition-transform"
                     [style.background]="swatch"
                     [class.border-stone-900]="color === swatch"
+                    [class.dark:border-white]="color === swatch"
+                    [class.scale-110]="color === swatch"
                     [class.border-transparent]="color !== swatch"
                     [attr.aria-label]="swatch"
+                    [attr.aria-pressed]="color === swatch"
                 ></button>
             </div>
-            <p class="mb-2 mt-4 text-sm text-stone-600">{{ 'smartFleet.groups.pickIcon' | transloco }}</p>
-            <div class="grid grid-cols-4 gap-2">
+
+            <p class="mb-3 mt-6 text-base font-medium text-stone-700 dark:text-stone-200">
+                {{ 'smartFleet.groups.pickIcon' | transloco }}
+            </p>
+            <div class="grid grid-cols-3 gap-3 sm:grid-cols-4">
                 <button
                     *ngFor="let mark of icons"
                     type="button"
                     (click)="icon = mark"
-                    class="flex flex-col items-center gap-1 rounded-xl border px-1 py-2 text-center text-stone-800 dark:text-stone-100"
+                    class="fleet-group-dialog__tile border-2 text-stone-800 dark:text-stone-100"
                     [class.border-stone-900]="icon === mark"
-                    [class.bg-stone-50]="icon === mark"
+                    [class.bg-stone-100]="icon === mark"
                     [class.dark:border-stone-100]="icon === mark"
                     [class.dark:bg-gray-800]="icon === mark"
                     [class.border-stone-200]="icon !== mark"
                     [class.dark:border-gray-600]="icon !== mark"
                     [attr.aria-label]="'smartFleet.groups.icon.' + mark | transloco"
+                    [attr.aria-pressed]="icon === mark"
                 >
-                    <fleet-vehicle-icon [icon]="mark" class="h-6 w-9"></fleet-vehicle-icon>
-                    <span class="text-[10px] leading-tight text-stone-600 dark:text-stone-300">{{
+                    <fleet-vehicle-icon [icon]="mark"></fleet-vehicle-icon>
+                    <span class="fleet-group-dialog__tile-label text-stone-700 dark:text-stone-200">{{
                         'smartFleet.groups.icon.' + mark | transloco
                     }}</span>
                 </button>
             </div>
         </mat-dialog-content>
-        <mat-dialog-actions align="end">
-            <button mat-button type="button" (click)="cancel()">
+        <mat-dialog-actions align="end" class="fleet-group-dialog__actions">
+            <button mat-stroked-button type="button" (click)="cancel()">
                 {{ 'smartFleet.cancel' | transloco }}
             </button>
             <button mat-flat-button color="primary" type="button" (click)="confirm()">
@@ -386,8 +471,11 @@ export class FleetGroupsBoardComponent implements OnInit {
         const created = await firstValueFrom(
             this._dialog
                 .open(FleetGroupNameDialogComponent, {
-                    width: '480px',
+                    width: '600px',
+                    maxWidth: '96vw',
+                    maxHeight: '94dvh',
                     autoFocus: true,
+                    panelClass: 'fleet-group-dialog-panel',
                 })
                 .afterClosed()
         );

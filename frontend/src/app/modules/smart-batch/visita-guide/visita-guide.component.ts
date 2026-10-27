@@ -16,6 +16,7 @@ import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.se
 import { catchError, firstValueFrom, interval, of, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
+import { DesktopRecommendedService } from '../report-builder/desktop-recommended-dialog/desktop-recommended.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
 import { ReportIconPickerDialogComponent, ReportIconPickerResult } from '../report-icon-picker-dialog.component';
 import { ReportEmojiPickerData, ReportEmojiPickerDialogComponent } from '../report-emoji-picker-dialog.component';
@@ -152,7 +153,7 @@ import {
     writeFlowDraft,
     writeStoredFlow,
 } from './visita-guide-flow-draft';
-import { parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
+import { guideStepPath, isGuideStep, parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
 import {
     availableCountries,
     countryNameForIso,
@@ -392,6 +393,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewBridge = inject(ReportBuilderPreviewDataService);
+    private _desktopHint = inject(DesktopRecommendedService);
     private _dialog = inject(MatDialog);
     private _destroyRef = inject(DestroyRef);
     private _host = inject(ElementRef<HTMLElement>);
@@ -1195,13 +1197,48 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     constructor() {
+        this._applyStepFromUrl();
         effect(() => {
             const onLayout = this.step() === 'layout';
             untracked(() => document.body.classList.toggle(REPORT_DESIGN_BODY_CLASS, onLayout));
         });
+
+        // The template designer is too cramped on small screens: keep a fixed notice over it
+        // until the window is large enough (or the user leaves).
+        effect(() => {
+            const onLayout = this.step() === 'layout';
+            untracked(() => this._desktopHint.sync(onLayout, () => this._leaveDesignerOnSmallScreen()));
+        });
+    }
+
+    /** Paint the screen the URL names before auth finishes, so a reload cannot show a leftover step. */
+    private _applyStepFromUrl(): void {
+        const path = this._router.url.split('?')[0].replace(/\/$/, '');
+        const onGuide = path === '/smart-batch' || path.startsWith('/smart-batch/guide/');
+        if (!onGuide) return;
+
+        const pathStep = this._route.snapshot.paramMap.get('step');
+        const queryStep =
+            this._route.snapshot.queryParamMap.get('step') ?? this._route.snapshot.queryParamMap.get('resume');
+        const raw = pathStep || queryStep;
+        const mapped = raw === 'preview' || raw === 'customize' || raw === 'include' ? 'layout' : raw;
+        if (isGuideStep(mapped)) {
+            if (mapped !== 'layout' && mapped !== 'generate') this._state.editingSavedLayout.set(false);
+            this._state.step.set(mapped);
+            return;
+        }
+        this._state.editingSavedLayout.set(false);
+        this._state.step.set('intent');
+    }
+
+    /** "Go back" from the small-screen notice: leave the designer instead of stepping inside it. */
+    private _leaveDesignerOnSmallScreen(): void {
+        this._state.editingSavedLayout.set(false);
+        void this._router.navigate(['/smart-batch', 'workspace'], { queryParams: { tab: 'templates' } });
     }
 
     ngOnDestroy(): void {
+        this._desktopHint.release();
         this._alive = false;
         document.body.classList.remove(REPORT_DESIGN_BODY_CLASS);
         if (this._endpointHoverHide) clearTimeout(this._endpointHoverHide);
@@ -7645,16 +7682,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
         if (pendingPreview) this.externalPreview.set(pendingPreview);
 
+        const pathStepRaw = this._route.snapshot.paramMap.get('step');
+        if (pathStepRaw && !isGuideStep(pathStepRaw)) {
+            this._state.step.set('intent');
+            this._guideUrlReady = true;
+            void this._router.navigate(['/smart-batch'], { replaceUrl: true });
+            return;
+        }
+
         const parsed = parseGuideUrl(this._route.snapshot.queryParamMap);
+        // The path is the screen. A bare `/smart-batch` is always the start, even if a previous
+        // visit left another step in memory. Old `?step=` links still open that screen.
+        const step = (pathStepRaw && isGuideStep(pathStepRaw) ? pathStepRaw : null) ?? parsed.step;
         this._pendingFeatureIds = parsed.features;
 
         if (
             parsed.templateChoice !== 'scratch' &&
             parsed.templateId &&
-            (parsed.step === 'layout' || parsed.step === 'generate' || parsed.step === null)
+            (step === 'layout' || step === 'generate')
         ) {
-            this._openSavedTemplateInLayout(parsed.templateId, parsed.configId, parsed.step ?? 'layout');
+            this._state.step.set(step);
             this._guideUrlReady = true;
+            this._openSavedTemplateInLayout(parsed.templateId, parsed.configId, step);
             return;
         }
 
@@ -7686,22 +7735,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
         }
 
-        if (parsed.templateChoice === 'scratch') {
+        if (parsed.templateChoice === 'scratch' && (step === 'layout' || step === 'generate')) {
             if (parsed.configId) this._state.editingSavedLayout.set(true);
             this._state.intent.set('template');
             this._state.wantsReport.set(true);
             this._resumeScratchTemplate();
         }
 
-        if (parsed.step && this.visibleSteps().includes(parsed.step)) {
-            if (parsed.step === 'layout' && parsed.templateChoice !== 'scratch') this.enterLayout();
-            if (parsed.step === 'include') this.ensureIncludeItems();
-            if (parsed.step === 'template') this._refreshTemplates();
-            this._state.step.set(parsed.step);
-            if (parsed.step === 'layout' || parsed.step === 'generate') {
+        if (step !== 'layout' && step !== 'generate') {
+            this._state.editingSavedLayout.set(false);
+        }
+
+        if (!step || step === 'intent') {
+            this._state.step.set('intent');
+        } else if (step === 'layout' || step === 'generate' || this.visibleSteps().includes(step)) {
+            if (step === 'layout' && parsed.templateChoice !== 'scratch') this.enterLayout();
+            if (step === 'include') this.ensureIncludeItems();
+            if (step === 'template') this._refreshTemplates();
+            this._state.step.set(step);
+            if (step === 'layout' || step === 'generate') {
                 this._restoreLayoutDraftIfAny();
-                if (parsed.step === 'generate') this.reportStudioStep.set('preview');
+                if (step === 'generate') this.reportStudioStep.set('preview');
             }
+        } else {
+            this._state.step.set('intent');
         }
 
         this._applyPendingFeatureIds();
@@ -7791,13 +7848,29 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _writeGuideUrl(state: ReturnType<typeof parseGuideUrl>): void {
         if (!this._guideUrlReady) return;
-        const path = this._router.url.split('?')[0];
-        if (path !== '/smart-batch' && path !== '/smart-batch/') return;
-        void this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: serializeGuideUrl(state),
-            replaceUrl: true,
-        });
+        const path = this._router.url.split('?')[0].replace(/\/$/, '');
+        const onGuide = path === '/smart-batch' || path.startsWith('/smart-batch/guide/');
+        if (!onGuide) return;
+
+        const target = guideStepPath(state.step);
+        // The step is the path. Query params only keep the choices (country, intent, …).
+        const query = serializeGuideUrl({ ...state, step: null });
+        if (this._guideUrlMatches(target, query)) return;
+
+        void this._router.navigate([target], { queryParams: query, replaceUrl: true });
+    }
+
+    /** True when the address bar already shows this guide screen, so we don't navigate in a loop. */
+    private _guideUrlMatches(target: string, query: Record<string, string | null>): boolean {
+        const path = this._router.url.split('?')[0].replace(/\/$/, '');
+        if (path !== target) return false;
+
+        const current = this._route.snapshot.queryParamMap;
+        const keys = new Set([...current.keys, ...Object.keys(query)]);
+        for (const key of keys) {
+            if ((query[key] || null) !== (current.get(key) || null)) return false;
+        }
+        return true;
     }
 
     private _openSavedTemplateInLayout(

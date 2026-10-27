@@ -1,13 +1,15 @@
 <div class="min-h-screen w-full bg-stone-50 dark:bg-gray-950">
     <!-- Header -->
     <div class="sticky top-0 z-10 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90">
-        <div class="w-full px-4 sm:px-6 lg:px-8 py-4">
+        <div class="w-full px-5 py-3 md:px-8">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                     <button
-                        mat-icon-button
+                        type="button"
                         (click)="goBack()"
+                        class="sb-back-btn"
                         [matTooltip]="'smartReport.back' | transloco"
+                        [attr.aria-label]="'smartReport.back' | transloco"
                     >
                         <mat-icon>arrow_back</mat-icon>
                     </button>

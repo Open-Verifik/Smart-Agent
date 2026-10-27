@@ -80,6 +80,7 @@ import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.
 import { SignaturePadDialogComponent } from './signature-pad-dialog/signature-pad-dialog.component';
 import { LayoutTextDialogComponent } from './layout-text-dialog/layout-text-dialog.component';
 import { ReportBuilderAddConsultDialogComponent } from './report-builder-add-consult-dialog.component';
+import { DesktopRecommendedService } from './desktop-recommended-dialog/desktop-recommended.service';
 
 /**
  * Minimum allowed X / Y (in canonical 96 DPI px) for absolutely-positioned
@@ -125,6 +126,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _reportService = inject(SmartReportService);
     private _dialog = inject(MatDialog);
+    private _desktopHint = inject(DesktopRecommendedService);
     private _previewDataService = inject(ReportBuilderPreviewDataService);
     private _transloco = inject(TranslocoService);
     private _batchService = inject(SmartBatchService);
@@ -469,6 +471,8 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         document.body.classList.add(REPORT_DESIGN_BODY_CLASS);
+        // While the window is narrow, a fixed notice asks the user to switch to a bigger screen.
+        this._desktopHint.sync(true, () => this.goBack());
         this._applyPreviewDataFromRouterState();
         this._batchService.getConfigurations().subscribe();
         this._watchExactPreview();
@@ -496,6 +500,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this._desktopHint.release();
         document.body.classList.remove(REPORT_DESIGN_BODY_CLASS);
         this._releaseExactPreviewUrl();
     }
@@ -1936,11 +1941,12 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
 
     goBack(): void {
         if (this._route.snapshot.queryParamMap.get('from') === 'guide') {
-            this._router.navigate(['/smart-batch'], {
-                queryParams: this.templateId()
-                    ? { resume: 'layout', templateId: this.templateId() }
-                    : {},
-            });
+            this._router.navigate(
+                this.templateId() ? ['/smart-batch', 'guide', 'layout'] : ['/smart-batch'],
+                {
+                    queryParams: this.templateId() ? { templateId: this.templateId() } : {},
+                }
+            );
             return;
         }
 
