@@ -9,7 +9,8 @@
                 "verdict": {
                     "confirmed": "Coincide con el frente",
                     "mismatch": "Posible alteración",
-                    "unreadable": "Reverso no validado"
+                    "unreadable": "Reverso no validado",
+                    "decoded": "Código decodificado"
                 },
                 "field": {
                     "fullName": "Nombre en el código",
@@ -66,6 +67,10 @@
         "wizard": {
             "moveToFront": "Mover al frente",
             "moveToBack": "Mover al reverso"
+        },
+        "colombianBarcode": {
+            "title": "Código de barras cédula colombiana",
+            "subtitle": "Lee el PDF417 del reverso y compáralo con la extracción del frente cuando incluyas foto del reverso."
         }
     }
 }
