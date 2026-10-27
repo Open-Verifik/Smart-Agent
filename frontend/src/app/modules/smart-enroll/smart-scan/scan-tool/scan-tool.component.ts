@@ -21,8 +21,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
+import {
+    BarcodeValidationPanelComponent,
+    type CedulaBarcodeValidation,
+} from '../../projects/barcode-validation-panel.component';
 import { ImagePreviewDialogComponent } from '../../projects/image-preview-dialog.component';
 import { SmartScanService } from '../smart-scan.service';
 import { ScanToolReviewStepComponent } from './scan-tool-review-step.component';
@@ -72,9 +77,11 @@ const COUNTRY_FLAGS: Record<string, string> = {
         MatChipsModule,
         MatMenuModule,
         MatProgressSpinnerModule,
+        MatSlideToggleModule,
         TranslocoModule,
         ScanToolReviewStepComponent,
         ScanToolSmartCheckResultComponent,
+        BarcodeValidationPanelComponent,
     ],
     templateUrl: './scan-tool.component.html',
     styleUrls: ['./scan-tool.component.scss'],
@@ -126,6 +133,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
     backFile: File | null = null;
     backUrl: string | null = null;
     requiresBackSide = false;
+    colombianBarcodeValidation = false;
 
     scanResult = this._scanService.scanResult;
     scanLoading = this._scanService.scanLoading;
@@ -696,7 +704,11 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         const backImage = this.backFile ? await this.fileToBase64(this.backFile) : undefined;
 
         const templateId = this._scanService.selectedPromptTemplate()?._id;
-        this._scanService.scanDocument(docType.code, image, backImage, templateId).subscribe({
+        const barcodeCheck =
+            this.colombianBarcodeValidation && this.offersColombianBarcodeValidation();
+        this._scanService
+            .scanDocument(docType.code, image, backImage, templateId, barcodeCheck)
+            .subscribe({
             next: () => {
                 this.writeStep('results', true);
                 const cls = this.getClassification();
@@ -718,6 +730,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         this.frontUrl = null;
         this.backFile = null;
         this.backUrl = null;
+        this.colombianBarcodeValidation = false;
         this.clearCountrySelection();
         this.lastCountry = '';
         this.lastCategory = '';
@@ -744,8 +757,30 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         const extraction = this.scanResult()?.OCRExtraction;
         if (!extraction || typeof extraction !== 'object') return [];
         return Object.entries(extraction)
-            .filter(([k]) => k !== 'documentClassification' && k !== 'smartCheck' && !k.startsWith('_'))
+            .filter(
+                ([k]) =>
+                    k !== 'documentClassification' &&
+                    k !== 'barcodeValidation' &&
+                    k !== 'smartCheck' &&
+                    !k.startsWith('_')
+            )
             .map(([key, value]) => ({ key, value }));
+    }
+
+    barcodeValidation(): CedulaBarcodeValidation | null {
+        const extraction = this.scanResult()?.OCRExtraction as {
+            barcodeValidation?: CedulaBarcodeValidation;
+        } | undefined;
+        return extraction?.barcodeValidation ?? null;
+    }
+
+    offersColombianBarcodeValidation(): boolean {
+        const doc = this.selectedDocType();
+        if (!doc) return false;
+        const country = (doc.country || '').trim().toLowerCase();
+        if (country !== 'colombia') return false;
+        const code = (doc.code || '').trim().toUpperCase();
+        return code === 'CC' || code.includes('CEDULA') || code.includes('CÉDULA');
     }
 
     extractionSections(): Array<{ id: string; labelKey: string; fields: Array<{ key: string; value: unknown }> }> {

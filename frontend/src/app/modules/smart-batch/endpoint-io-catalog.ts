@@ -572,6 +572,42 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "colombia_api_cedula_barcode": {
+        "inputs": [
+            "backImage",
+            "documentType",
+            "documentNumber",
+            "firstName",
+            "lastName",
+            "gender",
+            "dateOfBirth",
+            "bloodType",
+            "barcodeReadAttempts"
+        ],
+        "outputs": [
+            "verdict",
+            "barcode",
+            "decoded",
+            "attempts",
+            "reason",
+            "matchScores",
+            "disagreements",
+            "documentNumber",
+            "primerNombre",
+            "segundoNombre",
+            "primerApellido",
+            "segundoApellido",
+            "gender",
+            "dateOfBirth",
+            "bloodType",
+            "fullName"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC"
+            ]
+        }
+    },
     "colombia_api_adres": {
         "inputs": [
             "documentType",
