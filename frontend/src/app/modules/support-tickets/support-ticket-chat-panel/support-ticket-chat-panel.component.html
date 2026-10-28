@@ -124,6 +124,21 @@
                                                 'supportTickets.quickChat.status.' + t.status | transloco
                                             }}
                                         </span>
+                                        @if (t.priority && t.priority !== 'normal' && t.priority !== 'low') {
+                                            <span
+                                                class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide"
+                                                [ngClass]="priorityBadgeClass(t.priority)"
+                                            >
+                                                {{ t.priority }}
+                                            </span>
+                                        }
+                                        @if (isAwaitingClientReply(t)) {
+                                            <span
+                                                class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-900 ring-1 ring-purple-200 dark:bg-purple-950/40 dark:text-purple-200 dark:ring-purple-800/50"
+                                            >
+                                                {{ 'supportTickets.quickChat.initiatedByVerifik' | transloco }}
+                                            </span>
+                                        }
                                     </div>
                                     <div
                                         class="text-secondary flex min-w-0 items-center gap-x-1.5 text-xs leading-relaxed"
@@ -227,6 +242,21 @@
                                                 selectedTicket()!.status | transloco
                                         }}
                                     </span>
+                                    @if (selectedTicket()!.priority) {
+                                        <span
+                                            class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide"
+                                            [ngClass]="priorityBadgeClass(selectedTicket()!.priority)"
+                                        >
+                                            {{ selectedTicket()!.priority }}
+                                        </span>
+                                    }
+                                    @if (isAwaitingClientReply(selectedTicket())) {
+                                        <span
+                                            class="rounded-full px-2 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-900 ring-1 ring-purple-200 dark:bg-purple-950/40 dark:text-purple-200 dark:ring-purple-800/50"
+                                        >
+                                            {{ 'supportTickets.quickChat.awaitingYourReply' | transloco }}
+                                        </span>
+                                    }
                                 </div>
                                 <div
                                     class="text-secondary mt-1 flex flex-col gap-1 border-t border-stone-200/80 pt-2 text-xs dark:border-stone-700/70"
