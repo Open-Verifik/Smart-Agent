@@ -41,10 +41,19 @@ export interface SupportTicket {
     assignee?: string | { _id: string; name?: string };
     number: number;
     status: SupportTicketStatus;
+    priority?: SupportTicketPriority;
     threads: SupportTicketThread[];
     title: string;
     subject?: string;
     api?: string;
+    source?: string;
+    sourceCategory?: string;
+    slaAnchorAt?: string | null;
+    firstResponseDueAt?: string | null;
+    resolutionDueAt?: string | null;
+    firstRespondedAt?: string | null;
+    slaBreached?: boolean;
+    slaContinuous?: boolean;
     createdAt: string;
     updatedAt: string;
 }
