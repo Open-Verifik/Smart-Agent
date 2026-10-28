@@ -5344,6 +5344,7 @@
             "retentionHoursForever": "Hasta que cambie la política",
             "faceNoneWarning": "Las imágenes de rostro en ninguno se conservan hasta que termina la espera del webhook y después se eliminan. La comparación facial puede ejecutarse durante esa espera.",
             "documentLivenessNoneNote": "Las fotos de presencia del documento en ninguno no se suben.",
+            "ocrExtractionNoneNote": "Los campos extraídos en ninguno enmascaran el número de documento de inmediato (p. ej. ****5413), y el texto OCR sin procesar nunca se conserva en la base de datos.",
             "typeDocumentLiveness": "Fotos de presencia del documento",
             "typeDocumentLivenessDesc": "Fotos que comprueban que el documento está físicamente presente. Ninguno significa que esas fotos no se suben.",
             "webhookHoldTitle": "Espera del webhook",
