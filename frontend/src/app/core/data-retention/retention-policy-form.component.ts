@@ -124,6 +124,11 @@ export class RetentionPolicyFormComponent {
         return this.current.types.documentLiveness?.mode === 'none';
     }
 
+    /** True when OCR extraction is set to none (immediate masking active). */
+    get ocrExtractionNone(): boolean {
+        return this.current.types.ocrExtraction?.mode === 'none';
+    }
+
     /**
      * Translation key for a mode name or its description.
      * @param mode - Store, ephemeral, or none.

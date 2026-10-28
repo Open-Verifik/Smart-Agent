@@ -5350,6 +5350,7 @@
             "retentionHoursForever": "Until the policy changes",
             "faceNoneWarning": "Face images set to none are kept until the webhook hold ends, then removed. Face comparison can still run during that hold.",
             "documentLivenessNoneNote": "Document-presence photos set to none are not uploaded.",
+            "ocrExtractionNoneNote": "Extracted document fields set to None mask document numbers immediately upon capture (e.g. ****5413), and raw OCR text is never retained in database records.",
             "webhookHoldTitle": "Webhook hold",
             "webhookHoldDesc": "Hours to keep ephemeral and none data when a webhook is configured, from 24 to 72. Without a webhook, that data is eligible for purge on the next run.",
             "loadError": "Could not load data retention settings.",
