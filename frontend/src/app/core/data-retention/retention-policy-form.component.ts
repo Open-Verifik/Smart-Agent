@@ -13,7 +13,6 @@ import {
     WEBHOOK_HOLD_MAX,
     WEBHOOK_HOLD_MIN,
     type RetentionDataType,
-    type RetentionDurationPreset,
     type RetentionMode,
     type RetentionPolicy,
 } from './retention.model';
@@ -47,6 +46,7 @@ import {
         TranslocoModule,
     ],
     templateUrl: './retention-policy-form.component.html',
+    styleUrl: './retention-policy-form.component.scss',
 })
 export class RetentionPolicyFormComponent {
     /** Policy being edited. A missing value falls back to the account default. */
@@ -124,6 +124,11 @@ export class RetentionPolicyFormComponent {
         return this.current.types.documentLiveness?.mode === 'none';
     }
 
+    /** True when OCR extraction is set to none (immediate masking active). */
+    get ocrExtractionNone(): boolean {
+        return this.current.types.ocrExtraction?.mode === 'none';
+    }
+
     /**
      * Translation key for a mode name or its description.
      * @param mode - Store, ephemeral, or none.
@@ -149,7 +154,9 @@ export class RetentionPolicyFormComponent {
      */
     setTypeMode(type: RetentionDataType, mode: RetentionMode): void {
         const current = this.current.types[type];
-        this.policyChange.emit(setTypeRule(this.current, type, { mode, retentionHours: current?.retentionHours }));
+        this.policyChange.emit(
+            setTypeRule(this.current, type, { mode, retentionHours: current?.retentionHours })
+        );
     }
 
     /**
@@ -184,3 +191,4 @@ export class RetentionPolicyFormComponent {
         this.policyChange.emit(setAllowManualDelete(this.current, allowed));
     }
 }
+

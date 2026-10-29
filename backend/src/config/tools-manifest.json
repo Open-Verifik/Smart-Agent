@@ -107,7 +107,7 @@
 			"url": "https://ai.verifik.co/api/co/runt/conductor",
 			"verifikPath": "/v2/co/runt/conductor",
 			"method": "GET",
-			"description": "Verify Colombian driver's licenses using the document number. Returns license status, categories, and expiration dates from official records.",
+			"description": "Verify driver''s licenses in Colombia using the document number with the Verifik API. Access official RUNT data, including license status, categories, and expiration dates.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -286,7 +286,7 @@
 			"url": "https://ai.verifik.co/api/co/runt/vehicle-by-vin",
 			"verifikPath": "/v2/co/runt/vehicle-by-vin",
 			"method": "GET",
-			"description": "Query vehicle information in Colombia using the VIN (Vehicle Identification Number). Returns complete official registration data.",
+			"description": "Query vehicle information in Colombia using the VIN (Vehicle Identification Number). Connect to the RUNT and obtain complete official data.",
 			"country": "Colombia",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -470,7 +470,7 @@
 			"url": "https://ai.verifik.co/api/co/contraloria/certificado",
 			"verifikPath": "/v2/co/contraloria/certificado",
 			"method": "POST",
-			"description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF.",
+			"description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF. found is true when a PDF was generated, not when the person has a fiscal record. isFiscallyResponsible is false for status NO_REPORTADO, true for REPORTADO, and null for UNKNOWN. The response also includes certificateCode, certifiedDocumentType, certifiedDocumentNumber, documentNumberMatches, consultedAt, rawText, and extractionMethod (regex, gemini, or none). extracted is an object of camelCase keys; each value is { label, value } with the original Spanish label. Lines written as Label: value are included automatically. The certificate does not include the person's name.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -531,8 +531,8 @@
 		},
 		{
 			"id": "mexico_api_vehicle",
-			"name": "Mexico - Mexico",
-			"category": "Mexico - Mexico",
+			"name": "Mexico - Mexico Vehicle by Plate",
+			"category": "Mexico - Mexico Vehicle by Plate",
 			"url": "https://ai.verifik.co/api/mx/vehiculo/placa",
 			"verifikPath": "/v2/mx/vehiculo/placa",
 			"method": "GET",
@@ -709,6 +709,37 @@
 				},
 				"required": [
 					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "mexico_api_rfc_lookup",
+			"name": "Mexico - RFC by CURP / RFC",
+			"category": "Mexico - RFC by CURP / RFC",
+			"url": "https://ai.verifik.co/api/mx/rfc",
+			"verifikPath": "/v2/mx/rfc",
+			"method": "GET",
+			"description": "Bidirectional lookup and SAT compliance validation between Mexican CURP and SAT RFC (Registro Federal de Contribuyentes).",
+			"country": "Mexico",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CURP",
+							"RFC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
 					"documentNumber"
 				]
 			}
@@ -1071,7 +1102,7 @@
 			"url": "https://ai.verifik.co/api/co/company/dian/invoicer",
 			"verifikPath": "/v2/co/company/dian/invoicer",
 			"method": "GET",
-			"description": "Validate legal invoicer registration for Colombian companies. Returns tax authority registration status.",
+			"description": "Validate legal invoicer registration in DIAN for Colombian companies with Verifik's KYB API.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1143,7 +1174,7 @@
 			"url": "https://ai.verifik.co/api/co/policia/rnmc",
 			"verifikPath": "/v2/co/policia/rnmc",
 			"method": "POST",
-			"description": "Verify police compliance with corrective measures in Colombia",
+			"description": "Verify police compliance with corrective measures in Colombia. The caller supplies the expedition date. Costs 0.30 credits and accepts CC, CE, PPT, and PA.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1213,7 +1244,7 @@
 			"url": "https://ai.verifik.co/api/co/company/dian",
 			"verifikPath": "/v2/co/company/dian",
 			"method": "GET",
-			"description": "Validate Colombian company tax registration status. Returns official tax authority data in seconds.",
+			"description": "Validate Colombian companies' DIAN status with Verifik's KYB API. Connect with official sources and verify tax authority data in seconds.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1786,6 +1817,39 @@
 			}
 		},
 		{
+			"id": "communication_global_messaging_whatsapp",
+			"name": "Global - WhatsApp Messaging",
+			"category": "Global - WhatsApp Messaging",
+			"url": "https://ai.verifik.co/api/communication/whatsapp",
+			"verifikPath": "/v2/communication/whatsapp",
+			"method": "POST",
+			"description": "Send WhatsApp messages globally through Verifik's gateway. Provide the recipient phone number, template, and variables; useful for OTP delivery, transactional alerts, and KYC notifications.",
+			"country": "world",
+			"priceUsd": 0.02,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"countryCode": {
+						"type": "string",
+						"description": "Parameter: countryCode"
+					},
+					"phone": {
+						"type": "string",
+						"description": "Parameter: phone"
+					},
+					"message": {
+						"type": "string",
+						"description": "Parameter: message"
+					}
+				},
+				"required": [
+					"countryCode",
+					"phone",
+					"message"
+				]
+			}
+		},
+		{
 			"id": "brasil_api_vehicle",
 			"name": "Brazil - Vehicle Information",
 			"category": "Brazil - Vehicle Information",
@@ -2194,7 +2258,7 @@
 			"url": "https://ai.verifik.co/api/co/runt/vehicle-by-plate",
 			"verifikPath": "/v2/co/runt/vehicle-by-plate",
 			"method": "GET",
-			"description": "Validate vehicles in Colombia using their license plate number. Returns official vehicle data in seconds.",
+			"description": "Validate vehicles in Colombia using their license plate number with the Verifik API. Connect to the RUNT and obtain official data in seconds.",
 			"country": "Colombia",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -2289,7 +2353,7 @@
 			"url": "https://ai.verifik.co/api/co/runt/propietarios",
 			"verifikPath": "/v2/co/runt/propietarios",
 			"method": "GET",
-			"description": "Verify vehicle ownership and registered owners using official national vehicle records.",
+			"description": "Verify vehicle ownership and registered owners through the RUNT system.",
 			"country": "Colombia",
 			"priceUsd": 6,
 			"parameters": {
@@ -2312,7 +2376,7 @@
 			"url": "https://ai.verifik.co/api/co/runt/vehicle-by-plate-only",
 			"verifikPath": "/v2/co/runt/vehicle-by-plate-only",
 			"method": "GET",
-			"description": "Query a Colombian vehicle using only the license plate, without the owner's document type or number.",
+			"description": "Query a Colombian RUNT vehicle using only the plate, without the owner's document type or number.",
 			"country": "Colombia",
 			"priceUsd": 2,
 			"parameters": {
@@ -2340,39 +2404,6 @@
 			"description": "Send SMS messages via Verifik's global gateway. Provide the destination phone number and message body; supports OTPs, transactional alerts, and notification flows with delivery metadata in the response.",
 			"country": "world",
 			"priceUsd": 0.1,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"countryCode": {
-						"type": "string",
-						"description": "Parameter: countryCode"
-					},
-					"phone": {
-						"type": "string",
-						"description": "Parameter: phone"
-					},
-					"message": {
-						"type": "string",
-						"description": "Parameter: message"
-					}
-				},
-				"required": [
-					"countryCode",
-					"phone",
-					"message"
-				]
-			}
-		},
-		{
-			"id": "communication_global_messaging_whatsapp",
-			"name": "Global - WhatsApp Messaging",
-			"category": "Global - WhatsApp Messaging",
-			"url": "https://ai.verifik.co/api/communication/whatsapp",
-			"verifikPath": "/v2/communication/whatsapp",
-			"method": "POST",
-			"description": "Send a WhatsApp one-time passcode through Verifik's gateway. Provide the destination country code and phone number; the API delivers an OTP template the same way SMS OTP does.",
-			"country": "world",
-			"priceUsd": 0.02,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -2574,6 +2605,31 @@
 			}
 		},
 		{
+			"id": "chile_api_driver_license_block",
+			"name": "Chile - Driver License Block Register",
+			"category": "Chile - Driver License Block Register",
+			"url": "https://ai.verifik.co/api/cl/driver-license/block",
+			"verifikPath": "/v2/cl/driver-license/block",
+			"method": "POST",
+			"description": "Query the Chile Registro Civil nationwide driver-license block register by RUN. Returns whether the license is blocked, holder name when available, and block metadata when a block exists.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber",
+						"minimum": 9,
+						"maximum": 12
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
 			"id": "colombia_api_sisconmp",
 			"name": "Colombia - SISCONMP Training Records",
 			"category": "Colombia - SISCONMP Training Records",
@@ -2612,7 +2668,7 @@
 			"url": "https://ai.verifik.co/api/co/runt/vehicle-by-plate-simplified",
 			"verifikPath": "/v2/co/runt/vehicle-by-plate-simplified",
 			"method": "GET",
-			"description": "Retrieve essential vehicle details in Colombia using the license plate. Fast lookup for basic vehicle verification.",
+			"description": "Retrieve essential vehicle details from RUNT Colombia using the license plate. Fast and efficient API for basic vehicle verification.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2703,7 +2759,7 @@
 			"url": "https://ai.verifik.co/api/ocr/scan-gpt",
 			"verifikPath": "/v2/ocr/scan-gpt",
 			"method": "POST",
-			"description": "Extract structured data from ID documents and other scans from an image. Returns structured fields (names, document numbers, dates) plus raw extracted text for downstream KYC workflows.",
+			"description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
 			"country": "world",
 			"priceUsd": 0.07,
 			"parameters": {
@@ -2785,7 +2841,7 @@
 			"url": "https://ai.verifik.co/api/co/foreigner-id/ce",
 			"verifikPath": "/v2/co/foreigner-id/ce",
 			"method": "POST",
-			"description": "Verify Colombian Cédula de Extranjería (CE) immigration status for foreign residents.",
+			"description": "Verify Cédula de Extranjería (CE) status with Migración Colombia via GET /v2/co/foreigner-id/ce.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2813,7 +2869,7 @@
 			"url": "https://ai.verifik.co/api/co/foreigner-id/pep",
 			"verifikPath": "/v2/co/foreigner-id/pep",
 			"method": "POST",
-			"description": "Verify Permiso Especial de Permanencia (PEP) immigration status for foreign residents in Colombia.",
+			"description": "Verify Permiso Especial de Permanencia (PEP) status with Migración Colombia via GET /v2/co/foreigner-id/pep.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2841,7 +2897,7 @@
 			"url": "https://ai.verifik.co/api/ocr/scan-studio",
 			"verifikPath": "/v2/ocr/scan-studio",
 			"method": "POST",
-			"description": "Extract structured information from document images. Provide the document image as Base64 or a hosted URL; returns structured fields for downstream workflows.",
+			"description": "The Scan Studio offers a seamless and efficient solution for extracting critical information from scanned documents through state-of-the-art Optical Character Recognition (OCR) technology. To use this service, simply provide the document image in Base64-encoded format or a URL where the image is hosted, and let our system handle the rest.",
 			"country": "world",
 			"priceUsd": 0.1,
 			"parameters": {
@@ -3393,8 +3449,8 @@
 		},
 		{
 			"id": "argentina_api_vehicle",
-			"name": "Argentina - Argentina",
-			"category": "Argentina - Argentina",
+			"name": "Argentina - Vehicle Information",
+			"category": "Argentina - Vehicle Information",
 			"url": "https://ai.verifik.co/api/ar/vehicle",
 			"verifikPath": "/v2/ar/vehicle",
 			"method": "GET",
@@ -4513,8 +4569,8 @@
 		},
 		{
 			"id": "peru_identity_lookup_v3",
-			"name": "Peru - Peru",
-			"category": "Peru - Peru",
+			"name": "Peru - Peruvian Citizen v3",
+			"category": "Peru - Peruvian Citizen v3",
 			"url": "https://ai.verifik.co/api/v3/pe/cedula",
 			"verifikPath": "/v3/pe/cedula",
 			"method": "GET",
@@ -4549,7 +4605,7 @@
 			"url": "https://ai.verifik.co/api/co/foreigner-id/ppt",
 			"verifikPath": "/v2/co/foreigner-id/ppt",
 			"method": "POST",
-			"description": "Verify Permiso de Protección Temporal (PPT) immigration status for foreign residents in Colombia.",
+			"description": "Verify Permiso de Protección Temporal (PPT) status with Migración Colombia via GET /v2/co/foreigner-id/ppt.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -5209,7 +5265,7 @@
 			"url": "https://ai.verifik.co/api/in/epic",
 			"verifikPath": "/v2/in/epic",
 			"method": "GET",
-			"description": "Retrieve Indian voter name and related fields using a 10-character EPIC (Voter ID).",
+			"description": "Retrieve voter name and related fields from the Electoral Commission of India (ECI) using a 10-character EPIC (Voter ID) via Verifik's API.",
 			"country": "India",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -5240,7 +5296,7 @@
 			"url": "https://ai.verifik.co/api/in/epic/votacion",
 			"verifikPath": "/v2/in/epic/votacion",
 			"method": "POST",
-			"description": "Retrieve assembly constituency, part, and polling-place details for an Indian EPIC (Voter ID).",
+			"description": "Retrieve assembly, part, and polling-place details for an Indian EPIC (Voter ID) from ECI-oriented sources via Verifik''s API.",
 			"country": "India",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -5489,7 +5545,7 @@
 			"url": "https://ai.verifik.co/api/mx/ine",
 			"verifikPath": "/v2/mx/ine",
 			"method": "POST",
-			"description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector identifiers.",
+			"description": "Validate a Mexican voter credential (INE) by CIC, OCR, or clave de elector.",
 			"country": "Mexico",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -5542,7 +5598,7 @@
 			"url": "https://ai.verifik.co/api/mx/ine/ocr",
 			"verifikPath": "/v2/mx/ine/ocr",
 			"method": "POST",
-			"description": "Extract data from a Mexican INE card image and validate electoral registry status in one request.",
+			"description": "Extract the fields from a Mexican voter credential (INE) image, then confirm the credential in the same request.",
 			"country": "Mexico",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -5732,7 +5788,7 @@
 			"url": "https://ai.verifik.co/api/co/cedula/registraduria",
 			"verifikPath": "/v2/co/cedula/registraduria",
 			"method": "GET",
-			"description": "Lookup Colombian birth civil registry records by document number from civil registry sources.",
+			"description": "Lookup Colombian birth civil registry records by document number via Registraduría SCCRC only (skips Procuraduría and DIAN)",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -5763,7 +5819,7 @@
 			"url": "https://ai.verifik.co/api/co/procuraduria",
 			"verifikPath": "/v2/co/procuraduria",
 			"method": "GET",
-			"description": "Validate a Colombian identity document and extract holder names (no disciplinary records).",
+			"description": "Validate a Colombian document and extract names from Procuraduría only (no disciplinary records)",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -5771,7 +5827,7 @@
 				"properties": {
 					"documentType": {
 						"type": "string",
-						"description": "Document type accepted for this lookup",
+						"description": "Document type supported by Procuraduría",
 						"enum": [
 							"CC",
 							"CE",
@@ -5798,7 +5854,7 @@
 			"url": "https://ai.verifik.co/api/v3/co/runt/conductor",
 			"verifikPath": "/v3/co/runt/conductor",
 			"method": "GET",
-			"description": "Verify Colombian driver's licenses using the document number and first last name. Returns license status, categories, and expiration dates from official records.",
+			"description": "Verify driver's licenses in Colombia using the document number and first last name with the Verifik API. Access official RUNT data, including license status, categories, and expiration dates.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -5936,6 +5992,243 @@
 				},
 				"required": [
 					"licenseNumber"
+				]
+			}
+		},
+		{
+			"id": "mexico_api_siged_certificado",
+			"name": "Mexico - Education Certificate (folio)",
+			"category": "Mexico - Education Certificate (folio)",
+			"url": "https://ai.verifik.co/api/mx/siged/certificado",
+			"verifikPath": "/v2/mx/siged/certificado",
+			"method": "POST",
+			"description": "Validate a Mexican electronic education certificate by folio against the official education-certificate registry. Optionally send fullName or CURP to confirm the certificate belongs to the person; a mismatch returns 409 name_mismatch. When both are sent, CURP wins.",
+			"country": "Mexico",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"folio": {
+						"type": "string",
+						"description": "Folio printed on the electronic certificate.",
+						"minimum": 4,
+						"maximum": 64
+					},
+					"fullName": {
+						"type": "string",
+						"description": "Expected full name. Optional. A mismatch returns 409 name_mismatch. Ignored when curp is also sent.",
+						"minimum": 3,
+						"maximum": 160
+					},
+					"curp": {
+						"type": "string",
+						"description": "CURP of the person. Optional. When sent, it overrides fullName. A mismatch returns 409 name_mismatch.",
+						"minimum": 17,
+						"maximum": 18
+					}
+				},
+				"required": [
+					"folio"
+				]
+			}
+		},
+		{
+			"id": "ecuador_api_voting_location",
+			"name": "Ecuador - Voting Location",
+			"category": "Ecuador - Voting Location",
+			"url": "https://ai.verifik.co/api/ec/votacion",
+			"verifikPath": "/v2/ec/votacion",
+			"method": "POST",
+			"description": "Ecuador voting location lookup for province, canton, parish, polling place code, and junta from the official CNE electoral registry.",
+			"country": "Ecuador",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Document type. Allowed value: CCEC.",
+						"enum": [
+							"CCEC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Ecuadorian cédula (10 digits, including the check digit)."
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_valuation_sibga",
+			"name": "Colombia - Vehicle Commercial Valuation (SIBGA)",
+			"category": "Colombia - Vehicle Commercial Valuation (SIBGA)",
+			"url": "https://ai.verifik.co/api/co/sibga/valuation",
+			"verifikPath": "/v2/co/sibga/valuation",
+			"method": "POST",
+			"description": "Official Ministerio de Transporte (SIBGA) commercial value for a Colombian vehicle plate, mapped automatically from RUNT.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate",
+						"minimum": 5,
+						"maximum": 9
+					},
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"period": {
+						"type": "number",
+						"description": "Parameter: period",
+						"minimum": 2016
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "mexico_api_cedula_profesional",
+			"name": "Mexico - Professional License",
+			"category": "Mexico - Professional License",
+			"url": "https://ai.verifik.co/api/mx/cedula-profesional",
+			"verifikPath": "/v2/mx/cedula-profesional",
+			"method": "GET",
+			"description": "Look up a Mexican professional license by CURP, license number, or name in the official professional registry. CURP is matched directly first; when there is no direct match, the CURP holder's official name is used for an exact-name match at no extra cost.",
+			"country": "Mexico",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "CURP (preferred for health hiring) or CEDULA. Omit both document fields and send firstName plus lastName for a name search.",
+						"enum": [
+							"CURP",
+							"CEDULA"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "CURP (17–18 characters) or license number. Required when documentType is set."
+					},
+					"firstName": {
+						"type": "string",
+						"description": "Given names. Required together with lastName when documentType is omitted.",
+						"minimum": 2,
+						"maximum": 80
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Both surnames, paternal first. Required together with firstName when documentType is omitted.",
+						"minimum": 2,
+						"maximum": 80
+					}
+				},
+				"required": []
+			}
+		},
+		{
+			"id": "mexico_api_health_worker",
+			"name": "Mexico - Health Worker License",
+			"category": "Mexico - Health Worker License",
+			"url": "https://ai.verifik.co/api/mx/health-worker",
+			"verifikPath": "/v2/mx/health-worker",
+			"method": "POST",
+			"description": "Validate that a person holds a Mexican health-related professional license (medicine, nursing, dentistry, pharmacy, nutrition, clinical psychology, psychiatry, obstetrics, physiotherapy, optometry). Veterinary licenses are excluded. A person with only non-health licenses returns 404. Same CURP, license number, or name inputs as the general license endpoint.",
+			"country": "Mexico",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "CURP (preferred for health hiring) or CEDULA. Omit both document fields and send firstName plus lastName for a name search.",
+						"enum": [
+							"CURP",
+							"CEDULA"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "CURP (17–18 characters) or license number. Required when documentType is set."
+					},
+					"firstName": {
+						"type": "string",
+						"description": "Given names. Required together with lastName when documentType is omitted.",
+						"minimum": 2,
+						"maximum": 80
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Both surnames, paternal first. Required together with firstName when documentType is omitted.",
+						"minimum": 2,
+						"maximum": 80
+					}
+				},
+				"required": []
+			}
+		},
+		{
+			"id": "colombia_api_cedula_barcode",
+			"name": "Colombia — Cédula PDF417 barcode",
+			"category": "Colombia — Cédula PDF417 barcode",
+			"url": "https://ai.verifik.co/api/co/cedula/barcode",
+			"verifikPath": "/v2/co/cedula/barcode",
+			"method": "GET",
+			"description": "Decode the PDF417 barcode on the back of a Colombian cédula (CC) from a base64 or HTTPS image. Optionally cross-check document number and names against the decoded payload.",
+			"country": "Colombia",
+			"priceUsd": 0.05,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"backImage": {
+						"type": "string",
+						"description": "Back of the cédula as base64 (with or without data-URI prefix) or HTTPS URL."
+					},
+					"documentType": {
+						"type": "string",
+						"description": "CC, CO:1993_CC, or CO:DIGITAL_CC. Defaults to CC."
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Optional cross-check against the barcode document number."
+					},
+					"firstName": {
+						"type": "string",
+						"description": "Optional cross-check against barcode given names."
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Optional cross-check against barcode surnames."
+					},
+					"crossCheck": {
+						"type": "object",
+						"description": "Optional object with documentNumber, firstName, lastName, gender, dateOfBirth, bloodType."
+					}
+				},
+				"required": [
+					"backImage"
 				]
 			}
 		}

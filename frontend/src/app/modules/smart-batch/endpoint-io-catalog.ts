@@ -572,6 +572,42 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "colombia_api_cedula_barcode": {
+        "inputs": [
+            "backImage",
+            "documentType",
+            "documentNumber",
+            "firstName",
+            "lastName",
+            "gender",
+            "dateOfBirth",
+            "bloodType",
+            "barcodeReadAttempts"
+        ],
+        "outputs": [
+            "verdict",
+            "barcode",
+            "decoded",
+            "attempts",
+            "reason",
+            "matchScores",
+            "disagreements",
+            "documentNumber",
+            "primerNombre",
+            "segundoNombre",
+            "primerApellido",
+            "segundoApellido",
+            "gender",
+            "dateOfBirth",
+            "bloodType",
+            "fullName"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC"
+            ]
+        }
+    },
     "colombia_api_adres": {
         "inputs": [
             "documentType",
@@ -767,6 +803,40 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
         "inputEnums": {
             "documentType": [
                 "CURP"
+            ]
+        }
+    },
+    "mexico_api_rfc_lookup": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "curp",
+            "rfc",
+            "homoclave",
+            "personType",
+            "checkDigitValid",
+            "firstName",
+            "lastName",
+            "fullName",
+            "paternalSurname",
+            "maternalSurname",
+            "dateOfBirth",
+            "gender",
+            "sex",
+            "state",
+            "stateCode",
+            "country",
+            "nationality",
+            "satCompliance"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CURP",
+                "RFC"
             ]
         }
     },
@@ -2103,6 +2173,19 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "names",
             "procedure",
             "restrictions"
+        ]
+    },
+    "chile_api_driver_license_block": {
+        "inputs": [
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentNumber",
+            "fullName",
+            "hasBlock",
+            "blockStatusText",
+            "licenseNumber",
+            "block"
         ]
     },
     "api_autodata_manufacturers": {

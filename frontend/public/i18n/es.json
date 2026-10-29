@@ -4337,7 +4337,7 @@
                 },
                 "colombianBarcode": {
                     "title": "Código de barras de la cédula colombiana",
-                    "subtitle": "Lee el código de barras del reverso de la cédula y lo compara con el frente. Si no coinciden, el registro pasa a verificación manual."
+                    "subtitle": "Protección antifraude: decodifica el código PDF417 del reverso y lo contrasta con el frente. Detecta documentos falsificados o manipulados y envía discrepancias a verificación manual."
                 },
                 "screening": {
                     "title": "Revisión en bases de datos",
@@ -5322,6 +5322,7 @@
             "typeOcrExtractionDesc": "Nombres, números de documento, fechas y otros campos leídos del documento.",
             "retentionHours": "Conservar (horas)",
             "retentionDuration": "Tiempo de conservación",
+            "storageMode": "Modo de almacenamiento",
             "customHours": "Horas",
             "durationForever": "Indefinido (conservar siempre)",
             "duration12h": "12 horas",
@@ -5343,6 +5344,7 @@
             "retentionHoursForever": "Hasta que cambie la política",
             "faceNoneWarning": "Las imágenes de rostro en ninguno se conservan hasta que termina la espera del webhook y después se eliminan. La comparación facial puede ejecutarse durante esa espera.",
             "documentLivenessNoneNote": "Las fotos de presencia del documento en ninguno no se suben.",
+            "ocrExtractionNoneNote": "Los campos extraídos en ninguno enmascaran el número de documento de inmediato (p. ej. ****5413), y el texto OCR sin procesar nunca se conserva en la base de datos.",
             "typeDocumentLiveness": "Fotos de presencia del documento",
             "typeDocumentLivenessDesc": "Fotos que comprueban que el documento está físicamente presente. Ninguno significa que esas fotos no se suben.",
             "webhookHoldTitle": "Espera del webhook",
@@ -8316,6 +8318,8 @@
             "metaCategory": "Categoría",
             "metaSubject": "Asunto",
             "metaApi": "API",
+            "initiatedByVerifik": "Iniciado por Verifik",
+            "awaitingYourReply": "Esperando tu respuesta",
             "attachmentDownloadAria": "Descargar {{name}}",
             "fullscreenEnterAria": "Expandir panel de tickets de soporte",
             "fullscreenExitAria": "Salir de pantalla completa",
@@ -8340,8 +8344,8 @@
                 "heading": "Nuevo ticket de soporte",
                 "priority": "Prioridad",
                 "priorityHint": "Usa crítica solo cuando el tráfico de producción está bloqueado.",
-                "criticalSlaTitle": "Los tickets críticos reciben una primera respuesta en menos de 24 horas",
-                "criticalSlaBody": "Buscamos resolverlos en menos de 48 horas. Ambos plazos empiezan cuando envías el ticket.",
+                "criticalSlaTitle": "Los tickets críticos reciben primera respuesta en menos de 1 hora",
+                "criticalSlaBody": "Atención continua 24/7 con guardia activa y resolución objetivo en menos de 24 horas. Ambos plazos inician al enviar el ticket.",
                 "supportHours": "Los plazos se muestran en {{timezone}}.",
                 "fieldTitle": "Título",
                 "titleRequired": "El título es obligatorio",

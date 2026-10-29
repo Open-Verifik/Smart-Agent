@@ -5,11 +5,12 @@
                 "title": "Código de barras del reverso",
                 "attempts": "{{count}} intentos de lectura",
                 "unreadableWarning": "El registro puede aprobarse. No se pudo leer el código del reverso, así que esto queda como advertencia.",
-                "mismatchLead": "El código del reverso no coincide con el frente. La cédula puede haber sido alterada.",
+                "mismatchLead": "Alerta de fraude: Los datos del código del reverso no coinciden con el frente. Este documento presenta indicios claros de alteración o falsificación.",
                 "verdict": {
                     "confirmed": "Coincide con el frente",
-                    "mismatch": "Posible alteración",
-                    "unreadable": "Reverso no validado"
+                    "mismatch": "Alteración / Fraude detectado",
+                    "unreadable": "Reverso no validado",
+                    "decoded": "Código decodificado"
                 },
                 "field": {
                     "fullName": "Nombre en el código",
@@ -66,6 +67,10 @@
         "wizard": {
             "moveToFront": "Mover al frente",
             "moveToBack": "Mover al reverso"
+        },
+        "colombianBarcode": {
+            "title": "Código de barras cédula colombiana",
+            "subtitle": "Protección antifraude: decodifica el código PDF417 del reverso y contrástalo con el frente para detectar cédulas alteradas o falsificadas."
         }
     }
 }

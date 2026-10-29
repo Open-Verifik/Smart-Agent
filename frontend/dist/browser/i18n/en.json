@@ -3859,7 +3859,7 @@
                 },
                 "colombianBarcode": {
                     "title": "Colombian cédula barcode",
-                    "subtitle": "Read the barcode on the back of the cédula and compare it with the front. A mismatch sends the enrollment to manual verification."
+                    "subtitle": "Anti-fraud protection: decode the rear PDF417 barcode and cross-check it against the front. Detects forged or tampered cards and flags mismatches for manual review."
                 },
                 "screening": {
                     "title": "Database screening",
@@ -5328,6 +5328,7 @@
             "typeDocumentLivenessDesc": "Photos that check the document is physically present. None means those photos are not uploaded.",
             "retentionHours": "Keep for (hours)",
             "retentionDuration": "Keep duration",
+            "storageMode": "Storage mode",
             "customHours": "Hours",
             "durationForever": "Indefinite (keep forever)",
             "duration12h": "12 hours",
@@ -5349,6 +5350,7 @@
             "retentionHoursForever": "Until the policy changes",
             "faceNoneWarning": "Face images set to none are kept until the webhook hold ends, then removed. Face comparison can still run during that hold.",
             "documentLivenessNoneNote": "Document-presence photos set to none are not uploaded.",
+            "ocrExtractionNoneNote": "Extracted document fields set to None mask document numbers immediately upon capture (e.g. ****5413), and raw OCR text is never retained in database records.",
             "webhookHoldTitle": "Webhook hold",
             "webhookHoldDesc": "Hours to keep ephemeral and none data when a webhook is configured, from 24 to 72. Without a webhook, that data is eligible for purge on the next run.",
             "loadError": "Could not load data retention settings.",
@@ -8320,6 +8322,8 @@
             "metaCategory": "Category",
             "metaSubject": "Subject",
             "metaApi": "API",
+            "initiatedByVerifik": "Initiated by Verifik",
+            "awaitingYourReply": "Awaiting your reply",
             "attachmentDownloadAria": "Download {{name}}",
             "fullscreenEnterAria": "Expand support tickets panel",
             "fullscreenExitAria": "Exit full screen",
@@ -8344,8 +8348,8 @@
                 "heading": "New support ticket",
                 "priority": "Priority",
                 "priorityHint": "Use critical only when production traffic is blocked.",
-                "criticalSlaTitle": "Critical tickets get a first response within 24 hours",
-                "criticalSlaBody": "We aim to resolve them within 48 hours. Both clocks start when you submit the ticket.",
+                "criticalSlaTitle": "Critical tickets get a first response within 1 hour",
+                "criticalSlaBody": "24/7 continuous on-call coverage with a target resolution within 24 hours. Both clocks start when you submit the ticket.",
                 "supportHours": "Due times are shown in {{timezone}}.",
                 "fieldTitle": "Title",
                 "titleRequired": "Title is required",

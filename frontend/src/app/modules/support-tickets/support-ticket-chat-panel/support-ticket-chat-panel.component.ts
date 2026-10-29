@@ -291,6 +291,29 @@ export class SupportTicketChatPanelComponent implements OnDestroy {
         return map[status] ?? map.pending;
     }
 
+    priorityBadgeClass(priority: string | undefined): string {
+        switch (priority) {
+            case 'critical':
+                return 'bg-red-100 text-red-950 ring-1 ring-red-300 dark:bg-red-950/40 dark:text-red-200 dark:ring-red-800/60';
+            case 'high':
+                return 'bg-orange-100 text-orange-950 ring-1 ring-orange-300 dark:bg-orange-950/40 dark:text-orange-200 dark:ring-orange-800/60';
+            case 'low':
+                return 'bg-stone-100 text-stone-800 ring-1 ring-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:ring-stone-700';
+            default:
+                return 'bg-blue-100 text-blue-950 ring-1 ring-blue-300 dark:bg-blue-950/40 dark:text-blue-200 dark:ring-blue-800/60';
+        }
+    }
+
+    isStaffInitiated(ticket: SupportTicket | null | undefined): boolean {
+        if (!ticket) return false;
+        return ticket.source === 'staff' || ticket.sourceCategory === 'staff_outreach';
+    }
+
+    isAwaitingClientReply(ticket: SupportTicket | null | undefined): boolean {
+        if (!this.isStaffInitiated(ticket)) return false;
+        return ticket?.slaAnchorAt === null || ticket?.slaAnchorAt === undefined;
+    }
+
     categoryLabelKey(cat: SupportTicketCategory): string {
         return `supportTickets.quickChat.categories.${cat}`;
     }

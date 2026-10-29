@@ -9,12 +9,12 @@
             "description": "개인 시민 정보 접근 를 위한 Colombian nationals. 이 서비스는 포괄적인 개인 데이터를 제공 포함 detailed identity verification. 자세한 내용은 Verifik 고객 서비스에 문의하세요."
         },
         "colombia_api_identity_lookup": {
-            "title": "콜롬비아 — 국민 신분증 확인",
-            "description": "문서 번호(CC, CE, PPT, NIT, PEP)로 콜롬비아 신원을 확인합니다. GET /v2/co/cedula."
+            "title": "콜롬비아 — 국민 신분증 확인 (CC·PPT)",
+            "description": "콜롬비아 국민 신분증(CC) 또는 PPT로 신원을 확인합니다. GET /v2/co/cedula."
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "콜롬비아 — 경찰 범죄 경력 조회",
-            "description": "콜롬비아 경찰 범죄 경력 조회 서비스."
+            "description": "GET 또는 POST /v2/co/policia/consultar 로 콜롬비아 경찰 범죄 경력을 조회합니다."
         },
         "world_api_dea": {
             "title": "🌐 DEA 배경 조회",
@@ -142,7 +142,7 @@
         },
         "colombia_api_driver": {
             "title": "RUNT — 운전면허",
-            "description": "문서번호로 콜롬비아 운전면허 상태·카테고리·유효기간 등을 조회합니다."
+            "description": "콜롬비아 RUNT에서 운전면허 상태·카테고리·유효기간 등을 문서번호로 조회합니다."
         },
         "peru_api_vehicle": {
             "title": "페루 — 차량 정보",
@@ -238,11 +238,11 @@
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "RUNT — 차량（번호판+신분증）",
-            "description": "번호판과 신분증만으로 콜롬비아 차량 정보를 조회합니다."
+            "description": "번호판과 신분증만으로 RUNT 차량 정보를 조회합니다."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — VIN 차량 확인",
-            "description": "VIN으로 콜롬비아 차량의 등록 데이터 및 상세 이력·기술 정보를 조회합니다."
+            "description": "콜롬비아 RUNT에서 VIN으로 차량의 상세 이력·기술 정보를 조회합니다."
         },
         "peru_identity_extra_lookup": {
             "title": "페루 - 국민ID 검증",
@@ -429,7 +429,7 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "world_api_phone_lookup": {
-            "title": "전화번호 조회",
+            "title": "🌐 글로벌 — 전화번호 조회",
             "description": "GET 또는 POST /v2/look-ups/phone 으로 전 세계 전화번호를 조회합니다. 목록에 있는 소유자 이름과 관련 프로필 필드를 반환합니다."
         },
         "Mexico_api_ine_model_e": {
@@ -498,7 +498,7 @@
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — 번호판별 차량（간편·별칭）",
-            "description": "번호판과 명의인 신분증으로 콜롬비아 차량 핵심 정보를 조회합니다."
+            "description": "번호판과 명의인 신분증으로 RUNT 차량 핵심 정보를 조회합니다."
         },
         "canada_api_driver_license_quebec": {
             "title": "퀘벡 — 운전면허",
@@ -581,8 +581,8 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
-            "title": "Fasecolda — 번호판별 차량 가치",
-            "description": "번호판으로 Fasecolda 차량 가치·사양 정보를 조회합니다."
+            "title": "Fasecolda — 번호판 차량 가치",
+            "description": "이중 소스 제원 매칭 및 신뢰도 분석을 제공하는 콜롬비아 Fasecolda 번호판 차량 가치 조회 API"
         },
         "colombia_api_vehicle_valores_fasecolda_by_code": {
             "title": "Fasecolda — 코드별 차량 가치",
@@ -593,8 +593,8 @@
             "description": "Verifik KYB API로 기업명을 사용해 미국 기업을 검증합니다."
         },
         "colombia_api_runt_owners": {
-            "title": "콜롬비아 - 차량 소유자(RUNT)",
-            "description": "공식 차량 등록 정보로 소유자 및 등록 명의인을 확인합니다."
+            "title": "RUNT — 번호판별 차량 소유자",
+            "description": "번호판만으로 콜롬비아 차량과 소유권 기록을 조회합니다."
         },
         "colombia_api_vehicle_owners": {
             "title": "콜롬비아 - 차량 소유자 이력",
@@ -822,7 +822,7 @@
         },
         "peru_identity_extra_lookup_v3": {
             "title": "페루 — DNI(확장 정보)",
-            "description": "Verifik의 KYC API를 사용하여 페루 시민의 DNI(국가 신분증)에 대한 확장 정보(주소, 출생일, 사진, 시민 상태 등)를 조회합니다. 공식 RENIEC 데이터에 직접 연결되어 수 초 내에 신원을 검증합니다."
+            "description": "Verifik의 KYC API를 사용하여 페루 시민의 DNI(국가 신분증)에 대한 확장 정보를 조회합니다. 공식 RENIEC 데이터에 직접 연결되어 수 초 내에 신원을 검증합니다."
         },
         "colombia_api_identity_ppt_foreigner_id": {
             "title": "콜롬비아 — PPT(임시 보호 허가)",
@@ -914,7 +914,7 @@
         },
         "colombia_api_identity_lookup_procuraduria": {
             "title": "콜롬비아 — Procuraduría 시민 조회",
-            "description": "GET /v2/co/procuraduria로 Procuraduría에서 이름만 조회합니다 (CC, CE, PPT, NIT, PEP). 징계 기록은 반환하지 않습니다."
+            "description": "GET/POST /v2/co/procuraduria로 콜롬비아 문서를 검증하고 이름을 추출합니다(Procuraduría만, 징계 기록 없음)."
         },
         "mexico_api_ine_ocr": {
             "title": "멕시코 — INE OCR",
@@ -926,15 +926,15 @@
         },
         "mexico_api_cedula_profesional": {
             "title": "멕시코 — 전문 면허",
-            "description": "CURP, 면허 번호 또는 이름으로 멕시코 전문 면허를 조회합니다. CURP를 먼저 직접 대조하고, 직접 일치가 없으면 보유자의 공식 이름으로 추가 비용 없이 정확히 대조합니다."
+            "description": "CURP, 면허 번호 또는 이름으로 공식 전문 면허 등록부에서 멕시코 전문 면허를 조회합니다."
         },
         "mexico_api_health_worker": {
             "title": "멕시코 — 보건 전문가 면허",
-            "description": "의학, 간호, 정신의학, 산과, 물리치료, 검안을 포함해 멕시코 보건 관련 전문 면허 보유 여부를 확인합니다. 보건 외 면허만 있으면 404를 반환합니다."
+            "description": "해당자가 멕시코 보건 관련 전문 면허를 보유했는지 확인합니다. 비보건 면허만 있는 경우 404를 반환합니다."
         },
         "mexico_api_siged_certificado": {
             "title": "멕시코 — 학업 증명서 (folio)",
-            "description": "folio로 멕시코 전자 학업 증명서를 검증합니다. fullName 또는 CURP를 보낼 수 있으며, 불일치하면 409 name_mismatch를 반환합니다. 둘 다 보내면 CURP가 우선합니다."
+            "description": "folio로 공식 학업 증명서 등록부에서 멕시코 전자 학업 증명서를 검증합니다."
         },
         "colombia_api_copnia_license": {
             "title": "콜롬비아 — 등록 번호로 COPNIA 면허 조회",
@@ -946,7 +946,7 @@
         },
         "colombia_api_vehicle_valuation_sibga": {
             "title": "SIBGA - 차량 상업 평가액",
-            "description": "콜롬비아 번호판의 공식 상업 평가액. 전국 차량 등록 데이터를 기반으로 합니다."
+            "description": "콜롬비아 번호판의 교통부(SIBGA) 공식 상업 평가액. RUNT 데이터를 자동으로 대응합니다."
         },
         "smart_enroll_pyg": {
             "title": "Smart Enroll 무료",
@@ -973,8 +973,20 @@
             "description": "Smart Access 비즈니스 요금제. 월간 한도가 가장 높습니다."
         },
         "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "RUNT 번호판만 차량 조회",
-            "description": "소유자 서류 없이 번호판만으로 콜롬비아 차량을 조회합니다."
+            "title": "RUNT - 번호판만으로 차량 조회",
+            "description": "소유자 서류 종류·번호 없이 번호판만으로 콜롬비아 RUNT 차량을 조회합니다."
+        },
+        "colombia_api_driver_basic": {
+            "title": "RUNT — 운전면허 (Basic)",
+            "description": "/v3/co/runt/conductor 에서 RUNT 운전면허를 조회합니다. primerApellido 필수. Basic 요금."
+        },
+        "chile_api_vehicle_stolen": {
+            "title": "칠레 — 도난 차량",
+            "description": "칠레 차량에 활성 도난·절도 신고(encargo por robo o hurto)가 있는지 조회합니다."
+        },
+        "chile_api_driver_license_block": {
+            "title": "칠레 — 운전면허 정지 및 차단 등록부",
+            "description": "칠레 Registro Civil 전국 운전면허 차단 등록부를 RUN으로 조회합니다. 운전면허 정지/차단 여부, 명의자 성명, 차단 사유 및 일자를 확인하여 차량 및 KYC 컴플라이언스를 보장합니다."
         }
     }
 }
