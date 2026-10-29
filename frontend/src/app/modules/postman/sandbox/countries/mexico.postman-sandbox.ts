@@ -12,6 +12,7 @@ import {
 } from '../vehicle-plate-profiles';
 
 export const MEXICO_IDENTITY_ENDPOINT_CODE = 'mexico_identity_lookup';
+export const MEXICO_RFC_ENDPOINT_CODE = 'mexico_api_rfc_lookup';
 export const MEXICO_COMPANY_ENDPOINT_CODE = 'mexico_api_company';
 export const MEXICO_VEHICLE_ENDPOINT_CODE = 'mexico_api_vehicle';
 export const MEXICO_INE_VALIDATE_ENDPOINT_CODE = 'mexico_api_ine_validate';
@@ -112,6 +113,19 @@ export const MEXICO_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         defaultDocumentNumber: 'LOPE900501HDFGRN01',
         documentTypeByCode: {
             [MEXICO_IDENTITY_ENDPOINT_CODE]: 'CURP',
+        },
+        showProfileMeta: false,
+    },
+    [MEXICO_RFC_ENDPOINT_CODE]: {
+        profiles: [
+            ...MEXICO_SANDBOX_PROFILES,
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            MEXICO_CONFLICT_INVALID_DOCUMENT_TYPE,
+            MEXICO_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: 'LOPE900501HDFGRN01',
+        documentTypeByCode: {
+            [MEXICO_RFC_ENDPOINT_CODE]: 'CURP',
         },
         showProfileMeta: false,
     },

@@ -140,6 +140,10 @@
             "title": "CURP",
             "description": "Valida la identidad de personas en México usando CURP con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
         },
+        "mexico_api_rfc_lookup": {
+            "title": "RFC por CURP",
+            "description": "Consulta el RFC del SAT (Registro Federal de Contribuyentes) asociado a una CURP mexicana con la API de identidad de Verifik."
+        },
         "ecuador_api_identity_lookup": {
             "title": "Ciudadano Ecuatoriano",
             "description": "Valida la identidad de personas en Ecuador con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."

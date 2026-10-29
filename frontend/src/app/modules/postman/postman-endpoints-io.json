@@ -3125,6 +3125,105 @@
       ]
     },
     {
+      "code": "mexico_api_rfc_lookup",
+      "name": "Mexico - RFC by CURP",
+      "nameES": "México - RFC por CURP",
+      "country": "Mexico",
+      "category": "identity",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/mx/rfc",
+      "description": "Look up the SAT RFC (Registro Federal de Contribuyentes) registered to a Mexican CURP.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CURP"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true,
+            "min": 17,
+            "max": 18
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Allowed value: `CURP`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "The CURP value to look up."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CURP",
+              "documentNumber": "VADA771208HJCRLL03",
+              "rfc": "VADA771208L94",
+              "homoclave": "L94",
+              "firstName": "ALEJANDRO",
+              "lastName": "VARGAS DELGADILLO",
+              "fullName": "ALEJANDRO VARGAS DELGADILLO",
+              "paternalSurname": "VARGAS",
+              "maternalSurname": "DELGADILLO",
+              "dateOfBirth": "1977-12-08",
+              "gender": "MASCULINO",
+              "sex": "H",
+              "state": "JALISCO",
+              "stateCode": "JC",
+              "country": "Mexico",
+              "nationality": "Mexican"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 29, 2026 12:00 AM"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
       "code": "mexico_identity_lookup",
       "name": "Mexico - Mexican Citizen",
       "nameES": "Mexico - Ciudadano Mexicano",
