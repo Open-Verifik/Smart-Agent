@@ -119,6 +119,16 @@ export const MEXICO_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
     [MEXICO_RFC_ENDPOINT_CODE]: {
         profiles: [
             ...MEXICO_SANDBOX_PROFILES,
+            {
+                documentNumber: 'LOPE9005011A8',
+                fullName: 'ANA LOPEZ RUIZ — RFC (Persona Física)',
+                paramOverrides: { documentType: 'RFC', documentNumber: 'LOPE9005011A8' },
+            },
+            {
+                documentNumber: 'AAA080808HL8',
+                fullName: 'AAA Y ASOCIADOS DISTRIBUIDORA — RFC (Persona Moral)',
+                paramOverrides: { documentType: 'RFC', documentNumber: 'AAA080808HL8' },
+            },
             SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
             MEXICO_CONFLICT_INVALID_DOCUMENT_TYPE,
             MEXICO_ERROR_PROFILE_404,

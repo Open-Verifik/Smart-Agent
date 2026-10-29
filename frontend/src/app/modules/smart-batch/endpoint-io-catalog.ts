@@ -814,8 +814,11 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
         "outputs": [
             "documentType",
             "documentNumber",
+            "curp",
             "rfc",
             "homoclave",
+            "personType",
+            "checkDigitValid",
             "firstName",
             "lastName",
             "fullName",
@@ -827,11 +830,13 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "state",
             "stateCode",
             "country",
-            "nationality"
+            "nationality",
+            "satCompliance"
         ],
         "inputEnums": {
             "documentType": [
-                "CURP"
+                "CURP",
+                "RFC"
             ]
         }
     },

@@ -3126,14 +3126,14 @@
     },
     {
       "code": "mexico_api_rfc_lookup",
-      "name": "Mexico - RFC by CURP",
-      "nameES": "México - RFC por CURP",
+      "name": "Mexico - RFC by CURP / RFC",
+      "nameES": "México - RFC por CURP / RFC",
       "country": "Mexico",
       "category": "identity",
       "group": "apiRequest",
       "method": "GET",
       "url": "v2/mx/rfc",
-      "description": "Look up the SAT RFC (Registro Federal de Contribuyentes) registered to a Mexican CURP.",
+      "description": "Bidirectional lookup and SAT compliance validation between Mexican CURP and SAT RFC (Registro Federal de Contribuyentes).",
       "price": 0.3,
       "isAvailable": true,
       "catalogHidden": false,
@@ -3154,25 +3154,26 @@
             "type": "String",
             "required": false,
             "enum": [
-              "CURP"
+              "CURP",
+              "RFC"
             ]
           },
           {
             "field": "documentNumber",
             "type": "String",
             "required": true,
-            "min": 17,
+            "min": 12,
             "max": 18
           }
         ],
         "documentedParams": [
           {
             "field": "documentType",
-            "description": "Allowed value: `CURP`."
+            "description": "Allowed values: `CURP`, `RFC`."
           },
           {
             "field": "documentNumber",
-            "description": "The CURP value to look up."
+            "description": "The Mexican CURP (18 chars) or SAT RFC (12–13 chars) to look up."
           }
         ]
       },
@@ -3184,8 +3185,11 @@
             "data": {
               "documentType": "CURP",
               "documentNumber": "VADA771208HJCRLL03",
+              "curp": "VADA771208HJCRLL03",
               "rfc": "VADA771208L94",
               "homoclave": "L94",
+              "personType": "FISICA",
+              "checkDigitValid": true,
               "firstName": "ALEJANDRO",
               "lastName": "VARGAS DELGADILLO",
               "fullName": "ALEJANDRO VARGAS DELGADILLO",
@@ -3197,7 +3201,15 @@
               "state": "JALISCO",
               "stateCode": "JC",
               "country": "Mexico",
-              "nationality": "Mexican"
+              "nationality": "Mexican",
+              "satCompliance": {
+                "isFlagged": false,
+                "in69B": false,
+                "status69B": null,
+                "inArt69": false,
+                "categoriesArt69": [],
+                "records": []
+              }
             },
             "signature": {
               "message": "Certified by Verifik.co",
