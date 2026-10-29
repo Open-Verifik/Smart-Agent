@@ -185,6 +185,7 @@
   "v2/mx/health-worker": "identity/mexico-health-worker",
   "v2/mx/ine": "identity/mexico-ine",
   "v2/mx/ine/ocr": "identity/mexico-ine-ocr",
+  "v2/mx/rfc": "identity/mexico-rfc",
   "v2/mx/siged/certificado": "identity/mexico-siged-certificado",
   "v2/mx/vehiculo/placa": "vehicle-validation/mexico",
   "v2/ocr/scan-prompt": "ocr-engines/scan-prompt",

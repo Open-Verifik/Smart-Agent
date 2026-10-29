@@ -806,6 +806,35 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "mexico_api_rfc_lookup": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "rfc",
+            "homoclave",
+            "firstName",
+            "lastName",
+            "fullName",
+            "paternalSurname",
+            "maternalSurname",
+            "dateOfBirth",
+            "gender",
+            "sex",
+            "state",
+            "stateCode",
+            "country",
+            "nationality"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CURP"
+            ]
+        }
+    },
     "peru_api_vehicle": {
         "inputs": [
             "plate"
