@@ -17,9 +17,23 @@ import {
     signal,
     untracked,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { autolinkHtml } from '../report-autolink.util';
+import {
+    barRects,
+    buildChartSlices,
+    isReportChartKind,
+    pieArcs,
+    ReportChartBar,
+    ReportChartKind,
+    ReportChartPieArc,
+    ReportChartSlice,
+} from '../report-chart.util';
+import { reportDateStampForPath, substituteReportPlaceholders } from '../report-date-stamp.util';
+import { reportJumpAnchorId, reportJumpHref } from '../report-jump.util';
 import { colorIconSvg } from '../report-icon.util';
 import {
     ReportCellPart,
@@ -198,14 +212,34 @@ export function reportPaperSizePx(
                 box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
                 pointer-events: none;
             }
+            a.report-autolink {
+                color: var(--report-link-color, #2563eb);
+                text-decoration: none !important;
+                text-decoration-line: none !important;
+                text-decoration-color: transparent !important;
+            }
+            a.report-jump {
+                position: absolute;
+                inset: 0;
+                z-index: 4;
+                cursor: pointer;
+                text-decoration: none !important;
+                text-decoration-line: none !important;
+                background: transparent;
+            }
         `,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _domSanitizer = inject(DomSanitizer);
+    private readonly _transloco = inject(TranslocoService);
+    private readonly _activeLang = toSignal(this._transloco.langChanges$, {
+        initialValue: this._transloco.getActiveLang(),
+    });
     /** Same SafeHtml instance per markup so `[innerHTML]` does not repaint every check. */
     private _iconMarkupCache = new Map<string, SafeHtml>();
+    private _autolinkCache = new Map<string, SafeHtml>();
 
     /** All paper cards in the rendered preview. The first card is used as the
      *  reference for canonical-to-screen scaling and overlay anchoring. */
@@ -1514,6 +1548,33 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!this.isCanvasText(kind)) event.stopPropagation();
     }
 
+    jumpAnchorId(sectionId: string): string {
+        return reportJumpAnchorId(sectionId);
+    }
+
+    jumpHref(sectionId?: string | null): string | null {
+        return reportJumpHref(sectionId);
+    }
+
+    isPairInline(section: ReportSection): boolean {
+        if (section.pairLayout === 'inline') return true;
+        if (section.pairLayout === 'stack') return false;
+        return section.type === 'card';
+    }
+
+    onJumpClick(event: MouseEvent): void {
+        if (this.clickable() && !this.printCapture()) {
+            event.preventDefault();
+            return;
+        }
+        const href = (event.currentTarget as HTMLAnchorElement | null)?.getAttribute('href') || '';
+        const id = href.startsWith('#') ? href.slice(1) : '';
+        if (!id) return;
+        event.preventDefault();
+        const target = this._host.nativeElement.querySelector(`#${id}`);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     onSheetTextClick(
         section: ReportSection,
         kind: string,
@@ -1521,6 +1582,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         key?: string,
         fallback = ''
     ): void {
+        if (this.clickable() && !this.printCapture()) event.preventDefault();
         if (this.isCanvasText(kind)) return;
         this.startInlineEdit(section, kind, event, key, fallback);
     }
@@ -2203,6 +2265,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     onTitleContextMenu(section: ReportSection, event: MouseEvent): void {
+        if (this.customContextMenu() || section.type === 'header') {
+            this.onSectionContextMenu(section, event);
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
         if (!this.clickable()) return;
@@ -3819,6 +3885,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     resolveDataPath(path: string | undefined): string {
         if (!path) return '';
         const source = this.previewData();
+        const stamp = reportDateStampForPath(path, source, this._previewLocale());
+        if (stamp) return stamp;
         const parts = path.split('.');
         let current: any = source;
         for (const part of parts) {
@@ -3848,6 +3916,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return map[variant] ?? map['neutral'];
     }
 
+    private _previewLocale(): string {
+        return (this._activeLang() ?? this._transloco.getActiveLang() ?? 'es').split('-')[0].toLowerCase();
+    }
+
     /**
      * The consulted value. A `keyOverrides[key].value` left by older templates is
      * ignored, as the PDF ignores it: values change with every query.
@@ -3869,10 +3941,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         fallback?: string
     ): string {
         this.previewData();
-        if (kind === 'title') return section.staticContent || section.label || fallback || '';
-        if (kind === 'body') return section.staticContent || fallback || '';
-        if (kind === 'itemTitle') return section.itemTitle || fallback || '';
-        if (kind === 'itemTemplate') return section.itemTemplate || fallback || '';
+        this._activeLang();
+        const fill = (text: string) => substituteReportPlaceholders(text, this.previewData(), this._previewLocale());
+        if (kind === 'title') return fill(section.staticContent || section.label || fallback || '');
+        if (kind === 'body') return fill(section.staticContent || fallback || '');
+        if (kind === 'itemTitle') return fill(section.itemTitle || fallback || '');
+        if (kind === 'itemTemplate') return fill(section.itemTemplate || fallback || '');
         if (kind === 'cellLabel' && key) {
             return this.entryLabel(section, { key, label: fallback || key });
         }
@@ -3887,17 +3961,30 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return applyTextCase(this.liveSheetText(section, kind, key, fallback), this._sheetTextCase(section, kind, key));
     }
 
+    sheetAutolinkHtml(section: ReportSection, kind: string, key?: string, fallback?: string): SafeHtml {
+        return this.autolinkSafeHtml(
+            this.sheetDisplayText(section, kind, key, fallback) || '\u00a0',
+            this.sheetLinkColor(section, kind, key)
+        );
+    }
+
+    autolinkSafeHtml(text: string | null | undefined, linkColor?: string): SafeHtml {
+        const markup = autolinkHtml(text || '\u00a0', linkColor);
+        let safe = this._autolinkCache.get(markup);
+        if (!safe) {
+            if (this._autolinkCache.size > 400) this._autolinkCache.clear();
+            safe = this._domSanitizer.bypassSecurityTrustHtml(markup);
+            this._autolinkCache.set(markup, safe);
+        }
+        return safe;
+    }
+
     /**
      * Cell keys look like `table.column#row`. The column's own case wins, then the
      * nested table's, then the block's role, the same order the PDF merges them.
      */
     private _sheetTextCase(section: ReportSection, kind: string, key?: string): ReportTextCase {
-        const role: ReportTextRole =
-            kind === 'cellLabel' || (kind === 'title' && section.type === 'field')
-                ? 'label'
-                : kind === 'title' || kind === 'itemTitle' || (kind === 'body' && section.type === 'text')
-                  ? 'title'
-                  : 'value';
+        const role = this.sheetTextRole(section, kind);
         if (role !== 'title' && key) {
             const styleKey = role === 'label' ? 'labelStyle' : 'valueStyle';
             let path = key.split('#')[0];
@@ -4123,7 +4210,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         role: 'label' | 'value',
         tableKey: string,
         column?: string
-    ): { fontFamily: string; fontSize: number; fontWeight: number; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
+    ): { fontFamily: string; fontSize: number; fontWeight: number; fontStyle: string; textDecoration: string; textAlign: string; color: string; linkColor: string } {
         const base = resolveTextRole(section, role, this.primaryColor(), tableKey);
         const fonts = this.template()?.customFonts ?? [];
         const snap = (family: string, weight: ReportFontWeight): number =>
@@ -4149,6 +4236,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                     ? align
                     : base.textAlign,
             color: nested.color || base.color,
+            linkColor: nested.linkColor || base.linkColor,
         };
     }
 
@@ -4520,6 +4608,61 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.sheetChunks(section).length > 0;
     }
 
+    chartKind(section: ReportSection): ReportChartKind {
+        return isReportChartKind(section.chartKind) ? section.chartKind : 'none';
+    }
+
+    showsChart(section: ReportSection): boolean {
+        const kind = this.chartKind(section);
+        return kind === 'pie' || kind === 'bar';
+    }
+
+    chartIsEmpty(section: ReportSection): boolean {
+        return this.chartSlices(section).every((slice) => slice.value <= 0);
+    }
+
+    chartSlices(section: ReportSection): ReportChartSlice[] {
+        const labels = Object.fromEntries(
+            this.structuralEntries(section).map((entry) => [entry.key, entry.label])
+        );
+        return buildChartSlices({
+            data: this._valueAt(section.dataPath),
+            keys: section.chartKeys,
+            labels,
+            colors: section.chartColors,
+            palette: section.chartPalette === 'mono' ? 'mono' : 'color',
+            breakdown: section.chartBreakdown === 'category' ? 'category' : 'outcome',
+            primaryColor: this.primaryColor(),
+        });
+    }
+
+    chartBox(section: ReportSection): { width: number; height: number } {
+        const width = Math.max(180, Number(section.frame?.width) || 320);
+        const height = Math.max(140, (Number(section.frame?.height) || 200) - (section.label ? 28 : 0));
+        return { width, height: Math.min(240, height) };
+    }
+
+    chartPieArcs(section: ReportSection): ReportChartPieArc[] {
+        const box = this.chartBox(section);
+        const radius = Math.max(28, Math.min(box.width * 0.28, box.height * 0.38));
+        return pieArcs(this.chartSlices(section), radius + 10, box.height / 2, radius);
+    }
+
+    chartPieRadius(section: ReportSection): number {
+        const box = this.chartBox(section);
+        return Math.max(28, Math.min(box.width * 0.28, box.height * 0.38));
+    }
+
+    chartBars(section: ReportSection): ReportChartBar[] {
+        const box = this.chartBox(section);
+        return barRects(this.chartSlices(section), box.width, box.height);
+    }
+
+    chartLegendStep(section: ReportSection): number {
+        const n = Math.max(1, this.chartSlices(section).length);
+        return Math.max(16, Math.min(22, (this.chartBox(section).height - 16) / n));
+    }
+
     sectionShowsRowLines(section: ReportSection): boolean {
         return section.showRowLines !== false;
     }
@@ -4554,6 +4697,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     roleColor(section: ReportSection, role: ReportTextRole, key?: string): string {
         return resolveTextRole(section, role, this.primaryColor(), key).color;
+    }
+
+    roleLinkColor(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).linkColor;
+    }
+
+    sheetTextRole(section: ReportSection, kind: string): ReportTextRole {
+        if (kind === 'cellLabel' || kind === 'label' || (kind === 'title' && section.type === 'field')) return 'label';
+        if (kind === 'title' || kind === 'itemTitle' || (kind === 'body' && section.type === 'text')) return 'title';
+        return 'value';
+    }
+
+    sheetLinkColor(section: ReportSection, kind: string, key?: string): string {
+        return this.roleLinkColor(section, this.sheetTextRole(section, kind), key);
     }
 
     sectionFrameBorder(section: ReportSection): string {
@@ -4625,6 +4782,11 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
 .print-sheet + .print-sheet{break-before:page;page-break-before:always}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .print-sheet h1,.print-sheet h2,.print-sheet h3,.print-sheet h4,.print-sheet h5,.print-sheet h6,.print-sheet p{margin:0}
+.print-sheet a.report-autolink,.print-sheet a.report-jump{text-decoration:none!important;text-decoration-line:none!important;-webkit-text-decoration-line:none!important;text-decoration-color:transparent!important}
+.print-sheet a.report-autolink{color:var(--report-link-color,#2563eb)!important}
+.print-sheet a.report-autolink.is-underlined{text-decoration:underline!important;text-decoration-line:underline!important;-webkit-text-decoration-line:underline!important;text-decoration-color:currentColor!important}
+.print-sheet a.report-jump{position:absolute;inset:0;z-index:4;background:transparent;pointer-events:auto!important}
+@media print{a,a:link,a:visited,a[href],a.report-autolink,a.report-jump{text-decoration:none!important;text-decoration-line:none!important;-webkit-text-decoration-line:none!important;text-decoration-color:transparent!important}a.report-autolink.is-underlined{text-decoration:underline!important;text-decoration-line:underline!important;-webkit-text-decoration-line:underline!important;text-decoration-color:currentColor!important}}
 </style></head><body>${sheets.join('')}</body></html>`;
     }
 
@@ -4727,7 +4889,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             dst.style.width = 'max-content';
             dst.style.maxWidth = 'none';
             dst.style.whiteSpace = flow;
-            dst.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div').forEach((child) => {
+            dst.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, a').forEach((child) => {
                 const el = child as HTMLElement;
                 el.style.margin = '0';
                 el.style.whiteSpace = flow;
@@ -4834,6 +4996,30 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         return this._reportPages?.first?.nativeElement.getBoundingClientRect().width ?? 0;
     }
 
+    /**
+     * Chromium's print UA stylesheet underlines every `a[href]`. Screen CSS is
+     * dropped when we rewrite `cssText`, so the PDF would show a line the
+     * preview does not. Keep autolinks bare unless the designer underlined them.
+     */
+    private _pinPrintedLinkDecoration(source: HTMLElement, target: HTMLElement, computed: CSSStyleDeclaration): void {
+        if (source.tagName !== 'A') return;
+        const own = `${computed.getPropertyValue('text-decoration-line')} ${computed.getPropertyValue('text-decoration')}`;
+        const underlined = /\bunderline\b/i.test(own);
+        const color = computed.color;
+        if (color) target.style.setProperty('color', color, 'important');
+        if (underlined) {
+            target.classList.add('is-underlined');
+            target.style.setProperty('text-decoration', 'underline', 'important');
+            target.style.setProperty('text-decoration-line', 'underline', 'important');
+            target.style.setProperty('text-decoration-color', 'currentColor', 'important');
+            return;
+        }
+        target.classList.remove('is-underlined');
+        target.style.setProperty('text-decoration', 'none', 'important');
+        target.style.setProperty('text-decoration-line', 'none', 'important');
+        target.style.setProperty('text-decoration-color', 'transparent', 'important');
+    }
+
     private _inlineComputedStyles(source: Element, target: Element): void {
         const computed = getComputedStyle(source);
         const keys = [
@@ -4870,6 +5056,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             'transform',
             'transform-origin',
             'color',
+            '--report-link-color',
             'white-space',
             'background-color',
             'background-image',
@@ -4929,6 +5116,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         const elSrc = source as HTMLElement;
         const elDst = target as HTMLElement;
         if (css) elDst.style.cssText = css;
+        this._pinPrintedLinkDecoration(elSrc, elDst, computed);
         if (elSrc.style?.transform) elDst.style.transform = elSrc.style.transform;
         if (elSrc.style?.transformOrigin) elDst.style.transformOrigin = elSrc.style.transformOrigin;
         if (elSrc.style?.backgroundImage) elDst.style.backgroundImage = elSrc.style.backgroundImage;

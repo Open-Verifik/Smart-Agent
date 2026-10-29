@@ -34,6 +34,7 @@ export type GuideUrlState = {
     templateId: string | null;
     templateChoice: GuideTemplateChoice | null;
     features: string[];
+    fromLayout?: boolean;
 };
 
 const read = (params: { get(name: string): string | null }, key: string): string | null => {
@@ -80,6 +81,7 @@ export const parseGuideUrl = (params: { get(name: string): string | null }): Gui
             .split(',')
             .map((item) => item.trim())
             .filter(Boolean),
+        fromLayout: read(params, 'flow') === '1',
     };
 };
 
@@ -90,17 +92,41 @@ export const guideStepPath = (step: GuideStepId | null): string =>
 export const isGuideStep = (value: string | null): value is GuideStepId =>
     Boolean(value && GUIDE_STEPS.has(value as GuideStepId));
 
-export const serializeGuideUrl = (state: GuideUrlState): Record<string, string | null> => ({
-    step: state.step,
-    intent: state.intent,
-    country: state.countries.length ? state.countries.join(',') : null,
-    entities: state.entities.length ? state.entities.join(',') : null,
-    mode: state.mode,
-    configId: state.configId,
-    batchId: state.batchId,
-    templateId: state.templateChoice === 'scratch' ? null : state.templateId,
-    templateChoice: state.templateChoice,
-    features: state.features.length ? state.features.join(',') : null,
-    start: null,
-    resume: null,
-});
+/** Earlier screens must not keep query fields that belong to a later step. */
+const STEP_RANK: Record<GuideStepId, number> = {
+    intent: 0,
+    country: 1,
+    entity: 2,
+    endpoints: 3,
+    mode: 4,
+    input: 5,
+    consult: 6,
+    results: 7,
+    include: 8,
+    template: 9,
+    customize: 10,
+    preview: 11,
+    layout: 12,
+    generate: 13,
+};
+
+export const serializeGuideUrl = (state: GuideUrlState): Record<string, string | null> => {
+    const rank = STEP_RANK[state.step ?? 'intent'] ?? 0;
+    const reached = (step: GuideStepId): boolean => rank >= STEP_RANK[step];
+
+    return {
+        step: state.step,
+        intent: reached('country') ? state.intent : null,
+        country: reached('country') && state.countries.length ? state.countries.join(',') : null,
+        entities: reached('entity') && state.entities.length ? state.entities.join(',') : null,
+        features: reached('endpoints') && state.features.length ? state.features.join(',') : null,
+        mode: reached('mode') ? state.mode : null,
+        configId: reached('consult') ? state.configId : null,
+        batchId: reached('consult') ? state.batchId : null,
+        templateId: reached('template') && state.templateChoice !== 'scratch' ? state.templateId : null,
+        templateChoice: reached('template') ? state.templateChoice : null,
+        flow: state.fromLayout ? '1' : null,
+        start: null,
+        resume: null,
+    };
+};

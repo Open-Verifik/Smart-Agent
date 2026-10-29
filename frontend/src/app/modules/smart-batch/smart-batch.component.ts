@@ -548,6 +548,7 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
             queryParams: {
                 templateId,
                 intent: 'template',
+                templateChoice: 'mine',
                 ...(configId ? { configId } : {}),
             },
         });

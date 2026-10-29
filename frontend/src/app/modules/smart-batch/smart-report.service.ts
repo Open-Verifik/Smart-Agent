@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
+import type { ReportChartBreakdown, ReportChartKind, ReportChartPalette } from './report-chart.util';
 import type { ReportCustomFont, ReportFontWeight } from './report-fonts.util';
 import type { ReportValueRule } from './report-value-rules.util';
 
@@ -85,6 +86,8 @@ export interface ReportSheetImage extends ReportSheetImageRuleBinding {
     page?: number;
     /** Paint order on the sheet. Higher stays in front. */
     zIndex?: number;
+    /** When set, a click in the PDF jumps to this section. */
+    linkToSectionId?: string;
 }
 
 /** Company logo repeated in the header or footer of every page. */
@@ -109,6 +112,8 @@ export interface ReportTextRoleStyle {
     fontFamily?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
     color?: string;
+    /** Autolink color for emails and URLs in this role. Defaults to `#2563eb`. */
+    linkColor?: string;
     /** Letter case applied to the text, see `applyTextCase`. */
     textCase?: 'none' | 'upper' | 'lower' | 'sentence' | 'title';
 }
@@ -209,6 +214,26 @@ export interface ReportSection {
     /** repeater: `{field}` placeholders resolved against each array item. */
     itemTitle?: string;
     itemTemplate?: string;
+    /** When set, a click on this block in the PDF / preview jumps to that section. */
+    linkToSectionId?: string;
+    /**
+     * Label + value placement. Omitted keeps the current look: stacked on fields
+     * and grids, side-by-side on cards.
+     */
+    pairLayout?: 'stack' | 'inline';
+    /**
+     * How a stats (or similar) grid paints: the usual label/value table, a pie,
+     * or bars. Omitted keeps the table.
+     */
+    chartKind?: ReportChartKind;
+    /** `color` uses a distinct hue per series; `mono` tints the template primary. */
+    chartPalette?: ReportChartPalette;
+    /** Outcome counts, or one slice per endpoint category. */
+    chartBreakdown?: ReportChartBreakdown;
+    /** Series keys to plot. Omitted uses consultation outcome counts. */
+    chartKeys?: string[];
+    /** Per-series fill; wins over the palette when set. */
+    chartColors?: Record<string, string>;
 
     /** reportBlocks: restrict to specific composed blocks, all when omitted. */
     blockIds?: string[];
@@ -230,6 +255,8 @@ export interface ReportSection {
         color?: string;
         labelColor?: string;
         valueColor?: string;
+        /** Title edits also copy this onto `style`, same as `color`. */
+        linkColor?: string;
         /** Independent typography for the block title. */
         titleStyle?: ReportTextRoleStyle;
         /** Independent typography for parameter labels. */
@@ -544,6 +571,10 @@ export interface SampleReportData {
     report?: Record<string, any>;
     /** Batch steps so the PDF composer can match each result to its feature, same as Smart Batch. */
     steps?: { sequence: number; enabled?: boolean; featureCode?: string; appFeature?: { code?: string } }[];
+    consultedAt?: string;
+    processedAt?: string;
+    startedAt?: string;
+    createdAt?: string;
 }
 
 @Injectable({
