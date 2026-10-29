@@ -688,7 +688,7 @@
                                 {{ t('visitaGuide.endpointsCatalogForCountry', { country: countryLabel() }) }}
                             </p>
                             <p class="hidden text-xs text-stone-500 lg:block dark:text-stone-400">{{
-                                t('visitaGuide.endpointsHint')
+                                t(editingEndpointsFromLayout() ? 'visitaGuide.layoutFlowHint' : 'visitaGuide.endpointsHint')
                             }}</p>
                             <button
                                 type="button"
@@ -710,9 +710,11 @@
                                 [paramFilterFields]="availableRequiredParamFilters()"
                                 [activeParamFilters]="requiredParamFilters()"
                                 [selectedCountries]="countryNames()"
+                                [stepPayloads]="flowStepPayloads()"
                                 (queryChange)="endpointSearchQuery.set($event)"
                                 (chainChange)="setEndpointChain($event)"
                                 (graphChange)="setFlowGraph($event)"
+                                [continueKey]="editingEndpointsFromLayout() ? 'visitaGuide.layoutReturnFromFlow' : 'visitaGuide.continue'"
                                 (continueChain)="confirmEndpoints()"
                                 (toggleParamFilter)="toggleRequiredParamFilter($event)"
                                 (clearParamFilters)="clearRequiredParamFilters()"
@@ -1056,6 +1058,11 @@
                             @if (isMixed()) {
                                 <p class="mb-4 text-sm text-stone-500">{{ t('visitaGuide.mixedHint') }}</p>
                             }
+                            @if (consultThenReturnToLayout()) {
+                                <p class="mb-4 text-sm text-stone-500 dark:text-stone-400">{{
+                                    t('visitaGuide.layoutNewConsultInput')
+                                }}</p>
+                            }
                             @if (consultError()) {
                                 <p class="mb-3 text-sm text-red-600 dark:text-red-400">{{ consultError() }}</p>
                             }
@@ -1085,14 +1092,14 @@
                                         [placeholder]="t(field.placeholderKey)"
                                         [ngModel]="fieldValue(field.key)"
                                         (ngModelChange)="setFieldValue(field.key, $event)"
-                                        (keyup.enter)="goNext()"
+                                        (keyup.enter)="consultThenReturnToLayout() ? submitLayoutConsult() : goNext()"
                                     />
                                 }
                             }
                             <button
                                 type="button"
                                 class="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950"
-                                (click)="goNext()"
+                                (click)="consultThenReturnToLayout() ? submitLayoutConsult() : goNext()"
                             >
                                 {{ t('visitaGuide.searchAction') }}
                             </button>
@@ -1523,8 +1530,77 @@
                                         >
                                             {{ t('visitaGuide.layoutAddOne') }}
                                         </button>
+                                        @if (card.status !== 'ok' && mode() === 'single') {
+                                            <button
+                                                type="button"
+                                                class="mt-1 block text-xs font-medium text-indigo-700 underline-offset-4 hover:underline dark:text-indigo-300"
+                                                (click)="loadLayoutConsultData(); $event.stopPropagation()"
+                                            >
+                                                {{ t('visitaGuide.layoutAddData') }}
+                                            </button>
+                                        }
                                     </article>
                                 }
+                                <article
+                                    cdkDrag
+                                    [cdkDragData]="{ kind: 'consultStats' }"
+                                    (cdkDragStarted)="onLayoutPaletteDragStart()"
+                                    (cdkDragEnded)="onLayoutPaletteDragEnd()"
+                                    class="cursor-grab rounded-2xl border border-indigo-200 bg-indigo-50/50 p-3 text-left dark:border-indigo-500/40 dark:bg-indigo-950/20"
+                                >
+                                    <div class="flex items-start justify-between gap-2">
+                                        <span class="min-w-0 flex-1 text-sm font-semibold text-stone-950 dark:text-white">{{
+                                            t('visitaGuide.layoutConsultStatsTitle')
+                                        }}</span>
+                                        <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-300">query_stats</mat-icon>
+                                    </div>
+                                    <p class="mt-1 text-[11px] text-stone-500 dark:text-stone-400">{{ t('visitaGuide.layoutConsultStatsHint') }}</p>
+                                    <button
+                                        type="button"
+                                        class="mt-2 text-xs font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                                        (click)="addConsultStatsBlock(); $event.stopPropagation()"
+                                    >
+                                        {{ t('visitaGuide.layoutAddOne') }}
+                                    </button>
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        <button
+                                            type="button"
+                                            class="rounded-lg border border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
+                                            (click)="addConsultStatsBlock('pie'); $event.stopPropagation()"
+                                        >
+                                            {{ t('visitaGuide.layoutChartPie') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="rounded-lg border border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
+                                            (click)="addConsultStatsBlock('bar'); $event.stopPropagation()"
+                                        >
+                                            {{ t('visitaGuide.layoutChartBar') }}
+                                        </button>
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @for (key of consultStatsFieldKeys; track key) {
+                                            <button
+                                                type="button"
+                                                class="rounded-lg border border-dashed border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
+                                                (click)="addConsultStatField(key); $event.stopPropagation()"
+                                            >
+                                                + {{ consultStatsLabel(key) }}
+                                            </button>
+                                        }
+                                    </div>
+                                    <div class="mt-1 flex flex-wrap gap-1">
+                                        @for (key of consultStatsCategoryKeys; track key) {
+                                            <button
+                                                type="button"
+                                                class="rounded-lg border border-dashed border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
+                                                (click)="addConsultStatField(key); $event.stopPropagation()"
+                                            >
+                                                + {{ consultStatsLabel(key) }}
+                                            </button>
+                                        }
+                                    </div>
+                                </article>
                                 <button
                                     type="button"
                                     class="mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/40 px-3 text-sm font-semibold text-indigo-800 transition hover:border-indigo-400 hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-500/50 dark:bg-indigo-950/20 dark:text-indigo-200"
@@ -1540,10 +1616,11 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="text-center text-[11px] font-medium text-stone-500 underline-offset-2 hover:text-stone-700 hover:underline dark:text-stone-400 dark:hover:text-stone-200"
+                                    class="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-800 transition hover:border-stone-400 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 dark:hover:border-gray-500"
                                     (click)="goToEndpointsFromLayout()"
                                 >
-                                    {{ t('visitaGuide.layoutBrowseEndpoints') }}
+                                    <mat-icon class="!text-[20px]">account_tree</mat-icon>
+                                    {{ t('visitaGuide.layoutEditEndpointFlow') }}
                                 </button>
                             </div>
 
@@ -1594,6 +1671,164 @@
                                         <path d="M6 8h12M6 12h12M6 16h7.5" stroke="#0369a1" stroke-width="1.9" stroke-linecap="round" />
                                     </svg>
                                     <span class="layout-tool-label">{{ t('visitaGuide.layoutAddText') }}</span>
+                                </button>
+                                <div class="shrink-0">
+                                    <button
+                                        type="button"
+                                        class="layout-tool"
+                                        cdkOverlayOrigin
+                                        #datesMenuOrigin="cdkOverlayOrigin"
+                                        [class.is-active]="layoutDatesOpen()"
+                                        [matTooltip]="t('visitaGuide.toolHint.date')"
+                                        [attr.aria-label]="t('visitaGuide.layoutAddDate')"
+                                        [attr.aria-expanded]="layoutDatesOpen()"
+                                        (click)="toggleLayoutDatesMenu($event)"
+                                    >
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <rect x="2" y="3" width="20" height="18" rx="4" fill="#ccfbf1" />
+                                            <path d="M7 3.5v3.5M17 3.5v3.5" stroke="#0f766e" stroke-width="1.8" stroke-linecap="round" />
+                                            <path d="M5.5 9h13" stroke="#0f766e" stroke-width="1.6" />
+                                            <rect x="6.5" y="12" width="3.2" height="3.2" rx="0.6" fill="#0f766e" />
+                                            <rect x="10.4" y="12" width="3.2" height="3.2" rx="0.6" fill="#14b8a6" />
+                                            <rect x="14.3" y="12" width="3.2" height="3.2" rx="0.6" fill="#0f766e" />
+                                        </svg>
+                                        <span class="layout-tool-label inline-flex items-center">
+                                            {{ t('visitaGuide.layoutAddDate') }}
+                                            <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
+                                        </span>
+                                    </button>
+                                    <ng-template
+                                        cdkConnectedOverlay
+                                        [cdkConnectedOverlayOrigin]="datesMenuOrigin"
+                                        [cdkConnectedOverlayOpen]="layoutDatesOpen()"
+                                        [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
+                                        [cdkConnectedOverlayHasBackdrop]="true"
+                                        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                                        cdkConnectedOverlayPanelClass="report-design-overlay-pane"
+                                        (backdropClick)="layoutDatesOpen.set(false)"
+                                        (overlayKeydown)="$event.key === 'Escape' && layoutDatesOpen.set(false)"
+                                        (detach)="layoutDatesOpen.set(false)"
+                                    >
+                                        <div
+                                            class="flex w-max min-w-48 flex-col gap-0.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                                (click)="addDateStampBlock('consultedAt'); layoutDatesOpen.set(false)"
+                                            >
+                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-teal-600 dark:text-teal-400">event_available</mat-icon>
+                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutAddConsultedDate') }}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                                (click)="addDateStampBlock('generatedAt'); layoutDatesOpen.set(false)"
+                                            >
+                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-teal-600 dark:text-teal-400">schedule</mat-icon>
+                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutAddGeneratedDate') }}</span>
+                                            </button>
+                                        </div>
+                                    </ng-template>
+                                </div>
+                                <div class="shrink-0">
+                                    <button
+                                        type="button"
+                                        class="layout-tool"
+                                        cdkOverlayOrigin
+                                        #statsMenuOrigin="cdkOverlayOrigin"
+                                        [class.is-active]="layoutStatsOpen()"
+                                        [matTooltip]="t('visitaGuide.toolHint.stats')"
+                                        [attr.aria-label]="t('visitaGuide.layoutAddConsultStats')"
+                                        [attr.aria-expanded]="layoutStatsOpen()"
+                                        (click)="toggleLayoutStatsMenu($event)"
+                                    >
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <rect x="2" y="3" width="20" height="18" rx="4" fill="#eef2ff" />
+                                            <path d="M7 16.5V12M12 16.5V8.5M17 16.5v-3" stroke="#4338ca" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                        <span class="layout-tool-label inline-flex items-center">
+                                            {{ t('visitaGuide.layoutAddConsultStats') }}
+                                            <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
+                                        </span>
+                                    </button>
+                                    <ng-template
+                                        cdkConnectedOverlay
+                                        [cdkConnectedOverlayOrigin]="statsMenuOrigin"
+                                        [cdkConnectedOverlayOpen]="layoutStatsOpen()"
+                                        [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
+                                        [cdkConnectedOverlayHasBackdrop]="true"
+                                        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                                        cdkConnectedOverlayPanelClass="report-design-overlay-pane"
+                                        (backdropClick)="layoutStatsOpen.set(false)"
+                                        (overlayKeydown)="$event.key === 'Escape' && layoutStatsOpen.set(false)"
+                                        (detach)="layoutStatsOpen.set(false)"
+                                    >
+                                        <div
+                                            class="flex max-h-[70vh] w-max min-w-56 flex-col gap-0.5 overflow-y-auto rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                                (click)="addConsultStatsBlock(); layoutStatsOpen.set(false)"
+                                            >
+                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-400">query_stats</mat-icon>
+                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutAddConsultStatsBlock') }}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                                (click)="addConsultStatsBlock('pie'); layoutStatsOpen.set(false)"
+                                            >
+                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-400">pie_chart</mat-icon>
+                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutChartPie') }}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                                (click)="addConsultStatsBlock('bar'); layoutStatsOpen.set(false)"
+                                            >
+                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-400">bar_chart</mat-icon>
+                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutChartBar') }}</span>
+                                            </button>
+                                            @for (key of consultStatsFieldKeys; track key) {
+                                                <button
+                                                    type="button"
+                                                    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                                    (click)="addConsultStatField(key); layoutStatsOpen.set(false)"
+                                                >
+                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-500 dark:text-indigo-300">label</mat-icon>
+                                                    <span class="whitespace-nowrap">{{ consultStatsLabel(key) }}</span>
+                                                </button>
+                                            }
+                                            @for (key of consultStatsCategoryKeys; track key) {
+                                                <button
+                                                    type="button"
+                                                    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
+                                                    (click)="addConsultStatField(key); layoutStatsOpen.set(false)"
+                                                >
+                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-500 dark:text-indigo-300">category</mat-icon>
+                                                    <span class="whitespace-nowrap">{{ consultStatsLabel(key) }}</span>
+                                                </button>
+                                            }
+                                        </div>
+                                    </ng-template>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="layout-tool"
+                                    [matTooltip]="t('visitaGuide.toolHint.toc')"
+                                    [attr.aria-label]="t('visitaGuide.layoutAddToc')"
+                                    (click)="addTableOfContents()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#fef3c7" />
+                                        <path d="M7 8h10M7 12h10M7 16h6.5" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" />
+                                        <circle cx="5" cy="8" r="0.9" fill="#b45309" />
+                                        <circle cx="5" cy="12" r="0.9" fill="#b45309" />
+                                        <circle cx="5" cy="16" r="0.9" fill="#b45309" />
+                                    </svg>
+                                    <span class="layout-tool-label">{{ t('visitaGuide.layoutAddToc') }}</span>
                                 </button>
                                 <button
                                     type="button"
@@ -1950,6 +2185,18 @@
                                                         isLayoutLayerHidden(layer.id) ? 'visibility_off' : 'visibility'
                                                     }}</mat-icon>
                                                 </button>
+                                                @if (layer.kind === 'section') {
+                                                <button
+                                                    type="button"
+                                                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-gray-800"
+                                                    [disabled]="isLayoutLayerLocked(layer.id)"
+                                                    [matTooltip]="t('visitaGuide.layoutCopyBlock')"
+                                                    [attr.aria-label]="t('visitaGuide.layoutCopyBlock')"
+                                                    (click)="copyLayoutLayer(layer, $event)"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                                                </button>
+                                                }
                                                 <button
                                                     type="button"
                                                     class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 dark:hover:bg-gray-800"
@@ -3454,6 +3701,15 @@
                                                     (ngModelChange)="setLayoutRoleColor(role, $event)"
                                                     [ariaLabel]="t(layoutRoleTitleKey(role))"
                                                 />
+                                                <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                    t('visitaGuide.layoutLinkColor')
+                                                }}</span>
+                                                <color-hex-field
+                                                    class="mt-1 block"
+                                                    [ngModel]="layoutRoleLinkColor(role)"
+                                                    (ngModelChange)="setLayoutRoleLinkColor(role, $event)"
+                                                    [ariaLabel]="t('visitaGuide.layoutLinkColor')"
+                                                />
                                             </div>
                                         }
                                         @if (selected.type !== 'shape') {
@@ -3846,6 +4102,16 @@
         >
             <div data-format-toolbar class="flex items-center gap-0.5">
             @if (selectedLayoutCount() > 1) {
+                <button
+                    type="button"
+                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutCopyBlock')"
+                    [matTooltip]="t('visitaGuide.layoutCopyBlock')"
+                    (click)="copySelectedLayoutItems($event)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                    {{ t('visitaGuide.layoutCopyBlock') }}
+                </button>
                 <button
                     type="button"
                     class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
@@ -4247,6 +4513,25 @@
             >
                 U
             </button>
+            <label
+                class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-stone-100 dark:hover:bg-gray-800"
+                [matTooltip]="t('visitaGuide.layoutLinkColor')"
+                [attr.aria-label]="t('visitaGuide.layoutLinkColor')"
+            >
+                <span class="relative flex h-4 w-4 items-center justify-center">
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">link</mat-icon>
+                    <span
+                        class="absolute -bottom-0.5 left-0.5 h-1 w-3 rounded-full"
+                        [style.background-color]="layoutFormatLinkPickerHex()"
+                    ></span>
+                </span>
+                <input
+                    type="color"
+                    class="absolute inset-0 cursor-pointer opacity-0"
+                    [value]="layoutFormatLinkPickerHex()"
+                    (input)="onLayoutFormatLinkPicker($event)"
+                />
+            </label>
             <button
                 type="button"
                 class="flex h-8 items-center justify-center gap-0.5 rounded-lg px-1.5 text-sm font-medium"
@@ -4326,6 +4611,167 @@
             </button>
             @if (selectedLayoutShowsParams()) {
                 @let ruleCount = selectedCellRuleCount() || selectedBlockRuleCount();
+                @if (selectedLayoutHasPairLayout()) {
+                    <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                    <button
+                        type="button"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                        [ngClass]="
+                            selectedLayoutPairLayout() === 'stack'
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-pressed]="selectedLayoutPairLayout() === 'stack'"
+                        [attr.aria-label]="t('visitaGuide.layoutPairStack')"
+                        [matTooltip]="t('visitaGuide.layoutPairStack')"
+                        (click)="setSelectedLayoutPairLayout('stack')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">view_agenda</mat-icon>
+                    </button>
+                    <button
+                        type="button"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                        [ngClass]="
+                            selectedLayoutPairLayout() === 'inline'
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-pressed]="selectedLayoutPairLayout() === 'inline'"
+                        [attr.aria-label]="t('visitaGuide.layoutPairInline')"
+                        [matTooltip]="t('visitaGuide.layoutPairInline')"
+                        (click)="setSelectedLayoutPairLayout('inline')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">view_week</mat-icon>
+                    </button>
+                }
+                @if (selectedLayoutIsConsultStats()) {
+                    <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+                    <button
+                        type="button"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                        [ngClass]="
+                            selectedLayoutChartKind() === 'none'
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-pressed]="selectedLayoutChartKind() === 'none'"
+                        [attr.aria-label]="t('visitaGuide.layoutChartTable')"
+                        [matTooltip]="t('visitaGuide.layoutChartTable')"
+                        (click)="setSelectedLayoutChartKind('none')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">table_chart</mat-icon>
+                    </button>
+                    <button
+                        type="button"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                        [ngClass]="
+                            selectedLayoutChartKind() === 'pie'
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-pressed]="selectedLayoutChartKind() === 'pie'"
+                        [attr.aria-label]="t('visitaGuide.layoutChartPie')"
+                        [matTooltip]="t('visitaGuide.layoutChartPie')"
+                        (click)="setSelectedLayoutChartKind('pie')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">pie_chart</mat-icon>
+                    </button>
+                    <button
+                        type="button"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg"
+                        [ngClass]="
+                            selectedLayoutChartKind() === 'bar'
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-pressed]="selectedLayoutChartKind() === 'bar'"
+                        [attr.aria-label]="t('visitaGuide.layoutChartBar')"
+                        [matTooltip]="t('visitaGuide.layoutChartBar')"
+                        (click)="setSelectedLayoutChartKind('bar')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">bar_chart</mat-icon>
+                    </button>
+                    <button
+                        type="button"
+                        class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
+                        [ngClass]="
+                            selectedLayoutChartBreakdown() === 'outcome'
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-pressed]="selectedLayoutChartBreakdown() === 'outcome'"
+                        [attr.aria-label]="t('visitaGuide.layoutChartOutcome')"
+                        [matTooltip]="t('visitaGuide.layoutChartOutcome')"
+                        (click)="setSelectedLayoutChartBreakdown('outcome')"
+                    >
+                        {{ t('visitaGuide.layoutChartOutcome') }}
+                    </button>
+                    <button
+                        type="button"
+                        class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
+                        [ngClass]="
+                            selectedLayoutChartBreakdown() === 'category'
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                        "
+                        [attr.aria-pressed]="selectedLayoutChartBreakdown() === 'category'"
+                        [attr.aria-label]="t('visitaGuide.layoutChartCategory')"
+                        [matTooltip]="t('visitaGuide.layoutChartCategory')"
+                        (click)="setSelectedLayoutChartBreakdown('category')"
+                    >
+                        {{ t('visitaGuide.layoutChartCategory') }}
+                    </button>
+                    @if (selectedLayoutChartKind() !== 'none') {
+                        <button
+                            type="button"
+                            class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
+                            [ngClass]="
+                                selectedLayoutChartPalette() === 'color'
+                                    ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                    : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                            "
+                            [attr.aria-pressed]="selectedLayoutChartPalette() === 'color'"
+                            [attr.aria-label]="t('visitaGuide.layoutChartColor')"
+                            [matTooltip]="t('visitaGuide.layoutChartColor')"
+                            (click)="setSelectedLayoutChartPalette('color')"
+                        >
+                            {{ t('visitaGuide.layoutChartColor') }}
+                        </button>
+                        <button
+                            type="button"
+                            class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
+                            [ngClass]="
+                                selectedLayoutChartPalette() === 'mono'
+                                    ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
+                                    : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
+                            "
+                            [attr.aria-pressed]="selectedLayoutChartPalette() === 'mono'"
+                            [attr.aria-label]="t('visitaGuide.layoutChartMono')"
+                            [matTooltip]="t('visitaGuide.layoutChartMono')"
+                            (click)="setSelectedLayoutChartPalette('mono')"
+                        >
+                            {{ t('visitaGuide.layoutChartMono') }}
+                        </button>
+                        @for (key of selectedLayoutChartKeys(); track key) {
+                            <label
+                                class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-stone-100 dark:hover:bg-gray-800"
+                                [matTooltip]="consultStatsLabel(key)"
+                                [attr.aria-label]="consultStatsLabel(key)"
+                            >
+                                <span
+                                    class="h-4 w-4 rounded border border-stone-300 dark:border-gray-600"
+                                    [style.background-color]="selectedLayoutChartColor(key)"
+                                ></span>
+                                <input
+                                    type="color"
+                                    class="absolute inset-0 cursor-pointer opacity-0"
+                                    [value]="selectedLayoutChartPickerHex(key)"
+                                    (input)="onSelectedLayoutChartColorPicker(key, $event)"
+                                />
+                            </label>
+                        }
+                    }
+                }
                 <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
                 <button
                     type="button"
@@ -4343,6 +4789,23 @@
             }
             }
             @if (selectedLayoutCount() <= 1) {
+            @if (canSetLayoutJump()) {
+            <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
+            <label class="sr-only" for="layout-jump-target">{{ t('visitaGuide.layoutJumpTo') }}</label>
+            <select
+                id="layout-jump-target"
+                class="h-8 max-w-[11rem] rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                [ngModel]="selectedLayoutJumpTarget()"
+                (ngModelChange)="setSelectedLayoutJumpTarget($event)"
+                [attr.aria-label]="t('visitaGuide.layoutJumpTo')"
+                [matTooltip]="t('visitaGuide.layoutJumpHint')"
+            >
+                <option value="">{{ t('visitaGuide.layoutJumpNone') }}</option>
+                @for (target of layoutJumpTargets(); track target.id) {
+                    <option [value]="target.id">{{ target.label }}</option>
+                }
+            </select>
+            }
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -4367,6 +4830,16 @@
                 <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
                 <button
                     type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-stone-300 dark:hover:bg-gray-800"
+                    [disabled]="!canCopySelectedLayout()"
+                    [attr.aria-label]="t('visitaGuide.layoutCopyBlock')"
+                    [matTooltip]="t('visitaGuide.layoutCopyBlock')"
+                    (click)="copySelectedLayoutSection()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                </button>
+                <button
+                    type="button"
                     class="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
                     [attr.aria-pressed]="isLayoutLayerLocked(layerId)"
                     [attr.aria-label]="
@@ -4380,6 +4853,17 @@
                     <mat-icon class="!h-4 !w-4 !text-base">{{
                         isLayoutLayerLocked(layerId) ? 'lock' : 'lock_open'
                     }}</mat-icon>
+                </button>
+                }
+                @if (selectedLayoutSection()) {
+                <button
+                    type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40"
+                    [attr.aria-label]="t('visitaGuide.layoutRemove')"
+                    [matTooltip]="t('visitaGuide.layoutRemove')"
+                    (click)="removeSelectedLayoutSection()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">delete</mat-icon>
                 </button>
                 }
             }
@@ -4838,6 +5322,13 @@
                             (ngModelChange)="setLayoutRoleColor(role, $event)"
                             [ariaLabel]="t(layoutRoleTitleKey(role))"
                         />
+                        <span class="mt-1.5 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutLinkColor') }}</span>
+                        <color-hex-field
+                            class="mt-1 block"
+                            [ngModel]="layoutRoleLinkColor(role)"
+                            (ngModelChange)="setLayoutRoleLinkColor(role, $event)"
+                            [ariaLabel]="t('visitaGuide.layoutLinkColor')"
+                        />
                         </div>
                     }
                     @if (selectedLayoutCellKey()) {
@@ -5050,6 +5541,141 @@
                             />
                         }
                         @if (selectedLayoutEditsWholeBlock() && selectedLayoutShowsParams()) {
+                            @if (selectedLayoutHasPairLayout()) {
+                            <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                {{ t('visitaGuide.layoutPairHint') }}
+                            </p>
+                            <div class="mt-1 flex gap-1">
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutPairLayout() === 'stack'"
+                                    [class.bg-white]="selectedLayoutPairLayout() === 'stack'"
+                                    [class.border-stone-200]="selectedLayoutPairLayout() !== 'stack'"
+                                    (click)="setSelectedLayoutPairLayout('stack')"
+                                >
+                                    {{ t('visitaGuide.layoutPairStack') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutPairLayout() === 'inline'"
+                                    [class.bg-white]="selectedLayoutPairLayout() === 'inline'"
+                                    [class.border-stone-200]="selectedLayoutPairLayout() !== 'inline'"
+                                    (click)="setSelectedLayoutPairLayout('inline')"
+                                >
+                                    {{ t('visitaGuide.layoutPairInline') }}
+                                </button>
+                            </div>
+                            }
+                            @if (selectedLayoutIsConsultStats()) {
+                            <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+                                {{ t('visitaGuide.layoutChartHint') }}
+                            </p>
+                            <div class="mt-1 flex gap-1">
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutChartKind() === 'none'"
+                                    [class.bg-white]="selectedLayoutChartKind() === 'none'"
+                                    [class.border-stone-200]="selectedLayoutChartKind() !== 'none'"
+                                    (click)="setSelectedLayoutChartKind('none')"
+                                >
+                                    {{ t('visitaGuide.layoutChartTable') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutChartKind() === 'pie'"
+                                    [class.bg-white]="selectedLayoutChartKind() === 'pie'"
+                                    [class.border-stone-200]="selectedLayoutChartKind() !== 'pie'"
+                                    (click)="setSelectedLayoutChartKind('pie')"
+                                >
+                                    {{ t('visitaGuide.layoutChartPie') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutChartKind() === 'bar'"
+                                    [class.bg-white]="selectedLayoutChartKind() === 'bar'"
+                                    [class.border-stone-200]="selectedLayoutChartKind() !== 'bar'"
+                                    (click)="setSelectedLayoutChartKind('bar')"
+                                >
+                                    {{ t('visitaGuide.layoutChartBar') }}
+                                </button>
+                            </div>
+                            <div class="mt-1 flex gap-1">
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutChartBreakdown() === 'outcome'"
+                                    [class.bg-white]="selectedLayoutChartBreakdown() === 'outcome'"
+                                    [class.border-stone-200]="selectedLayoutChartBreakdown() !== 'outcome'"
+                                    (click)="setSelectedLayoutChartBreakdown('outcome')"
+                                >
+                                    {{ t('visitaGuide.layoutChartOutcome') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutChartBreakdown() === 'category'"
+                                    [class.bg-white]="selectedLayoutChartBreakdown() === 'category'"
+                                    [class.border-stone-200]="selectedLayoutChartBreakdown() !== 'category'"
+                                    (click)="setSelectedLayoutChartBreakdown('category')"
+                                >
+                                    {{ t('visitaGuide.layoutChartCategory') }}
+                                </button>
+                            </div>
+                            @if (selectedLayoutChartKind() !== 'none') {
+                            <div class="mt-1 flex gap-1">
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutChartPalette() === 'color'"
+                                    [class.bg-white]="selectedLayoutChartPalette() === 'color'"
+                                    [class.border-stone-200]="selectedLayoutChartPalette() !== 'color'"
+                                    (click)="setSelectedLayoutChartPalette('color')"
+                                >
+                                    {{ t('visitaGuide.layoutChartColor') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
+                                    [class.border-stone-950]="selectedLayoutChartPalette() === 'mono'"
+                                    [class.bg-white]="selectedLayoutChartPalette() === 'mono'"
+                                    [class.border-stone-200]="selectedLayoutChartPalette() !== 'mono'"
+                                    (click)="setSelectedLayoutChartPalette('mono')"
+                                >
+                                    {{ t('visitaGuide.layoutChartMono') }}
+                                </button>
+                            </div>
+                            <p class="mt-2 text-[11px] text-stone-500">{{ t('visitaGuide.layoutChartSeries') }}</p>
+                            <div class="mt-1 flex flex-col gap-1">
+                                @for (key of selectedLayoutChartOptionKeys(); track key) {
+                                    <div class="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            class="min-w-0 flex-1 rounded-lg border px-2 py-1 text-left text-[11px] text-stone-700 dark:text-stone-200"
+                                            [class.border-stone-950]="selectedLayoutChartKeys().includes(key)"
+                                            [class.bg-white]="selectedLayoutChartKeys().includes(key)"
+                                            [class.border-stone-200]="!selectedLayoutChartKeys().includes(key)"
+                                            (click)="toggleSelectedLayoutChartKey(key)"
+                                        >
+                                            {{ consultStatsLabel(key) }}
+                                        </button>
+                                        @if (selectedLayoutChartKeys().includes(key)) {
+                                            <color-hex-field
+                                                class="w-28 shrink-0"
+                                                [ngModel]="selectedLayoutChartColor(key)"
+                                                (ngModelChange)="setSelectedLayoutChartColor(key, $event)"
+                                                [ariaLabel]="consultStatsLabel(key)"
+                                            />
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            }
+                            }
                             <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
                                 {{ t('visitaGuide.layoutShowRowLines') }}
                             </p>
@@ -5302,34 +5928,17 @@
             @if (menu.cellKey) {
                 <button
                     type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
-                    (click)="copyLayoutContextTarget(); $event.stopPropagation()"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_copy</mat-icon>
-                    {{ t('visitaGuide.layoutItemCopy') }}
-                </button>
-                <button
-                    type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                     (click)="extractLayoutContextItem(); $event.stopPropagation()"
                 >
                     <mat-icon class="!h-4 !w-4 !text-base text-stone-500">open_with</mat-icon>
                     {{ t('visitaGuide.layoutItemExtract') }}
                 </button>
-            } @else if (canCopyLayoutContextTarget()) {
-                <button
-                    type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
-                    (click)="copyLayoutContextTarget(); $event.stopPropagation()"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_copy</mat-icon>
-                    {{ t('visitaGuide.layoutContextCopy') }}
-                </button>
             }
             @if (layoutContextAllowsImageRules()) {
                 <button
                     type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
                     (click)="openImageRulesFromContextMenu(); $event.stopPropagation()"
                 >
                     <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-emerald-100 font-mono text-[10px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
@@ -5344,7 +5953,7 @@
                 ) {
                     <button
                         type="button"
-                        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                        class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
                         (click)="openShapeRulesFromContextMenu(); $event.stopPropagation()"
                     >
                         <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-emerald-100 font-mono text-[10px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
@@ -5354,7 +5963,7 @@
                 @if (menu.cellKey) {
                     <button
                         type="button"
-                        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                        class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
                         (click)="openSelectedValueRules(); closeLayoutContextMenu(); $event.stopPropagation()"
                     >
                         <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-emerald-100 font-mono text-[10px] font-bold italic text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">fx</span>
@@ -5362,9 +5971,45 @@
                     </button>
                 }
             }
+            @if (canCopyLayoutContextTarget()) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="copyLayoutContextTarget(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_copy</mat-icon>
+                    {{ t(menu.cellKey ? 'visitaGuide.layoutItemCopy' : 'visitaGuide.layoutContextCopy') }}
+                </button>
+            }
+            @if (menu.sectionId || menu.overlay) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50 dark:text-amber-300 dark:hover:bg-amber-400/15 dark:hover:text-amber-200"
+                    (click)="deleteLayoutContextTarget(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-red-600 dark:text-amber-300">delete</mat-icon>
+                    {{ t(menu.cellKey ? 'visitaGuide.layoutContextDeleteItem' : 'visitaGuide.layoutContextDelete') }}
+                </button>
+            }
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 disabled:opacity-40 dark:text-stone-200 dark:hover:bg-gray-800"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutTitleFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-cyan-700">title</mat-icon>
+                {{ t('visitaGuide.layoutAddTitle') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutTextFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-lime-700">notes</mat-icon>
+                {{ t('visitaGuide.layoutAddText') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 disabled:opacity-40 dark:text-stone-200 dark:hover:bg-gray-800"
                 [disabled]="!canInsertLayoutImage()"
                 (click)="insertLayoutImageFromMenu(); $event.stopPropagation()"
             >
@@ -5373,16 +6018,43 @@
             </button>
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutPageFromMenu(); $event.stopPropagation()"
             >
                 <mat-icon class="!h-4 !w-4 !text-base text-stone-500">note_add</mat-icon>
                 {{ t('visitaGuide.layoutAddPage') }}
             </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                [attr.aria-expanded]="layoutContextMenuMore()"
+                (click)="toggleLayoutContextMenuMore($event)"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">{{
+                    layoutContextMenuMore() ? 'expand_less' : 'expand_more'
+                }}</mat-icon>
+                {{ t('visitaGuide.layoutFormatMore') }}
+            </button>
+            @if (layoutContextMenuMore()) {
+            @if (layoutContextSection() || layoutContextSheetImage()) {
+                <label class="block px-3 pt-1 text-[11px] font-medium text-stone-500">{{ t('visitaGuide.layoutJumpTo') }}</label>
+                <select
+                    class="mx-2 mb-1 mt-1 h-8 w-[calc(100%-1rem)] rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    [ngModel]="contextLayoutJumpTarget()"
+                    (ngModelChange)="setContextLayoutJumpTarget($event)"
+                    [attr.aria-label]="t('visitaGuide.layoutJumpTo')"
+                    (click)="$event.stopPropagation()"
+                >
+                    <option value="">{{ t('visitaGuide.layoutJumpNone') }}</option>
+                    @for (target of layoutJumpTargets(layoutContextSection()?.id); track target.id) {
+                        <option [value]="target.id">{{ target.label }}</option>
+                    }
+                </select>
+            }
             @if (canRemoveLastPageSheet()) {
                 <button
                     type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-950/40"
                     (click)="removeLastPageSheet(); $event.stopPropagation()"
                 >
                     <mat-icon class="!h-4 !w-4 !text-base text-rose-600">delete</mat-icon>
@@ -5391,23 +6063,39 @@
             }
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
-                (click)="insertLayoutTitleFromMenu(); $event.stopPropagation()"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutDateFromMenu('consultedAt'); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-cyan-700">title</mat-icon>
-                {{ t('visitaGuide.layoutAddTitle') }}
+                <mat-icon class="!h-4 !w-4 !text-base text-teal-700">event_available</mat-icon>
+                {{ t('visitaGuide.layoutAddConsultedDate') }}
             </button>
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
-                (click)="insertLayoutTextFromMenu(); $event.stopPropagation()"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutDateFromMenu('generatedAt'); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-lime-700">notes</mat-icon>
-                {{ t('visitaGuide.layoutAddText') }}
+                <mat-icon class="!h-4 !w-4 !text-base text-teal-700">schedule</mat-icon>
+                {{ t('visitaGuide.layoutAddGeneratedDate') }}
             </button>
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutConsultStatsFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-indigo-700">query_stats</mat-icon>
+                {{ t('visitaGuide.layoutAddConsultStatsBlock') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                (click)="insertLayoutTocFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-amber-700">format_list_bulleted</mat-icon>
+                {{ t('visitaGuide.layoutAddToc') }}
+            </button>
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutDividerFromMenu(); $event.stopPropagation()"
             >
                 <mat-icon class="!h-4 !w-4 !text-base text-rose-700">horizontal_rule</mat-icon>
@@ -5416,7 +6104,7 @@
             @for (tool of layoutShapeTools; track tool.kind) {
                 <button
                     type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                     (click)="insertLayoutShapeFromMenu(tool.kind); $event.stopPropagation()"
                 >
                     <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">{{ tool.icon }}</mat-icon>
@@ -5425,7 +6113,7 @@
             }
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutIconFromMenu(); $event.stopPropagation()"
             >
                 <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">emoji_symbols</mat-icon>
@@ -5433,21 +6121,12 @@
             </button>
             <button
                 type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutEmojiFromMenu(); $event.stopPropagation()"
             >
                 <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">add_reaction</mat-icon>
                 {{ t('reportEmojis.addTooltip') }}
             </button>
-            @if (menu.sectionId || menu.overlay) {
-                <button
-                    type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-amber-300 dark:hover:bg-amber-400/15 dark:hover:text-amber-200"
-                    (click)="deleteLayoutContextTarget(); $event.stopPropagation()"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base text-red-600 dark:text-amber-300">delete</mat-icon>
-                    {{ t(menu.cellKey ? 'visitaGuide.layoutContextDeleteItem' : 'visitaGuide.layoutContextDelete') }}
-                </button>
             }
         </div>
     }

@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { CreateBatchConfigComponent } from './create/create-batch-config.component';
 import { SmartBatchComponent } from './smart-batch.component';
+import { visitaGuideLeaveGuard } from './visita-guide/visita-guide-leave.guard';
 
 export default [
     {
         path: '',
+        canDeactivate: [visitaGuideLeaveGuard],
         loadComponent: () =>
             import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
                 (m) => m.VisitaGuideComponent
@@ -12,6 +14,7 @@ export default [
     },
     {
         path: 'guide/:step',
+        canDeactivate: [visitaGuideLeaveGuard],
         loadComponent: () =>
             import('app/modules/smart-batch/visita-guide/visita-guide.component').then(
                 (m) => m.VisitaGuideComponent

@@ -371,6 +371,13 @@
                                 (click)="selectOverlay(sheetOverlayId(image.id), $event)"
                                 (contextmenu)="onOverlayContextMenu(sheetOverlayId(image.id), $event)"
                             >
+                                @if (jumpHref(image.linkToSectionId); as href) {
+                                    <a
+                                        class="report-jump pointer-events-auto"
+                                        [href]="href"
+                                        (click)="onJumpClick($event)"
+                                    ></a>
+                                }
                                 <img
                                     [src]="sheetImageSrc(image)"
                                     alt=""
@@ -462,6 +469,7 @@
                     @if (!isPageAnchor(section)) {
                     <div
                         data-report-section
+                        [id]="jumpAnchorId(section.id)"
                         [class.layer-quiet]="isLayerQuiet('sec:' + section.id)"
                         [class.is-text-editing]="editingText()?.sectionId === section.id"
                         [attr.data-section-id]="section.id"
@@ -487,6 +495,13 @@
                         (contextmenu)="onSectionContextMenu(section, $event)"
                         (pointerdown)="onSectionPointerDown(section, $event)"
                     >
+                        @if (jumpHref(section.linkToSectionId); as href) {
+                            <a
+                                class="report-jump"
+                                [href]="href"
+                                (click)="onJumpClick($event)"
+                            ></a>
+                        }
                         @if (clickable() && reorderable() && !isLayerQuiet('sec:' + section.id) && (isSectionChosen(section) || draggingSectionId() === section.id)) {
                             <div
                                 data-print-hide
@@ -620,14 +635,14 @@
                                     <p
                                         class="text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0 font-medium"
                                         [style.text-align]="legendPosition()"
-                                        [textContent]="legend()"
+                                        [innerHTML]="autolinkSafeHtml(legend())"
                                     ></p>
                                 }
                                 @if (termsAndConditions()) {
                                     <p
                                         class="text-[9px] text-gray-400 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0"
                                         [style.text-align]="termsPosition()"
-                                        [textContent]="termsAndConditions()"
+                                        [innerHTML]="autolinkSafeHtml(termsAndConditions())"
                                     ></p>
                                 }
                             </div>
@@ -717,14 +732,14 @@
                         <p
                             class="text-[10px] text-gray-500 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0 font-medium"
                             [style.text-align]="legendPosition()"
-                            [textContent]="legend()"
+                            [innerHTML]="autolinkSafeHtml(legend())"
                         ></p>
                     }
                     @if (termsAndConditions()) {
                         <p
                             class="text-[9px] text-gray-400 leading-relaxed whitespace-pre-wrap m-0 w-full min-w-0"
                             [style.text-align]="termsPosition()"
-                            [textContent]="termsAndConditions()"
+                            [innerHTML]="autolinkSafeHtml(termsAndConditions())"
                         ></p>
                     }
                 </div>
@@ -801,6 +816,7 @@
                 [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                 [style.font-family]="roleFontFamily(section, 'title')"
                 [style.color]="roleColor(section, 'title')"
+                [style.--report-link-color]="roleLinkColor(section, 'title')"
                 [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
                 class="inline-block whitespace-pre-wrap leading-tight"
                 [class.max-w-full]="!hasFreeLayout()"
@@ -827,6 +843,7 @@
                 [style.font-family]="roleFontFamily(section, 'title')"
                 [style.text-align]="roleTextAlign(section, 'title')"
                 [style.color]="roleColor(section, 'title')"
+                [style.--report-link-color]="roleLinkColor(section, 'title')"
                 [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
                 class="leading-relaxed whitespace-pre-wrap"
                 [class.inline-block]="hasFreeLayout()"
@@ -842,11 +859,16 @@
     @if (section.type === 'field') {
         <div
             class="min-w-0 px-2 py-1.5"
+            [class.flex]="isPairInline(section)"
+            [class.flex-row]="isPairInline(section)"
+            [class.items-baseline]="isPairInline(section)"
+            [class.gap-2]="isPairInline(section)"
             [ngStyle]="rowLineBg(section)"
         >
             <div
                 data-field-part="label"
                 class="min-w-0 break-words tracking-wide"
+                [class.shrink-0]="isPairInline(section)"
                 [class.ring-1]="isFieldPartSelected(section, 'label')"
                 [class.ring-lime-500]="isFieldPartSelected(section, 'label')"
                 [class.rounded-sm]="isFieldPartSelected(section, 'label')"
@@ -856,6 +878,7 @@
                 [style.font-family]="roleFontFamily(section, 'label')"
                 [style.text-align]="roleTextAlign(section, 'label')"
                 [style.color]="roleColor(section, 'label')"
+                                [style.--report-link-color]="roleLinkColor(section, 'label')"
             >
                 <ng-container
                     [ngTemplateOutlet]="sheetText"
@@ -865,6 +888,7 @@
             <div
                 data-field-part="value"
                 class="min-w-0 break-words"
+                [class.flex-1]="isPairInline(section)"
                 [class.ring-1]="isFieldPartSelected(section, 'value')"
                 [class.ring-orange-400]="isFieldPartSelected(section, 'value')"
                 [class.rounded-sm]="isFieldPartSelected(section, 'value')"
@@ -874,6 +898,7 @@
                 [style.font-family]="roleFontFamily(section, 'value')"
                 [style.text-align]="roleTextAlign(section, 'value')"
                 [style.color]="roleColor(section, 'value')"
+                                [style.--report-link-color]="roleLinkColor(section, 'value')"
             >
                 <ng-container
                     [ngTemplateOutlet]="sheetText"
@@ -893,6 +918,7 @@
                     [style.font-weight]="roleFontWeight(section, 'title')"
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
+                [style.--report-link-color]="roleLinkColor(section, 'title')"
                     [class.ring-2]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
@@ -919,6 +945,7 @@
                                 [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                                 [style.text-align]="roleTextAlign(section, 'label')"
                                 [style.color]="roleColor(section, 'label')"
+                                [style.--report-link-color]="roleLinkColor(section, 'label')"
                             >
                                 <ng-container
                                     [ngTemplateOutlet]="sheetText"
@@ -933,6 +960,7 @@
                                 [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                                 [style.text-align]="roleTextAlign(section, 'value')"
                                 [style.color]="roleColor(section, 'value')"
+                                [style.--report-link-color]="roleLinkColor(section, 'value')"
                             >
                                 <ng-container
                                     [ngTemplateOutlet]="sheetText"
@@ -1112,6 +1140,7 @@
                     [style.font-weight]="roleFontWeight(section, 'title')"
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
+                [style.--report-link-color]="roleLinkColor(section, 'title')"
                     [class.ring-2]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
@@ -1139,6 +1168,7 @@
                                     [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                                     [style.text-align]="roleTextAlign(section, 'label')"
                                     [style.color]="roleColor(section, 'label')"
+                                [style.--report-link-color]="roleLinkColor(section, 'label')"
                                     (click)="onCellActivate(section, column.key, 'label', $event)"
                                     (contextmenu)="onCellContextMenu(section, column.key, $event)"
                                 >
@@ -1164,6 +1194,7 @@
                                         [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                                         [style.text-align]="roleTextAlign(section, 'value')"
                                         [style.color]="roleColor(section, 'value')"
+                                [style.--report-link-color]="roleLinkColor(section, 'value')"
                                         (click)="onCellActivate(section, structuralColumns(section)[colIndex].key, 'value', $event)"
                                         (contextmenu)="onCellContextMenu(section, structuralColumns(section)[colIndex].key, $event)"
                                     >
@@ -1198,6 +1229,7 @@
                     [style.font-weight]="roleFontWeight(section, 'title')"
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
+                [style.--report-link-color]="roleLinkColor(section, 'title')"
                     [class.ring-2]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
@@ -1210,7 +1242,73 @@
                     ></ng-container>
                 </h4>
             }
-            @if (sectionHasStructuredData(section)) {
+            @if (showsChart(section)) {
+                @let box = chartBox(section);
+                @let slices = chartSlices(section);
+                <div class="report-chart mt-1 min-h-[140px]" [style.height.px]="box.height">
+                    @if (chartKind(section) === 'pie') {
+                        @let radius = chartPieRadius(section);
+                        <svg
+                            class="block h-full w-full overflow-visible"
+                            [attr.viewBox]="'0 0 ' + box.width + ' ' + box.height"
+                            role="img"
+                        >
+                            @for (arc of chartPieArcs(section); track arc.key) {
+                                @if (arc.d) {
+                                    <path [attr.d]="arc.d" [attr.fill]="arc.color"></path>
+                                }
+                            }
+                            @if (chartIsEmpty(section)) {
+                                <circle [attr.cx]="radius + 10" [attr.cy]="box.height / 2" [attr.r]="radius" fill="#e5e7eb"></circle>
+                            }
+                            @for (slice of slices; track slice.key; let i = $index) {
+                                <rect
+                                    [attr.x]="radius * 2 + 26"
+                                    [attr.y]="6 + i * chartLegendStep(section)"
+                                    width="10"
+                                    height="10"
+                                    rx="2"
+                                    [attr.fill]="slice.color"
+                                ></rect>
+                                <text
+                                    [attr.x]="radius * 2 + 42"
+                                    [attr.y]="16 + i * chartLegendStep(section)"
+                                    font-size="11"
+                                    fill="#334155"
+                                >
+                                    {{ slice.label }} · {{ slice.value }}
+                                </text>
+                            }
+                        </svg>
+                    } @else {
+                        <svg
+                            class="block h-full w-full overflow-visible"
+                            [attr.viewBox]="'0 0 ' + box.width + ' ' + box.height"
+                            role="img"
+                        >
+                            @for (bar of chartBars(section); track bar.key) {
+                                <rect
+                                    [attr.x]="bar.x"
+                                    [attr.y]="bar.y"
+                                    [attr.width]="bar.width"
+                                    [attr.height]="bar.height"
+                                    rx="3"
+                                    [attr.fill]="bar.color"
+                                ></rect>
+                                <text
+                                    [attr.x]="bar.x + bar.width / 2"
+                                    [attr.y]="box.height - 4"
+                                    text-anchor="middle"
+                                    font-size="9"
+                                    fill="#64748b"
+                                >
+                                    {{ bar.label }}
+                                </text>
+                            }
+                        </svg>
+                    }
+                </div>
+            } @else if (sectionHasStructuredData(section)) {
                 @for (chunk of sheetChunks(section); track chunk.kind === 'table' ? chunk.table.key : chunk.entries[0]?.key) {
                     @if (chunk.kind === 'fields') {
                         <div
@@ -1224,6 +1322,10 @@
                                     data-report-cell
                                     [attr.data-cell-key]="entry.key"
                                     class="relative min-w-0 px-2 py-1.5"
+                                    [class.flex]="isPairInline(section)"
+                                    [class.flex-row]="isPairInline(section)"
+                                    [class.items-baseline]="isPairInline(section)"
+                                    [class.gap-2]="isPairInline(section)"
                                     [class.ring-2]="isCellSelected(section, entry.key)"
                                     [class.ring-inset]="isCellSelected(section, entry.key)"
                                     [class.ring-indigo-400]="isCellSelected(section, entry.key)"
@@ -1246,6 +1348,7 @@
                                     <div
                                         data-cell-part="label"
                                         class="min-w-0 break-words tracking-wide"
+                                        [class.shrink-0]="isPairInline(section)"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'label')"
                                         [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
                                         [class.rounded-sm]="isCellSelected(section, entry.key, 'label')"
@@ -1255,6 +1358,7 @@
                                         [style.font-style]="roleFontStyle(section, 'label', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'label', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'label', entry.key)"
                                         [style.color]="roleColor(section, 'label', entry.key)"
+                                        [style.--report-link-color]="roleLinkColor(section, 'label', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'label', $event)"
                                     >
                                         <ng-container
@@ -1265,6 +1369,7 @@
                                     <div
                                         data-cell-part="value"
                                         class="min-w-0 break-words"
+                                        [class.flex-1]="isPairInline(section)"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'value')"
                                         [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
                                         [class.rounded-sm]="isCellSelected(section, entry.key, 'value')"
@@ -1274,6 +1379,7 @@
                                         [style.font-style]="roleFontStyle(section, 'value', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'value', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'value', entry.key)"
                                         [style.color]="roleColor(section, 'value', entry.key)"
+                                        [style.--report-link-color]="roleLinkColor(section, 'value', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'value', $event)"
                                     >
                                         <ng-container
@@ -1316,6 +1422,7 @@
                                         [style.font-size.px]="roleFontSize(section, 'label')"
                                         [style.font-weight]="roleFontWeight(section, 'label')"
                                         [style.color]="roleColor(section, 'label')"
+                                [style.--report-link-color]="roleLinkColor(section, 'label')"
                                     >
                                         {{ tableLabel(section, chunk.table) }}
                                     </p>
@@ -1337,6 +1444,7 @@
                                                 [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'label', chunk.table.key, column.key).textDecoration"
                                                 [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
                                                 [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
+                                                [style.--report-link-color]="tableText(section, 'label', chunk.table.key, column.key).linkColor"
                                                 (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
                                                 (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                             >
@@ -1366,6 +1474,7 @@
                                                     [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'value', chunk.table.key, column.key).textDecoration"
                                                     [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
                                                     [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
+                                                    [style.--report-link-color]="tableText(section, 'value', chunk.table.key, column.key).linkColor"
                                                     (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
                                                     (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                                 >
@@ -1407,6 +1516,7 @@
                     [style.font-weight]="roleFontWeight(section, 'label')"
                     [style.font-style]="roleFontStyle(section, 'label')" [style.text-decoration]="roleTextDecoration(section, 'label')"
                     [style.color]="roleColor(section, 'label')"
+                                [style.--report-link-color]="roleLinkColor(section, 'label')"
                 >
                     <ng-container
                         [ngTemplateOutlet]="sheetText"
@@ -1446,6 +1556,7 @@
                     [style.font-weight]="roleFontWeight(section, 'title')"
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
+                [style.--report-link-color]="roleLinkColor(section, 'title')"
                     [class.ring-2]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
@@ -1467,6 +1578,7 @@
                     [style.font-style]="roleFontStyle(section, 'value')" [style.text-decoration]="roleTextDecoration(section, 'value')"
                     [style.text-align]="roleTextAlign(section, 'value')"
                     [style.color]="roleColor(section, 'value')"
+                                [style.--report-link-color]="roleLinkColor(section, 'value')"
                 >
                     <ng-container
                         [ngTemplateOutlet]="sheetText"
@@ -1482,7 +1594,12 @@
                                 <div
                                     data-report-cell
                                     [attr.data-cell-key]="entry.key"
-                                    class="relative flex gap-2 px-2 py-1"
+                                    class="relative px-2 py-1"
+                                    [class.flex]="true"
+                                    [class.flex-row]="isPairInline(section)"
+                                    [class.items-baseline]="isPairInline(section)"
+                                    [class.gap-2]="isPairInline(section)"
+                                    [class.flex-col]="!isPairInline(section)"
                                     [class.ring-2]="isCellSelected(section, entry.key)"
                                     [class.ring-inset]="isCellSelected(section, entry.key)"
                                     [class.ring-indigo-400]="isCellSelected(section, entry.key)"
@@ -1504,6 +1621,7 @@
                                     <span
                                         data-cell-part="label"
                                         class="min-w-0 break-words"
+                                        [class.shrink-0]="isPairInline(section)"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'label')"
                                         [class.ring-lime-500]="isCellSelected(section, entry.key, 'label')"
                                         [style.font-family]="roleFontFamily(section, 'label', entry.key)"
@@ -1512,6 +1630,7 @@
                                         [style.font-style]="roleFontStyle(section, 'label', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'label', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'label', entry.key)"
                                         [style.color]="roleColor(section, 'label', entry.key)"
+                                        [style.--report-link-color]="roleLinkColor(section, 'label', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'label', $event)"
                                     >
                                         <ng-container
@@ -1522,6 +1641,7 @@
                                     <span
                                         data-cell-part="value"
                                         class="min-w-0 break-words"
+                                        [class.flex-1]="isPairInline(section)"
                                         [class.ring-1]="isCellSelected(section, entry.key, 'value')"
                                         [class.ring-orange-400]="isCellSelected(section, entry.key, 'value')"
                                         [style.font-family]="roleFontFamily(section, 'value', entry.key)"
@@ -1530,6 +1650,7 @@
                                         [style.font-style]="roleFontStyle(section, 'value', entry.key)" [style.text-decoration]="roleTextDecoration(section, 'value', entry.key)"
                                         [style.text-align]="roleTextAlign(section, 'value', entry.key)"
                                         [style.color]="roleColor(section, 'value', entry.key)"
+                                        [style.--report-link-color]="roleLinkColor(section, 'value', entry.key)"
                                         (click)="onCellActivate(section, entry.key, 'value', $event)"
                                         ><ng-container
                                             [ngTemplateOutlet]="sheetText"
@@ -1571,6 +1692,7 @@
                                         [style.font-size.px]="roleFontSize(section, 'label')"
                                         [style.font-weight]="roleFontWeight(section, 'label')"
                                         [style.color]="roleColor(section, 'label')"
+                                [style.--report-link-color]="roleLinkColor(section, 'label')"
                                     >
                                         {{ tableLabel(section, chunk.table) }}
                                     </p>
@@ -1592,6 +1714,7 @@
                                                 [style.font-style]="tableText(section, 'label', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'label', chunk.table.key, column.key).textDecoration"
                                                 [style.text-align]="tableText(section, 'label', chunk.table.key, column.key).textAlign"
                                                 [style.color]="tableText(section, 'label', chunk.table.key, column.key).color"
+                                                [style.--report-link-color]="tableText(section, 'label', chunk.table.key, column.key).linkColor"
                                                 (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'label', $event)"
                                                 (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                             >
@@ -1621,6 +1744,7 @@
                                                     [style.font-style]="tableText(section, 'value', chunk.table.key, column.key).fontStyle" [style.text-decoration]="tableText(section, 'value', chunk.table.key, column.key).textDecoration"
                                                     [style.text-align]="tableText(section, 'value', chunk.table.key, column.key).textAlign"
                                                     [style.color]="tableText(section, 'value', chunk.table.key, column.key).color"
+                                                    [style.--report-link-color]="tableText(section, 'value', chunk.table.key, column.key).linkColor"
                                                     (click)="onCellActivate(section, tableColumnKey(chunk.table.key, column.key), 'value', $event)"
                                                     (contextmenu)="onCellContextMenu(section, tableColumnKey(chunk.table.key, column.key), $event)"
                                                 >
@@ -1652,6 +1776,7 @@
                     [style.font-weight]="roleFontWeight(section, 'title')"
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
+                [style.--report-link-color]="roleLinkColor(section, 'title')"
                     [class.ring-2]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
@@ -1864,6 +1989,7 @@
                 class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
                 [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
                 [style.color]="rule.color || null"
+                [style.--report-link-color]="sheetLinkColor(section, kind, key)"
                 [style.background-color]="rule.backgroundColor || null"
                 [style.font-weight]="rule.bold ? 700 : null"
                 [style.padding]="rule.backgroundColor ? '0.05em 0.5em' : null"
@@ -1871,19 +1997,20 @@
                 (pointerdown)="onSheetTextPointerDown(kind, $event)"
                 (click)="onSheetTextClick(section, kind, $event, key, fallback)"
                 (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
-                ><span [innerHTML]="ruleBadge(rule)"></span>{{ rule.text || sheetDisplayText(section, kind, key, fallback) || '\u00a0' }}</span
+                ><span [innerHTML]="ruleBadge(rule)"></span><span [innerHTML]="autolinkSafeHtml(rule.text || sheetDisplayText(section, kind, key, fallback) || '\u00a0', sheetLinkColor(section, kind, key))"></span></span
             >
         } @else {
             <span
                 data-sheet-text
                 [attr.data-text-kind]="kind"
                 class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
+                [style.--report-link-color]="sheetLinkColor(section, kind, key)"
                 [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
                 (pointerdown)="onSheetTextPointerDown(kind, $event)"
                 (click)="onSheetTextClick(section, kind, $event, key, fallback)"
                 (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
-                >{{ sheetDisplayText(section, kind, key, fallback) || '\u00a0' }}</span
-            >
+                [innerHTML]="sheetAutolinkHtml(section, kind, key, fallback)"
+            ></span>
         }
     }
 </ng-template>

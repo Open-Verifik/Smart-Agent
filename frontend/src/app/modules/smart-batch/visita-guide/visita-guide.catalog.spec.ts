@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     availableCountries,
     buildInputRow,
+    countryIsoFromHint,
     countryNameForIso,
     countriesFromEndpointFeatures,
     guideCountriesFromFeatures,
@@ -101,6 +102,15 @@ describe('countryNameForIso', () => {
         expect(countryNameForIso('pa')).toBe('Panama');
         expect(countryNameForIso('US')).toBe('United States');
         expect(countryNameForIso('')).toBe('');
+    });
+});
+
+describe('countryIsoFromHint', () => {
+    it('accepts an iso, a display name, or a batch country string', () => {
+        expect(countryIsoFromHint('co')).toBe('co');
+        expect(countryIsoFromHint('Colombia')).toBe('co');
+        expect(countryIsoFromHint('COLOMBIA')).toBe('co');
+        expect(countryIsoFromHint('')).toBe('');
     });
 });
 

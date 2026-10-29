@@ -19,7 +19,15 @@ export const featureGroup = (feature: {
     name?: string;
     url?: string;
     description?: string;
+    baseCategory?: string;
 }): FeatureGroupId => {
+    const category = (feature.baseCategory ?? '').trim().toLowerCase();
+    if (category === 'business') return 'company';
+    if (category === 'transit') return 'vehicle';
+    if (category === 'identity' || category === 'background_check' || category === 'judicial' || category === 'military') {
+        return 'citizen';
+    }
+
     const blob = `${feature.code ?? ''} ${feature.name ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
     if (/vehicle|vehículo|placa|plate|runt|simit|fasecolda|soat|transit/.test(blob)) {
         return 'vehicle';
@@ -28,7 +36,7 @@ export const featureGroup = (feature: {
         return 'company';
     }
     if (
-        /cedula|cédula|citizen|persona|registrad|pep|antecedent|procurad|policia|policía|contralor|inpec|migrac/.test(
+        /cedula|cédula|citizen|persona|registrad|pep|antecedent|procurad|policia|policía|contralor|inpec|migrac|rama|proceso|judicial|juzgado|expediente|abogado/.test(
             blob
         )
     ) {

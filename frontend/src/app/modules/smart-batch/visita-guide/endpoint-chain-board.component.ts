@@ -151,6 +151,31 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
     { id: 'other', labelKey: 'visitaGuide.intentOther' },
 ];
 
+const arrayAtPath = (node: unknown, path: string): unknown[] | null => {
+    let current: unknown = node;
+    for (const segment of path.split('.')) {
+        if (!current || typeof current !== 'object' || Array.isArray(current)) return null;
+        current = (current as Record<string, unknown>)[segment];
+    }
+    return Array.isArray(current) ? current : null;
+};
+
+const collectArrayPaths = (
+    node: unknown,
+    depth = 0,
+    prefix = '',
+    into: { path: string; items: unknown[] }[] = []
+): { path: string; items: unknown[] }[] => {
+    if (!node || typeof node !== 'object' || Array.isArray(node) || depth > 3) return into;
+    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+        if (key.startsWith('_') || key === 'errors' || key === 'stack') continue;
+        const path = prefix ? `${prefix}.${key}` : key;
+        if (Array.isArray(value)) into.push({ path, items: value });
+        else if (value && typeof value === 'object') collectArrayPaths(value, depth + 1, path, into);
+    }
+    return into;
+};
+
 @Component({
     selector: 'endpoint-chain-board',
     standalone: true,
@@ -381,6 +406,20 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                                 </button>
                                             }
                                             <span class="min-w-0 truncate">{{ fieldLabel(port) }}</span>
+                                            @if (node.kind === 'endpoint') {
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    inputmode="numeric"
+                                                    class="ml-1 w-12 shrink-0 rounded border border-emerald-200 bg-white px-1 py-0.5 text-[10px] text-slate-800 dark:border-emerald-900 dark:bg-gray-950 dark:text-slate-100"
+                                                    [placeholder]="'#'"
+                                                    [title]="arrayIndexHint(node, port)"
+                                                    [value]="pickedArrayIndex(node.id, port) ?? ''"
+                                                    (pointerdown)="$event.stopPropagation()"
+                                                    (change)="pickArrayIndex(node.id, port, $any($event.target).value)"
+                                                />
+                                            }
                                             <button
                                                 type="button"
                                                 class="absolute -right-2 z-20 h-4 w-4 cursor-crosshair rounded-full border-2 border-white bg-emerald-500 shadow"
@@ -513,6 +552,9 @@ const TRAY_GROUPS: { id: FeatureGroupId; labelKey: string }[] = [
                                     <div class="flex flex-col items-center gap-3 py-10">
                                         <mat-spinner diameter="36"></mat-spinner>
                                     </div>
+                                }
+                                @if (!loading() && !tray().length) {
+                                    <p class="px-1 py-6 text-center text-sm text-slate-400">{{ 'visitaGuide.noEndpoints' | transloco }}</p>
                                 }
                                 @for (group of trayGroups(); track group.id) {
                                     <p class="sticky top-0 z-[1] mb-1.5 flex items-center gap-1 bg-white/95 px-1 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-gray-900/95">
@@ -818,10 +860,13 @@ export class EndpointChainBoardComponent {
     paramFilterFields = input<string[]>([]);
     activeParamFilters = input<string[]>([]);
     selectedCountries = input<string[]>([]);
+    /** Consult payload keyed by feature id, used to list items of an array output. */
+    stepPayloads = input<Record<string, unknown>>({});
 
     chainChange = output<AppFeature[]>();
     graphChange = output<FlowGraph>();
     continueChain = output<void>();
+    continueKey = input('visitaGuide.continue');
     queryChange = output<string>();
     toggleParamFilter = output<string>();
     clearParamFilters = output<void>();
@@ -845,7 +890,8 @@ export class EndpointChainBoardComponent {
     zoom = signal(1);
     panX = signal(0);
     panY = signal(0);
-    linking = signal<{ from: string; fromPort: string } | null>(null);
+    linking = signal<{ from: string; fromPort: string; fromIndex?: number } | null>(null);
+    private readonly _arrayPick = signal<Record<string, number>>({});
     cursor = signal({ x: 0, y: 0 });
     readonly enumClass = paramEnumChipClass;
     private readonly _dropBuckets = new Map<string, unknown[]>();
@@ -973,7 +1019,7 @@ export class EndpointChainBoardComponent {
         this.linking.set(null);
         const target = this._hitInputPort(this._toWorld(event), link.from);
         if (!target) return;
-        this._connect(link.from, link.fromPort, target.nodeId, target.port);
+        this._connect(link.from, link.fromPort, target.nodeId, target.port, link.fromIndex);
     }
 
     onWheel(event: WheelEvent): void {
@@ -1018,7 +1064,8 @@ export class EndpointChainBoardComponent {
         this.libraryOpen.set(false);
         this.configOpen.set(false);
         this.selectedWireId.set(null);
-        this.linking.set({ from: node.id, fromPort: port });
+        const fromIndex = this.pickedArrayIndex(node.id, port) ?? undefined;
+        this.linking.set({ from: node.id, fromPort: port, fromIndex });
         this.cursor.set(this._toWorld(event));
     }
 
@@ -1028,7 +1075,7 @@ export class EndpointChainBoardComponent {
         if (!link) return;
         event.preventDefault();
         this.linking.set(null);
-        this._connect(link.from, link.fromPort, node.id, port);
+        this._connect(link.from, link.fromPort, node.id, port, link.fromIndex);
     }
 
     zoomBy(delta: number): void {
@@ -1214,7 +1261,17 @@ export class EndpointChainBoardComponent {
     private _defaultOutputPorts(node: FlowGraphNode): string[] {
         const catalog = this.profiles()[node.id]?.outputs ?? [];
         const seeds = catalog.filter((field) => DEFAULT_CHAIN_PORTS.has(field));
-        return (seeds.length ? seeds : catalog).slice(0, 3);
+        const shown = (seeds.length ? seeds : catalog).slice(0, 3);
+        const arrays = catalog.filter(
+            (field) => !shown.includes(field) && (this._arrayFromPayload(node.feature?._id, field) != null || /array/i.test(field))
+        );
+        const known = new Set([...shown, ...arrays]);
+        const live = this._payloadArrayPaths(node.feature?._id).filter((path) => {
+            if (known.has(path)) return false;
+            const leaf = path.split('.').pop() ?? path;
+            return !(known.has(leaf) && this._arrayFromPayload(node.feature?._id, leaf));
+        });
+        return [...shown, ...arrays, ...live];
     }
 
     private _wiredInputPorts(node: FlowGraphNode): string[] {
@@ -1240,6 +1297,97 @@ export class EndpointChainBoardComponent {
         return [...new Set(ports.filter(Boolean))];
     }
 
+    arrayItems(node: FlowGraphNode, port: string): { index: number; label: string }[] {
+        const live = this._arrayFromPayload(node.feature?._id, port);
+        if (!live) return [];
+        return live.slice(0, 40).map((item, index) => ({ index, label: this._arrayItemLabel(item, index) }));
+    }
+
+    pickedArrayIndex(nodeId: string, port: string): number | null {
+        const picked = this._arrayPick()[`${nodeId}::${port}`];
+        if (Number.isInteger(picked)) return picked;
+        const stored = outgoingEdges(this.graph(), nodeId, port).find((edge) => Number.isInteger(edge.fromIndex));
+        return stored?.fromIndex ?? null;
+    }
+
+    pickArrayIndex(nodeId: string, port: string, raw: string): void {
+        const trimmed = raw.trim();
+        const index = trimmed === '' ? null : Number(trimmed);
+        if (index != null && (!Number.isInteger(index) || index < 0)) return;
+        this._arrayPick.update((current) => {
+            const next = { ...current };
+            if (index == null) delete next[`${nodeId}::${port}`];
+            else next[`${nodeId}::${port}`] = index;
+            return next;
+        });
+        const edges = outgoingEdges(this.graph(), nodeId, port);
+        if (!edges.length) return;
+        const fromPath = index == null ? undefined : this._resolvedArrayPath(nodeById(this.graph(), nodeId)?.feature?._id, port);
+        let graph = this.graph();
+        for (const edge of edges) {
+            graph = connectPorts(graph, edge.from, edge.fromPort, edge.to, edge.toPort, index ?? undefined, fromPath);
+        }
+        this.graph.set(graph);
+        this._emit();
+    }
+
+    arrayIndexHint(node: FlowGraphNode, port: string): string {
+        const total = this._arrayFromPayload(node.feature?._id, port)?.length ?? 0;
+        const items = this.arrayItems(node, port);
+        const picked = this.pickedArrayIndex(node.id, port);
+        const preview = items
+            .slice(0, 12)
+            .map((item) => `${item.index} ${item.label}`)
+            .join(' · ');
+        const base = this._transloco.translate('visitaGuide.flowArrayIndexHint');
+        if (!total) return base;
+        const seen = this._transloco.translate('visitaGuide.flowArraySeen', { count: total });
+        const beyond =
+            picked != null && picked >= total ? ` ${this._transloco.translate('visitaGuide.flowArrayMissing')}` : '';
+        return `${base} ${seen}${preview ? ` ${preview}` : ''}${beyond}`;
+    }
+
+    private _arrayFromPayload(featureId: string | undefined, port: string): unknown[] | null {
+        if (!featureId) return null;
+        const payload = this.stepPayloads()[featureId];
+        const direct = arrayAtPath(payload, port);
+        if (direct) return direct;
+        if (port.includes('.')) return null;
+        const nested = collectArrayPaths(payload).find((entry) => entry.path.endsWith(`.${port}`));
+        return nested?.items ?? null;
+    }
+
+    private _payloadArrayPaths(featureId: string | undefined): string[] {
+        if (!featureId) return [];
+        return collectArrayPaths(this.stepPayloads()[featureId])
+            .filter((entry) => entry.items.length > 0)
+            .map((entry) => entry.path);
+    }
+
+    private _resolvedArrayPath(featureId: string | undefined, port: string): string | undefined {
+        if (!featureId) return undefined;
+        const payload = this.stepPayloads()[featureId];
+        if (arrayAtPath(payload, port)) return undefined;
+        const leaf = port.split('.').pop() ?? port;
+        const nested = collectArrayPaths(payload).find((entry) => entry.path.endsWith(`.${leaf}`));
+        return nested?.path;
+    }
+
+    private _arrayItemLabel(item: unknown, index: number): string {
+        if (typeof item === 'string' || typeof item === 'number') {
+            const text = String(item).trim();
+            return text || String(index);
+        }
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            const record = item as Record<string, unknown>;
+            for (const key of ['fullName', 'name', 'lastName', 'firstName', 'documentNumber', 'plate', 'value']) {
+                const value = record[key];
+                if (typeof value === 'string' && value.trim()) return value.trim();
+            }
+        }
+        return String(index);
+    }
+
     boundSource(nodeId: string, port: string): string {
         const fixed = this.graph().fixed[nodeId]?.[port];
         if (fixed) return this._transloco.translate('visitaGuide.flowFixedValue') + ' ' + fixed;
@@ -1247,7 +1395,8 @@ export class EndpointChainBoardComponent {
         if (!edge) return '';
         const from = nodeById(this.graph(), edge.from);
         if (!from) return '';
-        return `${this.fieldLabel(edge.fromPort)} · ${this.nodeTitle(from)}`;
+        const item = Number.isInteger(edge.fromIndex) ? ` [${edge.fromIndex}]` : '';
+        return `${this.fieldLabel(edge.fromPort)}${item} · ${this.nodeTitle(from)}`;
     }
 
     hasOutgoing(nodeId: string, port: string): boolean {
@@ -1257,6 +1406,7 @@ export class EndpointChainBoardComponent {
     isHotInput(node: FlowGraphNode, port: string): boolean {
         const link = this.linking();
         if (!link || link.from === node.id) return false;
+        if (link.fromIndex != null) return true;
         return fieldsLikelyCompatible(link.fromPort, port) || link.fromPort === '*' || port === '*';
     }
 
@@ -1266,10 +1416,17 @@ export class EndpointChainBoardComponent {
             if (node.id === nodeId) continue;
             for (const out of this.outputPorts(node)) {
                 if (out === '*' && node.kind === 'endpoint') continue;
+                const items = node.kind === 'endpoint' ? this.arrayItems(node, out).slice(0, 30) : [];
                 options.push({
                     id: `${node.id}::${out}`,
                     label: `${this.nodeTitle(node)} → ${this.fieldLabel(out)}`,
                 });
+                for (const item of items) {
+                    options.push({
+                        id: `${node.id}::${out}::${item.index}`,
+                        label: `${this.nodeTitle(node)} → ${this.fieldLabel(out)} [${item.index}] ${item.label}`,
+                    });
+                }
             }
         }
         void port;
@@ -1292,8 +1449,13 @@ export class EndpointChainBoardComponent {
             this._emit();
             return;
         }
-        const [from, fromPort] = value.split('::');
-        if (from && fromPort) this._connect(from, fromPort, node.id, port);
+        const parts = value.split('::');
+        const from = parts[0];
+        const fromPort = parts[1];
+        const rawIndex = parts.length > 2 ? Number(parts[2]) : undefined;
+        if (from && fromPort) {
+            this._connect(from, fromPort, node.id, port, Number.isInteger(rawIndex) ? rawIndex : undefined);
+        }
     }
 
     enumsFor(node: FlowGraphNode, port: string): string[] {
@@ -1475,12 +1637,16 @@ export class EndpointChainBoardComponent {
         this._emit();
     }
 
-    private _connect(from: string, fromPort: string, to: string, toPort: string): void {
+    private _connect(from: string, fromPort: string, to: string, toPort: string, fromIndex?: number): void {
         const apply = (): void => {
-            this.graph.set(connectPorts(this.graph(), from, fromPort, to, toPort));
+            const fromPath =
+                fromIndex == null
+                    ? undefined
+                    : this._resolvedArrayPath(nodeById(this.graph(), from)?.feature?._id, fromPort);
+            this.graph.set(connectPorts(this.graph(), from, fromPort, to, toPort, fromIndex, fromPath));
             this._emit();
         };
-        if (fromPort === '*' || toPort === '*' || fieldsLikelyCompatible(fromPort, toPort)) {
+        if (fromIndex != null || fromPort === '*' || toPort === '*' || fieldsLikelyCompatible(fromPort, toPort)) {
             apply();
             return;
         }

@@ -1555,7 +1555,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 configId,
                 ...(batchId ? { batchId } : {}),
                 ...(templateId
-                    ? { templateId }
+                    ? { templateId, templateChoice: 'mine' }
                     : { templateChoice: 'scratch' }),
             },
             ...navigationExtras,

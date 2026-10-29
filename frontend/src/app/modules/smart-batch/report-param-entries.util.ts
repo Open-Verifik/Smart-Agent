@@ -130,6 +130,10 @@ const ROOT_TABLE_KEY = '__list';
 const PARAM_KEY_LABELS: Record<string, string> = {
     tipoTarifa: 'Tipo de tarifa',
     soat: 'SOAT',
+    consultStats: 'Estadísticas de consultas',
+    successPercent: 'Porcentaje de éxito',
+    foundPercent: 'Porcentaje encontradas',
+    failedPercent: 'Porcentaje de fallos',
 };
 
 const splitParamSegment = (segment: string): string =>

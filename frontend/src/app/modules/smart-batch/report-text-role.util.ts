@@ -1,3 +1,4 @@
+import { REPORT_LINK_COLOR } from './report-autolink.util';
 import { ReportKeyOverride, ReportSection, ReportTextRole, ReportTextRoleStyle } from './smart-report.service';
 import { isReportFontWeight, REPORT_FONT_STACKS, ReportFontWeight, ReportTextAlign } from './report-fonts.util';
 import { collectLayoutSheetItems, valueAtDataPath } from './report-param-entries.util';
@@ -12,6 +13,7 @@ export type ResolvedTextRoleStyle = {
     textDecoration: 'none' | 'underline';
     textAlign: ReportTextAlign;
     color: string;
+    linkColor: string;
     textCase: ReportTextCase;
 };
 
@@ -82,6 +84,7 @@ export const resolveTextRole = (
                 ? align
                 : defaultAlign,
         color: nested?.color || fallbackColor || defaultColor,
+        linkColor: nested?.linkColor || (role === 'title' ? style?.linkColor : undefined) || REPORT_LINK_COLOR,
         textCase: isReportTextCase(nested?.textCase) ? nested.textCase : 'none',
     };
 };
@@ -92,9 +95,10 @@ const roleStyle = (resolved: ResolvedTextRoleStyle): ReportTextRoleStyle => ({
     fontWeight: resolved.fontWeight,
     fontStyle: resolved.fontStyle,
     textDecoration: resolved.textDecoration,
-    textAlign: resolved.textAlign,
-    color: resolved.color,
-    ...(resolved.textCase !== 'none' ? { textCase: resolved.textCase } : {}),
+        textAlign: resolved.textAlign,
+        color: resolved.color,
+        linkColor: resolved.linkColor,
+        ...(resolved.textCase !== 'none' ? { textCase: resolved.textCase } : {}),
 });
 
 const TITLE_MIRROR_TYPES = new Set<ReportSection['type']>([

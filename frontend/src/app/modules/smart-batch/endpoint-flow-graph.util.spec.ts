@@ -120,6 +120,16 @@ describe('endpoint-flow-graph', () => {
             {},
             { documentNumber: '{{results.1.documentNumber}}' },
         ]);
+        graph = connectPorts(graph, 'c1', 'arrayName', 'v2', 'lastName', 2);
+        graph = connectPorts(graph, 'c1', 'propietarios', 'v2', 'ownerDocument', 1, 'data.propietarios');
+        expect(chainStepFeedTemplatesFromGraph(graph, flattenFlowGraph(graph))).toEqual([
+            {},
+            {
+                documentNumber: '{{results.1.documentNumber}}',
+                lastName: '{{results.1.arrayName.2}}',
+                ownerDocument: '{{results.1.data.propietarios.1}}',
+            },
+        ]);
         const restored = parseFlowGraph(JSON.parse(JSON.stringify(graph)));
         expect(restored).not.toBeNull();
         expect(sameFlowLayout(restored!, graph)).toBe(true);
