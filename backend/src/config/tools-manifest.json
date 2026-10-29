@@ -715,12 +715,12 @@
 		},
 		{
 			"id": "mexico_api_rfc_lookup",
-			"name": "Mexico - RFC by CURP",
-			"category": "Mexico - RFC by CURP",
+			"name": "Mexico - RFC by CURP / RFC",
+			"category": "Mexico - RFC by CURP / RFC",
 			"url": "https://ai.verifik.co/api/mx/rfc",
 			"verifikPath": "/v2/mx/rfc",
 			"method": "GET",
-			"description": "Look up the SAT RFC (Registro Federal de Contribuyentes) registered to a Mexican CURP with Verifik's identity API.",
+			"description": "Bidirectional lookup and SAT compliance validation between Mexican CURP and SAT RFC (Registro Federal de Contribuyentes).",
 			"country": "Mexico",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -730,7 +730,8 @@
 						"type": "string",
 						"description": "Parameter: documentType",
 						"enum": [
-							"CURP"
+							"CURP",
+							"RFC"
 						]
 					},
 					"documentNumber": {

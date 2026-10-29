@@ -141,8 +141,8 @@
             "description": "Validate the identity of individuals in Mexico using CURP with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
         },
         "mexico_api_rfc_lookup": {
-            "title": "RFC by CURP",
-            "description": "Look up the SAT RFC (Registro Federal de Contribuyentes) registered to a Mexican CURP with Verifik's identity API."
+            "title": "RFC by CURP / RFC",
+            "description": "Bidirectional lookup and SAT compliance validation between Mexican CURP and SAT RFC (Registro Federal de Contribuyentes)."
         },
         "ecuador_api_identity_lookup": {
             "title": "Ecuadorian Citizen",
