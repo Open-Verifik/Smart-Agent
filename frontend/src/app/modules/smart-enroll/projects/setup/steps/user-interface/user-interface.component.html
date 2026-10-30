@@ -1,5 +1,6 @@
 <ng-container *transloco="let t">
     <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
+        <verify-style-picker [control]="verifyStyleControl"></verify-style-picker>
         @let logoCtrl = brandingFormGroup?.get('logo');
         @let imageCtrl = brandingFormGroup?.get('image');
 

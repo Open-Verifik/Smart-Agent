@@ -4144,6 +4144,38 @@
                 }
             },
             "integrations": {
+                "enrollmentClient": {
+                    "title": "Expérience d’inscription",
+                    "subtitle": "Choisissez la page ouverte par le lien publié.",
+                    "legacy": "Inscription actuelle (/sign-up)",
+                    "v2": "Nouvelle inscription (/verify)",
+                    "blocked": "La nouvelle inscription reste désactivée tant que le projet exige :",
+                    "blockers": {
+                        "business": "Vérification d’entreprise ou KYB",
+                        "extraFields": "Champs de profil supplémentaires",
+                        "backgroundCheck": "Vérification des antécédents",
+                        "nameCheck": "Vérification du nom",
+                        "screening": "Filtrage",
+                        "zeroKnowledge": "Preuve à divulgation nulle",
+                        "taxInformation": "Informations fiscales",
+                        "representatives": "Représentants légaux",
+                        "signature": "Signature ou formulaire supplémentaire"
+                    }
+                },
+                "verifyStyle": {
+                    "title": "Apparence de la vérification",
+                    "subtitle": "Le client voit ceci sur la nouvelle inscription. Sans choix, cette page utilise Forêt. L’inscription actuelle ne change pas.",
+                    "sample": "Continuer",
+                    "unset": "Non choisi",
+                    "names": {
+                        "a": "Forêt",
+                        "b": "Éditorial",
+                        "c": "Papier",
+                        "d": "Coffre",
+                        "e": "Porcelaine",
+                        "f": "Carnet"
+                    }
+                },
                 "redirect": {
                     "title": "URL de redirection",
                     "subtitle": "Où envoyer le client une fois l’inscription terminée.",
