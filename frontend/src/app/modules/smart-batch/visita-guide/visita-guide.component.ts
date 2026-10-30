@@ -110,6 +110,12 @@ import {
     type LayoutParamGroup,
     type LayoutSheetItem,
 } from '../report-param-entries.util';
+import {
+    cloneLayoutSectionDynamic,
+    itemHasNestedLayoutKeys,
+    layoutItemSectionFromBlock,
+    stripFixedOverrideValue,
+} from '../report-layout-copy.util';
 import { availableFontWeights, boldFontWeight, customFontStack, discoverGoogleFontWeights, discoverStylesheetWeights, fontNeedsWeightProbe, fontWeightCatalog, fontWeightStep, nearestFontWeight, registerReportFonts, regularFontWeight, REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportCustomFont, ReportFontWeightStep, ReportTextAlign, sanitizeCustomFonts, storedFontWeight, weightFromFontName } from '../report-fonts.util';
 import { ReportFontDialogComponent, ReportFontDialogData, ReportFontDialogResult } from '../report-font-dialog.component';
 import { REPORT_LINK_COLOR } from '../report-autolink.util';
@@ -2254,10 +2260,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if ((event.kind === 'cellLabel' || event.kind === 'cellValue') && event.key) {
             this.selectedLayoutCellKey.set(event.key.split('#')[0]);
             this.selectedLayoutCellPart.set(event.kind === 'cellLabel' ? 'label' : 'value');
-            this._writeLayoutKeyOverride(
-                event.key,
-                event.kind === 'cellLabel' ? { label: event.value } : { value: event.value }
-            );
+            if (event.kind === 'cellLabel') {
+                this._writeLayoutKeyOverride(event.key, { label: event.value });
+            }
             this._focusLayoutEditor(section, event.kind === 'cellLabel' ? 'label' : 'value');
             return;
         }
@@ -3587,7 +3592,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const isTable =
             collectLayoutSheetItems(valueAtDataPath(this.previewData(), source.dataPath), { hiddenKeys: [] }).find(
                 (item) => item.key === key
-            )?.kind === 'table';
+            )?.kind === 'table' || itemHasNestedLayoutKeys(source.keyOverrides, key);
         const origin = source.frame;
         const point = options.point;
         const lastField = [...this.layoutSections()]
@@ -3616,39 +3621,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 : stacked
         );
         const topZ = this._topLayoutZ();
-        const field: ReportSection = {
+        const field = layoutItemSectionFromBlock(source, key, {
             id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-            type: isTable ? 'dataTable' : 'field',
-            ...(isTable ? { maxRows: 200 } : {}),
-            order: this.layoutSections().length,
-            label,
             dataPath,
-            showRowLines: override?.showRowLine ?? source.showRowLines,
-            rowLineStyle: override?.rowLineStyle ?? source.rowLineStyle,
-            rowLineColor: override?.rowLineColor ?? source.rowLineColor,
-            rowLineWidth: override?.rowLineWidth ?? source.rowLineWidth,
-            rowLineMark: override?.rowLineMark ?? source.rowLineMark,
-            style: {
-                zIndex: clampReportSheetZ(topZ + 1),
-                backgroundColor: override?.backgroundColor ?? source.style?.backgroundColor,
-                borderWidth: override?.borderWidth ?? source.style?.borderWidth,
-                borderColor: override?.borderColor ?? source.style?.borderColor,
-                borderRadius: override?.borderRadius ?? source.style?.borderRadius,
-                fontFamily: source.style?.fontFamily,
-                fontSize: source.style?.fontSize,
-                color: source.style?.color,
-                labelColor: source.style?.labelColor,
-                valueColor: source.style?.valueColor,
-                labelStyle: {
-                    ...(source.style?.labelStyle ?? {}),
-                    ...(override?.labelStyle ?? {}),
-                },
-                valueStyle: {
-                    ...(source.style?.valueStyle ?? {}),
-                    ...(override?.valueStyle ?? {}),
-                },
-            },
-        };
+            isTable,
+            label,
+            zIndex: clampReportSheetZ(topZ + 1),
+        });
+        field.order = this.layoutSections().length;
         field.frame = frame;
         this.layoutSections.update((list) => {
             const next = list.map((section) => {
@@ -3686,11 +3666,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 if (section.id !== target.id) return section;
                 const keyOverrides = { ...(section.keyOverrides ?? {}) };
                 if (override) {
-                    keyOverrides[destKey] = { ...override };
+                    const rest = stripFixedOverrideValue(override);
+                    if (Object.keys(rest).length) keyOverrides[destKey] = rest;
                 }
                 for (const [storedKey, value] of Object.entries(source.keyOverrides ?? {})) {
                     const nextKey = remapLayoutOverrideKey(storedKey, key, destKey);
-                    if (nextKey !== storedKey) keyOverrides[nextKey] = value;
+                    if (nextKey !== storedKey) keyOverrides[nextKey] = stripFixedOverrideValue(value);
                 }
                 const visible = collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
                     hiddenKeys: setHiddenParamKey(section.hiddenKeys, destKey, true),
@@ -3767,7 +3748,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _duplicateLayoutSection(source: ReportSection): void {
-        const copy = JSON.parse(JSON.stringify(source)) as ReportSection;
+        const copy = cloneLayoutSectionDynamic(source);
         const prefix =
             source.type === 'header'
                 ? 'titulo'
@@ -6051,7 +6032,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._patchSelectedLayout({
             keyOverrides: {
                 ...(section.keyOverrides ?? {}),
-                [key]: { ...current, ...patch },
+                [key]: stripFixedOverrideValue({ ...current, ...patch }),
             },
         });
     }
