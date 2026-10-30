@@ -203,18 +203,6 @@ export const buildWorldDocAndNameEndpointConfig = (
     const nameDemos = buildWorldNameSearchDemos(label);
     const docProfiles = buildDocumentSearchProfiles(label);
 
-    const missingParamsConflict: PostmanSandboxProfile = {
-        profileKey: `${endpointCode}-missing-params`,
-        documentNumber: '90040901',
-        fullName: '409 — Missing required parameters',
-        responseType: 'error' as const,
-        expectedStatus: 409,
-        paramOverrides: {
-            documentNumber: '',
-            fullName: '',
-        },
-    };
-
     const name404Profile: PostmanSandboxProfile = {
         profileKey: `${endpointCode}-name-not-found`,
         documentNumber: '90040401',
@@ -228,17 +216,37 @@ export const buildWorldDocAndNameEndpointConfig = (
         },
     };
 
+    const docMissingNumberConflict: PostmanSandboxProfile = {
+        ...SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+        paramOverrides: {
+            documentType: 'CC',
+            documentNumber: '',
+            fullName: '',
+        },
+    };
+
+    const missingParamsConflict: PostmanSandboxProfile = {
+        profileKey: `${endpointCode}-missing-params`,
+        documentNumber: '90040901',
+        fullName: '409 — Missing required parameters',
+        responseType: 'error' as const,
+        expectedStatus: 409,
+        paramOverrides: {
+            documentNumber: '',
+            fullName: '',
+        },
+    };
+
     return {
-        profiles: appendSandboxResponseProfiles(
-            [...nameDemos, ...docProfiles],
-            {
-                conflictProfiles: [
-                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
-                    WORLD_CONFLICT_INVALID_DOCUMENT_TYPE,
-                    missingParamsConflict,
-                ],
-            }
-        ).concat(WORLD_ERROR_PROFILE_404, name404Profile),
+        profiles: [
+            ...nameDemos,
+            name404Profile,
+            ...docProfiles,
+            WORLD_ERROR_PROFILE_404,
+            WORLD_CONFLICT_INVALID_DOCUMENT_TYPE,
+            docMissingNumberConflict,
+            missingParamsConflict,
+        ],
         defaultDocumentNumber: '10000001',
         documentTypeByCode: { [endpointCode]: 'CC' },
         showProfileMeta: false,
