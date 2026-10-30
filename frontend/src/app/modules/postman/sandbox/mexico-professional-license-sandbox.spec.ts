@@ -2,6 +2,7 @@ import {
     MEXICO_CEDULA_PROFESIONAL_ENDPOINT_CODE,
     MEXICO_HEALTH_WORKER_ENDPOINT_CODE,
     MEXICO_SIGED_CERTIFICATE_ENDPOINT_CODE,
+    MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE,
 } from './countries/mexico.postman-sandbox';
 import {
     applyPostmanSandboxParamDefaults,
@@ -88,6 +89,33 @@ describe('mexico professional license sandbox', () => {
         expect(mismatch?.paramOverrides?.fullName).toBe('Maria Perez');
         expect(curp?.paramOverrides?.curp).toBe('LOPE900501HDFGRN01');
         expect(errorStatuses(MEXICO_SIGED_CERTIFICATE_ENDPOINT_CODE)).toEqual(
+            expect.arrayContaining([404, 409])
+        );
+    });
+
+    it('registers ISSSTE affiliation endpoint and sets defaults and profiles', () => {
+        expect(isPostmanSandboxEndpoint(MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE)).toBe(true);
+
+        const params = [
+            { key: 'documentType', value: '' },
+            { key: 'documentNumber', value: '' },
+            { key: 'includePdf', value: '' },
+        ];
+
+        applyPostmanSandboxParamDefaults(
+            { code: MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE, params },
+            undefined
+        );
+
+        expect(params.find((param) => param.key === 'documentNumber')?.value).toBe('LOPE900501HDFGRN01');
+        expect(params.find((param) => param.key === 'documentType')?.value).toBe('CURP');
+
+        const profiles = getPostmanSandboxProfiles(MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE);
+        const pdfProfile = profiles.find((profile) => profile.profileKey === 'issste-with-pdf');
+        expect(pdfProfile?.paramOverrides?.includePdf).toBe('true');
+        expect(pdfProfile?.paramOverrides?.documentNumber).toBe('LOPE900501HDFGRN01');
+
+        expect(errorStatuses(MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE)).toEqual(
             expect.arrayContaining([404, 409])
         );
     });

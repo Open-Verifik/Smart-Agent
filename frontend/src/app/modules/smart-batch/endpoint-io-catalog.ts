@@ -840,6 +840,34 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "mexico_api_issste_affiliation": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "includePdf"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "curp",
+            "firstName",
+            "lastName",
+            "fullName",
+            "paternalSurname",
+            "maternalSurname",
+            "dateOfBirth",
+            "gender",
+            "sex",
+            "affiliationStatus",
+            "affiliationStatusDescription",
+            "certificate"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CURP"
+            ]
+        }
+    },
     "peru_api_vehicle": {
         "inputs": [
             "plate"
