@@ -1,0 +1,162 @@
+<div class="sra">
+    <div class="sra__header">
+        <smartreport-header></smartreport-header>
+    </div>
+
+    <ng-template #tabs>
+        <div class="sra-tabs" role="tablist">
+            <button
+                type="button"
+                role="tab"
+                [class.sra-tabs__tab--active]="tab === 'mission'"
+                [attr.aria-selected]="tab === 'mission'"
+                (click)="tab = 'mission'"
+            >
+                MISIÓN
+            </button>
+            <button
+                type="button"
+                role="tab"
+                [class.sra-tabs__tab--active]="tab === 'vision'"
+                [attr.aria-selected]="tab === 'vision'"
+                (click)="tab = 'vision'"
+            >
+                VISIÓN
+            </button>
+        </div>
+    </ng-template>
+
+    <!-- MISIÓN -->
+    <ng-container *ngIf="tab === 'mission'">
+        <section
+            class="sra-hero"
+            [style.background-image]="'url(' + uploads + '2024/05/bg_mision.jpg)'"
+        >
+            <ng-container *ngTemplateOutlet="tabs"></ng-container>
+            <div class="sra-hero__content">
+                <h2>ACERCA DE NOSOTROS</h2>
+                <h1>Nuestra misión es optimizar la confianza digital</h1>
+                <p>
+                    Acerca de Verifik: construimos un mundo donde la transparencia y la seguridad
+                    prevalezcan. Trabajamos incansablemente para crear soluciones innovadoras que
+                    fortalezcan la confianza entre individuos, empresas y comunidades, promoviendo
+                    así un entorno digital más seguro y confiable para todos.
+                </p>
+            </div>
+        </section>
+
+        <section
+            class="sra-blue"
+            [style.background-image]="'url(' + uploads + '2024/05/bg_blue-tall.jpg)'"
+        >
+            <div
+                class="sra-who"
+                [style.background-image]="'url(' + uploads + '2024/05/business-vk.jpg)'"
+            >
+                <div class="sra-who__box">
+                    <h2>¿Quiénes somos?</h2>
+                    <p>
+                        Somos mucho más que una empresa de software, somos pioneros en la creación
+                        de soluciones innovadoras que transforman la forma en que las empresas
+                        gestionan sus áreas clave de operación, abarcando desde la incorporación de
+                        usuarios, verificación de identidad, protección empresarial hasta el
+                        cumplimiento normativo.
+                    </p>
+                    <p>
+                        Con nuestras herramientas confiables y fáciles de usar, capacitamos a
+                        nuestros clientes para que se enfoquen en lo que realmente importa,
+                        liberándolos para alcanzar todo su potencial.
+                    </p>
+                </div>
+            </div>
+
+            <div class="sra-values">
+                <h3 class="sra-title">Valores Corporativos</h3>
+                <p class="sra-lead">
+                    La lealtad a los valores corporativos son la fundación para el comienzo y
+                    sostenimiento de cualquier organización.
+                </p>
+                <div class="sra-values__grid">
+                    <div class="sra-value" *ngFor="let value of values">
+                        <h3>{{ value.title }}</h3>
+                        <p>{{ value.text }}</p>
+                    </div>
+                </div>
+                <blockquote class="sra-quote">
+                    <h3>
+                        “La diligencia es la conversión entre la excelencia, responsabilidad y el
+                        carácter - valentia, integridad, humildad, positivismo"
+                    </h3>
+                    <p>– Johan Castellanos</p>
+                </blockquote>
+            </div>
+        </section>
+
+        <section class="sra-team">
+            <h4 class="sra-title sra-title--dark">Conoce a Nuestro Equipo</h4>
+            <div class="sra-team__intro">
+                <p>
+                    “Entendemos que la optimización digital no es nuestro enfoque principal; en
+                    lugar de eso, nos destacamos en la creación de una experiencia completa y
+                    positiva en nuestro servicio. Verifik, en este contexto, actúa como el medio
+                    para lograrlo.”
+                </p>
+                <p>– Johan Castellanos</p>
+            </div>
+            <div class="sra-team__grid">
+                <div class="sra-member" *ngFor="let member of team">
+                    <img
+                        [src]="uploads + '2025/06/' + member.photo + '.avif'"
+                        [alt]="member.alt"
+                        loading="lazy"
+                    />
+                    <h3>{{ member.name }}</h3>
+                    <p>{{ member.role }}</p>
+                </div>
+            </div>
+        </section>
+    </ng-container>
+
+    <!-- VISIÓN -->
+    <ng-container *ngIf="tab === 'vision'">
+        <section
+            class="sra-hero sra-hero--center"
+            [style.background-image]="'url(' + uploads + '2024/05/bg_vision.jpg)'"
+        >
+            <ng-container *ngTemplateOutlet="tabs"></ng-container>
+            <div class="sra-hero__content">
+                <h2>ACERCA DE NOSOTROS</h2>
+                <h1>
+                    "Si los resultados - producto, ventas, metas trimestrales - son el rendimiento
+                    de una compañía, el aporte es su cultura”
+                </h1>
+                <p class="sra-hero__author">– Alfred Lin</p>
+            </div>
+        </section>
+
+        <section
+            class="sra-purpose"
+            [style.background-image]="'url(' + uploads + '2024/05/bg_ads.avif)'"
+        >
+            <h2 class="sra-title">Propósito Corporativo</h2>
+            <p class="sra-lead">
+                Ser fieles mayordomos y administradores de todo lo que se nos ha confiado y ejercer
+                una influencia positiva en todos aquellos que interactúan con Verifik.
+            </p>
+        </section>
+
+        <section class="sra-article">
+            <div>
+                <h2>
+                    Liderazgo a través de la mayordomía: Una base para el éxito organizativo en
+                    todas las culturas
+                </h2>
+                <p *ngFor="let paragraph of article" [style.font-size.px]="paragraph.size">
+                    {{ paragraph.text }}
+                </p>
+            </div>
+        </section>
+    </ng-container>
+
+    <smartreport-footer></smartreport-footer>
+</div>

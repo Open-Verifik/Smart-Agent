@@ -99,7 +99,16 @@ export const appConfig: ApplicationConfig = {
             }
 
             translocoService.setActiveLang(initialLang);
-            return firstValueFrom(translocoService.load(initialLang));
+            const translations = firstValueFrom(translocoService.load(initialLang));
+
+            // The public smartREPORT landing and blog don't use translations, so they render
+            // without waiting for the language file; it keeps loading in the background.
+            if (window.location.pathname.startsWith('/smartreport')) {
+                translations.catch(() => undefined);
+                return;
+            }
+
+            return translations;
         }),
 
         // Fuse

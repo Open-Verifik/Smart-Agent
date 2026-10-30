@@ -1,0 +1,635 @@
+// Article layout measured on verifik.co blog posts at 1440 (#1127)
+$white: #ffffff;
+$blue: #0035e7;
+$link: #2642ff;
+$navy: #05062e;
+$navy-title: #01236b;
+$heading: #222222;
+$text: #444953;
+$border: #e6e6eb;
+
+:host {
+    display: block;
+}
+
+.srbp {
+    font-family: 'Poppins', sans-serif;
+    background: $white;
+    overflow-x: hidden;
+
+    h1,
+    h2,
+    p {
+        margin: 0;
+    }
+
+    &__hero {
+        padding: 24px 24px 56px;
+        background: $navy;
+    }
+
+    &__hero-content {
+        max-width: 734px;
+        margin: 72px auto 0;
+
+        h1 {
+            margin: 28px 10px 0;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: $white;
+        }
+    }
+
+    &__cover {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 40px;
+        margin: 28px 10px 0;
+        font-size: 18px;
+        line-height: 1.55;
+        color: $white;
+
+        > span {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mat-icon {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            min-height: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    }
+
+    &__author {
+        img,
+        span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: $link;
+            font-size: 13px;
+            font-weight: 600;
+        }
+    }
+
+    &__state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 96px 24px;
+        text-align: center;
+        color: $text;
+
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: $heading;
+        }
+    }
+
+    &__spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid $border;
+        border-top-color: $blue;
+        border-radius: 50%;
+        animation: srbp-spin 0.8s linear infinite;
+    }
+
+    &__button {
+        display: inline-flex;
+        align-items: center;
+        height: 48px;
+        padding: 0 28px;
+        border-radius: 8px;
+        background: $blue;
+        font-size: 16px;
+        font-weight: 600;
+        color: $white !important;
+        text-decoration: none !important;
+        transition: background 0.2s ease;
+
+        &:hover {
+            background: $link;
+        }
+    }
+
+    &__body {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 730px);
+        justify-content: space-between;
+        gap: 90px;
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 40px 0 64px;
+    }
+
+    &__sidebar {
+        position: sticky;
+        top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        align-self: start;
+    }
+
+    &__card {
+        border: 1px solid $border;
+        border-radius: 12px;
+        background: $white;
+
+        h2 {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: $navy-title;
+        }
+    }
+
+    &__toc {
+        h2 {
+            padding: 18px 20px;
+            border-bottom: 1px solid $border;
+        }
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 260px);
+            padding: 12px 8px 16px;
+            overflow-y: auto;
+        }
+
+        a {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.45;
+            color: $text;
+            text-decoration: none;
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
+
+            &:hover {
+                background: #f0f1f7;
+            }
+        }
+
+        .srbp__toc-active {
+            color: $blue;
+            font-weight: 500;
+        }
+    }
+
+    &__progress {
+        height: 3px;
+        background: $border;
+
+        span {
+            display: block;
+            height: 100%;
+            background: $blue;
+            transition: width 0.1s linear;
+        }
+    }
+
+    &__share {
+        padding: 22px 20px;
+        text-align: center;
+
+        div {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .srbp__share-facebook {
+            background: #3b5998;
+        }
+
+        .srbp__share-x,
+        .srbp__share-threads {
+            background: #000000;
+        }
+
+        .srbp__share-linkedin {
+            background: #0077b5;
+        }
+    }
+
+    &__back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text;
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: $blue;
+        }
+
+        .mat-icon {
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            min-height: 18px;
+        }
+    }
+
+    &__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 48px;
+    }
+
+    &__tag {
+        padding: 6px 14px;
+        border: 1px solid $border;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text;
+        text-transform: capitalize;
+
+        &--category {
+            border-color: $blue;
+            background: $blue;
+            font-size: 12px;
+            color: $white;
+            text-transform: uppercase;
+        }
+    }
+
+    &__faqs {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 24px 0 40px;
+
+        h2 {
+            margin-bottom: 32px;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-align: center;
+            color: $navy-title;
+        }
+
+        details {
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background: $border;
+
+            &[open] .mat-icon {
+                transform: rotate(45deg);
+            }
+        }
+
+        summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+            cursor: pointer;
+            list-style: none;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+
+            .mat-icon {
+                flex-shrink: 0;
+                width: 20px;
+                height: 20px;
+                min-width: 20px;
+                min-height: 20px;
+                transition: transform 0.2s ease;
+            }
+        }
+
+        p {
+            padding: 0 20px 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: $text;
+        }
+    }
+
+    &__related {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 64px 0 80px;
+
+        h2 {
+            margin-bottom: 32px;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-align: center;
+            color: $navy-title;
+        }
+    }
+
+    &__related-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 30px;
+        width: 100%;
+        margin-bottom: 48px;
+
+        ::ng-deep .srbc {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
+        }
+    }
+}
+
+// Rendered markdown ([innerHTML] content is outside this component's view encapsulation)
+.srbp__markdown ::ng-deep {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: $text;
+    overflow-wrap: break-word;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: $heading;
+        font-weight: 600;
+        scroll-margin-top: 24px;
+    }
+
+    h1 {
+        margin: 48px 0 20px;
+        font-size: 36px;
+        line-height: 1.2;
+    }
+
+    h2 {
+        margin: 48px 0 16px;
+        font-size: 32px;
+        line-height: 1.25;
+    }
+
+    h3 {
+        margin: 32px 0 12px;
+        font-size: 22px;
+        line-height: 1.3;
+    }
+
+    h4,
+    h5,
+    h6 {
+        margin: 24px 0 8px;
+        font-size: 18px;
+    }
+
+    > .srbp__rendered > :first-child {
+        margin-top: 0;
+    }
+
+    p {
+        margin: 0 0 16px;
+    }
+
+    a {
+        color: $link;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    strong {
+        font-weight: 700;
+        color: $heading;
+    }
+
+    ul,
+    ol {
+        margin: 0 0 16px;
+        padding-left: 24px;
+
+        li {
+            margin-bottom: 8px;
+        }
+    }
+
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
+    }
+
+    img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 24px auto;
+        border-radius: 12px;
+    }
+
+    blockquote {
+        margin: 24px 0;
+        padding: 4px 0 4px 20px;
+        border-left: 4px solid $blue;
+        font-style: italic;
+    }
+
+    code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #f0f1f7;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.9em;
+        color: $heading;
+    }
+
+    pre {
+        margin: 0 0 20px;
+        padding: 16px;
+        overflow-x: auto;
+        border-radius: 8px;
+        background: #f0f1f7;
+
+        code {
+            padding: 0;
+            background: none;
+        }
+    }
+
+    table {
+        width: 100%;
+        margin: 0 0 20px;
+        border-collapse: collapse;
+        font-size: 14px;
+
+        th,
+        td {
+            padding: 10px 12px;
+            border: 1px solid $border;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f1f7;
+            color: $heading;
+        }
+    }
+
+    hr {
+        margin: 32px 0;
+        border: 0;
+        border-top: 1px solid $border;
+    }
+}
+
+@keyframes srbp-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 1199px) {
+    .srbp {
+        &__body {
+            grid-template-columns: 280px minmax(0, 1fr);
+            gap: 48px;
+            padding: 40px 24px 64px;
+        }
+
+        &__faqs,
+        &__related {
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+    }
+}
+
+@media (max-width: 1023px) {
+    .srbp {
+        &__body {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 24px;
+        }
+
+        &__sidebar {
+            position: static;
+            order: 2;
+        }
+
+        &__toc {
+            display: none;
+        }
+
+        &__related-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .srbp {
+        &__hero {
+            padding: 16px 16px 40px;
+        }
+
+        &__hero-content {
+            margin-top: 40px;
+
+            h1 {
+                margin: 20px 0 0;
+                font-size: 28px;
+            }
+        }
+
+        &__meta {
+            gap: 10px 20px;
+            margin: 20px 0 0;
+            font-size: 15px;
+        }
+
+        &__body {
+            padding: 32px 16px 48px;
+        }
+
+        &__faqs h2,
+        &__related h2 {
+            font-size: 28px;
+        }
+
+        &__faqs,
+        &__related {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        &__related-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    .srbp__markdown ::ng-deep {
+        h2 {
+            font-size: 24px;
+        }
+
+        h3 {
+            font-size: 20px;
+        }
+    }
+}
