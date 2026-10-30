@@ -5761,7 +5761,7 @@
             "insufficientCreditsCta": "크레딧 추가",
             "errorTechnicalDetails": "기술 세부 정보",
             "endpointOutOfServiceTitle": "출처를 일시적으로 사용할 수 없습니다",
-            "endpointOutOfServiceBody": "원천 등록 기관(Registraduría SCCRC)이 이 요청을 완료하지 못했습니다. 캡차나 일시 장애인 경우가 많습니다. 잠시 후 다시 시도하거나, 샌드박스 모드에서 실제 Registraduría 없이 고정 프로필을 시연하세요.",
+            "endpointOutOfServiceBody": "공식 출처에 일시적인 장애가 발생하여 현재 요청을 완료할 수 없습니다. 잠시 후 다시 시도하거나 테스트를 위해 샌드박스 모드를 사용하세요.",
             "retryRequest": "요청 다시 시도"
         },
         "dynamicQuery": {

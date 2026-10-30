@@ -6207,7 +6207,7 @@
             "insufficientCreditsCostHint": "This endpoint charges about {{cost}} credits per request.",
             "insufficientCreditsCta": "Add credits",
             "endpointOutOfServiceTitle": "Source temporarily unavailable",
-            "endpointOutOfServiceBody": "The upstream registry (Registraduría SCCRC) could not complete this request, often due to captcha or temporary outage. Retry in a moment, or use Sandbox mode to demo fixed profiles without live Registraduría.",
+            "endpointOutOfServiceBody": "The official source is experiencing a temporary interruption and could not complete this request right now. Please try again in a moment, or use Sandbox mode for testing.",
             "retryRequest": "Retry request",
             "errorTechnicalDetails": "Technical details"
         },
