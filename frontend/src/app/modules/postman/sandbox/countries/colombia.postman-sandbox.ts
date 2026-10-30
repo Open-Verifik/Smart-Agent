@@ -107,6 +107,8 @@ export const COLOMBIA_SIGEP_BY_NUMBER_ENDPOINT_CODE = 'colombia_sigep_by_number'
 export const COLOMBIA_CEDULA_EXTRA_ENDPOINT_CODE = 'colombia_api_identity_lookup_extra';
 export const COLOMBIA_CEDULA_PREMIUM_ENDPOINT_CODE = 'colombia_api_identity_lookup_premium';
 export const COLOMBIA_RUES_FULL_V3_ENDPOINT_CODE = 'colombia_api_rues_full_v3';
+export const COLOMBIA_SICAAC_CASES_ENDPOINT_CODE = 'colombia_api_sicaac_cases';
+export const COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE = 'colombia_api_sicaac_insolvency';
 
 const COLOMBIA_AFFILIATIONS_DEFAULT_DATE = '15/03/1990';
 const COLOMBIA_CEDULA_EXTRA_DEFAULT_DATE = '15/03/2020';
@@ -1355,6 +1357,60 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
             },
         ],
         defaultDocumentNumber: '10000001',
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SICAAC_CASES_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                documentNumber: '75086330',
+                fullName: 'Active dispute record (Convocado)',
+                responseType: 'success' as const,
+                expectedStatus: 200,
+            },
+            {
+                documentNumber: '10254228',
+                fullName: 'Active dispute record (Convocante)',
+                responseType: 'success' as const,
+                expectedStatus: 200,
+            },
+            {
+                documentNumber: '900123456',
+                fullName: 'Corporate commercial conciliation (NIT)',
+                responseType: 'success' as const,
+                expectedStatus: 200,
+            },
+            {
+                documentNumber: '12345678',
+                fullName: 'Clean record (No disputes found)',
+                responseType: 'success' as const,
+                expectedStatus: 200,
+            },
+        ],
+        defaultDocumentNumber: '75086330',
+        documentTypeByCode: {
+            [COLOMBIA_SICAAC_CASES_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                documentNumber: '75086330',
+                fullName: 'Insolvency proceeding in progress (En Trámite)',
+                responseType: 'success' as const,
+                expectedStatus: 200,
+            },
+            {
+                documentNumber: '12345678',
+                fullName: 'Clean insolvency status (No records)',
+                responseType: 'success' as const,
+                expectedStatus: 200,
+            },
+        ],
+        defaultDocumentNumber: '75086330',
+        documentTypeByCode: {
+            [COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE]: 'CC',
+        },
         showProfileMeta: false,
     },
 };
