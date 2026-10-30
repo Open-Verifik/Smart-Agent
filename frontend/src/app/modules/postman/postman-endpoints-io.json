@@ -3236,6 +3236,115 @@
       ]
     },
     {
+      "code": "mexico_api_issste_affiliation",
+      "name": "Mexico - ISSSTE Social Security Affiliation",
+      "nameES": "México - Acreditación de Afiliación ISSSTE",
+      "country": "Mexico",
+      "category": "identity",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/mx/issste/affiliation",
+      "description": "Verify Mexican public sector social security affiliation (ISSSTE) and official non-affiliation certificates by CURP, including labor status, official folio, certificate UUID, and digital seal.",
+      "price": 0.5,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CURP"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true,
+            "min": 18,
+            "max": 18
+          },
+          {
+            "field": "includePdf",
+            "type": "Boolean",
+            "required": false
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Allowed value: `CURP`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "The 18-character Mexican CURP to verify."
+          },
+          {
+            "field": "includePdf",
+            "description": "Set to `true` to include the base64-encoded official digitally signed PDF certificate."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CURP",
+              "documentNumber": "ROHA610730HMCBRB03",
+              "curp": "ROHA610730HMCBRB03",
+              "firstName": "ABEL",
+              "lastName": "ROBLES HERNANDEZ",
+              "fullName": "ABEL ROBLES HERNANDEZ",
+              "paternalSurname": "ROBLES",
+              "maternalSurname": "HERNANDEZ",
+              "dateOfBirth": "1961-07-30",
+              "sex": "H",
+              "gender": "HOMBRE",
+              "affiliationStatus": "INACTIVO",
+              "affiliationStatusDescription": "El ciudadano cuenta con registro previo en el ISSSTE pero se encuentra actualmente inactivo (sin relación laboral vigente en el sector público federal).",
+              "certificate": {
+                "institution": "Instituto de Seguridad y Servicios Sociales de los Trabajadores del Estado",
+                "certificateType": "Constancia de acreditación de no afiliación",
+                "folio": "082611565",
+                "uuid": "3E770113-45F3-411B-9279-06B2E098AD48",
+                "issuedAt": "30/10/2026 09:29:36 a. m.",
+                "digitalSeal": "RCTlkw4xRsjDNzt0AO+/XXv6rWi2sAuzvNpALi7RCcIZ9qJOPOJRcAORXY/2VNtNcxYiE9IfL8KFHiKTYRQmqfQexN2hmQfUSaZVstY7W/2assOHy5L8DA1sK73Qd+ax51CZMbBnoxd8UGWe0r53koHTS2g0jkzf7yE+BQN58qg="
+              }
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
       "code": "mexico_identity_lookup",
       "name": "Mexico - Mexican Citizen",
       "nameES": "Mexico - Ciudadano Mexicano",
