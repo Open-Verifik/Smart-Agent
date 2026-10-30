@@ -1,0 +1,10 @@
+{
+    "appFeatures": {
+        "ar_certificate_verify": {
+            "description": "GET /v2/ar/dnrec/antecedentes により、PDFに記載された申請コード（Solicitud）とセキュリティコード（Cod. Segur.）でアルゼンチンDNREC犯罪歴証明書を検証します。身分情報と公式証明書から抽出した犯罪歴声明を返します。"
+        },
+        "cl_certificate_verify": {
+            "description": "GET /v2/cl/registro-civil/certificado により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
+        }
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "appNotifications": {
+        "bell": {
+            "title": "Notifications",
+            "markAll": "Mark all as read",
+            "aria": "Notifications",
+            "ariaCount": "Notifications, {{count}} unread",
+            "empty": "You're all caught up",
+            "loading": "Loading…",
+            "justNow": "Just now",
+            "minutes": "{{count}}m",
+            "hours": "{{count}}h",
+            "days": "{{count}}d",
+            "dismissAria": "Dismiss notification",
+            "closeImage": "Close image"
+        }
+    }
+}

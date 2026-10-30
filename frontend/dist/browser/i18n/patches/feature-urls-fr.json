@@ -1,0 +1,10 @@
+{
+    "appFeatures": {
+        "ar_certificate_verify": {
+            "description": "Vérifie un certificat DNREC de casier judiciaire argentin avec le code de demande (Solicitud) et le code de sécurité (Cod. Segur.) du PDF via GET /v2/ar/dnrec/antecedentes. Retourne les données d'identité et la déclaration d'antecedents extraite du certificat officiel."
+        },
+        "cl_certificate_verify": {
+            "description": "Vérifie un certificat du Registro Civil du Chili (SRCEI) avec folio et code de vérification (Código Verificador) via GET /v2/cl/registro-civil/certificado. Retourne les métadonnées du PDF et les antécédents des registres de condamnations lorsque disponibles."
+        }
+    }
+}

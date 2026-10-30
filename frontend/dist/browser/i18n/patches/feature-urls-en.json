@@ -1,0 +1,10 @@
+{
+    "appFeatures": {
+        "ar_certificate_verify": {
+            "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF via GET /v2/ar/dnrec/antecedentes. Returns identity fields and the criminal-record statement extracted from the official certificate."
+        },
+        "cl_certificate_verify": {
+            "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Código Verificador) via GET /v2/cl/registro-civil/certificado. Returns certificate PDF metadata and conviction-register details when available."
+        }
+    }
+}
