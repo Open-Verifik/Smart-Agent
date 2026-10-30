@@ -5801,7 +5801,7 @@
             "insufficientCreditsCta": "クレジットを追加",
             "errorTechnicalDetails": "技術詳細",
             "endpointOutOfServiceTitle": "ソースは一時的に利用できません",
-            "endpointOutOfServiceBody": "上流の登録機関（Registraduría SCCRC）は、このリクエストを完了できませんでした。CAPTCHA や一時的な障害が原因のことが多いです。しばらくして再試行するか、サンドボックスモードで固定プロフィールをデモしてください。稼働中の Registraduría は呼び出しません。",
+            "endpointOutOfServiceBody": "公式ソースで一時的な障害が発生しているため、現在このリクエストを完了できませんでした。しばらくしてから再試行するか、テストにはサンドボックスモードをご利用ください。",
             "retryRequest": "リクエストを再試行"
         },
         "dynamicQuery": {

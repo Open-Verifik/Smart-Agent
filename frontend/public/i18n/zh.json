@@ -5801,7 +5801,7 @@
             "insufficientCreditsCta": "充值积分",
             "errorTechnicalDetails": "技术详情",
             "endpointOutOfServiceTitle": "数据源暂时不可用",
-            "endpointOutOfServiceBody": "上游登记机构（Registraduría SCCRC）无法完成此请求，常见原因是验证码或临时故障。请稍后再试，或使用沙盒模式演示固定档案，而无需连接实时 Registraduría。",
+            "endpointOutOfServiceBody": "官方数据源出现临时中断，目前无法完成此请求。请稍后再试，或使用沙盒模式进行测试。",
             "retryRequest": "重试请求"
         },
         "dynamicQuery": {
