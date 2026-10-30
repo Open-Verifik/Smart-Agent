@@ -1,0 +1,43 @@
+<div class="srbl">
+    <div class="srbl__top">
+        <smartreport-header></smartreport-header>
+    </div>
+
+    <section class="srbl__section">
+        <div class="srbl__intro">
+            <span class="srbl__chip"><span aria-hidden="true"></span>Blogs</span>
+            <h1>Recursos destacados</h1>
+            <p>
+                Descubre los conocimientos especializados de Verifik sobre verificación de
+                identidad, procesos KYC/KYB y tendencias emergentes en la prevención del fraude.
+            </p>
+        </div>
+
+        <div class="srbl__grid" *ngIf="loading">
+            <div class="srbl__skeleton" *ngFor="let item of placeholders" aria-hidden="true">
+                <span class="srbl__skeleton-cover"></span>
+                <span class="srbl__skeleton-line"></span>
+                <span class="srbl__skeleton-line srbl__skeleton-line--short"></span>
+            </div>
+        </div>
+
+        <div class="srbl__empty" *ngIf="!loading && !posts.length">
+            <p>Aún no hay publicaciones. ¡Vuelve pronto!</p>
+        </div>
+
+        <ng-container *ngIf="!loading && posts.length">
+            <div class="srbl__grid">
+                <smartreport-blog-card
+                    *ngFor="let post of posts.slice(0, visibleCount)"
+                    [post]="post"
+                ></smartreport-blog-card>
+            </div>
+
+            <div class="srbl__more" *ngIf="visibleCount < posts.length">
+                <button type="button" (click)="loadMore()">Cargar más</button>
+            </div>
+        </ng-container>
+    </section>
+
+    <smartreport-footer></smartreport-footer>
+</div>
