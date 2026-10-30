@@ -5761,7 +5761,7 @@
             "insufficientCreditsCta": "Adicionar créditos",
             "errorTechnicalDetails": "Detalhes técnicos",
             "endpointOutOfServiceTitle": "Fonte temporariamente indisponível",
-            "endpointOutOfServiceBody": "O registro de origem (Registraduría SCCRC) não conseguiu concluir esta solicitação, muitas vezes por captcha ou por uma interrupção temporária. Tente novamente em instantes ou use o modo Sandbox para demonstrar perfis fixos sem a Registraduría ao vivo.",
+            "endpointOutOfServiceBody": "A fonte oficial apresenta uma interrupção temporária e não conseguiu concluir esta solicitação no momento. Tente novamente em instantes ou use o modo Sandbox para testes.",
             "retryRequest": "Tentar a solicitação novamente"
         },
         "dynamicQuery": {

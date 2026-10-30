@@ -6203,7 +6203,7 @@
             "insufficientCreditsCostHint": "Este endpoint cuesta unos {{cost}} créditos por solicitud.",
             "insufficientCreditsCta": "Añadir créditos",
             "endpointOutOfServiceTitle": "Fuente temporalmente no disponible",
-            "endpointOutOfServiceBody": "El registro fuente (Registraduría SCCRC) no pudo completar la solicitud, a menudo por captcha o una interrupción temporal. Reintenta en un momento, o usa modo Sandbox para demostrar perfiles fijos sin la Registraduría en vivo.",
+            "endpointOutOfServiceBody": "La fuente oficial presenta una interrupción temporal y no pudo completar la solicitud en este momento. Intenta nuevamente en unos instantes o utiliza el modo Sandbox para realizar pruebas.",
             "retryRequest": "Reintentar solicitud",
             "errorTechnicalDetails": "Detalles técnicos"
         },

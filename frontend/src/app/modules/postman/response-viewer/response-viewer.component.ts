@@ -758,7 +758,7 @@ export class ResponseViewerComponent {
   });
 
   /**
-   * True when Registraduría / upstream captcha path returned Endpoint_out_of_service.
+   * True when the official source returned Endpoint_out_of_service.
    */
   endpointOutOfServiceError = computed(() => {
     const err = this.httpError();
