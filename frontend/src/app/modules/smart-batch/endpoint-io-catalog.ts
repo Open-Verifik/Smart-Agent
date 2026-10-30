@@ -1539,6 +1539,36 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "colombia_api_sicaac_cases": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "mechanism",
+            "hasRecords",
+            "totalCases",
+            "summary",
+            "cases"
+        ]
+    },
+    "colombia_api_sicaac_insolvency": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "mechanism",
+            "hasRecords",
+            "totalCases",
+            "summary",
+            "cases"
+        ]
+    },
     "colombia_api_judicial_processes": {
         "inputs": [
             "documentType",

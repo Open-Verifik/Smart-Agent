@@ -6225,6 +6225,195 @@
       ]
     },
     {
+      "code": "colombia_api_sicaac_cases",
+      "name": "Colombia — Pre-Litigation Conciliation Cases",
+      "nameES": "Colombia — Casos de Conciliación Prejudicial",
+      "country": "Colombia",
+      "category": "legal",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/co/sicaac/cases",
+      "description": "Verify pre-litigation civil, commercial, labor, and insolvency conciliation cases by document number, detecting legal disputes before court filing.",
+      "price": 1,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CC",
+              "CE",
+              "TI",
+              "RC",
+              "PAS",
+              "NIT",
+              "NIE",
+              "PPT"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Document type: `CC` (default), `CE`, `TI`, `RC`, `PAS`, `NIT`, `NIE`, `PPT`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document or NIT number to search."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "mechanism": "CONCILIACION",
+              "hasRecords": true,
+              "totalCases": 1,
+              "summary": {
+                "asConvocado": 1,
+                "asConvocante": 0,
+                "riskLevel": "HIGH"
+              },
+              "cases": [
+                {
+                  "caseType": "CONCILIACION",
+                  "entityName": "CENTRO DE ARBITRAJE Y CONCILIACION DE LA CÁMARA DE COMERCIO DE MANIZALES POR CALDAS",
+                  "role": "CONVOCADO",
+                  "filingDate": "2016-06-17",
+                  "isInsolvencyCenter": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        }
+      ]
+    },
+    {
+      "code": "colombia_api_sicaac_insolvency",
+      "name": "Colombia — Personal Insolvency Registry",
+      "nameES": "Colombia — Registro de Insolvencia de Persona Natural",
+      "country": "Colombia",
+      "category": "legal",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/co/sicaac/insolvency",
+      "description": "Verify personal insolvency proceedings (Ley de Insolvencia Persona Natural No Comerciante) by document number in the official registry.",
+      "price": 1.5,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CC",
+              "CE",
+              "TI",
+              "RC",
+              "PAS",
+              "NIT",
+              "NIE",
+              "PPT"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Document type: `CC` (default), `CE`, `TI`, `RC`, `PAS`, `NIT`, `NIE`, `PPT`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document or NIT number to search."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "mechanism": "INSOLVENCIA",
+              "hasRecords": true,
+              "totalCases": 1,
+              "summary": {
+                "insolvencyStatus": "EN_TRAMITE",
+                "riskLevel": "CRITICAL"
+              },
+              "cases": [
+                {
+                  "caseType": "INSOLVENCIA_PERSONA_NATURAL",
+                  "entityName": "CENTRO DE ARBITRAJE Y CONCILIACION DE LA CÁMARA DE COMERCIO DE MANIZALES POR CALDAS",
+                  "role": "DEUDOR",
+                  "filingDate": "2016-06-17",
+                  "status": "EN_TRAMITE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        }
+      ]
+    },
+    {
       "code": "colombia_api_judicial_processes",
       "name": "Colombia — Judicial processes",
       "nameES": "Colombia — Procesos judiciales",
