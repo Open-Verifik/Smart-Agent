@@ -4777,5 +4777,733 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "licenseNumber"
         ],
         "outputs": []
-    }
+    },
+    "colombia_api_jcc_sanctions": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "hasSanctions",
+            "totalSanctions",
+            "sanctions"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "NIT"
+            ]
+        }
+    },
+    "colombia_api_paco_sanctions": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "contractorName",
+            "hasSanctions",
+            "summary",
+            "contractsCount",
+            "reportPdfUrl"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "NIT"
+            ]
+        }
+    },
+    "colombia_api_rama_jepms": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "city"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "city",
+            "courtOfEPMS",
+            "filingNumber",
+            "name",
+            "representative",
+            "court",
+            "receiptDate",
+            "year"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE"
+            ]
+        }
+    },
+    "colombia_api_adverse_media": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "hasAdverseMedia",
+            "totalArticles",
+            "riskScore",
+            "riskLevel",
+            "articles"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "NIT"
+            ]
+        }
+    },
+    "world_api_cia_world_leaders": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInCIAWorldLeaders",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_eu_terrorists": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInEUTerrorists",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_csl": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInCSL",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_dss_most_wanted": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInDSS",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_iadb": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInIADB",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_us_terrorists": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInUSTerrorists",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_secret_service": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInSecretService",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_ofsi": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInOFSI",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_offshore_leaks": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInOffshoreLeaks",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_eu_fsf": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInEUFinancialSanctions",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_sec": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInSEC",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_world_bank": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInWorldBank",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
+    "world_api_health_exclusions": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber",
+            "dateOfBirth",
+            "expirationDate"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "foundInHealthExclusions",
+            "details"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PEP",
+                "PPT",
+                "NIT",
+                "CCVE",
+                "CCEC",
+                "DNI",
+                "DNIAR",
+                "DNIHN",
+                "CIC",
+                "CIE",
+                "RUN",
+                "CURP",
+                "CUI",
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY",
+                "CUIT",
+                "RUCEC",
+                "FME",
+                "RUC",
+                "RUT",
+                "CNPJ"
+            ]
+        }
+    },
 };
