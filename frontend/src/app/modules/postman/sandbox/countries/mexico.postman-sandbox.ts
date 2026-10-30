@@ -20,6 +20,7 @@ export const MEXICO_INE_OCR_ENDPOINT_CODE = 'mexico_api_ine_ocr';
 export const MEXICO_CEDULA_PROFESIONAL_ENDPOINT_CODE = 'mexico_api_cedula_profesional';
 export const MEXICO_HEALTH_WORKER_ENDPOINT_CODE = 'mexico_api_health_worker';
 export const MEXICO_SIGED_CERTIFICATE_ENDPOINT_CODE = 'mexico_api_siged_certificado';
+export const MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE = 'mexico_api_issste_affiliation';
 
 const MEXICO_CEDULA_CURP = 'LOPE900501HDFGRN01';
 const MEXICO_CEDULA_CURP_NAME_FALLBACK = 'LOPE000003MDFRRN03';
@@ -136,6 +137,29 @@ export const MEXICO_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         defaultDocumentNumber: 'LOPE900501HDFGRN01',
         documentTypeByCode: {
             [MEXICO_RFC_ENDPOINT_CODE]: 'CURP',
+        },
+        showProfileMeta: false,
+    },
+    [MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE]: {
+        profiles: [
+            ...MEXICO_SANDBOX_PROFILES,
+            {
+                profileKey: 'issste-with-pdf',
+                documentNumber: 'LOPE900501HDFGRN01',
+                fullName: 'MARIA ELENA LOPEZ GARCIA — with official PDF certificate',
+                paramOverrides: {
+                    documentType: 'CURP',
+                    documentNumber: 'LOPE900501HDFGRN01',
+                    includePdf: 'true',
+                },
+            },
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            MEXICO_CONFLICT_INVALID_DOCUMENT_TYPE,
+            MEXICO_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: 'LOPE900501HDFGRN01',
+        documentTypeByCode: {
+            [MEXICO_ISSSTE_AFFILIATION_ENDPOINT_CODE]: 'CURP',
         },
         showProfileMeta: false,
     },
