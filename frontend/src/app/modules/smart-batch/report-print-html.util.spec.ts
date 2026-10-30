@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { htmlMatchesPrintMarkers, mergePrintHtmlDocuments } from './report-print-html.util';
 
 const sheetDoc = (rowIndex: number, pages = 2): string => {

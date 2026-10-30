@@ -1,7 +1,25 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, Routes } from '@angular/router';
 import { CreateBatchConfigComponent } from './create/create-batch-config.component';
 import { SmartBatchComponent } from './smart-batch.component';
 import { visitaGuideLeaveGuard } from './visita-guide/visita-guide-leave.guard';
+
+const redirectLegacyReportBuilder: CanActivateFn = (route: ActivatedRouteSnapshot) => {
+    const router = inject(Router);
+    const configId = route.paramMap.get('configId');
+    const templateId = route.paramMap.get('templateId') ?? route.queryParamMap.get('templateId');
+
+    return router.createUrlTree(['/smart-batch', 'guide', 'layout'], {
+        queryParams: {
+            ...route.queryParams,
+            intent: 'template',
+            ...(configId ? { configId } : {}),
+            ...(templateId
+                ? { templateId, templateChoice: 'mine' }
+                : { templateChoice: 'scratch' }),
+        },
+    });
+};
 
 export default [
     {
@@ -34,31 +52,23 @@ export default [
     },
     {
         path: 'report-builder/:templateId',
-        loadComponent: () =>
-            import('app/modules/smart-batch/report-builder/report-builder.component').then(
-                (m) => m.ReportBuilderComponent
-            ),
+        canActivate: [redirectLegacyReportBuilder],
+        children: [],
     },
     {
         path: 'report-builder',
-        loadComponent: () =>
-            import('app/modules/smart-batch/report-builder/report-builder.component').then(
-                (m) => m.ReportBuilderComponent
-            ),
+        canActivate: [redirectLegacyReportBuilder],
+        children: [],
     },
     {
         path: ':configId/report-builder/:templateId',
-        loadComponent: () =>
-            import('app/modules/smart-batch/report-builder/report-builder.component').then(
-                (m) => m.ReportBuilderComponent
-            ),
+        canActivate: [redirectLegacyReportBuilder],
+        children: [],
     },
     {
         path: ':configId/report-builder',
-        loadComponent: () =>
-            import('app/modules/smart-batch/report-builder/report-builder.component').then(
-                (m) => m.ReportBuilderComponent
-            ),
+        canActivate: [redirectLegacyReportBuilder],
+        children: [],
     },
     {
         path: ':configId/quick-validate',

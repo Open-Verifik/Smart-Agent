@@ -1,4 +1,5 @@
 /** @vitest-environment jsdom */
+import { describe, expect, it } from 'vitest';
 import { autolinkHtml, hrefForAutolink, REPORT_LINK_COLOR } from './report-autolink.util';
 
 describe('report-autolink', () => {

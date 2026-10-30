@@ -854,11 +854,11 @@ export class FleetAssetsComponent implements OnInit {
 
         const configId = this._configIdOf(template);
 
-        void this._router.navigate(['/smart-batch'], {
+        void this._router.navigate(['/smart-batch', 'guide', 'layout'], {
             queryParams: {
-                step: 'layout',
                 templateId: template._id,
                 intent: 'template',
+                templateChoice: 'mine',
                 ...(configId ? { configId } : {}),
             },
         });
@@ -880,9 +880,8 @@ export class FleetAssetsComponent implements OnInit {
         }
 
         this._previewData.setPendingPreviewData(sample);
-        void this._router.navigate(['/smart-batch'], {
+        void this._router.navigate(['/smart-batch', 'guide', 'country'], {
             queryParams: {
-                step: 'country',
                 intent: 'template',
                 templateChoice: 'scratch',
             },

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { formatReportStamp, reportDateStampForPath, substituteReportPlaceholders } from './report-date-stamp.util';
 
 describe('report-date-stamp', () => {
