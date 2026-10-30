@@ -313,6 +313,22 @@ export class HumanAuthnProjectDetailComponent implements OnInit, OnDestroy {
         return DateTime.fromISO(dateStr).toFormat('MMM dd, yyyy HH:mm');
     }
 
+    formatVerificationMethods(methods?: string[]): string {
+        const list = methods?.length ? methods : ['upload', 'scan'];
+        return list
+            .map((method) => {
+                const lower = method.toLowerCase();
+                if (lower === 'upload') {
+                    return this._transloco.translate('smartEnrollProjects.setup.documents.method.upload');
+                }
+                if (lower === 'scan') {
+                    return this._transloco.translate('smartEnrollProjects.setup.documents.method.scan');
+                }
+                return method;
+            })
+            .join(', ');
+    }
+
     scoreBarClass(score: number): string {
         if (score >= 85) return 'bg-emerald-500';
         if (score >= 70) return 'bg-amber-500';

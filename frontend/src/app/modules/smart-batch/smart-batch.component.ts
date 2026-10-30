@@ -10,12 +10,15 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { take } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { DemoRelatedDocsSectionComponent } from '../smart-enroll/demos/shared/demo-related-docs-section.component';
+import type { DemoRelatedDocItem } from '../smart-enroll/demos/shared/demo-related-docs-section.types';
+import { batchStepFeatureId, batchStepLabel, orderedBatchSteps } from './batch-config-steps.util';
 import { getPresetStepCount } from './batch-required-fields.util';
 import { ReportPreviewComponent } from './report-preview/report-preview.component';
 import { ReportTemplateThumbComponent } from './report-template-thumb.component';
 import { getCountryFlag as flagForCountry } from './smart-batch-country.util';
 import { SmartBatchInputModeService } from './smart-batch-input-mode.service';
-import { BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './smart-batch.service';
+import { AppFeature, BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './smart-batch.service';
 import { BatchConfigurationRef, SampleReportData, SmartReportService, SmartReportTemplate, templateLayerZ } from './smart-report.service';
 import { SmartTemplateTransferService, TemplateImportError } from './smart-template-transfer.service';
 
@@ -38,6 +41,7 @@ type WorkspaceConfigCard =
         MatSnackBarModule,
         ReportPreviewComponent,
         ReportTemplateThumbComponent,
+        DemoRelatedDocsSectionComponent,
     ],
     templateUrl: './smart-batch.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -78,12 +82,58 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
     activeTab = signal<'configurations' | 'templates'>('configurations');
     templates = this._smartReportService.templates;
     isLoadingTemplates = this._smartReportService.isLoading;
+    availableFeatures = signal<AppFeature[]>([]);
     isCloningPreset = signal(false);
     isModeDialogOpen = signal(false);
     previewTemplate = signal<SmartReportTemplate | null>(null);
     previewLoading = signal(false);
     previewData = computed<Record<string, any>>(() => this._sampleFromTemplate(this.previewTemplate()));
     private _previewGen = 0;
+
+    relatedDocs(): DemoRelatedDocItem[] {
+        return [
+            {
+                badge: 'GUIDE',
+                badgeMuted: true,
+                title: this._transloco.translate('smartBatchLanding.relatedDocs.overviewTitle'),
+                description: this._transloco.translate('smartBatchLanding.relatedDocs.overviewDesc'),
+                href: 'https://docs.verifik.co/services/identity-validation',
+            },
+            {
+                badge: 'GUIDE',
+                badgeMuted: true,
+                title: this._transloco.translate('smartBatchLanding.relatedDocs.backgroundTitle'),
+                description: this._transloco.translate('smartBatchLanding.relatedDocs.backgroundDesc'),
+                href: 'https://docs.verifik.co/services/background-check',
+            },
+            {
+                badge: 'GUIDE',
+                badgeMuted: true,
+                title: this._transloco.translate('smartBatchLanding.relatedDocs.vehicleTitle'),
+                description: this._transloco.translate('smartBatchLanding.relatedDocs.vehicleDesc'),
+                href: 'https://docs.verifik.co/services/vehicle-validation',
+            },
+            {
+                badge: 'GUIDE',
+                badgeMuted: true,
+                title: this._transloco.translate('smartBatchLanding.relatedDocs.businessTitle'),
+                description: this._transloco.translate('smartBatchLanding.relatedDocs.businessDesc'),
+                href: 'https://docs.verifik.co/services/business-validation',
+            },
+            {
+                badge: 'POST',
+                title: this._transloco.translate('smartBatchLanding.relatedDocs.webhooksTitle'),
+                description: this._transloco.translate('smartBatchLanding.relatedDocs.webhooksDesc'),
+                href: 'https://docs.verifik.co/resources/webhooks',
+            },
+            {
+                badge: 'GET',
+                title: this._transloco.translate('smartBatchLanding.relatedDocs.appFeaturesTitle'),
+                description: this._transloco.translate('smartBatchLanding.relatedDocs.appFeaturesDesc'),
+                href: 'https://docs.verifik.co/resources/app-features',
+            },
+        ];
+    }
 
     systemTemplates = computed(() =>
         this.templates().filter((t) => t.type === 'System').sort((a, b) => {
@@ -206,6 +256,10 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
         });
         this._smartReportService.getTemplates().subscribe({
             error: (err) => console.error('[SmartBatch] getTemplates error', err),
+        });
+        this._smartBatchService.getAvailableFeatures().subscribe({
+            next: (res) => this.availableFeatures.set(res.data ?? []),
+            error: (err) => console.error('[SmartBatch] getAvailableFeatures error', err),
         });
     }
 
@@ -355,6 +409,96 @@ export class SmartBatchComponent implements OnInit, OnDestroy {
 
     workspaceConfigActive(card: WorkspaceConfigCard): boolean {
         return card.kind === 'fromTemplate' ? true : card.config.isActive !== false;
+    }
+
+    workspaceConfigEndpointLabels(card: WorkspaceConfigCard): string[] {
+        const catalog = this.availableFeatures();
+        const isEs = (this._transloco.getActiveLang() || '').toLowerCase().startsWith('es');
+
+        if (card.kind === 'fromTemplate') {
+            const presetSteps = [...(card.template.presetSteps ?? [])].sort(
+                (a, b) => (a.sequence ?? 0) - (b.sequence ?? 0)
+            );
+            return presetSteps.map((s, idx) => {
+                const match = catalog.find((f) => f.code === s.appFeatureCode || f._id === s.appFeatureCode);
+                if (match) {
+                    return (isEs ? match.nameES || match.name : match.name || match.nameES) || match.code;
+                }
+                return s.appFeatureCode ? s.appFeatureCode.replace(/_/g, ' ') : `Step ${idx + 1}`;
+            });
+        }
+
+        const steps = orderedBatchSteps(card.config.steps);
+        return steps.map((step) => {
+            const featureObj = typeof step.appFeature === 'object' ? step.appFeature : null;
+            if (featureObj) {
+                return (
+                    (isEs ? featureObj.nameES || featureObj.name : featureObj.name || featureObj.nameES) ||
+                    featureObj.code ||
+                    batchStepLabel(step)
+                );
+            }
+            const id = batchStepFeatureId(step);
+            const match = id ? catalog.find((f) => f._id === id || f.code === id) : undefined;
+            if (match) {
+                return (isEs ? match.nameES || match.name : match.name || match.nameES) || match.code;
+            }
+            return batchStepLabel(step);
+        });
+    }
+
+    workspaceConfigLinkedTemplate(card: WorkspaceConfigCard): SmartReportTemplate | null {
+        if (card.kind === 'fromTemplate') {
+            return card.template;
+        }
+        const configId = this._toConfigIdString(card.config._id ?? card.config.id);
+        const preferredId = this._toConfigIdString(card.config.preferredReportTemplate);
+        const allTemplates = this.templates();
+
+        if (preferredId) {
+            const byPreferred = allTemplates.find((t) => this._toConfigIdString(t._id) === preferredId);
+            if (byPreferred) return byPreferred;
+        }
+        if (configId) {
+            const byConfig = allTemplates.find(
+                (t) => t.type !== 'System' && this.resolveBatchConfigRef(t.batchConfiguration).id === configId
+            );
+            if (byConfig) return byConfig;
+        }
+        return null;
+    }
+
+    openConfigTemplatePreview(card: WorkspaceConfigCard, event: Event): void {
+        event.stopPropagation();
+        const tpl = this.workspaceConfigLinkedTemplate(card);
+        if (!tpl) return;
+        this.openTemplatePreview(tpl);
+    }
+
+    openConfigTemplateEditor(card: WorkspaceConfigCard, event: Event): void {
+        event.stopPropagation();
+        const tpl = this.workspaceConfigLinkedTemplate(card);
+        if (!tpl) return;
+        if (tpl.type === 'System') {
+            this.editSystemTemplateCopy(tpl, event);
+            return;
+        }
+        this.openTemplateEditor(tpl, event);
+    }
+
+    createTemplateForConfig(card: WorkspaceConfigCard, event: Event): void {
+        event.stopPropagation();
+        if (card.kind === 'fromTemplate') {
+            this.editSystemTemplateCopy(card.template, event);
+            return;
+        }
+        void this._router.navigate(['/smart-batch', 'guide', 'layout'], {
+            queryParams: {
+                configId: card.id,
+                intent: 'template',
+                templateChoice: 'scratch',
+            },
+        });
     }
 
     useClientTemplate(template: SmartReportTemplate, event: Event) {

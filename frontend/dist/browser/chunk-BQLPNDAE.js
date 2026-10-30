@@ -1,0 +1,1 @@
+function u(e){if(e?.appFeature)return typeof e.appFeature=="object"?e.appFeature._id:e.appFeature}function o(e){let t=e.appFeature;return typeof t=="object"&&t?(t.nameES||t.name||t.code||"").trim()||`Paso ${e.sequence}`:`Paso ${e.sequence}`}function c(e){return[...e??[]].filter(t=>t.enabled!==!1).sort((t,r)=>t.sequence-r.sequence)}export{u as a,o as b,c};

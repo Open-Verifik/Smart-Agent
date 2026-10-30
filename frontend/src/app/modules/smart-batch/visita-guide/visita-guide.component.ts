@@ -1009,8 +1009,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return Boolean(category && this.entities().includes(category));
     }
 
+    isExplainerStep = computed(() =>
+        ['intent', 'entity', 'country', 'mode', 'input', 'include', 'template', 'customize'].includes(this.step())
+    );
     isWideStep = computed(
         () =>
+            this.isExplainerStep() ||
             this.step() === 'layout' ||
             this.step() === 'template' ||
             this.step() === 'generate' ||
@@ -1019,6 +1023,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isLayoutStep = computed(() => this.step() === 'layout');
     isReportStudio = computed(() => this.step() === 'layout' || this.step() === 'generate');
     isEndpointsStep = computed(() => this.step() === 'endpoints');
+
+    explainerEyebrowKey = computed(() => `visitaGuide.explainer.eyebrow_${this.step()}`);
+    explainerSubtitleKey = computed(() => `visitaGuide.explainer.subtitle_${this.step()}`);
+    explainerLeftTitleKey = computed(() => `visitaGuide.explainer.leftTitle_${this.step()}`);
+    explainerLeftHelpKey = computed(() => `visitaGuide.explainer.leftHelp_${this.step()}`);
+
+    explainerIntentTitleKey = computed(() => {
+        const current = this.intent();
+        const found = GUIDE_INTENTS.find((item) => item.id === current);
+        if (found) return found.titleKey;
+        return 'visitaGuide.explainer.intentPending';
+    });
+
+    explainerIntentBodyKey = computed(() => {
+        const current = this.intent();
+        const found = GUIDE_INTENTS.find((item) => item.id === current);
+        if (found) return found.descKey;
+        return 'visitaGuide.explainer.intentPendingBody';
+    });
     readonly reportStudioSteps = [
         { key: 'prepare' as const, labelKey: 'smartReport.stepPrepare' },
         { key: 'preview' as const, labelKey: 'smartReport.stepPreview' },
@@ -1048,7 +1071,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
         );
     });
-    isFillViewportStep = computed(() => this.step() === 'country' || this.step() === 'endpoints');
+    isFillViewportStep = computed(() => this.step() === 'endpoints');
 
     selectedLayoutSection = computed(() => {
         const id = this.selectedLayoutSectionId();
