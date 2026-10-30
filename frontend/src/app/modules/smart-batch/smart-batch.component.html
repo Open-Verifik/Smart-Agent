@@ -406,18 +406,18 @@
                                                 class="flex items-center justify-between gap-2 pb-2"
                                             >
                                                 <span
-                                                    class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400"
+                                                    class="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400"
                                                 >
-                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px] text-indigo-600"
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px] shrink-0 text-indigo-600"
                                                         >description</mat-icon
                                                     >
-                                                    {{ t('smartBatchLanding.linkedReportTemplate') }}
+                                                    <span class="truncate">{{ t('smartBatchLanding.linkedReportTemplate') }}</span>
                                                 </span>
-                                                <div class="flex items-center gap-1">
+                                                <div class="flex items-center gap-1 shrink-0">
                                                     <button
                                                         type="button"
                                                         (click)="openConfigTemplatePreview(card, $event)"
-                                                        class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1 text-[11px] font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                                        class="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-stone-200 bg-white px-2 py-1 text-[11px] font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
                                                     >
                                                         <mat-icon class="!h-3 !w-3 !text-[12px]">visibility</mat-icon>
                                                         {{ t('smartBatchLanding.previewReportBtn') }}
@@ -425,7 +425,7 @@
                                                     <button
                                                         type="button"
                                                         (click)="openConfigTemplateEditor(card, $event)"
-                                                        class="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1 text-[11px] font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                                        class="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-stone-200 bg-white px-2 py-1 text-[11px] font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
                                                     >
                                                         <mat-icon class="!h-3 !w-3 !text-[12px]">edit</mat-icon>
                                                         {{ t('smartBatchLanding.edit') }}
@@ -468,7 +468,7 @@
                                                 <button
                                                     type="button"
                                                     (click)="createTemplateForConfig(card, $event)"
-                                                    class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-blue-200 bg-blue-50/80 px-2.5 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-900/60 dark:bg-blue-950/50 dark:text-blue-300"
+                                                    class="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-blue-200 bg-blue-50/80 px-2.5 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-900/60 dark:bg-blue-950/50 dark:text-blue-300"
                                                 >
                                                     <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">add</mat-icon>
                                                     {{ t('smartBatchLanding.designPdfReportBtn') }}
