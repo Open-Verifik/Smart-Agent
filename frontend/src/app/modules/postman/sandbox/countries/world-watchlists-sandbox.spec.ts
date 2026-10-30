@@ -32,10 +32,12 @@ import {
 } from './colombia.postman-sandbox';
 import {
     applyPostmanSandboxParamDefaults,
+    findMatchingPostmanSandboxProfile,
     getPostmanSandboxConfig,
     getPostmanSandboxProfiles,
     isPostmanSandboxEndpoint,
 } from '../postman-sandbox.util';
+import { getPostmanSandboxProfileKey } from '../sandbox-error-profiles';
 
 const DOC_AND_NAME_WATCHLIST_CODES = [
     WORLD_CSL_ENDPOINT_CODE,
@@ -188,6 +190,59 @@ describe('World Watchlists Sandbox - 8 Document + Name Endpoints', () => {
 
             expect(params.find((p) => p.key === 'documentNumber')?.value).toBe('10000001');
             expect(params.find((p) => p.key === 'documentType')?.value).toBe('CC');
+        }
+    );
+
+    it.each(DOC_AND_NAME_WATCHLIST_CODES)(
+        'correctly resolves name-search 404 profile on %s without conflict shadowing',
+        (code) => {
+            const match = findMatchingPostmanSandboxProfile(code, [
+                { key: 'fullName', value: '90040401' },
+                { key: 'documentNumber', value: '' },
+                { key: 'documentType', value: '' },
+            ]);
+            expect(match).toBeDefined();
+            expect(match?.expectedStatus).toBe(404);
+            expect(match?.profileKey).toBe(`${code}-name-not-found`);
+        }
+    );
+
+    it.each(DOC_AND_NAME_WATCHLIST_CODES)(
+        'correctly resolves document-search 404 profile on %s',
+        (code) => {
+            const match = findMatchingPostmanSandboxProfile(code, [
+                { key: 'documentType', value: 'CC' },
+                { key: 'documentNumber', value: '90040401' },
+            ]);
+            expect(match).toBeDefined();
+            expect(match?.expectedStatus).toBe(404);
+            expect(match?.documentNumber).toBe('90040401');
+        }
+    );
+
+    it.each(DOC_AND_NAME_WATCHLIST_CODES)(
+        'correctly resolves missing required parameters (both empty) conflict on %s',
+        (code) => {
+            const match = findMatchingPostmanSandboxProfile(code, [
+                { key: 'documentNumber', value: '' },
+                { key: 'fullName', value: '' },
+            ]);
+            expect(match).toBeDefined();
+            expect(match?.expectedStatus).toBe(409);
+            expect(match?.profileKey).toBe(`${code}-missing-params`);
+        }
+    );
+
+    it.each(DOC_AND_NAME_WATCHLIST_CODES)(
+        'ensures all profile keys are strictly unique and no redundant 404 profiles exist on %s',
+        (code) => {
+            const profiles = getPostmanSandboxProfiles(code);
+            const keys = profiles.map(getPostmanSandboxProfileKey);
+            const uniqueKeys = new Set(keys);
+            expect(uniqueKeys.size).toBe(profiles.length);
+
+            const notFoundProfiles = profiles.filter((p) => p.expectedStatus === 404);
+            expect(notFoundProfiles).toHaveLength(2); // exactly 1 doc 404 and 1 name 404
         }
     );
 });
