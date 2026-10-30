@@ -137,3 +137,91 @@ export const ensureResultSlots = (
     }
     return next;
 };
+
+/** True when a consult slot has nothing to show (missing, [], or {}). */
+export const isEmptyConsultPayload = (payload: unknown): boolean => {
+    if (payload == null) return true;
+    if (Array.isArray(payload)) return payload.length === 0;
+    if (typeof payload !== 'object') return false;
+    return Object.keys(payload as object).length === 0;
+};
+
+/**
+ * Merge two `results.<n>` maps. A later empty slot does not wipe a previous
+ * payload; a later non-empty slot replaces it. Removing a step still goes
+ * through `purgeResultSequence`.
+ */
+export const mergeConsultResults = (
+    stored: Record<string | number, unknown> | undefined,
+    live: Record<string | number, unknown> | undefined
+): Record<string | number, unknown> => {
+    const next: Record<string | number, unknown> = { ...(stored ?? {}) };
+    for (const [rawKey, value] of Object.entries(live ?? {})) {
+        const seq = Number(rawKey);
+        const previous =
+            next[rawKey] !== undefined
+                ? next[rawKey]
+                : Number.isFinite(seq)
+                  ? next[seq]
+                  : undefined;
+        if (!isEmptyConsultPayload(value) || isEmptyConsultPayload(previous)) {
+            next[rawKey] = value;
+            if (Number.isFinite(seq) && rawKey !== String(seq)) next[seq] = value;
+        }
+    }
+    return next;
+};
+
+export const mergeConsultInput = (
+    stored: Record<string, unknown> | undefined,
+    live: Record<string, unknown> | undefined
+): Record<string, unknown> => {
+    const next: Record<string, unknown> = { ...(stored ?? {}) };
+    for (const [key, value] of Object.entries(live ?? {})) {
+        if (!isEmptyConsultPayload(value) || next[key] === undefined) {
+            next[key] = value;
+        }
+    }
+    return next;
+};
+
+export type ConsultSampleSlice = {
+    batchName?: string;
+    rowIndex?: number;
+    inputData?: Record<string, unknown>;
+    results?: Record<string | number, unknown>;
+    errors?: { step: number; message: string; code: string }[];
+    report?: Record<string, unknown>;
+    consultedAt?: string;
+    generatedAt?: string;
+    processedAt?: string;
+    startedAt?: string;
+    createdAt?: string;
+};
+
+/** Keep last good consult payloads on the template sample, independent of layout. */
+export const mergeConsultSample = <T extends ConsultSampleSlice>(
+    stored: T | null | undefined,
+    live: T | null | undefined
+): T => {
+    const previous = (stored ?? {}) as T;
+    const incoming = (live ?? {}) as T;
+    const liveErrors = incoming.errors;
+    const hasLiveErrors = Array.isArray(liveErrors) && liveErrors.length > 0;
+    return {
+        ...previous,
+        ...incoming,
+        inputData: mergeConsultInput(
+            previous.inputData as Record<string, unknown> | undefined,
+            incoming.inputData as Record<string, unknown> | undefined
+        ),
+        results: mergeConsultResults(
+            previous.results as Record<string | number, unknown> | undefined,
+            incoming.results as Record<string | number, unknown> | undefined
+        ),
+        errors: (hasLiveErrors ? liveErrors : previous.errors) as T['errors'],
+        report: (incoming.report ?? previous.report) as T['report'],
+        consultedAt: incoming.consultedAt || previous.consultedAt,
+        generatedAt: incoming.generatedAt || previous.generatedAt,
+    };
+};

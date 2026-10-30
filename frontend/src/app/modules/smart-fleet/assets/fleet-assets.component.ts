@@ -613,10 +613,11 @@ export class FleetAssetsComponent implements OnInit {
                     onRegenerate: () => void this.resetVehicleReportForRegeneration(asset),
                 },
                 autoFocus: false,
-                width: '960px',
-                maxWidth: '96vw',
-                height: '90vh',
-                maxHeight: '96vh',
+                width: '100vw',
+                maxWidth: '100vw',
+                height: '100dvh',
+                maxHeight: '100dvh',
+                panelClass: 'fleet-report-pdf-dialog-panel',
             }
         );
     }
@@ -837,8 +838,10 @@ export class FleetAssetsComponent implements OnInit {
         this._dialog.open(FleetTemplatePreviewDialogComponent, {
             data: { templateId: template._id, fallback: template },
             autoFocus: false,
-            maxWidth: '96vw',
-            maxHeight: '96vh',
+            width: 'min(98vw, 1280px)',
+            maxWidth: '100vw',
+            height: '96vh',
+            maxHeight: '100dvh',
             panelClass: 'fleet-template-preview-panel',
         });
     }
@@ -851,11 +854,11 @@ export class FleetAssetsComponent implements OnInit {
 
         const configId = this._configIdOf(template);
 
-        void this._router.navigate(['/smart-batch'], {
+        void this._router.navigate(['/smart-batch', 'guide', 'layout'], {
             queryParams: {
-                step: 'layout',
                 templateId: template._id,
                 intent: 'template',
+                templateChoice: 'mine',
                 ...(configId ? { configId } : {}),
             },
         });
@@ -877,9 +880,8 @@ export class FleetAssetsComponent implements OnInit {
         }
 
         this._previewData.setPendingPreviewData(sample);
-        void this._router.navigate(['/smart-batch'], {
+        void this._router.navigate(['/smart-batch', 'guide', 'country'], {
             queryParams: {
-                step: 'country',
                 intent: 'template',
                 templateChoice: 'scratch',
             },

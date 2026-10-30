@@ -1,11 +1,11 @@
-<div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+<div class="fleet-shell flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
     <header
-        class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+        class="fleet-shell__header border-b border-stone-200/90 bg-white/90 px-4 py-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 sm:px-5 sm:py-6 md:px-8 md:py-8"
     >
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
             <fleet-nav />
 
-            <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="fleet-page-head flex flex-wrap items-start justify-between gap-3">
                 <div class="flex min-w-0 items-start gap-3">
                     <button
                         mat-icon-button
@@ -29,7 +29,7 @@
                     </div>
                 </div>
 
-                <div class="flex shrink-0 flex-wrap items-center gap-2">
+                <div class="fleet-actions fleet-actions--toolbar flex shrink-0 flex-wrap items-center gap-2">
                     <label class="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                         <span class="font-medium uppercase">{{
                             'smartFleet.assets.importCountry' | transloco
@@ -100,7 +100,7 @@
         </div>
     </header>
 
-    <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+    <main class="fleet-shell__main flex flex-auto flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-8 md:py-10">
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
             <!-- Create form -->
             <div
@@ -392,7 +392,7 @@
                     </ul>
                 </div>
 
-                <div class="mt-4 flex justify-end">
+                <div class="fleet-form-actions mt-4 flex justify-end gap-2">
                     <button
                         mat-flat-button
                         color="primary"
@@ -430,7 +430,7 @@
             <fleet-groups-board #groupsBoard />
 
             <!-- Search -->
-            <div class="flex flex-wrap items-center gap-3">
+            <div class="fleet-actions fleet-actions--search flex flex-wrap items-center gap-3">
                 <div class="relative flex-1 min-w-64">
                     <mat-icon
                         class="icon-size-5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
@@ -455,8 +455,8 @@
                 </button>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-                <mat-icon class="icon-size-5 text-stone-400">filter_list</mat-icon>
+            <div class="fleet-actions fleet-actions--filters flex flex-wrap items-center gap-2">
+                <mat-icon class="icon-size-5 shrink-0 text-stone-400">filter_list</mat-icon>
                 <select
                     class="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     [ngModel]="filterGroup()"
@@ -668,7 +668,91 @@
                     </button>
                 </div>
 
-                <table class="w-full" *ngIf="assets().length">
+                <div class="space-y-3 md:hidden" *ngIf="assets().length">
+                    <article
+                        *ngFor="let asset of assets()"
+                        class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                    >
+                        <button
+                            type="button"
+                            [disabled]="bulkWorking()"
+                            (click)="openAsset(asset)"
+                            class="flex w-full flex-col items-start gap-1 text-left disabled:opacity-50"
+                        >
+                            <span class="inline-flex flex-wrap items-center gap-2">
+                                <span
+                                    class="rounded-lg bg-stone-100 px-2 py-1 font-mono text-base font-semibold text-stone-800 dark:bg-gray-800 dark:text-stone-200"
+                                    >{{ asset.plate || asset.vin }}</span
+                                >
+                                <span class="text-xs text-stone-500">{{ getCountryFlag(asset.country || 'co') }}</span>
+                                <span
+                                    class="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                    [class.bg-emerald-100]="asset.isActive"
+                                    [class.text-emerald-700]="asset.isActive"
+                                    [class.bg-stone-100]="!asset.isActive"
+                                    [class.text-stone-600]="!asset.isActive"
+                                >
+                                    {{
+                                        (asset.isActive
+                                            ? 'smartFleet.assets.active'
+                                            : 'smartFleet.assets.paused'
+                                        ) | transloco
+                                    }}
+                                </span>
+                            </span>
+                            <span *ngIf="asset.nickname" class="text-sm text-stone-600 dark:text-stone-300">{{
+                                asset.nickname
+                            }}</span>
+                        </button>
+                        <div class="mt-2 flex flex-wrap gap-1.5">
+                            <span
+                                *ngFor="let chip of coverages(asset)"
+                                class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                [ngClass]="coverageClasses(chip)"
+                                >{{ coverageText(chip) }}</span
+                            >
+                            <span
+                                class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-semibold text-stone-700 dark:bg-gray-800 dark:text-stone-200"
+                            >
+                                <mat-icon class="icon-size-4">notifications</mat-icon>
+                                {{ openAlertCount(asset) }}
+                            </span>
+                        </div>
+                        <div class="fleet-mobile-icon-row mt-3 flex flex-wrap items-center gap-0.5 border-t border-stone-100 pt-3 dark:border-gray-800">
+                            <button
+                                mat-icon-button
+                                type="button"
+                                #mobileReportMenu="matMenuTrigger"
+                                [matMenuTriggerFor]="readyReport(asset) ? reportReadyMenu : reportMenu"
+                                (click)="onReportIcon(asset, mobileReportMenu)"
+                                [disabled]="bulkWorking() || reportingAssetId() === asset._id"
+                                class="!text-rose-600"
+                            >
+                                <mat-icon class="icon-size-6">picture_as_pdf</mat-icon>
+                            </button>
+                            <button
+                                mat-icon-button
+                                type="button"
+                                (click)="checkNow(asset)"
+                                [disabled]="bulkWorking() || checkingAssetId() === asset._id"
+                            >
+                                <mat-icon class="icon-size-5">refresh</mat-icon>
+                            </button>
+                            <button mat-icon-button type="button" (click)="editRules(asset)" [disabled]="bulkWorking()">
+                                <mat-icon class="icon-size-5">rule</mat-icon>
+                            </button>
+                            <button mat-icon-button type="button" (click)="startEdit(asset)" [disabled]="bulkWorking()">
+                                <mat-icon class="icon-size-5">edit</mat-icon>
+                            </button>
+                            <button mat-icon-button type="button" (click)="openAsset(asset)" [disabled]="bulkWorking()">
+                                <mat-icon class="icon-size-5">open_in_new</mat-icon>
+                            </button>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="fleet-table-wrap fleet-table-wrap--bleed fleet-table-wrap--wide hidden md:block" *ngIf="assets().length">
+                <table class="w-full">
                     <thead class="bg-stone-50 dark:bg-gray-950/50">
                         <tr class="text-left text-xs font-medium uppercase text-stone-500">
                             <th class="px-5 py-3">{{ 'smartFleet.nav.assets' | transloco }}</th>
@@ -867,6 +951,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <mat-menu #reportReadyMenu="matMenu" class="fleet-report-menu">

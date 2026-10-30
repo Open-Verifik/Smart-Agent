@@ -31,6 +31,15 @@ describe('resolveTextRole', () => {
         expect(resolveTextRole(section, 'label', '#0f172a', 'lastName').fontSize).toBe(10);
     });
 
+    it('defaults autolink color and keeps a stored link color', () => {
+        expect(resolveTextRole(section, 'value', '#0f172a').linkColor).toBe('#2563eb');
+        const withLink: ReportSection = {
+            ...section,
+            style: { ...section.style, valueStyle: { ...section.style?.valueStyle, linkColor: '#dc2626' } },
+        };
+        expect(resolveTextRole(withLink, 'value', '#0f172a').linkColor).toBe('#dc2626');
+    });
+
     it('writes the default bold title into the template the PDF receives', () => {
         const block: ReportSection = {
             id: 'tabla',

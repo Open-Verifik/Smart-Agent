@@ -129,6 +129,10 @@ export class VisitaGuidePipelineService {
             }
         }
 
+        if (selectedFeatures.length) {
+            return this._createFromSelectedFeatures(unique, iso, name, selectedFeatures, executor, graph);
+        }
+
         if (unique.length === 1) {
             const cloned = await firstValueFrom(
                 this._batch.cloneSystemPreset(defaultSystemKey(unique[0], iso))
@@ -262,6 +266,44 @@ export class VisitaGuidePipelineService {
             template,
         };
         return this._applySelection(mixedResult, selectedFeatures, unique, graph, executor);
+    }
+
+    private async _createFromSelectedFeatures(
+        entities: GuideEntity[],
+        iso: string,
+        name: string,
+        selectedFeatures: AppFeature[],
+        executor: SmartBatchExecutor,
+        graph?: FlowGraph
+    ): Promise<GuidePipelineResult> {
+        const country = GUIDE_COUNTRIES.find((item) => item.iso === iso)?.name ?? 'Colombia';
+        const created = await firstValueFrom(
+            this._batch.createConfiguration({
+                name,
+                description: entities.join('+'),
+                country,
+                steps: [],
+                inputFormat: 'csv',
+                outputFormat: 'xlsx',
+                mergeStrategy: 'sequential',
+                executor,
+                isActive: true,
+            })
+        );
+        const configId = created.data._id ?? created.data.id;
+        if (!configId) throw new Error('missing config');
+        const populated = await firstValueFrom(this._batch.getConfiguration(configId));
+        return this._applySelection(
+            {
+                configId,
+                configuration: { ...populated.data, executor },
+                template: null,
+            },
+            selectedFeatures,
+            entities,
+            graph,
+            executor
+        );
     }
 
     private async _applySelection(

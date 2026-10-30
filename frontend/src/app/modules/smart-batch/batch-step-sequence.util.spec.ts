@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
     buildStepSequenceMap,
     ensureResultSlots,
+    mergeConsultResults,
+    mergeConsultSample,
     remapReportSectionPaths,
     remapResultsPath,
     remapResultsRecord,
@@ -58,6 +60,30 @@ describe('ensureResultSlots', () => {
         const results = ensureResultSlots({ 1: { ok: true } }, [step(1, 'a'), step(2, 'b')]);
         expect(results[1]).toEqual({ ok: true });
         expect(results[2]).toEqual({});
+    });
+});
+
+describe('mergeConsultResults', () => {
+    it('keeps a previous payload when the later consult is empty', () => {
+        const merged = mergeConsultResults({ 1: { plate: 'ABC' }, 2: { ok: true } }, { 1: {}, 2: { ok: false } });
+        expect(merged[1]).toEqual({ plate: 'ABC' });
+        expect(merged[2]).toEqual({ ok: false });
+    });
+
+    it('stores a first consult that actually returned data', () => {
+        const merged = mergeConsultResults({ 1: {} }, { 1: { name: 'Ana' } });
+        expect(merged[1]).toEqual({ name: 'Ana' });
+    });
+});
+
+describe('mergeConsultSample', () => {
+    it('does not let empty live input wipe stored consult fields', () => {
+        const merged = mergeConsultSample(
+            { inputData: { documentNumber: '1' }, results: { 1: { name: 'Ana' } } },
+            { inputData: {}, results: { 1: {} } }
+        );
+        expect(merged.inputData).toEqual({ documentNumber: '1' });
+        expect(merged.results?.[1]).toEqual({ name: 'Ana' });
     });
 });
 

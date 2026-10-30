@@ -1,0 +1,290 @@
+/* Smart Fleet — mobile layout helpers (nav, buttons, tables, dialogs). */
+
+.fleet-nav-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.fleet-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+.fleet-table-wrap--bleed {
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+    .fleet-table-wrap--bleed {
+        margin-inline: -1.25rem;
+        padding-inline: 1.25rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .fleet-table-wrap--bleed {
+        margin-inline: 0;
+        padding-inline: 0;
+    }
+}
+
+.fleet-table-wrap table {
+    min-width: 52rem;
+}
+
+.fleet-table-wrap--wide table {
+    min-width: 64rem;
+}
+
+/* Fleet nav styles live in fleet-nav.component.ts */
+
+/* Report PDF viewer: always full screen */
+.fleet-report-pdf-dialog-panel {
+    --mat-dialog-container-max-width: 100vw;
+    --mat-dialog-container-min-width: 0;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+}
+
+.fleet-report-pdf-dialog-panel .mat-mdc-dialog-container {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    --mdc-dialog-container-shape: 0;
+}
+
+.fleet-report-pdf-dialog-panel .mat-mdc-dialog-surface {
+    border-radius: 0 !important;
+}
+
+/* Create-group dialog: lift Material's 80vw cap so the vehicle type tiles get room. */
+.fleet-group-dialog-panel {
+    --mat-dialog-container-max-width: 96vw;
+    --mat-dialog-container-min-width: 0;
+    max-width: 96vw !important;
+}
+
+@media (max-width: 639px) {
+    .fleet-group-dialog-panel {
+        width: 96vw !important;
+    }
+}
+
+/* Template preview: Material's default 80vw cap would crop the page, so lift it. */
+.fleet-template-preview-panel {
+    --mat-dialog-container-max-width: 100vw;
+    --mat-dialog-container-min-width: 0;
+    max-width: 100vw !important;
+}
+
+@media (max-width: 639px) {
+    .fleet-template-preview-panel {
+        width: 100vw !important;
+        height: 100dvh !important;
+    }
+
+    .fleet-template-preview-panel .mat-mdc-dialog-surface {
+        border-radius: 0 !important;
+    }
+}
+
+@media (max-width: 639px) {
+    .fleet-shell {
+        .fleet-shell__header .mx-auto,
+        .fleet-shell__main .mx-auto {
+            gap: 1rem;
+        }
+
+        h1.text-2xl,
+        h1.font-mono.text-2xl,
+        .current-plan-title {
+            font-size: 1.375rem !important;
+            line-height: 1.25;
+        }
+
+        .fleet-page-head {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .fleet-page-head > .flex.min-w-0 {
+            width: 100%;
+        }
+
+        /* Primary / stroked actions: full-width stack with touch height */
+        .fleet-actions {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 0.5rem;
+        }
+
+        .fleet-actions .mat-mdc-button-base,
+        .fleet-actions .mdc-button {
+            width: 100%;
+            min-height: 2.75rem;
+            margin: 0;
+        }
+
+        .fleet-actions label {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.35rem;
+            width: 100%;
+        }
+
+        .fleet-actions label select {
+            width: 100%;
+            min-height: 2.75rem;
+            padding-block: 0.5rem;
+        }
+
+        .fleet-actions--search {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .fleet-actions--search .relative {
+            min-width: 0 !important;
+            width: 100%;
+            flex: none;
+        }
+
+        .fleet-actions--search input {
+            min-height: 2.75rem;
+            font-size: 1rem;
+        }
+
+        .fleet-actions--search .mat-mdc-button-base {
+            flex: 1 1 calc(50% - 0.25rem);
+            width: auto;
+            min-width: calc(50% - 0.25rem);
+        }
+
+        .fleet-actions--filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .fleet-actions--filters select {
+            width: 100%;
+            min-height: 2.75rem;
+        }
+
+        .fleet-form-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .fleet-form-actions .mat-mdc-button-base {
+            width: 100%;
+            min-height: 2.75rem;
+        }
+
+        .fleet-mobile-icon-row {
+            justify-content: space-between;
+            gap: 0.25rem;
+        }
+
+        .fleet-mobile-icon-row .mat-mdc-icon-button {
+            width: 2.75rem;
+            height: 2.75rem;
+            padding: 0.35rem;
+        }
+
+        .fleet-free-plan-banner {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .fleet-free-plan-banner a {
+            display: block;
+            width: 100%;
+            min-height: 2.75rem;
+            line-height: 2.75rem;
+            text-align: center;
+            padding-block: 0;
+        }
+    }
+
+    .fleet-kv-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        padding: 0.65rem 1rem;
+    }
+
+    .fleet-kv-table tbody td {
+        display: block;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .fleet-kv-table tbody td:first-child {
+        font-size: 0.65rem;
+    }
+
+    .fleet-kv-table tbody td:last-child {
+        font-size: 0.875rem;
+        padding-bottom: 0.25rem !important;
+    }
+
+    .fleet-detail-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.25rem;
+    }
+
+    .fleet-detail-tabs button {
+        flex-shrink: 0;
+        min-height: 2.5rem;
+        padding-inline: 0.85rem;
+    }
+
+    .fleet-report-pdf-dialog-panel .mat-mdc-dialog-container,
+    .fleet-template-preview-panel .mat-mdc-dialog-container,
+    .fleet-report-progress-dialog-panel .mat-mdc-dialog-container {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+    }
+
+    .fleet-report-progress-dialog-panel .fleet-report-progress {
+        padding-inline: 1rem !important;
+    }
+
+    /* Plans checkout inside Smart Fleet */
+    .fleet-shell.plans-container .checkout-button,
+    .fleet-shell.plans-container .select-button,
+    .fleet-shell.plans-container .upgrade-button {
+        width: 100%;
+        min-height: 2.75rem;
+    }
+
+    .fleet-shell.plans-container .card-actions {
+        flex-direction: column;
+    }
+
+    .fleet-shell.plans-container .card-actions .mat-mdc-button-base {
+        width: 100%;
+        min-height: 2.75rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fleet-nav__link {
+        transition: none;
+    }
+}

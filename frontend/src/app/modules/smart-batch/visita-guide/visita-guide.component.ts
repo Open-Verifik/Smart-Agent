@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -16,6 +17,7 @@ import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.se
 import { catchError, firstValueFrom, interval, of, Subscription } from 'rxjs';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
+import { DesktopRecommendedService } from '../report-builder/desktop-recommended-dialog/desktop-recommended.service';
 import { SignaturePadDialogComponent } from '../report-builder/signature-pad-dialog/signature-pad-dialog.component';
 import { ReportIconPickerDialogComponent, ReportIconPickerResult } from '../report-icon-picker-dialog.component';
 import { ReportEmojiPickerData, ReportEmojiPickerDialogComponent } from '../report-emoji-picker-dialog.component';
@@ -43,6 +45,14 @@ import {
     reportPaperSizePx,
 } from '../report-preview/report-preview.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
+import {
+    hasPastedTable,
+    insertHtmlAtPlainSelection,
+    pasteTablesFromClipboard,
+    REPORT_TABLE_CHROME,
+    withTableChromeDefaults,
+} from '../report-paste-table.util';
+import { LAYOUT_JUMP_URL_VALUE, sanitizeReportLinkUrl } from '../report-jump.util';
 import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
 import {
     endpointNodes,
@@ -100,8 +110,15 @@ import {
     type LayoutParamGroup,
     type LayoutSheetItem,
 } from '../report-param-entries.util';
+import {
+    cloneLayoutSectionDynamic,
+    itemHasNestedLayoutKeys,
+    layoutItemSectionFromBlock,
+    stripFixedOverrideValue,
+} from '../report-layout-copy.util';
 import { availableFontWeights, boldFontWeight, customFontStack, discoverGoogleFontWeights, discoverStylesheetWeights, fontNeedsWeightProbe, fontWeightCatalog, fontWeightStep, nearestFontWeight, registerReportFonts, regularFontWeight, REPORT_FONT_STACKS, REPORT_TEXT_ALIGNS, ReportCustomFont, ReportFontWeightStep, ReportTextAlign, sanitizeCustomFonts, storedFontWeight, weightFromFontName } from '../report-fonts.util';
 import { ReportFontDialogComponent, ReportFontDialogData, ReportFontDialogResult } from '../report-font-dialog.component';
+import { REPORT_LINK_COLOR } from '../report-autolink.util';
 import { materializeSectionTypography, resolveTextRole } from '../report-text-role.util';
 import { REPORT_TEXT_CASES, ReportTextCase } from '../report-text-case.util';
 import {
@@ -115,10 +132,37 @@ import {
 } from '../report-row-line.util';
 import { getStepDisplayFields } from '../step-result-presenters/registry';
 import { htmlMatchesPrintMarkers, uniquePrintMarkers } from '../report-print-html.util';
+import { REPORT_DATE_STAMP_PATHS, ReportDateStampKind } from '../report-date-stamp.util';
+import {
+    CONSULT_STATS_CATEGORY_KEYS,
+    CONSULT_STATS_CATEGORY_LABEL_KEYS,
+    CONSULT_STATS_FIELD_KEYS,
+    CONSULT_STATS_LABEL_KEYS,
+    CONSULT_STATS_PATH,
+    ConsultStatsCategoryKey,
+    ConsultStatsFieldKey,
+    buildConsultStats,
+    consultStatsPath,
+} from '../report-consult-stats.util';
+import {
+    DEFAULT_CONSULT_CATEGORY_CHART_KEYS,
+    DEFAULT_CONSULT_CHART_KEYS,
+    ReportChartBreakdown,
+    ReportChartKind,
+    ReportChartPalette,
+    chartColorForKey,
+    chartHex,
+    isReportChartBreakdown,
+    isReportChartKind,
+    resolvedChartKeys,
+} from '../report-chart.util';
 import { batchStepFeatureId, orderedBatchSteps } from '../batch-config-steps.util';
 import {
     buildStepSequenceMap,
     ensureResultSlots,
+    isEmptyConsultPayload,
+    mergeConsultResults,
+    mergeConsultSample,
     pathUsesResultSequence,
     purgeResultSequence,
     removeReportSectionsForSequence,
@@ -152,9 +196,10 @@ import {
     writeFlowDraft,
     writeStoredFlow,
 } from './visita-guide-flow-draft';
-import { parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
+import { guideStepPath, isGuideStep, parseGuideUrl, serializeGuideUrl } from './visita-guide-url';
 import {
     availableCountries,
+    countryIsoFromHint,
     countryNameForIso,
     countriesFromEndpointFeatures,
     GUIDE_ENTITIES,
@@ -247,7 +292,7 @@ type LayoutDesignSnapshot = {
     signatureHeight: number;
     signaturePage?: number;
     layoutOverlayZ?: Record<string, number>;
-    layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean }>;
+    layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean; name?: string }>;
 };
 
 type LayoutLayerKind = 'section' | 'image' | 'watermark' | 'signature' | 'logo' | 'header';
@@ -256,16 +301,22 @@ type LayoutLayerItem = {
     id: string;
     kind: LayoutLayerKind;
     label: string;
+    editValue: string;
     icon: string;
     z: number;
 };
 
-const isEmptyResultPayload = (payload: unknown): boolean => {
-    if (payload == null) return true;
-    if (Array.isArray(payload)) return payload.length === 0;
-    if (typeof payload !== 'object') return false;
-    return Object.keys(payload as object).length === 0;
+const LAYER_NAME_MAX = 80;
+
+const clipLayerLabel = (value: string): string => {
+    const text = value.trim();
+    if (!text) return '';
+    return text.length > 42 ? `${text.slice(0, 42)}…` : text;
 };
+
+const stripLayerMarkup = (value: string): string =>
+    value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
 
 type GuideResultCard = {
     sequence: number;
@@ -392,8 +443,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _browserRunner = inject(BatchBrowserRunnerService);
     private _previewBridge = inject(ReportBuilderPreviewDataService);
+    private _desktopHint = inject(DesktopRecommendedService);
     private _dialog = inject(MatDialog);
+    private _confirm = inject(FuseConfirmationService);
     private _destroyRef = inject(DestroyRef);
+    private _layoutLeaveConfirmed = false;
+    private _layoutLeavePrompt: Promise<boolean> | null = null;
     private _host = inject(ElementRef<HTMLElement>);
     private _cdr = inject(ChangeDetectorRef);
     @ViewChildren(ReportPreviewComponent) private _previews!: QueryList<ReportPreviewComponent>;
@@ -412,6 +467,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     readonly countries = availableCountries();
 
     step = this._state.step;
+    /** Endpoint chain opened from the report designer; continuing returns there. */
+    editingEndpointsFromLayout = signal(false);
     isWorking = signal(false);
     isGenerating = signal(false);
     retryingSequences = signal<number[]>([]);
@@ -435,6 +492,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const templateChoice = this.templateChoice();
         const templateId = templateChoice === 'scratch' ? null : this.selectedTemplate()?._id ?? null;
         const features = this.selectedFeatures().map((feature) => feature._id).filter(Boolean);
+        const fromLayout = this.editingEndpointsFromLayout();
         untracked(() => this._writeGuideUrl({
             step,
             intent,
@@ -446,6 +504,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             templateId,
             templateChoice,
             features,
+            fromLayout,
         }));
     });
     private readonly _flowDraftEffect = effect(() => {
@@ -554,6 +613,18 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isMixed = this._state.isMixed;
     selectedFeatures = this._state.selectedFeatures;
     flowGraph = this._state.flowGraph;
+    /** Latest consult payload per endpoint, so an array output can offer its items. */
+    flowStepPayloads = computed(() => {
+        const row = this.batch()?.rows?.[0];
+        const results = (row?.results ?? {}) as Record<string, unknown>;
+        const payloads: Record<string, unknown> = {};
+        for (const step of this.configuration()?.steps ?? []) {
+            const id = batchStepFeatureId(step);
+            if (!id) continue;
+            payloads[id] = results[step.sequence] ?? results[String(step.sequence)];
+        }
+        return payloads;
+    });
     endpointSearchQuery = this._state.endpointSearchQuery;
     requiredParamFilters = this._state.requiredParamFilters;
 
@@ -580,6 +651,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     layoutFormatAnchor = signal<{ x: number; y: number; opensUp: boolean; room: number } | null>(null);
     layoutFormatExpanded = signal(false);
     layoutShapesOpen = signal(false);
+    layoutDatesOpen = signal(false);
+    layoutStatsOpen = signal(false);
     /** Marquee tool: drag a rectangle to choose several elements, then move them together. */
     layoutMarqueeActive = signal(false);
     /** Below the button, or above it when the viewport has no room underneath. */
@@ -594,8 +667,27 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     toggleLayoutShapesMenu(event: Event): void {
         event.stopPropagation();
+        this.layoutDatesOpen.set(false);
+        this.layoutStatsOpen.set(false);
         this.layoutShapesOpen.update((open) => !open);
     }
+
+    toggleLayoutDatesMenu(event: Event): void {
+        event.stopPropagation();
+        this.layoutShapesOpen.set(false);
+        this.layoutStatsOpen.set(false);
+        this.layoutDatesOpen.update((open) => !open);
+    }
+
+    toggleLayoutStatsMenu(event: Event): void {
+        event.stopPropagation();
+        this.layoutShapesOpen.set(false);
+        this.layoutDatesOpen.set(false);
+        this.layoutStatsOpen.update((open) => !open);
+    }
+
+    readonly consultStatsFieldKeys = CONSULT_STATS_FIELD_KEYS;
+    readonly consultStatsCategoryKeys = CONSULT_STATS_CATEGORY_KEYS;
     readonly layoutFormatAligns: ReportTextAlign[] = ['left', 'center', 'right'];
     selectedLayoutOverlay = signal<ReportOverlayId | null>(null);
     /** Images, stamps and logos chosen together with the blocks. */
@@ -611,7 +703,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     /** Paint order for stamps and logos. Blocks and sheet images keep theirs on the model. */
     layoutOverlayZ = signal<Record<string, number>>({});
     /** Hide and lock are stored on the template so preview, PDF and email match the sheet. */
-    layoutLayerFlags = signal<Record<string, { hidden?: boolean; locked?: boolean }>>({});
+    layoutLayerFlags = signal<Record<string, { hidden?: boolean; locked?: boolean; name?: string }>>({});
+    renamingLayoutLayerId = signal<string | null>(null);
     /** Locked layer the pointer is locating on the sheet. A click keeps it after the pointer leaves. */
     peekedLayoutLayerId = signal<string | null>(null);
     private pinnedLockedLayerId = signal<string | null>(null);
@@ -706,6 +799,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _layoutRevealToken = 0;
     private _followCellPart = false;
     private _followCellPartTimer: ReturnType<typeof setTimeout> | null = null;
+    layoutContextMenuMore = signal(false);
     layoutContextMenu = signal<{
         x: number;
         y: number;
@@ -730,6 +824,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _layoutSavedFingerprint = '';
     private readonly _layoutHistoryEffect = effect(() => {
         const inStudio = this.step() === 'layout' || this.step() === 'generate';
+        const choice = this.templateChoice();
         const snapshot = inStudio ? this._layoutDesignSnapshot() : null;
         untracked(() => {
             if (!inStudio || !snapshot) {
@@ -737,7 +832,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 return;
             }
             if (this.step() === 'layout') this._queueLayoutHistory(snapshot);
-            if (!this._layoutHistoryApplying) this._persistLayoutDraft(snapshot);
+            if (!this._layoutHistoryApplying && choice === 'scratch') {
+                this._persistLayoutDraft(snapshot);
+            }
         });
     });
     private readonly _customFontsEffect = effect(() => registerReportFonts(this.customFonts()));
@@ -817,8 +914,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     countryFilteredFeatures = computed(() => {
         const selected = this.countryNames();
-        if (!selected.length) return [];
-        return filterFeaturesForCountries(this.availableFeatures(), selected).filter(isSmartBatchCatalogFeature);
+        const countries = selected.length
+            ? selected
+            : [countryNameForIso(this.layoutConsultCountry()) || 'Colombia'];
+        return filterFeaturesForCountries(this.availableFeatures(), countries).filter(isSmartBatchCatalogFeature);
     });
 
     countryTiles = computed(() => {
@@ -850,13 +949,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     });
 
     visibleEndpointFeatures = computed(() => {
-        const selected = new Set(this.entities());
         const query = this.endpointSearchQuery().trim().toLowerCase();
         const paramFilters = this.requiredParamFilters();
         return this.countryFilteredFeatures().filter((feature) => {
-            const group = featureGroup(feature);
-            if (group !== 'other' && !selected.has(group)) return false;
-            if (group === 'other' && selected.size) return false;
             if (!matchesRequiredParamFilters(feature, paramFilters)) return false;
             if (!query) return true;
             const blob = `${this.featureDisplayName(feature)} ${feature.name ?? ''} ${feature.code ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
@@ -864,16 +959,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     });
 
-    availableRequiredParamFilters = computed(() => {
-        const selected = new Set(this.entities());
-        const catalog = this.countryFilteredFeatures().filter((feature) => {
-            const group = featureGroup(feature);
-            if (group !== 'other' && !selected.has(group)) return false;
-            if (group === 'other' && selected.size) return false;
-            return true;
-        });
-        return collectRequiredParamFields(catalog);
-    });
+    availableRequiredParamFilters = computed(() => collectRequiredParamFields(this.countryFilteredFeatures()));
 
     groupedEndpointFeatures = computed(() => {
         const buckets: { id: FeatureGroupId; items: AppFeature[] }[] = [
@@ -923,8 +1009,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return Boolean(category && this.entities().includes(category));
     }
 
+    isExplainerStep = computed(() =>
+        ['intent', 'entity', 'country', 'mode', 'input', 'include', 'template', 'customize'].includes(this.step())
+    );
     isWideStep = computed(
         () =>
+            this.isExplainerStep() ||
             this.step() === 'layout' ||
             this.step() === 'template' ||
             this.step() === 'generate' ||
@@ -933,6 +1023,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isLayoutStep = computed(() => this.step() === 'layout');
     isReportStudio = computed(() => this.step() === 'layout' || this.step() === 'generate');
     isEndpointsStep = computed(() => this.step() === 'endpoints');
+
+    explainerEyebrowKey = computed(() => `visitaGuide.explainer.eyebrow_${this.step()}`);
+    explainerSubtitleKey = computed(() => `visitaGuide.explainer.subtitle_${this.step()}`);
+    explainerLeftTitleKey = computed(() => `visitaGuide.explainer.leftTitle_${this.step()}`);
+    explainerLeftHelpKey = computed(() => `visitaGuide.explainer.leftHelp_${this.step()}`);
+
+    explainerIntentTitleKey = computed(() => {
+        const current = this.intent();
+        const found = GUIDE_INTENTS.find((item) => item.id === current);
+        if (found) return found.titleKey;
+        return 'visitaGuide.explainer.intentPending';
+    });
+
+    explainerIntentBodyKey = computed(() => {
+        const current = this.intent();
+        const found = GUIDE_INTENTS.find((item) => item.id === current);
+        if (found) return found.descKey;
+        return 'visitaGuide.explainer.intentPendingBody';
+    });
     readonly reportStudioSteps = [
         { key: 'prepare' as const, labelKey: 'smartReport.stepPrepare' },
         { key: 'preview' as const, labelKey: 'smartReport.stepPreview' },
@@ -943,18 +1052,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isLoadingDeliveries = signal(false);
     deliveries = signal<SmartReport[]>([]);
     reportStudioTemplateId = computed(() => this.selectedTemplate()?._id ?? null);
-    deliveryHistory = computed(() =>
-        this.deliveries()
-            .flatMap((report) =>
-                (report.emailHistory ?? []).map((entry) => ({
-                    ...entry,
-                    reportName: report.name || '',
-                    reportStatus: report.status,
-                }))
-            )
-            .sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
-    );
-    isFillViewportStep = computed(() => this.step() === 'country' || this.step() === 'endpoints');
+    deliveryHistory = computed(() => {
+        const fromReports = this.deliveries().flatMap((report) =>
+            (report.emailHistory ?? []).map((entry) => ({
+                ...entry,
+                recipients: entry.recipients ?? [],
+                reportName: report.name || '',
+                reportStatus: report.status,
+            }))
+        );
+        const fromTemplate = (this.selectedTemplate()?.emailHistory ?? []).map((entry) => ({
+            ...entry,
+            recipients: entry.recipients ?? [],
+            reportName: this.selectedTemplate()?.name || '',
+            reportStatus: entry.status,
+        }));
+        return [...fromReports, ...fromTemplate].sort(
+            (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
+        );
+    });
+    isFillViewportStep = computed(() => this.step() === 'endpoints');
 
     selectedLayoutSection = computed(() => {
         const id = this.selectedLayoutSectionId();
@@ -1024,45 +1141,134 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     overlayLogoEnabled = computed(() => !this.headerLogos().length && Boolean(this.logoDataUrl()));
 
     previewRecordIndex = signal(0);
+    /** Generation date shown on the sheet; saved and reused so email/PDF do not jump to "now". */
+    reportGeneratedAt = signal(new Date().toISOString());
     /** Vehicle (or other) sample handed in when opening the designer from outside Smart Batch. */
     externalPreview = signal<SampleReportData | null>(null);
+    /** Last non-empty consult payloads, kept across empty re-fetches until the user drops a step. */
+    retainedConsult = signal<SampleReportData | null>(null);
+    private _retainedTemplateId: string | null = null;
 
-    previewRecords = computed(() => {
+    previewRecords = computed((): SampleReportData[] => {
         const batch = this.batch();
         const rows = batch?.rows ?? [];
-        const steps = this.configuration()?.steps;
+        const steps = this._consultStatsSteps();
         const batchName = batch?.name || this.reportTitle() || '';
+        const kept = mergeConsultSample(
+            this.selectedTemplate()?.sampleData as SampleReportData | undefined,
+            this.retainedConsult()
+        );
         if (rows.length) {
-            return rows.map((row) => ({
-                batchName,
-                rowIndex: row.rowIndex,
-                ...buildRowDataForResolution(row, {
-                    steps,
+            return rows.map((row) => {
+                const live = {
                     batchName,
-                    errors: row.errors,
-                }),
-            }));
+                    rowIndex: row.rowIndex,
+                    ...buildRowDataForResolution(row, {
+                        steps: this.configuration()?.steps,
+                        batchName,
+                        errors: row.errors,
+                    }),
+                    consultStats: buildConsultStats(row, { steps }),
+                    consultedAt: row.processedAt || batch?.startedAt || batch?.createdAt,
+                    generatedAt: this.reportGeneratedAt(),
+                } as SampleReportData;
+                const merged = mergeConsultSample(kept, live);
+                return this._withConsultStats({
+                    ...merged,
+                    batchName: String(merged.batchName || batchName),
+                    generatedAt: this.reportGeneratedAt(),
+                });
+            });
         }
         const external = this.externalPreview();
-        if (external) return [external];
-
-        const sample = this.selectedTemplate()?.sampleData;
-        if (sample) {
+        if (external) {
+            const merged = mergeConsultSample(kept, external);
             return [
-                {
-                    batchName: sample.batchName || this.reportTitle() || '',
-                    rowIndex: sample.rowIndex ?? 0,
-                    inputData: sample.inputData ?? {},
-                    results: sample.results ?? {},
-                    errors: sample.errors,
-                    report: sample.report,
-                },
+                this._withConsultStats({
+                    ...merged,
+                    consultedAt: merged.consultedAt || merged.processedAt || batch?.startedAt || batch?.createdAt,
+                    generatedAt: merged.generatedAt || this.reportGeneratedAt(),
+                }),
             ];
         }
-        return [{ inputData: {}, results: {}, rowIndex: 0 }];
+
+        if (kept.inputData || kept.results) {
+            return [
+                this._withConsultStats({
+                    batchName: kept.batchName || this.reportTitle() || '',
+                    rowIndex: kept.rowIndex ?? 0,
+                    inputData: kept.inputData ?? {},
+                    results: kept.results ?? {},
+                    errors: kept.errors,
+                    report: kept.report,
+                    consultedAt: kept.consultedAt || kept.processedAt || batch?.startedAt || batch?.createdAt,
+                    generatedAt: kept.generatedAt || this.reportGeneratedAt(),
+                }),
+            ];
+        }
+        return [
+            this._withConsultStats({
+                inputData: {},
+                results: {},
+                rowIndex: 0,
+                consultedAt: batch?.startedAt || batch?.createdAt,
+                generatedAt: this.reportGeneratedAt(),
+            }),
+        ];
     });
 
-    previewData = computed(() => {
+    private readonly _syncGeneratedAtFromTemplate = effect(() => {
+        const saved = this.selectedTemplate()?.sampleData?.generatedAt;
+        const external = this.externalPreview()?.generatedAt;
+        const next = saved || external;
+        if (!next) return;
+        untracked(() => {
+            if (this.reportGeneratedAt() !== next) this.reportGeneratedAt.set(String(next));
+        });
+    });
+
+    private readonly _retainLiveConsult = effect(() => {
+        const batch = this.batch();
+        const row = batch?.rows?.[0];
+        const external = this.externalPreview();
+        untracked(() => {
+            if (row) {
+                this.retainedConsult.set(
+                    mergeConsultSample(this.retainedConsult(), {
+                        batchName: batch?.name,
+                        rowIndex: row.rowIndex,
+                        inputData: (row.inputData ?? {}) as Record<string, unknown>,
+                        results: (row.results ?? {}) as Record<string, unknown>,
+                        errors: row.errors,
+                        consultedAt: row.processedAt || batch?.startedAt || batch?.createdAt,
+                        generatedAt: this.reportGeneratedAt(),
+                    })
+                );
+                return;
+            }
+            if (external) {
+                this.retainedConsult.set(mergeConsultSample(this.retainedConsult(), external));
+            }
+        });
+    });
+
+    private readonly _seedRetainedFromTemplate = effect(() => {
+        const template = this.selectedTemplate();
+        const id = template?._id ?? null;
+        untracked(() => {
+            if (!id || id === this._retainedTemplateId) return;
+            const previousId = this._retainedTemplateId;
+            this._retainedTemplateId = id;
+            const sample = template.sampleData;
+            if (previousId && previousId !== id) {
+                this.retainedConsult.set(sample ? cloneReportValue(sample) : null);
+                return;
+            }
+            this.retainedConsult.set(mergeConsultSample(sample, this.retainedConsult()));
+        });
+    });
+
+    previewData = computed((): SampleReportData => {
         const all = this.previewRecords();
         const idx = Math.min(Math.max(0, this.previewRecordIndex()), Math.max(0, all.length - 1));
         return all[idx] ?? { inputData: {}, results: {}, rowIndex: 0 };
@@ -1079,7 +1285,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const row =
             rows.find((item) => item.rowIndex === this.previewData().rowIndex) ?? rows[0];
         if (!config || !row) return [];
-        const results = (row.results ?? {}) as Record<string | number, unknown>;
+        const results = mergeConsultResults(
+            this.retainedConsult()?.results as Record<string | number, unknown> | undefined,
+            (row.results ?? {}) as Record<string | number, unknown>
+        );
         const skipped = getBatchSkippedStepsFromInput(row.inputData as Record<string, unknown>);
         return [...(config.steps ?? [])]
             .filter((step) => step.enabled !== false)
@@ -1101,7 +1310,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 const payload = results[step.sequence] ?? results[String(step.sequence)];
                 const error = row.errors?.find((item) => Number(item.step) === Number(step.sequence));
                 const skip = skipped.find((item) => Number(item.sequence) === Number(step.sequence));
-                const hasData = !isEmptyResultPayload(payload);
+                const hasData = !isEmptyConsultPayload(payload);
                 const fields = hasData
                     ? getStepDisplayFields({ featureCode: code }, payload).slice(0, 8)
                     : [];
@@ -1195,13 +1404,51 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     constructor() {
+        this._applyStepFromUrl();
         effect(() => {
             const onLayout = this.step() === 'layout';
             untracked(() => document.body.classList.toggle(REPORT_DESIGN_BODY_CLASS, onLayout));
         });
+
+        // The template designer is too cramped on small screens: keep a fixed notice over it
+        // until the window is large enough (or the user leaves).
+        effect(() => {
+            const onLayout = this.step() === 'layout';
+            untracked(() => this._desktopHint.sync(onLayout, () => this._leaveDesignerOnSmallScreen()));
+        });
+    }
+
+    /** Paint the screen the URL names before auth finishes, so a reload cannot show a leftover step. */
+    private _applyStepFromUrl(): void {
+        const path = this._router.url.split('?')[0].replace(/\/$/, '');
+        const onGuide = path === '/smart-batch' || path.startsWith('/smart-batch/guide/');
+        if (!onGuide) return;
+
+        const pathStep = this._route.snapshot.paramMap.get('step');
+        const queryStep =
+            this._route.snapshot.queryParamMap.get('step') ?? this._route.snapshot.queryParamMap.get('resume');
+        const raw = pathStep || queryStep;
+        const mapped = raw === 'preview' || raw === 'customize' || raw === 'include' ? 'layout' : raw;
+        if (isGuideStep(mapped)) {
+            if (mapped !== 'layout' && mapped !== 'generate') this._state.editingSavedLayout.set(false);
+            this._state.step.set(mapped);
+            return;
+        }
+        this._state.editingSavedLayout.set(false);
+        this._state.step.set('intent');
+    }
+
+    /** "Go back" from the small-screen notice: leave the designer instead of stepping inside it. */
+    private _leaveDesignerOnSmallScreen(): void {
+        void this.canLeaveGuide('/smart-batch/workspace').then((allowed) => {
+            if (!allowed) return;
+            this._state.editingSavedLayout.set(false);
+            void this._router.navigate(['/smart-batch', 'workspace'], { queryParams: { tab: 'templates' } });
+        });
     }
 
     ngOnDestroy(): void {
+        this._desktopHint.release();
         this._alive = false;
         document.body.classList.remove(REPORT_DESIGN_BODY_CLASS);
         if (this._endpointHoverHide) clearTimeout(this._endpointHoverHide);
@@ -1386,6 +1633,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (this.step() === 'results' && (this.intent() === 'report' || this.intent() === 'template')) {
+            this.continueToReport();
+            return;
+        }
+
         if (this.step() === 'results' && !this.wantsReport()) {
             this._state.wantsReport.set(true);
             this._state.applyDeductions();
@@ -1442,6 +1694,32 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this.deliveries.set(reports);
                 this.isLoadingDeliveries.set(false);
             });
+        this._reports
+            .getTemplate(id)
+            .pipe(catchError(() => of(null)), takeUntilDestroyed(this._destroyRef))
+            .subscribe((template) => {
+                if (!template?._id) return;
+                this.selectedTemplate.update((current) =>
+                    current && current._id === template._id
+                        ? { ...current, emailHistory: template.emailHistory ?? [] }
+                        : current
+                );
+            });
+    }
+
+    private _prependTemplateDelivery(delivery: {
+        sentAt: Date | string;
+        recipients: string[];
+        subject?: string;
+        status: 'sent' | 'failed' | 'delivered' | 'opened' | 'bounced';
+        messageId?: string;
+        errorMessage?: string;
+    }): void {
+        this.selectedTemplate.update((current) => {
+            if (!current) return current;
+            const next = [delivery, ...(current.emailHistory ?? [])].slice(0, 200);
+            return { ...current, emailHistory: next, lastEmailedAt: String(delivery.sentAt) };
+        });
     }
 
     deliveryStatusClasses(status: string): string {
@@ -1484,9 +1762,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     return;
                 }
                 void (async () => {
+                    const saved = await this._persistWorkingTemplate();
+                    const templateId = saved?._id || id;
+                    if (!templateId) {
+                        this.isSendingSample.set(false);
+                        return;
+                    }
                     const printHtml = await this._printHtmlForCurrentRecord();
                     this._reports
-                        .sendTemplateSample(id, {
+                        .sendTemplateSample(templateId, {
                             recipients: result.recipients,
                             subject: result.subject,
                             language: lang,
@@ -1505,6 +1789,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                                 { duration: 3500 }
                             );
                             this.isSendingSample.set(false);
+                            if (res.delivery) this._prependTemplateDelivery(res.delivery);
                             this._loadReportDeliveries();
                         },
                         error: () => {
@@ -1518,14 +1803,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     });
                 })();
             };
+            if (this.reportStudioTemplateId()) {
+                performSend();
+                return;
+            }
             void this.saveLayoutTemplate().then((saved) => {
                 if (saved) performSend();
             });
         });
     }
 
-    goBack(): void {
+    async goBack(): Promise<void> {
         if (!this.canGoBack()) return;
+        if (this.editingEndpointsFromLayout() && this.step() === 'endpoints') {
+            void this._finishEndpointsAndReturnToLayout();
+            return;
+        }
+        if (this.consultThenReturnToLayout() && this.step() === 'input') {
+            this.consultThenReturnToLayout.set(false);
+            this.enterLayout();
+            this.step.set('layout');
+            return;
+        }
         if (this.isReportStudio() && this.reportStudioStep() !== 'prepare') {
             this.goToReportStudioStep(this.reportStudioStep() === 'deliver' ? 'preview' : 'prepare');
             return;
@@ -1533,6 +1832,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this._state.editingSavedLayout() && this.step() === 'layout') {
             const configId = this._state.configId();
             const batchId = this._state.batchId();
+            const nextUrl =
+                configId && batchId
+                    ? `/smart-batch/${configId}/batch/${batchId}/report`
+                    : '/smart-batch/workspace';
+            if (!(await this.canLeaveGuide(nextUrl))) return;
             this._state.editingSavedLayout.set(false);
             if (configId && batchId) {
                 void this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'report']);
@@ -1546,17 +1850,20 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const steps = this.visibleSteps();
         const current = steps.indexOf(this.step());
         const previous = steps[Math.max(0, current - 1)];
-        this.step.set(previous === 'consult' ? (this.mode() === 'batch' ? 'mode' : 'input') : previous);
+        const nextStep = previous === 'consult' ? (this.mode() === 'batch' ? 'mode' : 'input') : previous;
+        if (this.step() === 'layout' || this.step() === 'generate') {
+            if (!(await this.canLeaveGuide(guideStepPath(nextStep)))) return;
+        }
+        this.step.set(nextStep);
     }
 
     startOver(): void {
-        void this._startOver();
+        void this.canLeaveGuide('/smart-batch').then((allowed) => {
+            if (allowed) void this._startOver();
+        });
     }
 
     private async _startOver(): Promise<void> {
-        if (this.isReportStudio()) {
-            await this._persistGuideToSmartBatch();
-        }
         this._stopPoll();
         this._browserRunner.stop();
         this._pendingFeatureIds = [];
@@ -1571,11 +1878,158 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this.isRetryingAnyResult()) return;
         this._state.wantsReport.set(true);
         this._state.applyDeductions();
+        if (this.intent() === 'report' || this.intent() === 'template') {
+            this._openConsultedEndpointsInDesigner();
+            return;
+        }
         this._refreshTemplates();
         this.step.set('template');
     }
 
+    /** A new report design skips the template gallery and opens the editor with every consulted endpoint. */
+    private _openConsultedEndpointsInDesigner(): void {
+        this._state.templateChoice.set('scratch');
+        this._state.selectedTemplate.set(null);
+        this._resetLayoutBranding();
+        this.ensureIncludeItems();
+        const sections = this._sectionsForConsultedCards(this.layoutSourceCards());
+        this.layoutSections.set(sections);
+        this.selectedLayoutSectionIds.set([]);
+        this.selectedLayoutSectionId.set(sections[0]?.id ?? null);
+        this._preferCompactFormatBar();
+        writeScratchDraft(this._layoutDesignSnapshot());
+        this.enterLayout();
+        this.step.set('layout');
+    }
+
+    private _sectionsForConsultedCards(
+        cards: GuideResultCard[],
+        start?: { page: number; y: number; order: number }
+    ): ReportSection[] {
+        const width = 620;
+        const height = 280;
+        const gap = 24;
+        const margin = 36;
+        const preview = this._layoutEditorPreview;
+        const pageWidth = preview?.pageWidthPx() ?? (this.orientation() === 'landscape' ? 297 : 210) * 3.7795275591;
+        const pageHeight = preview?.pageHeightPx() ?? (this.orientation() === 'landscape' ? 210 : 297) * 3.7795275591;
+        const x = Math.max(margin, Math.round((pageWidth - width) / 2));
+        let page = start?.page ?? 0;
+        let y = start?.y ?? margin;
+        return cards.map((card, index) => {
+            if (y + height > pageHeight - margin && y > margin) {
+                page += 1;
+                y = margin;
+            }
+            const frame = { page, x, y, width, height };
+            y += height + gap;
+            return {
+                ...this._sectionFromCard(card),
+                order: (start?.order ?? 0) + index,
+                frame,
+            };
+        });
+    }
+
+    private _appendMissingConsultCards(): void {
+        const missing = this.layoutSourceCards().filter((card) => !this.isCardOnLayout(card.sequence));
+        if (!missing.length) return;
+        const margin = 36;
+        const gap = 24;
+        let page = 0;
+        let y = margin;
+        for (const section of this.layoutSections()) {
+            const frame = section.frame;
+            if (!frame) continue;
+            const framePage = frame.page ?? 0;
+            const bottom = (frame.y ?? 0) + (frame.height ?? 280) + gap;
+            if (framePage > page || (framePage === page && bottom > y)) {
+                page = framePage;
+                y = bottom;
+            }
+        }
+        const fresh = this._sectionsForConsultedCards(missing, {
+            page,
+            y,
+            order: this.layoutSections().length,
+        });
+        this.layoutSections.update((list) => [...list, ...fresh]);
+        const top = fresh[fresh.length - 1];
+        if (!top) return;
+        this.selectedLayoutSectionId.set(top.id);
+        this._focusLayoutEditor(top, 'block');
+        if (top.frame) this._showFrameOnSheet(top.frame);
+    }
+
+    private async _finishEndpointsAndReturnToLayout(): Promise<void> {
+        if (!this.selectedFeatures().length) {
+            this._snack.open(this._transloco.translate('visitaGuide.pickEndpoints'), undefined, { duration: 2500 });
+            return;
+        }
+        const previousIds = this._configurationFeatureIds();
+        const added = this.selectedFeatures().some((feature) => feature._id && !previousIds.has(feature._id));
+        this.editingEndpointsFromLayout.set(false);
+        try {
+            await this._ensureLinkedConfiguration();
+            this.ensureIncludeItems();
+            if (added && this.mode() === 'single') {
+                this._openLayoutConsultInput();
+                return;
+            }
+            this._appendMissingConsultCards();
+            writeScratchDraft(this._layoutDesignSnapshot());
+            this.enterLayout();
+            this.step.set('layout');
+            this._snack.open(this._transloco.translate('visitaGuide.layoutFlowApplied'), undefined, { duration: 2500 });
+        } catch (error) {
+            console.error('[VisitaGuide] could not return endpoint flow to the layout', error);
+            this.editingEndpointsFromLayout.set(true);
+            this._snack.open(this._transloco.translate('visitaGuide.layoutConsultAddFailed'), undefined, {
+                duration: 5000,
+            });
+        }
+    }
+
+    /** Inputs for a lookup that was added on the designer and has not been consulted yet. */
+    loadLayoutConsultData(): void {
+        if (this.mode() !== 'single') return;
+        this._openLayoutConsultInput();
+    }
+
+    submitLayoutConsult(): void {
+        if (!this._hasRequiredInputs()) {
+            this._snack.open(this._transloco.translate('visitaGuide.inputRequired'), undefined, { duration: 2500 });
+            return;
+        }
+        this.step.set('consult');
+        void this.runConsult();
+    }
+
+    private _openLayoutConsultInput(): void {
+        this.consultThenReturnToLayout.set(true);
+        this._state.consultError.set(null);
+        this.step.set('input');
+    }
+
+    private _configurationFeatureIds(): Set<string> {
+        const ids = (this.configuration()?.steps ?? [])
+            .filter((step) => step.enabled !== false)
+            .map((step) => batchStepFeatureId(step))
+            .filter((id): id is string => Boolean(id));
+        return new Set(ids);
+    }
+
+    private _returnToLayoutAfterConsult(): void {
+        this.consultThenReturnToLayout.set(false);
+        this.ensureIncludeItems();
+        this._appendMissingConsultCards();
+        writeScratchDraft(this._layoutDesignSnapshot());
+        this.enterLayout();
+        this.step.set('layout');
+    }
+
     enterLayout(): void {
+        this._layoutLeaveConfirmed = false;
         this.ensureIncludeItems();
         this.reportStudioStep.set('prepare');
         if (!this.reportTitle()) {
@@ -1631,7 +2085,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         if (key === 'd') {
-            if (!this.selectedLayoutCellKey() && this.selectedLayoutCellPart() === 'title') return;
+            if (this._selectedTitleIsHeadingOnly()) return;
             if (this.selectedLayoutCellKey()) {
                 event.preventDefault();
                 this.copySelectedLayoutItem();
@@ -1829,10 +2283,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if ((event.kind === 'cellLabel' || event.kind === 'cellValue') && event.key) {
             this.selectedLayoutCellKey.set(event.key.split('#')[0]);
             this.selectedLayoutCellPart.set(event.kind === 'cellLabel' ? 'label' : 'value');
-            this._writeLayoutKeyOverride(
-                event.key,
-                event.kind === 'cellLabel' ? { label: event.value } : { value: event.value }
-            );
+            if (event.kind === 'cellLabel') {
+                this._writeLayoutKeyOverride(event.key, { label: event.value });
+            }
             this._focusLayoutEditor(section, event.kind === 'cellLabel' ? 'label' : 'value');
             return;
         }
@@ -1950,53 +2403,64 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 id: `sec:${section.id}`,
                 kind: 'section',
                 label: this._layoutSectionLayerLabel(section),
+                editValue: this._layoutSectionLayerEditValue(section),
                 icon: this._layoutSectionLayerIcon(section),
                 z: this._stackZ(section),
             });
         }
         this.sheetImages().forEach((image, index) => {
+            const fallback = `${this._transloco.translate('visitaGuide.layoutLayerImage')} ${index + 1}`;
+            const named = (image.layerName || '').trim();
             layers.push({
                 id: `img:${image.id}`,
                 kind: 'image',
-                label: `${this._transloco.translate('visitaGuide.layoutLayerImage')} ${index + 1}`,
+                label: clipLayerLabel(named || fallback),
+                editValue: named || fallback,
                 icon: 'image',
                 z: Number(image.zIndex) > 0 ? Number(image.zIndex) : 48 + index,
             });
         });
         if (this.watermarkEnabled()) {
+            const fallback = this._transloco.translate('visitaGuide.layoutLayerWatermark');
             layers.push({
                 id: 'watermark',
                 kind: 'watermark',
-                label: this._transloco.translate('visitaGuide.layoutLayerWatermark'),
+                ...this._overlayLayerNames('watermark', fallback),
                 icon: 'branding_watermark',
                 z: this._overlayLayerZ('watermark', 700),
             });
         }
         if (this.signatureEnabled() && this.signatureImage()) {
+            const fallback = this._transloco.translate('visitaGuide.layoutLayerSignature');
             layers.push({
                 id: 'signature',
                 kind: 'signature',
-                label: this._transloco.translate('visitaGuide.layoutLayerSignature'),
+                ...this._overlayLayerNames('signature', fallback),
                 icon: 'draw',
                 z: this._overlayLayerZ('signature', 180),
             });
         }
         if (this.logoDataUrl() && !this.headerLogos().length) {
+            const fallback = this._transloco.translate('visitaGuide.layoutLayerLogo');
             layers.push({
                 id: 'logo',
                 kind: 'logo',
-                label: this._transloco.translate('visitaGuide.layoutLayerLogo'),
+                ...this._overlayLayerNames('logo', fallback),
                 icon: 'business',
                 z: this._overlayLayerZ('logo', 90),
             });
         }
         this.headerLogos().forEach((logo, index) => {
+            const fallback = this._transloco.translate(
+                logo.band === 'footer' ? 'visitaGuide.layoutLayerFooterLogo' : 'visitaGuide.layoutLayerHeaderLogo'
+            );
+            const id = `hdr:${logo.id}`;
             layers.push({
-                id: `hdr:${logo.id}`,
+                id,
                 kind: 'header',
-                label: this._transloco.translate(logo.band === 'footer' ? 'visitaGuide.layoutLayerFooterLogo' : 'visitaGuide.layoutLayerHeaderLogo'),
+                ...this._overlayLayerNames(id, fallback),
                 icon: 'business',
-                z: this._overlayLayerZ(`hdr:${logo.id}`, 220 + index),
+                z: this._overlayLayerZ(id, 220 + index),
             });
         });
         return layers.sort((left, right) => right.z - left.z || left.label.localeCompare(right.label));
@@ -2181,6 +2645,81 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.clearLayoutSelection();
     }
 
+    isRenamingLayoutLayer(id: string): boolean {
+        return this.renamingLayoutLayerId() === id;
+    }
+
+    startRenameLayoutLayer(layer: LayoutLayerItem, event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+        if (this.isLayoutLayerLocked(layer.id)) return;
+        this.renamingLayoutLayerId.set(layer.id);
+        requestAnimationFrame(() => {
+            const field = this._host.nativeElement.querySelector(
+                `[data-layer-rename="${CSS.escape(layer.id)}"]`
+            ) as HTMLInputElement | null;
+            field?.focus();
+            field?.select();
+        });
+    }
+
+    commitRenameLayoutLayer(layer: LayoutLayerItem, event: Event): void {
+        if (this.renamingLayoutLayerId() !== layer.id) return;
+        event.preventDefault();
+        const value = (event.target as HTMLInputElement).value;
+        this.renamingLayoutLayerId.set(null);
+        this._setLayoutLayerName(layer, value);
+    }
+
+    cancelRenameLayoutLayer(event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+        this.renamingLayoutLayerId.set(null);
+    }
+
+    private _setLayoutLayerName(layer: LayoutLayerItem, raw: string): void {
+        const value = raw.replace(/\s+/g, ' ').trim().slice(0, LAYER_NAME_MAX);
+        if (layer.kind === 'section') {
+            const id = layer.id.slice(4);
+            this.layoutSections.update((list) =>
+                list.map((section) =>
+                    section.id === id ? { ...section, layerName: value || undefined } : section
+                )
+            );
+            return;
+        }
+        if (layer.kind === 'image') {
+            this._patchSheetImage(layer.id.slice(4), { layerName: value || undefined });
+            return;
+        }
+        this.layoutLayerFlags.update((flags) => {
+            const current = flags[layer.id] ?? {};
+            const next = { ...current, name: value || undefined };
+            if (!next.hidden && !next.locked && !next.name) {
+                const rest = { ...flags };
+                delete rest[layer.id];
+                return rest;
+            }
+            return { ...flags, [layer.id]: next };
+        });
+    }
+
+    private _overlayLayerNames(id: string, fallback: string): { label: string; editValue: string } {
+        const named = (this.layoutLayerFlags()[id]?.name || '').trim();
+        return {
+            label: clipLayerLabel(named || fallback),
+            editValue: named || fallback,
+        };
+    }
+
+    copyLayoutLayer(layer: LayoutLayerItem, event?: Event): void {
+        event?.stopPropagation();
+        if (layer.kind !== 'section' || this.isLayoutLayerLocked(layer.id)) return;
+        const source = this.layoutSections().find((section) => `sec:${section.id}` === layer.id);
+        if (!source) return;
+        this._duplicateLayoutSection(source);
+    }
+
     toggleLayoutLayerLocked(id: string, event?: Event): void {
         event?.stopPropagation();
         const locking = !this.isLayoutLayerLocked(id);
@@ -2247,14 +2786,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _layoutSectionLayerLabel(section: ReportSection): string {
-        const label = (section.label || section.staticContent || '').trim();
-        if (label) return label.length > 42 ? `${label.slice(0, 42)}…` : label;
+        return clipLayerLabel(this._layoutSectionLayerEditValue(section));
+    }
+
+    private _layoutSectionLayerEditValue(section: ReportSection): string {
+        const named = (section.layerName || '').trim();
+        if (named) return named;
+        const fromCopy = stripLayerMarkup(section.label || '');
+        if (fromCopy) return fromCopy;
+        const fromBody = stripLayerMarkup(section.staticContent || '');
+        if (fromBody) return fromBody;
         if (section.type === 'header') return this._transloco.translate('visitaGuide.layoutAddTitle');
         if (section.type === 'text') return this._transloco.translate('visitaGuide.layoutAddText');
         if (section.type === 'divider') return this._transloco.translate('visitaGuide.layoutAddDivider');
         if (section.type === 'shape') return this._transloco.translate('visitaGuide.layoutShapes');
         if (section.type === 'image') return this._transloco.translate('visitaGuide.layoutLayerImage');
         return section.type;
+    }
+
+    private _copiedLayerName(name?: string): string | undefined {
+        const current = (name || '').trim();
+        if (!current) return undefined;
+        const suffix = ` ${this._transloco.translate('visitaGuide.layoutLayerCopySuffix')}`;
+        const next = current.endsWith(suffix) ? current : `${current}${suffix}`;
+        return next.slice(0, LAYER_NAME_MAX);
     }
 
     private _layoutSectionLayerIcon(section: ReportSection): string {
@@ -2623,6 +3178,39 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         for (const role of this._formatRoles()) this.setLayoutRoleUnderline(role, next);
     }
 
+    layoutFormatLinkPickerHex(): string {
+        const color = this.layoutRoleLinkColor(this._formatRoles()[0]);
+        const hex = color.startsWith('#') ? color : `#${color}`;
+        return hex.length >= 7 ? hex.slice(0, 7) : REPORT_LINK_COLOR;
+    }
+
+    onLayoutFormatLinkPicker(event: Event): void {
+        this.setLayoutFormatLinkColor((event.target as HTMLInputElement).value);
+    }
+
+    layoutFormatFontFamily(): string {
+        return this.layoutRoleFontFamily(this._formatRoles()[0]);
+    }
+
+    setLayoutFormatFontFamily(value: string): void {
+        for (const role of this._formatRoles()) this.setLayoutRoleFontFamily(role, value);
+    }
+
+    layoutFormatColorHex(): string {
+        const color = this.layoutRoleColor(this._formatRoles()[0]) || '#111827';
+        const hex = color.startsWith('#') ? color : `#${color}`;
+        return hex.length >= 7 ? hex.slice(0, 7) : '#111827';
+    }
+
+    onLayoutFormatColorPicker(event: Event): void {
+        const value = (event.target as HTMLInputElement).value;
+        for (const role of this._formatRoles()) this.setLayoutRoleColor(role, value);
+    }
+
+    setLayoutFormatLinkColor(value: string): void {
+        for (const role of this._formatRoles()) this.setLayoutRoleLinkColor(role, value);
+    }
+
     readonly textCases = REPORT_TEXT_CASES;
     layoutTextCaseOpen = signal(false);
 
@@ -2856,14 +3444,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutPaperContextMenu(event: { x: number; y: number }): void {
-        this._openLayoutContextMenu(event.x, event.y, {});
+        this._openLayoutContextMenu(event.x, event.y, this._layoutContextFromSelection());
     }
 
     onLayoutCanvasContextMenu(event: MouseEvent): void {
         const target = event.target as HTMLElement | null;
         if (target?.closest('report-preview') || target?.closest('.visita-layout-context-menu')) return;
         event.preventDefault();
-        this._openLayoutContextMenu(event.clientX, event.clientY, {});
+        this._openLayoutContextMenu(event.clientX, event.clientY, this._layoutContextFromSelection());
     }
 
     canInsertLayoutImage(): boolean {
@@ -2890,6 +3478,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._pendingContentPoint = this._pointFromContextMenu();
         this.closeLayoutContextMenu();
         this.addTextBlock();
+    }
+
+    insertLayoutDateFromMenu(kind: ReportDateStampKind): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addDateStampBlock(kind);
+    }
+
+    insertLayoutConsultStatsFromMenu(): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addConsultStatsBlock();
+    }
+
+    insertLayoutConsultStatFieldFromMenu(key: ConsultStatsFieldKey): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addConsultStatField(key);
+    }
+
+    insertLayoutTocFromMenu(): void {
+        this._pendingContentPoint = this._pointFromContextMenu();
+        this.closeLayoutContextMenu();
+        this.addTableOfContents();
     }
 
     insertLayoutDividerFromMenu(): void {
@@ -2929,7 +3541,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     canCopyLayoutContextTarget(): boolean {
-        return Boolean(this._layoutContextSection());
+        const menu = this.layoutContextMenu();
+        if (menu?.cellKey) return true;
+        const section = this._layoutContextSection() ?? this.selectedLayoutSection();
+        if (section && !this.isLayoutLayerLocked(`sec:${section.id}`)) return true;
+        return Boolean(this.layoutContextSheetImage() || this.selectedSheetImage());
     }
 
     canCopySelectedLayout(): boolean {
@@ -2938,15 +3554,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     copyLayoutContextTarget(): void {
         const menu = this.layoutContextMenu();
-        const source = this._layoutContextSection();
-        if (!source) {
-            this.closeLayoutContextMenu();
-            return;
-        }
-        if (menu?.cellKey) {
+        const source = this._layoutContextSection() ?? this.selectedLayoutSection();
+        const image = this.layoutContextSheetImage() ?? this.selectedSheetImage();
+        if (source && menu?.cellKey) {
             this._placeLayoutItem(source, menu.cellKey, { extract: false });
-        } else {
+        } else if (source && !this.isLayoutLayerLocked(`sec:${source.id}`)) {
             this._duplicateLayoutSection(source);
+        } else if (image) {
+            this._duplicateSheetImage(image);
         }
         this.closeLayoutContextMenu();
     }
@@ -3000,7 +3615,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const isTable =
             collectLayoutSheetItems(valueAtDataPath(this.previewData(), source.dataPath), { hiddenKeys: [] }).find(
                 (item) => item.key === key
-            )?.kind === 'table';
+            )?.kind === 'table' || itemHasNestedLayoutKeys(source.keyOverrides, key);
         const origin = source.frame;
         const point = options.point;
         const lastField = [...this.layoutSections()]
@@ -3029,39 +3644,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 : stacked
         );
         const topZ = this._topLayoutZ();
-        const field: ReportSection = {
+        const field = layoutItemSectionFromBlock(source, key, {
             id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-            type: isTable ? 'dataTable' : 'field',
-            ...(isTable ? { maxRows: 200 } : {}),
-            order: this.layoutSections().length,
-            label,
             dataPath,
-            showRowLines: override?.showRowLine ?? source.showRowLines,
-            rowLineStyle: override?.rowLineStyle ?? source.rowLineStyle,
-            rowLineColor: override?.rowLineColor ?? source.rowLineColor,
-            rowLineWidth: override?.rowLineWidth ?? source.rowLineWidth,
-            rowLineMark: override?.rowLineMark ?? source.rowLineMark,
-            style: {
-                zIndex: clampReportSheetZ(topZ + 1),
-                backgroundColor: override?.backgroundColor ?? source.style?.backgroundColor,
-                borderWidth: override?.borderWidth ?? source.style?.borderWidth,
-                borderColor: override?.borderColor ?? source.style?.borderColor,
-                borderRadius: override?.borderRadius ?? source.style?.borderRadius,
-                fontFamily: source.style?.fontFamily,
-                fontSize: source.style?.fontSize,
-                color: source.style?.color,
-                labelColor: source.style?.labelColor,
-                valueColor: source.style?.valueColor,
-                labelStyle: {
-                    ...(source.style?.labelStyle ?? {}),
-                    ...(override?.labelStyle ?? {}),
-                },
-                valueStyle: {
-                    ...(source.style?.valueStyle ?? {}),
-                    ...(override?.valueStyle ?? {}),
-                },
-            },
-        };
+            isTable,
+            label,
+            zIndex: clampReportSheetZ(topZ + 1),
+        });
+        field.order = this.layoutSections().length;
         field.frame = frame;
         this.layoutSections.update((list) => {
             const next = list.map((section) => {
@@ -3099,11 +3689,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 if (section.id !== target.id) return section;
                 const keyOverrides = { ...(section.keyOverrides ?? {}) };
                 if (override) {
-                    keyOverrides[destKey] = { ...override };
+                    const rest = stripFixedOverrideValue(override);
+                    if (Object.keys(rest).length) keyOverrides[destKey] = rest;
                 }
                 for (const [storedKey, value] of Object.entries(source.keyOverrides ?? {})) {
                     const nextKey = remapLayoutOverrideKey(storedKey, key, destKey);
-                    if (nextKey !== storedKey) keyOverrides[nextKey] = value;
+                    if (nextKey !== storedKey) keyOverrides[nextKey] = stripFixedOverrideValue(value);
                 }
                 const visible = collectLayoutSheetItems(valueAtDataPath(this.previewData(), section.dataPath), {
                     hiddenKeys: setHiddenParamKey(section.hiddenKeys, destKey, true),
@@ -3147,8 +3738,40 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._duplicateLayoutSection(source);
     }
 
+    copySelectedLayoutItems(event?: Event): void {
+        event?.stopPropagation();
+        const sectionIds = new Set(this.selectedLayoutSectionIds());
+        const primarySection = this.selectedLayoutSectionId();
+        if (primarySection) sectionIds.add(primarySection);
+        const sections = this.layoutSections().filter(
+            (section) => sectionIds.has(section.id) && !this.isLayoutLayerLocked(`sec:${section.id}`)
+        );
+        for (const section of sections) this._duplicateLayoutSection(section);
+        const overlayIds = new Set(this.selectedLayoutOverlayIds());
+        const primaryOverlay = this.selectedLayoutOverlay();
+        if (primaryOverlay) overlayIds.add(primaryOverlay);
+        for (const id of overlayIds) {
+            if (!id.startsWith('img:') || this.isLayoutLayerLocked(id)) continue;
+            const image = this.sheetImages().find((item) => item.id === id.slice(4));
+            if (image) this._duplicateSheetImage(image);
+        }
+    }
+
+    private _duplicateSheetImage(source: ReportSheetImage): void {
+        if (!this.canInsertLayoutImage()) return;
+        const copy = JSON.parse(JSON.stringify(source)) as ReportSheetImage;
+        copy.id = `img-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        copy.layerName = this._copiedLayerName(copy.layerName);
+        copy.x = (copy.x ?? 0) + 16;
+        copy.y = (copy.y ?? 0) + 16;
+        copy.zIndex = clampReportSheetZ(this._topLayoutZ() + 1);
+        this._state.sheetImages.update((list) => [...list, copy]);
+        this.selectedLayoutOverlay.set(`img:${copy.id}`);
+        this.selectedLayoutOverlayIds.set([`img:${copy.id}`]);
+    }
+
     private _duplicateLayoutSection(source: ReportSection): void {
-        const copy = JSON.parse(JSON.stringify(source)) as ReportSection;
+        const copy = cloneLayoutSectionDynamic(source);
         const prefix =
             source.type === 'header'
                 ? 'titulo'
@@ -3160,6 +3783,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                       ? 'forma'
                       : 'bloque';
         copy.id = `${prefix}-copia-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        copy.layerName = this._copiedLayerName(copy.layerName);
         if (copy.frame) {
             copy.frame = this._fitFrameOnSheet({
                 ...copy.frame,
@@ -3247,6 +3871,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     closeLayoutContextMenu(): void {
         this.layoutContextMenu.set(null);
+        this.layoutContextMenuMore.set(false);
+    }
+
+    toggleLayoutContextMenuMore(event?: Event): void {
+        event?.stopPropagation();
+        this.layoutContextMenuMore.update((open) => !open);
+        queueMicrotask(() => requestAnimationFrame(() => this._fitLayoutContextMenu()));
     }
 
     deleteSelectedLayoutTarget(): void {
@@ -3276,7 +3907,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.selectedLayoutSection()) {
-            if (!this.selectedLayoutCellKey() && this.selectedLayoutCellPart() === 'title') return;
+            if (this._selectedTitleIsHeadingOnly()) return;
             this.removeSelectedLayoutSection();
         }
     }
@@ -3337,7 +3968,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     @HostListener('window:beforeunload', ['$event'])
     onBeforeUnload(event: BeforeUnloadEvent): void {
         if (!this.isReportStudio()) return;
-        this._persistLayoutDraft(this._layoutDesignSnapshot());
+        if (this.templateChoice() === 'scratch') {
+            this._persistLayoutDraft(this._layoutDesignSnapshot());
+        }
         if (!this._layoutLooksUnsaved()) return;
         event.preventDefault();
         event.returnValue = this._transloco.translate('visitaGuide.layoutUnsavedLeave');
@@ -3530,14 +4163,90 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return current !== this._layoutSavedFingerprint;
     }
 
+    canLeaveGuide(nextUrl = ''): Promise<boolean> {
+        if (this._layoutLeaveConfirmed) return Promise.resolve(true);
+        if (!this._shouldPromptLayoutLeave()) return Promise.resolve(true);
+        if (this._nextUrlKeepsLayoutSession(nextUrl)) return Promise.resolve(true);
+        if (this._layoutLeavePrompt) return this._layoutLeavePrompt;
+        this._layoutLeavePrompt = this._confirmDiscardLayout().finally(() => {
+            this._layoutLeavePrompt = null;
+        });
+        return this._layoutLeavePrompt;
+    }
+
+    private _shouldPromptLayoutLeave(): boolean {
+        return this.isReportStudio() && this._layoutLooksUnsaved();
+    }
+
+    private _nextUrlKeepsLayoutSession(nextUrl: string): boolean {
+        if (!nextUrl) return false;
+        const path = nextUrl.split('?')[0].replace(/\/$/, '');
+        if (
+            path.endsWith('/guide/layout') ||
+            path.endsWith('/guide/generate') ||
+            path.endsWith('/guide/preview') ||
+            path.endsWith('/guide/customize') ||
+            path.endsWith('/guide/include')
+        ) {
+            return true;
+        }
+        if (this.editingEndpointsFromLayout() && path.endsWith('/guide/endpoints')) return true;
+        if (
+            this.consultThenReturnToLayout() &&
+            (path.endsWith('/guide/input') || path.endsWith('/guide/consult') || path.endsWith('/guide/results'))
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    private async _confirmDiscardLayout(): Promise<boolean> {
+        const result = await firstValueFrom(
+            this._confirm
+                .open({
+                    title: this._transloco.translate('visitaGuide.layoutUnsavedTitle'),
+                    message: this._transloco.translate('visitaGuide.layoutUnsavedMessage'),
+                    icon: { show: true, name: 'heroicons_outline:exclamation-triangle', color: 'warn' },
+                    dismissible: true,
+                    actions: {
+                        confirm: {
+                            show: true,
+                            label: this._transloco.translate('visitaGuide.layoutUnsavedDiscard'),
+                            color: 'warn',
+                        },
+                        cancel: {
+                            show: true,
+                            label: this._transloco.translate('visitaGuide.layoutUnsavedStay'),
+                        },
+                    },
+                })
+                .afterClosed()
+        );
+        const leave = result === 'confirmed';
+        if (leave) this._layoutLeaveConfirmed = true;
+        return leave;
+    }
+
     private _restoreLayoutDraftIfAny(): boolean {
+        const choice = this.templateChoice();
+        if (choice !== 'scratch') return false;
         const draft = readScratchDraft();
         const templateId = this.selectedTemplate()?._id ?? null;
-        const choice = this.templateChoice();
         if (!draftMatchesSession(draft, templateId, choice)) return false;
         this._applyLayoutSnapshot(JSON.stringify(draft));
-        this._markLayoutClean();
         return true;
+    }
+
+    private _layoutContextFromSelection(): {
+        sectionId?: string;
+        overlay?: ReportOverlayId;
+        cellKey?: string;
+    } {
+        const overlay = this.selectedLayoutOverlay();
+        if (overlay) return { overlay };
+        const sectionId = this.selectedLayoutSectionId() ?? undefined;
+        const cellKey = this.selectedLayoutCellKey() ?? undefined;
+        return { sectionId, cellKey: cellKey || undefined };
     }
 
     private _openLayoutContextMenu(
@@ -3545,6 +4254,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         y: number,
         target: { sectionId?: string; overlay?: ReportOverlayId; cellKey?: string }
     ): void {
+        this.layoutContextMenuMore.set(false);
         this.layoutContextMenu.set({
             x,
             y,
@@ -3602,10 +4312,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onLayoutCanvasDrop(event: CdkDragDrop<unknown>): void {
-        const payload = event.item.data as GuideResultCard | ReportSection | undefined;
+        const payload = event.item.data as GuideResultCard | ReportSection | { kind?: string } | undefined;
         if (!payload) return;
+        if ((payload as { kind?: string }).kind === 'consultStats') {
+            this.addConsultStatsBlock();
+            return;
+        }
         if ('sequence' in payload && typeof payload.sequence === 'number' && 'status' in payload) {
-            this.addCardToLayout(payload);
+            this.addCardToLayout(payload as GuideResultCard);
         }
     }
 
@@ -3622,6 +4336,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     isAddingLayoutConsult = signal(false);
+    /** After a new endpoint is added from the designer, collect inputs, consult, then return to the sheet. */
+    consultThenReturnToLayout = signal(false);
     isRemovingLayoutConsult = signal(false);
 
     canRemoveLayoutConsult(): boolean {
@@ -3654,9 +4370,39 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
     }
 
-    /** Full endpoint picker step, for chaining or advanced mappings. */
+    /** Full endpoint flow, then back to the designer with the consultas that were added. */
     goToEndpointsFromLayout(): void {
+        this.editingEndpointsFromLayout.set(true);
+        this._ensureEndpointCatalogContext();
+        this._persistLayoutDraft(this._layoutDesignSnapshot());
+        void this.ensureFeaturesLoaded();
         this.step.set('endpoints');
+    }
+
+    /** Country + entity the catalog needs. Adding a consult from the sheet can skip those screens. */
+    private _ensureEndpointCatalogContext(): void {
+        if (!this.countryIsos().length) {
+            const iso =
+                countryIsoFromHint(this.configuration()?.country) ||
+                countryIsoFromHint(this.selectedFeatures()[0]?.country) ||
+                countryIsoFromHint(this.layoutConsultCountry()) ||
+                'co';
+            this._state.countryIsos.set([iso]);
+        }
+        if (!this.entities().length) {
+            const fromFeatures = this.selectedFeatures()
+                .map((feature) => featureGroup(feature))
+                .filter((group): group is GuideEntity => group === 'citizen' || group === 'vehicle' || group === 'company');
+            this._state.entities.set(fromFeatures.length ? [...new Set(fromFeatures)] : ['citizen']);
+        }
+        const config = this.configuration();
+        if (!this.selectedFeatures().length && config) {
+            const populated = featuresFromConfiguration(config);
+            if (populated.length) this._state.selectedFeatures.set(populated);
+        }
+        if (!endpointNodes(this._state.flowGraph()).length && this.selectedFeatures().length) {
+            this._state.flowGraph.set(graphFromLinearChain(this.selectedFeatures()));
+        }
     }
 
     private async _addConsultFromLayout(feature: AppFeature): Promise<void> {
@@ -3673,6 +4419,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._state.flowGraph.set(graphFromLinearChain(next));
             await this._ensureLinkedConfiguration();
             this.ensureIncludeItems();
+            if (this.mode() === 'single') {
+                this._openLayoutConsultInput();
+                return;
+            }
+            this._appendMissingConsultCards();
             this._snack.open(
                 this._transloco.translate('visitaGuide.layoutConsultAdded', {
                     name: this.featureDisplayName(feature),
@@ -4300,25 +5051,63 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.addPageSheet(page);
     }
 
+    canRemoveLayoutContextPage(): boolean {
+        return this._canRemoveLayoutPage(this._pointFromContextMenu()?.page);
+    }
+
+    removeLayoutPageFromMenu(): void {
+        const page = this._pointFromContextMenu()?.page;
+        this.closeLayoutContextMenu();
+        if (page == null) return;
+        this._removeLayoutPage(page);
+    }
+
     canRemoveLastPageSheet(): boolean {
         const last = this._layoutPageCount() - 1;
-        return last > 0 && !this._pageHasLayoutContent(last);
+        return this._canRemoveLayoutPage(last) && !this._pageHasLayoutContent(last);
     }
 
     removeLastPageSheet(): void {
         if (!this.canRemoveLastPageSheet()) return;
-        const last = this._layoutPageCount() - 1;
+        this.closeLayoutContextMenu();
+        this._removeLayoutPage(this._layoutPageCount() - 1);
+    }
+
+    private _canRemoveLayoutPage(pageIndex: number | null | undefined): boolean {
+        const count = this._layoutPageCount();
+        return count > 1 && pageIndex != null && pageIndex >= 0 && pageIndex < count;
+    }
+
+    private _removeLayoutPage(pageIndex: number): void {
+        if (!this._canRemoveLayoutPage(pageIndex)) return;
         this.layoutSections.update((list) =>
             list
-                .filter((section) => (section.frame?.page ?? 0) !== last)
+                .filter((section) => (section.frame?.page ?? 0) !== pageIndex)
+                .map((section) => {
+                    const page = section.frame?.page ?? 0;
+                    if (!section.frame || page < pageIndex) return section;
+                    return { ...section, frame: { ...section.frame, page: page - 1 } };
+                })
                 .map((section, order) => ({ ...section, order }))
         );
-        this._state.sheetImages.update((list) => list.filter((image) => (image.page ?? 0) !== last));
-        if (this._pendingContentPoint?.page === last) this._pendingContentPoint = null;
-        if (this._pendingSheetImagePoint?.page === last) this._pendingSheetImagePoint = null;
+        this._state.sheetImages.update((list) =>
+            list
+                .filter((image) => (image.page ?? 0) !== pageIndex)
+                .map((image) => {
+                    const page = image.page ?? 0;
+                    return page > pageIndex ? { ...image, page: page - 1 } : image;
+                })
+        );
+        const shiftPending = (point: { x: number; y: number; page: number } | null) => {
+            if (!point) return null;
+            if (point.page === pageIndex) return null;
+            if (point.page > pageIndex) return { ...point, page: point.page - 1 };
+            return point;
+        };
+        this._pendingContentPoint = shiftPending(this._pendingContentPoint);
+        this._pendingSheetImagePoint = shiftPending(this._pendingSheetImagePoint);
         this.clearLayoutSelection();
         this.layoutEditorKind.set('page');
-        this.closeLayoutContextMenu();
     }
 
     private _pageHasLayoutContent(pageIndex: number): boolean {
@@ -4370,6 +5159,120 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionIds.set([section.id]);
         this._focusLayoutEditor(section, 'block');
         setTimeout(() => this._layoutEditorPreview?.beginInlineEdit(section.id));
+    }
+
+    addDateStampBlock(kind: ReportDateStampKind): void {
+        const labelKey =
+            kind === 'consultedAt' ? 'visitaGuide.layoutDateConsultedLabel' : 'visitaGuide.layoutDateGeneratedLabel';
+        const section: ReportSection = {
+            id: `fecha-${kind}-${Date.now()}`,
+            type: 'field',
+            order: this.layoutSections().length,
+            label: this._transloco.translate(labelKey),
+            dataPath: REPORT_DATE_STAMP_PATHS[kind],
+            style: { fontSize: 12, textAlign: 'left' },
+            frame: this._consumePendingContentFrame(48),
+        };
+        this._placeLayoutSection(section);
+        this.selectedLayoutSectionId.set(section.id);
+        this.selectedLayoutSectionIds.set([section.id]);
+        this._focusLayoutEditor(section, 'block');
+    }
+
+    consultStatsLabel(key: string): string {
+        if (key in CONSULT_STATS_LABEL_KEYS) {
+            return this._transloco.translate(CONSULT_STATS_LABEL_KEYS[key as ConsultStatsFieldKey]);
+        }
+        if (key in CONSULT_STATS_CATEGORY_LABEL_KEYS) {
+            return this._transloco.translate(CONSULT_STATS_CATEGORY_LABEL_KEYS[key as ConsultStatsCategoryKey]);
+        }
+        return key;
+    }
+
+    addConsultStatsBlock(chartKind: ReportChartKind = 'none'): void {
+        const keyOverrides = Object.fromEntries(
+            [...CONSULT_STATS_FIELD_KEYS, ...CONSULT_STATS_CATEGORY_KEYS].map((key) => [
+                key,
+                { label: this.consultStatsLabel(key) },
+            ])
+        );
+        const asChart = chartKind === 'pie' || chartKind === 'bar';
+        const section: ReportSection = {
+            id: `stats-${Date.now()}`,
+            type: 'keyValueGrid',
+            order: this.layoutSections().length,
+            label: this._transloco.translate('visitaGuide.layoutConsultStatsTitle'),
+            dataPath: CONSULT_STATS_PATH,
+            columnsPerRow: 2,
+            pairLayout: 'inline',
+            showWhenEmpty: true,
+            keyOrder: [...CONSULT_STATS_FIELD_KEYS],
+            hiddenKeys: [...CONSULT_STATS_CATEGORY_KEYS],
+            keyOverrides,
+            chartKind: asChart ? chartKind : 'none',
+            chartPalette: 'color',
+            chartBreakdown: 'outcome',
+            chartKeys: [...DEFAULT_CONSULT_CHART_KEYS],
+            style: { fontSize: 11, textAlign: 'left' },
+            frame: this._consumePendingContentFrame(asChart ? 220 : 168, 340),
+        };
+        this._placeLayoutSection(section);
+        this.selectedLayoutSectionId.set(section.id);
+        this.selectedLayoutSectionIds.set([section.id]);
+        this._focusLayoutEditor(section, 'block');
+    }
+
+    addConsultStatField(key: ConsultStatsFieldKey | ConsultStatsCategoryKey): void {
+        const section: ReportSection = {
+            id: `stats-${key}-${Date.now()}`,
+            type: 'field',
+            order: this.layoutSections().length,
+            label: this.consultStatsLabel(key),
+            dataPath: consultStatsPath(key),
+            pairLayout: 'inline',
+            style: { fontSize: 12, textAlign: 'left' },
+            frame: this._consumePendingContentFrame(40, 280),
+        };
+        this._placeLayoutSection(section);
+        this.selectedLayoutSectionId.set(section.id);
+        this.selectedLayoutSectionIds.set([section.id]);
+        this._focusLayoutEditor(section, 'block');
+    }
+
+    addTableOfContents(): void {
+        const targets = this.layoutJumpTargets(null).filter((item) => this._isTocJumpTarget(item.section));
+        const rows = Math.max(1, targets.length);
+        const origin = this._consumePendingContentFrame(26 * (rows + 1), 280);
+        const stamp = Date.now();
+        const heading: ReportSection = {
+            id: `indice-titulo-${stamp}`,
+            type: 'text',
+            order: this.layoutSections().length,
+            label: this._transloco.translate('visitaGuide.layoutAddToc'),
+            staticContent: this._transloco.translate('visitaGuide.layoutTocTitle'),
+            style: { fontSize: 16, fontWeight: 'bold', textAlign: 'left' },
+            frame: { ...origin, height: 28 },
+        };
+        const items: ReportSection[] = targets.map((target, index) => ({
+            id: `indice-${target.id}-${stamp}-${index}`,
+            type: 'text',
+            order: this.layoutSections().length + index + 1,
+            label: target.label,
+            staticContent: target.label,
+            linkToSectionId: target.id,
+            style: { fontSize: 12, textAlign: 'left', color: '#2563eb' },
+            frame: {
+                ...origin,
+                y: origin.y + 28 + index * 26,
+                height: 24,
+            },
+        }));
+        const created = items.length ? [heading, ...items] : [heading];
+        this.layoutSections.update((list) => this._bringSectionsToFront([...list, ...created], created.map((item) => item.id)));
+        const first = created[1] ?? created[0];
+        this.selectedLayoutSectionId.set(first.id);
+        this.selectedLayoutSectionIds.set(created.map((item) => item.id));
+        this._focusLayoutEditor(first, 'block');
     }
 
     addDividerBlock(): void {
@@ -4540,16 +5443,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const id = this.selectedLayoutSectionId();
         if (!id) return;
         this.layoutSections.update((list) =>
-            list.map((section) =>
-                section.id === id
-                    ? {
-                          ...section,
-                          label: value,
-                          staticContent:
-                              section.type === 'header' || section.type === 'text' ? value : section.staticContent,
-                      }
-                    : section
-            )
+            list.map((section) => {
+                if (section.id !== id) return section;
+                const writesBody = section.type === 'header' || section.type === 'text';
+                const next = {
+                    ...section,
+                    label: value,
+                    staticContent: writesBody ? value : section.staticContent,
+                };
+                if (writesBody && hasPastedTable(value)) next.style = withTableChromeDefaults(section.style);
+                return next;
+            })
         );
     }
 
@@ -4557,8 +5461,79 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const id = this.selectedLayoutSectionId();
         if (!id) return;
         this.layoutSections.update((list) =>
-            list.map((section) => (section.id === id ? { ...section, staticContent: value } : section))
+            list.map((section) => {
+                if (section.id !== id) return section;
+                const next = { ...section, staticContent: value };
+                if (hasPastedTable(value)) next.style = withTableChromeDefaults(section.style);
+                return next;
+            })
         );
+    }
+
+    selectedLayoutHasPastedTable(): boolean {
+        return hasPastedTable(this.selectedLayoutSection()?.staticContent);
+    }
+
+    selectedTableBorderColor(): string {
+        return this.selectedLayoutSection()?.style?.tableBorderColor || REPORT_TABLE_CHROME.borderColor;
+    }
+
+    selectedTableBorderWidth(): number {
+        const width = Number(this.selectedLayoutSection()?.style?.tableBorderWidth);
+        return Number.isFinite(width) ? Math.max(0, Math.min(8, Math.round(width))) : REPORT_TABLE_CHROME.borderWidth;
+    }
+
+    selectedTableHeaderBackground(): string {
+        return this.selectedLayoutSection()?.style?.tableHeaderBackground || REPORT_TABLE_CHROME.headerBackground;
+    }
+
+    selectedTableHeaderColor(): string {
+        return this.selectedLayoutSection()?.style?.tableHeaderColor || REPORT_TABLE_CHROME.headerColor;
+    }
+
+    selectedTableCellBackground(): string {
+        return this.selectedLayoutSection()?.style?.tableCellBackground || REPORT_TABLE_CHROME.cellBackground;
+    }
+
+    selectedTableCellColor(): string {
+        return this.selectedLayoutSection()?.style?.tableCellColor || REPORT_TABLE_CHROME.cellColor;
+    }
+
+    setSelectedTableBorderColor(value: string): void {
+        this._patchSelectedLayoutStyle({ tableBorderColor: value });
+    }
+
+    setSelectedTableBorderWidth(value: number): void {
+        this._patchSelectedLayoutStyle({ tableBorderWidth: Math.max(0, Math.min(8, Math.round(value))) });
+    }
+
+    setSelectedTableHeaderBackground(value: string): void {
+        this._patchSelectedLayoutStyle({ tableHeaderBackground: value });
+    }
+
+    setSelectedTableHeaderColor(value: string): void {
+        this._patchSelectedLayoutStyle({ tableHeaderColor: value });
+    }
+
+    setSelectedTableCellBackground(value: string): void {
+        this._patchSelectedLayoutStyle({ tableCellBackground: value });
+    }
+
+    setSelectedTableCellColor(value: string): void {
+        this._patchSelectedLayoutStyle({ tableCellColor: value });
+    }
+
+    onSelectedLayoutBodyPaste(event: ClipboardEvent): void {
+        const html = event.clipboardData?.getData('text/html') || '';
+        const plain = event.clipboardData?.getData('text/plain') || '';
+        const fragment = pasteTablesFromClipboard(html, plain);
+        if (!fragment) return;
+        event.preventDefault();
+        const field = event.target as HTMLTextAreaElement;
+        const current = field.value || '';
+        const start = field.selectionStart ?? current.length;
+        const end = field.selectionEnd ?? start;
+        this.setSelectedLayoutBody(insertHtmlAtPlainSelection(current, start, end, fragment));
     }
 
     setSelectedLayoutColor(value: string): void {
@@ -4923,6 +5898,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this._layoutRole(role).color;
     }
 
+    layoutRoleLinkColor(role: ReportTextRole): string {
+        return this._layoutRole(role).linkColor;
+    }
+
+    setLayoutRoleLinkColor(role: ReportTextRole, value: string): void {
+        for (const item of this._rolesSharingEdit(role)) this._patchSelectedLayoutRole(item, { linkColor: value });
+    }
+
     setLayoutRoleFontFamily(role: ReportTextRole, value: string): void {
         for (const item of this._rolesSharingEdit(role)) {
             const current = fontWeightStep(this._layoutRole(item).fontWeight);
@@ -5110,7 +6093,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._patchSelectedLayout({
             keyOverrides: {
                 ...(section.keyOverrides ?? {}),
-                [key]: { ...current, ...patch },
+                [key]: stripFixedOverrideValue({ ...current, ...patch }),
             },
         });
     }
@@ -5724,12 +6707,148 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return type === 'keyValueGrid' || type === 'table' || type === 'card' || type === 'field' || type === 'dataTable';
     }
 
-    /** Whole-block chrome (not a cell, not the title alone). */
+    selectedLayoutHasPairLayout(): boolean {
+        const type = this.selectedLayoutSection()?.type;
+        return type === 'field' || type === 'keyValueGrid' || type === 'card';
+    }
+
+    selectedLayoutPairLayout(): 'stack' | 'inline' {
+        const section = this.selectedLayoutSection();
+        if (!section) return 'stack';
+        if (section.pairLayout === 'inline') return 'inline';
+        if (section.pairLayout === 'stack') return 'stack';
+        return section.type === 'card' ? 'inline' : 'stack';
+    }
+
+    setSelectedLayoutPairLayout(layout: 'stack' | 'inline'): void {
+        this._patchSelectedLayout({ pairLayout: layout });
+    }
+
+    selectedLayoutIsConsultStats(): boolean {
+        const section = this.selectedLayoutSection();
+        return section?.type === 'keyValueGrid' && (section.dataPath || '') === CONSULT_STATS_PATH;
+    }
+
+    selectedLayoutChartKind(): ReportChartKind {
+        const kind = this.selectedLayoutSection()?.chartKind;
+        return isReportChartKind(kind) ? kind : 'none';
+    }
+
+    selectedLayoutChartPalette(): ReportChartPalette {
+        return this.selectedLayoutSection()?.chartPalette === 'mono' ? 'mono' : 'color';
+    }
+
+    selectedLayoutChartBreakdown(): ReportChartBreakdown {
+        const value = this.selectedLayoutSection()?.chartBreakdown;
+        return isReportChartBreakdown(value) ? value : 'outcome';
+    }
+
+    selectedLayoutChartOptionKeys(): readonly string[] {
+        return this.selectedLayoutChartBreakdown() === 'category'
+            ? CONSULT_STATS_CATEGORY_KEYS
+            : CONSULT_STATS_FIELD_KEYS;
+    }
+
+    selectedLayoutChartKeys(): string[] {
+        return resolvedChartKeys(this.selectedLayoutSection()?.chartKeys, this.selectedLayoutChartBreakdown());
+    }
+
+    setSelectedLayoutChartKind(kind: ReportChartKind): void {
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        const frame = section.frame;
+        const taller =
+            kind !== 'none' && frame && Number(frame.height) < 200
+                ? { frame: { ...frame, height: 220 } }
+                : {};
+        this._patchSelectedLayout({
+            chartKind: kind,
+            chartPalette: section.chartPalette === 'mono' ? 'mono' : 'color',
+            chartBreakdown: this.selectedLayoutChartBreakdown(),
+            chartKeys: resolvedChartKeys(section.chartKeys, this.selectedLayoutChartBreakdown()),
+            ...taller,
+        });
+    }
+
+    setSelectedLayoutChartBreakdown(breakdown: ReportChartBreakdown): void {
+        const section = this.selectedLayoutSection();
+        if (!section) return;
+        const outcomeKeys = [...CONSULT_STATS_FIELD_KEYS];
+        const categoryKeys = [...CONSULT_STATS_CATEGORY_KEYS];
+        const shown = breakdown === 'category' ? categoryKeys : outcomeKeys;
+        const hidden = breakdown === 'category' ? outcomeKeys : categoryKeys;
+        const chartKeys =
+            breakdown === 'category' ? [...DEFAULT_CONSULT_CATEGORY_CHART_KEYS] : [...DEFAULT_CONSULT_CHART_KEYS];
+        const keyOverrides = { ...(section.keyOverrides ?? {}) };
+        for (const key of shown) {
+            keyOverrides[key] = { ...(keyOverrides[key] ?? {}), label: this.consultStatsLabel(key) };
+        }
+        this._patchSelectedLayout({
+            chartBreakdown: breakdown,
+            chartKeys,
+            keyOrder: shown,
+            hiddenKeys: hidden,
+            keyOverrides,
+        });
+    }
+
+    setSelectedLayoutChartPalette(palette: ReportChartPalette): void {
+        this._patchSelectedLayout({ chartPalette: palette });
+    }
+
+    toggleSelectedLayoutChartKey(key: string): void {
+        const current = this.selectedLayoutChartKeys();
+        const next = current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
+        if (!next.length) return;
+        this._patchSelectedLayout({ chartKeys: next });
+    }
+
+    selectedLayoutChartColor(key: string): string {
+        const section = this.selectedLayoutSection();
+        const keys = this.selectedLayoutChartKeys();
+        return chartColorForKey(
+            key,
+            Math.max(0, keys.indexOf(key)),
+            keys.length,
+            this.selectedLayoutChartPalette(),
+            this.primaryColor(),
+            section?.chartColors?.[key]
+        );
+    }
+
+    selectedLayoutChartPickerHex(key: string): string {
+        return chartHex(this.selectedLayoutChartColor(key)) || '#4f46e5';
+    }
+
+    setSelectedLayoutChartColor(key: string, value: string): void {
+        const hex = chartHex(value);
+        if (!hex) return;
+        const section = this.selectedLayoutSection();
+        this._patchSelectedLayout({
+            chartColors: { ...(section?.chartColors ?? {}), [key]: hex },
+        });
+    }
+
+    onSelectedLayoutChartColorPicker(key: string, event: Event): void {
+        this.setSelectedLayoutChartColor(key, (event.target as HTMLInputElement).value);
+    }
+
+    /** Whole-block chrome. A title block is the object; a heading inside a data block is not. */
     selectedLayoutEditsWholeBlock(): boolean {
+        const section = this.selectedLayoutSection();
+        if (!section || this.selectedLayoutCellKey()) return false;
+        if (section.type === 'header') return true;
+        return this.selectedLayoutCellPart() !== 'title';
+    }
+
+    /** Title text inside a data block. A header block is the title itself and can be removed. */
+    private _selectedTitleIsHeadingOnly(): boolean {
+        const section = this.selectedLayoutSection();
         return (
-            Boolean(this.selectedLayoutSection()) &&
+            Boolean(section) &&
+            section?.type !== 'header' &&
             !this.selectedLayoutCellKey() &&
-            this.selectedLayoutCellPart() !== 'title'
+            this.selectedLayoutCellPart() === 'title'
         );
     }
 
@@ -6036,6 +7155,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             padding: style.padding,
             borderWidth: style.borderWidth,
             borderColor: style.borderColor,
+            tableBorderColor: style.tableBorderColor,
+            tableBorderWidth: style.tableBorderWidth,
+            tableHeaderBackground: style.tableHeaderBackground,
+            tableHeaderColor: style.tableHeaderColor,
+            tableCellBackground: style.tableCellBackground,
+            tableCellColor: style.tableCellColor,
             borderRadius: style.borderRadius,
             rotation: style.rotation,
             zIndex: style.zIndex,
@@ -6152,7 +7277,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     })),
                 })),
             });
-            return;
         }
 
         const external = this.externalPreview();
@@ -6161,7 +7285,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...external,
                 results: transform(external.results as Record<string | number, unknown>),
             });
-            return;
         }
 
         const template = this.selectedTemplate();
@@ -6173,6 +7296,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     ...sample,
                     results: transform(sample.results as Record<string | number, unknown>),
                 },
+            });
+        }
+
+        const retained = this.retainedConsult();
+        if (retained?.results) {
+            this.retainedConsult.set({
+                ...retained,
+                results: transform(retained.results as Record<string | number, unknown>),
             });
         }
     }
@@ -6508,6 +7639,133 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (this.selectedLayoutOverlay() === `img:${id}`) this.selectedLayoutOverlay.set(null);
     }
 
+    readonly layoutJumpUrlValue = LAYOUT_JUMP_URL_VALUE;
+
+    canSetLayoutJump(): boolean {
+        return Boolean(this.selectedLayoutSection() || this.selectedSheetImage());
+    }
+
+    layoutJumpTargets(excludeId?: string | null): { id: string; label: string; section: ReportSection }[] {
+        const skip = excludeId ?? this.selectedLayoutSectionId();
+        return this.layoutSections()
+            .filter((section) => !isReportPageAnchor(section) && section.id !== skip)
+            .map((section) => ({
+                id: section.id,
+                label: this._layoutSectionLayerLabel(section),
+                section,
+            }));
+    }
+
+    selectedLayoutJumpTarget(): string {
+        const item = this.selectedSheetImage() || this.selectedLayoutSection();
+        if (item && item.linkUrl != null && !item.linkToSectionId) return LAYOUT_JUMP_URL_VALUE;
+        return item?.linkToSectionId || '';
+    }
+
+    setSelectedLayoutJumpTarget(sectionId: string): void {
+        this._applyLayoutJump(this.selectedSheetImage() || this.selectedLayoutSection(), sectionId, 'selected');
+    }
+
+    selectedLayoutLinkUrl(): string {
+        return this.selectedSheetImage()?.linkUrl || this.selectedLayoutSection()?.linkUrl || '';
+    }
+
+    setSelectedLayoutLinkUrl(value: string): void {
+        this._applyLayoutLinkUrl(this.selectedSheetImage() || this.selectedLayoutSection(), value, 'selected');
+    }
+
+    toggleSelectedLayoutLinkUrl(): void {
+        if (this.selectedLayoutJumpTarget() === LAYOUT_JUMP_URL_VALUE) {
+            this.setSelectedLayoutJumpTarget('');
+            return;
+        }
+        this.setSelectedLayoutJumpTarget(LAYOUT_JUMP_URL_VALUE);
+    }
+
+    contextLayoutJumpTarget(): string {
+        const item = this.layoutContextSheetImage() || this.layoutContextSection();
+        if (item && item.linkUrl != null && !item.linkToSectionId) return LAYOUT_JUMP_URL_VALUE;
+        return item?.linkToSectionId || '';
+    }
+
+    setContextLayoutJumpTarget(sectionId: string): void {
+        this._applyLayoutJump(this.layoutContextSheetImage() || this.layoutContextSection(), sectionId, 'context');
+    }
+
+    contextLayoutLinkUrl(): string {
+        return this.layoutContextSheetImage()?.linkUrl || this.layoutContextSection()?.linkUrl || '';
+    }
+
+    setContextLayoutLinkUrl(value: string): void {
+        this._applyLayoutLinkUrl(this.layoutContextSheetImage() || this.layoutContextSection(), value, 'context');
+    }
+
+    toggleContextLayoutLinkUrl(): void {
+        if (this.contextLayoutJumpTarget() === LAYOUT_JUMP_URL_VALUE) {
+            this.setContextLayoutJumpTarget('');
+            return;
+        }
+        this.setContextLayoutJumpTarget(LAYOUT_JUMP_URL_VALUE);
+    }
+
+    private _applyLayoutJump(
+        item: ReportSection | ReportSheetImage | null | undefined,
+        sectionId: string,
+        origin: 'selected' | 'context'
+    ): void {
+        if (!item) return;
+        if (sectionId === LAYOUT_JUMP_URL_VALUE) {
+            this._writeLayoutLink(item, { linkToSectionId: undefined, linkUrl: item.linkUrl || '' }, origin);
+            return;
+        }
+        this._writeLayoutLink(
+            item,
+            { linkToSectionId: sectionId || undefined, linkUrl: undefined },
+            origin
+        );
+    }
+
+    private _applyLayoutLinkUrl(
+        item: ReportSection | ReportSheetImage | null | undefined,
+        value: string,
+        origin: 'selected' | 'context'
+    ): void {
+        if (!item) return;
+        const trimmed = value.trim();
+        if (/^(javascript|data):/i.test(trimmed)) {
+            this._writeLayoutLink(item, { linkToSectionId: undefined, linkUrl: '' }, origin);
+            return;
+        }
+        const linkUrl = sanitizeReportLinkUrl(trimmed) || trimmed;
+        this._writeLayoutLink(item, { linkToSectionId: undefined, linkUrl }, origin);
+    }
+
+    private _writeLayoutLink(
+        item: ReportSection | ReportSheetImage,
+        patch: { linkToSectionId?: string; linkUrl?: string },
+        origin: 'selected' | 'context'
+    ): void {
+        const image =
+            origin === 'context' ? this.layoutContextSheetImage() : this.selectedSheetImage();
+        if (image && image.id === item.id) {
+            this._patchSheetImage(image.id, patch);
+            return;
+        }
+        if (origin === 'selected') {
+            this._patchSelectedLayout(patch);
+            return;
+        }
+        this.layoutSections.update((list) =>
+            list.map((section) => (section.id === item.id ? { ...section, ...patch } : section))
+        );
+    }
+
+    private _isTocJumpTarget(section: ReportSection): boolean {
+        if (section.linkToSectionId || section.linkUrl) return false;
+        if (section.type === 'divider' || section.type === 'spacer' || section.type === 'shape') return false;
+        return true;
+    }
+
     selectedSheetImage(): ReportSheetImage | null {
         const overlay = this.selectedLayoutOverlay();
         if (!overlay?.startsWith('img:')) return null;
@@ -6644,6 +7902,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         try {
             const template = await this._persistWorkingTemplate();
             if (!template?._id) throw new Error('template');
+            this._markLayoutClean();
             const engine = this.pdfEngine() === 'pdfkit' ? 'pdfkit' : 'puppeteer';
             const batchId = this._state.batchId();
             const rowIndex = Number(this.previewData()['rowIndex']);
@@ -6867,6 +8126,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     confirmEndpoints(): void {
+        if (this.editingEndpointsFromLayout()) {
+            void this._finishEndpointsAndReturnToLayout();
+            return;
+        }
         this.goNext();
     }
 
@@ -6916,6 +8179,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
         this._state.selectedFeatures.set([...current, feature]);
+        this._notePremiumEndpoints(this._premiumNames([feature]));
     }
 
     removeFeatureFromCart(feature: AppFeature): void {
@@ -6935,6 +8199,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const index = Math.min(Math.max(0, event.currentIndex), list.length);
         list.splice(index, 0, feature);
         this._state.selectedFeatures.set(list);
+        this._notePremiumEndpoints(this._premiumNames([feature]));
     }
 
     dropEndpointOnCatalog(event: CdkDragDrop<AppFeature[]>): void {
@@ -7162,6 +8427,66 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return [...rest, ...includedItems.flatMap((item) => bySeq.get(item.sequence) ?? [])];
     }
 
+    private _consultStatsSteps(): {
+        sequence: number;
+        enabled?: boolean;
+        featureCode?: string;
+        appFeature?: { code?: string; name?: string; url?: string; description?: string; baseCategory?: string };
+    }[] {
+        const configured = [...(this.configuration()?.steps ?? [])].filter((step) => step.enabled !== false);
+        if (configured.length) {
+            return configured.map((step) => {
+                const feature =
+                    typeof step.appFeature === 'object' && step.appFeature
+                        ? step.appFeature
+                        : this.selectedFeatures().find((item) => item._id === String(step.appFeature));
+                return {
+                    sequence: step.sequence,
+                    enabled: step.enabled,
+                    featureCode: feature?.code,
+                    appFeature: feature,
+                };
+            });
+        }
+        return this.selectedFeatures().map((feature, index) => ({
+            sequence: index + 1,
+            enabled: true,
+            featureCode: feature.code,
+            appFeature: feature,
+        }));
+    }
+
+    private _withConsultStats(record: SampleReportData): SampleReportData {
+        return {
+            ...record,
+            consultStats: buildConsultStats(
+                {
+                    results: (record.results as Record<string | number, unknown>) ?? {},
+                    errors: record.errors ?? [],
+                    inputData: record.inputData ?? {},
+                },
+                { steps: this._consultStatsSteps() }
+            ),
+        } as SampleReportData;
+    }
+
+    /** Persist consult payloads on the template sample, not on the layout. */
+    private _sampleDataForPersist(_draft: SmartReportTemplate): SampleReportData {
+        const stored = this.selectedTemplate()?.sampleData;
+        const live = this.previewData() as SampleReportData;
+        const base = mergeConsultSample(
+            mergeConsultSample(stored, this.retainedConsult()),
+            live
+        );
+        const next: SampleReportData = {
+            ...cloneReportValue(base),
+            consultedAt: live.consultedAt || base.consultedAt,
+            generatedAt: this.reportGeneratedAt() || live.generatedAt || base.generatedAt,
+        };
+        this.retainedConsult.set(next);
+        return next;
+    }
+
     private async _persistWorkingTemplate(): Promise<SmartReportTemplate | null> {
         const draft = this.previewTemplate();
         if (!draft) return null;
@@ -7206,7 +8531,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             pdfEngine: this.pdfEngine(),
             security: this._securityPayload(),
             signature: this._signaturePayload(),
-            sampleData: this.previewData(),
+            sampleData: this._sampleDataForPersist(draft),
             batchConfiguration: configId ?? draft.batchConfiguration,
             category: this.entities().length === 1 ? this.entities()[0] : draft.category,
         };
@@ -7214,7 +8539,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const isSystemTemplate = draft.type === 'System';
         if (draft._id && !isSystemTemplate) {
             const updated = await firstValueFrom(this._reports.updateTemplate(draft._id, payload));
-            this._state.selectedTemplate.set(updated);
+            this._state.selectedTemplate.set({
+                ...updated,
+                sampleData: updated.sampleData ?? payload.sampleData,
+            });
             clearScratchDraft();
             return updated;
         }
@@ -7226,7 +8554,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 country: this.countryNames()[0] || draft.country,
             })
         );
-        this._state.selectedTemplate.set(created);
+        this._state.selectedTemplate.set({
+            ...created,
+            sampleData: created.sampleData ?? payload.sampleData,
+        });
         if (created?._id) clearScratchDraft();
         this._state.clonedTemplate.set(created);
         this._state.templateChoice.set('mine');
@@ -7237,7 +8568,38 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._reports.getTemplates().subscribe();
     }
 
+    private _premiumNames(features: AppFeature[]): string[] {
+        return features.filter((feature) => feature.catalogHidden).map((feature) => feature.name || feature.code);
+    }
+
+    private _premiumNamesInTemplate(template: SmartReportTemplate): string[] {
+        const catalog = this.availableFeatures();
+        if (!catalog.length) return [];
+        const byCode = new Map(catalog.filter((feature) => feature.code).map((feature) => [feature.code, feature]));
+        const names: string[] = [];
+        for (const step of template.presetSteps ?? []) {
+            const code = step.appFeatureCode;
+            if (!code) continue;
+            const feature = byCode.get(code);
+            if (feature?.catalogHidden) {
+                names.push(feature.name || code);
+                continue;
+            }
+            if (!feature) names.push(code);
+        }
+        return names;
+    }
+
+    private _notePremiumEndpoints(names: string[]): void {
+        const unique = [...new Set(names.map((name) => name.trim()).filter(Boolean))];
+        if (!unique.length) return;
+        this._snack.open(this._transloco.translate('visitaGuide.premiumEndpointNote', { names: unique.join(', ') }), undefined, {
+            duration: 8000,
+        });
+    }
+
     private _applyPickedTemplate(template: SmartReportTemplate, choice: GuideTemplateChoice): void {
+        this._notePremiumEndpoints(this._premiumNamesInTemplate(template));
         clearScratchDraft();
         this._state.templateChoice.set(choice);
         this._state.selectedTemplate.set(template);
@@ -7250,6 +8612,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
         this._preferCompactFormatBar();
         this.enterLayout();
+        this._markLayoutClean();
     }
 
     private _afterTemplatePicked(): void {
@@ -7624,6 +8987,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         this.isWorking.set(false);
                         this.retryingSequences.set([]);
                         this.ensureIncludeItems();
+                        if (this.consultThenReturnToLayout()) {
+                            this._returnToLayoutAfterConsult();
+                            return;
+                        }
                         this.step.set('results');
                     }
                 },
@@ -7645,16 +9012,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
         if (pendingPreview) this.externalPreview.set(pendingPreview);
 
+        const pathStepRaw = this._route.snapshot.paramMap.get('step');
+        if (pathStepRaw && !isGuideStep(pathStepRaw)) {
+            this._state.step.set('intent');
+            this._guideUrlReady = true;
+            void this._router.navigate(['/smart-batch'], { replaceUrl: true });
+            return;
+        }
+
         const parsed = parseGuideUrl(this._route.snapshot.queryParamMap);
+        // The path is the screen. A bare `/smart-batch` is always the start, even if a previous
+        // visit left another step in memory. Old `?step=` links still open that screen.
+        const step = (pathStepRaw && isGuideStep(pathStepRaw) ? pathStepRaw : null) ?? parsed.step;
         this._pendingFeatureIds = parsed.features;
 
         if (
             parsed.templateChoice !== 'scratch' &&
             parsed.templateId &&
-            (parsed.step === 'layout' || parsed.step === 'generate' || parsed.step === null)
+            (step === 'layout' || step === 'generate')
         ) {
-            this._openSavedTemplateInLayout(parsed.templateId, parsed.configId, parsed.step ?? 'layout');
+            this._state.step.set(step);
             this._guideUrlReady = true;
+            this._openSavedTemplateInLayout(parsed.templateId, parsed.configId, step);
             return;
         }
 
@@ -7665,7 +9044,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (parsed.countries.length) this._state.countryIsos.set(parsed.countries);
         if (parsed.entities.length) this._state.entities.set(parsed.entities);
         if (parsed.mode) this._state.mode.set(parsed.mode);
+        if (parsed.fromLayout) this.editingEndpointsFromLayout.set(true);
         this._state.applyDeductions();
+        if (parsed.fromLayout || step === 'endpoints') this._ensureEndpointCatalogContext();
 
         if (parsed.configId) {
             this._state.configId.set(parsed.configId);
@@ -7686,22 +9067,35 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
         }
 
-        if (parsed.templateChoice === 'scratch') {
+        if (parsed.templateChoice === 'scratch' && (step === 'layout' || step === 'generate')) {
             if (parsed.configId) this._state.editingSavedLayout.set(true);
             this._state.intent.set('template');
             this._state.wantsReport.set(true);
             this._resumeScratchTemplate();
         }
 
-        if (parsed.step && this.visibleSteps().includes(parsed.step)) {
-            if (parsed.step === 'layout' && parsed.templateChoice !== 'scratch') this.enterLayout();
-            if (parsed.step === 'include') this.ensureIncludeItems();
-            if (parsed.step === 'template') this._refreshTemplates();
-            this._state.step.set(parsed.step);
-            if (parsed.step === 'layout' || parsed.step === 'generate') {
+        if (step !== 'layout' && step !== 'generate') {
+            this._state.editingSavedLayout.set(false);
+        }
+
+        if (!step || step === 'intent') {
+            this._state.step.set('intent');
+        } else if (
+            step === 'layout' ||
+            step === 'generate' ||
+            (parsed.fromLayout && step === 'endpoints') ||
+            this.visibleSteps().includes(step)
+        ) {
+            if (step === 'layout' && parsed.templateChoice !== 'scratch') this.enterLayout();
+            if (step === 'include') this.ensureIncludeItems();
+            if (step === 'template') this._refreshTemplates();
+            this._state.step.set(step);
+            if (step === 'layout' || step === 'generate') {
                 this._restoreLayoutDraftIfAny();
-                if (parsed.step === 'generate') this.reportStudioStep.set('preview');
+                if (step === 'generate') this.reportStudioStep.set('preview');
             }
+        } else {
+            this._state.step.set('intent');
         }
 
         this._applyPendingFeatureIds();
@@ -7715,7 +9109,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const draft = readScratchDraft();
         if (draftIsScratch(draft)) {
             this._applyLayoutSnapshot(JSON.stringify(draft));
-            this._markLayoutClean();
         } else {
             this._resetLayoutBranding();
             this.layoutSections.set([]);
@@ -7791,13 +9184,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _writeGuideUrl(state: ReturnType<typeof parseGuideUrl>): void {
         if (!this._guideUrlReady) return;
-        const path = this._router.url.split('?')[0];
-        if (path !== '/smart-batch' && path !== '/smart-batch/') return;
-        void this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: serializeGuideUrl(state),
-            replaceUrl: true,
-        });
+        const path = this._router.url.split('?')[0].replace(/\/$/, '');
+        const onGuide = path === '/smart-batch' || path.startsWith('/smart-batch/guide/');
+        if (!onGuide) return;
+
+        const target = guideStepPath(state.step);
+        // The step is the path. Query params only keep choices this screen has already reached.
+        const query = serializeGuideUrl(state);
+        query.step = null;
+        if (this._guideUrlMatches(target, query)) return;
+
+        void this._router.navigate([target], { queryParams: query, replaceUrl: true });
+    }
+
+    /** True when the address bar already shows this guide screen, so we don't navigate in a loop. */
+    private _guideUrlMatches(target: string, query: Record<string, string | null>): boolean {
+        const path = this._router.url.split('?')[0].replace(/\/$/, '');
+        if (path !== target) return false;
+
+        const current = this._route.snapshot.queryParamMap;
+        const keys = new Set([...current.keys, ...Object.keys(query)]);
+        for (const key of keys) {
+            if ((query[key] || null) !== (current.get(key) || null)) return false;
+        }
+        return true;
     }
 
     private _openSavedTemplateInLayout(
@@ -7835,15 +9245,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 }
 
                 this.hydrateCustomize(template, true);
-                if (!this._restoreLayoutDraftIfAny()) {
-                    this.layoutSections.set(
-                        cloneReportValue(template.sections ?? []).map((section, index) => ({ ...section, order: index }))
-                    );
-                    this._markLayoutClean();
-                }
+                this.layoutSections.set(
+                    cloneReportValue(template.sections ?? []).map((section, index) => ({ ...section, order: index }))
+                );
                 this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
                 this._preferCompactFormatBar();
                 this.enterLayout();
+                this._markLayoutClean();
                 this._state.step.set(step === 'generate' ? 'generate' : 'layout');
                 if (step === 'generate') this.reportStudioStep.set('preview');
             },

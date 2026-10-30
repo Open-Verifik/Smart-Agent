@@ -75,6 +75,17 @@ export const countryNameForIso = (iso?: string | null): string => {
     return GUIDE_COUNTRIES.find((country) => country.iso === key)?.name ?? normalizeCountryName(raw);
 };
 
+/** ISO used by the guide (`co`) from a name, ISO, or batch-config country string. */
+export const countryIsoFromHint = (value?: string | null): string => {
+    const raw = (value ?? '').trim();
+    if (!raw) return '';
+    const lower = raw.toLowerCase();
+    const byIso = GUIDE_COUNTRIES.find((country) => country.iso === lower);
+    if (byIso) return byIso.iso;
+    const name = normalizeCountryName(raw).toLowerCase();
+    return GUIDE_COUNTRIES.find((country) => country.name.toLowerCase() === name)?.iso ?? '';
+};
+
 /** Catalog countries, plus any other country that shows up on a loaded feature. */
 export const guideCountriesFromFeatures = (features: { country?: string }[]): GuideCountryOption[] => {
     const byName = new Map(availableCountries().map((country) => [country.name, country]));

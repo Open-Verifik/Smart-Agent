@@ -17,9 +17,30 @@ import {
     signal,
     untracked,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { autolinkHtml } from '../report-autolink.util';
+import {
+    hasPastedTable,
+    insertHtmlAtPlainSelection,
+    pasteTablesFromClipboard,
+    resolveTableChrome,
+    sanitizePastedHtml,
+} from '../report-paste-table.util';
+import {
+    barRects,
+    buildChartSlices,
+    isReportChartKind,
+    pieArcs,
+    ReportChartBar,
+    ReportChartKind,
+    ReportChartPieArc,
+    ReportChartSlice,
+} from '../report-chart.util';
+import { reportDateStampForPath, substituteReportPlaceholders } from '../report-date-stamp.util';
+import { isExternalReportHref, reportClickHref, reportJumpAnchorId } from '../report-jump.util';
 import { colorIconSvg } from '../report-icon.util';
 import {
     ReportCellPart,
@@ -198,14 +219,92 @@ export function reportPaperSizePx(
                 box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
                 pointer-events: none;
             }
+            a.report-autolink {
+                color: var(--report-link-color, #2563eb);
+                text-decoration: none !important;
+                text-decoration-line: none !important;
+                text-decoration-color: transparent !important;
+                outline: none;
+                background: transparent;
+                box-shadow: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+            a.report-autolink:hover,
+            a.report-jump:hover {
+                outline: none;
+                background: transparent;
+                box-shadow: none;
+            }
+            a.report-jump {
+                position: absolute;
+                inset: 0;
+                z-index: 4;
+                cursor: pointer;
+                text-decoration: none !important;
+                text-decoration-line: none !important;
+                background: transparent;
+            }
+            a.report-jump.report-jump--edit {
+                pointer-events: none;
+                cursor: inherit;
+            }
+            :host table.report-rich-table {
+                width: 100%;
+                max-width: 100%;
+                margin: 0.4em 0;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font: inherit;
+                color: inherit;
+            }
+            :host table.report-rich-table th,
+            :host table.report-rich-table td {
+                border: var(--report-table-border-width, 1px) solid var(--report-table-border, #d6d3d1) !important;
+                background-color: var(--report-table-cell-bg, #ffffff) !important;
+                color: var(--report-table-cell-color, #1c1917) !important;
+                padding: 6px 8px;
+                vertical-align: top;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+            }
+            :host table.report-rich-table thead th,
+            :host table.report-rich-table thead td,
+            :host table.report-rich-table th,
+            :host table.report-rich-table:not(:has(thead)) tr:first-child > th,
+            :host table.report-rich-table:not(:has(thead)) tr:first-child > td {
+                background-color: var(--report-table-header-bg, #f5f5f4) !important;
+                color: var(--report-table-header-color, #1c1917) !important;
+                font-weight: 600;
+            }
+            :host table.report-rich-table th *,
+            :host table.report-rich-table td * {
+                color: inherit !important;
+                background: transparent !important;
+                background-color: transparent !important;
+            }
+            :host table.report-rich-table p {
+                margin: 0;
+            }
+            :host [data-rich-table] {
+                min-height: 1em;
+                outline: none;
+            }
+            :host [data-rich-table] table.report-rich-table {
+                user-select: text;
+            }
         `,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _domSanitizer = inject(DomSanitizer);
+    private readonly _transloco = inject(TranslocoService);
+    private readonly _activeLang = toSignal(this._transloco.langChanges$, {
+        initialValue: this._transloco.getActiveLang(),
+    });
     /** Same SafeHtml instance per markup so `[innerHTML]` does not repaint every check. */
     private _iconMarkupCache = new Map<string, SafeHtml>();
+    private _autolinkCache = new Map<string, SafeHtml>();
 
     /** All paper cards in the rendered preview. The first card is used as the
      *  reference for canonical-to-screen scaling and overlay anchoring. */
@@ -1514,6 +1613,39 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!this.isCanvasText(kind)) event.stopPropagation();
     }
 
+    jumpAnchorId(sectionId: string): string {
+        return reportJumpAnchorId(sectionId);
+    }
+
+    jumpHref(item?: { linkToSectionId?: string; linkUrl?: string } | string | null): string | null {
+        if (typeof item === 'string') return reportClickHref({ linkToSectionId: item });
+        return reportClickHref(item);
+    }
+
+    isExternalJump(href?: string | null): boolean {
+        return isExternalReportHref(href);
+    }
+
+    isPairInline(section: ReportSection): boolean {
+        if (section.pairLayout === 'inline') return true;
+        if (section.pairLayout === 'stack') return false;
+        return section.type === 'card';
+    }
+
+    onJumpClick(event: MouseEvent): void {
+        if (this.clickable() && !this.printCapture()) {
+            event.preventDefault();
+            return;
+        }
+        const href = (event.currentTarget as HTMLAnchorElement | null)?.getAttribute('href') || '';
+        if (isExternalReportHref(href)) return;
+        const id = href.startsWith('#') ? href.slice(1) : '';
+        if (!id) return;
+        event.preventDefault();
+        const target = this._host.nativeElement.querySelector(`#${id}`);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     onSheetTextClick(
         section: ReportSection,
         kind: string,
@@ -1521,6 +1653,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         key?: string,
         fallback = ''
     ): void {
+        if (this.clickable() && !this.printCapture()) event.preventDefault();
         if (this.isCanvasText(kind)) return;
         this.startInlineEdit(section, kind, event, key, fallback);
     }
@@ -1646,6 +1779,56 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (el.classList.contains('hug-field')) this._scheduleContentFit();
     }
 
+    onInlineRichInput(event: Event): void {
+        const el = event.target as HTMLElement;
+        this.inlineDraft.set(el.innerHTML);
+        this._scheduleContentFit();
+    }
+
+    isRichTableEdit(section: ReportSection, kind: string, key?: string | null): boolean {
+        return this.isEditingText(section.id, kind, key) && hasPastedTable(this.inlineDraft());
+    }
+
+    sectionHasRichTable(section: ReportSection): boolean {
+        const editing = this.editingText();
+        if (editing?.sectionId === section.id && (editing.kind === 'body' || editing.kind === 'title')) {
+            return hasPastedTable(this.inlineDraft());
+        }
+        return hasPastedTable(section.staticContent || (section.type === 'header' ? section.label : ''));
+    }
+
+    /** Inspector chrome as CSS variables Angular can bind without ngStyle sanitizing them away. */
+    richTableChrome(section: ReportSection) {
+        return resolveTableChrome(section.style);
+    }
+
+    onInlinePaste(event: ClipboardEvent, multiline: boolean): void {
+        if (!multiline) return;
+        const html = event.clipboardData?.getData('text/html') || '';
+        const plain = event.clipboardData?.getData('text/plain') || '';
+        const fragment = pasteTablesFromClipboard(html, plain);
+        if (!fragment) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this._selectAllOnFocus = false;
+        const target = event.target as HTMLElement | null;
+        if (target?.isContentEditable) {
+            this._insertHtmlAtCaret(fragment);
+            this.inlineDraft.set(target.innerHTML);
+            this._scheduleContentFit();
+            return;
+        }
+        if (target instanceof HTMLTextAreaElement) {
+            const start = target.selectionStart ?? target.value.length;
+            const end = target.selectionEnd ?? start;
+            this.inlineDraft.set(insertHtmlAtPlainSelection(target.value, start, end, fragment));
+            requestAnimationFrame(() => {
+                this._focusInlineEditor();
+                this._scheduleContentFit();
+            });
+        }
+    }
+
     onInlineKeydown(event: KeyboardEvent, multiline: boolean): void {
         if (event.key === 'Escape') {
             event.preventDefault();
@@ -1666,7 +1849,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _flushInlineEdit(): void {
         const editing = this.editingText();
         if (!editing) return;
-        const value = this.inlineDraft();
+        const raw = this.inlineDraft();
+        const value = hasPastedTable(raw) ? sanitizePastedHtml(raw) : raw;
         this.editingText.set(null);
         if (value === this._inlineSeedValue) return;
         this.inlineTextChange.emit({ ...editing, value });
@@ -1697,20 +1881,65 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const el = this._host.nativeElement.querySelector('[data-inline-edit]') as
             | HTMLInputElement
             | HTMLTextAreaElement
+            | HTMLElement
             | null;
         if (!el) {
             if (attempt < 5) requestAnimationFrame(() => this._focusInlineEditor(attempt + 1));
             return;
         }
-        el.focus();
+        if (el instanceof HTMLElement && el.isContentEditable) {
+            if (!el.innerHTML.trim()) el.innerHTML = sanitizePastedHtml(this.inlineDraft());
+            el.focus();
+            this._placeRichCaret(el, this._selectAllOnFocus);
+            this._selectAllOnFocus = false;
+            this._scheduleContentFit();
+            return;
+        }
+        const field = el as HTMLInputElement | HTMLTextAreaElement;
+        field.focus();
         if (this._selectAllOnFocus) {
-            el.select();
+            field.select();
             this._selectAllOnFocus = false;
         } else {
-            const end = el.value.length;
-            el.setSelectionRange(end, end);
+            const end = field.value.length;
+            field.setSelectionRange(end, end);
         }
-        this._fitInlineEditor(el);
+        this._fitInlineEditor(field);
+    }
+
+    private _placeRichCaret(el: HTMLElement, selectAll: boolean): void {
+        const selection = window.getSelection();
+        if (!selection) return;
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        if (!selectAll) range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    private _insertHtmlAtCaret(html: string): void {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+            document.execCommand('insertHTML', false, html);
+            return;
+        }
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const holder = document.createElement('div');
+        holder.innerHTML = html;
+        const frag = document.createDocumentFragment();
+        let last: ChildNode | null = null;
+        while (holder.firstChild) {
+            last = holder.firstChild;
+            frag.appendChild(holder.firstChild);
+        }
+        range.insertNode(frag);
+        if (last) {
+            range.setStartAfter(last);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
     }
 
     private _fitInlineEditor(el: HTMLInputElement | HTMLTextAreaElement): void {
@@ -2203,6 +2432,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     onTitleContextMenu(section: ReportSection, event: MouseEvent): void {
+        if (this.customContextMenu() || section.type === 'header') {
+            this.onSectionContextMenu(section, event);
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
         if (!this.clickable()) return;
@@ -2339,6 +2572,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (this.isLayerPeeked(`sec:${section.id}`)) style['zIndex'] = String(REPORT_SHEET_Z_PEEK);
         if (this.isLayerPeeked(`sec:${section.id}`) && this.isLayerHidden(`sec:${section.id}`)) style['opacity'] = '0.55';
         if (dragging) style['willChange'] = 'left, top, width, height';
+        if (this.sectionHasRichTable(section)) {
+            style['overflow'] = 'hidden';
+            style['overflow-x'] = 'hidden';
+        }
         if (hug) {
             const align = this.roleTextAlign(section, 'title');
             const boxW = Number(frame.width) > 0 ? Number(frame.width) : 0;
@@ -2400,6 +2637,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Title and free text keep a box the size of the words, not the frame they were dropped in. */
     hugsText(section: ReportSection): boolean {
+        if (this.sectionHasRichTable(section)) return false;
         return section.type === 'header' || section.type === 'text';
     }
 
@@ -3075,7 +3313,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const oldBottom = (frame.y ?? 0) + item.current;
             const delta = item.height - item.current;
             frame.height = item.height;
-            if (delta <= 4) continue;
+            const growingSection = byId.get(item.id);
+            if (delta <= 4 || (growingSection && this.sectionHasRichTable(growingSection))) continue;
             const page = frame.page ?? 0;
             for (const [otherId, other] of frames) {
                 if (otherId === item.id || (other.page ?? 0) !== page) continue;
@@ -3130,6 +3369,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 const stored = section ? this.displayFrame(section) : null;
                 const frame = (id && frames.get(id)) || stored;
                 if (!section || !frame || !stored || !el.offsetWidth || !el.offsetHeight) return;
+                if (this.sectionHasRichTable(section)) return;
                 const placed = this._sectionCssBox(el);
                 const inner = el.closest('[data-report-page-inner]');
                 let cssX = placed.x;
@@ -3819,6 +4059,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     resolveDataPath(path: string | undefined): string {
         if (!path) return '';
         const source = this.previewData();
+        const stamp = reportDateStampForPath(path, source, this._previewLocale());
+        if (stamp) return stamp;
         const parts = path.split('.');
         let current: any = source;
         for (const part of parts) {
@@ -3848,6 +4090,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return map[variant] ?? map['neutral'];
     }
 
+    private _previewLocale(): string {
+        return (this._activeLang() ?? this._transloco.getActiveLang() ?? 'es').split('-')[0].toLowerCase();
+    }
+
     /**
      * The consulted value. A `keyOverrides[key].value` left by older templates is
      * ignored, as the PDF ignores it: values change with every query.
@@ -3869,10 +4115,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         fallback?: string
     ): string {
         this.previewData();
-        if (kind === 'title') return section.staticContent || section.label || fallback || '';
-        if (kind === 'body') return section.staticContent || fallback || '';
-        if (kind === 'itemTitle') return section.itemTitle || fallback || '';
-        if (kind === 'itemTemplate') return section.itemTemplate || fallback || '';
+        this._activeLang();
+        const fill = (text: string) => substituteReportPlaceholders(text, this.previewData(), this._previewLocale());
+        if (kind === 'title') return fill(section.staticContent || section.label || fallback || '');
+        if (kind === 'body') return fill(section.staticContent || fallback || '');
+        if (kind === 'itemTitle') return fill(section.itemTitle || fallback || '');
+        if (kind === 'itemTemplate') return fill(section.itemTemplate || fallback || '');
         if (kind === 'cellLabel' && key) {
             return this.entryLabel(section, { key, label: fallback || key });
         }
@@ -3884,7 +4132,29 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** `liveSheetText` with the role's letter case; inline editing keeps the stored text. */
     sheetDisplayText(section: ReportSection, kind: string, key?: string, fallback?: string): string {
-        return applyTextCase(this.liveSheetText(section, kind, key, fallback), this._sheetTextCase(section, kind, key));
+        const live = this.liveSheetText(section, kind, key, fallback);
+        if (hasPastedTable(live)) return live;
+        return applyTextCase(live, this._sheetTextCase(section, kind, key));
+    }
+
+    sheetAutolinkHtml(section: ReportSection, kind: string, key?: string, fallback?: string): SafeHtml {
+        const text = this.sheetDisplayText(section, kind, key, fallback) || '\u00a0';
+        if (hasPastedTable(text)) {
+            const markup = sanitizePastedHtml(text) || '\u00a0';
+            return this._domSanitizer.bypassSecurityTrustHtml(markup);
+        }
+        return this.autolinkSafeHtml(text, this.sheetLinkColor(section, kind, key));
+    }
+
+    autolinkSafeHtml(text: string | null | undefined, linkColor?: string): SafeHtml {
+        const markup = autolinkHtml(text || '\u00a0', linkColor);
+        let safe = this._autolinkCache.get(markup);
+        if (!safe) {
+            if (this._autolinkCache.size > 400) this._autolinkCache.clear();
+            safe = this._domSanitizer.bypassSecurityTrustHtml(markup);
+            this._autolinkCache.set(markup, safe);
+        }
+        return safe;
     }
 
     /**
@@ -3892,12 +4162,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
      * nested table's, then the block's role, the same order the PDF merges them.
      */
     private _sheetTextCase(section: ReportSection, kind: string, key?: string): ReportTextCase {
-        const role: ReportTextRole =
-            kind === 'cellLabel' || (kind === 'title' && section.type === 'field')
-                ? 'label'
-                : kind === 'title' || kind === 'itemTitle' || (kind === 'body' && section.type === 'text')
-                  ? 'title'
-                  : 'value';
+        const role = this.sheetTextRole(section, kind);
         if (role !== 'title' && key) {
             const styleKey = role === 'label' ? 'labelStyle' : 'valueStyle';
             let path = key.split('#')[0];
@@ -4123,7 +4388,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         role: 'label' | 'value',
         tableKey: string,
         column?: string
-    ): { fontFamily: string; fontSize: number; fontWeight: number; fontStyle: string; textDecoration: string; textAlign: string; color: string } {
+    ): { fontFamily: string; fontSize: number; fontWeight: number; fontStyle: string; textDecoration: string; textAlign: string; color: string; linkColor: string } {
         const base = resolveTextRole(section, role, this.primaryColor(), tableKey);
         const fonts = this.template()?.customFonts ?? [];
         const snap = (family: string, weight: ReportFontWeight): number =>
@@ -4149,6 +4414,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                     ? align
                     : base.textAlign,
             color: nested.color || base.color,
+            linkColor: nested.linkColor || base.linkColor,
         };
     }
 
@@ -4520,6 +4786,61 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return this.sheetChunks(section).length > 0;
     }
 
+    chartKind(section: ReportSection): ReportChartKind {
+        return isReportChartKind(section.chartKind) ? section.chartKind : 'none';
+    }
+
+    showsChart(section: ReportSection): boolean {
+        const kind = this.chartKind(section);
+        return kind === 'pie' || kind === 'bar';
+    }
+
+    chartIsEmpty(section: ReportSection): boolean {
+        return this.chartSlices(section).every((slice) => slice.value <= 0);
+    }
+
+    chartSlices(section: ReportSection): ReportChartSlice[] {
+        const labels = Object.fromEntries(
+            this.structuralEntries(section).map((entry) => [entry.key, entry.label])
+        );
+        return buildChartSlices({
+            data: this._valueAt(section.dataPath),
+            keys: section.chartKeys,
+            labels,
+            colors: section.chartColors,
+            palette: section.chartPalette === 'mono' ? 'mono' : 'color',
+            breakdown: section.chartBreakdown === 'category' ? 'category' : 'outcome',
+            primaryColor: this.primaryColor(),
+        });
+    }
+
+    chartBox(section: ReportSection): { width: number; height: number } {
+        const width = Math.max(180, Number(section.frame?.width) || 320);
+        const height = Math.max(140, (Number(section.frame?.height) || 200) - (section.label ? 28 : 0));
+        return { width, height: Math.min(240, height) };
+    }
+
+    chartPieArcs(section: ReportSection): ReportChartPieArc[] {
+        const box = this.chartBox(section);
+        const radius = Math.max(28, Math.min(box.width * 0.28, box.height * 0.38));
+        return pieArcs(this.chartSlices(section), radius + 10, box.height / 2, radius);
+    }
+
+    chartPieRadius(section: ReportSection): number {
+        const box = this.chartBox(section);
+        return Math.max(28, Math.min(box.width * 0.28, box.height * 0.38));
+    }
+
+    chartBars(section: ReportSection): ReportChartBar[] {
+        const box = this.chartBox(section);
+        return barRects(this.chartSlices(section), box.width, box.height);
+    }
+
+    chartLegendStep(section: ReportSection): number {
+        const n = Math.max(1, this.chartSlices(section).length);
+        return Math.max(16, Math.min(22, (this.chartBox(section).height - 16) / n));
+    }
+
     sectionShowsRowLines(section: ReportSection): boolean {
         return section.showRowLines !== false;
     }
@@ -4554,6 +4875,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     roleColor(section: ReportSection, role: ReportTextRole, key?: string): string {
         return resolveTextRole(section, role, this.primaryColor(), key).color;
+    }
+
+    roleLinkColor(section: ReportSection, role: ReportTextRole, key?: string): string {
+        return resolveTextRole(section, role, this.primaryColor(), key).linkColor;
+    }
+
+    sheetTextRole(section: ReportSection, kind: string): ReportTextRole {
+        if (kind === 'cellLabel' || kind === 'label' || (kind === 'title' && section.type === 'field')) return 'label';
+        if (kind === 'title' || kind === 'itemTitle' || (kind === 'body' && section.type === 'text')) return 'title';
+        return 'value';
+    }
+
+    sheetLinkColor(section: ReportSection, kind: string, key?: string): string {
+        return this.roleLinkColor(section, this.sheetTextRole(section, kind), key);
     }
 
     sectionFrameBorder(section: ReportSection): string {
@@ -4625,6 +4960,11 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
 .print-sheet + .print-sheet{break-before:page;page-break-before:always}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .print-sheet h1,.print-sheet h2,.print-sheet h3,.print-sheet h4,.print-sheet h5,.print-sheet h6,.print-sheet p{margin:0}
+.print-sheet a.report-autolink,.print-sheet a.report-jump{text-decoration:none!important;text-decoration-line:none!important;-webkit-text-decoration-line:none!important;text-decoration-color:transparent!important;outline:none!important;background:transparent!important;box-shadow:none!important;-webkit-tap-highlight-color:transparent}
+.print-sheet a.report-autolink{color:var(--report-link-color,#2563eb)!important}
+.print-sheet a.report-autolink.is-underlined{text-decoration:underline!important;text-decoration-line:underline!important;-webkit-text-decoration-line:underline!important;text-decoration-color:currentColor!important}
+.print-sheet a.report-jump{position:absolute;inset:0;z-index:4;background:transparent;pointer-events:auto!important}
+@media print{a,a:link,a:visited,a[href],a.report-autolink,a.report-jump{text-decoration:none!important;text-decoration-line:none!important;-webkit-text-decoration-line:none!important;text-decoration-color:transparent!important}a.report-autolink.is-underlined{text-decoration:underline!important;text-decoration-line:underline!important;-webkit-text-decoration-line:underline!important;text-decoration-color:currentColor!important}}
 </style></head><body>${sheets.join('')}</body></html>`;
     }
 
@@ -4703,10 +5043,9 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
     }
 
     /**
-     * Title and free text shrink to the words on the sheet. The print document
-     * has no Tailwind reset, so an h2 or p would regain its browser margin and
-     * drop below the coordinate saved on the sheet. The box also stays wide
-     * enough that the PDF face does not wrap a line the author did not break.
+     * Title and free text keep the box already pinned from the sheet. Do not
+     * stretch them to one long line: that drops Enter and shoves neighbours
+     * (the generation date) when the PDF is emailed.
      */
     private _relaxPrintedHugText(source: HTMLElement, clone: HTMLElement): void {
         source.querySelectorAll('[data-report-section]').forEach((node) => {
@@ -4718,26 +5057,40 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
                 ? (clone.querySelector(`[data-section-id="${CSS.escape(id)}"]`) as HTMLElement | null)
                 : null;
             if (!dst) return;
-            const broken = /[\r\n]/.test(src.innerText || src.textContent || '');
-            const flow = broken ? 'pre' : 'nowrap';
             dst.style.margin = '0';
-            dst.style.height = 'auto';
             dst.style.maxHeight = 'none';
             dst.style.overflow = 'visible';
-            dst.style.width = 'max-content';
-            dst.style.maxWidth = 'none';
-            dst.style.whiteSpace = flow;
-            dst.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div').forEach((child) => {
+            dst.style.whiteSpace = 'pre-wrap';
+            dst.style.overflowWrap = 'break-word';
+            dst.style.wordBreak = 'break-word';
+            dst.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, a').forEach((child) => {
                 const el = child as HTMLElement;
-                el.style.margin = '0';
-                el.style.whiteSpace = flow;
-                el.style.width = 'max-content';
-                el.style.maxWidth = 'none';
-                el.style.minWidth = '0';
-                el.style.overflowWrap = 'normal';
-                el.style.wordBreak = 'normal';
+                el.style.marginTop = '0';
+                el.style.marginBottom = '0';
+                el.style.whiteSpace = 'pre-wrap';
+                el.style.maxWidth = '100%';
+                el.style.overflowWrap = 'break-word';
+                el.style.wordBreak = 'break-word';
             });
+            this._preservePrintedLineBreaks(dst);
         });
+    }
+
+    private _preservePrintedLineBreaks(root: HTMLElement): void {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const nodes: Text[] = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+        for (const text of nodes) {
+            const value = text.nodeValue || '';
+            if (!/[\r\n\u2028\u2029]/.test(value)) continue;
+            const parts = value.split(/\r\n|\n|\r|\u2028|\u2029/);
+            const frag = document.createDocumentFragment();
+            parts.forEach((part, index) => {
+                frag.appendChild(document.createTextNode(part));
+                if (index < parts.length - 1) frag.appendChild(document.createElement('br'));
+            });
+            text.parentNode?.replaceChild(frag, text);
+        }
     }
 
     /** When the live sheet has no layout box (hidden tab), pin from saved frames. */
@@ -4834,6 +5187,30 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         return this._reportPages?.first?.nativeElement.getBoundingClientRect().width ?? 0;
     }
 
+    /**
+     * Chromium's print UA stylesheet underlines every `a[href]`. Screen CSS is
+     * dropped when we rewrite `cssText`, so the PDF would show a line the
+     * preview does not. Keep autolinks bare unless the designer underlined them.
+     */
+    private _pinPrintedLinkDecoration(source: HTMLElement, target: HTMLElement, computed: CSSStyleDeclaration): void {
+        if (source.tagName !== 'A') return;
+        const own = `${computed.getPropertyValue('text-decoration-line')} ${computed.getPropertyValue('text-decoration')}`;
+        const underlined = /\bunderline\b/i.test(own);
+        const color = computed.color;
+        if (color) target.style.setProperty('color', color, 'important');
+        if (underlined) {
+            target.classList.add('is-underlined');
+            target.style.setProperty('text-decoration', 'underline', 'important');
+            target.style.setProperty('text-decoration-line', 'underline', 'important');
+            target.style.setProperty('text-decoration-color', 'currentColor', 'important');
+            return;
+        }
+        target.classList.remove('is-underlined');
+        target.style.setProperty('text-decoration', 'none', 'important');
+        target.style.setProperty('text-decoration-line', 'none', 'important');
+        target.style.setProperty('text-decoration-color', 'transparent', 'important');
+    }
+
     private _inlineComputedStyles(source: Element, target: Element): void {
         const computed = getComputedStyle(source);
         const keys = [
@@ -4870,6 +5247,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             'transform',
             'transform-origin',
             'color',
+            '--report-link-color',
             'white-space',
             'background-color',
             'background-image',
@@ -4929,6 +5307,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         const elSrc = source as HTMLElement;
         const elDst = target as HTMLElement;
         if (css) elDst.style.cssText = css;
+        this._pinPrintedLinkDecoration(elSrc, elDst, computed);
         if (elSrc.style?.transform) elDst.style.transform = elSrc.style.transform;
         if (elSrc.style?.transformOrigin) elDst.style.transformOrigin = elSrc.style.transformOrigin;
         if (elSrc.style?.backgroundImage) elDst.style.backgroundImage = elSrc.style.backgroundImage;

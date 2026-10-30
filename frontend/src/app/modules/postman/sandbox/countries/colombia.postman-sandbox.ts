@@ -109,6 +109,10 @@ export const COLOMBIA_CEDULA_PREMIUM_ENDPOINT_CODE = 'colombia_api_identity_look
 export const COLOMBIA_RUES_FULL_V3_ENDPOINT_CODE = 'colombia_api_rues_full_v3';
 export const COLOMBIA_SICAAC_CASES_ENDPOINT_CODE = 'colombia_api_sicaac_cases';
 export const COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE = 'colombia_api_sicaac_insolvency';
+export const COLOMBIA_JCC_SANCTIONS_ENDPOINT_CODE = 'colombia_api_jcc_sanctions';
+export const COLOMBIA_PACO_SANCTIONS_ENDPOINT_CODE = 'colombia_api_paco_sanctions';
+export const COLOMBIA_RAMA_JEPMS_ENDPOINT_CODE = 'colombia_api_rama_jepms';
+export const COLOMBIA_ADVERSE_MEDIA_ENDPOINT_CODE = 'colombia_api_adverse_media';
 
 const COLOMBIA_AFFILIATIONS_DEFAULT_DATE = '15/03/1990';
 const COLOMBIA_CEDULA_EXTRA_DEFAULT_DATE = '15/03/2020';
@@ -1410,6 +1414,147 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         defaultDocumentNumber: '75086330',
         documentTypeByCode: {
             [COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_JCC_SANCTIONS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '14322443',
+                    fullName: 'CARLOS ENRIQUE RESTREPO — Sanción disciplinaria activa',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '10000001',
+                    fullName: 'MARIA ELENA LOPEZ GARCIA — Sin antecedentes ni sanciones',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '12345678',
+                    fullName: 'Contador público sin sanciones registradas',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+            ],
+            {
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                    SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+                ],
+            }
+        ),
+        defaultDocumentNumber: '14322443',
+        documentTypeByCode: {
+            [COLOMBIA_JCC_SANCTIONS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_PACO_SANCTIONS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '800197268',
+                    fullName: 'CONSORCIO VIAL NACIONAL — Con sanciones e inhabilidades',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '900123456',
+                    fullName: 'CONSTRUCTORA ANDINA S.A.S. — Sin sanciones registradas',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '10000001',
+                    fullName: 'Contratista persona natural sin antecedentes',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+            ],
+            {
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                    SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+                ],
+            }
+        ),
+        defaultDocumentNumber: '800197268',
+        documentTypeByCode: {
+            [COLOMBIA_PACO_SANCTIONS_ENDPOINT_CODE]: 'NIT',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_RAMA_JEPMS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '2373969',
+                    fullName: 'HERNANDO GOMEZ PEREZ — Proceso en Juzgado de Ejecución de Penas',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '10000001',
+                    fullName: 'MARIA ELENA LOPEZ GARCIA — Sin medidas de ejecución penal',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '12345678',
+                    fullName: 'Ciudadano sin procesos JEPMS registrados',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+            ],
+            {
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                    SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+                ],
+            }
+        ),
+        defaultDocumentNumber: '2373969',
+        defaultCity: 'bogota',
+        documentTypeByCode: {
+            [COLOMBIA_RAMA_JEPMS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_ADVERSE_MEDIA_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '75086330',
+                    fullName: 'WILVER VILLEGAS PALOMINO — Riesgo alto: Noticias adversas encontradas',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '10000001',
+                    fullName: 'MARIA ELENA LOPEZ GARCIA — Sin noticias o publicaciones adversas',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '900123456',
+                    fullName: 'Empresa sin registros de medios negativos',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+            ],
+            {
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                    SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+                ],
+            }
+        ),
+        defaultDocumentNumber: '75086330',
+        documentTypeByCode: {
+            [COLOMBIA_ADVERSE_MEDIA_ENDPOINT_CODE]: 'CC',
         },
         showProfileMeta: false,
     },

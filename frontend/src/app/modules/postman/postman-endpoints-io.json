@@ -2,7 +2,7 @@
   "generatedAt": "2026-10-05T14:28:25.131Z",
   "source": "verifik-backend/scripts/app-features-final.json (AppFeature.docs used by Postman About tab)",
   "locale": "en",
-  "endpointCount": 225,
+  "endpointCount": 251,
   "withDocumentedResponses": 151,
   "withoutDocumentedResponses": [
     "feature_kyc_solution",
@@ -519,7 +519,7 @@
       "method": "POST",
       "url": "v2/projects",
       "description": "Bundled Verifik KYC solution: identity, document, biometrics, and watchlist checks orchestrated end-to-end. Used as the default reference for full KYC flows.",
-      "price": 0.00001,
+      "price": 1e-05,
       "isAvailable": false,
       "catalogHidden": false,
       "headers": [],
@@ -11206,7 +11206,7 @@
       "method": "DELETE",
       "url": "v2/face-recognition/persons/@monitor.personId",
       "description": "Delete an enrolled face person by id",
-      "price": 0.00001,
+      "price": 1e-05,
       "isAvailable": true,
       "catalogHidden": false,
       "headers": [
@@ -19152,8 +19152,14 @@
       "isAvailable": true,
       "catalogHidden": false,
       "headers": [
-        { "name": "Accept", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer <token>" }
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
       ],
       "input": {
         "dependencies": [
@@ -19163,7 +19169,10 @@
             "required": false,
             "dependencyGroup": "1",
             "description": "Set to CURP or CEDULA when using a document group (Explorer sets this automatically).",
-            "enum": ["CURP", "CEDULA"]
+            "enum": [
+              "CURP",
+              "CEDULA"
+            ]
           },
           {
             "field": "documentNumber",
@@ -19188,10 +19197,22 @@
           }
         ],
         "documentedParams": [
-          { "field": "documentType", "description": "CURP or CEDULA for document groups." },
-          { "field": "documentNumber", "description": "CURP or professional license number." },
-          { "field": "firstName", "description": "Given name for an exact-name search." },
-          { "field": "lastName", "description": "Surnames for an exact-name search." }
+          {
+            "field": "documentType",
+            "description": "CURP or CEDULA for document groups."
+          },
+          {
+            "field": "documentNumber",
+            "description": "CURP or professional license number."
+          },
+          {
+            "field": "firstName",
+            "description": "Given name for an exact-name search."
+          },
+          {
+            "field": "lastName",
+            "description": "Surnames for an exact-name search."
+          }
         ]
       },
       "responses": [
@@ -19214,10 +19235,20 @@
         {
           "status": "404",
           "label": "404",
-          "body": { "code": "NotFound", "message": "Record not found" }
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found"
+          }
         }
       ],
-      "smartBatchSuccessWhen": [{ "httpStatus": 404, "responseCodes": ["NotFound"] }]
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
     },
     {
       "code": "mexico_api_health_worker",
@@ -19233,8 +19264,14 @@
       "isAvailable": true,
       "catalogHidden": false,
       "headers": [
-        { "name": "Accept", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer <token>" }
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
       ],
       "input": {
         "dependencies": [
@@ -19244,7 +19281,10 @@
             "required": false,
             "dependencyGroup": "1",
             "description": "Set to CURP or CEDULA when using a document group (Explorer sets this automatically).",
-            "enum": ["CURP", "CEDULA"]
+            "enum": [
+              "CURP",
+              "CEDULA"
+            ]
           },
           {
             "field": "documentNumber",
@@ -19269,10 +19309,22 @@
           }
         ],
         "documentedParams": [
-          { "field": "documentType", "description": "CURP or CEDULA for document groups." },
-          { "field": "documentNumber", "description": "CURP or professional license number." },
-          { "field": "firstName", "description": "Given name for an exact-name search." },
-          { "field": "lastName", "description": "Surnames for an exact-name search." }
+          {
+            "field": "documentType",
+            "description": "CURP or CEDULA for document groups."
+          },
+          {
+            "field": "documentNumber",
+            "description": "CURP or professional license number."
+          },
+          {
+            "field": "firstName",
+            "description": "Given name for an exact-name search."
+          },
+          {
+            "field": "lastName",
+            "description": "Surnames for an exact-name search."
+          }
         ]
       },
       "responses": [
@@ -19292,10 +19344,20 @@
         {
           "status": "404",
           "label": "404",
-          "body": { "code": "NotFound", "message": "Record not found" }
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found"
+          }
         }
       ],
-      "smartBatchSuccessWhen": [{ "httpStatus": 404, "responseCodes": ["NotFound"] }]
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
     },
     {
       "code": "mexico_api_siged_certificado",
@@ -19311,19 +19373,49 @@
       "isAvailable": true,
       "catalogHidden": false,
       "headers": [
-        { "name": "Accept", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer <token>" }
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
       ],
       "input": {
         "dependencies": [
-          { "field": "folio", "type": "String", "required": true, "description": "Certificate folio." },
-          { "field": "fullName", "type": "String", "required": false, "description": "Expected holder name." },
-          { "field": "curp", "type": "String", "required": false, "description": "Expected holder CURP. Wins over fullName." }
+          {
+            "field": "folio",
+            "type": "String",
+            "required": true,
+            "description": "Certificate folio."
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Expected holder name."
+          },
+          {
+            "field": "curp",
+            "type": "String",
+            "required": false,
+            "description": "Expected holder CURP. Wins over fullName."
+          }
         ],
         "documentedParams": [
-          { "field": "folio", "description": "Certificate folio." },
-          { "field": "fullName", "description": "Optional expected holder name." },
-          { "field": "curp", "description": "Optional expected CURP. Wins over fullName." }
+          {
+            "field": "folio",
+            "description": "Certificate folio."
+          },
+          {
+            "field": "fullName",
+            "description": "Optional expected holder name."
+          },
+          {
+            "field": "curp",
+            "description": "Optional expected CURP. Wins over fullName."
+          }
         ]
       },
       "responses": [
@@ -19342,12 +19434,18 @@
         {
           "status": "404",
           "label": "404",
-          "body": { "code": "NotFound", "message": "Record not found" }
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found"
+          }
         },
         {
           "status": "409",
           "label": "409",
-          "body": { "code": "Conflict", "message": "name_mismatch" }
+          "body": {
+            "code": "Conflict",
+            "message": "name_mismatch"
+          }
         }
       ]
     },
@@ -20692,6 +20790,2975 @@
         "documentedParams": []
       },
       "responses": []
+    },
+    {
+      "code": "colombia_api_jcc_sanctions",
+      "name": "Colombia — Central Board of Accountants Sanctions (JCC)",
+      "nameES": "Colombia — Sanciones Junta Central de Contadores (JCC)",
+      "country": "Colombia",
+      "category": "legal",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/co/jcc",
+      "description": "Verify disciplinary sanctions and background records for accountants and accounting firms registered in the official registry.",
+      "price": 1,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CC",
+              "CE",
+              "NIT"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Document type: `CC` (default), `CE`, `NIT`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult (sample: 14322443)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "14322443",
+              "fullName": "CARLOS ENRIQUE RESTREPO",
+              "hasSanctions": true,
+              "totalSanctions": 1,
+              "sanctions": [
+                {
+                  "sanctionType": "SUSPENSION",
+                  "accountantName": "CARLOS ENRIQUE RESTREPO",
+                  "legalProcess": "EXP-2021-00452",
+                  "resolution": "RES-2022-0198",
+                  "resolutionDate": "2022-04-15",
+                  "startDate": "2022-05-01",
+                  "months": 12,
+                  "endDate": "2023-05-01"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "colombia_api_paco_sanctions",
+      "name": "Colombia — Anti-Corruption Transparency Portal Sanctions (PACO)",
+      "nameES": "Colombia — Sanciones e Inhabilidades Portal PACO",
+      "country": "Colombia",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/co/paco",
+      "description": "Verify contractor transparency, disciplinary sanctions, fiscal liabilities, and procurement penalties in the official transparency portal.",
+      "price": 1,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CC",
+              "CE",
+              "NIT"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Document type: `CC`, `CE`, `NIT`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Contractor document or NIT number (sample: 800197268)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "NIT",
+              "documentNumber": "800197268",
+              "contractorName": "CONSORCIO VIAL NACIONAL",
+              "hasSanctions": true,
+              "summary": {
+                "siriDisciplinaryCount": 1,
+                "fiscalLiabilityCount": 0,
+                "secopPenaltyCount": 2,
+                "totalSanctions": 3
+              },
+              "contractsCount": 15,
+              "reportPdfUrl": "https://paco.anticorrupcion.gov.co/reportes/800197268.pdf"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "colombia_api_rama_jepms",
+      "name": "Colombia — Judicial Penalty Execution & Security Measures (JEPMS)",
+      "nameES": "Colombia — Juzgados de Ejecución de Penas y Medidas de Seguridad (JEPMS)",
+      "country": "Colombia",
+      "category": "legal",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/co/rama/jepms",
+      "description": "Verify judicial records and criminal sentence execution status in the official judicial portal.",
+      "price": 1,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CC",
+              "CE"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true
+          },
+          {
+            "field": "city",
+            "type": "String",
+            "required": false
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Document type: `CC` (default), `CE`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to query (sample: 2373969)."
+          },
+          {
+            "field": "city",
+            "description": "Optional judicial circuit city (e.g., `bogota`)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "2373969",
+              "city": "bogota",
+              "courtOfEPMS": "JUZGADO 001 DE EJECUCION DE PENAS Y MEDIDAS DE SEGURIDAD DE BOGOTA",
+              "filingNumber": "11001310400120190012300",
+              "name": "HERNANDO GOMEZ PEREZ",
+              "representative": "DEFENSORIA DEL PUEBLO",
+              "court": "JUZGADO DE EJECUCION DE PENAS",
+              "receiptDate": "2019-08-14",
+              "year": "2019"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "colombia_api_adverse_media",
+      "name": "Colombia — Adverse Media & Negative News Screening",
+      "nameES": "Colombia — Monitoreo de Medios Adversos y Noticias Negativas",
+      "country": "Colombia",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/co/media/adverse",
+      "description": "Screen individuals and corporate entities for adverse media, negative press, and public risk exposure.",
+      "price": 1.5,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: `CC`, `NIT`",
+            "enum": [
+              "CC",
+              "NIT"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document or NIT number (sample: 75086330)",
+            "dependencyGroup": "1"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Document type: `CC` or `NIT`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document or NIT number to consult (sample: 75086330)."
+          },
+          {
+            "field": "fullName",
+            "description": "Full name of the individual or entity to search directly."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "WILVER VILLEGAS PALOMINO",
+              "hasAdverseMedia": true,
+              "totalArticles": 2,
+              "riskScore": 85,
+              "riskLevel": "HIGH",
+              "articles": [
+                {
+                  "title": "Investigación judicial por presunto lavado de activos y concierto para delinquir",
+                  "url": "https://noticias.example.com/judicial/investigacion-75086330",
+                  "publishedAt": "2023-11-10T14:30:00Z",
+                  "sourceName": "El Espectador Judicial",
+                  "matchedKeywords": [
+                    "lavado de activos",
+                    "concierto para delinquir"
+                  ],
+                  "severity": "HIGH"
+                },
+                {
+                  "title": "Apertura de proceso fiscal y medidas cautelares por irregularidades contractuales",
+                  "url": "https://noticias.example.com/fiscal/proceso-cautelar",
+                  "publishedAt": "2024-02-18T09:15:00Z",
+                  "sourceName": "Portafolio Legal",
+                  "matchedKeywords": [
+                    "medidas cautelares",
+                    "irregularidades"
+                  ],
+                  "severity": "MEDIUM"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentNumber or fullName\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_cia_world_leaders",
+      "name": "Global - CIA World Leaders Search",
+      "nameES": "Global - Búsqueda de Líderes Mundiales CIA",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/cia-world-leaders",
+      "description": "Screen individuals against the official World Leaders and Chiefs of State registry.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in CIA World Leaders)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInCIAWorldLeaders": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in CIA World Leaders)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInCIAWorldLeaders": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_eu_terrorists",
+      "name": "Global - EU Terrorist List",
+      "nameES": "Global - Lista de Terroristas de la Unión Europea",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/eu-terrorists",
+      "description": "Screen individuals and entities against the European Union terrorist sanctions list.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in EU Terrorists)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInEUTerrorists": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in EU Terrorists)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInEUTerrorists": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_csl",
+      "name": "Global - Consolidated Screening List (CSL)",
+      "nameES": "Global - Lista de Selección Consolidada (CSL)",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/csl",
+      "description": "Screen against the official Consolidated Screening List (CSL) of sanctioned parties.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in CSL)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInCSL": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in CSL)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInCSL": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_dss_most_wanted",
+      "name": "Global - Diplomatic Security Service (DSS) Most Wanted",
+      "nameES": "Global - Más Buscados del Servicio de Seguridad Diplomática (DSS)",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/dss-most-wanted",
+      "description": "Screen against the Diplomatic Security Service (DSS) most wanted fugitives list.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in DSS Most Wanted)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInDSS": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in DSS Most Wanted)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInDSS": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_iadb",
+      "name": "Global - Inter-American Development Bank Sanctions (IDB)",
+      "nameES": "Global - Sanciones del Banco Interamericano de Desarrollo (BID)",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/iadb-sanctions",
+      "description": "Screen firms and individuals against the Inter-American Development Bank (IDB/IADB) sanctions list.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in IDB/IADB)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInIADB": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in IDB/IADB)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInIADB": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_us_terrorists",
+      "name": "Global - US Designated Foreign Terrorist Organizations",
+      "nameES": "Global - Organizaciones Terroristas Designadas por EE.UU.",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/us-terrorists",
+      "description": "Screen against the designated foreign terrorist organizations and watchlists.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in US Terrorists)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInUSTerrorists": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in US Terrorists)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInUSTerrorists": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_secret_service",
+      "name": "Global - US Secret Service Most Wanted",
+      "nameES": "Global - Más Buscados del Servicio Secreto de EE.UU.",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/secret-service",
+      "description": "Screen individuals against the US Secret Service most wanted list.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in US Secret Service)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInSecretService": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in US Secret Service)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInSecretService": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_ofsi",
+      "name": "Global - UK OFSI Consolidated Sanctions",
+      "nameES": "Global - Lista Consolidada de Sanciones Financieras OFSI del Reino Unido",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/ofsi",
+      "description": "Screen individuals and entities against the UK Office of Financial Sanctions Implementation (OFSI) consolidated list.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in UK OFSI)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInOFSI": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in UK OFSI)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInOFSI": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_offshore_leaks",
+      "name": "Global - Offshore Leaks Database",
+      "nameES": "Global - Base de Datos Offshore Leaks",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/offshore-leaks",
+      "description": "Screen entities, officers, and intermediaries against the official offshore leaks database.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in Offshore Leaks)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInOffshoreLeaks": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in Offshore Leaks)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInOffshoreLeaks": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_eu_fsf",
+      "name": "Global - EU Financial Sanctions (FSF)",
+      "nameES": "Global - Sanciones Financieras de la Unión Europea (FSF)",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/eu-financial-sanctions",
+      "description": "Screen individuals and legal entities against the European Union Consolidated Financial Sanctions Files (FSF).",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in EU FSF)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInEUFinancialSanctions": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in EU FSF)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInEUFinancialSanctions": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_sec",
+      "name": "Global - US SEC Sanctions & Administrative Proceedings",
+      "nameES": "Global - Sanciones y Procedimientos de la SEC de EE.UU.",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/sec-sanctions",
+      "description": "Screen individuals and companies against the US Securities and Exchange Commission (SEC) enforcement and sanctions records.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in US SEC)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInSEC": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in US SEC)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInSEC": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_world_bank",
+      "name": "Global - World Bank Listing of Ineligible Firms & Individuals",
+      "nameES": "Global - Lista de Empresas e Individuos No Elegibles del Banco Mundial",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/world-bank",
+      "description": "Screen against the World Bank listing of ineligible and debarred firms and individuals.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in World Bank)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInWorldBank": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in World Bank)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInWorldBank": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_health_exclusions",
+      "name": "Global - Healthcare Exclusions List (LEIE)",
+      "nameES": "Global - Lista de Exclusiones de Proveedores de Salud (LEIE)",
+      "country": "world",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/health-exclusions",
+      "description": "Screen healthcare providers and individuals against the official federal healthcare exclusions database.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type (required if not using fullName)",
+            "enum": [
+              "CC",
+              "CE",
+              "PEP",
+              "PPT",
+              "NIT",
+              "CCVE",
+              "CCEC",
+              "DNI",
+              "DNIAR",
+              "DNIHN",
+              "CIC",
+              "CIE",
+              "RUN",
+              "CURP",
+              "CUI",
+              "CCPA",
+              "CI",
+              "CPF",
+              "DUI",
+              "CCUY",
+              "CUIT",
+              "RUCEC",
+              "FME",
+              "RUC",
+              "RUT",
+              "CNPJ"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Document number (required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CCPA",
+                "CI",
+                "CPF",
+                "DUI",
+                "CCUY"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          },
+          {
+            "field": "expirationDate",
+            "type": "String",
+            "required": false,
+            "description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)",
+            "dependencyGroup": "1",
+            "requiredWhen": {
+              "field": "documentType",
+              "in": [
+                "CE",
+                "PPT",
+                "PEP"
+              ]
+            },
+            "dateFormat": "dd/MM/yyyy"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "The document type that you want to request."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Document number to consult, without spaces or points."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of documentType and documentNumber, you can pass the name directly of the person/business."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200-not-found",
+          "label": "200 (Not Found in LEIE Health Exclusions)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "123456789",
+              "fullName": "MATEO ANDRES VERIFIK",
+              "firstName": "MATEO ANDRES",
+              "lastName": "VERIFIK",
+              "arrayName": [
+                "MATEO",
+                "ANDRES",
+                "VERIFIK"
+              ],
+              "foundInHealthExclusions": false,
+              "details": {}
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:00 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "CLEAN1"
+          }
+        },
+        {
+          "status": "200-found",
+          "label": "200 (Found in LEIE Health Exclusions)",
+          "body": {
+            "data": {
+              "documentType": "CC",
+              "documentNumber": "75086330",
+              "fullName": "JUAN CARLOS VILLEGAS",
+              "firstName": "JUAN CARLOS",
+              "lastName": "VILLEGAS",
+              "arrayName": [
+                "JUAN",
+                "CARLOS",
+                "VILLEGAS"
+              ],
+              "foundInHealthExclusions": true,
+              "details": {
+                "matchedName": "JUAN CARLOS VILLEGAS",
+                "listingReason": "Designated person under sanctions compliance program",
+                "status": "Active"
+              }
+            },
+            "signature": {
+              "dateTime": "October 30, 2026 12:05 PM",
+              "message": "Certified by Verifik.co"
+            },
+            "id": "FOUND1"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409-1",
+          "label": "409 (Missing Parameters)",
+          "body": {
+            "code": "MissingParameter",
+            "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
     }
   ]
 }

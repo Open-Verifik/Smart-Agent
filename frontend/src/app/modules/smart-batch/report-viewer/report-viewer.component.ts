@@ -8,6 +8,7 @@ import {
     effect,
     HostListener,
     inject,
+    NgZone,
     OnDestroy,
     OnInit,
     signal,
@@ -34,7 +35,6 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import * as XLSX from 'xlsx';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
-import { reportPaperSizeMm } from '../report-preview/report-preview.component';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import {
     BatchConfiguration,
@@ -139,6 +139,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
+    private _ngZone = inject(NgZone);
     // Route params
     configId = signal<string | null>(null);
     batchId = signal<string | null>(null);
@@ -166,6 +167,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     private _htmlPreviewObjectUrl: string | null = null;
     private readonly _htmlPreviewRequest$ = new Subject<void>();
     private _htmlPreviewLoadSeq = 0;
+    private _htmlPreviewContextAbort: AbortController | null = null;
 
     // Step results layout: ordered list of step blocks (sequence + label)
     stepBlocksOrder = signal<StepBlockDescriptor[]>([]);
@@ -361,11 +363,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         return all[idx] ?? { inputData: {}, results: {} };
     });
 
-    previewPaperWidthMm = computed(() => {
-        const template = this.selectedTemplate();
-        return reportPaperSizeMm(template?.pageSize, template?.orientation || 'portrait').width;
-    });
-
     goToPreviewPage(index: number): void {
         const max = this.previewDataForAllRows().length - 1;
         this.previewPageIndex.set(Math.min(Math.max(0, index), max));
@@ -422,7 +419,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     const template = this.selectedTemplate()!;
                     const sampleData = this._sampleDataForHtmlPreview();
                     return this._reportService
-                        .previewHtml(template, sampleData, { preview: false })
+                        .previewHtml(template, sampleData)
                         .pipe(
                             map((html) => ({ loadSeq, html })),
                             catchError(() => of({ loadSeq, html: null as string | null }))
@@ -489,6 +486,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     }
 
     private _releaseHtmlPreviewUrl(): void {
+        this._unbindHtmlPreviewContextMenu();
         if (this._htmlPreviewObjectUrl) {
             URL.revokeObjectURL(this._htmlPreviewObjectUrl);
             this._htmlPreviewObjectUrl = null;
@@ -500,9 +498,34 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     onHtmlPreviewIframeLoad(event: Event): void {
         const iframe = event.target as HTMLIFrameElement | null;
         if (!iframe) return;
+        this._bindHtmlPreviewContextMenu(iframe);
         this._syncHtmlPreviewIframeHeight(iframe);
         window.setTimeout(() => this._syncHtmlPreviewIframeHeight(iframe), 150);
         window.setTimeout(() => this._syncHtmlPreviewIframeHeight(iframe), 600);
+    }
+
+    private _bindHtmlPreviewContextMenu(iframe: HTMLIFrameElement): void {
+        this._htmlPreviewContextAbort?.abort();
+        const doc = iframe.contentDocument;
+        if (!doc) return;
+        const abort = new AbortController();
+        this._htmlPreviewContextAbort = abort;
+        const onContextMenu = (event: MouseEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const rect = iframe.getBoundingClientRect();
+            this._ngZone.run(() =>
+                this._openPreviewContextMenu(rect.left + event.clientX, rect.top + event.clientY)
+            );
+        };
+        const onClick = () => this._ngZone.run(() => this.closePreviewContextMenu());
+        doc.addEventListener('contextmenu', onContextMenu, { signal: abort.signal });
+        doc.addEventListener('click', onClick, { signal: abort.signal });
+    }
+
+    private _unbindHtmlPreviewContextMenu(): void {
+        this._htmlPreviewContextAbort?.abort();
+        this._htmlPreviewContextAbort = null;
     }
 
     private _syncHtmlPreviewIframeHeight(iframe: HTMLIFrameElement): void {
@@ -511,11 +534,20 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             if (!doc) return;
             const root = doc.documentElement;
             const body = doc.body;
+            const sheets = doc.querySelectorAll('.report-paper, .report-page');
+            let sheetBottom = 0;
+            sheets.forEach((sheet) => {
+                const rect = sheet.getBoundingClientRect();
+                const scrollTop = doc.scrollingElement?.scrollTop ?? body?.scrollTop ?? 0;
+                sheetBottom = Math.max(sheetBottom, rect.bottom + scrollTop);
+            });
+            const paddingBottom = body ? Number.parseFloat(doc.defaultView?.getComputedStyle(body).paddingBottom || '0') : 0;
             const height = Math.max(
                 root?.scrollHeight ?? 0,
                 root?.offsetHeight ?? 0,
                 body?.scrollHeight ?? 0,
-                body?.offsetHeight ?? 0
+                body?.offsetHeight ?? 0,
+                Math.ceil(sheetBottom + paddingBottom)
             );
             if (height > 0) this.htmlPreviewIframeHeightPx.set(height);
         } catch {
@@ -1340,11 +1372,15 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     onPreviewContextMenu(event: MouseEvent): void {
         event.preventDefault();
         event.stopPropagation();
+        this._openPreviewContextMenu(event.clientX, event.clientY);
+    }
+
+    private _openPreviewContextMenu(clientX: number, clientY: number): void {
         const menuWidth = 220;
         const menuHeight = 48;
         this.previewContextMenu.set({
-            x: Math.min(event.clientX, window.innerWidth - menuWidth),
-            y: Math.min(event.clientY, window.innerHeight - menuHeight),
+            x: Math.min(clientX, window.innerWidth - menuWidth),
+            y: Math.min(clientY, window.innerHeight - menuHeight),
         });
     }
 
@@ -1549,14 +1585,13 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const batchId = b?._id ?? this.batchId();
         const templateId = createNew ? null : this.selectedTemplate()?._id;
 
-        this._router.navigate(['/smart-batch'], {
+        this._router.navigate(['/smart-batch', 'guide', 'layout'], {
             queryParams: {
-                step: 'layout',
                 intent: 'template',
                 configId,
                 ...(batchId ? { batchId } : {}),
                 ...(templateId
-                    ? { templateId }
+                    ? { templateId, templateChoice: 'mine' }
                     : { templateChoice: 'scratch' }),
             },
             ...navigationExtras,

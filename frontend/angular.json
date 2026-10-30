@@ -56,6 +56,7 @@
                             "src/styles/vendors.scss",
                             "src/@fuse/styles/main.scss",
                             "src/styles/styles.scss",
+                            "src/app/modules/smart-fleet/smart-fleet-mobile.scss",
                             "src/styles/tailwind.scss",
                             "ag-grid-community/styles/ag-grid.css",
                             "ag-grid-community/styles/ag-theme-quartz.css"

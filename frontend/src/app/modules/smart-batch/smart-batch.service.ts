@@ -126,7 +126,10 @@ export interface AppFeature {
     method?: string;
     url?: string;
     country?: string;
+    baseCategory?: string;
     group?: string;
+    /** Hidden from the public catalog. A client sees it only when their account has it enabled. */
+    catalogHidden?: boolean;
     requiredParams?: string[];
     dependencies?: { field: string; required?: boolean; enum?: string[] }[];
     smartBatchSuccessWhen?: SmartBatchSuccessWhenRule[];

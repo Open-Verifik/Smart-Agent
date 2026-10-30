@@ -17,6 +17,10 @@ export interface FlowGraphEdge {
     fromPort: string;
     to: string;
     toPort: string;
+    /** When the source port is an array, the item index to feed forward. */
+    fromIndex?: number;
+    /** Dotted path when that array sits under the response, not on the port name. */
+    fromPath?: string;
 }
 
 export type FlowPortSide = 'inputs' | 'outputs';
@@ -166,19 +170,31 @@ export const connectPorts = (
     from: string,
     fromPort: string,
     to: string,
-    toPort: string
+    toPort: string,
+    fromIndex?: number,
+    fromPath?: string
 ): FlowGraph => {
     if (from === to) return graph;
+    const index = Number.isInteger(fromIndex) && (fromIndex as number) >= 0 ? fromIndex : undefined;
+    const path = typeof fromPath === 'string' && fromPath && fromPath !== fromPort ? fromPath : undefined;
     const existing = graph.edges.find(
         (edge) => edge.from === from && edge.fromPort === fromPort && edge.to === to && edge.toPort === toPort
     );
-    if (existing) return graph;
+    if (existing && existing.fromIndex === index && existing.fromPath === path) return graph;
     const withoutTarget = graph.edges.filter((edge) => !(edge.to === to && edge.toPort === toPort));
     return {
         ...graph,
         edges: [
             ...withoutTarget,
-            { id: nextEdgeId(), from, fromPort, to, toPort },
+            {
+                id: nextEdgeId(),
+                from,
+                fromPort,
+                to,
+                toPort,
+                ...(index != null ? { fromIndex: index } : {}),
+                ...(path ? { fromPath: path } : {}),
+            },
         ],
         fixed: {
             ...graph.fixed,
@@ -486,6 +502,8 @@ const layoutSnapshot = (graph: FlowGraph) => ({
         fromPort: edge.fromPort,
         to: edge.to,
         toPort: edge.toPort,
+        ...(Number.isInteger(edge.fromIndex) ? { fromIndex: edge.fromIndex } : {}),
+        ...(edge.fromPath ? { fromPath: edge.fromPath } : {}),
     })),
     fixed: Object.fromEntries(
         Object.entries(graph.fixed ?? {}).filter(([, fields]) => Object.keys(fields).length)
@@ -542,7 +560,17 @@ export const parseFlowGraph = (value: unknown): FlowGraph | null => {
         if (from === FLOW_MERGE_ID) continue;
         const dest = to === FLOW_MERGE_ID ? FLOW_RESULT_ID : to;
         const destPort = to === FLOW_MERGE_ID ? from : toPort;
-        edges.push({ id, from, fromPort, to: dest, toPort: destPort });
+        const fromIndex = Number(raw['fromIndex']);
+        const fromPath = typeof raw['fromPath'] === 'string' && raw['fromPath'] && raw['fromPath'] !== fromPort ? raw['fromPath'] : undefined;
+        edges.push({
+            id,
+            from,
+            fromPort,
+            to: dest,
+            toPort: destPort,
+            ...(Number.isInteger(fromIndex) && fromIndex >= 0 ? { fromIndex } : {}),
+            ...(fromPath ? { fromPath } : {}),
+        });
     }
     const fixed: Record<string, Record<string, string>> = {};
     if (isRecord(value['fixed'])) {
@@ -604,7 +632,9 @@ export const chainStepFeedTemplatesFromGraph = (
         const fromSeq = seqByFeatureId.get(fromId);
         const toIndex = indexById.get(toId);
         if (!fromSeq || toIndex == null) continue;
-        templates[toIndex][edge.toPort] = `{{results.${fromSeq}.${edge.fromPort}}}`;
+        const item = Number.isInteger(edge.fromIndex) ? `.${edge.fromIndex}` : '';
+        const path = edge.fromPath || edge.fromPort;
+        templates[toIndex][edge.toPort] = `{{results.${fromSeq}.${path}${item}}}`;
     }
     return templates;
 };

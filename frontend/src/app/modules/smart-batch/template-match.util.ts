@@ -4,6 +4,7 @@ import {
 } from './colombia-vehicle-report/colombia-vehicle-report.composer';
 import { reportModelHasBlocks, reportModelHasRenderableContent } from './report-blocks-preview.util';
 import { valueAtDataPath } from './report-param-entries.util';
+import { buildConsultStats } from './report-consult-stats.util';
 import type { BatchStep } from './smart-batch.service';
 import { ReportSection, SmartReportTemplate } from './smart-report.service';
 
@@ -95,6 +96,14 @@ export function buildRowDataForResolution(
     };
 
     const steps = options?.steps ?? [];
+    data.consultStats = buildConsultStats(
+        {
+            results: row.results,
+            errors: row.errors ?? options?.errors,
+            inputData: row.inputData,
+        },
+        { steps }
+    );
     let localReport: Record<string, any> | undefined;
     if (steps.length > 0 && hasColombiaVehicleReportSteps(steps)) {
         localReport = buildColombiaVehicleReport(
