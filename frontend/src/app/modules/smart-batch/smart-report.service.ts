@@ -88,6 +88,10 @@ export interface ReportSheetImage extends ReportSheetImageRuleBinding {
     zIndex?: number;
     /** When set, a click in the PDF jumps to this section. */
     linkToSectionId?: string;
+    /** When set, a click opens this URL. The visible text stays the layer copy. */
+    linkUrl?: string;
+    /** Designer-only name in the layers list and jump picker. Does not change the PDF anchor. */
+    layerName?: string;
 }
 
 /** Company logo repeated in the header or footer of every page. */
@@ -164,6 +168,8 @@ export interface ReportSection {
     order: number;
     dataPath?: string;
     label?: string;
+    /** Name shown in the layers panel and jump picker. PDF jumps still use `id`. */
+    layerName?: string;
     staticContent?: string;
     /** Decorative shape when `type` is `shape`. */
     shape?: ReportShapeKind;
@@ -216,6 +222,8 @@ export interface ReportSection {
     itemTemplate?: string;
     /** When set, a click on this block in the PDF / preview jumps to that section. */
     linkToSectionId?: string;
+    /** When set, a click opens this URL. The visible text stays the block copy. */
+    linkUrl?: string;
     /**
      * Label + value placement. Omitted keeps the current look: stacked on fields
      * and grids, side-by-side on cards.
@@ -268,6 +276,13 @@ export interface ReportSection {
         borderWidth?: number;
         borderColor?: string;
         borderRadius?: number;
+        /** Chrome for HTML tables pasted into a text / title block. */
+        tableBorderColor?: string;
+        tableBorderWidth?: number;
+        tableHeaderBackground?: string;
+        tableHeaderColor?: string;
+        tableCellBackground?: string;
+        tableCellColor?: string;
         rotation?: number;
         /** Paint order on the sheet; higher stays on top when blocks overlap. */
         zIndex?: number;
@@ -282,6 +297,15 @@ export interface BatchConfigurationRef {
     _id?: string;
     id?: string;
     name?: string;
+}
+
+export interface ReportEmailDelivery {
+    sentAt: Date | string;
+    recipients: string[];
+    subject?: string;
+    status: 'sent' | 'failed' | 'delivered' | 'opened' | 'bounced';
+    messageId?: string;
+    errorMessage?: string;
 }
 
 export interface SmartReportTemplate {
@@ -387,7 +411,7 @@ export interface SmartReportTemplate {
     customFonts?: ReportCustomFont[];
 
     /** Per-layer lock and hide. Keys match the layers panel (`sec:id`, `img:id`, `hdr:id`, overlays). */
-    layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean }>;
+    layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean; name?: string }>;
 
     /** Paint order for watermark, signature, logo and header logos. */
     layoutOverlayZ?: Record<string, number>;
@@ -400,6 +424,10 @@ export interface SmartReportTemplate {
 
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
+
+    /** Designer sample emails. Batch sends live on each SmartReport instead. */
+    emailHistory?: ReportEmailDelivery[];
+    lastEmailedAt?: string;
 
     /**
      * Cached page-one render, sent only by the list endpoint. Absent when the
@@ -462,6 +490,8 @@ export const sanitizeTemplateForApi = (
     delete payload.updatedAt;
     delete payload.clonedFromSystemKey;
     delete payload.__v;
+    delete payload.emailHistory;
+    delete payload.lastEmailedAt;
 
     const batchRef = payload.batchConfiguration;
     if (batchRef && typeof batchRef === 'object') {
@@ -508,13 +538,7 @@ export interface SmartReport {
     htmlSnapshot?: string;
 
     // Email tracking
-    emailHistory?: {
-        sentAt: Date;
-        recipients: string[];
-        subject: string;
-        status: 'sent' | 'failed' | 'delivered' | 'opened' | 'bounced';
-        messageId?: string;
-    }[];
+    emailHistory?: ReportEmailDelivery[];
 
     generatedAt?: string;
     createdAt?: string;
@@ -572,6 +596,8 @@ export interface SampleReportData {
     /** Batch steps so the PDF composer can match each result to its feature, same as Smart Batch. */
     steps?: { sequence: number; enabled?: boolean; featureCode?: string; appFeature?: { code?: string } }[];
     consultedAt?: string;
+    /** Frozen when the sheet first paints the generation date; reused in PDF and email. */
+    generatedAt?: string;
     processedAt?: string;
     startedAt?: string;
     createdAt?: string;
@@ -717,12 +743,19 @@ export class SmartReportService {
             sampleData: SampleReportData;
             printHtml?: string;
         }
-    ): Observable<{ success: boolean; message: string; messageId?: string; error?: string }> {
+    ): Observable<{
+        success: boolean;
+        message: string;
+        messageId?: string;
+        error?: string;
+        delivery?: ReportEmailDelivery;
+    }> {
         return this._httpClient.post<{
             success: boolean;
             message: string;
             messageId?: string;
             error?: string;
+            delivery?: ReportEmailDelivery;
         }>(`${environment.apiUrl}/v2/smart-report-templates/${id}/send-sample`, options);
     }
 
@@ -768,7 +801,7 @@ export class SmartReportService {
     getReportsByTemplate(templateId: string): Observable<SmartReport[]> {
         return this._httpClient
             .get<{ data: SmartReport[] }>(`${environment.apiUrl}/v2/smart-reports`, {
-                params: { template: templateId, sort: '-createdAt' },
+                params: { template: templateId, sort: '-createdAt', limit: 200 },
             })
             .pipe(map((res) => res.data ?? []));
     }

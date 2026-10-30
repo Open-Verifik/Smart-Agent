@@ -402,8 +402,7 @@
                                         }
                                         @if (selectedTemplate() && batch()?.rows?.length) {
                                             <div
-                                                class="relative mx-auto max-w-none border border-stone-200/90 bg-stone-100 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                                                [style.width.mm]="previewPaperWidthMm()"
+                                                class="relative mx-auto w-full overflow-x-auto border border-stone-200/90 bg-stone-100 shadow-sm dark:border-gray-800 dark:bg-gray-900"
                                             >
                                                 @if (htmlPreviewError()) {
                                                     <div
@@ -425,7 +424,7 @@
                                                         sandbox="allow-same-origin"
                                                         scrolling="no"
                                                         title="Report preview"
-                                                        class="block w-full border-0 bg-white"
+                                                        class="block w-full border-0 bg-stone-100"
                                                         [style.height.px]="htmlPreviewIframeHeightPx() ?? 480"
                                                         (load)="onHtmlPreviewIframeLoad($event)"
                                                     ></iframe>
@@ -794,7 +793,7 @@
         <button
             type="button"
             class="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-            (click)="downloadReport()"
+            (click)="closePreviewContextMenu(); downloadReport()"
         >
             <mat-icon class="!text-lg !h-5 !w-5 text-stone-500 dark:text-stone-400">download</mat-icon>
             {{ 'smartReport.downloadPdf' | transloco }}

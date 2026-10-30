@@ -1,27 +1,9 @@
 import { Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
+import { normalizeHexColor } from './color-hex.util';
 
-/** `#rrggbb`, or `#rrggbbaa` when the color is not fully opaque. */
-export const normalizeHexColor = (raw: string | null | undefined): string | null => {
-    if (raw == null) return null;
-    let value = raw.trim();
-    if (!value) return null;
-    if (value.startsWith('0x') || value.startsWith('0X')) value = value.slice(2);
-    if (value[0] !== '#') value = `#${value}`;
-    if (/^#([0-9a-f]{3})$/i.test(value)) {
-        const short = value.slice(1);
-        value = `#${short[0]}${short[0]}${short[1]}${short[1]}${short[2]}${short[2]}`;
-    }
-    if (/^#([0-9a-f]{4})$/i.test(value)) {
-        const short = value.slice(1);
-        value = `#${short[0]}${short[0]}${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}`;
-    }
-    if (!/^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(value)) return null;
-    value = value.toLowerCase();
-    if (value.length === 9 && value.slice(7) === 'ff') return value.slice(0, 7);
-    return value;
-};
+export { normalizeHexColor } from './color-hex.util';
 
 const alphaByte = (hex: string): number => (hex.length === 9 ? parseInt(hex.slice(7, 9), 16) : 255);
 
@@ -68,6 +50,7 @@ const withAlpha = (rgb: string, alpha: number): string => {
                     [value]="hexDraft"
                     [placeholder]="placeholder()"
                     [attr.aria-label]="ariaLabel()"
+                    (focus)="onFocus()"
                     (input)="onDraft($event)"
                     (blur)="onBlur()"
                 />
@@ -107,6 +90,7 @@ export class ColorHexFieldComponent implements ControlValueAccessor {
     opacityPercent = 100;
     disabled = false;
 
+    private editing = false;
     private onChange: (value: string) => void = () => undefined;
     private onTouched: () => void = () => undefined;
 
@@ -116,7 +100,8 @@ export class ColorHexFieldComponent implements ControlValueAccessor {
 
     writeValue(value: string | null): void {
         const next = normalizeHexColor(value) ?? '#000000';
-        if (next === this.value) return;
+        if (next === this.value && this.editing) return;
+        if (next === this.value && this.hexDraft.toLowerCase() === next) return;
         this.apply(next, false);
     }
 
@@ -145,30 +130,35 @@ export class ColorHexFieldComponent implements ControlValueAccessor {
         this.apply(withAlpha(this.pickerValue, (opacity / 100) * 255), true);
     }
 
+    onFocus(): void {
+        this.editing = true;
+    }
+
     onDraft(event: Event): void {
         const raw = (event.target as HTMLInputElement).value;
         this.hexDraft = raw;
-        const next = normalizeHexColor(raw);
+        const next = normalizeHexColor(raw, { allowShort: false });
         if (!next) return;
+        this.commitNormalized(next);
+    }
+
+    onBlur(): void {
+        this.editing = false;
+        this.onTouched();
+        const next = normalizeHexColor(this.hexDraft);
+        if (next) {
+            this.commitNormalized(next);
+            return;
+        }
+        this.hexDraft = this.value.toUpperCase();
+    }
+
+    private commitNormalized(next: string): void {
         if (next.length === 7) {
             this.apply(withAlpha(next, (this.opacityPercent / 100) * 255), true);
             return;
         }
         this.apply(next, true);
-    }
-
-    onBlur(): void {
-        this.onTouched();
-        const next = normalizeHexColor(this.hexDraft);
-        if (next) {
-            if (next.length === 7) {
-                this.apply(withAlpha(next, (this.opacityPercent / 100) * 255), true);
-                return;
-            }
-            this.apply(next, true);
-            return;
-        }
-        this.hexDraft = this.value.toUpperCase();
     }
 
     private apply(normalized: string, emit: boolean): void {

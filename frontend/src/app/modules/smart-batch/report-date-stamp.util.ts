@@ -37,6 +37,11 @@ const consultedRaw = (data: Record<string, unknown> | null | undefined): unknown
     data?.['createdAt'] ??
     (data?.['meta'] && typeof data.meta === 'object' ? (data.meta as Record<string, unknown>)['consultedAt'] : undefined);
 
+const generatedRaw = (data: Record<string, unknown> | null | undefined): unknown =>
+    data?.['generatedAt'] ??
+    data?.['generated_at'] ??
+    (data?.['meta'] && typeof data.meta === 'object' ? (data.meta as Record<string, unknown>)['generatedAt'] : undefined);
+
 export const reportDateStampForPath = (
     path: string | undefined,
     data: Record<string, unknown> | null | undefined,
@@ -44,7 +49,9 @@ export const reportDateStampForPath = (
 ): string | null => {
     const key = String(path || '').trim();
     if (!STAMP_PATHS.has(key)) return null;
-    if (key === 'generatedAt' || key === 'meta.generatedAt') return formatReportStamp(new Date(), locale);
+    if (key === 'generatedAt' || key === 'meta.generatedAt') {
+        return formatReportStamp(generatedRaw(data) || new Date(), locale);
+    }
     return formatReportStamp(consultedRaw(data) || new Date(), locale);
 };
 

@@ -12,6 +12,12 @@ describe('report-date-stamp', () => {
         expect(stamp).toContain(String(new Date().getFullYear()));
     });
 
+    it('keeps a stored generatedAt instead of moving to now', () => {
+        const stamp = reportDateStampForPath('generatedAt', { generatedAt: '2026-01-15T12:00:00.000Z' }, 'en');
+        expect(stamp).toMatch(/2026/);
+        expect(stamp).toMatch(/15|Jan/);
+    });
+
     it('replaces tokens in copy', () => {
         const html = substituteReportPlaceholders('Consulta: {consultedAt}', { consultedAt: '2026-01-15T12:00:00.000Z' }, 'en');
         expect(html.startsWith('Consulta: ')).toBe(true);

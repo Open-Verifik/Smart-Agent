@@ -1,3 +1,4 @@
+/** @vitest-environment jsdom */
 import { autolinkHtml, hrefForAutolink, REPORT_LINK_COLOR } from './report-autolink.util';
 
 describe('report-autolink', () => {
@@ -32,6 +33,11 @@ describe('report-autolink', () => {
     it('escapes surrounding text', () => {
         expect(autolinkHtml('<script>verifika.com')).toContain('&lt;script&gt;');
         expect(autolinkHtml('<script>verifika.com')).toContain('href="https://verifika.com"');
+    });
+
+    it('turns an Enter into a line break the PDF can paint', () => {
+        expect(autolinkHtml('Arriba\nAbajo')).toBe('Arriba<br>Abajo');
+        expect(autolinkHtml('Uno\r\nDos')).toBe('Uno<br>Dos');
     });
 
     it('does not treat file-like names as websites', () => {

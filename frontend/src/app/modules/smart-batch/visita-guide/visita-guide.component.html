@@ -55,6 +55,61 @@
             </span>
         </button>
     </ng-template>
+    <ng-template #pastedTableStyleControls>
+        <div class="mt-3 rounded-xl border border-stone-200 bg-stone-50 p-3 dark:border-gray-700 dark:bg-gray-900/60">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-300">{{
+                t('visitaGuide.layoutTableStyle')
+            }}</p>
+            <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{ t('visitaGuide.layoutTableBorderColor') }}</span>
+            <color-hex-field
+                class="mt-1 block"
+                [ngModel]="selectedTableBorderColor()"
+                (ngModelChange)="setSelectedTableBorderColor($event)"
+                [ariaLabel]="t('visitaGuide.layoutTableBorderColor')"
+            />
+            <label class="mt-2 flex items-center justify-between text-xs text-stone-500">
+                <span>{{ t('visitaGuide.layoutTableBorderWidth') }}</span>
+                <span>{{ selectedTableBorderWidth() }} px</span>
+            </label>
+            <input
+                type="range"
+                min="0"
+                max="8"
+                step="1"
+                class="mt-1 w-full"
+                [ngModel]="selectedTableBorderWidth()"
+                (ngModelChange)="setSelectedTableBorderWidth($event)"
+            />
+            <span class="mt-3 block text-xs text-stone-600 dark:text-stone-300">{{ t('visitaGuide.layoutTableHeaderBg') }}</span>
+            <color-hex-field
+                class="mt-1 block"
+                [ngModel]="selectedTableHeaderBackground()"
+                (ngModelChange)="setSelectedTableHeaderBackground($event)"
+                [ariaLabel]="t('visitaGuide.layoutTableHeaderBg')"
+            />
+            <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{ t('visitaGuide.layoutTableHeaderColor') }}</span>
+            <color-hex-field
+                class="mt-1 block"
+                [ngModel]="selectedTableHeaderColor()"
+                (ngModelChange)="setSelectedTableHeaderColor($event)"
+                [ariaLabel]="t('visitaGuide.layoutTableHeaderColor')"
+            />
+            <span class="mt-3 block text-xs text-stone-600 dark:text-stone-300">{{ t('visitaGuide.layoutTableCellBg') }}</span>
+            <color-hex-field
+                class="mt-1 block"
+                [ngModel]="selectedTableCellBackground()"
+                (ngModelChange)="setSelectedTableCellBackground($event)"
+                [ariaLabel]="t('visitaGuide.layoutTableCellBg')"
+            />
+            <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{ t('visitaGuide.layoutTableCellColor') }}</span>
+            <color-hex-field
+                class="mt-1 block"
+                [ngModel]="selectedTableCellColor()"
+                (ngModelChange)="setSelectedTableCellColor($event)"
+                [ariaLabel]="t('visitaGuide.layoutTableCellColor')"
+            />
+        </div>
+    </ng-template>
     <div
         class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950"
         [class.h-dvh]="isFillViewportStep()"
@@ -2128,8 +2183,8 @@
                                             <div
                                                 cdkDrag
                                                 [attr.data-layout-layer]="layer.id"
-                                                [cdkDragDisabled]="isLayoutLayerLocked(layer.id)"
-                                                class="flex items-center gap-1 rounded-lg border px-1 py-1"
+                                                [cdkDragDisabled]="isLayoutLayerLocked(layer.id) || isRenamingLayoutLayer(layer.id)"
+                                                class="flex items-center gap-px rounded-lg border px-0.5 py-0.5"
                                                 (mouseenter)="onLockedLayerHover(layer, true)"
                                                 (mouseleave)="onLockedLayerHover(layer, false)"
                                                 [ngClass]="
@@ -2141,16 +2196,36 @@
                                             >
                                                 <mat-icon
                                                     cdkDragHandle
-                                                    class="!h-4 !w-4 shrink-0 cursor-grab !text-base text-stone-400 active:cursor-grabbing"
+                                                    class="!h-3.5 !w-3.5 shrink-0 cursor-grab !text-[14px] leading-none text-stone-400 active:cursor-grabbing"
                                                     >drag_indicator</mat-icon
                                                 >
+                                                @if (isRenamingLayoutLayer(layer.id)) {
+                                                    <mat-icon
+                                                        class="!h-3.5 !w-3.5 shrink-0 !text-[14px] leading-none text-stone-500"
+                                                        >{{ layer.icon }}</mat-icon
+                                                    >
+                                                    <input
+                                                        type="text"
+                                                        class="min-w-0 flex-1 rounded-md border border-indigo-300 bg-white px-1 py-0.5 text-xs text-stone-900 outline-none ring-2 ring-indigo-200 dark:border-indigo-500 dark:bg-gray-950 dark:text-white"
+                                                        [attr.data-layer-rename]="layer.id"
+                                                        maxlength="80"
+                                                        [value]="layer.editValue"
+                                                        [attr.aria-label]="t('visitaGuide.layoutLayerRename')"
+                                                        (click)="$event.stopPropagation()"
+                                                        (pointerdown)="$event.stopPropagation()"
+                                                        (keydown.enter)="commitRenameLayoutLayer(layer, $event)"
+                                                        (keydown.escape)="cancelRenameLayoutLayer($event)"
+                                                        (blur)="commitRenameLayoutLayer(layer, $event)"
+                                                    />
+                                                } @else {
                                                 <button
                                                     type="button"
-                                                    class="flex min-w-0 flex-1 items-center gap-1 text-left"
+                                                    class="flex min-w-0 flex-1 items-center gap-0.5 text-left"
                                                     (click)="selectLayoutLayer(layer, $event)"
+                                                    (dblclick)="startRenameLayoutLayer(layer, $event)"
                                                 >
                                                     <mat-icon
-                                                        class="!h-4 !w-4 shrink-0 !text-base"
+                                                        class="!h-3.5 !w-3.5 shrink-0 !text-[14px] leading-none"
                                                         [ngClass]="
                                                             isLayoutLayerSelected(layer)
                                                                 ? 'text-indigo-800 dark:text-white'
@@ -2159,7 +2234,7 @@
                                                         >{{ layer.icon }}</mat-icon
                                                     >
                                                     <span
-                                                        class="truncate text-xs"
+                                                        class="min-w-0 flex-1 truncate text-xs"
                                                         [ngClass]="
                                                             isLayoutLayerSelected(layer)
                                                                 ? 'font-semibold text-indigo-950 dark:text-white'
@@ -2170,7 +2245,18 @@
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 dark:hover:bg-gray-800"
+                                                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-stone-500 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-gray-800"
+                                                    [disabled]="isLayoutLayerLocked(layer.id)"
+                                                    [matTooltip]="t('visitaGuide.layoutLayerRename')"
+                                                    [attr.aria-label]="t('visitaGuide.layoutLayerRename')"
+                                                    (click)="startRenameLayoutLayer(layer, $event)"
+                                                >
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px] leading-none">edit</mat-icon>
+                                                </button>
+                                                }
+                                                <button
+                                                    type="button"
+                                                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-stone-500 hover:bg-stone-100 dark:hover:bg-gray-800"
                                                     [attr.aria-pressed]="isLayoutLayerHidden(layer.id)"
                                                     [matTooltip]="
                                                         t(
@@ -2181,25 +2267,25 @@
                                                     "
                                                     (click)="toggleLayoutLayerHidden(layer.id, $event)"
                                                 >
-                                                    <mat-icon class="!h-4 !w-4 !text-base">{{
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px] leading-none">{{
                                                         isLayoutLayerHidden(layer.id) ? 'visibility_off' : 'visibility'
                                                     }}</mat-icon>
                                                 </button>
                                                 @if (layer.kind === 'section') {
                                                 <button
                                                     type="button"
-                                                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-gray-800"
+                                                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-stone-500 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-gray-800"
                                                     [disabled]="isLayoutLayerLocked(layer.id)"
                                                     [matTooltip]="t('visitaGuide.layoutCopyBlock')"
                                                     [attr.aria-label]="t('visitaGuide.layoutCopyBlock')"
                                                     (click)="copyLayoutLayer(layer, $event)"
                                                 >
-                                                    <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px] leading-none">content_copy</mat-icon>
                                                 </button>
                                                 }
                                                 <button
                                                     type="button"
-                                                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 dark:hover:bg-gray-800"
+                                                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-stone-500 hover:bg-stone-100 dark:hover:bg-gray-800"
                                                     [attr.aria-pressed]="isLayoutLayerLocked(layer.id)"
                                                     [matTooltip]="
                                                         t(
@@ -2210,7 +2296,7 @@
                                                     "
                                                     (click)="toggleLayoutLayerLocked(layer.id, $event)"
                                                 >
-                                                    <mat-icon class="!h-4 !w-4 !text-base">{{
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px] leading-none">{{
                                                         isLayoutLayerLocked(layer.id) ? 'lock' : 'lock_open'
                                                     }}</mat-icon>
                                                 </button>
@@ -3584,12 +3670,21 @@
                                         }
                                         @if (selected.type === 'text' || selected.type === 'header') {
                                             <label class="mt-2 block text-xs text-stone-500">{{ t('visitaGuide.layoutBlockBody') }}</label>
+                                            @if (selectedLayoutHasPastedTable()) {
+                                                <p class="mt-1 text-xs leading-snug text-stone-500 dark:text-stone-400">{{
+                                                    t('visitaGuide.layoutPastedTableHint')
+                                                }}</p>
+                                            }
                                             <textarea
                                                 rows="3"
                                                 class="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                                 [ngModel]="selected.staticContent"
                                                 (ngModelChange)="setSelectedLayoutBody($event)"
+                                                (paste)="onSelectedLayoutBodyPaste($event)"
                                             ></textarea>
+                                            @if (selectedLayoutHasPastedTable()) {
+                                                <ng-container [ngTemplateOutlet]="pastedTableStyleControls" />
+                                            }
                                         }
                                         @for (role of selectedLayoutTextRoles(); track role) {
                                             <div [attr.data-layout-control]="role" [class]="layoutRolePanelClass(role)">
@@ -3937,11 +4032,12 @@
                                             <span class="text-xs text-stone-400">{{ t('smartReport.rendering') }}</span>
                                         }
                                     </div>
-                                    @if (deliveries().length === 0) {
+                                    @if (deliveries().length === 0 && deliveryHistory().length === 0) {
                                         <p class="px-5 py-8 text-center text-sm italic text-stone-400 dark:text-stone-500">
                                             {{ t('smartReport.noDeliveries') }}
                                         </p>
                                     } @else {
+                                        @if (deliveries().length > 0) {
                                         <div class="divide-y divide-stone-100 dark:divide-gray-800">
                                             @for (report of deliveries(); track report._id) {
                                                 <div class="flex items-center gap-3 px-5 py-3">
@@ -3963,10 +4059,11 @@
                                                 </div>
                                             }
                                         </div>
+                                        }
                                     }
                                     @if (deliveryHistory().length > 0) {
                                         <div class="border-t border-stone-100 px-5 py-3 dark:border-gray-800">
-                                            @for (entry of deliveryHistory(); track entry.sentAt + entry.subject) {
+                                            @for (entry of deliveryHistory(); track entry.sentAt + (entry.subject || '') + entry.recipients.join(',') + (entry.messageId || '')) {
                                                 <div class="flex items-center gap-3 py-1.5">
                                                     <span
                                                         class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
@@ -4326,91 +4423,6 @@
                 >
                     <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
                 </button>
-                @for (lineStyle of lineStyles; track lineStyle) {
-                    <button
-                        type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg"
-                        [ngClass]="
-                            selectedLineStyle() === lineStyle
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-label]="t('visitaGuide.lineStyle.' + lineStyle)"
-                        [matTooltip]="t('visitaGuide.lineStyle.' + lineStyle)"
-                        (click)="setSelectedLineStyle(lineStyle)"
-                    >
-                        <span class="block w-5" [style.border-top]="'2px ' + lineStyle + ' currentColor'"></span>
-                    </button>
-                }
-                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
-                @for (preset of lineAngles; track preset.angle) {
-                    <button
-                        type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg"
-                        [ngClass]="
-                            selectedLineAngleIs(preset.angle)
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-label]="t(preset.labelKey)"
-                        [matTooltip]="t(preset.labelKey)"
-                        (click)="setSelectedLineAngle(preset.angle)"
-                    >
-                        <span class="block w-4 border-t-2 border-current" [style.transform]="'rotate(' + preset.angle + 'deg)'"></span>
-                    </button>
-                }
-                }
-                @if (selectedLayoutSection()?.type === 'shape') {
-                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
-                <button
-                    type="button"
-                    class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
-                    [attr.aria-label]="t('visitaGuide.layoutRotation')"
-                    [matTooltip]="t('visitaGuide.layoutRotation')"
-                    (click)="nudgeSelectedLayoutRotation(-15)"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base">rotate_left</mat-icon>
-                </button>
-                <span class="min-w-[2.5rem] text-center text-xs font-medium tabular-nums text-stone-800 dark:text-stone-100">{{
-                    selectedLayoutSection()?.style?.rotation || 0
-                }}°</span>
-                <button
-                    type="button"
-                    class="flex h-8 w-7 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
-                    [attr.aria-label]="t('visitaGuide.layoutRotation')"
-                    [matTooltip]="t('visitaGuide.layoutRotation')"
-                    (click)="nudgeSelectedLayoutRotation(15)"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base">rotate_right</mat-icon>
-                </button>
-                }
-                @if (selectedLayoutSection()?.shape === 'icon') {
-                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
-                <button
-                    type="button"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
-                    [attr.aria-label]="t('visitaGuide.layoutIconChange')"
-                    [matTooltip]="t('visitaGuide.layoutIconChange')"
-                    (click)="replaceSelectedIcon()"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base">swap_horiz</mat-icon>
-                </button>
-                }
-                @if (selectedLayoutSection()?.type === 'shape' && !selectedLayoutSection()?.iconKeepColors) {
-                <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
-                <button
-                    type="button"
-                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
-                    [matTooltip]="t('reportRules.shapeButton')"
-                    [attr.aria-label]="t('reportRules.shapeButton')"
-                    (click)="openSelectedShapeRules()"
-                >
-                    <span class="font-mono italic">fx</span>
-                    {{ t('reportRules.toolbar') }}
-                    @if (selectedBlockRuleCount()) {
-                        <span class="rounded-full bg-emerald-600 px-1.5 text-[10px] leading-4 text-white">{{ selectedBlockRuleCount() }}</span>
-                    }
-                </button>
                 }
             } @else if (selectedLayoutSection()?.type === 'image') {
                 <button
@@ -4475,16 +4487,6 @@
             >
                 B
             </button>
-            <select
-                class="h-8 max-w-28 rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                [ngModel]="layoutFormatWeight()"
-                (ngModelChange)="setLayoutFormatWeight($event)"
-                [attr.aria-label]="t('smartReport.fontWeight')"
-            >
-                @for (weight of layoutFormatWeights(); track weight) {
-                    <option [ngValue]="weight" [style.font-weight]="weight">{{ t('smartReport.fontWeights.' + weight) }}</option>
-                }
-            </select>
             <button
                 type="button"
                 class="flex h-8 w-8 items-center justify-center rounded-lg text-sm italic"
@@ -4513,80 +4515,38 @@
             >
                 U
             </button>
+            <select
+                class="h-8 max-w-[8.5rem] rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                [ngModel]="layoutFormatFontFamily()"
+                (ngModelChange)="setLayoutFormatFontFamily($event)"
+                [attr.aria-label]="t('smartReport.fontFamily')"
+                [matTooltip]="t('smartReport.fontFamily')"
+            >
+                @for (font of reportFonts; track font.value) {
+                    <option [ngValue]="font.value">{{ t(font.labelKey) }}</option>
+                }
+                @if (customFontOptions().length) {
+                    @for (font of customFontOptions(); track font.value) {
+                        <option [ngValue]="font.value">{{ font.label }}</option>
+                    }
+                }
+            </select>
             <label
                 class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-stone-100 dark:hover:bg-gray-800"
-                [matTooltip]="t('visitaGuide.layoutLinkColor')"
-                [attr.aria-label]="t('visitaGuide.layoutLinkColor')"
+                [matTooltip]="t('visitaGuide.layoutBlockColor')"
+                [attr.aria-label]="t('visitaGuide.layoutBlockColor')"
             >
-                <span class="relative flex h-4 w-4 items-center justify-center">
-                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">link</mat-icon>
-                    <span
-                        class="absolute -bottom-0.5 left-0.5 h-1 w-3 rounded-full"
-                        [style.background-color]="layoutFormatLinkPickerHex()"
-                    ></span>
-                </span>
+                <span
+                    class="h-4 w-4 rounded border border-stone-300 dark:border-gray-600"
+                    [style.background-color]="layoutFormatColorHex()"
+                ></span>
                 <input
                     type="color"
                     class="absolute inset-0 cursor-pointer opacity-0"
-                    [value]="layoutFormatLinkPickerHex()"
-                    (input)="onLayoutFormatLinkPicker($event)"
+                    [value]="layoutFormatColorHex()"
+                    (input)="onLayoutFormatColorPicker($event)"
                 />
             </label>
-            <button
-                type="button"
-                class="flex h-8 items-center justify-center gap-0.5 rounded-lg px-1.5 text-sm font-medium"
-                cdkOverlayOrigin
-                #textCaseOrigin="cdkOverlayOrigin"
-                [ngClass]="
-                    layoutFormatTextCase() !== 'none'
-                        ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                        : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                "
-                [attr.aria-label]="t('smartReport.textCase.label')"
-                [attr.aria-expanded]="layoutTextCaseOpen()"
-                [matTooltip]="t('smartReport.textCase.label')"
-                (click)="layoutTextCaseOpen.set(!layoutTextCaseOpen())"
-            >
-                Aa
-                <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
-            </button>
-            <ng-template
-                cdkConnectedOverlay
-                [cdkConnectedOverlayOrigin]="textCaseOrigin"
-                [cdkConnectedOverlayOpen]="layoutTextCaseOpen()"
-                [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
-                [cdkConnectedOverlayHasBackdrop]="true"
-                cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                cdkConnectedOverlayPanelClass="report-design-overlay-pane"
-                (backdropClick)="layoutTextCaseOpen.set(false)"
-                (overlayKeydown)="$event.key === 'Escape' && layoutTextCaseOpen.set(false)"
-                (detach)="layoutTextCaseOpen.set(false)"
-            >
-                <div
-                    role="menu"
-                    class="flex w-max min-w-44 flex-col gap-0.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
-                >
-                    @for (mode of textCases; track mode) {
-                        <button
-                            type="button"
-                            role="menuitemradio"
-                            class="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left text-sm"
-                            [ngClass]="
-                                layoutFormatTextCase() === mode
-                                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-200'
-                                    : 'text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800'
-                            "
-                            [attr.aria-checked]="layoutFormatTextCase() === mode"
-                            (click)="setLayoutFormatTextCase(mode)"
-                        >
-                            <span class="whitespace-nowrap">{{ t('smartReport.textCase.' + mode) }}</span>
-                            @if (layoutFormatTextCase() === mode) {
-                                <mat-icon class="!h-4 !w-4 !text-base">check</mat-icon>
-                            }
-                        </button>
-                    }
-                </div>
-            </ng-template>
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -4611,201 +4571,22 @@
             </button>
             @if (selectedLayoutShowsParams()) {
                 @let ruleCount = selectedCellRuleCount() || selectedBlockRuleCount();
-                @if (selectedLayoutHasPairLayout()) {
-                    <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
-                    <button
-                        type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg"
-                        [ngClass]="
-                            selectedLayoutPairLayout() === 'stack'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-pressed]="selectedLayoutPairLayout() === 'stack'"
-                        [attr.aria-label]="t('visitaGuide.layoutPairStack')"
-                        [matTooltip]="t('visitaGuide.layoutPairStack')"
-                        (click)="setSelectedLayoutPairLayout('stack')"
-                    >
-                        <mat-icon class="!h-4 !w-4 !text-base">view_agenda</mat-icon>
-                    </button>
-                    <button
-                        type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg"
-                        [ngClass]="
-                            selectedLayoutPairLayout() === 'inline'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-pressed]="selectedLayoutPairLayout() === 'inline'"
-                        [attr.aria-label]="t('visitaGuide.layoutPairInline')"
-                        [matTooltip]="t('visitaGuide.layoutPairInline')"
-                        (click)="setSelectedLayoutPairLayout('inline')"
-                    >
-                        <mat-icon class="!h-4 !w-4 !text-base">view_week</mat-icon>
-                    </button>
-                }
-                @if (selectedLayoutIsConsultStats()) {
-                    <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
-                    <button
-                        type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg"
-                        [ngClass]="
-                            selectedLayoutChartKind() === 'none'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-pressed]="selectedLayoutChartKind() === 'none'"
-                        [attr.aria-label]="t('visitaGuide.layoutChartTable')"
-                        [matTooltip]="t('visitaGuide.layoutChartTable')"
-                        (click)="setSelectedLayoutChartKind('none')"
-                    >
-                        <mat-icon class="!h-4 !w-4 !text-base">table_chart</mat-icon>
-                    </button>
-                    <button
-                        type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg"
-                        [ngClass]="
-                            selectedLayoutChartKind() === 'pie'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-pressed]="selectedLayoutChartKind() === 'pie'"
-                        [attr.aria-label]="t('visitaGuide.layoutChartPie')"
-                        [matTooltip]="t('visitaGuide.layoutChartPie')"
-                        (click)="setSelectedLayoutChartKind('pie')"
-                    >
-                        <mat-icon class="!h-4 !w-4 !text-base">pie_chart</mat-icon>
-                    </button>
-                    <button
-                        type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-lg"
-                        [ngClass]="
-                            selectedLayoutChartKind() === 'bar'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-pressed]="selectedLayoutChartKind() === 'bar'"
-                        [attr.aria-label]="t('visitaGuide.layoutChartBar')"
-                        [matTooltip]="t('visitaGuide.layoutChartBar')"
-                        (click)="setSelectedLayoutChartKind('bar')"
-                    >
-                        <mat-icon class="!h-4 !w-4 !text-base">bar_chart</mat-icon>
-                    </button>
-                    <button
-                        type="button"
-                        class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
-                        [ngClass]="
-                            selectedLayoutChartBreakdown() === 'outcome'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-pressed]="selectedLayoutChartBreakdown() === 'outcome'"
-                        [attr.aria-label]="t('visitaGuide.layoutChartOutcome')"
-                        [matTooltip]="t('visitaGuide.layoutChartOutcome')"
-                        (click)="setSelectedLayoutChartBreakdown('outcome')"
-                    >
-                        {{ t('visitaGuide.layoutChartOutcome') }}
-                    </button>
-                    <button
-                        type="button"
-                        class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
-                        [ngClass]="
-                            selectedLayoutChartBreakdown() === 'category'
-                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                        "
-                        [attr.aria-pressed]="selectedLayoutChartBreakdown() === 'category'"
-                        [attr.aria-label]="t('visitaGuide.layoutChartCategory')"
-                        [matTooltip]="t('visitaGuide.layoutChartCategory')"
-                        (click)="setSelectedLayoutChartBreakdown('category')"
-                    >
-                        {{ t('visitaGuide.layoutChartCategory') }}
-                    </button>
-                    @if (selectedLayoutChartKind() !== 'none') {
-                        <button
-                            type="button"
-                            class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
-                            [ngClass]="
-                                selectedLayoutChartPalette() === 'color'
-                                    ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                    : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                            "
-                            [attr.aria-pressed]="selectedLayoutChartPalette() === 'color'"
-                            [attr.aria-label]="t('visitaGuide.layoutChartColor')"
-                            [matTooltip]="t('visitaGuide.layoutChartColor')"
-                            (click)="setSelectedLayoutChartPalette('color')"
-                        >
-                            {{ t('visitaGuide.layoutChartColor') }}
-                        </button>
-                        <button
-                            type="button"
-                            class="flex h-8 items-center rounded-lg px-2 text-[11px] font-semibold"
-                            [ngClass]="
-                                selectedLayoutChartPalette() === 'mono'
-                                    ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900'
-                                    : 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800'
-                            "
-                            [attr.aria-pressed]="selectedLayoutChartPalette() === 'mono'"
-                            [attr.aria-label]="t('visitaGuide.layoutChartMono')"
-                            [matTooltip]="t('visitaGuide.layoutChartMono')"
-                            (click)="setSelectedLayoutChartPalette('mono')"
-                        >
-                            {{ t('visitaGuide.layoutChartMono') }}
-                        </button>
-                        @for (key of selectedLayoutChartKeys(); track key) {
-                            <label
-                                class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-stone-100 dark:hover:bg-gray-800"
-                                [matTooltip]="consultStatsLabel(key)"
-                                [attr.aria-label]="consultStatsLabel(key)"
-                            >
-                                <span
-                                    class="h-4 w-4 rounded border border-stone-300 dark:border-gray-600"
-                                    [style.background-color]="selectedLayoutChartColor(key)"
-                                ></span>
-                                <input
-                                    type="color"
-                                    class="absolute inset-0 cursor-pointer opacity-0"
-                                    [value]="selectedLayoutChartPickerHex(key)"
-                                    (input)="onSelectedLayoutChartColorPicker(key, $event)"
-                                />
-                            </label>
-                        }
-                    }
-                }
                 <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
                 <button
                     type="button"
-                    class="relative flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                    class="relative flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
                     [matTooltip]="t('reportRules.button')"
                     [attr.aria-label]="t('reportRules.button')"
                     (click)="openSelectedValueRules()"
                 >
                     <span class="font-mono italic">fx</span>
-                    {{ t('reportRules.toolbar') }}
                     @if (ruleCount) {
-                        <span class="rounded-full bg-emerald-600 px-1.5 text-[10px] leading-4 text-white">{{ ruleCount }}</span>
+                        <span class="absolute -right-0.5 -top-0.5 rounded-full bg-emerald-600 px-1 text-[9px] leading-3 text-white">{{ ruleCount }}</span>
                     }
                 </button>
             }
             }
             @if (selectedLayoutCount() <= 1) {
-            @if (canSetLayoutJump()) {
-            <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
-            <label class="sr-only" for="layout-jump-target">{{ t('visitaGuide.layoutJumpTo') }}</label>
-            <select
-                id="layout-jump-target"
-                class="h-8 max-w-[11rem] rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                [ngModel]="selectedLayoutJumpTarget()"
-                (ngModelChange)="setSelectedLayoutJumpTarget($event)"
-                [attr.aria-label]="t('visitaGuide.layoutJumpTo')"
-                [matTooltip]="t('visitaGuide.layoutJumpHint')"
-            >
-                <option value="">{{ t('visitaGuide.layoutJumpNone') }}</option>
-                @for (target of layoutJumpTargets(); track target.id) {
-                    <option [value]="target.id">{{ target.label }}</option>
-                }
-            </select>
-            }
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -5235,6 +5016,56 @@
                         }
                     } @else {
                     @if (selectedLayoutSection(); as selected) {
+                        @if (canSetLayoutJump()) {
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-stone-400">{{ t('visitaGuide.layoutJumpTo') }}</p>
+                            <select
+                                class="mt-1 h-8 w-full rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                [ngModel]="selectedLayoutJumpTarget() === layoutJumpUrlValue ? '' : selectedLayoutJumpTarget()"
+                                (ngModelChange)="setSelectedLayoutJumpTarget($event)"
+                                [attr.aria-label]="t('visitaGuide.layoutJumpTo')"
+                            >
+                                <option value="">{{ t('visitaGuide.layoutJumpNone') }}</option>
+                                @for (target of layoutJumpTargets(); track target.id) {
+                                    <option [value]="target.id">{{ target.label }}</option>
+                                }
+                            </select>
+                            <button
+                                type="button"
+                                class="mt-1 flex h-8 w-full items-center gap-1 rounded-lg px-2 text-left text-xs font-medium"
+                                [ngClass]="
+                                    selectedLayoutJumpTarget() === layoutJumpUrlValue
+                                        ? 'bg-sky-700 text-white dark:bg-sky-300 dark:text-stone-900'
+                                        : 'text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800'
+                                "
+                                (click)="toggleSelectedLayoutLinkUrl()"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">link</mat-icon>
+                                {{ t('visitaGuide.layoutJumpUrl') }}
+                            </button>
+                            @if (selectedLayoutJumpTarget() === layoutJumpUrlValue) {
+                                <input
+                                    type="url"
+                                    class="mt-1 h-8 w-full rounded-lg border border-stone-200 bg-white px-2 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                    [ngModel]="selectedLayoutLinkUrl()"
+                                    (ngModelChange)="setSelectedLayoutLinkUrl($event)"
+                                    [placeholder]="t('visitaGuide.layoutJumpUrlPlaceholder')"
+                                />
+                            }
+                        }
+                        <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">{{ t('smartReport.textCase.label') }}</p>
+                        <select
+                            class="mt-1 h-8 w-full rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [ngModel]="layoutFormatTextCase()"
+                            (ngModelChange)="setLayoutFormatTextCase($event)"
+                            [attr.aria-label]="t('smartReport.textCase.label')"
+                        >
+                            @for (mode of textCases; track mode) {
+                                <option [ngValue]="mode">{{ t('smartReport.textCase.' + mode) }}</option>
+                            }
+                        </select>
+                        @if (selectedLayoutHasPastedTable() && (selected.type === 'text' || selected.type === 'header')) {
+                            <ng-container [ngTemplateOutlet]="pastedTableStyleControls" />
+                        }
                         @if (selectedLayoutCellKey() && selectedLayoutCellPart() === 'label') {
                             <label class="block text-[11px] text-stone-500">{{ t('visitaGuide.layoutCellLabelText') }}</label>
                             <input
@@ -6040,7 +5871,7 @@
                 <label class="block px-3 pt-1 text-[11px] font-medium text-stone-500">{{ t('visitaGuide.layoutJumpTo') }}</label>
                 <select
                     class="mx-2 mb-1 mt-1 h-8 w-[calc(100%-1rem)] rounded-lg border border-stone-200 bg-white px-1 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                    [ngModel]="contextLayoutJumpTarget()"
+                    [ngModel]="contextLayoutJumpTarget() === layoutJumpUrlValue ? '' : contextLayoutJumpTarget()"
                     (ngModelChange)="setContextLayoutJumpTarget($event)"
                     [attr.aria-label]="t('visitaGuide.layoutJumpTo')"
                     (click)="$event.stopPropagation()"
@@ -6050,6 +5881,30 @@
                         <option [value]="target.id">{{ target.label }}</option>
                     }
                 </select>
+                <button
+                    type="button"
+                    class="mx-2 mb-1 flex h-8 w-[calc(100%-1rem)] items-center gap-1 rounded-lg px-2 text-left text-xs font-medium"
+                    [ngClass]="
+                        contextLayoutJumpTarget() === layoutJumpUrlValue
+                            ? 'bg-sky-700 text-white dark:bg-sky-300 dark:text-stone-900'
+                            : 'text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800'
+                    "
+                    (click)="toggleContextLayoutLinkUrl(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">link</mat-icon>
+                    {{ t('visitaGuide.layoutJumpUrl') }}
+                </button>
+                @if (contextLayoutJumpTarget() === layoutJumpUrlValue) {
+                    <input
+                        type="url"
+                        class="mx-2 mb-2 h-8 w-[calc(100%-1rem)] rounded-lg border border-stone-200 bg-white px-2 text-xs text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        [ngModel]="contextLayoutLinkUrl()"
+                        (ngModelChange)="setContextLayoutLinkUrl($event)"
+                        [placeholder]="t('visitaGuide.layoutJumpUrlPlaceholder')"
+                        [attr.aria-label]="t('visitaGuide.layoutJumpUrl')"
+                        (click)="$event.stopPropagation()"
+                    />
+                }
             }
             @if (canRemoveLastPageSheet()) {
                 <button

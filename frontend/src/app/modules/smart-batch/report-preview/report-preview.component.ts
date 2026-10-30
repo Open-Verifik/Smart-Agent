@@ -23,6 +23,13 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { autolinkHtml } from '../report-autolink.util';
 import {
+    hasPastedTable,
+    insertHtmlAtPlainSelection,
+    pasteTablesFromClipboard,
+    resolveTableChrome,
+    sanitizePastedHtml,
+} from '../report-paste-table.util';
+import {
     barRects,
     buildChartSlices,
     isReportChartKind,
@@ -33,7 +40,7 @@ import {
     ReportChartSlice,
 } from '../report-chart.util';
 import { reportDateStampForPath, substituteReportPlaceholders } from '../report-date-stamp.util';
-import { reportJumpAnchorId, reportJumpHref } from '../report-jump.util';
+import { isExternalReportHref, reportClickHref, reportJumpAnchorId } from '../report-jump.util';
 import { colorIconSvg } from '../report-icon.util';
 import {
     ReportCellPart,
@@ -217,6 +224,16 @@ export function reportPaperSizePx(
                 text-decoration: none !important;
                 text-decoration-line: none !important;
                 text-decoration-color: transparent !important;
+                outline: none;
+                background: transparent;
+                box-shadow: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+            a.report-autolink:hover,
+            a.report-jump:hover {
+                outline: none;
+                background: transparent;
+                box-shadow: none;
             }
             a.report-jump {
                 position: absolute;
@@ -226,6 +243,54 @@ export function reportPaperSizePx(
                 text-decoration: none !important;
                 text-decoration-line: none !important;
                 background: transparent;
+            }
+            a.report-jump.report-jump--edit {
+                pointer-events: none;
+                cursor: inherit;
+            }
+            :host table.report-rich-table {
+                width: 100%;
+                max-width: 100%;
+                margin: 0.4em 0;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font: inherit;
+                color: inherit;
+            }
+            :host table.report-rich-table th,
+            :host table.report-rich-table td {
+                border: var(--report-table-border-width, 1px) solid var(--report-table-border, #d6d3d1) !important;
+                background-color: var(--report-table-cell-bg, #ffffff) !important;
+                color: var(--report-table-cell-color, #1c1917) !important;
+                padding: 6px 8px;
+                vertical-align: top;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+            }
+            :host table.report-rich-table thead th,
+            :host table.report-rich-table thead td,
+            :host table.report-rich-table th,
+            :host table.report-rich-table:not(:has(thead)) tr:first-child > th,
+            :host table.report-rich-table:not(:has(thead)) tr:first-child > td {
+                background-color: var(--report-table-header-bg, #f5f5f4) !important;
+                color: var(--report-table-header-color, #1c1917) !important;
+                font-weight: 600;
+            }
+            :host table.report-rich-table th *,
+            :host table.report-rich-table td * {
+                color: inherit !important;
+                background: transparent !important;
+                background-color: transparent !important;
+            }
+            :host table.report-rich-table p {
+                margin: 0;
+            }
+            :host [data-rich-table] {
+                min-height: 1em;
+                outline: none;
+            }
+            :host [data-rich-table] table.report-rich-table {
+                user-select: text;
             }
         `,
     ],
@@ -1552,8 +1617,13 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return reportJumpAnchorId(sectionId);
     }
 
-    jumpHref(sectionId?: string | null): string | null {
-        return reportJumpHref(sectionId);
+    jumpHref(item?: { linkToSectionId?: string; linkUrl?: string } | string | null): string | null {
+        if (typeof item === 'string') return reportClickHref({ linkToSectionId: item });
+        return reportClickHref(item);
+    }
+
+    isExternalJump(href?: string | null): boolean {
+        return isExternalReportHref(href);
     }
 
     isPairInline(section: ReportSection): boolean {
@@ -1568,6 +1638,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         const href = (event.currentTarget as HTMLAnchorElement | null)?.getAttribute('href') || '';
+        if (isExternalReportHref(href)) return;
         const id = href.startsWith('#') ? href.slice(1) : '';
         if (!id) return;
         event.preventDefault();
@@ -1708,6 +1779,56 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (el.classList.contains('hug-field')) this._scheduleContentFit();
     }
 
+    onInlineRichInput(event: Event): void {
+        const el = event.target as HTMLElement;
+        this.inlineDraft.set(el.innerHTML);
+        this._scheduleContentFit();
+    }
+
+    isRichTableEdit(section: ReportSection, kind: string, key?: string | null): boolean {
+        return this.isEditingText(section.id, kind, key) && hasPastedTable(this.inlineDraft());
+    }
+
+    sectionHasRichTable(section: ReportSection): boolean {
+        const editing = this.editingText();
+        if (editing?.sectionId === section.id && (editing.kind === 'body' || editing.kind === 'title')) {
+            return hasPastedTable(this.inlineDraft());
+        }
+        return hasPastedTable(section.staticContent || (section.type === 'header' ? section.label : ''));
+    }
+
+    /** Inspector chrome as CSS variables Angular can bind without ngStyle sanitizing them away. */
+    richTableChrome(section: ReportSection) {
+        return resolveTableChrome(section.style);
+    }
+
+    onInlinePaste(event: ClipboardEvent, multiline: boolean): void {
+        if (!multiline) return;
+        const html = event.clipboardData?.getData('text/html') || '';
+        const plain = event.clipboardData?.getData('text/plain') || '';
+        const fragment = pasteTablesFromClipboard(html, plain);
+        if (!fragment) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this._selectAllOnFocus = false;
+        const target = event.target as HTMLElement | null;
+        if (target?.isContentEditable) {
+            this._insertHtmlAtCaret(fragment);
+            this.inlineDraft.set(target.innerHTML);
+            this._scheduleContentFit();
+            return;
+        }
+        if (target instanceof HTMLTextAreaElement) {
+            const start = target.selectionStart ?? target.value.length;
+            const end = target.selectionEnd ?? start;
+            this.inlineDraft.set(insertHtmlAtPlainSelection(target.value, start, end, fragment));
+            requestAnimationFrame(() => {
+                this._focusInlineEditor();
+                this._scheduleContentFit();
+            });
+        }
+    }
+
     onInlineKeydown(event: KeyboardEvent, multiline: boolean): void {
         if (event.key === 'Escape') {
             event.preventDefault();
@@ -1728,7 +1849,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     private _flushInlineEdit(): void {
         const editing = this.editingText();
         if (!editing) return;
-        const value = this.inlineDraft();
+        const raw = this.inlineDraft();
+        const value = hasPastedTable(raw) ? sanitizePastedHtml(raw) : raw;
         this.editingText.set(null);
         if (value === this._inlineSeedValue) return;
         this.inlineTextChange.emit({ ...editing, value });
@@ -1759,20 +1881,65 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const el = this._host.nativeElement.querySelector('[data-inline-edit]') as
             | HTMLInputElement
             | HTMLTextAreaElement
+            | HTMLElement
             | null;
         if (!el) {
             if (attempt < 5) requestAnimationFrame(() => this._focusInlineEditor(attempt + 1));
             return;
         }
-        el.focus();
+        if (el instanceof HTMLElement && el.isContentEditable) {
+            if (!el.innerHTML.trim()) el.innerHTML = sanitizePastedHtml(this.inlineDraft());
+            el.focus();
+            this._placeRichCaret(el, this._selectAllOnFocus);
+            this._selectAllOnFocus = false;
+            this._scheduleContentFit();
+            return;
+        }
+        const field = el as HTMLInputElement | HTMLTextAreaElement;
+        field.focus();
         if (this._selectAllOnFocus) {
-            el.select();
+            field.select();
             this._selectAllOnFocus = false;
         } else {
-            const end = el.value.length;
-            el.setSelectionRange(end, end);
+            const end = field.value.length;
+            field.setSelectionRange(end, end);
         }
-        this._fitInlineEditor(el);
+        this._fitInlineEditor(field);
+    }
+
+    private _placeRichCaret(el: HTMLElement, selectAll: boolean): void {
+        const selection = window.getSelection();
+        if (!selection) return;
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        if (!selectAll) range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    private _insertHtmlAtCaret(html: string): void {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+            document.execCommand('insertHTML', false, html);
+            return;
+        }
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const holder = document.createElement('div');
+        holder.innerHTML = html;
+        const frag = document.createDocumentFragment();
+        let last: ChildNode | null = null;
+        while (holder.firstChild) {
+            last = holder.firstChild;
+            frag.appendChild(holder.firstChild);
+        }
+        range.insertNode(frag);
+        if (last) {
+            range.setStartAfter(last);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
     }
 
     private _fitInlineEditor(el: HTMLInputElement | HTMLTextAreaElement): void {
@@ -2405,6 +2572,10 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (this.isLayerPeeked(`sec:${section.id}`)) style['zIndex'] = String(REPORT_SHEET_Z_PEEK);
         if (this.isLayerPeeked(`sec:${section.id}`) && this.isLayerHidden(`sec:${section.id}`)) style['opacity'] = '0.55';
         if (dragging) style['willChange'] = 'left, top, width, height';
+        if (this.sectionHasRichTable(section)) {
+            style['overflow'] = 'hidden';
+            style['overflow-x'] = 'hidden';
+        }
         if (hug) {
             const align = this.roleTextAlign(section, 'title');
             const boxW = Number(frame.width) > 0 ? Number(frame.width) : 0;
@@ -2466,6 +2637,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** Title and free text keep a box the size of the words, not the frame they were dropped in. */
     hugsText(section: ReportSection): boolean {
+        if (this.sectionHasRichTable(section)) return false;
         return section.type === 'header' || section.type === 'text';
     }
 
@@ -3141,7 +3313,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             const oldBottom = (frame.y ?? 0) + item.current;
             const delta = item.height - item.current;
             frame.height = item.height;
-            if (delta <= 4) continue;
+            const growingSection = byId.get(item.id);
+            if (delta <= 4 || (growingSection && this.sectionHasRichTable(growingSection))) continue;
             const page = frame.page ?? 0;
             for (const [otherId, other] of frames) {
                 if (otherId === item.id || (other.page ?? 0) !== page) continue;
@@ -3196,6 +3369,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 const stored = section ? this.displayFrame(section) : null;
                 const frame = (id && frames.get(id)) || stored;
                 if (!section || !frame || !stored || !el.offsetWidth || !el.offsetHeight) return;
+                if (this.sectionHasRichTable(section)) return;
                 const placed = this._sectionCssBox(el);
                 const inner = el.closest('[data-report-page-inner]');
                 let cssX = placed.x;
@@ -3958,14 +4132,18 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     /** `liveSheetText` with the role's letter case; inline editing keeps the stored text. */
     sheetDisplayText(section: ReportSection, kind: string, key?: string, fallback?: string): string {
-        return applyTextCase(this.liveSheetText(section, kind, key, fallback), this._sheetTextCase(section, kind, key));
+        const live = this.liveSheetText(section, kind, key, fallback);
+        if (hasPastedTable(live)) return live;
+        return applyTextCase(live, this._sheetTextCase(section, kind, key));
     }
 
     sheetAutolinkHtml(section: ReportSection, kind: string, key?: string, fallback?: string): SafeHtml {
-        return this.autolinkSafeHtml(
-            this.sheetDisplayText(section, kind, key, fallback) || '\u00a0',
-            this.sheetLinkColor(section, kind, key)
-        );
+        const text = this.sheetDisplayText(section, kind, key, fallback) || '\u00a0';
+        if (hasPastedTable(text)) {
+            const markup = sanitizePastedHtml(text) || '\u00a0';
+            return this._domSanitizer.bypassSecurityTrustHtml(markup);
+        }
+        return this.autolinkSafeHtml(text, this.sheetLinkColor(section, kind, key));
     }
 
     autolinkSafeHtml(text: string | null | undefined, linkColor?: string): SafeHtml {
@@ -4782,7 +4960,7 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
 .print-sheet + .print-sheet{break-before:page;page-break-before:always}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .print-sheet h1,.print-sheet h2,.print-sheet h3,.print-sheet h4,.print-sheet h5,.print-sheet h6,.print-sheet p{margin:0}
-.print-sheet a.report-autolink,.print-sheet a.report-jump{text-decoration:none!important;text-decoration-line:none!important;-webkit-text-decoration-line:none!important;text-decoration-color:transparent!important}
+.print-sheet a.report-autolink,.print-sheet a.report-jump{text-decoration:none!important;text-decoration-line:none!important;-webkit-text-decoration-line:none!important;text-decoration-color:transparent!important;outline:none!important;background:transparent!important;box-shadow:none!important;-webkit-tap-highlight-color:transparent}
 .print-sheet a.report-autolink{color:var(--report-link-color,#2563eb)!important}
 .print-sheet a.report-autolink.is-underlined{text-decoration:underline!important;text-decoration-line:underline!important;-webkit-text-decoration-line:underline!important;text-decoration-color:currentColor!important}
 .print-sheet a.report-jump{position:absolute;inset:0;z-index:4;background:transparent;pointer-events:auto!important}
@@ -4865,10 +5043,9 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
     }
 
     /**
-     * Title and free text shrink to the words on the sheet. The print document
-     * has no Tailwind reset, so an h2 or p would regain its browser margin and
-     * drop below the coordinate saved on the sheet. The box also stays wide
-     * enough that the PDF face does not wrap a line the author did not break.
+     * Title and free text keep the box already pinned from the sheet. Do not
+     * stretch them to one long line: that drops Enter and shoves neighbours
+     * (the generation date) when the PDF is emailed.
      */
     private _relaxPrintedHugText(source: HTMLElement, clone: HTMLElement): void {
         source.querySelectorAll('[data-report-section]').forEach((node) => {
@@ -4880,26 +5057,40 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
                 ? (clone.querySelector(`[data-section-id="${CSS.escape(id)}"]`) as HTMLElement | null)
                 : null;
             if (!dst) return;
-            const broken = /[\r\n]/.test(src.innerText || src.textContent || '');
-            const flow = broken ? 'pre' : 'nowrap';
             dst.style.margin = '0';
-            dst.style.height = 'auto';
             dst.style.maxHeight = 'none';
             dst.style.overflow = 'visible';
-            dst.style.width = 'max-content';
-            dst.style.maxWidth = 'none';
-            dst.style.whiteSpace = flow;
+            dst.style.whiteSpace = 'pre-wrap';
+            dst.style.overflowWrap = 'break-word';
+            dst.style.wordBreak = 'break-word';
             dst.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, a').forEach((child) => {
                 const el = child as HTMLElement;
-                el.style.margin = '0';
-                el.style.whiteSpace = flow;
-                el.style.width = 'max-content';
-                el.style.maxWidth = 'none';
-                el.style.minWidth = '0';
-                el.style.overflowWrap = 'normal';
-                el.style.wordBreak = 'normal';
+                el.style.marginTop = '0';
+                el.style.marginBottom = '0';
+                el.style.whiteSpace = 'pre-wrap';
+                el.style.maxWidth = '100%';
+                el.style.overflowWrap = 'break-word';
+                el.style.wordBreak = 'break-word';
             });
+            this._preservePrintedLineBreaks(dst);
         });
+    }
+
+    private _preservePrintedLineBreaks(root: HTMLElement): void {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const nodes: Text[] = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+        for (const text of nodes) {
+            const value = text.nodeValue || '';
+            if (!/[\r\n\u2028\u2029]/.test(value)) continue;
+            const parts = value.split(/\r\n|\n|\r|\u2028|\u2029/);
+            const frag = document.createDocumentFragment();
+            parts.forEach((part, index) => {
+                frag.appendChild(document.createTextNode(part));
+                if (index < parts.length - 1) frag.appendChild(document.createElement('br'));
+            });
+            text.parentNode?.replaceChild(frag, text);
+        }
     }
 
     /** When the live sheet has no layout box (hidden tab), pin from saved frames. */

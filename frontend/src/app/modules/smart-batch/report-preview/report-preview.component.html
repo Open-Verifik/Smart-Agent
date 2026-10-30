@@ -371,10 +371,14 @@
                                 (click)="selectOverlay(sheetOverlayId(image.id), $event)"
                                 (contextmenu)="onOverlayContextMenu(sheetOverlayId(image.id), $event)"
                             >
-                                @if (jumpHref(image.linkToSectionId); as href) {
+                                @if (jumpHref(image); as href) {
                                     <a
-                                        class="report-jump pointer-events-auto"
+                                        class="report-jump"
+                                        [class.report-jump--edit]="clickable() && !printCapture()"
+                                        [class.pointer-events-auto]="!clickable() || printCapture()"
                                         [href]="href"
+                                        [attr.target]="isExternalJump(href) ? '_blank' : null"
+                                        [attr.rel]="isExternalJump(href) ? 'noopener noreferrer' : null"
                                         (click)="onJumpClick($event)"
                                     ></a>
                                 }
@@ -490,15 +494,24 @@
                         [style.border]="isShapeSection(section) ? 'none' : sectionFrameBorder(section)"
                         [style.border-radius.px]="isShapeSection(section) ? 0 : sectionFrameRadius(section)"
                         [style.padding]="isShapeSection(section) ? '0' : sectionFramePadding(section)"
+                        [style.--report-table-border]="richTableChrome(section).borderColor"
+                        [style.--report-table-border-width]="richTableChrome(section).borderWidth + 'px'"
+                        [style.--report-table-header-bg]="richTableChrome(section).headerBackground"
+                        [style.--report-table-header-color]="richTableChrome(section).headerColor"
+                        [style.--report-table-cell-bg]="richTableChrome(section).cellBackground"
+                        [style.--report-table-cell-color]="richTableChrome(section).cellColor"
                         [ngStyle]="sectionHostStyle(section)"
                         (click)="onSectionActivate(section, $event)"
                         (contextmenu)="onSectionContextMenu(section, $event)"
                         (pointerdown)="onSectionPointerDown(section, $event)"
                     >
-                        @if (jumpHref(section.linkToSectionId); as href) {
+                        @if (jumpHref(section); as href) {
                             <a
                                 class="report-jump"
+                                [class.report-jump--edit]="clickable() && !printCapture()"
                                 [href]="href"
+                                [attr.target]="isExternalJump(href) ? '_blank' : null"
+                                [attr.rel]="isExternalJump(href) ? 'noopener noreferrer' : null"
                                 (click)="onJumpClick($event)"
                             ></a>
                         }
@@ -805,11 +818,12 @@
     @if (section.type === 'header') {
         <div
             [class.mb-4]="!hasFreeLayout()"
-            [class.w-fit]="hasFreeLayout()"
+            [class.w-fit]="hasFreeLayout() && !sectionHasRichTable(section)"
+            [class.w-full]="sectionHasRichTable(section)"
             [style.text-align]="roleTextAlign(section, 'title')"
-            [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
+            [style.max-width.px]="hasFreeLayout() && !sectionHasRichTable(section) ? textHugMaxCss(section) : null"
         >
-            <h2
+            <div
                 data-sheet-role="title"
                 [style.font-size.px]="roleFontSize(section, 'title')"
                 [style.font-weight]="roleFontWeight(section, 'title')"
@@ -818,8 +832,11 @@
                 [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
                 [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
-                class="inline-block whitespace-pre-wrap leading-tight"
-                [class.max-w-full]="!hasFreeLayout()"
+                class="inline-block leading-tight"
+                [class.whitespace-pre-wrap]="!sectionHasRichTable(section)"
+                [class.whitespace-normal]="sectionHasRichTable(section)"
+                [class.max-w-full]="!hasFreeLayout() || sectionHasRichTable(section)"
+                [class.w-full]="sectionHasRichTable(section)"
                 [class.ring-2]="isTitleSelected(section)"
                 [class.ring-inset]="isTitleSelected(section)"
                 [class.ring-indigo-400]="isTitleSelected(section)"
@@ -830,13 +847,13 @@
                     [ngTemplateOutlet]="sheetText"
                     [ngTemplateOutletContext]="sheetTextContext(section, 'title', section.staticContent || section.label || ('smartReport.untitled' | transloco), measure, true)"
                 ></ng-container>
-            </h2>
+            </div>
         </div>
     }
 
     @if (section.type === 'text') {
-        <div [class.mb-3]="!hasFreeLayout()" [class.w-fit]="hasFreeLayout()">
-            <p
+        <div [class.mb-3]="!hasFreeLayout()" [class.w-fit]="hasFreeLayout() && !sectionHasRichTable(section)" [class.w-full]="sectionHasRichTable(section)">
+            <div
                 [style.font-size.px]="roleFontSize(section, 'title')"
                 [style.font-weight]="roleFontWeight(section, 'title')"
                 [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
@@ -844,15 +861,19 @@
                 [style.text-align]="roleTextAlign(section, 'title')"
                 [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
-                [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
-                class="leading-relaxed whitespace-pre-wrap"
-                [class.inline-block]="hasFreeLayout()"
+                [style.max-width.px]="hasFreeLayout() && !sectionHasRichTable(section) ? textHugMaxCss(section) : null"
+                class="leading-relaxed"
+                [class.whitespace-pre-wrap]="!sectionHasRichTable(section)"
+                [class.whitespace-normal]="sectionHasRichTable(section)"
+                [class.inline-block]="hasFreeLayout() && !sectionHasRichTable(section)"
+                [class.w-full]="sectionHasRichTable(section)"
+                [class.max-w-full]="sectionHasRichTable(section)"
             >
                 <ng-container
                     [ngTemplateOutlet]="sheetText"
                     [ngTemplateOutletContext]="sheetTextContext(section, 'body', section.staticContent || ('smartReport.textContent' | transloco), measure, true)"
                 ></ng-container>
-            </p>
+            </div>
         </div>
     }
 
@@ -1949,6 +1970,27 @@
 >
     @if (canInlineEdit(measure) && isEditingText(section.id, kind, key)) {
         @if (multiline || isCanvasText(kind)) {
+            @if (isRichTableEdit(section, kind, key)) {
+                <div
+                    data-inline-edit
+                    data-rich-table
+                    contenteditable="true"
+                    class="m-0 min-h-[1em] w-full max-w-full select-text overflow-auto border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit [text-align:inherit] [font-style:inherit] [font-weight:inherit] [text-decoration:inherit] whitespace-normal outline-none"
+                    [style.--report-table-border]="richTableChrome(section).borderColor"
+                    [style.--report-table-border-width]="richTableChrome(section).borderWidth + 'px'"
+                    [style.--report-table-header-bg]="richTableChrome(section).headerBackground"
+                    [style.--report-table-header-color]="richTableChrome(section).headerColor"
+                    [style.--report-table-cell-bg]="richTableChrome(section).cellBackground"
+                    [style.--report-table-cell-color]="richTableChrome(section).cellColor"
+                    (input)="onInlineRichInput($event)"
+                    (paste)="onInlinePaste($event, true)"
+                    (blur)="commitInlineEdit()"
+                    (keydown)="onInlineKeydown($event, true)"
+                    (click)="$event.stopPropagation()"
+                    (pointerdown)="$event.stopPropagation()"
+                    (dblclick)="$event.stopPropagation()"
+                ></div>
+            } @else {
             <textarea
                 data-inline-edit
                 rows="1"
@@ -1959,12 +2001,14 @@
                 [style.max-width.px]="hugsText(section) ? textHugMaxCss(section) : null"
                 [value]="inlineDraft()"
                 (input)="onInlineDraftInput($event)"
+                (paste)="onInlinePaste($event, true)"
                 (blur)="commitInlineEdit()"
                 (keydown)="onInlineKeydown($event, true)"
                 (click)="$event.stopPropagation()"
                 (pointerdown)="$event.stopPropagation()"
                 (dblclick)="$event.stopPropagation()"
             ></textarea>
+            }
         } @else {
             <input
                 data-inline-edit
@@ -1999,6 +2043,24 @@
                 (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
                 ><span [innerHTML]="ruleBadge(rule)"></span><span [innerHTML]="autolinkSafeHtml(rule.text || sheetDisplayText(section, kind, key, fallback) || '\u00a0', sheetLinkColor(section, kind, key))"></span></span
             >
+        } @else if (sectionHasRichTable(section) && (kind === 'body' || kind === 'title')) {
+            <div
+                data-sheet-text
+                [attr.data-text-kind]="kind"
+                class="block min-h-[1em] w-full max-w-full whitespace-normal [text-decoration:inherit]"
+                [style.--report-link-color]="sheetLinkColor(section, kind, key)"
+                [style.--report-table-border]="richTableChrome(section).borderColor"
+                [style.--report-table-border-width]="richTableChrome(section).borderWidth + 'px'"
+                [style.--report-table-header-bg]="richTableChrome(section).headerBackground"
+                [style.--report-table-header-color]="richTableChrome(section).headerColor"
+                [style.--report-table-cell-bg]="richTableChrome(section).cellBackground"
+                [style.--report-table-cell-color]="richTableChrome(section).cellColor"
+                [class.cursor-text]="canInlineEdit(measure)"
+                (pointerdown)="onSheetTextPointerDown(kind, $event)"
+                (click)="onSheetTextClick(section, kind, $event, key, fallback)"
+                (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
+                [innerHTML]="sheetAutolinkHtml(section, kind, key, fallback)"
+            ></div>
         } @else {
             <span
                 data-sheet-text

@@ -89,5 +89,6 @@ export const autolinkHtml = (text: unknown, linkColor?: string): string => {
         last = start + raw.length;
     }
     out += escapeReportHtml(source.slice(last));
-    return out;
+    // Print/PDF collapses `\n` inside absolutely placed blocks; `<br>` keeps the author's Enter.
+    return out.replace(/\r\n|\n|\r|\u2028|\u2029/g, '<br>');
 };
