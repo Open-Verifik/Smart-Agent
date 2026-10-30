@@ -16,7 +16,21 @@ export const WORLD_INTERPOL_ENDPOINT_CODE = 'world_api_interpol';
 export const WORLD_OFAC_ENDPOINT_CODE = 'world_api_ofac';
 export const WORLD_ONU_ENDPOINT_CODE = 'world_api_onu';
 
-const WORLD_SANDBOX_NAMES = [
+export const WORLD_CSL_ENDPOINT_CODE = 'world_api_csl';
+export const WORLD_DSS_MOST_WANTED_ENDPOINT_CODE = 'world_api_dss_most_wanted';
+export const WORLD_US_TERRORISTS_ENDPOINT_CODE = 'world_api_us_terrorists';
+export const WORLD_SECRET_SERVICE_ENDPOINT_CODE = 'world_api_secret_service';
+export const WORLD_SEC_ENDPOINT_CODE = 'world_api_sec';
+export const WORLD_HEALTH_EXCLUSIONS_ENDPOINT_CODE = 'world_api_health_exclusions';
+export const WORLD_CIA_WORLD_LEADERS_ENDPOINT_CODE = 'world_api_cia_world_leaders';
+export const WORLD_EU_TERRORISTS_ENDPOINT_CODE = 'world_api_eu_terrorists';
+export const WORLD_EU_FSF_ENDPOINT_CODE = 'world_api_eu_fsf';
+export const WORLD_OFSI_ENDPOINT_CODE = 'world_api_ofsi';
+export const WORLD_WORLD_BANK_ENDPOINT_CODE = 'world_api_world_bank';
+export const WORLD_IADB_ENDPOINT_CODE = 'world_api_iadb';
+export const WORLD_OFFSHORE_LEAKS_ENDPOINT_CODE = 'world_api_offshore_leaks';
+
+export const WORLD_SANDBOX_NAMES = [
     'MARIA ELENA LOPEZ GARCIA',
     'JOSE ANTONIO PEREZ RODRIGUEZ',
     'CARLA ISABEL MARTINEZ FERNANDEZ',
@@ -29,7 +43,7 @@ const WORLD_SANDBOX_NAMES = [
     'FERNANDO MIGUEL ROJAS DELGADO',
 ];
 
-const buildDocumentSearchProfiles = (label: string): PostmanSandboxProfile[] =>
+export const buildDocumentSearchProfiles = (label: string): PostmanSandboxProfile[] =>
     Array.from({ length: 10 }, (_, index) => {
         const documentNumber = String(10000001 + index);
         const foundLabel = index % 2 === 0 ? 'found' : 'clean';
@@ -37,6 +51,8 @@ const buildDocumentSearchProfiles = (label: string): PostmanSandboxProfile[] =>
         return {
             documentNumber,
             fullName: `${WORLD_SANDBOX_NAMES[index]} — ${label} ${foundLabel}`,
+            responseType: 'success' as const,
+            expectedStatus: 200,
             paramOverrides: {
                 documentType: 'CC',
                 documentNumber,
@@ -103,6 +119,132 @@ const buildWorldEndpointConfig = (
     showProfileMeta: false,
 });
 
+export const WORLD_CONFLICT_MISSING_FULL_NAME: PostmanSandboxProfile = {
+    profileKey: '409-missing-fullName',
+    documentNumber: '90040901',
+    fullName: '409 — Missing fullName',
+    responseType: 'error' as const,
+    expectedStatus: 409,
+    paramOverrides: {
+        fullName: '',
+    },
+};
+
+export const WORLD_ERROR_PROFILE_404_NAME: PostmanSandboxProfile = {
+    profileKey: '404-name-not-found',
+    documentNumber: '90040401',
+    fullName: '404 — Record not found',
+    responseType: 'error' as const,
+    expectedStatus: 404,
+    paramOverrides: {
+        fullName: '90040401',
+    },
+};
+
+export const buildNameSearchProfiles = (label: string): PostmanSandboxProfile[] => {
+    const successProfiles: PostmanSandboxProfile[] = WORLD_SANDBOX_NAMES.map((name, index) => {
+        const foundLabel = index % 2 === 0 ? 'found' : 'clean';
+        return {
+            documentNumber: name,
+            fullName: `${name} — ${label} ${foundLabel}`,
+            responseType: 'success' as const,
+            expectedStatus: 200,
+            paramOverrides: {
+                fullName: name,
+            },
+        };
+    });
+
+    return [
+        ...successProfiles,
+        WORLD_CONFLICT_MISSING_FULL_NAME,
+        WORLD_ERROR_PROFILE_404_NAME,
+    ];
+};
+
+export const buildWorldNameEndpointConfig = (label: string): PostmanSandboxEndpointConfig => ({
+    profiles: buildNameSearchProfiles(label),
+    defaultDocumentNumber: WORLD_SANDBOX_NAMES[0],
+    documentTypeByCode: {},
+    showProfileMeta: false,
+});
+
+export const buildWorldNameSearchDemos = (label: string): PostmanSandboxProfile[] => [
+    {
+        profileKey: `${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}-name-found`,
+        documentNumber: WORLD_SANDBOX_NAMES[0],
+        fullName: `${WORLD_SANDBOX_NAMES[0]} — ${label} (name search found)`,
+        responseType: 'success' as const,
+        expectedStatus: 200,
+        paramOverrides: {
+            fullName: WORLD_SANDBOX_NAMES[0],
+            documentNumber: '',
+            documentType: '',
+        },
+    },
+    {
+        profileKey: `${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}-name-clean`,
+        documentNumber: WORLD_SANDBOX_NAMES[1],
+        fullName: `${WORLD_SANDBOX_NAMES[1]} — ${label} (name search clean)`,
+        responseType: 'success' as const,
+        expectedStatus: 200,
+        paramOverrides: {
+            fullName: WORLD_SANDBOX_NAMES[1],
+            documentNumber: '',
+            documentType: '',
+        },
+    },
+];
+
+export const buildWorldDocAndNameEndpointConfig = (
+    endpointCode: string,
+    label: string
+): PostmanSandboxEndpointConfig => {
+    const nameDemos = buildWorldNameSearchDemos(label);
+    const docProfiles = buildDocumentSearchProfiles(label);
+
+    const missingParamsConflict: PostmanSandboxProfile = {
+        profileKey: `${endpointCode}-missing-params`,
+        documentNumber: '90040901',
+        fullName: '409 — Missing required parameters',
+        responseType: 'error' as const,
+        expectedStatus: 409,
+        paramOverrides: {
+            documentNumber: '',
+            fullName: '',
+        },
+    };
+
+    const name404Profile: PostmanSandboxProfile = {
+        profileKey: `${endpointCode}-name-not-found`,
+        documentNumber: '90040401',
+        fullName: '404 — Record not found (name search)',
+        responseType: 'error' as const,
+        expectedStatus: 404,
+        paramOverrides: {
+            fullName: '90040401',
+            documentNumber: '',
+            documentType: '',
+        },
+    };
+
+    return {
+        profiles: appendSandboxResponseProfiles(
+            [...nameDemos, ...docProfiles],
+            {
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                    WORLD_CONFLICT_INVALID_DOCUMENT_TYPE,
+                    missingParamsConflict,
+                ],
+            }
+        ).concat(WORLD_ERROR_PROFILE_404, name404Profile),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: { [endpointCode]: 'CC' },
+        showProfileMeta: false,
+    };
+};
+
 export const WORLD_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [WORLD_DEA_ENDPOINT_CODE]: {
         ...buildWorldEndpointConfig('DEA', [DEA_NAME_DEMO]),
@@ -128,4 +270,21 @@ export const WORLD_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
         ...buildWorldEndpointConfig('ONU'),
         documentTypeByCode: { [WORLD_ONU_ENDPOINT_CODE]: 'CC' },
     },
+
+    // 8 Document + Name watchlists
+    [WORLD_CSL_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_CSL_ENDPOINT_CODE, 'CSL'),
+    [WORLD_US_TERRORISTS_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_US_TERRORISTS_ENDPOINT_CODE, 'US Terrorists'),
+    [WORLD_SEC_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_SEC_ENDPOINT_CODE, 'SEC'),
+    [WORLD_HEALTH_EXCLUSIONS_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_HEALTH_EXCLUSIONS_ENDPOINT_CODE, 'Health Exclusions'),
+    [WORLD_EU_TERRORISTS_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_EU_TERRORISTS_ENDPOINT_CODE, 'EU Terrorists'),
+    [WORLD_EU_FSF_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_EU_FSF_ENDPOINT_CODE, 'EU Financial Sanctions'),
+    [WORLD_OFSI_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_OFSI_ENDPOINT_CODE, 'OFSI'),
+    [WORLD_IADB_ENDPOINT_CODE]: buildWorldDocAndNameEndpointConfig(WORLD_IADB_ENDPOINT_CODE, 'IADB'),
+
+    // 5 Name-only watchlists
+    [WORLD_DSS_MOST_WANTED_ENDPOINT_CODE]: buildWorldNameEndpointConfig('DSS Most Wanted'),
+    [WORLD_SECRET_SERVICE_ENDPOINT_CODE]: buildWorldNameEndpointConfig('Secret Service'),
+    [WORLD_CIA_WORLD_LEADERS_ENDPOINT_CODE]: buildWorldNameEndpointConfig('CIA World Leaders'),
+    [WORLD_WORLD_BANK_ENDPOINT_CODE]: buildWorldNameEndpointConfig('World Bank'),
+    [WORLD_OFFSHORE_LEAKS_ENDPOINT_CODE]: buildWorldNameEndpointConfig('Offshore Leaks'),
 };
