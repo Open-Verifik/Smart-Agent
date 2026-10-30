@@ -5028,25 +5028,63 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.addPageSheet(page);
     }
 
+    canRemoveLayoutContextPage(): boolean {
+        return this._canRemoveLayoutPage(this._pointFromContextMenu()?.page);
+    }
+
+    removeLayoutPageFromMenu(): void {
+        const page = this._pointFromContextMenu()?.page;
+        this.closeLayoutContextMenu();
+        if (page == null) return;
+        this._removeLayoutPage(page);
+    }
+
     canRemoveLastPageSheet(): boolean {
         const last = this._layoutPageCount() - 1;
-        return last > 0 && !this._pageHasLayoutContent(last);
+        return this._canRemoveLayoutPage(last) && !this._pageHasLayoutContent(last);
     }
 
     removeLastPageSheet(): void {
         if (!this.canRemoveLastPageSheet()) return;
-        const last = this._layoutPageCount() - 1;
+        this.closeLayoutContextMenu();
+        this._removeLayoutPage(this._layoutPageCount() - 1);
+    }
+
+    private _canRemoveLayoutPage(pageIndex: number | null | undefined): boolean {
+        const count = this._layoutPageCount();
+        return count > 1 && pageIndex != null && pageIndex >= 0 && pageIndex < count;
+    }
+
+    private _removeLayoutPage(pageIndex: number): void {
+        if (!this._canRemoveLayoutPage(pageIndex)) return;
         this.layoutSections.update((list) =>
             list
-                .filter((section) => (section.frame?.page ?? 0) !== last)
+                .filter((section) => (section.frame?.page ?? 0) !== pageIndex)
+                .map((section) => {
+                    const page = section.frame?.page ?? 0;
+                    if (!section.frame || page < pageIndex) return section;
+                    return { ...section, frame: { ...section.frame, page: page - 1 } };
+                })
                 .map((section, order) => ({ ...section, order }))
         );
-        this._state.sheetImages.update((list) => list.filter((image) => (image.page ?? 0) !== last));
-        if (this._pendingContentPoint?.page === last) this._pendingContentPoint = null;
-        if (this._pendingSheetImagePoint?.page === last) this._pendingSheetImagePoint = null;
+        this._state.sheetImages.update((list) =>
+            list
+                .filter((image) => (image.page ?? 0) !== pageIndex)
+                .map((image) => {
+                    const page = image.page ?? 0;
+                    return page > pageIndex ? { ...image, page: page - 1 } : image;
+                })
+        );
+        const shiftPending = (point: { x: number; y: number; page: number } | null) => {
+            if (!point) return null;
+            if (point.page === pageIndex) return null;
+            if (point.page > pageIndex) return { ...point, page: point.page - 1 };
+            return point;
+        };
+        this._pendingContentPoint = shiftPending(this._pendingContentPoint);
+        this._pendingSheetImagePoint = shiftPending(this._pendingSheetImagePoint);
         this.clearLayoutSelection();
         this.layoutEditorKind.set('page');
-        this.closeLayoutContextMenu();
     }
 
     private _pageHasLayoutContent(pageIndex: number): boolean {

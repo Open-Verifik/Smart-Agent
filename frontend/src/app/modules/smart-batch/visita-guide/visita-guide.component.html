@@ -5857,6 +5857,15 @@
             </button>
             <button
                 type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-rose-700 hover:bg-rose-50 disabled:opacity-40 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                [disabled]="!canRemoveLayoutContextPage()"
+                (click)="removeLayoutPageFromMenu(); $event.stopPropagation()"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base text-rose-600">delete</mat-icon>
+                {{ t('visitaGuide.layoutRemovePage') }}
+            </button>
+            <button
+                type="button"
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 [attr.aria-expanded]="layoutContextMenuMore()"
                 (click)="toggleLayoutContextMenuMore($event)"
@@ -5905,16 +5914,6 @@
                         (click)="$event.stopPropagation()"
                     />
                 }
-            }
-            @if (canRemoveLastPageSheet()) {
-                <button
-                    type="button"
-                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-950/40"
-                    (click)="removeLastPageSheet(); $event.stopPropagation()"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base text-rose-600">delete</mat-icon>
-                    {{ t('visitaGuide.layoutRemovePage') }}
-                </button>
             }
             <button
                 type="button"
