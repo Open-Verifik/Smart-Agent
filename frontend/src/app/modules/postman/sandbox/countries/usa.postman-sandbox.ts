@@ -20,6 +20,9 @@ export const USA_KANSAS_DRIVER_LICENSE_ENDPOINT_CODE = 'usa_api_driver_license_l
 /** Plate-by-state lookup is temporarily unavailable (catalogHidden / isAvailable false). */
 export const USA_VEHICLE_ENDPOINT_CODE = 'usa_api_vehicle';
 export const USA_VEHICLE_BY_VIN_ENDPOINT_CODE = 'usa_api_vehicle_lookup_by_vin';
+export const USA_DRIVER_LICENSE_BARCODE_ENDPOINT_CODE = 'usa_api_driver_license_barcode';
+export const USA_DRIVER_LICENSE_CROSSCHECK_ENDPOINT_CODE = 'usa_api_driver_license_crosscheck';
+export const USA_VEHICLE_RECALLS_ENDPOINT_CODE = 'usa_api_vehicle_recalls';
 
 const USA_COMPANY_DEFAULT_BUSINESS = 'APPLE INC';
 const USA_SSN_DEMO = '123-45-678';
@@ -175,6 +178,136 @@ export const USA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointC
         profiles: appendVehicleVinSandboxProfiles(SANDBOX_VEHICLE_VIN_PROFILES),
         defaultDocumentNumber: SANDBOX_DEFAULT_VIN,
         defaultVin: SANDBOX_DEFAULT_VIN,
+        showProfileMeta: false,
+    },
+    [USA_DRIVER_LICENSE_BARCODE_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                profileKey: 'usa-dl-barcode-ca-valid',
+                documentNumber: 'D1234567',
+                fullName: 'JOHN DOE — California Driver License Barcode Decoded',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    licenseNumber: 'D1234567',
+                    state: 'CA',
+                },
+            },
+            {
+                profileKey: 'usa-dl-barcode-404-unreadable',
+                documentNumber: 'UNREADABLE',
+                fullName: '404 — Unreadable driver license barcode',
+                responseType: 'error',
+                expectedStatus: 404,
+                paramOverrides: {
+                    licenseNumber: 'UNREADABLE',
+                },
+            },
+            {
+                profileKey: 'usa-dl-barcode-409-missing-params',
+                documentNumber: '90040901',
+                fullName: '409 — Missing license number or barcode',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    licenseNumber: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: 'D1234567',
+        defaultState: 'CA',
+        showProfileMeta: false,
+    },
+    [USA_DRIVER_LICENSE_CROSSCHECK_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                profileKey: 'usa-dl-crosscheck-confirmed',
+                documentNumber: 'D1234567',
+                fullName: 'JOHN DOE — Front-to-Back Match Confirmed (CA)',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    licenseNumber: 'D1234567',
+                    firstName: 'JOHN',
+                    lastName: 'DOE',
+                    dateOfBirth: '1990-01-15',
+                    state: 'CA',
+                },
+            },
+            {
+                profileKey: 'usa-dl-crosscheck-mismatch',
+                documentNumber: 'TAMPERED999',
+                fullName: 'TAMPERED RECORD — Front-to-Back Mismatch',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    licenseNumber: 'TAMPERED999',
+                },
+            },
+            {
+                profileKey: 'usa-dl-crosscheck-404-unreadable',
+                documentNumber: 'UNREADABLE',
+                fullName: '404 — License barcode unreadable',
+                responseType: 'error',
+                expectedStatus: 404,
+                paramOverrides: {
+                    licenseNumber: 'UNREADABLE',
+                },
+            },
+            {
+                profileKey: 'usa-dl-crosscheck-409-missing-params',
+                documentNumber: '90040901',
+                fullName: '409 — Missing required front card parameters',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    licenseNumber: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: 'D1234567',
+        defaultDateOfBirth: '1990-01-15',
+        defaultState: 'CA',
+        showProfileMeta: false,
+    },
+    [USA_VEHICLE_RECALLS_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                profileKey: 'usa-vehicle-recalls-tesla-vin',
+                documentNumber: '5YJSA1E26MF123456',
+                vin: '5YJSA1E26MF123456',
+                fullName: 'TESLA MODEL S (2021) — 2 Active Recalls',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    vin: '5YJSA1E26MF123456',
+                },
+            },
+            {
+                profileKey: 'usa-vehicle-recalls-404-not-found',
+                documentNumber: '00000000000000000',
+                vin: '00000000000000000',
+                fullName: '404 — VIN not found',
+                responseType: 'error',
+                expectedStatus: 404,
+                paramOverrides: {
+                    vin: '00000000000000000',
+                },
+            },
+            {
+                profileKey: 'usa-vehicle-recalls-409-missing-params',
+                documentNumber: '90040901',
+                vin: '90040901',
+                fullName: '409 — Missing vin parameter',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    vin: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: '5YJSA1E26MF123456',
+        defaultVin: '5YJSA1E26MF123456',
         showProfileMeta: false,
     },
 };
