@@ -22,6 +22,20 @@ export const appRoutes: Route[] = [
             ),
     },
 
+    /** Public Centro de Cumplimiento (no Verifik shell): Spanish under /cumplimiento, English under /en/compliance. */
+    {
+        path: 'cumplimiento',
+        data: { complianceLocale: 'es' },
+        loadChildren: () =>
+            import('app/modules/compliance/compliance.routes').then((m) => m.default),
+    },
+    {
+        path: 'en/compliance',
+        data: { complianceLocale: 'en' },
+        loadChildren: () =>
+            import('app/modules/compliance/compliance.routes').then((m) => m.default),
+    },
+
     /** Standalone plate report (no Verifik shell — for public / white-label domains). */
     {
         path: 'reporte-placa',
