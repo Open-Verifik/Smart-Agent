@@ -18,6 +18,7 @@ import {
 export const SPAIN_IDENTITY_ENDPOINT_CODE = 'spain_api_identity_lookup';
 export const SPAIN_COMPANY_ENDPOINT_CODE = 'spain_api_company_lookup';
 export const SPAIN_VEHICLE_ENDPOINT_CODE = 'spain_api_vehicle_lookup';
+export const SPAIN_TAX_ID_VALIDATE_ENDPOINT_CODE = 'spain_api_tax_id_validate';
 
 const SPAIN_DEFAULT_EXPIRATION_DATE = '17/07/2026';
 
@@ -93,6 +94,39 @@ const SPAIN_COMPANY_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
     },
 };
 
+const SPAIN_TAX_ID_SUCCESS_PROFILE: PostmanSandboxProfile = {
+    profileKey: 'spain-tax-id-telefonica',
+    documentNumber: 'A28015865',
+    fullName: 'TELEFONICA SA — CIF Valid',
+    responseType: 'success',
+    expectedStatus: 200,
+    paramOverrides: {
+        documentNumber: 'A28015865',
+    },
+};
+
+const SPAIN_TAX_ID_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    profileKey: 'spain-tax-id-404-not-found',
+    documentNumber: '999999999',
+    fullName: '404 — Tax ID not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    paramOverrides: {
+        documentNumber: '999999999',
+    },
+};
+
+const SPAIN_TAX_ID_CONFLICT_MISSING_DOCUMENT_NUMBER: PostmanSandboxProfile = {
+    profileKey: 'spain-tax-id-409-missing-params',
+    documentNumber: '90040901',
+    fullName: '409 — Missing documentNumber',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: {
+        documentNumber: '',
+    },
+};
+
 export const SPAIN_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [SPAIN_IDENTITY_ENDPOINT_CODE]: {
         profiles: appendSandboxResponseProfiles(SPAIN_SANDBOX_PROFILES, {
@@ -127,6 +161,15 @@ export const SPAIN_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
         profiles: appendVehiclePlateSandboxProfiles(),
         defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
         defaultPlate: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [SPAIN_TAX_ID_VALIDATE_ENDPOINT_CODE]: {
+        profiles: [
+            SPAIN_TAX_ID_SUCCESS_PROFILE,
+            SPAIN_TAX_ID_ERROR_PROFILE_404,
+            SPAIN_TAX_ID_CONFLICT_MISSING_DOCUMENT_NUMBER,
+        ],
+        defaultDocumentNumber: 'A28015865',
         showProfileMeta: false,
     },
 };
