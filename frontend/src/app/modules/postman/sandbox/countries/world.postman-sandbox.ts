@@ -30,6 +30,11 @@ export const WORLD_WORLD_BANK_ENDPOINT_CODE = 'world_api_world_bank';
 export const WORLD_IADB_ENDPOINT_CODE = 'world_api_iadb';
 export const WORLD_OFFSHORE_LEAKS_ENDPOINT_CODE = 'world_api_offshore_leaks';
 
+export const EU_VIES_VAT_ENDPOINT_CODE = 'eu_api_vies_vat';
+export const FRANCE_COMPANY_SIRENE_ENDPOINT_CODE = 'france_api_company_sirene';
+export const UK_COMPANY_LOOKUP_ENDPOINT_CODE = 'uk_api_company_lookup';
+export const WORLD_GLEIF_LEI_ENDPOINT_CODE = 'world_api_gleif_lei';
+
 export const WORLD_SANDBOX_NAMES = [
     'MARIA ELENA LOPEZ GARCIA',
     'JOSE ANTONIO PEREZ RODRIGUEZ',
@@ -295,4 +300,151 @@ export const WORLD_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
     [WORLD_CIA_WORLD_LEADERS_ENDPOINT_CODE]: buildWorldNameEndpointConfig('CIA World Leaders'),
     [WORLD_WORLD_BANK_ENDPOINT_CODE]: buildWorldNameEndpointConfig('World Bank'),
     [WORLD_OFFSHORE_LEAKS_ENDPOINT_CODE]: buildWorldNameEndpointConfig('Offshore Leaks'),
+
+    // European & Global KYB endpoints
+    [EU_VIES_VAT_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                profileKey: 'eu-vies-vat-google',
+                documentNumber: '6388047V',
+                fullName: 'GOOGLE IRELAND LIMITED — EU VIES Valid (IE)',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    countryCode: 'IE',
+                    vatNumber: '6388047V',
+                },
+            },
+            {
+                profileKey: 'eu-vies-vat-404-not-found',
+                documentNumber: '999999999',
+                fullName: '404 — VAT number not found',
+                responseType: 'error',
+                expectedStatus: 404,
+                paramOverrides: {
+                    vatNumber: '999999999',
+                },
+            },
+            {
+                profileKey: 'eu-vies-vat-409-missing-params',
+                documentNumber: '90040901',
+                fullName: '409 — Missing countryCode or vatNumber',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    vatNumber: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: '6388047V',
+        showProfileMeta: false,
+    },
+    [FRANCE_COMPANY_SIRENE_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                profileKey: 'france-sirene-lvmh',
+                documentNumber: '775670417',
+                fullName: 'LVMH MOET HENNESSY LOUIS VUITTON — France SIRENE Valid',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    documentNumber: '775670417',
+                },
+            },
+            {
+                profileKey: 'france-sirene-404-not-found',
+                documentNumber: '999999999',
+                fullName: '404 — SIREN / SIRET not found',
+                responseType: 'error',
+                expectedStatus: 404,
+                paramOverrides: {
+                    documentNumber: '999999999',
+                },
+            },
+            {
+                profileKey: 'france-sirene-409-missing-params',
+                documentNumber: '90040901',
+                fullName: '409 — Missing documentNumber',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    documentNumber: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: '775670417',
+        showProfileMeta: false,
+    },
+    [UK_COMPANY_LOOKUP_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                profileKey: 'uk-company-barclays',
+                documentNumber: '00048839',
+                fullName: 'BARCLAYS PLC — UK Companies House Valid',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    companyNumber: '00048839',
+                },
+            },
+            {
+                profileKey: 'uk-company-404-not-found',
+                documentNumber: '99999999',
+                fullName: '404 — Company not found',
+                responseType: 'error',
+                expectedStatus: 404,
+                paramOverrides: {
+                    companyNumber: '99999999',
+                },
+            },
+            {
+                profileKey: 'uk-company-409-missing-params',
+                documentNumber: '90040901',
+                fullName: '409 — Missing companyNumber',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    companyNumber: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: '00048839',
+        showProfileMeta: false,
+    },
+    [WORLD_GLEIF_LEI_ENDPOINT_CODE]: {
+        profiles: [
+            {
+                profileKey: 'world-gleif-lei-alphabet',
+                documentNumber: '5493006MHB84DD0ZWV18',
+                fullName: 'ALPHABET INC. — GLEIF LEI Valid',
+                responseType: 'success',
+                expectedStatus: 200,
+                paramOverrides: {
+                    lei: '5493006MHB84DD0ZWV18',
+                },
+            },
+            {
+                profileKey: 'world-gleif-lei-404-not-found',
+                documentNumber: '00000000000000000000',
+                fullName: '404 — LEI not found',
+                responseType: 'error',
+                expectedStatus: 404,
+                paramOverrides: {
+                    lei: '00000000000000000000',
+                },
+            },
+            {
+                profileKey: 'world-gleif-lei-409-missing-params',
+                documentNumber: '90040901',
+                fullName: '409 — Missing lei',
+                responseType: 'error',
+                expectedStatus: 409,
+                paramOverrides: {
+                    lei: '',
+                },
+            },
+        ],
+        defaultDocumentNumber: '5493006MHB84DD0ZWV18',
+        showProfileMeta: false,
+    },
 };

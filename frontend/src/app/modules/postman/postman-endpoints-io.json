@@ -2,8 +2,8 @@
   "generatedAt": "2026-10-05T14:28:25.131Z",
   "source": "verifik-backend/scripts/app-features-final.json (AppFeature.docs used by Postman About tab)",
   "locale": "en",
-  "endpointCount": 251,
-  "withDocumentedResponses": 151,
+  "endpointCount": 259,
+  "withDocumentedResponses": 159,
   "withoutDocumentedResponses": [
     "feature_kyc_solution",
     "peru_identity_lookup",
@@ -519,7 +519,7 @@
       "method": "POST",
       "url": "v2/projects",
       "description": "Bundled Verifik KYC solution: identity, document, biometrics, and watchlist checks orchestrated end-to-end. Used as the default reference for full KYC flows.",
-      "price": 1e-05,
+      "price": 0.00001,
       "isAvailable": false,
       "catalogHidden": false,
       "headers": [],
@@ -11206,7 +11206,7 @@
       "method": "DELETE",
       "url": "v2/face-recognition/persons/@monitor.personId",
       "description": "Delete an enrolled face person by id",
-      "price": 1e-05,
+      "price": 0.00001,
       "isAvailable": true,
       "catalogHidden": false,
       "headers": [
@@ -23756,6 +23756,804 @@
           "body": {
             "code": "MissingParameter",
             "message": "missing documentType\n. missing documentNumber\n"
+          }
+        }
+      ]
+    },
+    {
+      "code": "eu_api_vies_vat",
+      "name": "Global - EU VIES VAT & Company Verification",
+      "nameES": "Global - Verificación de IVA y Empresa VIES de la UE",
+      "country": "world",
+      "category": "business",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/eu/vat",
+      "description": "Verify EU VAT numbers and company details via the European Commission VIES system. Validates VAT registration status, official company name, and registered address across EU member states.",
+      "descriptionES": "Verificación de números de IVA y datos empresariales de la UE mediante el sistema VIES de la Comisión Europea. Valida estado de registro de IVA, razón social y domicilio registrado en los estados miembros de la UE.",
+      "price": 0.1,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "countryCode",
+            "type": "String",
+            "required": true,
+            "enum": [
+              "AT",
+              "BE",
+              "BG",
+              "CY",
+              "CZ",
+              "DE",
+              "DK",
+              "EE",
+              "EL",
+              "ES",
+              "FI",
+              "FR",
+              "HR",
+              "HU",
+              "IE",
+              "IT",
+              "LT",
+              "LU",
+              "LV",
+              "MT",
+              "NL",
+              "PL",
+              "PT",
+              "RO",
+              "SE",
+              "SI",
+              "SK"
+            ],
+            "description": "Two-letter EU member state country code (e.g. IE, FR, DE, ES)."
+          },
+          {
+            "field": "vatNumber",
+            "type": "String",
+            "required": true,
+            "description": "VAT identification number without country prefix (e.g. 6388047V)."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "countryCode",
+            "description": "Required. Two-letter EU country code (e.g. IE, FR, DE, ES)."
+          },
+          {
+            "field": "vatNumber",
+            "description": "Required. VAT identification number without country prefix."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "countryCode": "IE",
+              "vatNumber": "6388047V",
+              "isValid": true,
+              "name": "GOOGLE IRELAND LIMITED",
+              "address": "3RD FLOOR, GORDON HOUSE, BARROW STREET, DUBLIN 4",
+              "requestDate": "2026-10-31"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "EUVAT01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "VAT number not found or invalid for the specified EU member state."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "countryCode and vatNumber are required."
+          }
+        }
+      ]
+    },
+    {
+      "code": "france_api_company_sirene",
+      "name": "Global - France Company Lookup (SIREN / SIRET)",
+      "nameES": "Global - Consulta de Empresas en Francia (SIREN / SIRET)",
+      "country": "world",
+      "category": "business",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/fr/company",
+      "description": "Verify French companies, commercial establishments, and legal entities in the national SIRENE business register. Search by 9-digit SIREN or 14-digit SIRET.",
+      "descriptionES": "Consulta y verificación de empresas y establecimientos comerciales en Francia mediante el registro mercantil nacional SIRENE. Búsqueda por SIREN (9 dígitos) o SIRET (14 dígitos).",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true,
+            "description": "9-digit SIREN or 14-digit SIRET identification number."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentNumber",
+            "description": "Required. 9-digit SIREN or 14-digit SIRET."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "siren": "775670417",
+              "siret": "77567041700010",
+              "companyName": "LVMH MOET HENNESSY LOUIS VUITTON",
+              "legalForm": "Société européenne",
+              "activityCode": "70.10Z",
+              "activityDescription": "Activités des sièges sociaux",
+              "address": "22 AVENUE MONTAIGNE, 75008 PARIS",
+              "postalCode": "75008",
+              "city": "PARIS",
+              "status": "active",
+              "creationDate": "1923-01-01"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "FRSIR01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "French company record not found for the provided SIREN/SIRET."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "documentNumber is required."
+          }
+        }
+      ]
+    },
+    {
+      "code": "uk_api_company_lookup",
+      "name": "Global - UK Company & Public Record Lookup",
+      "nameES": "Global - Consulta de Empresas en Reino Unido",
+      "country": "world",
+      "category": "business",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/gb/company",
+      "description": "UK company registry and public records verification. Retrieve company status, registration number, incorporation date, registered office, and company officers.",
+      "descriptionES": "Verificación de empresas y registros públicos en el Reino Unido. Obtenga estado mercantil, número de registro, fecha de constitución, domicilio y oficiales corporativos.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "companyNumber",
+            "type": "String",
+            "required": true,
+            "description": "8-digit UK company registration number (e.g. 00048839)."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "companyNumber",
+            "description": "Required. 8-digit UK company registration number."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "companyNumber": "00048839",
+              "companyName": "BARCLAYS PLC",
+              "companyStatus": "active",
+              "companyType": "plc",
+              "jurisdiction": "england-wales",
+              "dateOfCreation": "1896-06-01",
+              "registeredOfficeAddress": {
+                "addressLine1": "1 Churchill Place",
+                "postalCode": "E14 5HP",
+                "locality": "London",
+                "country": "United Kingdom"
+              },
+              "hasInsolvencyHistory": false
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "UKCO01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "UK company not found for the provided company number."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "companyNumber is required."
+          }
+        }
+      ]
+    },
+    {
+      "code": "spain_api_tax_id_validate",
+      "name": "Spain - Spain Tax ID Validation (NIF / NIE / CIF)",
+      "nameES": "Spain - España — Validación de NIF / NIE / CIF",
+      "country": "Spain",
+      "category": "business",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/es/tax-id/validate",
+      "description": "Validate Spanish Tax Identification Numbers (NIF, NIE, CIF) and verify taxpayer name and registry status against official Spanish tax records.",
+      "descriptionES": "Validación oficial de números de identificación fiscal españoles (NIF, NIE, CIF), comprobación de razón social o titular y estado en el censo tributario.",
+      "price": 0.1,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true,
+            "description": "Spanish tax identification number (NIF, NIE, or CIF, e.g. A28015865)."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentNumber",
+            "description": "Required. Spanish tax identification number (NIF, NIE, CIF)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "documentNumber": "A28015865",
+              "companyName": "TELEFONICA SA",
+              "documentType": "CIF",
+              "valid": true,
+              "status": "active"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "ESTAX01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Spanish Tax ID not found in the official tax census."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "documentNumber is required."
+          }
+        }
+      ]
+    },
+    {
+      "code": "world_api_gleif_lei",
+      "name": "Global - Legal Entity Identifier (LEI) Lookup",
+      "nameES": "Global - Consulta Global de Identificador de Entidad Legal (LEI)",
+      "country": "world",
+      "category": "business",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/world/lei",
+      "description": "Global Legal Entity Identifier (LEI) lookup via the GLEIF database. Validate 20-character LEI codes, legal corporate name, headquarters address, jurisdiction, and registration status for financial market participants.",
+      "descriptionES": "Consulta global de Identificador de Entidad Legal (LEI) mediante la base de datos GLEIF. Valida códigos LEI de 20 caracteres, razón social, domicilio fiscal, jurisdicción y estado de registro para participantes del mercado financiero.",
+      "price": 0.15,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "lei",
+            "type": "String",
+            "required": true,
+            "description": "20-character alphanumeric Legal Entity Identifier (LEI)."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "lei",
+            "description": "Required. 20-character alphanumeric LEI code."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "lei": "5493006MHB84DD0ZWV18",
+              "legalName": "ALPHABET INC.",
+              "jurisdiction": "US-DE",
+              "legalAddress": {
+                "addressLines": [
+                  "1600 Amphitheatre Parkway"
+                ],
+                "city": "Mountain View",
+                "region": "US-CA",
+                "country": "US",
+                "postalCode": "94043"
+              },
+              "headquartersAddress": {
+                "addressLines": [
+                  "1600 Amphitheatre Parkway"
+                ],
+                "city": "Mountain View",
+                "region": "US-CA",
+                "country": "US",
+                "postalCode": "94043"
+              },
+              "status": "ISSUED",
+              "initialRegistrationDate": "2015-10-02"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "GLEIF01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Legal Entity Identifier (LEI) not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "lei parameter is required."
+          }
+        }
+      ]
+    },
+    {
+      "code": "usa_api_driver_license_barcode",
+      "name": "United States - Driver's License Barcode (AAMVA PDF417)",
+      "nameES": "United States - Código de Barras de Licencia de Conducir de EE.UU. y Canadá (AAMVA PDF417)",
+      "country": "United States",
+      "category": "identity",
+      "group": "verification",
+      "method": "POST",
+      "url": "v2/usa/driver-license/barcode",
+      "description": "Read and decode standard AAMVA PDF417 2D barcodes from US and Canada driver's licenses and state ID cards. Validates mandatory AAMVA compliance fields, cardholder demographic data, issuer jurisdiction, and Real ID designation.",
+      "descriptionES": "Lectura y decodificación de códigos de barras bidimensionales PDF417 bajo estándar AAMVA en licencias de conducir y tarjetas de identidad de EE.UU. y Canadá. Valida campos obligatorios, datos demográficos, emisor y cumplimiento Real ID.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "licenseNumber",
+            "type": "String",
+            "required": false,
+            "description": "Optional driver license number probe."
+          },
+          {
+            "field": "state",
+            "type": "String",
+            "required": false,
+            "description": "Optional two-letter US state code (e.g. CA)."
+          },
+          {
+            "field": "backImage",
+            "type": "String",
+            "required": false,
+            "description": "Back image of the driver license as a public HTTPS URL or base64 data URL."
+          },
+          {
+            "field": "rawBarcode",
+            "type": "String",
+            "required": false,
+            "description": "Raw decoded AAMVA barcode text string."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "licenseNumber",
+            "description": "Optional. Driver license number."
+          },
+          {
+            "field": "state",
+            "description": "Optional. Two-letter US state code."
+          },
+          {
+            "field": "backImage",
+            "description": "Optional. Card back image URL or base64."
+          },
+          {
+            "field": "rawBarcode",
+            "description": "Optional. Raw AAMVA barcode payload string."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "verdict": "decoded",
+              "licenseNumber": "D1234567",
+              "firstName": "JOHN",
+              "lastName": "DOE",
+              "dateOfBirth": "1990-01-15",
+              "expirationDate": "2030-01-15",
+              "state": "CA",
+              "country": "USA",
+              "iin": "636014",
+              "isRealIdCompliant": true,
+              "aamvaVersion": "08"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "USDLB01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Barcode could not be detected or decoded from the image."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "At least one of backImage, rawBarcode, or licenseNumber is required."
+          }
+        }
+      ]
+    },
+    {
+      "code": "usa_api_driver_license_crosscheck",
+      "name": "United States - Driver's License Front-to-Back Cross-Check",
+      "nameES": "United States - Verificación Cruzada Frontal y Reverso de Licencia de EE.UU.",
+      "country": "United States",
+      "category": "identity",
+      "group": "verification",
+      "method": "POST",
+      "url": "v2/usa/driver-license/cross-check",
+      "description": "Front-to-back forensic cross-check for US driver's licenses. Compares front demographic fields (first name, last name, date of birth, license number, state) with the decoded AAMVA PDF417 barcode to verify authenticity, detect tampering, and prevent identity fraud.",
+      "descriptionES": "Verificación cruzada forense frontal y reverso para licencias de conducir de EE.UU. Compara los datos impresos frontales con el código de barras AAMVA PDF417 para verificar autenticidad y prevenir fraude por alteración.",
+      "price": 0.25,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "licenseNumber",
+            "type": "String",
+            "required": true,
+            "description": "Driver's license number as printed on the front card."
+          },
+          {
+            "field": "firstName",
+            "type": "String",
+            "required": true,
+            "description": "Cardholder first name as printed on the front."
+          },
+          {
+            "field": "lastName",
+            "type": "String",
+            "required": true,
+            "description": "Cardholder last name as printed on the front."
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": true,
+            "description": "Cardholder date of birth (YYYY-MM-DD)."
+          },
+          {
+            "field": "state",
+            "type": "String",
+            "required": true,
+            "description": "Two-letter US state abbreviation (e.g. CA)."
+          },
+          {
+            "field": "backImage",
+            "type": "String",
+            "required": false,
+            "description": "Back image of the driver license as a public HTTPS URL or base64 data URL."
+          },
+          {
+            "field": "rawBarcode",
+            "type": "String",
+            "required": false,
+            "description": "Raw decoded AAMVA barcode text string."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "licenseNumber",
+            "description": "Required. Driver's license number."
+          },
+          {
+            "field": "firstName",
+            "description": "Required. Cardholder first name."
+          },
+          {
+            "field": "lastName",
+            "description": "Required. Cardholder last name."
+          },
+          {
+            "field": "dateOfBirth",
+            "description": "Required. Cardholder date of birth (YYYY-MM-DD)."
+          },
+          {
+            "field": "state",
+            "description": "Required. Two-letter US state abbreviation."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "verdict": "confirmed",
+              "isAuthentic": true,
+              "matchScore": 1,
+              "licenseNumber": "D1234567",
+              "firstName": "JOHN",
+              "lastName": "DOE",
+              "dateOfBirth": "1990-01-15",
+              "state": "CA",
+              "discrepancies": []
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "USDLC01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Driver's license barcode or card record could not be found or read."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "licenseNumber, firstName, lastName, dateOfBirth, and state are required."
+          }
+        }
+      ]
+    },
+    {
+      "code": "usa_api_vehicle_recalls",
+      "name": "United States - Vehicle Safety Recalls & VIN Lookup",
+      "nameES": "United States - Consulta de Llamados a Revisión (Recalls) y VIN en EE.UU.",
+      "country": "United States",
+      "category": "transit",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/usa/vehicle/recalls",
+      "description": "Check open safety recalls and vehicle specification data for any vehicle registered in the United States by 17-character VIN. Accesses official safety recall campaigns, defect descriptions, and manufacturer remedy information.",
+      "descriptionES": "Consulta de llamados a revisión de seguridad (recalls) y datos técnicos de vehículos en EE.UU. por número de chasis (VIN) de 17 caracteres. Accede a campañas de retiro del fabricante y soluciones oficiales.",
+      "price": 0.15,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "vin",
+            "type": "String",
+            "required": true,
+            "description": "17-character Vehicle Identification Number (VIN)."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "vin",
+            "description": "Required. 17-character VIN."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200",
+          "body": {
+            "data": {
+              "vin": "5YJSA1E26MF123456",
+              "make": "TESLA",
+              "model": "MODEL S",
+              "modelYear": "2021",
+              "manufacturer": "TESLA, INC.",
+              "recallsCount": 2,
+              "hasRecalls": true,
+              "recalls": [
+                {
+                  "nhtsaCampaignNumber": "21V001000",
+                  "component": "FORWARD COLLISION AVOIDANCE",
+                  "summary": "Software defect may cause unexpected emergency braking.",
+                  "consequence": "Unexpected deceleration increases risk of a rear-end collision.",
+                  "remedy": "Over-the-air firmware update."
+                },
+                {
+                  "nhtsaCampaignNumber": "21V002000",
+                  "component": "SEATS",
+                  "summary": "Front seat belt anchor cable may not be securely attached.",
+                  "consequence": "Increased risk of occupant injury in a crash.",
+                  "remedy": "Inspect and tighten anchor cable free of charge."
+                }
+              ]
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "October 31, 2026 12:00 AM"
+            },
+            "id": "USREC01"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "VIN not found in the vehicle safety database."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "vin parameter is required."
           }
         }
       ]

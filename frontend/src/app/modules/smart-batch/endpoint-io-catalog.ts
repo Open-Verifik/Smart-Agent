@@ -5506,4 +5506,166 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "eu_api_vies_vat": {
+        "inputs": [
+            "countryCode",
+            "vatNumber"
+        ],
+        "outputs": [
+            "countryCode",
+            "vatNumber",
+            "isValid",
+            "name",
+            "address",
+            "requestDate"
+        ],
+        "inputEnums": {
+            "countryCode": [
+                "AT",
+                "BE",
+                "BG",
+                "CY",
+                "CZ",
+                "DE",
+                "DK",
+                "EE",
+                "EL",
+                "ES",
+                "FI",
+                "FR",
+                "HR",
+                "HU",
+                "IE",
+                "IT",
+                "LT",
+                "LU",
+                "LV",
+                "MT",
+                "NL",
+                "PL",
+                "PT",
+                "RO",
+                "SE",
+                "SI",
+                "SK"
+            ]
+        }
+    },
+    "france_api_company_sirene": {
+        "inputs": [
+            "documentNumber"
+        ],
+        "outputs": [
+            "siren",
+            "siret",
+            "companyName",
+            "legalForm",
+            "activityCode",
+            "activityDescription",
+            "address",
+            "postalCode",
+            "city",
+            "status",
+            "creationDate"
+        ]
+    },
+    "uk_api_company_lookup": {
+        "inputs": [
+            "companyNumber"
+        ],
+        "outputs": [
+            "companyNumber",
+            "companyName",
+            "companyStatus",
+            "companyType",
+            "jurisdiction",
+            "dateOfCreation",
+            "registeredOfficeAddress",
+            "hasInsolvencyHistory"
+        ]
+    },
+    "spain_api_tax_id_validate": {
+        "inputs": [
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentNumber",
+            "companyName",
+            "documentType",
+            "valid",
+            "status"
+        ]
+    },
+    "world_api_gleif_lei": {
+        "inputs": [
+            "lei"
+        ],
+        "outputs": [
+            "lei",
+            "legalName",
+            "jurisdiction",
+            "legalAddress",
+            "headquartersAddress",
+            "status",
+            "initialRegistrationDate"
+        ]
+    },
+    "usa_api_driver_license_barcode": {
+        "inputs": [
+            "licenseNumber",
+            "state",
+            "backImage",
+            "rawBarcode"
+        ],
+        "outputs": [
+            "verdict",
+            "licenseNumber",
+            "firstName",
+            "lastName",
+            "dateOfBirth",
+            "expirationDate",
+            "state",
+            "country",
+            "iin",
+            "isRealIdCompliant",
+            "aamvaVersion"
+        ]
+    },
+    "usa_api_driver_license_crosscheck": {
+        "inputs": [
+            "licenseNumber",
+            "firstName",
+            "lastName",
+            "dateOfBirth",
+            "state",
+            "backImage",
+            "rawBarcode"
+        ],
+        "outputs": [
+            "verdict",
+            "isAuthentic",
+            "matchScore",
+            "licenseNumber",
+            "firstName",
+            "lastName",
+            "dateOfBirth",
+            "state",
+            "discrepancies"
+        ]
+    },
+    "usa_api_vehicle_recalls": {
+        "inputs": [
+            "vin"
+        ],
+        "outputs": [
+            "vin",
+            "make",
+            "model",
+            "modelYear",
+            "manufacturer",
+            "recallsCount",
+            "hasRecalls",
+            "recalls"
+        ]
+    },
 };
