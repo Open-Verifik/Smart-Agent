@@ -1,10 +1,12 @@
 const Controller = require("../controllers/agent.controller");
 const WalletBalanceController = require("../controllers/wallet-balance.controller");
+const { requireChatUsageAdmin } = require("../middleware/chat-usage-admin");
 
 module.exports = (router) => {
 	const PATH = "/api/agent";
 
 	router.post(`${PATH}/chat`, Controller.chat);
+	router.get(`${PATH}/usage/weekly`, requireChatUsageAdmin, Controller.getWeeklyChatUsage);
 	router.post(`${PATH}/proof`, Controller.generateProof);
 	router.get(`${PATH}/info`, Controller.getInfo);
 	router.get(`${PATH}/agent-card.json`, Controller.getAgentCard);
