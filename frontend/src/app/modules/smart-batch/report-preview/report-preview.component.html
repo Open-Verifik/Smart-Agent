@@ -478,6 +478,7 @@
                         [attr.data-section-type]="section.type"
                         [attr.data-design-top]="sectionDesignTop(section)"
                         [attr.data-design-height]="sectionDesignHeight(section)"
+                        [attr.data-design-rows]="sectionDesignRows(section)"
                         [attr.data-flow]="sectionFlowsInPrint(section) ? '1' : null"
                         [class.relative]="!hasFreeLayout()"
                         [class.absolute]="hasFreeLayout()"
@@ -1892,7 +1893,7 @@
             }
             @if (structuralRecords(section).length > 0) {
                 @for (record of (fullContent() ? structuralRecords(section) : structuralRecords(section).slice(0, 2)); track $index) {
-                    <div class="mb-1.5 rounded-lg border border-gray-200 px-3 py-2">
+                    <div class="mb-1.5 rounded-lg border border-gray-200 px-3 py-2" data-repeat-item>
                         <div class="text-xs font-semibold text-gray-700">
                             <ng-container
                                 [ngTemplateOutlet]="sheetText"

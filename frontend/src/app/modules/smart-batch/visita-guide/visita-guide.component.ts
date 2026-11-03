@@ -5937,7 +5937,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     addTitleBlock(): void {
-        const title = this.reportTitle() || pipelineName(this.entities());
+        const title = this._transloco.translate('visitaGuide.layoutTitlePlaceholder');
         const section: ReportSection = {
             id: `titulo-${Date.now()}`,
             type: 'header',

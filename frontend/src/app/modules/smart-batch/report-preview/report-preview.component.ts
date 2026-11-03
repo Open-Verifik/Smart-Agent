@@ -422,6 +422,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     template = input.required<SmartReportTemplate>();
     /** Data to resolve paths against (inputData, results, etc.) */
     previewData = input.required<Record<string, any>>();
+    /**
+     * Row counts the author designed against. The painted data may be a 1-row
+     * or 10-row probe; this root stays the design sample so the PDF keeps the
+     * drawn boxes until the row count actually changes.
+     */
+    designPreviewData = input<Record<string, any> | null>(null);
     /** Primary color for styling */
     primaryColor = input<string>('#4F46E5');
     /** Paper background color */
@@ -2892,6 +2898,56 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     sectionDesignHeight(section: ReportSection): number | null {
         const height = Number(this.displayFrame(section)?.height);
         return Number.isFinite(height) && height > 0 ? Math.round(height) : null;
+    }
+
+    /** Body rows the design sample has. The PDF keeps this box until the count changes. */
+    sectionDesignRows(section: ReportSection): number | null {
+        const type = section.type;
+        if (
+            type !== 'dataTable' &&
+            type !== 'repeater' &&
+            type !== 'table' &&
+            type !== 'keyValueGrid' &&
+            type !== 'card' &&
+            type !== 'reportBlocks'
+        ) {
+            return null;
+        }
+        const root = this.designPreviewData() ?? this.previewData();
+        if (type === 'reportBlocks') {
+            const resolved = resolveReportBlocksSection(section, root);
+            if (!resolved) return 0;
+            return resolved.blocks.reduce(
+                (sum, block) => sum + block.tables.reduce((inner, table) => inner + table.rows.length, 0),
+                0
+            );
+        }
+        if (type === 'dataTable' || type === 'repeater') return this._recordsIn(section, root).length;
+        const chunks = chunkLayoutSheetItems(
+            collectLayoutSheetItems(section.dataPath ? valueAtDataPath(root, section.dataPath) : null, {
+                hiddenKeys: section.hiddenKeys,
+                keyOrder: section.keyOrder,
+                keyOverrides: section.keyOverrides,
+            })
+        );
+        if (type === 'table') {
+            return chunks.reduce((sum, chunk) => sum + (chunk.kind === 'fields' ? chunk.entries.length : 0), 0);
+        }
+        return chunks.reduce((sum, chunk) => sum + (chunk.kind === 'table' ? chunk.table.rows.length : 0), 0);
+    }
+
+    private _recordsIn(section: ReportSection, root: Record<string, any>): Record<string, any>[] {
+        if (!section.dataPath) return [];
+        const value = valueAtDataPath(root, section.dataPath);
+        if (Array.isArray(value)) return value.filter((entry) => entry && typeof entry === 'object');
+        if (value && typeof value === 'object') {
+            const table = value as Record<string, unknown>;
+            if (Array.isArray(table['rows'])) {
+                return (table['rows'] as unknown[]).filter((entry) => entry && typeof entry === 'object') as Record<string, any>[];
+            }
+            return [value as Record<string, any>];
+        }
+        return [];
     }
 
     sectionHostStyle(section: ReportSection): Record<string, string> {
