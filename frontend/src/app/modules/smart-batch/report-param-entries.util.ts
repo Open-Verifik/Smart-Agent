@@ -165,21 +165,24 @@ export const humanizeParamKey = (key: string): string =>
     key.split('.').filter((part) => part && part !== ROOT_TABLE_KEY).map(humanizeSegment).join(' · ') ||
     key;
 
-/** Prefer the Spanish field name over a leftover camelCase label. */
+/** Prefer the field's own name. A path such as `item.nombre` must not keep the parent word in front. */
 export const displayParamLabel = (key: string, fallback?: string): string => {
-    const leaf = paramKeyLeaf(key);
+    const base = layoutTableRulesKey(key);
+    const leaf = paramKeyLeaf(base);
     const mapped = PARAM_KEY_LABELS[leaf];
     const naive = splitParamSegment(leaf);
+    const autoFull = humanizeParamKey(base);
     if (
         fallback &&
-        !sameLabel(fallback, key) &&
+        !sameLabel(fallback, base) &&
         !sameLabel(fallback, leaf) &&
         !sameLabel(fallback, naive) &&
+        !sameLabel(fallback, autoFull) &&
         !(mapped && sameLabel(fallback, mapped))
     ) {
         return fallback;
     }
-    return mapped || fallback || humanizeParamKey(key);
+    return mapped || naive || fallback || leaf;
 };
 
 const isScalar = (value: unknown): boolean =>

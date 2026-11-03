@@ -8,13 +8,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
-import { filterFeaturesForCountry } from '../smart-batch-country.util';
+import { filterFeaturesForCountry, isFeatureForCountry } from '../smart-batch-country.util';
+import { featureGroup, FeatureGroupId } from '../feature-group.util';
 import { AppFeature, SmartBatchService } from '../smart-batch.service';
 
 export interface ReportBuilderAddConsultDialogData {
     country: string;
     /** Features already on the linked Smart Batch configuration. */
     excludeFeatureIds: string[];
+    /** Blank designs browse every country. The samples still come from the backend catalog. */
+    allCountries?: boolean;
 }
 
 @Component({
@@ -44,6 +47,28 @@ export interface ReportBuilderAddConsultDialogData {
                 <input matInput [ngModel]="query()" (ngModelChange)="onQueryChange($event)" />
                 <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
+            @if (data.allCountries && countryChoices().length) {
+                <div class="mb-2 flex flex-wrap gap-1">
+                    <button type="button" class="rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class.border-stone-950]="countryFilter() === 'all'" [class.bg-stone-950]="countryFilter() === 'all'" [class.text-white]="countryFilter() === 'all'" [class.border-stone-200]="countryFilter() !== 'all'" (click)="countryFilter.set('all')">
+                        {{ 'visitaGuide.endpointsAllCountries' | transloco }}
+                    </button>
+                    @for (country of countryChoices(); track country) {
+                        <button type="button" class="rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class.border-stone-950]="countryFilter() === country" [class.bg-stone-950]="countryFilter() === country" [class.text-white]="countryFilter() === country" [class.border-stone-200]="countryFilter() !== country" (click)="countryFilter.set(country)">
+                            {{ country }}
+                        </button>
+                    }
+                </div>
+                <div class="mb-3 flex flex-wrap gap-1">
+                    <button type="button" class="rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class.border-indigo-700]="groupFilter() === 'all'" [class.bg-indigo-700]="groupFilter() === 'all'" [class.text-white]="groupFilter() === 'all'" [class.border-stone-200]="groupFilter() !== 'all'" (click)="groupFilter.set('all')">
+                        {{ 'visitaGuide.endpointsAllCategories' | transloco }}
+                    </button>
+                    @for (group of groups; track group) {
+                        <button type="button" class="rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class.border-indigo-700]="groupFilter() === group" [class.bg-indigo-700]="groupFilter() === group" [class.text-white]="groupFilter() === group" [class.border-stone-200]="groupFilter() !== group" (click)="groupFilter.set(group)">
+                            {{ groupLabel(group) | transloco }}
+                        </button>
+                    }
+                </div>
+            }
 
             @if (loading()) {
                 <div class="flex justify-center py-8">
@@ -67,6 +92,11 @@ export interface ReportBuilderAddConsultDialogData {
                                     <span class="block text-sm font-medium text-stone-900 dark:text-stone-100">{{
                                         feature.nameES || feature.name || feature.code
                                     }}</span>
+                                    @if (feature.country) {
+                                        <span class="mt-0.5 block text-[11px] uppercase tracking-wide text-stone-400">{{
+                                            feature.country
+                                        }}</span>
+                                    }
                                     @if (feature.description) {
                                         <span class="mt-0.5 block line-clamp-2 text-xs text-stone-500">{{
                                             feature.description
@@ -94,23 +124,48 @@ export class ReportBuilderAddConsultDialogComponent implements OnInit {
     loading = signal(true);
     query = signal('');
     features = signal<AppFeature[]>([]);
+    countryFilter = signal('all');
+    groupFilter = signal<FeatureGroupId | 'all'>('all');
+    readonly groups: FeatureGroupId[] = ['citizen', 'vehicle', 'company', 'other'];
+
+    countryChoices = computed(() => {
+        const names = new Set<string>();
+        for (const feature of this.features()) {
+            const name = (feature.country || '').trim();
+            if (name && name.toLowerCase() !== 'world') names.add(name);
+        }
+        return [...names].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+    });
 
     filtered = computed(() => {
         const q = this.query().trim().toLowerCase();
-        let list = filterFeaturesForCountry(this.features(), this.data.country);
+        let list = this.data.allCountries ? this.features() : filterFeaturesForCountry(this.features(), this.data.country);
+        if (this.data.allCountries && this.countryFilter() !== 'all') {
+            list = list.filter((feature) => isFeatureForCountry(feature.country, this.countryFilter()));
+        }
+        if (this.groupFilter() !== 'all') {
+            list = list.filter((feature) => featureGroup(feature) === this.groupFilter());
+        }
 
         if (q) {
             list = list.filter((feature) => {
-                const haystack = `${feature.name ?? ''} ${feature.nameES ?? ''} ${feature.code ?? ''} ${feature.description ?? ''}`.toLowerCase();
+                const haystack = `${feature.name ?? ''} ${feature.nameES ?? ''} ${feature.code ?? ''} ${feature.description ?? ''} ${feature.country ?? ''}`.toLowerCase();
                 return haystack.includes(q);
             });
         }
 
-        return list.slice(0, 80);
+        return list;
     });
 
+    groupLabel(group: FeatureGroupId): string {
+        if (group === 'vehicle') return 'visitaGuide.entityVehicle';
+        if (group === 'company') return 'visitaGuide.entityCompany';
+        if (group === 'other') return 'visitaGuide.intentOther';
+        return 'visitaGuide.entityPerson';
+    }
+
     ngOnInit(): void {
-        this._batch.getAvailableFeatures(this.data.country).subscribe({
+        this._batch.getAvailableFeatures(this.data.allCountries ? undefined : this.data.country).subscribe({
             next: (response) => {
                 const exclude = new Set(this.data.excludeFeatureIds);
                 const list = (response.data ?? []).filter(

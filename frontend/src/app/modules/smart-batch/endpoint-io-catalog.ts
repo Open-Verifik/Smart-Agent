@@ -684,7 +684,14 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
         "inputs": [
             "plate"
         ],
-        "outputs": []
+        "outputs": [
+            "plate",
+            "make",
+            "model",
+            "modelYear",
+            "vehicleType",
+            "vin"
+        ]
     },
     "world_api_interpol": {
         "inputs": [
@@ -1275,7 +1282,21 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "documentType",
             "documentNumber"
         ],
-        "outputs": [],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "businessName",
+            "conditionTaxpayer",
+            "stateTaxpayer",
+            "address",
+            "simpleaddress",
+            "nameVia",
+            "state",
+            "province",
+            "district",
+            "zoneCode",
+            "zoneType"
+        ],
         "inputEnums": {
             "documentType": [
                 "RUC"
@@ -5666,6 +5687,126 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "recallsCount",
             "hasRecalls",
             "recalls"
+        ]
+    },
+    "colombia_api_police_rnmc_premium": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "date",
+            "legend",
+            "correctiveMeasures",
+            "records"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC"
+            ]
+        }
+    },
+    "ecuador_api_voting_location": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "birthDate",
+            "gender",
+            "province",
+            "canton",
+            "parish",
+            "pollingTable",
+            "registryStatus"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CCEC"
+            ]
+        }
+    },
+    "colombia_api_vehicle_valuation_sibga": {
+        "inputs": [
+            "plate",
+            "documentType",
+            "documentNumber",
+            "period"
+        ],
+        "outputs": [
+            "plate",
+            "period",
+            "model",
+            "valuation",
+            "valuesByModel",
+            "matched",
+            "confidence",
+            "needsReview",
+            "reviewReason",
+            "certificateUrl",
+            "runtSource",
+            "source"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "PA",
+                "NIT"
+            ]
+        }
+    },
+    "colombia_api_rui": {
+        "inputs": [
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "nombre",
+            "edad",
+            "sexo",
+            "departamento",
+            "municipio",
+            "codMpio",
+            "grupRui",
+            "grupoIngresos",
+            "nivelRui"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CC",
+                "CE",
+                "TI",
+                "PPT",
+                "PEP",
+                "RC"
+            ]
+        }
+    },
+    "colombia_api_vehicle_owners": {
+        "inputs": [
+            "plate"
+        ],
+        "outputs": [
+            "plate",
+            "brand",
+            "line",
+            "model",
+            "owners"
         ]
     },
 };

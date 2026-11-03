@@ -123,7 +123,7 @@
                         [style.z-index]="layerPaintZ('watermark', 900)"
                         [style.visibility]="layerVisibility('watermark')"
                         [style.opacity]="layerPeekOpacity('watermark')"
-                        [style.outline]="isLayerPeeked('watermark') ? '2px dashed rgba(217, 119, 6, 0.9)' : null"
+                        [style.outline]="isLayerPeeked('watermark') ? '1px dashed rgba(217, 119, 6, 0.9)' : null"
                         [style.outline-offset.px]="6"
                         style="
                             display: grid;
@@ -270,14 +270,6 @@
                     </div>
                 }
             }
-            @if (hasFooterLogos() && clickable() && !thumbnailMode()) {
-                <div
-                    class="pointer-events-none absolute left-0 right-0 z-[840] border-t border-dashed border-stone-300"
-                    [style.top.px]="footerBandTopView()"
-                    [style.height.px]="footerBandHeightView()"
-                ></div>
-            }
-
             @if (isFirst && logoEnabled() && logoUrl() && !headerLogoViews().length) {
                 <div
                     class="absolute inset-0 pointer-events-none"
@@ -428,7 +420,7 @@
                     [style.top.px]="hasFreeLayout() ? 0 : null"
                     [style.left.px]="hasFreeLayout() ? 0 : null"
                     [style.right.px]="hasFreeLayout() ? 0 : null"
-                    [style.z-index]="hasFreeLayout() ? '910' : null"
+                    [style.z-index]="hasFreeLayout() ? '1' : null"
                     [style.pointer-events]="hasFreeLayout() ? 'none' : null"
                     [style.text-align]="
                         pageNumberPosition() === 'top-left'
@@ -438,7 +430,13 @@
                               : 'center'
                     "
                 >
-                    {{ 'smartReport.pageOf' | transloco: { current: pageIndex + 1, total: count } }}
+                    <div
+                        [class.border-b]="pageNumberDivider()"
+                        [class.border-gray-200]="pageNumberDivider()"
+                        [class.pb-2]="pageNumberDivider()"
+                    >
+                        {{ 'smartReport.pageOf' | transloco: { current: pageIndex + 1, total: count } }}
+                    </div>
                 </div>
             }
 
@@ -478,6 +476,9 @@
                         [class.is-text-editing]="editingText()?.sectionId === section.id"
                         [attr.data-section-id]="section.id"
                         [attr.data-section-type]="section.type"
+                        [attr.data-design-top]="sectionDesignTop(section)"
+                        [attr.data-design-height]="sectionDesignHeight(section)"
+                        [attr.data-flow]="sectionFlowsInPrint(section) ? '1' : null"
                         [class.relative]="!hasFreeLayout()"
                         [class.absolute]="hasFreeLayout()"
                         [style.pointer-events]="draggingSectionId() && draggingSectionId() !== section.id ? 'none' : null"
@@ -485,7 +486,8 @@
                         [class.mb-3]="!hasFreeLayout()"
                         [class.cursor-pointer]="clickable() && !reorderable()"
                         [class.select-none]="reorderable()"
-                        [class.cursor-grab]="clickable() && reorderable() && draggingSectionId() !== section.id"
+                        [class.report-move-hand]="showsSectionMoveHand(section)"
+                        [class.is-grabbing]="draggingSectionId() === section.id"
                         [class.cursor-grabbing]="draggingSectionId() === section.id"
                         [class.opacity-90]="draggingSectionId() === section.id"
                         [class.selection-outline]="showsSectionOutline(section)"
@@ -505,6 +507,12 @@
                         (contextmenu)="onSectionContextMenu(section, $event)"
                         (pointerdown)="onSectionPointerDown(section, $event)"
                     >
+                        @if (showsSectionMoveHand(section) && showsSectionOutline(section)) {
+                            <ng-container
+                                [ngTemplateOutlet]="selectionMoveRing"
+                                [ngTemplateOutletContext]="{ mode: hugsText(section) ? 'tight' : 'section' }"
+                            ></ng-container>
+                        }
                         @if (jumpHref(section); as href) {
                             <a
                                 class="report-jump"
@@ -571,12 +579,34 @@
                             reorderable() &&
                             hasFreeLayout() &&
                             !isShapeSection(section) &&
-                            !hugsText(section) &&
                             !isLayerQuiet('sec:' + section.id) &&
                             selectedSectionId() === section.id &&
                             !selectedCellKey() &&
                             !draggingSectionId()
                         ) {
+                            @if (isTextBlock(section)) {
+                                <div
+                                    data-print-hide
+                                    data-section-handle
+                                    class="absolute left-1/2 z-30 flex h-6 w-6 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border border-indigo-300 bg-white shadow-md hover:bg-indigo-50"
+                                    [style.top.px]="rotateHandleTop(section.frame?.y)"
+                                    (pointerdown)="startSectionRotate(section, $event)"
+                                >
+                                    <mat-icon class="!h-4 !w-4 !text-[16px] text-indigo-500" style="pointer-events: none">rotate_right</mat-icon>
+                                </div>
+                            }
+                            @if (isTextBlock(section) && !sectionHasRichTable(section)) {
+                                <button
+                                    type="button"
+                                    data-print-hide
+                                    data-section-handle
+                                    [attr.aria-label]="'smartReport.resizeBlock' | transloco"
+                                    [title]="'smartReport.resizeBlock' | transloco"
+                                    class="absolute bottom-[-14px] right-[-14px] z-30 h-3.5 w-3.5 cursor-nwse-resize rounded-sm border border-indigo-400 bg-white shadow"
+                                    (pointerdown)="startSectionResize(section, $event, 'se')"
+                                ></button>
+                            }
+                            @if (!isTextBlock(section) || sectionHasRichTable(section)) {
                             @for (handle of blockResizeHandles; track handle.id) {
                                 <button
                                     type="button"
@@ -588,6 +618,7 @@
                                     [ngClass]="handle.cls"
                                     (pointerdown)="startSectionResize(section, $event, handle.id)"
                                 ></button>
+                            }
                             }
                         }
                         @if (isSectionDropBefore(section)) {
@@ -621,9 +652,7 @@
                     }
                 }
 
-                <!-- Footer (every page). In free layout it stays at the bottom
-                     of the sheet and sits behind the blocks, so a block can
-                     move over it. The PDF clone copies this same box. -->
+                <!-- Footer (every page). Text on the sheet, under icons and images. -->
                 @if (hasBottomChrome()) {
                     <div
                         data-report-footer
@@ -635,12 +664,11 @@
                         [style.left.px]="hasFreeLayout() ? 0 : null"
                         [style.right.px]="hasFreeLayout() ? 0 : null"
                         [style.bottom.px]="hasFreeLayout() ? 0 : null"
-                        [style.z-index]="hasFreeLayout() ? '910' : null"
-                        [style.pointer-events]="hasFreeLayout() && draggingSectionId() ? 'none' : null"
+                        [style.z-index]="hasFreeLayout() ? '1' : null"
+                        [style.pointer-events]="hasFreeLayout() ? 'none' : null"
                         [style.padding-left.px]="hasFreeLayout() ? 32 : null"
                         [style.padding-right.px]="hasFreeLayout() ? 32 : null"
                         [style.padding-bottom.px]="hasFreeLayout() ? 24 : null"
-                        [style.background-color]="hasFreeLayout() ? (pageBackgroundColor() || '#ffffff') : null"
                     >
                         @if (legend() || termsAndConditions()) {
                             <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2 space-y-1.5">
@@ -663,9 +691,9 @@
                         @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
                             <div
                                 class="text-[10px] text-gray-400"
-                                [class.border-t]="!legend() && !termsAndConditions()"
-                                [class.border-gray-200]="!legend() && !termsAndConditions()"
-                                [class.pt-3]="!legend() && !termsAndConditions()"
+                                [class.border-t]="pageNumberDivider()"
+                                [class.border-gray-200]="pageNumberDivider()"
+                                [class.pt-3]="pageNumberDivider()"
                                 [style.text-align]="footerAlign(pageNumberPosition())"
                             >
                                 {{ 'smartReport.pageOf' | transloco: { current: pageIndex + 1, total: count } }}
@@ -760,9 +788,9 @@
             @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
                 <div
                     class="text-[10px] text-gray-400"
-                    [class.border-t]="!legend() && !termsAndConditions()"
-                    [class.border-gray-200]="!legend() && !termsAndConditions()"
-                    [class.pt-3]="!legend() && !termsAndConditions()"
+                    [class.border-t]="pageNumberDivider()"
+                    [class.border-gray-200]="pageNumberDivider()"
+                    [class.pt-3]="pageNumberDivider()"
                     [style.text-align]="footerAlign(pageNumberPosition())"
                 >
                     {{ 'smartReport.pageOf' | transloco: { current: 1, total: 1 } }}
@@ -783,6 +811,21 @@
     which the builder shows in its "Exact" iframe. The canvas only needs enough to
     recognize, select and reorder a block.
 -->
+<!-- Grab strip on the selection line. The outline itself does not receive the pointer. -->
+<ng-template #selectionMoveRing let-mode="mode">
+    <div
+        data-print-hide
+        class="selection-move-ring"
+        [class.selection-move-ring-tight]="mode === 'tight'"
+        [class.selection-move-ring-cell]="mode === 'cell'"
+    >
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</ng-template>
+
 <!-- Edge handles on the selected cell. `axes` is any of 'x' (grid columns), 'y' (height), 'w' (table column width). -->
 <ng-template #cellResizeHandles let-section="section" let-key="key" let-axes="axes" let-measure="measure">
     @if (!measure && clickable() && reorderable() && isCellSelected(section, key) && !isLayerQuiet('sec:' + section.id)) {
@@ -793,7 +836,7 @@
                 data-cell-handle
                 [attr.aria-label]="'smartReport.resizeCellWidth' | transloco"
                 [title]="'smartReport.resizeCellWidth' | transloco"
-                class="absolute right-[-5px] top-1/2 z-20 h-5 w-2.5 -translate-y-1/2 cursor-ew-resize rounded-full border border-indigo-400 bg-white shadow"
+                class="absolute right-[-7px] top-1/2 z-20 h-3.5 w-3.5 -translate-y-1/2 cursor-ew-resize rounded-sm border border-indigo-400 bg-white shadow"
                 (pointerdown)="startCellResize(section, key, axes.includes('w') ? 'w' : 'x', $event)"
                 (dblclick)="resetCellSize(section, key, axes.includes('w') ? 'w' : 'x', $event)"
                 (click)="$event.stopPropagation()"
@@ -806,7 +849,7 @@
                 data-cell-handle
                 [attr.aria-label]="'smartReport.resizeCellHeight' | transloco"
                 [title]="'smartReport.resizeCellHeight' | transloco"
-                class="absolute bottom-[-5px] left-1/2 z-20 h-2.5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border border-indigo-400 bg-white shadow"
+                class="absolute bottom-[-7px] left-1/2 z-20 h-3.5 w-3.5 -translate-x-1/2 cursor-ns-resize rounded-sm border border-indigo-400 bg-white shadow"
                 (pointerdown)="startCellResize(section, key, 'y', $event)"
                 (dblclick)="resetCellSize(section, key, 'y', $event)"
                 (click)="$event.stopPropagation()"
@@ -818,8 +861,8 @@
     @if (section.type === 'header') {
         <div
             [class.mb-4]="!hasFreeLayout()"
-            [class.w-fit]="hasFreeLayout() && !sectionHasRichTable(section)"
-            [class.w-full]="sectionHasRichTable(section)"
+            [class.w-fit]="hasFreeLayout() && !sectionHasRichTable(section) && !textWrapsInBox(section)"
+            [class.w-full]="sectionHasRichTable(section) || textWrapsInBox(section)"
             [style.text-align]="roleTextAlign(section, 'title')"
             [style.max-width.px]="hasFreeLayout() && !sectionHasRichTable(section) ? textHugMaxCss(section) : null"
         >
@@ -832,12 +875,14 @@
                 [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
                 [style.max-width.px]="hasFreeLayout() ? textHugMaxCss(section) : null"
-                class="inline-block leading-tight"
+                class="leading-tight"
+                [class.inline-block]="!textWrapsInBox(section)"
+                [class.block]="textWrapsInBox(section)"
                 [class.whitespace-pre-wrap]="!sectionHasRichTable(section)"
                 [class.whitespace-normal]="sectionHasRichTable(section)"
-                [class.max-w-full]="!hasFreeLayout() || sectionHasRichTable(section)"
-                [class.w-full]="sectionHasRichTable(section)"
-                [class.ring-2]="isTitleSelected(section)"
+                [class.max-w-full]="!hasFreeLayout() || sectionHasRichTable(section) || textWrapsInBox(section)"
+                [class.w-full]="sectionHasRichTable(section) || textWrapsInBox(section)"
+                [class.ring-1]="isTitleSelected(section)"
                 [class.ring-inset]="isTitleSelected(section)"
                 [class.ring-indigo-400]="isTitleSelected(section)"
                 [class.rounded-sm]="isTitleSelected(section)"
@@ -852,7 +897,11 @@
     }
 
     @if (section.type === 'text') {
-        <div [class.mb-3]="!hasFreeLayout()" [class.w-fit]="hasFreeLayout() && !sectionHasRichTable(section)" [class.w-full]="sectionHasRichTable(section)">
+        <div
+            [class.mb-3]="!hasFreeLayout()"
+            [class.w-fit]="hasFreeLayout() && !sectionHasRichTable(section) && !textWrapsInBox(section)"
+            [class.w-full]="sectionHasRichTable(section) || textWrapsInBox(section)"
+        >
             <div
                 [style.font-size.px]="roleFontSize(section, 'title')"
                 [style.font-weight]="roleFontWeight(section, 'title')"
@@ -865,9 +914,10 @@
                 class="leading-relaxed"
                 [class.whitespace-pre-wrap]="!sectionHasRichTable(section)"
                 [class.whitespace-normal]="sectionHasRichTable(section)"
-                [class.inline-block]="hasFreeLayout() && !sectionHasRichTable(section)"
-                [class.w-full]="sectionHasRichTable(section)"
-                [class.max-w-full]="sectionHasRichTable(section)"
+                [class.inline-block]="hasFreeLayout() && !sectionHasRichTable(section) && !textWrapsInBox(section)"
+                [class.block]="textWrapsInBox(section)"
+                [class.w-full]="sectionHasRichTable(section) || textWrapsInBox(section)"
+                [class.max-w-full]="sectionHasRichTable(section) || textWrapsInBox(section)"
             >
                 <ng-container
                     [ngTemplateOutlet]="sheetText"
@@ -940,7 +990,7 @@
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
-                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-1]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
                     [class.rounded-sm]="isTitleSelected(section)"
@@ -1162,7 +1212,7 @@
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
-                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-1]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
                     [class.rounded-sm]="isTitleSelected(section)"
@@ -1177,10 +1227,10 @@
             @if (structuralColumns(section).length > 0) {
                 <table class="w-full">
                     <thead>
-                        <tr class="border-b-2" [style.border-color]="primaryColor()">
+                        <tr [class.border-b-2]="sectionShowsRowLines(section)" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
                                 <th
-                                    class="cursor-pointer py-1.5 pr-3 text-left"
+                                    class="py-1.5 pr-3 text-left"
                                     [class.ring-1]="isCellSelected(section, column.key, 'label')"
                                     [class.ring-lime-500]="isCellSelected(section, column.key, 'label')"
                                     [style.font-family]="roleFontFamily(section, 'label')"
@@ -1206,7 +1256,7 @@
                             <tr [ngStyle]="rowLineBg(section)">
                                 @for (cell of row; track $index; let colIndex = $index) {
                                     <td
-                                        class="cursor-pointer py-1.5 pr-3"
+                                        class="py-1.5 pr-3"
                                         [class.ring-1]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
                                         [class.ring-orange-400]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
                                         [style.font-family]="roleFontFamily(section, 'value')"
@@ -1251,7 +1301,7 @@
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
-                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-1]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
                     [class.rounded-sm]="isTitleSelected(section)"
@@ -1347,11 +1397,11 @@
                                     [class.flex-row]="isPairInline(section)"
                                     [class.items-baseline]="isPairInline(section)"
                                     [class.gap-2]="isPairInline(section)"
-                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-1]="isCellSelected(section, entry.key)"
                                     [class.ring-inset]="isCellSelected(section, entry.key)"
                                     [class.ring-indigo-400]="isCellSelected(section, entry.key)"
                                     [class.cursor-pointer]="clickable() && !reorderable()"
-                                    [class.cursor-grab]="clickable() && reorderable()"
+                                    [class.report-move-hand]="showsCellMoveHand(section, entry.key)"
                                     [ngStyle]="rowLineBg(section, entry.key, last)"
                                     [style.grid-column]="cellGridColumn(section, entry.key)"
                                     [style.min-height.px]="cellMinHeight(section, entry.key)"
@@ -1362,6 +1412,12 @@
                                     (pointerdown)="onCellPointerDown(section, entry.key, $event)"
                                     (contextmenu)="onCellContextMenu(section, entry.key, $event)"
                                 >
+                                    @if (showsCellMoveHand(section, entry.key)) {
+                                        <ng-container
+                                            [ngTemplateOutlet]="selectionMoveRing"
+                                            [ngTemplateOutletContext]="{ mode: 'cell' }"
+                                        ></ng-container>
+                                    }
                                     <ng-container
                                         [ngTemplateOutlet]="cellResizeHandles"
                                         [ngTemplateOutletContext]="{ section: section, key: entry.key, axes: 'xy', measure: measure }"
@@ -1415,11 +1471,13 @@
                         <div
                             data-report-cell
                             [attr.data-cell-key]="chunk.table.key"
-                            class="mt-3 overflow-x-auto rounded-lg border px-2 py-2"
-                            [class.ring-2]="isCellSelected(section, chunk.table.key)"
+                            class="relative mt-3 overflow-x-auto rounded-lg border px-2 py-2"
+                            [style.overflow]="showsCellMoveHand(section, chunk.table.key) ? 'visible' : null"
+                            [class.ring-1]="isCellSelected(section, chunk.table.key)"
                             [class.ring-inset]="isCellSelected(section, chunk.table.key)"
                             [class.ring-indigo-400]="isCellSelected(section, chunk.table.key)"
-                            [class.cursor-pointer]="clickable()"
+                            [class.cursor-pointer]="clickable() && !reorderable()"
+                            [class.report-move-hand]="showsCellMoveHand(section, chunk.table.key)"
                             [style.background-color]="tableFill(section, chunk.table.key)"
                             [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
                             [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
@@ -1427,6 +1485,12 @@
                             (pointerdown)="onCellPointerDown(section, chunk.table.key, $event)"
                             (contextmenu)="onCellContextMenu(section, chunk.table.key, $event)"
                         >
+                            @if (showsCellMoveHand(section, chunk.table.key)) {
+                                <ng-container
+                                    [ngTemplateOutlet]="selectionMoveRing"
+                                    [ngTemplateOutletContext]="{ mode: 'cell' }"
+                                ></ng-container>
+                            }
                             <div class="mb-1.5 flex items-center gap-2">
                                 @if (tableShowsBadge(section, chunk.table.key)) {
                                     <span
@@ -1454,7 +1518,8 @@
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="relative cursor-pointer border-b py-1 pr-2 text-left"
+                                                class="relative py-1 pr-2 text-left"
+                                                [class.border-b]="tableShowsRowLines(section, chunk.table.key)"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [style.width.px]="columnWidth(section, tableColumnKey(chunk.table.key, column.key))"
@@ -1483,10 +1548,10 @@
                                 </thead>
                                 <tbody>
                                     @for (row of chunk.table.rows; track $index; let last = $last; let rowIndex = $index) {
-                                        <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
+                                        <tr [class.border-b]="tableShowsRowLines(section, chunk.table.key) && !last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
-                                                    class="cursor-pointer py-1 pr-2 align-top"
+                                                    class="py-1 pr-2 align-top"
                                                     [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
@@ -1578,7 +1643,7 @@
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
-                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-1]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
                     [class.rounded-sm]="isTitleSelected(section)"
@@ -1621,11 +1686,11 @@
                                     [class.items-baseline]="isPairInline(section)"
                                     [class.gap-2]="isPairInline(section)"
                                     [class.flex-col]="!isPairInline(section)"
-                                    [class.ring-2]="isCellSelected(section, entry.key)"
+                                    [class.ring-1]="isCellSelected(section, entry.key)"
                                     [class.ring-inset]="isCellSelected(section, entry.key)"
                                     [class.ring-indigo-400]="isCellSelected(section, entry.key)"
                                     [class.cursor-pointer]="clickable() && !reorderable()"
-                                    [class.cursor-grab]="clickable() && reorderable()"
+                                    [class.report-move-hand]="showsCellMoveHand(section, entry.key)"
                                     [ngStyle]="rowLineBg(section, entry.key, last)"
                                     [style.min-height.px]="cellMinHeight(section, entry.key)"
                                     [style.background-color]="cellBackground(section, entry.key) || null"
@@ -1635,6 +1700,12 @@
                                     (pointerdown)="onCellPointerDown(section, entry.key, $event)"
                                     (contextmenu)="onCellContextMenu(section, entry.key, $event)"
                                 >
+                                    @if (showsCellMoveHand(section, entry.key)) {
+                                        <ng-container
+                                            [ngTemplateOutlet]="selectionMoveRing"
+                                            [ngTemplateOutletContext]="{ mode: 'cell' }"
+                                        ></ng-container>
+                                    }
                                     <ng-container
                                         [ngTemplateOutlet]="cellResizeHandles"
                                         [ngTemplateOutletContext]="{ section: section, key: entry.key, axes: 'y', measure: measure }"
@@ -1685,11 +1756,13 @@
                         <div
                             data-report-cell
                             [attr.data-cell-key]="chunk.table.key"
-                            class="mt-3 overflow-x-auto rounded-lg border px-2 py-2"
-                            [class.ring-2]="isCellSelected(section, chunk.table.key)"
+                            class="relative mt-3 overflow-x-auto rounded-lg border px-2 py-2"
+                            [style.overflow]="showsCellMoveHand(section, chunk.table.key) ? 'visible' : null"
+                            [class.ring-1]="isCellSelected(section, chunk.table.key)"
                             [class.ring-inset]="isCellSelected(section, chunk.table.key)"
                             [class.ring-indigo-400]="isCellSelected(section, chunk.table.key)"
-                            [class.cursor-pointer]="clickable()"
+                            [class.cursor-pointer]="clickable() && !reorderable()"
+                            [class.report-move-hand]="showsCellMoveHand(section, chunk.table.key)"
                             [style.background-color]="tableFill(section, chunk.table.key)"
                             [style.border]="cellHasBox(section, chunk.table.key) ? cellBorder(section, chunk.table.key) : '1px solid ' + tableEdge(section, chunk.table.key)"
                             [style.border-radius.px]="cellRadius(section, chunk.table.key) || null"
@@ -1697,6 +1770,12 @@
                             (pointerdown)="onCellPointerDown(section, chunk.table.key, $event)"
                             (contextmenu)="onCellContextMenu(section, chunk.table.key, $event)"
                         >
+                            @if (showsCellMoveHand(section, chunk.table.key)) {
+                                <ng-container
+                                    [ngTemplateOutlet]="selectionMoveRing"
+                                    [ngTemplateOutletContext]="{ mode: 'cell' }"
+                                ></ng-container>
+                            }
                             <div class="mb-1.5 flex items-center gap-2">
                                 @if (tableShowsBadge(section, chunk.table.key)) {
                                     <span
@@ -1724,7 +1803,8 @@
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="relative cursor-pointer border-b py-1 pr-2 text-left"
+                                                class="relative py-1 pr-2 text-left"
+                                                [class.border-b]="tableShowsRowLines(section, chunk.table.key)"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [style.width.px]="columnWidth(section, tableColumnKey(chunk.table.key, column.key))"
@@ -1753,10 +1833,10 @@
                                 </thead>
                                 <tbody>
                                     @for (row of chunk.table.rows; track $index; let last = $last; let rowIndex = $index) {
-                                        <tr [class.border-b]="!last" [style.border-color]="tableEdge(section, chunk.table.key)">
+                                        <tr [class.border-b]="tableShowsRowLines(section, chunk.table.key) && !last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
-                                                    class="cursor-pointer py-1 pr-2 align-top"
+                                                    class="py-1 pr-2 align-top"
                                                     [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
@@ -1798,7 +1878,7 @@
                     [style.font-style]="roleFontStyle(section, 'title')" [style.text-decoration]="roleTextDecoration(section, 'title')"
                     [style.color]="roleColor(section, 'title')"
                 [style.--report-link-color]="roleLinkColor(section, 'title')"
-                    [class.ring-2]="isTitleSelected(section)"
+                    [class.ring-1]="isTitleSelected(section)"
                     [class.ring-inset]="isTitleSelected(section)"
                     [class.ring-indigo-400]="isTitleSelected(section)"
                     [class.rounded-sm]="isTitleSelected(section)"
@@ -1994,10 +2074,8 @@
             <textarea
                 data-inline-edit
                 rows="1"
-                class="m-0 min-h-[1em] resize-none select-text overflow-hidden border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit [text-align:inherit] [font-style:inherit] [font-weight:inherit] [text-decoration:inherit] outline-none"
-                [class.block]="!hugsText(section)"
-                [class.w-full]="!hugsText(section)"
-                [class.hug-field]="hugsText(section)"
+                class="hug-field m-0 min-h-[1em] resize-none select-text overflow-hidden border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit [text-align:inherit] [font-style:inherit] [font-weight:inherit] [text-decoration:inherit] outline-none"
+                [class.max-w-full]="!hugsText(section)"
                 [style.max-width.px]="hugsText(section) ? textHugMaxCss(section) : null"
                 [value]="inlineDraft()"
                 (input)="onInlineDraftInput($event)"
@@ -2030,8 +2108,8 @@
                 data-sheet-text
                 [attr.data-text-kind]="kind"
                 data-value-rule
-                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
-                [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
+                class="inline-block max-w-full min-h-[1em] min-w-[1ch] whitespace-pre-wrap break-words [text-decoration:inherit]"
+                [class.cursor-text]="showsTextCursor(kind, measure)"
                 [style.color]="rule.color || null"
                 [style.--report-link-color]="sheetLinkColor(section, kind, key)"
                 [style.background-color]="rule.backgroundColor || null"
@@ -2041,7 +2119,7 @@
                 (pointerdown)="onSheetTextPointerDown(kind, $event)"
                 (click)="onSheetTextClick(section, kind, $event, key, fallback)"
                 (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
-                ><span [innerHTML]="ruleBadge(rule)"></span><span [innerHTML]="autolinkSafeHtml(rule.text || sheetDisplayText(section, kind, key, fallback) || '\u00a0', sheetLinkColor(section, kind, key))"></span></span
+                ><span data-rule-badge [innerHTML]="ruleBadge(rule)"></span><span [innerHTML]="autolinkSafeHtml(rule.text || sheetDisplayText(section, kind, key, fallback) || '\u00a0', sheetLinkColor(section, kind, key))"></span></span
             >
         } @else if (sectionHasRichTable(section) && (kind === 'body' || kind === 'title')) {
             <div
@@ -2055,7 +2133,7 @@
                 [style.--report-table-header-color]="richTableChrome(section).headerColor"
                 [style.--report-table-cell-bg]="richTableChrome(section).cellBackground"
                 [style.--report-table-cell-color]="richTableChrome(section).cellColor"
-                [class.cursor-text]="canInlineEdit(measure)"
+                [class.cursor-text]="showsTextCursor(kind, measure)"
                 (pointerdown)="onSheetTextPointerDown(kind, $event)"
                 (click)="onSheetTextClick(section, kind, $event, key, fallback)"
                 (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"
@@ -2065,9 +2143,9 @@
             <span
                 data-sheet-text
                 [attr.data-text-kind]="kind"
-                class="inline-block min-h-[1em] min-w-[1ch] whitespace-pre-wrap [text-decoration:inherit]"
+                class="inline-block max-w-full min-h-[1em] min-w-[1ch] whitespace-pre-wrap break-words [text-decoration:inherit]"
                 [style.--report-link-color]="sheetLinkColor(section, kind, key)"
-                [class.cursor-text]="canInlineEdit(measure) && kind !== 'cellValue' && !isCanvasText(kind)"
+                [class.cursor-text]="showsTextCursor(kind, measure)"
                 (pointerdown)="onSheetTextPointerDown(kind, $event)"
                 (click)="onSheetTextClick(section, kind, $event, key, fallback)"
                 (dblclick)="onSheetTextDoubleClick(section, kind, $event, key, fallback)"

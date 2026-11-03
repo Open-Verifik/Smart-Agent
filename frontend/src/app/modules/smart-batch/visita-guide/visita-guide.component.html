@@ -118,6 +118,7 @@
     >
         <header
             class="shrink-0 border-b border-stone-200/90 bg-white/90 px-5 py-3 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
+            [class.hidden]="isEndpointsStep()"
         >
             <div class="flex w-full items-start gap-3">
                 @if (canGoBack()) {
@@ -302,24 +303,6 @@
                                     (click)="addAllCardsToLayout()"
                                 >
                                     <mat-icon class="!h-5 !w-5 !text-[20px]">playlist_add</mat-icon>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                    [matTooltip]="t('visitaGuide.layoutUseVisita')"
-                                    [attr.aria-label]="t('visitaGuide.layoutUseVisita')"
-                                    (click)="useVisitaLayout()"
-                                >
-                                    <mat-icon class="!h-5 !w-5 !text-[20px]">dashboard_customize</mat-icon>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                    [matTooltip]="t('visitaGuide.openDesigner')"
-                                    [attr.aria-label]="t('visitaGuide.openDesigner')"
-                                    (click)="openMoldEditor()"
-                                >
-                                    <mat-icon class="!h-5 !w-5 !text-[20px]">design_services</mat-icon>
                                 </button>
                             }
                             <button
@@ -549,7 +532,7 @@
                         }
                     }
                     @case ('entity') {
-                        @if (allowsMultiEntity()) {
+                        @if (allowsMultiEntity() || addingConsult()) {
                             <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.entityMultiHint') }}</p>
                         }
                         @for (item of entityOptions; track item.id) {
@@ -588,7 +571,7 @@
                                 }
                             </button>
                         }
-                        @if (allowsMultiEntity()) {
+                        @if (allowsMultiEntity() || addingConsult()) {
                             <button
                                 type="button"
                                 class="mt-2 inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
@@ -815,22 +798,6 @@
                     }
                     @case ('endpoints') {
                         <div class="flex h-full min-h-0 flex-1 flex-col gap-2">
-                        <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
-                            <p class="min-w-0 flex-1 truncate text-sm font-semibold text-stone-950 dark:text-white">
-                                <span aria-hidden="true">{{ countryFlag() }}</span>
-                                {{ t('visitaGuide.endpointsCatalogForCountry', { country: countryLabel() }) }}
-                            </p>
-                            <p class="hidden text-xs text-stone-500 lg:block dark:text-stone-400">{{
-                                t(editingEndpointsFromLayout() ? 'visitaGuide.layoutFlowHint' : 'visitaGuide.endpointsHint')
-                            }}</p>
-                            <button
-                                type="button"
-                                class="shrink-0 text-xs font-medium text-stone-600 underline-offset-4 hover:underline dark:text-stone-300"
-                                (click)="openCountryStep()"
-                            >
-                                {{ t('visitaGuide.changeCountry') }}
-                            </button>
-                        </div>
                         @if (featuresError()) {
                             <p class="text-sm text-red-600 dark:text-red-400">{{ featuresError() }}</p>
                         }
@@ -854,7 +821,62 @@
                                 (hoverEnter)="onEndpointCardEnter($event.feature, $event.event)"
                                 (hoverMove)="onEndpointCardMove($event.feature, $event.event)"
                                 (hoverLeave)="onEndpointCardLeave()"
-                            />
+                            >
+                                <div flow-context class="flex min-w-0 flex-1 items-center gap-2">
+                                    @if (canGoBack()) {
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                                            [attr.aria-label]="t('visitaGuide.back')"
+                                            (click)="goBack()"
+                                        >
+                                            <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
+                                        </button>
+                                    }
+                                    <p
+                                        class="min-w-0 shrink truncate text-xl font-semibold tracking-tight text-stone-950 dark:text-white"
+                                        [matTooltip]="
+                                            t(currentTitleKey()) +
+                                            ' — ' +
+                                            t(
+                                                editingEndpointsFromLayout()
+                                                    ? 'visitaGuide.layoutFlowHint'
+                                                    : 'visitaGuide.endpointsHint'
+                                            )
+                                        "
+                                        matTooltipShowDelay="300"
+                                    >
+                                        {{ t(currentTitleKey()) }}
+                                    </p>
+                                    @for (key of entityTitleKeys(); track key) {
+                                        <span
+                                            class="shrink-0 rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[11px] text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                            >{{ t(key) }}</span
+                                        >
+                                    }
+                                    @if (hasCountries()) {
+                                        <button
+                                            type="button"
+                                            class="max-w-[10rem] shrink-0 truncate rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[11px] text-stone-700 hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200 dark:hover:border-white"
+                                            (click)="openCountryStep()"
+                                        >
+                                            {{ countryFlag() }} {{ countryLabel() }}
+                                        </button>
+                                    }
+                                    @if (mode() === 'batch') {
+                                        <span
+                                            class="shrink-0 rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[11px] text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                            >{{ t('visitaGuide.modeBatch') }}</span
+                                        >
+                                    }
+                                    @if (mode() === 'single') {
+                                        <span
+                                            class="shrink-0 rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[11px] text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                            >{{ t('visitaGuide.modeSingle') }}</span
+                                        >
+                                    }
+                                </div>
+                            </endpoint-chain-board>
                         @if (false) {
                             <section
                                 class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/70"
@@ -1421,105 +1443,413 @@
                             (ngModelChange)="templateSearchQuery.set($event)"
                         />
 
-                        <p class="mt-6 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
-                            {{ t('visitaGuide.templateSystem') }}
-                        </p>
-                        <div class="mt-2 grid gap-3 sm:grid-cols-2">
-                            @for (template of visibleSystemTemplates(); track template._id) {
-                                <button
-                                    type="button"
-                                    class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left dark:border-gray-800"
-                                    [class.border-stone-950]="isTemplateSelected(template)"
-                                    [class.border-stone-200]="!isTemplateSelected(template)"
-                                    (click)="pickSystemTemplate(template)"
-                                >
-                                    <span
-                                        class="mt-0.5 h-8 w-8 shrink-0 rounded-xl border border-black/5"
-                                        [style.background]="template.identityColor || '#000000'"
-                                    ></span>
-                                    <div class="min-w-0">
-                                        <span class="block text-sm font-semibold">{{ template.name }}</span>
-                                        <span class="mt-1 block text-xs text-stone-500">{{
-                                            template.description || t('visitaGuide.templateVisitaDesc')
-                                        }}</span>
-                                    </div>
-                                </button>
-                            }
-                            @if (systemTemplates().length && !visibleSystemTemplates().length) {
-                                <p class="sm:col-span-2 text-sm text-stone-500">{{
-                                    t('visitaGuide.templateSearchEmpty')
-                                }}</p>
-                            }
-                            @if (!systemTemplates().length) {
-                                <button
-                                    type="button"
-                                    class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left sm:col-span-2"
-                                    [class.border-stone-950]="templateChoice() === 'visita'"
-                                    [class.border-stone-200]="templateChoice() !== 'visita'"
-                                    (click)="pickVisitaTemplate()"
-                                >
-                                    <mat-icon>verified</mat-icon>
-                                    <div>
-                                        <span class="block text-sm font-semibold">{{
-                                            t('visitaGuide.templateVisita')
-                                        }}</span>
-                                        <span class="mt-1 block text-sm text-stone-500">{{
-                                            t('visitaGuide.templateVisitaDesc')
-                                        }}</span>
-                                    </div>
-                                </button>
-                            }
-                        </div>
-
-                        <p class="mt-6 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
-                            {{ t('visitaGuide.templateMineTitle') }}
-                        </p>
-                        @if (!myTemplates().length) {
-                            <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.templateMineEmpty') }}</p>
-                        } @else if (!visibleMyTemplates().length) {
-                            <p class="mt-2 text-sm text-stone-500">{{ t('visitaGuide.templateSearchEmpty') }}</p>
-                        }
-                        <div class="mt-2 grid gap-3 sm:grid-cols-2">
-                            @for (template of visibleMyTemplates(); track template._id) {
-                                <button
-                                    type="button"
-                                    class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left dark:border-gray-800"
-                                    [class.border-stone-950]="isTemplateSelected(template)"
-                                    [class.border-stone-200]="!isTemplateSelected(template)"
-                                    (click)="pickMyTemplate(template)"
-                                >
-                                    <span
-                                        class="mt-0.5 h-8 w-8 shrink-0 rounded-xl border border-black/5"
-                                        [style.background]="template.identityColor || '#000000'"
-                                        [matTooltip]="t('visitaGuide.layoutIdentifyColor')"
-                                    ></span>
-                                    <div class="min-w-0">
-                                        <span class="block truncate text-sm font-semibold">{{ template.name }}</span>
-                                        <span class="mt-1 block text-xs text-stone-500">{{
-                                            templateMatchesConsult(template)
-                                                ? t('visitaGuide.templateMatchesConsult')
-                                                : t('visitaGuide.templateMine')
-                                        }}</span>
-                                    </div>
-                                </button>
-                            }
-                        </div>
-
-                        @if (mode() !== 'batch') {
-                        <button
-                            type="button"
-                            class="mt-6 flex w-full items-start gap-4 rounded-2xl border border-dashed border-stone-300 p-4 text-left dark:border-gray-700"
-                            [class.border-stone-950]="templateChoice() === 'scratch'"
-                            (click)="pickScratch()"
+                        <section
+                            class="mt-6 rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
                         >
-                            <mat-icon>add</mat-icon>
-                            <div>
-                                <span class="block text-sm font-semibold">{{ t('visitaGuide.templateNew') }}</span>
-                                <span class="mt-1 block text-sm text-stone-500">{{
-                                    t('visitaGuide.templateNewDesc')
-                                }}</span>
+                            <div class="border-b border-stone-200/80 p-5 dark:border-gray-800 md:p-6">
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                                    >
+                                        <mat-icon>verified</mat-icon>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                            {{ t('smartBatchSystemPresets.sectionTitle') }}
+                                        </h2>
+                                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                            {{ t('smartBatchSystemPresets.sectionDesc') }}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </button>
+                            <div class="p-5 md:p-6">
+                                @if (systemTemplates().length && !visibleSystemTemplates().length) {
+                                    <p class="text-sm text-stone-500">{{ t('visitaGuide.templateSearchEmpty') }}</p>
+                                } @else if (!systemTemplates().length) {
+                                    <button
+                                        type="button"
+                                        class="flex w-full items-start gap-3 rounded-2xl border p-4 text-left"
+                                        [class.border-stone-950]="templateChoice() === 'visita'"
+                                        [class.border-stone-200]="templateChoice() !== 'visita'"
+                                        (click)="pickVisitaTemplate()"
+                                    >
+                                        <mat-icon>verified</mat-icon>
+                                        <div>
+                                            <span class="block text-sm font-semibold">{{
+                                                t('visitaGuide.templateVisita')
+                                            }}</span>
+                                            <span class="mt-1 block text-sm text-stone-500">{{
+                                                t('visitaGuide.templateVisitaDesc')
+                                            }}</span>
+                                        </div>
+                                    </button>
+                                } @else {
+                                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                        @for (template of visibleSystemTemplates(); track template._id) {
+                                            <article
+                                                class="group flex h-full cursor-pointer flex-col rounded-2xl border bg-stone-50/50 p-5 transition hover:bg-white dark:bg-gray-950/40 dark:hover:bg-gray-900/70"
+                                                [class.border-stone-950]="isTemplateSelected(template)"
+                                                [class.dark:border-white]="isTemplateSelected(template)"
+                                                [class.border-stone-200]="!isTemplateSelected(template)"
+                                                [class.hover:border-stone-300]="!isTemplateSelected(template)"
+                                                [class.dark:border-gray-800]="!isTemplateSelected(template)"
+                                                [class.dark:hover:border-gray-700]="!isTemplateSelected(template)"
+                                                (click)="openTemplateBrowse(template, $event)"
+                                            >
+                                                <div class="relative mb-4">
+                                                    <report-template-thumb
+                                                        [template]="template"
+                                                        [icon]="templateCategoryIcon(template.category)"
+                                                    >
+                                                        <div
+                                                            class="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-stone-950/70 to-transparent pb-3 opacity-0 transition group-hover:opacity-100"
+                                                        >
+                                                            <span
+                                                                class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-stone-900"
+                                                            >
+                                                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]"
+                                                                    >visibility</mat-icon
+                                                                >
+                                                                {{ t('smartBatchLanding.templatePreviewOpen') }}
+                                                            </span>
+                                                        </div>
+                                                    </report-template-thumb>
+                                                </div>
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <div
+                                                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-lg dark:border-gray-700 dark:bg-gray-900"
+                                                    >
+                                                        {{ templateCountryFlag(template.country) }}
+                                                    </div>
+                                                    <span
+                                                        class="inline-flex rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-300"
+                                                    >
+                                                        {{ templateTierLabel(template.tier) }}
+                                                    </span>
+                                                    <span
+                                                        class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-[11px] font-medium text-stone-600 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-300"
+                                                    >
+                                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">{{
+                                                            templateCategoryIcon(template.category)
+                                                        }}</mat-icon>
+                                                        {{ templateCategoryLabel(template.category) }}
+                                                    </span>
+                                                </div>
+                                                <h3
+                                                    class="mt-3 line-clamp-2 text-base font-semibold leading-snug text-stone-950 dark:text-white"
+                                                >
+                                                    {{ templateCardTitle(template) }}
+                                                </h3>
+                                                <p
+                                                    class="mt-3 line-clamp-2 flex-1 text-sm leading-relaxed text-stone-500 dark:text-stone-400"
+                                                >
+                                                    {{ templateCardDescription(template) }}
+                                                </p>
+                                                <div class="mt-5 grid grid-cols-2 gap-3">
+                                                    <div
+                                                        class="rounded-xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900/70"
+                                                    >
+                                                        <span
+                                                            class="text-xs font-medium uppercase tracking-[0.14em] text-stone-400"
+                                                            >{{ t('smartBatchLanding.steps') }}</span
+                                                        >
+                                                        <p class="mt-1 text-lg font-semibold text-stone-950 dark:text-white">
+                                                            {{ templateStepCount(template) }}
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        class="rounded-xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900/70"
+                                                    >
+                                                        <span
+                                                            class="text-xs font-medium uppercase tracking-[0.14em] text-stone-400"
+                                                            >{{ t('smartBatchLanding.sections') }}</span
+                                                        >
+                                                        <p class="mt-1 text-lg font-semibold text-stone-950 dark:text-white">
+                                                            {{ template.sections?.length ?? 0 }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-5 flex flex-col gap-2">
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                                        (click)="pickSystemTemplate(template); $event.stopPropagation()"
+                                                    >
+                                                        {{ t('smartBatchSystemPresets.useTemplate') }}
+                                                        <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-950 transition hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-white"
+                                                        (click)="editPickedTemplate(template, $event)"
+                                                    >
+                                                        <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
+                                                        {{ t('smartBatchLanding.edit') }}
+                                                    </button>
+                                                </div>
+                                            </article>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </section>
+
+                        <section
+                            class="mt-6 rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            <div class="border-b border-stone-200/80 p-5 dark:border-gray-800 md:p-6">
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                                    >
+                                        <mat-icon>folder_open</mat-icon>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                            {{ t('smartBatchSystemPresets.myTemplatesTitle') }}
+                                        </h2>
+                                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                            {{ t('smartBatchLanding.noTemplatesDesc') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-5 md:p-6">
+                                @if (!myTemplates().length) {
+                                    <div
+                                        class="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 px-5 py-14 text-center dark:border-gray-800"
+                                    >
+                                        <div
+                                            class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300"
+                                        >
+                                            <mat-icon>description</mat-icon>
+                                        </div>
+                                        <p class="mt-4 max-w-sm text-sm text-stone-500 dark:text-stone-400">
+                                            {{ t('smartBatchLanding.createBlankTemplateHint') }}
+                                        </p>
+                                        @if (mode() !== 'batch') {
+                                            <button
+                                                type="button"
+                                                class="mt-5 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                                (click)="pickScratch()"
+                                            >
+                                                <mat-icon class="!h-4 !w-4 !text-base">add</mat-icon>
+                                                {{ t('visitaGuide.templateNew') }}
+                                            </button>
+                                        }
+                                    </div>
+                                } @else if (!visibleMyTemplates().length) {
+                                    <p class="text-sm text-stone-500">{{ t('visitaGuide.templateSearchEmpty') }}</p>
+                                } @else {
+                                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                        @for (template of visibleMyTemplates(); track template._id) {
+                                            <article
+                                                class="group flex h-full cursor-pointer flex-col rounded-2xl border bg-white p-5 transition hover:shadow-sm dark:bg-gray-950/40"
+                                                [class.border-stone-950]="isTemplateSelected(template)"
+                                                [class.dark:border-white]="isTemplateSelected(template)"
+                                                [class.border-stone-200]="!isTemplateSelected(template)"
+                                                [class.hover:border-stone-300]="!isTemplateSelected(template)"
+                                                [class.dark:border-gray-800]="!isTemplateSelected(template)"
+                                                [class.dark:hover:border-gray-700]="!isTemplateSelected(template)"
+                                                (click)="openTemplateBrowse(template, $event)"
+                                            >
+                                                <div class="relative mb-4">
+                                                    <report-template-thumb [template]="template" icon="description">
+                                                        <div
+                                                            class="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-stone-950/70 to-transparent pb-3 opacity-0 transition group-hover:opacity-100"
+                                                        >
+                                                            <span
+                                                                class="inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-stone-900"
+                                                            >
+                                                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]"
+                                                                    >visibility</mat-icon
+                                                                >
+                                                                {{ t('smartBatchLanding.templatePreviewOpen') }}
+                                                            </span>
+                                                        </div>
+                                                    </report-template-thumb>
+                                                </div>
+                                                <h3
+                                                    class="mt-3 flex items-center gap-2 text-base font-semibold text-stone-950 dark:text-white"
+                                                >
+                                                    <span
+                                                        class="h-3 w-3 shrink-0 rounded-full border border-black/10"
+                                                        [style.background]="template.identityColor || '#000000'"
+                                                        [matTooltip]="t('visitaGuide.layoutIdentifyColor')"
+                                                    ></span>
+                                                    <span class="line-clamp-1">{{ template.name }}</span>
+                                                </h3>
+                                                <p class="mt-3 line-clamp-2 flex-1 text-sm text-stone-500 dark:text-stone-400">
+                                                    {{
+                                                        template.description || t('smartBatchLanding.noDescription')
+                                                    }}
+                                                </p>
+                                                <div
+                                                    class="mt-5 grid grid-cols-2 gap-3 border-t border-stone-200/80 pt-4 dark:border-gray-800"
+                                                >
+                                                    <div class="rounded-xl border border-stone-200 p-3 dark:border-gray-800">
+                                                        <span
+                                                            class="text-xs font-medium uppercase tracking-[0.14em] text-stone-400"
+                                                            >{{ t('smartBatchLanding.sections') }}</span
+                                                        >
+                                                        <p class="mt-1 text-lg font-semibold text-stone-950 dark:text-white">
+                                                            {{ template.sections?.length ?? 0 }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="rounded-xl border border-stone-200 p-3 dark:border-gray-800">
+                                                        <span
+                                                            class="text-xs font-medium uppercase tracking-[0.14em] text-stone-400"
+                                                            >{{ t('smartBatchLanding.linkedTo') }}</span
+                                                        >
+                                                        <p
+                                                            class="mt-1 truncate text-sm font-medium text-stone-950 dark:text-white"
+                                                        >
+                                                            {{ templateConfigLabel(template) }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-5 flex flex-col gap-2">
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                                        (click)="pickMyTemplate(template); $event.stopPropagation()"
+                                                    >
+                                                        {{ t('smartBatchSystemPresets.useTemplate') }}
+                                                        <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-stone-950 transition hover:border-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-white"
+                                                        (click)="editPickedTemplate(template, $event)"
+                                                    >
+                                                        <mat-icon class="!h-4 !w-4 !text-base">edit</mat-icon>
+                                                        {{ t('smartBatchLanding.edit') }}
+                                                    </button>
+                                                </div>
+                                            </article>
+                                        }
+                                    </div>
+                                    @if (mode() !== 'batch') {
+                                        <button
+                                            type="button"
+                                            class="mt-6 flex w-full items-start gap-4 rounded-2xl border border-dashed border-stone-300 p-4 text-left dark:border-gray-700"
+                                            [class.border-stone-950]="templateChoice() === 'scratch'"
+                                            (click)="pickScratch()"
+                                        >
+                                            <mat-icon>add</mat-icon>
+                                            <div>
+                                                <span class="block text-sm font-semibold">{{
+                                                    t('visitaGuide.templateNew')
+                                                }}</span>
+                                                <span class="mt-1 block text-sm text-stone-500">{{
+                                                    t('visitaGuide.templateNewDesc')
+                                                }}</span>
+                                            </div>
+                                        </button>
+                                    }
+                                }
+                            </div>
+                        </section>
+                        @if (templateBrowse(); as preview) {
+                            <div
+                                class="fixed inset-0 z-[80] flex items-center justify-center bg-stone-950/70 p-4"
+                                (click)="closeTemplateBrowse()"
+                            >
+                                <div
+                                    class="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    <div
+                                        class="flex items-start justify-between gap-4 border-b border-stone-200 px-5 py-4 dark:border-gray-800"
+                                    >
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-medium uppercase tracking-wide text-stone-400">
+                                                {{ t('smartBatchLanding.templatePreviewHint') }}
+                                            </p>
+                                            <h2 class="mt-1 truncate text-lg font-semibold text-stone-950 dark:text-white">
+                                                {{ templateCardTitle(preview) }}
+                                            </h2>
+                                        </div>
+                                        <div class="flex shrink-0 items-center gap-2">
+                                            <button
+                                                type="button"
+                                                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                                (click)="useBrowsedTemplate()"
+                                            >
+                                                {{ t('smartBatchSystemPresets.useTemplate') }}
+                                                <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                mat-icon-button
+                                                (click)="closeTemplateBrowse()"
+                                                [attr.aria-label]="t('smartBatchLanding.templatePreviewClose')"
+                                            >
+                                                <mat-icon>close</mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="min-h-[50vh] flex-1 overflow-auto bg-stone-100 p-4 dark:bg-gray-900 sm:p-6">
+                                        @if (templateBrowseLoading()) {
+                                            <div class="flex min-h-[50vh] flex-col items-center justify-center gap-3">
+                                                <mat-spinner diameter="36"></mat-spinner>
+                                                <p class="text-sm text-stone-500">
+                                                    {{ t('smartBatchLanding.templatePreviewLoading') }}
+                                                </p>
+                                            </div>
+                                        } @else {
+                                            <report-preview
+                                                [template]="preview"
+                                                [previewData]="browsePreviewData(preview)"
+                                                [fullContent]="true"
+                                                [clickable]="false"
+                                                [primaryColor]="preview.primaryColor || '#4F46E5'"
+                                                [pageBackgroundColor]="preview.pageBackgroundColor || '#ffffff'"
+                                                [orientation]="preview.orientation || 'portrait'"
+                                                [pageSize]="preview.pageSize || 'A4'"
+                                                [layerZ]="browseLayerZ(preview)"
+                                                [hiddenLayerIds]="browseHiddenLayerIds(preview)"
+                                                [logoUrl]="preview.headerLogos?.length ? null : preview.logo || null"
+                                                [logoEnabled]="!preview.headerLogos?.length && !!preview.logo"
+                                                [logoX]="preview.logoSettings?.x ?? 32"
+                                                [logoY]="preview.logoSettings?.y ?? 32"
+                                                [logoWidth]="preview.logoSettings?.width ?? 160"
+                                                [logoHeight]="preview.logoSettings?.height ?? 60"
+                                                [logoRotation]="preview.logoSettings?.rotation ?? 0"
+                                                [logoAutoFitContent]="preview.logoSettings?.autoFitContent ?? false"
+                                                [sheetImages]="preview.sheetImages ?? []"
+                                                [bodyTopPadding]="preview.bodyTopPadding ?? 0"
+                                                [legend]="preview.legend || ''"
+                                                [legendPosition]="preview.legendPosition || 'left'"
+                                                [showPageNumbers]="preview.showPageNumbers || false"
+                                                [pageNumberPosition]="preview.pageNumberPosition || 'bottom-center'"
+                                                [pageNumberDivider]="preview.pageNumberDivider || false"
+                                                [watermarkEnabled]="preview.watermark?.enabled || false"
+                                                [watermarkType]="preview.watermark?.type || 'text'"
+                                                [watermarkLogoUrl]="preview.watermark?.logo || undefined"
+                                                [watermarkText]="preview.watermark?.text || preview.name || 'CONFIDENTIAL'"
+                                                [watermarkOpacity]="preview.watermark?.opacity ?? 0.08"
+                                                [watermarkPattern]="preview.watermark?.pattern || 'single'"
+                                                [watermarkX]="preview.watermark?.x ?? 250"
+                                                [watermarkY]="preview.watermark?.y ?? 420"
+                                                [watermarkWidth]="preview.watermark?.width ?? 280"
+                                                [watermarkHeight]="preview.watermark?.height ?? 160"
+                                                [watermarkRotation]="preview.watermark?.rotation ?? -15"
+                                                [signatureEnabled]="!!(preview.signature?.enabled && preview.signature?.image)"
+                                                [signatureImage]="preview.signature?.image || null"
+                                                [signatureX]="preview.signature?.x ?? 48"
+                                                [signatureY]="preview.signature?.y ?? 720"
+                                                [signatureWidth]="preview.signature?.width ?? 160"
+                                                [signatureHeight]="preview.signature?.height ?? 64"
+                                                [signaturePage]="preview.signature?.page ?? 0"
+                                                [termsAndConditions]="preview.termsAndConditions || ''"
+                                                [termsPosition]="preview.termsPosition || 'left'"
+                                            ></report-preview>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
                         }
                     }
                     @case ('customize') {
@@ -1566,6 +1896,7 @@
                                 [termsPosition]="termsPosition()"
                                 [showPageNumbers]="showPageNumbers()"
                                 [pageNumberPosition]="pageNumberPosition()"
+                                [pageNumberDivider]="pageNumberDivider()"
                                 [signatureEnabled]="signatureEnabled()"
                                 [signatureImage]="signatureImage()"
                                 [signatureX]="signatureX()"
@@ -1607,66 +1938,91 @@
                         </button>
                     }
                     @case ('layout') {
-                        <div class="grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)]">
+                        <div class="grid gap-3 lg:grid-cols-[172px_minmax(0,1fr)]">
                             <div
                                 cdkDropList
                                 id="visita-layout-data"
                                 [cdkDropListConnectedTo]="['visita-layout-canvas']"
                                 [cdkDropListSortingDisabled]="true"
-                                class="flex max-h-[70vh] flex-col gap-2 overflow-y-auto"
+                                class="flex max-h-[70vh] flex-col gap-1 overflow-y-auto"
                             >
                                 <p class="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
                                     {{ t('visitaGuide.layoutDataTitle') }}
                                 </p>
                                 <p class="text-[11px] text-stone-400">{{ t('visitaGuide.layoutEditorHint') }}</p>
+                                @if (designSource() === 'simulated') {
+                                    <p class="text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200">
+                                        {{ t('visitaGuide.simulatedBanner') }}
+                                    </p>
+                                }
                                 @for (card of layoutSourceCards(); track card.sequence) {
                                     <article
                                         cdkDrag
                                         [cdkDragData]="card"
                                         (cdkDragStarted)="onLayoutPaletteDragStart()"
                                         (cdkDragEnded)="onLayoutPaletteDragEnd()"
-                                        class="cursor-grab rounded-2xl border bg-white p-3 text-left dark:bg-gray-900/70"
+                                        class="cursor-grab rounded-lg border bg-white px-1.5 py-1 text-left dark:bg-gray-900/70"
                                         [class.border-emerald-300]="card.status === 'ok'"
                                         [class.border-red-300]="card.status === 'failed'"
                                         [class.border-stone-200]="card.status === 'empty' || card.status === 'skipped'"
                                         [class.opacity-80]="isCardOnLayout(card.sequence)"
+                                        [matTooltip]="layoutConsultTooltip(card)"
+                                        matTooltipPosition="right"
+                                        matTooltipShowDelay="300"
                                     >
-                                        <div class="flex items-start justify-between gap-2">
-                                            <span class="min-w-0 flex-1 text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        <div class="flex items-center gap-0.5">
+                                            <span
+                                                class="h-1.5 w-1.5 shrink-0 rounded-full"
+                                                [class.bg-emerald-500]="card.status === 'ok'"
+                                                [class.bg-red-500]="card.status === 'failed'"
+                                                [class.bg-stone-300]="card.status === 'empty' || card.status === 'skipped'"
+                                                [matTooltip]="t(resultStatusKey(card.status))"
+                                                [attr.aria-label]="t(resultStatusKey(card.status))"
+                                            ></span>
+                                            <span class="min-w-0 flex-1 truncate text-xs font-medium text-stone-950 dark:text-white">{{
                                                 card.label
                                             }}</span>
-                                            <div class="flex shrink-0 items-center gap-0.5">
-                                                <button
-                                                    type="button"
-                                                    class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-                                                    [matTooltip]="t('visitaGuide.layoutRemoveConsult')"
-                                                    [attr.aria-label]="t('visitaGuide.layoutRemoveConsult')"
-                                                    [disabled]="!canRemoveLayoutConsult() || isRemovingLayoutConsult()"
-                                                    (click)="removeLayoutConsult(card); $event.stopPropagation()"
-                                                >
-                                                    <mat-icon class="!h-4 !w-4 !text-[18px]">delete</mat-icon>
-                                                </button>
-                                                <span class="text-[10px] font-semibold uppercase text-stone-500">{{
-                                                    t(resultStatusKey(card.status))
-                                                }}</span>
-                                            </div>
-                                        </div>
-                                        @if (isCardOnLayout(card.sequence)) {
-                                            <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutAddAnother') }}</p>
-                                        } @else {
-                                            <p class="mt-1 text-[11px] text-stone-400">{{ t('visitaGuide.layoutDragHint') }}</p>
-                                        }
-                                        <button
-                                            type="button"
-                                            class="mt-2 text-xs font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                                            (click)="addCardToLayout(card); $event.stopPropagation()"
-                                        >
-                                            {{ t('visitaGuide.layoutAddOne') }}
-                                        </button>
-                                        @if (card.status !== 'ok' && mode() === 'single') {
                                             <button
                                                 type="button"
-                                                class="mt-1 block text-xs font-medium text-indigo-700 underline-offset-4 hover:underline dark:text-indigo-300"
+                                                class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
+                                                [matTooltip]="t('visitaGuide.layoutAddOne')"
+                                                [attr.aria-label]="t('visitaGuide.layoutAddOne')"
+                                                (click)="addCardToLayout(card); $event.stopPropagation()"
+                                            >
+                                                <mat-icon class="!h-3.5 !w-3.5 !text-[16px]">add</mat-icon>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                                                [matTooltip]="t('visitaGuide.layoutRemoveConsult')"
+                                                [attr.aria-label]="t('visitaGuide.layoutRemoveConsult')"
+                                                [disabled]="!canRemoveLayoutConsult() || isRemovingLayoutConsult()"
+                                                (click)="removeLayoutConsult(card); $event.stopPropagation()"
+                                            >
+                                                <mat-icon class="!h-3.5 !w-3.5 !text-[16px]">delete</mat-icon>
+                                            </button>
+                                        </div>
+                                        @if (designSource() === 'simulated') {
+                                            <div class="mt-1 flex flex-wrap gap-1" (click)="$event.stopPropagation()">
+                                                @for (availability of simulatedAvailabilities; track availability) {
+                                                    <button
+                                                        type="button"
+                                                        class="rounded-md border px-1.5 py-0.5 text-[10px]"
+                                                        [class.border-stone-950]="simulatedAvailability(card.sequence) === availability"
+                                                        [class.bg-stone-950]="simulatedAvailability(card.sequence) === availability"
+                                                        [class.text-white]="simulatedAvailability(card.sequence) === availability"
+                                                        [class.border-stone-200]="simulatedAvailability(card.sequence) !== availability"
+                                                        (click)="setSimulatedAvailability(card.sequence, availability)"
+                                                    >
+                                                        {{ t('visitaGuide.simulated' + (availability === 'data' ? 'Data' : availability === 'empty' ? 'Empty' : 'Missing')) }}
+                                                    </button>
+                                                }
+                                            </div>
+                                        }
+                                        @if (card.status !== 'ok' && mode() === 'single' && designSource() !== 'simulated') {
+                                            <button
+                                                type="button"
+                                                class="mt-1 block text-[10px] font-medium text-indigo-700 underline-offset-2 hover:underline dark:text-indigo-300"
                                                 (click)="loadLayoutConsultData(); $event.stopPropagation()"
                                             >
                                                 {{ t('visitaGuide.layoutAddData') }}
@@ -1674,86 +2030,13 @@
                                         }
                                     </article>
                                 }
-                                <article
-                                    cdkDrag
-                                    [cdkDragData]="{ kind: 'consultStats' }"
-                                    (cdkDragStarted)="onLayoutPaletteDragStart()"
-                                    (cdkDragEnded)="onLayoutPaletteDragEnd()"
-                                    class="cursor-grab rounded-2xl border border-indigo-200 bg-indigo-50/50 p-3 text-left dark:border-indigo-500/40 dark:bg-indigo-950/20"
-                                >
-                                    <div class="flex items-start justify-between gap-2">
-                                        <span class="min-w-0 flex-1 text-sm font-semibold text-stone-950 dark:text-white">{{
-                                            t('visitaGuide.layoutConsultStatsTitle')
-                                        }}</span>
-                                        <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-300">query_stats</mat-icon>
-                                    </div>
-                                    <p class="mt-1 text-[11px] text-stone-500 dark:text-stone-400">{{ t('visitaGuide.layoutConsultStatsHint') }}</p>
-                                    <button
-                                        type="button"
-                                        class="mt-2 text-xs font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-                                        (click)="addConsultStatsBlock(); $event.stopPropagation()"
-                                    >
-                                        {{ t('visitaGuide.layoutAddOne') }}
-                                    </button>
-                                    <div class="mt-2 flex flex-wrap gap-1">
-                                        <button
-                                            type="button"
-                                            class="rounded-lg border border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
-                                            (click)="addConsultStatsBlock('pie'); $event.stopPropagation()"
-                                        >
-                                            {{ t('visitaGuide.layoutChartPie') }}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="rounded-lg border border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
-                                            (click)="addConsultStatsBlock('bar'); $event.stopPropagation()"
-                                        >
-                                            {{ t('visitaGuide.layoutChartBar') }}
-                                        </button>
-                                    </div>
-                                    <div class="mt-2 flex flex-wrap gap-1">
-                                        @for (key of consultStatsFieldKeys; track key) {
-                                            <button
-                                                type="button"
-                                                class="rounded-lg border border-dashed border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
-                                                (click)="addConsultStatField(key); $event.stopPropagation()"
-                                            >
-                                                + {{ consultStatsLabel(key) }}
-                                            </button>
-                                        }
-                                    </div>
-                                    <div class="mt-1 flex flex-wrap gap-1">
-                                        @for (key of consultStatsCategoryKeys; track key) {
-                                            <button
-                                                type="button"
-                                                class="rounded-lg border border-dashed border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:border-indigo-500 dark:border-indigo-500/50 dark:text-indigo-200"
-                                                (click)="addConsultStatField(key); $event.stopPropagation()"
-                                            >
-                                                + {{ consultStatsLabel(key) }}
-                                            </button>
-                                        }
-                                    </div>
-                                </article>
                                 <button
                                     type="button"
-                                    class="mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/40 px-3 text-sm font-semibold text-indigo-800 transition hover:border-indigo-400 hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-500/50 dark:bg-indigo-950/20 dark:text-indigo-200"
+                                    class="mt-1 flex min-h-8 w-full items-center justify-center gap-1 rounded-lg border border-dashed border-indigo-300 bg-indigo-50/40 px-2 py-1 text-[11px] font-semibold text-indigo-800 transition hover:border-indigo-400 hover:bg-indigo-50 dark:border-indigo-500/50 dark:bg-indigo-950/20 dark:text-indigo-200"
                                     (click)="openLayoutAddConsultDialog()"
-                                    [disabled]="isAddingLayoutConsult()"
                                 >
-                                    @if (isAddingLayoutConsult()) {
-                                        <mat-spinner diameter="20"></mat-spinner>
-                                    } @else {
-                                        <mat-icon class="!text-[20px]">add_circle</mat-icon>
-                                    }
+                                    <mat-icon class="!h-4 !w-4 !text-[16px]">add_circle</mat-icon>
                                     {{ t('visitaGuide.layoutAddConsult') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-800 transition hover:border-stone-400 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 dark:hover:border-gray-500"
-                                    (click)="goToEndpointsFromLayout()"
-                                >
-                                    <mat-icon class="!text-[20px]">account_tree</mat-icon>
-                                    {{ t('visitaGuide.layoutEditEndpointFlow') }}
                                 </button>
                             </div>
 
@@ -1773,8 +2056,8 @@
                                     (click)="toggleLayoutMarquee()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 3.5v17M3.5 12h17" stroke="#111827" stroke-width="1.8" stroke-linecap="round" />
-                                        <circle cx="12" cy="12" r="1.35" fill="#4f46e5" />
+                                        <path d="M12 3.5v17M3.5 12h17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                        <circle cx="12" cy="12" r="1.35" fill="currentColor" />
                                     </svg>
                                     <span class="layout-tool-label">{{ t('visitaGuide.toolLabel.select') }}</span>
                                 </button>
@@ -1787,8 +2070,8 @@
                                     (click)="addTitleBlock()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#ede9fe" />
-                                        <path d="M7 7.5h10M12 7.5v9.5" stroke="#6d28d9" stroke-width="2.6" stroke-linecap="round" />
+                                        <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                                        <path d="M7 8.5h10M12 8.5v7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
                                     </svg>
                                     <span class="layout-tool-label">{{ t('visitaGuide.layoutAddTitle') }}</span>
                                 </button>
@@ -1800,12 +2083,12 @@
                                     (click)="addTextBlock()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#e0f2fe" />
-                                        <path d="M6 8h12M6 12h12M6 16h7.5" stroke="#0369a1" stroke-width="1.9" stroke-linecap="round" />
+                                        <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                                        <path d="M6.5 8.5h11M6.5 12h11M6.5 15.5h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                                     </svg>
                                     <span class="layout-tool-label">{{ t('visitaGuide.layoutAddText') }}</span>
                                 </button>
-                                <div class="shrink-0">
+                                <div class="inline-flex shrink-0 items-center">
                                     <button
                                         type="button"
                                         class="layout-tool"
@@ -1818,16 +2101,14 @@
                                         (click)="toggleLayoutDatesMenu($event)"
                                     >
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <rect x="2" y="3" width="20" height="18" rx="4" fill="#ccfbf1" />
-                                            <path d="M7 3.5v3.5M17 3.5v3.5" stroke="#0f766e" stroke-width="1.8" stroke-linecap="round" />
-                                            <path d="M5.5 9h13" stroke="#0f766e" stroke-width="1.6" />
-                                            <rect x="6.5" y="12" width="3.2" height="3.2" rx="0.6" fill="#0f766e" />
-                                            <rect x="10.4" y="12" width="3.2" height="3.2" rx="0.6" fill="#14b8a6" />
-                                            <rect x="14.3" y="12" width="3.2" height="3.2" rx="0.6" fill="#0f766e" />
+                                            <rect x="4" y="6.2" width="16" height="13.3" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.6" />
+                                            <path d="M4 10.4h16M8 4.6v3.2M16 4.6v3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                                         </svg>
-                                        <span class="layout-tool-label inline-flex items-center">
+                                        <span class="layout-tool-label">
                                             {{ t('visitaGuide.layoutAddDate') }}
-                                            <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
+                                            <svg class="layout-tool-caret" viewBox="0 0 12 12" aria-hidden="true">
+                                                <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
                                         </span>
                                     </button>
                                     <ng-template
@@ -1850,7 +2131,7 @@
                                                 class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
                                                 (click)="addDateStampBlock('consultedAt'); layoutDatesOpen.set(false)"
                                             >
-                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-teal-600 dark:text-teal-400">event_available</mat-icon>
+                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-stone-700 dark:text-stone-200">event_available</mat-icon>
                                                 <span class="whitespace-nowrap">{{ t('visitaGuide.layoutAddConsultedDate') }}</span>
                                             </button>
                                             <button
@@ -1858,92 +2139,9 @@
                                                 class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
                                                 (click)="addDateStampBlock('generatedAt'); layoutDatesOpen.set(false)"
                                             >
-                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-teal-600 dark:text-teal-400">schedule</mat-icon>
+                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-stone-700 dark:text-stone-200">schedule</mat-icon>
                                                 <span class="whitespace-nowrap">{{ t('visitaGuide.layoutAddGeneratedDate') }}</span>
                                             </button>
-                                        </div>
-                                    </ng-template>
-                                </div>
-                                <div class="shrink-0">
-                                    <button
-                                        type="button"
-                                        class="layout-tool"
-                                        cdkOverlayOrigin
-                                        #statsMenuOrigin="cdkOverlayOrigin"
-                                        [class.is-active]="layoutStatsOpen()"
-                                        [matTooltip]="t('visitaGuide.toolHint.stats')"
-                                        [attr.aria-label]="t('visitaGuide.layoutAddConsultStats')"
-                                        [attr.aria-expanded]="layoutStatsOpen()"
-                                        (click)="toggleLayoutStatsMenu($event)"
-                                    >
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <rect x="2" y="3" width="20" height="18" rx="4" fill="#eef2ff" />
-                                            <path d="M7 16.5V12M12 16.5V8.5M17 16.5v-3" stroke="#4338ca" stroke-width="2" stroke-linecap="round" />
-                                        </svg>
-                                        <span class="layout-tool-label inline-flex items-center">
-                                            {{ t('visitaGuide.layoutAddConsultStats') }}
-                                            <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
-                                        </span>
-                                    </button>
-                                    <ng-template
-                                        cdkConnectedOverlay
-                                        [cdkConnectedOverlayOrigin]="statsMenuOrigin"
-                                        [cdkConnectedOverlayOpen]="layoutStatsOpen()"
-                                        [cdkConnectedOverlayPositions]="layoutShapesMenuPositions"
-                                        [cdkConnectedOverlayHasBackdrop]="true"
-                                        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                                        cdkConnectedOverlayPanelClass="report-design-overlay-pane"
-                                        (backdropClick)="layoutStatsOpen.set(false)"
-                                        (overlayKeydown)="$event.key === 'Escape' && layoutStatsOpen.set(false)"
-                                        (detach)="layoutStatsOpen.set(false)"
-                                    >
-                                        <div
-                                            class="flex max-h-[70vh] w-max min-w-56 flex-col gap-0.5 overflow-y-auto rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
-                                        >
-                                            <button
-                                                type="button"
-                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                                (click)="addConsultStatsBlock(); layoutStatsOpen.set(false)"
-                                            >
-                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-400">query_stats</mat-icon>
-                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutAddConsultStatsBlock') }}</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                                (click)="addConsultStatsBlock('pie'); layoutStatsOpen.set(false)"
-                                            >
-                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-400">pie_chart</mat-icon>
-                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutChartPie') }}</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                                (click)="addConsultStatsBlock('bar'); layoutStatsOpen.set(false)"
-                                            >
-                                                <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-600 dark:text-indigo-400">bar_chart</mat-icon>
-                                                <span class="whitespace-nowrap">{{ t('visitaGuide.layoutChartBar') }}</span>
-                                            </button>
-                                            @for (key of consultStatsFieldKeys; track key) {
-                                                <button
-                                                    type="button"
-                                                    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                                    (click)="addConsultStatField(key); layoutStatsOpen.set(false)"
-                                                >
-                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-500 dark:text-indigo-300">label</mat-icon>
-                                                    <span class="whitespace-nowrap">{{ consultStatsLabel(key) }}</span>
-                                                </button>
-                                            }
-                                            @for (key of consultStatsCategoryKeys; track key) {
-                                                <button
-                                                    type="button"
-                                                    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
-                                                    (click)="addConsultStatField(key); layoutStatsOpen.set(false)"
-                                                >
-                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-indigo-500 dark:text-indigo-300">category</mat-icon>
-                                                    <span class="whitespace-nowrap">{{ consultStatsLabel(key) }}</span>
-                                                </button>
-                                            }
                                         </div>
                                     </ng-template>
                                 </div>
@@ -1955,31 +2153,16 @@
                                     (click)="addTableOfContents()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#fef3c7" />
-                                        <path d="M7 8h10M7 12h10M7 16h6.5" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" />
-                                        <circle cx="5" cy="8" r="0.9" fill="#b45309" />
-                                        <circle cx="5" cy="12" r="0.9" fill="#b45309" />
-                                        <circle cx="5" cy="16" r="0.9" fill="#b45309" />
+                                        <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                                        <path d="M8 8.5h9M8 12h9M8 15.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                        <circle cx="6" cy="8.5" r="0.8" fill="currentColor" />
+                                        <circle cx="6" cy="12" r="0.8" fill="currentColor" />
+                                        <circle cx="6" cy="15.5" r="0.8" fill="currentColor" />
                                     </svg>
                                     <span class="layout-tool-label">{{ t('visitaGuide.layoutAddToc') }}</span>
                                 </button>
-                                <button
-                                    type="button"
-                                    class="layout-tool"
-                                    [matTooltip]="t('visitaGuide.toolHint.divider')"
-                                    [attr.aria-label]="t('visitaGuide.layoutAddDivider')"
-                                    (click)="addDividerBlock()"
-                                >
-                                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#f5f5f4" />
-                                        <path d="M5.5 12h13" stroke="#44403c" stroke-width="2.4" stroke-linecap="round" />
-                                        <circle cx="5.5" cy="12" r="1.9" fill="#44403c" />
-                                        <circle cx="18.5" cy="12" r="1.9" fill="#44403c" />
-                                    </svg>
-                                    <span class="layout-tool-label">{{ t('visitaGuide.layoutAddDivider') }}</span>
-                                </button>
                                 <span class="mx-1 h-8 w-px shrink-0 bg-stone-200 dark:bg-gray-700" aria-hidden="true"></span>
-                                <div class="shrink-0">
+                                <div class="inline-flex shrink-0 items-center">
                                     <button
                                         type="button"
                                         class="layout-tool"
@@ -1992,13 +2175,15 @@
                                         (click)="toggleLayoutShapesMenu($event)"
                                     >
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <rect x="2.5" y="10.5" width="9.5" height="9.5" rx="1.6" fill="#3b82f6" />
-                                            <circle cx="16.5" cy="15.25" r="4.75" fill="#f59e0b" />
-                                            <path d="M12 2.5l5 8h-10z" fill="#f43f5e" stroke="#f43f5e" stroke-width="1" stroke-linejoin="round" />
+                                            <path d="M12 4.8 16.2 11.4H7.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                            <rect x="3.8" y="12.4" width="7.2" height="7.2" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                                            <circle cx="16.7" cy="16" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6" />
                                         </svg>
-                                        <span class="layout-tool-label inline-flex items-center">
+                                        <span class="layout-tool-label">
                                             {{ t('visitaGuide.layoutShapes') }}
-                                            <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">expand_more</mat-icon>
+                                            <svg class="layout-tool-caret" viewBox="0 0 12 12" aria-hidden="true">
+                                                <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
                                         </span>
                                     </button>
                                     <ng-template
@@ -2022,7 +2207,7 @@
                                                     class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-stone-800 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-gray-800"
                                                     (click)="addShapeBlock(tool.kind); layoutShapesOpen.set(false)"
                                                 >
-                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-blue-500 dark:text-blue-400">{{ tool.icon }}</mat-icon>
+                                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-stone-700 dark:text-stone-200">{{ tool.icon }}</mat-icon>
                                                     <span class="whitespace-nowrap">{{ t(tool.labelKey) }}</span>
                                                 </button>
                                             }
@@ -2037,12 +2222,11 @@
                                     (click)="addIconBlock()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <rect x="2" y="3" width="20" height="18" rx="4" fill="#dcfce7" />
                                         <path
-                                            d="M12 6.2l1.75 3.55 3.9.57-2.83 2.76.67 3.89L12 15.13l-3.49 1.84.67-3.89-2.83-2.76 3.9-.57z"
-                                            fill="#16a34a"
-                                            stroke="#16a34a"
-                                            stroke-width="0.8"
+                                            d="M12 4.2l1.9 3.85 4.25.62-3.08 3 .73 4.23L12 13.9l-3.8 2 .73-4.23-3.08-3 4.25-.62z"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.5"
                                             stroke-linejoin="round"
                                         />
                                     </svg>
@@ -2056,10 +2240,10 @@
                                     (click)="addEmojiBlock()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <circle cx="12" cy="12" r="10" fill="#fcd34d" stroke="#f59e0b" stroke-width="1" />
-                                        <ellipse cx="8.8" cy="9.8" rx="1.25" ry="1.7" fill="#78350f" />
-                                        <ellipse cx="15.2" cy="9.8" rx="1.25" ry="1.7" fill="#78350f" />
-                                        <path d="M7.2 13.6c1.1 2.3 2.8 3.4 4.8 3.4s3.7-1.1 4.8-3.4z" fill="#78350f" />
+                                        <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+                                        <circle cx="9" cy="10.5" r="1" fill="currentColor" />
+                                        <circle cx="15" cy="10.5" r="1" fill="currentColor" />
+                                        <path d="M8.5 14.2c.9 1.6 2.1 2.3 3.5 2.3s2.6-.7 3.5-2.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                                     </svg>
                                     <span class="layout-tool-label">{{ t('visitaGuide.toolLabel.emoji') }}</span>
                                 </button>
@@ -2072,10 +2256,9 @@
                                     (click)="addPageSheet()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M5 2.5h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-17a1 1 0 0 1 1-1z" fill="#ffffff" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
-                                        <path d="M14 2.5v5h5" fill="#e7e5e4" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
-                                        <circle cx="16.5" cy="17.5" r="5" fill="#10b981" />
-                                        <path d="M16.5 15v5M14 17.5h5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
+                                        <path d="M6.5 4.5h7.2l3.6 3.6V19a1 1 0 0 1-1 1h-9.8a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                        <path d="M13.7 4.5v3.6h3.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                        <path d="M12 12.2v4.2M9.9 14.3h4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                                     </svg>
                                     <span class="layout-tool-label">{{ t('visitaGuide.layoutAddPage') }}</span>
                                 </button>
@@ -2088,10 +2271,9 @@
                                         (click)="removeLastPageSheet()"
                                     >
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M5 2.5h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-17a1 1 0 0 1 1-1z" fill="#ffffff" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
-                                            <path d="M14 2.5v5h5" fill="#e7e5e4" stroke="#57534e" stroke-width="1.4" stroke-linejoin="round" />
-                                            <circle cx="16.5" cy="17.5" r="5" fill="#ef4444" />
-                                            <path d="M14 17.5h5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
+                                            <path d="M6.5 4.5h7.2l3.6 3.6V19a1 1 0 0 1-1 1h-9.8a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                            <path d="M13.7 4.5v3.6h3.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                            <path d="M9.9 14.3h4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
                                         </svg>
                                         <span class="layout-tool-label">{{ t('visitaGuide.layoutRemovePage') }}</span>
                                     </button>
@@ -2164,6 +2346,7 @@
                                         [termsPosition]="termsPosition()"
                                         [showPageNumbers]="showPageNumbers()"
                                         [pageNumberPosition]="pageNumberPosition()"
+                                [pageNumberDivider]="pageNumberDivider()"
                                         [watermarkEnabled]="watermarkEnabled()"
                                         [watermarkType]="watermarkType()"
                                 [watermarkLogoUrl]="watermarkLogo()"
@@ -2219,6 +2402,7 @@
                                         (sectionFrameChange)="onLayoutSectionFrame($event)"
                                         (cellSizeChange)="onLayoutCellSize($event)"
                                         (sectionRotationChange)="onLayoutSectionRotation($event)"
+                                        (sectionFontSizeChange)="onLayoutSectionFontSize($event)"
                                         (addPage)="addPageSheet()"
                                         (removePage)="removeLastPageSheet()"
                                         (sheetDragChange)="onSheetDragChange($event)"
@@ -3181,6 +3365,23 @@
                                             </button>
                                         }
                                     </div>
+                                    <label class="mt-2 flex items-center justify-between gap-3 text-xs text-stone-700 dark:text-stone-200">
+                                        <span>{{ t('visitaGuide.layoutPageNumberDivider') }}</span>
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            class="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                                            [class.bg-stone-950]="pageNumberDivider()"
+                                            [class.bg-stone-300]="!pageNumberDivider()"
+                                            [attr.aria-checked]="pageNumberDivider()"
+                                            (click)="setPageNumberDivider(!pageNumberDivider())"
+                                        >
+                                            <span
+                                                class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform"
+                                                [class.translate-x-5]="pageNumberDivider()"
+                                            ></span>
+                                        </button>
+                                    </label>
                                 }
                                 </section>
                                 }
@@ -3461,25 +3662,6 @@
                                                         {{ t('visitaGuide.layoutParamMoveDown') }}
                                                     </button>
                                                 </div>
-                                                <div class="mt-2 flex gap-1">
-                                                    <button
-                                                        type="button"
-                                                        class="flex-1 rounded-lg border border-indigo-200 bg-white px-2 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-50 dark:border-indigo-800 dark:bg-transparent dark:text-indigo-300"
-                                                        (click)="copySelectedLayoutItem()"
-                                                    >
-                                                        {{ t('visitaGuide.layoutItemCopy') }}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        class="flex-1 rounded-lg border border-violet-200 bg-white px-2 py-1.5 text-xs font-medium text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:bg-transparent dark:text-violet-300"
-                                                        (click)="extractSelectedLayoutItem()"
-                                                    >
-                                                        {{ t('visitaGuide.layoutItemExtract') }}
-                                                    </button>
-                                                </div>
-                                                <p class="mt-1 text-[11px] text-stone-400">
-                                                    {{ t('visitaGuide.layoutItemHint') }}
-                                                </p>
                                                 <button
                                                     type="button"
                                                     class="mt-2 w-full rounded-lg border border-red-200 bg-white px-2 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:bg-transparent dark:hover:bg-red-950/40"
@@ -3683,9 +3865,42 @@
                                                     }
                                                 </select>
                                             }
-                                            @if (selected.shape !== 'icon' || !selected.iconKeepColors) {
+                                            @if (selected.shape === 'icon' && !selected.iconKeepColors) {
                                             <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
-                                                t(selected.shape === 'icon' ? 'visitaGuide.layoutIconColor' : 'visitaGuide.layoutShapeFill')
+                                                t('visitaGuide.layoutIconColor')
+                                            }}</span>
+                                            <color-hex-field
+                                                class="mt-1 block"
+                                                [ngModel]="selected.style?.color || primaryColor()"
+                                                (ngModelChange)="setSelectedLayoutColor($event)"
+                                                [ariaLabel]="t('visitaGuide.layoutIconColor')"
+                                            />
+                                            <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
+                                            }
+                                            @if (selected.shape === 'line') {
+                                            <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                t('visitaGuide.layoutLineColor')
+                                            }}</span>
+                                            <color-hex-field
+                                                class="mt-1 block"
+                                                [ngModel]="selected.style?.color || '#000000'"
+                                                (ngModelChange)="setSelectedLayoutColor($event)"
+                                                [ariaLabel]="t('visitaGuide.layoutLineColor')"
+                                            />
+                                            <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
+                                            }
+                                            @if (selected.shape !== 'icon' && selected.shape !== 'line') {
+                                            <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                                <input
+                                                    type="checkbox"
+                                                    [ngModel]="selectedLayoutHasShapeFill()"
+                                                    (ngModelChange)="setSelectedLayoutShapeFillEnabled($event)"
+                                                />
+                                                {{ t('visitaGuide.layoutShapeFillToggle') }}
+                                            </label>
+                                            @if (selectedLayoutHasShapeFill()) {
+                                            <span class="mt-2 block text-xs text-stone-600 dark:text-stone-300">{{
+                                                t('visitaGuide.layoutShapeFill')
                                             }}</span>
                                             <color-hex-field
                                                 class="mt-1 block"
@@ -3693,6 +3908,7 @@
                                                 (ngModelChange)="setSelectedLayoutColor($event)"
                                                 [ariaLabel]="t('visitaGuide.layoutShapeFill')"
                                             />
+                                            }
                                             <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
                                             }
                                             @if (selected.shape !== 'icon') {
@@ -3817,7 +4033,7 @@
                                                 <input
                                                     type="range"
                                                     min="8"
-                                                    max="48"
+                                                    max="72"
                                                     step="1"
                                                     class="mt-1 w-full"
                                                     [ngModel]="layoutRoleFontSize(role)"
@@ -3969,6 +4185,15 @@
                                         >
                                             {{ t('visitaGuide.layoutCopyBlock') }}
                                         </button>
+                                        @if (canPasteLayout()) {
+                                            <button
+                                                type="button"
+                                                class="mt-2 w-full rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                                (click)="pasteLayoutClipboard()"
+                                            >
+                                                {{ t('visitaGuide.layoutContextPaste') }}
+                                            </button>
+                                        }
                                         <button
                                             type="button"
                                             class="mt-2 text-xs font-medium text-red-600"
@@ -4004,6 +4229,7 @@
                                     [termsPosition]="termsPosition()"
                                     [showPageNumbers]="showPageNumbers()"
                                     [pageNumberPosition]="pageNumberPosition()"
+                                [pageNumberDivider]="pageNumberDivider()"
                                     [signatureEnabled]="signatureEnabled()"
                                     [signatureImage]="signatureImage()"
                                     [signatureX]="signatureX()"
@@ -4194,6 +4420,7 @@
                                         [termsPosition]="termsPosition()"
                                         [showPageNumbers]="showPageNumbers()"
                                         [pageNumberPosition]="pageNumberPosition()"
+                                [pageNumberDivider]="pageNumberDivider()"
                                         [signatureEnabled]="signatureEnabled()"
                                         [signatureImage]="signatureImage()"
                                         [signatureX]="signatureX()"
@@ -4462,7 +4689,18 @@
             (click)="$event.stopPropagation()"
         >
             <div data-format-toolbar class="flex items-center gap-0.5">
-            @if (selectedLayoutCount() > 1) {
+            @if (selectedLayoutAllLocked()) {
+                <button
+                    type="button"
+                    class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
+                    [attr.aria-label]="t('visitaGuide.layoutUnlockSelection')"
+                    [matTooltip]="t('visitaGuide.layoutUnlockSelection')"
+                    (click)="unlockSelectedLayoutItems($event)"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">lock_open</mat-icon>
+                    {{ t('visitaGuide.layoutUnlockSelection') }}
+                </button>
+            } @else if (selectedLayoutCount() > 1) {
                 <button
                     type="button"
                     class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
@@ -4483,6 +4721,18 @@
                     <mat-icon class="!h-4 !w-4 !text-base">lock</mat-icon>
                     {{ t('visitaGuide.layoutLockSelection') }}
                 </button>
+                @if (selectedLayoutHasLocked()) {
+                    <button
+                        type="button"
+                        class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-gray-800"
+                        [attr.aria-label]="t('visitaGuide.layoutUnlockSelection')"
+                        [matTooltip]="t('visitaGuide.layoutUnlockSelection')"
+                        (click)="unlockSelectedLayoutItems($event)"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">lock_open</mat-icon>
+                        {{ t('visitaGuide.layoutUnlockSelection') }}
+                    </button>
+                }
                 <button
                     type="button"
                     class="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40"
@@ -4656,7 +4906,8 @@
                     } @else {
                         <span
                             class="h-4 w-4 rounded border border-stone-300 dark:border-gray-600"
-                            [style.background-color]="selectedLayoutSection()?.style?.color || primaryColor()"
+                            [style.background-color]="selectedLayoutShapeSwatch()"
+                            [style.border-color]="selectedLayoutHasShapeFill() ? null : '#000000'"
                         ></span>
                     }
                     <input
@@ -4850,7 +5101,7 @@
                 </button>
             }
             }
-            @if (selectedLayoutCount() <= 1) {
+            @if (selectedLayoutCount() <= 1 && !selectedLayoutAllLocked()) {
             <span class="mx-0.5 h-5 w-px bg-stone-200 dark:bg-gray-700"></span>
             <button
                 type="button"
@@ -4913,7 +5164,7 @@
                 }
             }
             </div>
-            @if (selectedLayoutCount() <= 1) {
+            @if (selectedLayoutCount() <= 1 && !selectedLayoutAllLocked()) {
             <div class="layout-format-more" [class.is-open]="layoutFormatExpanded()">
                 <div class="layout-format-more-clip">
                 <div
@@ -5127,22 +5378,44 @@
                                 }
                             </select>
                             }
-                            @if (selected.shape !== 'icon' || !selected.iconKeepColors) {
-                            <span class="mt-2 block text-[11px] text-stone-500">{{
-                                t(
-                                    selected.shape === 'icon'
-                                        ? 'visitaGuide.layoutIconColor'
-                                        : selected.shape === 'line'
-                                          ? 'visitaGuide.layoutLineColor'
-                                          : 'visitaGuide.layoutShapeFill'
-                                )
-                            }}</span>
+                            @if (selected.shape === 'icon' && !selected.iconKeepColors) {
+                            <span class="mt-2 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutIconColor') }}</span>
                             <color-hex-field
                                 class="mt-1 block"
                                 [ngModel]="selected.style?.color || primaryColor()"
                                 (ngModelChange)="setSelectedLayoutColor($event)"
-                                [ariaLabel]="t(selected.shape === 'line' ? 'visitaGuide.layoutLineColor' : 'visitaGuide.layoutShapeFill')"
+                                [ariaLabel]="t('visitaGuide.layoutIconColor')"
                             />
+                            <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
+                            }
+                            @if (selected.shape === 'line') {
+                            <span class="mt-2 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutLineColor') }}</span>
+                            <color-hex-field
+                                class="mt-1 block"
+                                [ngModel]="selected.style?.color || '#000000'"
+                                (ngModelChange)="setSelectedLayoutColor($event)"
+                                [ariaLabel]="t('visitaGuide.layoutLineColor')"
+                            />
+                            <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
+                            }
+                            @if (selected.shape !== 'icon' && selected.shape !== 'line') {
+                            <label class="mt-3 flex items-center gap-2 text-xs text-stone-700 dark:text-stone-200">
+                                <input
+                                    type="checkbox"
+                                    [ngModel]="selectedLayoutHasShapeFill()"
+                                    (ngModelChange)="setSelectedLayoutShapeFillEnabled($event)"
+                                />
+                                {{ t('visitaGuide.layoutShapeFillToggle') }}
+                            </label>
+                            @if (selectedLayoutHasShapeFill()) {
+                            <span class="mt-2 block text-[11px] text-stone-500">{{ t('visitaGuide.layoutShapeFill') }}</span>
+                            <color-hex-field
+                                class="mt-1 block"
+                                [ngModel]="selected.style?.color || primaryColor()"
+                                (ngModelChange)="setSelectedLayoutColor($event)"
+                                [ariaLabel]="t('visitaGuide.layoutShapeFill')"
+                            />
+                            }
                             <ng-container *ngTemplateOutlet="shapeRulesButton"></ng-container>
                             }
                             @if (selected.shape === 'line') {
@@ -5561,22 +5834,6 @@
                                 {{ t('visitaGuide.layoutTableBadge') }}
                             </label>
                         }
-                        <div class="mt-2 flex gap-1">
-                            <button
-                                type="button"
-                                class="flex-1 rounded-lg border border-indigo-200 bg-white px-2 py-1.5 text-xs font-medium text-indigo-700 dark:border-indigo-800 dark:bg-transparent dark:text-indigo-300"
-                                (click)="copySelectedLayoutItem()"
-                            >
-                                {{ t('visitaGuide.layoutItemCopy') }}
-                            </button>
-                            <button
-                                type="button"
-                                class="flex-1 rounded-lg border border-violet-200 bg-white px-2 py-1.5 text-xs font-medium text-violet-700 dark:border-violet-800 dark:bg-transparent dark:text-violet-300"
-                                (click)="extractSelectedLayoutItem()"
-                            >
-                                {{ t('visitaGuide.layoutItemExtract') }}
-                            </button>
-                        </div>
                         <button
                             type="button"
                             class="mt-2 w-full rounded-lg border border-red-200 bg-white px-2 py-1.5 text-xs font-medium text-red-600 dark:border-red-900 dark:bg-transparent"
@@ -5662,114 +5919,6 @@
                                     {{ t('visitaGuide.layoutPairInline') }}
                                 </button>
                             </div>
-                            }
-                            @if (selectedLayoutIsConsultStats()) {
-                            <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
-                                {{ t('visitaGuide.layoutChartHint') }}
-                            </p>
-                            <div class="mt-1 flex gap-1">
-                                <button
-                                    type="button"
-                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                    [class.border-stone-950]="selectedLayoutChartKind() === 'none'"
-                                    [class.bg-white]="selectedLayoutChartKind() === 'none'"
-                                    [class.border-stone-200]="selectedLayoutChartKind() !== 'none'"
-                                    (click)="setSelectedLayoutChartKind('none')"
-                                >
-                                    {{ t('visitaGuide.layoutChartTable') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                    [class.border-stone-950]="selectedLayoutChartKind() === 'pie'"
-                                    [class.bg-white]="selectedLayoutChartKind() === 'pie'"
-                                    [class.border-stone-200]="selectedLayoutChartKind() !== 'pie'"
-                                    (click)="setSelectedLayoutChartKind('pie')"
-                                >
-                                    {{ t('visitaGuide.layoutChartPie') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                    [class.border-stone-950]="selectedLayoutChartKind() === 'bar'"
-                                    [class.bg-white]="selectedLayoutChartKind() === 'bar'"
-                                    [class.border-stone-200]="selectedLayoutChartKind() !== 'bar'"
-                                    (click)="setSelectedLayoutChartKind('bar')"
-                                >
-                                    {{ t('visitaGuide.layoutChartBar') }}
-                                </button>
-                            </div>
-                            <div class="mt-1 flex gap-1">
-                                <button
-                                    type="button"
-                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                    [class.border-stone-950]="selectedLayoutChartBreakdown() === 'outcome'"
-                                    [class.bg-white]="selectedLayoutChartBreakdown() === 'outcome'"
-                                    [class.border-stone-200]="selectedLayoutChartBreakdown() !== 'outcome'"
-                                    (click)="setSelectedLayoutChartBreakdown('outcome')"
-                                >
-                                    {{ t('visitaGuide.layoutChartOutcome') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                    [class.border-stone-950]="selectedLayoutChartBreakdown() === 'category'"
-                                    [class.bg-white]="selectedLayoutChartBreakdown() === 'category'"
-                                    [class.border-stone-200]="selectedLayoutChartBreakdown() !== 'category'"
-                                    (click)="setSelectedLayoutChartBreakdown('category')"
-                                >
-                                    {{ t('visitaGuide.layoutChartCategory') }}
-                                </button>
-                            </div>
-                            @if (selectedLayoutChartKind() !== 'none') {
-                            <div class="mt-1 flex gap-1">
-                                <button
-                                    type="button"
-                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                    [class.border-stone-950]="selectedLayoutChartPalette() === 'color'"
-                                    [class.bg-white]="selectedLayoutChartPalette() === 'color'"
-                                    [class.border-stone-200]="selectedLayoutChartPalette() !== 'color'"
-                                    (click)="setSelectedLayoutChartPalette('color')"
-                                >
-                                    {{ t('visitaGuide.layoutChartColor') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="flex-1 rounded-lg border py-2 text-xs text-stone-700 dark:text-stone-200"
-                                    [class.border-stone-950]="selectedLayoutChartPalette() === 'mono'"
-                                    [class.bg-white]="selectedLayoutChartPalette() === 'mono'"
-                                    [class.border-stone-200]="selectedLayoutChartPalette() !== 'mono'"
-                                    (click)="setSelectedLayoutChartPalette('mono')"
-                                >
-                                    {{ t('visitaGuide.layoutChartMono') }}
-                                </button>
-                            </div>
-                            <p class="mt-2 text-[11px] text-stone-500">{{ t('visitaGuide.layoutChartSeries') }}</p>
-                            <div class="mt-1 flex flex-col gap-1">
-                                @for (key of selectedLayoutChartOptionKeys(); track key) {
-                                    <div class="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            class="min-w-0 flex-1 rounded-lg border px-2 py-1 text-left text-[11px] text-stone-700 dark:text-stone-200"
-                                            [class.border-stone-950]="selectedLayoutChartKeys().includes(key)"
-                                            [class.bg-white]="selectedLayoutChartKeys().includes(key)"
-                                            [class.border-stone-200]="!selectedLayoutChartKeys().includes(key)"
-                                            (click)="toggleSelectedLayoutChartKey(key)"
-                                        >
-                                            {{ consultStatsLabel(key) }}
-                                        </button>
-                                        @if (selectedLayoutChartKeys().includes(key)) {
-                                            <color-hex-field
-                                                class="w-28 shrink-0"
-                                                [ngModel]="selectedLayoutChartColor(key)"
-                                                (ngModelChange)="setSelectedLayoutChartColor(key, $event)"
-                                                [ariaLabel]="consultStatsLabel(key)"
-                                            />
-                                        }
-                                    </div>
-                                }
-                            </div>
-                            }
                             }
                             <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
                                 {{ t('visitaGuide.layoutShowRowLines') }}
@@ -5995,6 +6144,15 @@
                             >
                                 {{ t('visitaGuide.layoutCopyBlock') }}
                             </button>
+                            @if (canPasteLayout()) {
+                                <button
+                                    type="button"
+                                    class="mt-2 w-full rounded-lg border border-stone-300 px-2 py-1.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                                    (click)="pasteLayoutClipboard()"
+                                >
+                                    {{ t('visitaGuide.layoutContextPaste') }}
+                                </button>
+                            }
                             <button
                                 type="button"
                                 class="mt-2 w-full text-xs font-medium text-red-600"
@@ -6020,16 +6178,6 @@
             [style.max-height.px]="menu.maxHeight"
             (contextmenu)="$event.preventDefault(); $event.stopPropagation()"
         >
-            @if (menu.cellKey) {
-                <button
-                    type="button"
-                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
-                    (click)="extractLayoutContextItem(); $event.stopPropagation()"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">open_with</mat-icon>
-                    {{ t('visitaGuide.layoutItemExtract') }}
-                </button>
-            }
             @if (layoutContextAllowsImageRules()) {
                 <button
                     type="button"
@@ -6073,7 +6221,17 @@
                     (click)="copyLayoutContextTarget(); $event.stopPropagation()"
                 >
                     <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_copy</mat-icon>
-                    {{ t(menu.cellKey ? 'visitaGuide.layoutItemCopy' : 'visitaGuide.layoutContextCopy') }}
+                    {{ t('visitaGuide.layoutContextCopy') }}
+                </button>
+            }
+            @if (canPasteLayout()) {
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="pasteLayoutClipboard(); $event.stopPropagation()"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-500">content_paste</mat-icon>
+                    {{ t('visitaGuide.layoutContextPaste') }}
                 </button>
             }
             @if (menu.sectionId || menu.overlay) {
@@ -6083,7 +6241,7 @@
                     (click)="deleteLayoutContextTarget(); $event.stopPropagation()"
                 >
                     <mat-icon class="!h-4 !w-4 !text-base text-red-600 dark:text-amber-300">delete</mat-icon>
-                    {{ t(menu.cellKey ? 'visitaGuide.layoutContextDeleteItem' : 'visitaGuide.layoutContextDelete') }}
+                    {{ t('visitaGuide.layoutContextDelete') }}
                 </button>
             }
             <button
@@ -6129,17 +6287,33 @@
                 {{ t('visitaGuide.layoutRemovePage') }}
             </button>
             <button
+                #layoutContextMoreBtn
                 type="button"
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
+                [class.bg-stone-50]="layoutContextMenuMore()"
+                [class.dark:bg-gray-800]="layoutContextMenuMore()"
                 [attr.aria-expanded]="layoutContextMenuMore()"
-                (click)="toggleLayoutContextMenuMore($event)"
+                aria-haspopup="menu"
+                (mouseenter)="openLayoutContextMenuMore()"
+                (mouseleave)="scheduleCloseLayoutContextMenuMore()"
+                (click)="openLayoutContextMenuMore($event)"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-stone-500">{{
-                    layoutContextMenuMore() ? 'expand_less' : 'expand_more'
-                }}</mat-icon>
-                {{ t('visitaGuide.layoutFormatMore') }}
+                <span class="min-w-0 flex-1">{{ t('visitaGuide.layoutFormatMore') }}</span>
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-400">chevron_right</mat-icon>
             </button>
-            @if (layoutContextMenuMore()) {
+        </div>
+        @if (layoutContextMenuMore()) {
+        <div
+            #layoutContextMorePanel
+            class="visita-layout-context-menu fixed w-56 overflow-y-auto overflow-x-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            [style.z-index]="uiZ.menu"
+            [style.left.px]="layoutContextMoreX()"
+            [style.top.px]="layoutContextMoreY()"
+            [style.max-height.px]="layoutContextMoreMaxHeight()"
+            (mouseenter)="openLayoutContextMenuMore()"
+            (mouseleave)="scheduleCloseLayoutContextMenuMore()"
+            (contextmenu)="$event.preventDefault(); $event.stopPropagation()"
+        >
             @if (layoutContextSection() || layoutContextSheetImage()) {
                 <label class="block px-3 pt-1 text-[11px] font-medium text-stone-500">{{ t('visitaGuide.layoutJumpTo') }}</label>
                 <select
@@ -6184,7 +6358,7 @@
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutDateFromMenu('consultedAt'); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-teal-700">event_available</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-600 dark:text-stone-300">event_available</mat-icon>
                 {{ t('visitaGuide.layoutAddConsultedDate') }}
             </button>
             <button
@@ -6192,23 +6366,15 @@
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutDateFromMenu('generatedAt'); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-teal-700">schedule</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-600 dark:text-stone-300">schedule</mat-icon>
                 {{ t('visitaGuide.layoutAddGeneratedDate') }}
-            </button>
-            <button
-                type="button"
-                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
-                (click)="insertLayoutConsultStatsFromMenu(); $event.stopPropagation()"
-            >
-                <mat-icon class="!h-4 !w-4 !text-base text-indigo-700">query_stats</mat-icon>
-                {{ t('visitaGuide.layoutAddConsultStatsBlock') }}
             </button>
             <button
                 type="button"
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutTocFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-amber-700">format_list_bulleted</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-600 dark:text-stone-300">format_list_bulleted</mat-icon>
                 {{ t('visitaGuide.layoutAddToc') }}
             </button>
             <button
@@ -6216,7 +6382,7 @@
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutDividerFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-rose-700">horizontal_rule</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-600 dark:text-stone-300">horizontal_rule</mat-icon>
                 {{ t('visitaGuide.layoutAddDivider') }}
             </button>
             @for (tool of layoutShapeTools; track tool.kind) {
@@ -6225,7 +6391,7 @@
                     class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                     (click)="insertLayoutShapeFromMenu(tool.kind); $event.stopPropagation()"
                 >
-                    <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">{{ tool.icon }}</mat-icon>
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-600 dark:text-stone-300">{{ tool.icon }}</mat-icon>
                     {{ t(tool.labelKey) }}
                 </button>
             }
@@ -6234,7 +6400,7 @@
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutIconFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">emoji_symbols</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-600 dark:text-stone-300">emoji_symbols</mat-icon>
                 {{ t('visitaGuide.layoutAddIcon') }}
             </button>
             <button
@@ -6242,11 +6408,11 @@
                 class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-stone-700 hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-gray-800"
                 (click)="insertLayoutEmojiFromMenu(); $event.stopPropagation()"
             >
-                <mat-icon class="!h-4 !w-4 !text-base text-indigo-600">add_reaction</mat-icon>
+                <mat-icon class="!h-4 !w-4 !text-base text-stone-600 dark:text-stone-300">add_reaction</mat-icon>
                 {{ t('reportEmojis.addTooltip') }}
             </button>
-            }
         </div>
+        }
     }
     <input
         #layoutInsertImageInput

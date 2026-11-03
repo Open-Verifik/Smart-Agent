@@ -10,7 +10,7 @@ import {
 } from '../endpoint-param-highlight.util';
 import { featureGroup } from '../feature-group.util';
 
-export type GuideIntent = 'report' | 'person' | 'vehicle' | 'company' | 'template' | 'other';
+export type GuideIntent = 'report' | 'person' | 'vehicle' | 'company' | 'template' | 'other' | 'blank';
 export type GuideEntity = 'citizen' | 'vehicle' | 'company';
 export type GuideMode = 'single' | 'batch';
 export type GuideStepId =
@@ -163,10 +163,10 @@ export const GUIDE_INTENTS: {
         entity: 'company',
     },
     {
-        id: 'template',
-        icon: 'dashboard_customize',
-        titleKey: 'visitaGuide.intentTemplate',
-        descKey: 'visitaGuide.intentTemplateDesc',
+        id: 'blank',
+        icon: 'note_add',
+        titleKey: 'visitaGuide.intentBlank',
+        descKey: 'visitaGuide.intentBlankDesc',
     },
     {
         id: 'other',

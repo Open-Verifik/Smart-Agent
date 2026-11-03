@@ -75,6 +75,8 @@ describe('humanizeParamKey', () => {
         expect(humanizeParamKey('tipoTarifa')).toBe('Tipo de tarifa');
         expect(displayParamLabel('soat.tipoTarifa', 'Tipo tarifa')).toBe('Tipo de tarifa');
         expect(displayParamLabel('soat.tipoTarifa', 'Tarifa pactada')).toBe('Tarifa pactada');
+        expect(displayParamLabel('item.nombre', 'Item · Nombre')).toBe('Nombre');
+        expect(displayParamLabel('item.nombre')).toBe('Nombre');
     });
 });
 

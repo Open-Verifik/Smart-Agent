@@ -246,6 +246,7 @@ export class VisitaGuidePipelineService {
                     termsPosition: base?.termsPosition,
                     showPageNumbers: base?.showPageNumbers,
                     pageNumberPosition: base?.pageNumberPosition,
+                    pageNumberDivider: base?.pageNumberDivider,
                     pageSize: base?.pageSize ?? 'A4',
                     orientation: base?.orientation ?? 'portrait',
                     pdfEngine: base?.pdfEngine ?? 'puppeteer',

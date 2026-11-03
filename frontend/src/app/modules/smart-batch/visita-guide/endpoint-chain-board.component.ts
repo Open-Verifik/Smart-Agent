@@ -71,7 +71,7 @@ import {
     requiredVisibleFields,
 } from '../endpoint-param-highlight.util';
 import { FEATURE_GROUP_ICONS, featureGroup, FeatureGroupId, featureGroupIcon } from '../feature-group.util';
-import { compareFeaturesForSelectedCountry, countryFlagImageUrl, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
+import { compareFeaturesForSelectedCountry, countryFlagImageUrl, getCountryFlag, isFeatureForCountry, isWorldCountry } from '../smart-batch-country.util';
 import { AppFeature } from '../smart-batch.service';
 import {
     getAppFeatureCatalogCopy,
@@ -197,19 +197,21 @@ const collectArrayPaths = (
         <div class="relative flex min-h-0 flex-1 flex-col" cdkDropListGroup>
             <section class="flow-canvas relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-800">
                 <div class="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3 py-2 dark:border-gray-800">
+                    <div class="flex min-w-0 flex-1 items-center gap-2">
+                        <ng-content select="[flow-context]"></ng-content>
+                    </div>
                     <button
                         type="button"
-                        class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-200"
+                        class="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-200"
                         [matTooltip]="(libraryOpen() ? 'visitaGuide.flowHideLibrary' : 'visitaGuide.flowShowLibrary') | transloco"
                         (click)="toggleLibrary()"
                     >
                         <mat-icon>{{ libraryOpen() ? 'chevron_left' : 'menu' }}</mat-icon>
                         {{ 'visitaGuide.flowLibrary' | transloco }}
                     </button>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ 'visitaGuide.flowCanvas' | transloco }}</p>
-                        <p class="truncate text-[11px] text-slate-500">{{ 'visitaGuide.flowWiresHint' | transloco }}</p>
-                    </div>
+                    <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowWiresHint' | transloco">
+                        <mat-icon>info</mat-icon>
+                    </button>
                     <button type="button" mat-icon-button (click)="zoomBy(-0.1)"><mat-icon>remove</mat-icon></button>
                     <button type="button" mat-icon-button (click)="zoomBy(0.1)"><mat-icon>add</mat-icon></button>
                     <button type="button" mat-icon-button [matTooltip]="'visitaGuide.flowAutoLayout' | transloco" (click)="autoLayout()"><mat-icon>account_tree</mat-icon></button>
@@ -344,7 +346,11 @@ const collectArrayPaths = (
                                                 [class.ring-sky-400]="isHotInput(node, port)"
                                                 (pointerdown)="onInputPortDown($event, node, port)"
                                             ></button>
-                                            <span class="min-w-0 flex-1 truncate">{{ portLabel(node, port) }}</span>
+                                            <span
+                                                class="min-w-0 flex-1 truncate"
+                                                [matTooltip]="portLabel(node, port)"
+                                                matTooltipShowDelay="300"
+                                            >{{ portLabel(node, port) }}</span>
                                             @if (canHidePort(node, 'inputs', port)) {
                                                 <button
                                                     type="button"
@@ -353,7 +359,7 @@ const collectArrayPaths = (
                                                     (pointerdown)="$event.stopPropagation()"
                                                     (click)="hideVisiblePort(node, 'inputs', port); $event.stopPropagation()"
                                                 >
-                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
+                                                    <mat-icon class="!h-3 !w-3 !text-[12px]">delete</mat-icon>
                                                 </button>
                                             }
                                         </div>
@@ -402,10 +408,14 @@ const collectArrayPaths = (
                                                     (pointerdown)="$event.stopPropagation()"
                                                     (click)="hideVisiblePort(node, 'outputs', port); $event.stopPropagation()"
                                                 >
-                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
+                                                    <mat-icon class="!h-3 !w-3 !text-[12px]">delete</mat-icon>
                                                 </button>
                                             }
-                                            <span class="min-w-0 truncate">{{ fieldLabel(port) }}</span>
+                                            <span
+                                                class="min-w-0 truncate"
+                                                [matTooltip]="fieldLabel(port)"
+                                                matTooltipShowDelay="300"
+                                            >{{ fieldLabel(port) }}</span>
                                             @if (node.kind === 'endpoint') {
                                                 <input
                                                     type="number"
@@ -556,6 +566,34 @@ const collectArrayPaths = (
                                 @if (!loading() && !tray().length) {
                                     <p class="px-1 py-6 text-center text-sm text-slate-400">{{ 'visitaGuide.noEndpoints' | transloco }}</p>
                                 }
+                                @if (countryChoices().length > 1) {
+                                    <div class="mb-3 flex flex-wrap gap-1">
+                                        <button
+                                            type="button"
+                                            class="rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                                            [class.border-slate-950]="countryFilter() === 'all'"
+                                            [class.bg-slate-950]="countryFilter() === 'all'"
+                                            [class.text-white]="countryFilter() === 'all'"
+                                            [class.border-slate-200]="countryFilter() !== 'all'"
+                                            (click)="countryFilter.set('all')"
+                                        >
+                                            {{ 'visitaGuide.endpointsAllCountries' | transloco }}
+                                        </button>
+                                        @for (country of countryChoices(); track country) {
+                                            <button
+                                                type="button"
+                                                class="rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                                                [class.border-slate-950]="countryFilter() === country"
+                                                [class.bg-slate-950]="countryFilter() === country"
+                                                [class.text-white]="countryFilter() === country"
+                                                [class.border-slate-200]="countryFilter() !== country"
+                                                (click)="countryFilter.set(country)"
+                                            >
+                                                {{ country }}
+                                            </button>
+                                        }
+                                    </div>
+                                }
                                 @for (group of trayGroups(); track group.id) {
                                     <p class="sticky top-0 z-[1] mb-1.5 flex items-center gap-1 bg-white/95 px-1 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-gray-900/95">
                                         <mat-icon class="!h-4 !w-4 !text-base">{{ group.icon }}</mat-icon>
@@ -599,6 +637,9 @@ const collectArrayPaths = (
                                                     </span>
                                                     <div class="min-w-0 flex-1">
                                                         <p class="text-sm font-medium leading-snug text-slate-900 dark:text-white">{{ name(feature) }}</p>
+                                                        @if (countryChoices().length > 1) {
+                                                            <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{{ feature.country }}</p>
+                                                        }
                                                         <div class="mt-1.5 flex flex-wrap gap-1">
                                                             @for (chip of paramChips(feature); track chip.field) {
                                                                 <span class="rounded-full border px-1.5 py-px text-[10px] font-medium" [ngClass]="chipClass(chip.required)">{{ fieldLabel(chip.field) }}</span>
@@ -670,7 +711,7 @@ const collectArrayPaths = (
                                                             [matTooltip]="'visitaGuide.flowRemoveParam' | transloco"
                                                             (click)="hideVisiblePort(node, 'inputs', port)"
                                                         >
-                                                            <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                                                            <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">delete</mat-icon>
                                                         </button>
                                                     }
                                                 </div>
@@ -723,7 +764,7 @@ const collectArrayPaths = (
                                                             [matTooltip]="'visitaGuide.flowRemoveParam' | transloco"
                                                             (click)="hideVisiblePort(node, 'outputs', port)"
                                                         >
-                                                            <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
+                                                            <mat-icon class="!h-3 !w-3 !text-[12px]">delete</mat-icon>
                                                         </button>
                                                     }
                                                 </span>
@@ -755,12 +796,9 @@ const collectArrayPaths = (
         `
             .flow-canvas {
                 background-color: #f8fafc;
-                background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-                background-size: 18px 18px;
             }
             :host-context(.dark) .flow-canvas {
                 background-color: #030712;
-                background-image: radial-gradient(#1f2937 1px, transparent 1px);
             }
             .pointer-events-stroke {
                 pointer-events: stroke;
@@ -911,8 +949,24 @@ export class EndpointChainBoardComponent {
 
     readonly tray = computed(() => {
         const used = new Set(usedFeatureIds(this.graph()));
-        return this.features().filter((feature) => feature._id && !used.has(feature._id));
+        const selected = this.countryFilter();
+        return this.features().filter((feature) => {
+            if (!feature._id || used.has(feature._id)) return false;
+            if (selected === 'all') return true;
+            return isFeatureForCountry(feature.country, selected);
+        });
     });
+
+    readonly countryChoices = computed(() => {
+        const names = new Set<string>();
+        for (const feature of this.features()) {
+            const name = (feature.country || '').trim();
+            if (name && !isWorldCountry(name)) names.add(name);
+        }
+        return [...names].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+    });
+
+    countryFilter = signal('all');
 
     readonly trayGroups = computed(() =>
         TRAY_GROUPS.map((group) => ({
@@ -920,7 +974,13 @@ export class EndpointChainBoardComponent {
             icon: FEATURE_GROUP_ICONS[group.id],
             items: this.tray()
                 .filter((feature) => featureGroup(feature) === group.id)
-                .sort(compareFeaturesForSelectedCountry),
+                .sort((left, right) => {
+                    const byCountry = (left.country || '').localeCompare(right.country || '', 'es', {
+                        sensitivity: 'base',
+                    });
+                    if (byCountry !== 0) return byCountry;
+                    return compareFeaturesForSelectedCountry(left, right);
+                }),
         })).filter((group) => group.items.length)
     );
 
@@ -1147,7 +1207,10 @@ export class EndpointChainBoardComponent {
     }
 
     onTrayDragEnd(): void {
-        this._restorePanelsAfterMove();
+        const previous = this._panelsBeforeMove;
+        this._panelsBeforeMove = null;
+        if (!previous) return;
+        this.configOpen.set(previous.config);
     }
 
     private _hidePanelsForMove(): void {
