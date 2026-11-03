@@ -1,0 +1,236 @@
+::ng-deep .criminal-check-dialog-panel {
+    max-width: min(840px, 95vw) !important;
+    max-height: min(880px, 92vh) !important;
+    padding: 0 !important;
+
+    .mat-mdc-dialog-container {
+        padding: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        background-color: transparent !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .mat-mdc-dialog-surface {
+        padding: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+}
+
+.criminal-check-dialog {
+    --cl-card: rgb(255, 255, 255);
+    --cl-ink: rgb(15, 23, 42);
+    --cl-muted: rgb(100, 116, 139);
+    --cl-line: rgba(148, 163, 184, 0.22);
+}
+
+.nav-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cl-muted);
+    border-bottom: 2px solid transparent;
+    transition: color 150ms ease, border-bottom-color 150ms ease;
+
+    &:hover {
+        color: var(--cl-ink);
+    }
+
+    &.is-active {
+        color: rgb(37, 99, 235);
+        border-bottom-color: rgb(37, 99, 235);
+    }
+}
+
+:host-context(.dark) .nav-tab {
+    color: rgb(148, 163, 184);
+
+    &:hover {
+        color: rgb(241, 245, 249);
+    }
+
+    &.is-active {
+        color: rgb(96, 165, 250);
+        border-bottom-color: rgb(96, 165, 250);
+    }
+}
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    background-color: rgba(148, 163, 184, 0.2);
+    color: inherit;
+}
+
+.stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgb(100, 116, 139);
+}
+
+:host-context(.dark) .stat-label {
+    color: rgb(148, 163, 184);
+}
+
+.stat-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgb(15, 23, 42);
+}
+
+:host-context(.dark) .stat-value {
+    color: rgb(241, 245, 249);
+}
+
+.response-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background-color: rgb(255, 255, 255);
+    color: rgb(71, 85, 105);
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 150ms ease;
+
+    &:hover {
+        border-color: rgba(37, 99, 235, 0.5);
+        color: rgb(15, 23, 42);
+    }
+
+    &.is-selected {
+        background-color: rgb(15, 23, 42);
+        color: rgb(255, 255, 255);
+        border-color: transparent;
+    }
+
+    &.is-hit {
+        border-color: rgba(245, 158, 11, 0.4);
+        color: rgb(180, 83, 9);
+        background-color: rgba(254, 243, 199, 0.4);
+
+        &.is-selected {
+            background-color: rgb(180, 83, 9);
+            color: #fff;
+            border-color: transparent;
+        }
+    }
+
+    &.is-clean {
+        border-color: rgba(16, 185, 129, 0.4);
+        color: rgb(4, 120, 87);
+        background-color: rgba(209, 250, 229, 0.4);
+
+        &.is-selected {
+            background-color: rgb(4, 120, 87);
+            color: #fff;
+            border-color: transparent;
+        }
+    }
+}
+
+:host-context(.dark) .response-pill {
+    background-color: rgb(30, 41, 59);
+    border-color: rgba(51, 65, 85, 0.8);
+    color: rgb(203, 213, 225);
+
+    &:hover {
+        color: #fff;
+    }
+
+    &.is-selected {
+        background-color: rgb(241, 245, 249);
+        color: rgb(15, 23, 42);
+    }
+
+    &.is-hit {
+        background-color: rgba(120, 53, 15, 0.3);
+        border-color: rgba(245, 158, 11, 0.4);
+        color: rgb(251, 191, 36);
+
+        &.is-selected {
+            background-color: rgb(245, 158, 11);
+            color: rgb(15, 23, 42);
+        }
+    }
+
+    &.is-clean {
+        background-color: rgba(6, 78, 59, 0.3);
+        border-color: rgba(16, 185, 129, 0.4);
+        color: rgb(52, 211, 153);
+
+        &.is-selected {
+            background-color: rgb(16, 185, 129);
+            color: rgb(15, 23, 42);
+        }
+    }
+}
+
+.copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgb(203, 213, 225);
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 150ms ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+}
+
+.lang-tab {
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background-color: rgba(248, 250, 252, 0.8);
+    color: rgb(100, 116, 139);
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 150ms ease;
+
+    &.is-selected {
+        background-color: rgb(15, 23, 42);
+        color: #fff;
+        border-color: transparent;
+    }
+}
+
+:host-context(.dark) .lang-tab {
+    background-color: rgb(30, 41, 59);
+    border-color: rgba(51, 65, 85, 0.6);
+    color: rgb(148, 163, 184);
+
+    &.is-selected {
+        background-color: rgb(241, 245, 249);
+        color: rgb(15, 23, 42);
+    }
+}
+
+pre.hljs {
+    background-color: rgb(2, 6, 23);
+    color: rgb(226, 232, 240);
+    border-radius: 0.5rem;
+    margin: 0;
+}

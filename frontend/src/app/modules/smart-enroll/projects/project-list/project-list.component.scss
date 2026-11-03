@@ -326,6 +326,18 @@
         color: rgb(148 163 184);
     }
 
+    .version-badge-v2 {
+        background: rgba(16, 185, 129, 0.16);
+        color: #6ee7b7;
+        border-color: rgba(52, 211, 153, 0.35);
+    }
+
+    .version-badge-v1 {
+        background: rgba(148, 163, 184, 0.12);
+        color: #94a3b8;
+        border-color: rgba(148, 163, 184, 0.22);
+    }
+
     .menu-btn {
         color: rgb(148 163 184);
         border-color: rgba(255, 255, 255, 0.1);
@@ -625,6 +637,44 @@
     font-weight: 500;
     color: rgb(107 114 128);
     letter-spacing: 0.01em;
+}
+
+.version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+}
+
+.version-badge-tag {
+    font-weight: 750;
+}
+
+.version-badge-sep {
+    opacity: 0.6;
+    font-weight: 600;
+}
+
+.version-badge-style {
+    font-weight: 600;
+}
+
+.version-badge-v2 {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: rgba(16, 185, 129, 0.28);
+}
+
+.version-badge-v1 {
+    background: #f1f5f9;
+    color: #64748b;
+    border-color: rgba(148, 163, 184, 0.25);
+    font-weight: 700;
 }
 
 .menu-btn {

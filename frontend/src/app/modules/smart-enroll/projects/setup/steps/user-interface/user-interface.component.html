@@ -1,5 +1,41 @@
 <ng-container *transloco="let t">
     <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
+        <verify-style-picker [control]="verifyStyleControl"></verify-style-picker>
+
+        <section class="flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40">
+            <header>
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.ui.flowOrder.title') }}
+                </h2>
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.ui.flowOrder.subtitle') }}
+                </p>
+            </header>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" [attr.aria-label]="t('smartEnrollProjects.setup.ui.flowOrder.title')">
+                @for (order of ['contact_first', 'consent_first']; track order) {
+                    @let active = (order === 'consent_first') === (flowOrderControl?.value === 'consent_first');
+                    <button
+                        type="button"
+                        role="radio"
+                        [attr.aria-checked]="active"
+                        (click)="selectFlowOrder($any(order))"
+                        class="flex flex-col gap-1 rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
+                        [class.border-stone-900]="active"
+                        [class.bg-stone-50]="active"
+                        [class.dark:bg-gray-800]="active"
+                        [class.border-stone-200]="!active"
+                        [class.dark:border-gray-700]="!active"
+                    >
+                        <span class="text-sm font-medium text-stone-900 dark:text-white">
+                            {{ t('smartEnrollProjects.setup.ui.flowOrder.' + order) }}
+                        </span>
+                        <span class="text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.ui.flowOrder.' + order + '_desc') }}
+                        </span>
+                    </button>
+                }
+            </div>
+        </section>
         @let logoCtrl = brandingFormGroup?.get('logo');
         @let imageCtrl = brandingFormGroup?.get('image');
 
@@ -121,36 +157,42 @@
                     [colors]="titleColors"
                     [label]="t('smartEnrollProjects.setup.ui.colors.title')"
                     [required]="true"
+                    (colorChange)="markCustomOverride('titleColor')"
                 ></swatch-picker>
                 <swatch-picker
                     formControlName="textColor"
                     [colors]="textColors"
                     [label]="t('smartEnrollProjects.setup.ui.colors.text')"
                     [required]="true"
+                    (colorChange)="markCustomOverride('textColor')"
                 ></swatch-picker>
                 <swatch-picker
                     formControlName="buttonColor"
                     [colors]="buttonColors"
                     [label]="t('smartEnrollProjects.setup.ui.colors.button')"
                     [required]="true"
+                    (colorChange)="markCustomOverride('buttonColor')"
                 ></swatch-picker>
                 <swatch-picker
                     formControlName="buttonTextColor"
                     [colors]="buttonTextColors"
                     [label]="t('smartEnrollProjects.setup.ui.colors.buttonText')"
                     [required]="true"
+                    (colorChange)="markCustomOverride('buttonTextColor')"
                 ></swatch-picker>
                 <swatch-picker
                     formControlName="backgroundColor"
                     [colors]="backgroundColors"
                     [label]="t('smartEnrollProjects.setup.ui.colors.background')"
                     [required]="true"
+                    (colorChange)="markCustomOverride('backgroundColor')"
                 ></swatch-picker>
                 <swatch-picker
                     formControlName="imageBackgroundColor"
                     [colors]="imageBackgroundColors"
                     [label]="t('smartEnrollProjects.setup.ui.colors.imageBackground')"
                     [required]="true"
+                    (colorChange)="markCustomOverride('imageBackgroundColor')"
                 ></swatch-picker>
             </div>
         </section>

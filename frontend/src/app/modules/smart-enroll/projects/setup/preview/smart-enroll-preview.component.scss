@@ -1,0 +1,28 @@
+::ng-deep .smart-enroll-preview-dialog-panel {
+    width: min(1240px, 94vw) !important;
+    max-width: min(1240px, 94vw) !important;
+    height: min(900px, 92vh) !important;
+    max-height: min(900px, 92vh) !important;
+    padding: 0 !important;
+
+    .mat-mdc-dialog-container {
+        padding: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        background-color: transparent !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    .mat-mdc-dialog-surface {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+}
+

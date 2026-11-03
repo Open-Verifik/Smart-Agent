@@ -6,13 +6,17 @@ import {
     DestroyRef,
     Input,
     OnChanges,
+    OnDestroy,
     OnInit,
     SimpleChanges,
+    TemplateRef,
+    ViewChild,
     inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 
@@ -25,17 +29,20 @@ import { PreviewDocumentUploadComponent } from './preview-document-upload/previe
 import { PreviewDocumentResultComponent } from './preview-document-result/preview-document-result.component';
 import { PreviewLivenessComponent } from './preview-liveness/preview-liveness.component';
 import { PreviewLivenessResultComponent } from './preview-liveness-result/preview-liveness-result.component';
+import { PreviewVerifyShellComponent } from './preview-verify-shell/preview-verify-shell.component';
+import { parseVerifyStyle, VerifyStyleId } from './preview-verify-shell/verify-style';
 
 type DeviceType = 'desktop' | 'tablet' | 'mobile';
+type PreviewVariant = 'auto' | 'verify' | 'legacy';
 
 /**
  * Side-by-side mock of the customer-facing onboarding flow.
  *
  * Mounted in `setup-host` next to the wizard editor. Re-renders live as the
  * editor changes (form values + branding) and exposes a device-type toggle
- * (desktop/tablet/mobile) plus a fullscreen overlay. When the parent passes
- * more than one `view`, side chevrons cycle through them. Resets to `view[0]`
- * whenever the wizard step changes (driven by `SetupService.stepIndex$`).
+ * (desktop/tablet/mobile) plus a large MatDialog modal preview. When the parent
+ * passes more than one `view`, side chevrons cycle through them. Resets to
+ * `view[0]` whenever the wizard step changes (driven by `SetupService.stepIndex$`).
  */
 @Component({
     selector: 'smart-enroll-preview',
@@ -43,6 +50,7 @@ type DeviceType = 'desktop' | 'tablet' | 'mobile';
     imports: [
         CommonModule,
         MatButtonModule,
+        MatDialogModule,
         MatIconModule,
         TranslocoModule,
         PreviewSignUpComponent,
@@ -51,23 +59,30 @@ type DeviceType = 'desktop' | 'tablet' | 'mobile';
         PreviewDocumentResultComponent,
         PreviewLivenessComponent,
         PreviewLivenessResultComponent,
+        PreviewVerifyShellComponent,
     ],
     templateUrl: './smart-enroll-preview.component.html',
+    styleUrl: './smart-enroll-preview.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SmartEnrollPreviewComponent implements OnInit, OnChanges {
+export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy {
     @Input() branding: Branding | null = null;
     @Input() form!: FormGroup;
     @Input() view: PreviewView[] = ['signup'];
 
+    @ViewChild('fullscreenDialog') fullscreenDialogTpl?: TemplateRef<unknown>;
+
     private _setup = inject(SetupService);
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
+    private _dialog = inject(MatDialog);
+    private _dialogRef: MatDialogRef<unknown> | null = null;
 
     currentView: PreviewView = 'signup';
     currentViewIndex = 0;
     deviceType: DeviceType = 'tablet';
     isFullscreen = false;
+    previewVariant: PreviewVariant = 'auto';
     stepIndex = 0;
 
     ngOnInit(): void {
@@ -78,6 +93,23 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges {
             this.currentView = this.view[0] ?? this.currentView;
             this._cdr.markForCheck();
         });
+        this._bindFormListeners();
+    }
+
+    private _bindFormListeners(): void {
+        if (!this.form) return;
+
+        this.form.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
+            this._cdr.markForCheck();
+        });
+
+        this.form
+            .get('projectFlow.onboardingSettings.verifyStyle')
+            ?.valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((styleVal) => {
+                this.previewVariant = parseVerifyStyle(styleVal) ? 'verify' : 'auto';
+                this._cdr.markForCheck();
+            });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -102,6 +134,35 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges {
     /** Effective branding object: caller value layered over service defaults. */
     get effectiveBranding(): Branding {
         return { ...this._setup.defaultBranding, ...(this.branding || {}) } as Branding;
+    }
+
+    /** Active SmartEnroll v2 style ('a'..'f') if selected or when enrollmentClient is 'v2'. */
+    get activeVerifyStyle(): VerifyStyleId | null {
+        const rawStyle = this.form?.get('projectFlow.onboardingSettings.verifyStyle')?.value;
+        const parsed = parseVerifyStyle(rawStyle);
+        if (parsed) return parsed;
+
+        const client = this.form?.get('projectFlow.onboardingSettings.enrollmentClient')?.value;
+        if (client === 'v2') return 'a';
+
+        return null;
+    }
+
+    /** True when the pixel-by-pixel /verify shell preview should be displayed. */
+    get showVerifyPreview(): boolean {
+        if (this.previewVariant === 'legacy') return false;
+        if (this.previewVariant === 'verify') return true;
+        return this.activeVerifyStyle !== null;
+    }
+
+    /** Style ID passed into `<preview-verify-shell>`. Defaults to `'a'` (Forest). */
+    get effectiveVerifyStyle(): VerifyStyleId {
+        return this.activeVerifyStyle ?? 'a';
+    }
+
+    setPreviewVariant(variant: PreviewVariant): void {
+        this.previewVariant = variant;
+        this._cdr.markForCheck();
     }
 
     /** FormGroup for the sub-view bound to the current step. */
@@ -154,10 +215,41 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges {
     }
 
     toggleFullscreen(): void {
-        this.isFullscreen = !this.isFullscreen;
-        // Lock document scroll while in fullscreen.
-        document.body.style.overflow = this.isFullscreen ? 'hidden' : '';
+        if (this._dialogRef) {
+            this.closeFullscreen();
+            return;
+        }
+        if (!this.fullscreenDialogTpl) return;
+
+        this.isFullscreen = true;
+        this._dialogRef = this._dialog.open(this.fullscreenDialogTpl, {
+            width: 'min(1240px, 94vw)',
+            maxWidth: 'min(1240px, 94vw)',
+            height: 'min(900px, 92vh)',
+            maxHeight: 'min(900px, 92vh)',
+            panelClass: 'smart-enroll-preview-dialog-panel',
+            autoFocus: false,
+            restoreFocus: false,
+        });
+
+        this._dialogRef
+            .afterClosed()
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => {
+                this.isFullscreen = false;
+                this._dialogRef = null;
+                this._cdr.markForCheck();
+            });
+
         this._cdr.markForCheck();
+    }
+
+    closeFullscreen(): void {
+        this._dialogRef?.close();
+    }
+
+    ngOnDestroy(): void {
+        this._dialogRef?.close();
     }
 
     /** Tailwind classes for the inner content's max-width based on the device toggle. */
