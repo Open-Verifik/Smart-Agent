@@ -155,6 +155,11 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy
         return this.activeVerifyStyle !== null;
     }
 
+    /** Order A (contact first) is the default; B opens on the consent screen like Stripe Identity. */
+    get effectiveFlowOrder(): 'contact_first' | 'consent_first' {
+        return this.form?.get('projectFlow.onboardingSettings.flowOrder')?.value === 'consent_first' ? 'consent_first' : 'contact_first';
+    }
+
     /** Style ID passed into `<preview-verify-shell>`. Defaults to `'a'` (Forest). */
     get effectiveVerifyStyle(): VerifyStyleId {
         return this.activeVerifyStyle ?? 'a';

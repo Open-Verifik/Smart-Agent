@@ -949,3 +949,26 @@ a,
     background: var(--style-page-mobile, #ffffff);
     padding: var(--style-page-pad, 0);
 }
+
+
+.consent-rows li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 0;
+}
+
+.consent-rows svg {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    margin-top: 1px;
+    color: var(--style-ink, var(--title));
+}
+
+.consent-rows .link.inline {
+    display: inline;
+    width: auto;
+    font: inherit;
+}

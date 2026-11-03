@@ -30,9 +30,23 @@ export type VerifyPreviewScreen =
 
 export type VerifySheetType = 'acceptedIds' | 'language' | 'document' | 'trouble' | null;
 
+export type PreviewFlowOrder = 'contact_first' | 'consent_first';
+
 const ORDERED_SCREENS: VerifyPreviewScreen[] = [
     'contact',
     'consent',
+    'otp',
+    'ready',
+    'front',
+    'reviewFront',
+    'selfie',
+    'submitted',
+];
+
+/** Order B starts on consent like Stripe Identity; the screens after sign-up stay the same. */
+const CONSENT_FIRST_SCREENS: VerifyPreviewScreen[] = [
+    'consent',
+    'contact',
     'otp',
     'ready',
     'front',
@@ -55,10 +69,14 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges {
     @Input() form: FormGroup | null = null;
     @Input() styleId: VerifyStyleId = 'a';
     @Input() view: PreviewView = 'signup';
+    @Input() flowOrder: PreviewFlowOrder = 'contact_first';
 
     private _cdr = inject(ChangeDetectorRef);
 
-    readonly screens: VerifyPreviewScreen[] = ORDERED_SCREENS;
+    get screens(): VerifyPreviewScreen[] {
+        return this.flowOrder === 'consent_first' ? CONSENT_FIRST_SCREENS : ORDERED_SCREENS;
+    }
+
     readonly segments = ['contact', 'consent', 'document', 'selfie', 'done'];
     readonly otpSample = ['4', '8', '2', '9', '1', '6'];
     readonly languages = [
@@ -80,6 +98,10 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['view'] && !changes['view'].firstChange) {
+            this.activeScreen = this._mapViewToScreen(this.view);
+            this.sheet = null;
+        }
+        if (changes['flowOrder'] && !changes['flowOrder'].firstChange && this.view === 'signup') {
             this.activeScreen = this._mapViewToScreen(this.view);
             this.sheet = null;
         }
@@ -170,17 +192,19 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges {
     }
 
     nextScreen(): void {
-        const idx = ORDERED_SCREENS.indexOf(this.activeScreen);
-        const nextIdx = idx >= 0 ? (idx + 1) % ORDERED_SCREENS.length : 0;
-        this.activeScreen = ORDERED_SCREENS[nextIdx];
+        const order = this.screens;
+        const idx = order.indexOf(this.activeScreen);
+        const nextIdx = idx >= 0 ? (idx + 1) % order.length : 0;
+        this.activeScreen = order[nextIdx];
         this.sheet = null;
         this._cdr.markForCheck();
     }
 
     previousScreen(): void {
-        const idx = ORDERED_SCREENS.indexOf(this.activeScreen);
-        const prevIdx = idx > 0 ? idx - 1 : ORDERED_SCREENS.length - 1;
-        this.activeScreen = ORDERED_SCREENS[prevIdx];
+        const order = this.screens;
+        const idx = order.indexOf(this.activeScreen);
+        const prevIdx = idx > 0 ? idx - 1 : order.length - 1;
+        this.activeScreen = order[prevIdx];
         this.sheet = null;
         this._cdr.markForCheck();
     }
@@ -204,7 +228,7 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges {
     private _mapViewToScreen(view: PreviewView): VerifyPreviewScreen {
         switch (view) {
             case 'signup':
-                return 'contact';
+                return this.flowOrder === 'consent_first' ? 'consent' : 'contact';
             case 'document-upload':
                 return 'ready';
             case 'document-scan':
