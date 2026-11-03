@@ -35,6 +35,8 @@ import {
     COLOMBIA_PACO_SANCTIONS_ENDPOINT_CODE,
     COLOMBIA_RAMA_JEPMS_ENDPOINT_CODE,
     COLOMBIA_ADVERSE_MEDIA_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_CASES_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE,
 } from './colombia.postman-sandbox';
 import {
     applyPostmanSandboxParamDefaults,
@@ -81,12 +83,16 @@ const ALL_19_WORLD_CODES = [
     ...NEW_WATCHLIST_CODES,
 ] as const;
 
-const COLOMBIA_4_NATIONAL_CODES = [
+const COLOMBIA_6_NATIONAL_CODES = [
     COLOMBIA_JCC_SANCTIONS_ENDPOINT_CODE,
     COLOMBIA_PACO_SANCTIONS_ENDPOINT_CODE,
     COLOMBIA_RAMA_JEPMS_ENDPOINT_CODE,
     COLOMBIA_ADVERSE_MEDIA_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_CASES_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE,
 ] as const;
+
+const COLOMBIA_4_NATIONAL_CODES = COLOMBIA_6_NATIONAL_CODES;
 
 describe('Adversarial Test Suite 1: Exact Key Count & Registry Mapping', () => {
     it('validates that WORLD_POSTMAN_SANDBOX_BY_CODE contains all expected watchlist keys', () => {
@@ -108,8 +114,8 @@ describe('Adversarial Test Suite 1: Exact Key Count & Registry Mapping', () => {
         }
     });
 
-    it('validates that the 4 Colombia national sources exist in COLOMBIA_POSTMAN_SANDBOX_BY_CODE and global registry', () => {
-        for (const code of COLOMBIA_4_NATIONAL_CODES) {
+    it('validates that the 6 Colombia national sources exist in COLOMBIA_POSTMAN_SANDBOX_BY_CODE and global registry', () => {
+        for (const code of COLOMBIA_6_NATIONAL_CODES) {
             expect(COLOMBIA_POSTMAN_SANDBOX_BY_CODE[code]).toBeDefined();
             expect(POSTMAN_SANDBOX_BY_ENDPOINT_CODE[code]).toBeDefined();
             expect(isPostmanSandboxEndpoint(code)).toBe(true);
@@ -313,6 +319,70 @@ describe('Adversarial Test Suite 2: Boundary Conditions & Malformed Inputs in He
             expect(match409).toBeDefined();
             expect(match409?.expectedStatus).toBe(409);
         });
+
+        it('correctly matches active, clean, 404, and 409 profiles for SICAAC Cases and Insolvency', () => {
+            // SICAAC Cases active 200
+            const sicaacCasesActive = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_CASES_ENDPOINT_CODE, [
+                { key: 'documentType', value: 'CC' },
+                { key: 'documentNumber', value: '75086330' },
+            ]);
+            expect(sicaacCasesActive).toBeDefined();
+            expect(sicaacCasesActive?.expectedStatus).toBe(200);
+
+            // SICAAC Cases clean 200
+            const sicaacCasesClean = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_CASES_ENDPOINT_CODE, [
+                { key: 'documentType', value: 'CC' },
+                { key: 'documentNumber', value: '12345678' },
+            ]);
+            expect(sicaacCasesClean).toBeDefined();
+            expect(sicaacCasesClean?.expectedStatus).toBe(200);
+
+            // SICAAC Cases 404
+            const sicaacCases404 = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_CASES_ENDPOINT_CODE, [
+                { key: 'documentType', value: 'CC' },
+                { key: 'documentNumber', value: '90040401' },
+            ]);
+            expect(sicaacCases404).toBeDefined();
+            expect(sicaacCases404?.expectedStatus).toBe(404);
+
+            // SICAAC Cases 409 missing doc
+            const sicaacCases409 = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_CASES_ENDPOINT_CODE, [
+                { key: 'documentNumber', value: '' },
+            ]);
+            expect(sicaacCases409).toBeDefined();
+            expect(sicaacCases409?.expectedStatus).toBe(409);
+
+            // SICAAC Insolvency active 200
+            const insolvencyActive = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE, [
+                { key: 'documentType', value: 'CC' },
+                { key: 'documentNumber', value: '75086330' },
+            ]);
+            expect(insolvencyActive).toBeDefined();
+            expect(insolvencyActive?.expectedStatus).toBe(200);
+
+            // SICAAC Insolvency clean 200
+            const insolvencyClean = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE, [
+                { key: 'documentType', value: 'CC' },
+                { key: 'documentNumber', value: '12345678' },
+            ]);
+            expect(insolvencyClean).toBeDefined();
+            expect(insolvencyClean?.expectedStatus).toBe(200);
+
+            // SICAAC Insolvency 404
+            const insolvency404 = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE, [
+                { key: 'documentType', value: 'CC' },
+                { key: 'documentNumber', value: '90040401' },
+            ]);
+            expect(insolvency404).toBeDefined();
+            expect(insolvency404?.expectedStatus).toBe(404);
+
+            // SICAAC Insolvency 409 missing doc
+            const insolvency409 = findMatchingPostmanSandboxProfile(COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE, [
+                { key: 'documentNumber', value: '' },
+            ]);
+            expect(insolvency409).toBeDefined();
+            expect(insolvency409?.expectedStatus).toBe(409);
+        });
     });
 
     describe('formatPostmanSandboxProfileLabel robustness', () => {
@@ -330,8 +400,8 @@ describe('Adversarial Test Suite 2: Boundary Conditions & Malformed Inputs in He
             }
         });
 
-        it('formats every profile across all 4 Colombia national sources without error', () => {
-            for (const code of COLOMBIA_4_NATIONAL_CODES) {
+        it('formats every profile across all 6 Colombia national sources without error', () => {
+            for (const code of COLOMBIA_6_NATIONAL_CODES) {
                 const profiles = getPostmanSandboxProfiles(code);
                 expect(profiles.length).toBeGreaterThan(0);
 
@@ -431,8 +501,8 @@ describe('Adversarial Test Suite 4: Exhaustive "force" Prohibition Check', () =>
         }
     });
 
-    it('asserts that NO profile in the 4 Colombia national sources has any property containing "force"', () => {
-        for (const code of COLOMBIA_4_NATIONAL_CODES) {
+    it('asserts that NO profile in the 6 Colombia national sources has any property containing "force"', () => {
+        for (const code of COLOMBIA_6_NATIONAL_CODES) {
             const config = COLOMBIA_POSTMAN_SANDBOX_BY_CODE[code];
             const configStr = JSON.stringify(config);
             expect(configStr.toLowerCase()).not.toContain('"force"');
