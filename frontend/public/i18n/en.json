@@ -3582,6 +3582,14 @@
                         "d": "Vault",
                         "e": "Porcelain",
                         "f": "Notebook"
+                    },
+                    "descriptions": {
+                        "a": "Eco-minimalist sage aesthetic with tight Inter typography and vibrant chartreuse pill buttons.",
+                        "b": "High-contrast editorial layout featuring bold condensed Barlow headlines and stark monochrome accents.",
+                        "c": "Warm tactile paper aesthetic with modern Outfit typography and deep charcoal accents.",
+                        "d": "Cyber-vault dark mode with technical Space Grotesk type and electric blue accents.",
+                        "e": "Refined porcelain aesthetic with delicate Inter Tight typography and indigo bordered buttons.",
+                        "f": "Neo-brutalist notebook theme with punchy Roboto Condensed headlines and neon lime accents."
                     }
                 },
                 "redirect": {
@@ -3624,6 +3632,28 @@
                 }
             },
             "ui": {
+                "verifyStyle": {
+                    "title": "Verification look",
+                    "subtitle": "Customers see this on the new enrollment page. Leave it unset and that page uses Forest. The current enrollment page is unchanged.",
+                    "sample": "Continue",
+                    "unset": "Not set",
+                    "names": {
+                        "a": "Forest",
+                        "b": "Editorial",
+                        "c": "Paper",
+                        "d": "Vault",
+                        "e": "Porcelain",
+                        "f": "Notebook"
+                    },
+                    "descriptions": {
+                        "a": "Eco-minimalist sage aesthetic with tight Inter typography and vibrant chartreuse pill buttons.",
+                        "b": "High-contrast editorial layout featuring bold condensed Barlow headlines and stark monochrome accents.",
+                        "c": "Warm tactile paper aesthetic with modern Outfit typography and deep charcoal accents.",
+                        "d": "Cyber-vault dark mode with technical Space Grotesk type and electric blue accents.",
+                        "e": "Refined porcelain aesthetic with delicate Inter Tight typography and indigo bordered buttons.",
+                        "f": "Neo-brutalist notebook theme with punchy Roboto Condensed headlines and neon lime accents."
+                    }
+                },
                 "colors": {
                     "heading": "Brand colors",
                     "title": "Title",

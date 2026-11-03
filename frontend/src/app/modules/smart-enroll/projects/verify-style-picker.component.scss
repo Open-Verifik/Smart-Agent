@@ -2,31 +2,27 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 20px;
-    border-radius: 28px;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
-        repeating-linear-gradient(90deg, #163300 0 12px, #9fe870 12px 24px, #000814 24px 36px, #adff02 36px 48px, #151581 48px 60px, #f2f2f2 60px 72px);
-    background-size: auto, 72px 8px;
-    background-repeat: no-repeat, repeat-x;
-    background-position: 0 0, 0 0;
-    border: 1px solid #d6d3d1;
+    padding: 24px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #e7e5e4;
 }
 
 :host-context(.dark) .picker {
-    background:
-        linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(17, 24, 39, 0.94)),
-        repeating-linear-gradient(90deg, #9fe870 0 12px, #1c6cff 12px 24px, #adff02 24px 36px);
-    background-size: auto, 36px 8px;
-    background-repeat: no-repeat, repeat-x;
+    background: rgba(17, 24, 39, 0.4);
     border-color: #374151;
 }
 
 h2 {
-    margin: 8px 0 0;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111827;
+}
+
+:host-context(.dark) h2 {
+    color: #ffffff;
 }
 
 p {
@@ -36,10 +32,22 @@ p {
     color: #57534e;
 }
 
+:host-context(.dark) p {
+    color: #9ca3af;
+}
+
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 12px;
+
+    @media (min-width: 520px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (min-width: 720px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 .choice {
@@ -48,10 +56,31 @@ p {
     gap: 8px;
     padding: 8px;
     border: 1px solid transparent;
-    border-radius: 18px;
+    border-radius: 14px;
     background: transparent;
     text-align: left;
     cursor: pointer;
+    min-width: 0;
+    transition: all 0.2s ease;
+
+    &:hover:not(.on) {
+        background: rgba(0, 0, 0, 0.03);
+        border-color: #d6d3d1;
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    &:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+}
+
+:host-context(.dark) .choice:hover:not(.on) {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: #4b5563;
 }
 
 .choice.on {
@@ -60,12 +89,23 @@ p {
     box-shadow: 0 0 0 2px #111827;
 }
 
+:host-context(.dark) .choice.on {
+    border-color: #f3f4f6;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px #f3f4f6;
+}
+
 .swatch {
     display: grid;
     place-items: center;
     min-height: 132px;
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 12px;
+    transition: border-color 0.2s ease;
+}
+
+:host-context(.dark) .swatch {
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mini {
@@ -75,13 +115,15 @@ p {
     flex-direction: column;
     justify-content: space-between;
     gap: 12px;
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 12px;
+    box-sizing: border-box;
 }
 
 .sample-title {
     font-size: 28px;
     line-height: 0.95;
+    user-select: none;
 }
 
 .sample-button {
@@ -91,6 +133,12 @@ p {
     font-size: 12px;
     font-weight: 500;
     line-height: 1;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    user-select: none;
 }
 
 .caption {
@@ -99,6 +147,22 @@ p {
     gap: 8px;
     font-size: 13px;
     font-weight: 600;
+    color: #1c1917;
+}
+
+:host-context(.dark) .caption {
+    color: #f3f4f6;
+}
+
+.desc {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #78716c;
+    margin: 0;
+}
+
+:host-context(.dark) .desc {
+    color: #9ca3af;
 }
 
 .letter {
@@ -111,14 +175,26 @@ p {
     color: #ffffff;
     font-size: 11px;
     text-transform: uppercase;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+:host-context(.dark) .letter {
+    background: #374151;
+    color: #f3f4f6;
+}
+
+:host-context(.dark) .choice.on .letter {
+    background: #f3f4f6;
+    color: #111827;
 }
 
 .unset {
     font-weight: 600;
+    font-size: 13px;
+    color: #78716c;
 }
 
-@media (min-width: 720px) {
-    .grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+:host-context(.dark) .unset {
+    color: #9ca3af;
 }

@@ -142,7 +142,8 @@ export class VerifyStylePickerComponent implements OnInit, OnDestroy {
     choose(id: StylePreview['id']): void {
         if (!this.control) return;
 
-        this.control.setValue(id);
+        const next = this.selected() === id ? '' : id;
+        this.control.setValue(next);
         this.control.markAsDirty();
         this.control.markAsTouched();
     }

@@ -39,6 +39,9 @@
                     <span class="letter">{{ style.id }}</span>
                     {{ t('smartEnrollProjects.setup.integrations.verifyStyle.names.' + style.id) }}
                 </span>
+                <p class="desc">
+                    {{ t('smartEnrollProjects.setup.integrations.verifyStyle.descriptions.' + style.id) }}
+                </p>
             </button>
         </div>
         <p class="unset" *ngIf="!selected()">{{ t('smartEnrollProjects.setup.integrations.verifyStyle.unset') }}</p>

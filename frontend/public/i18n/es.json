@@ -4046,6 +4046,14 @@
                         "d": "Bóveda",
                         "e": "Porcelana",
                         "f": "Cuaderno"
+                    },
+                    "descriptions": {
+                        "a": "Estética salvia eco-minimalista con tipografía Inter condensada y botones redondeados en tono lima.",
+                        "b": "Diseño editorial de alto contraste con tipografía Barlow condensada y acentos monocromáticos.",
+                        "c": "Estética cálida de papel táctil con tipografía moderna Outfit y acentos en carbón profundo.",
+                        "d": "Modo oscuro estilo bóveda cibernética con tipografía Space Grotesk y controles en azul eléctrico.",
+                        "e": "Estética refinada de porcelana con tipografía delicada Inter Tight y botones contorneados en índigo.",
+                        "f": "Tema de libreta neo-brutalista con titulares en Roboto Condensed y acentos en lima brillante."
                     }
                 },
                 "redirect": {
@@ -4088,6 +4096,28 @@
                 }
             },
             "ui": {
+                "verifyStyle": {
+                    "title": "Apariencia de la verificación",
+                    "subtitle": "El cliente ve esto en la inscripción nueva. Si no eliges una, esa página usa Bosque. La inscripción actual no cambia.",
+                    "sample": "Continuar",
+                    "unset": "Sin elegir",
+                    "names": {
+                        "a": "Bosque",
+                        "b": "Editorial",
+                        "c": "Papel",
+                        "d": "Bóveda",
+                        "e": "Porcelana",
+                        "f": "Cuaderno"
+                    },
+                    "descriptions": {
+                        "a": "Estética salvia eco-minimalista con tipografía Inter condensada y botones redondeados en tono lima.",
+                        "b": "Diseño editorial de alto contraste con tipografía Barlow condensada y acentos monocromáticos.",
+                        "c": "Estética cálida de papel táctil con tipografía moderna Outfit y acentos en carbón profundo.",
+                        "d": "Modo oscuro estilo bóveda cibernética con tipografía Space Grotesk y controles en azul eléctrico.",
+                        "e": "Estética refinada de porcelana con tipografía delicada Inter Tight y botones contorneados en índigo.",
+                        "f": "Tema de libreta neo-brutalista con titulares en Roboto Condensed y acentos en lima brillante."
+                    }
+                },
                 "colors": {
                     "heading": "Colores de marca",
                     "title": "Título",
