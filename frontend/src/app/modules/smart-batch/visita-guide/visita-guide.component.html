@@ -1884,6 +1884,7 @@
                         @if (previewTemplate(); as template) {
                             <report-preview
                                 [template]="template"
+                                [fullContent]="true"
                                 [previewData]="previewData()"
                                 [primaryColor]="primaryColor()"
                                 [pageBackgroundColor]="pageBackgroundColor()"
@@ -1987,6 +1988,8 @@
                                                 class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
                                                 [matTooltip]="t('visitaGuide.layoutAddOne')"
                                                 [attr.aria-label]="t('visitaGuide.layoutAddOne')"
+                                                (pointerdown)="$event.stopPropagation()"
+                                                (mousedown)="$event.stopPropagation()"
                                                 (click)="addCardToLayout(card); $event.stopPropagation()"
                                             >
                                                 <mat-icon class="!h-3.5 !w-3.5 !text-[16px]">add</mat-icon>
@@ -1997,6 +2000,8 @@
                                                 [matTooltip]="t('visitaGuide.layoutRemoveConsult')"
                                                 [attr.aria-label]="t('visitaGuide.layoutRemoveConsult')"
                                                 [disabled]="!canRemoveLayoutConsult() || isRemovingLayoutConsult()"
+                                                (pointerdown)="$event.stopPropagation()"
+                                                (mousedown)="$event.stopPropagation()"
                                                 (click)="removeLayoutConsult(card); $event.stopPropagation()"
                                             >
                                                 <mat-icon class="!h-3.5 !w-3.5 !text-[16px]">delete</mat-icon>
@@ -2018,6 +2023,25 @@
                                                     </button>
                                                 }
                                             </div>
+                                            @if (simulatedSampleHasList(card.sequence)) {
+                                                <div class="mt-1 flex flex-wrap items-center gap-1" (click)="$event.stopPropagation()">
+                                                    <span class="text-[10px] text-stone-500">{{ t('visitaGuide.simulatedList') }}</span>
+                                                    @for (size of simulatedListSizes; track size) {
+                                                        <button
+                                                            type="button"
+                                                            class="rounded-md border px-1.5 py-0.5 text-[10px]"
+                                                            [class.border-stone-950]="simulatedListSize(card.sequence) === size"
+                                                            [class.bg-stone-950]="simulatedListSize(card.sequence) === size"
+                                                            [class.text-white]="simulatedListSize(card.sequence) === size"
+                                                            [class.border-stone-200]="simulatedListSize(card.sequence) !== size"
+                                                            [matTooltip]="t('visitaGuide.simulatedListHint', { count: size })"
+                                                            (click)="setSimulatedListSize(card.sequence, simulatedListSize(card.sequence) === size ? null : size)"
+                                                        >
+                                                            {{ size }}
+                                                        </button>
+                                                    }
+                                                </div>
+                                            }
                                         }
                                         @if (card.status !== 'ok' && mode() === 'single' && designSource() !== 'simulated') {
                                             <button
@@ -2381,6 +2405,7 @@
                                         [clickable]="true"
                                         [customContextMenu]="true"
                                         [reorderable]="true"
+                                        [fullContent]="true"
                                         [selectedSectionId]="selectedLayoutSectionId()"
                                         [selectedSectionIds]="selectedLayoutSectionIds()"
                                         [selectedCellKey]="selectedLayoutCellKey()"
@@ -4216,8 +4241,9 @@
                             >
                                 <report-preview
                                     [printCapture]="true"
+                                    [fullContent]="true"
                                     [template]="template"
-                                    [previewData]="previewData()"
+                                    [previewData]="printPreviewData()"
                                     [primaryColor]="primaryColor()"
                                     [pageBackgroundColor]="pageBackgroundColor()"
                                     [orientation]="orientation()"
@@ -4305,7 +4331,7 @@
                                             "
                                             (click)="generatePdf()"
                                         >
-                                            @if (isGenerating()) {
+                                            @if (isGenerating() && !sampleProbeSize()) {
                                                 <mat-icon class="animate-spin !h-5 !w-5 !text-[20px]">refresh</mat-icon>
                                                 {{ t('smartReport.downloadingSample') }}
                                             } @else {
@@ -4322,6 +4348,38 @@
                                             {{ t('visitaGuide.downloadJson') }}
                                         </button>
                                     </div>
+                                    @if (sampleHasTables()) {
+                                        <div
+                                            class="mt-4 rounded-xl border border-dashed border-stone-200 px-4 py-3 dark:border-gray-700"
+                                        >
+                                            <p class="text-sm text-stone-500 dark:text-stone-400">
+                                                {{ t('smartReport.sampleTableProbe') }}
+                                            </p>
+                                            <div class="mt-3 flex flex-wrap gap-2">
+                                                @for (size of sampleProbeSizes; track size) {
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-stone-200 px-3 text-sm font-medium text-stone-700 disabled:opacity-60 dark:border-gray-700 dark:text-stone-200"
+                                                        [disabled]="
+                                                            !reportStudioTemplateId() || isGenerating() || isSendingSample()
+                                                        "
+                                                        (click)="generatePdf(null, size)"
+                                                    >
+                                                        @if (isGenerating() && sampleProbeSize() === size) {
+                                                            <mat-icon class="animate-spin !h-4 !w-4 !text-[18px]">refresh</mat-icon>
+                                                        } @else {
+                                                            <mat-icon class="!h-4 !w-4 !text-[18px]">table_rows</mat-icon>
+                                                        }
+                                                        {{
+                                                            size === 1
+                                                                ? t('smartReport.sampleTableProbeOne')
+                                                                : t('smartReport.sampleTableProbeMany', { count: size })
+                                                        }}
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                                 <div
                                     class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
@@ -4407,6 +4465,7 @@
                                     >
                                     <report-preview
                                         [template]="template"
+                                        [fullContent]="true"
                                         [previewData]="previewData()"
                                         [primaryColor]="primaryColor()"
                                         [pageBackgroundColor]="pageBackgroundColor()"

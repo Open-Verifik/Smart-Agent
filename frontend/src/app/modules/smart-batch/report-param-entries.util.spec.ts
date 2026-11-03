@@ -230,7 +230,14 @@ describe('designedTableColumns', () => {
         ).toEqual(['noPoliza', 'estado']);
         expect(designedTableColumns('soat', ['noPoliza', 'estado', 'tipoTarifa'], {
             keyOverrides: { 'soat.estado': { label: 'Estado' } },
-        })).toEqual(['estado']);
+        })).toBeNull();
+        expect(collectObjectTables(soat, {
+            keyOverrides: { 'soat.estado': { label: 'Estado' }, 'soat.fechaExpedicion': { labelStyle: { color: '#111' } } },
+        })[0]?.columns.map((column) => column.key)).toEqual(['noPoliza', 'estado', 'fechaExpedicion']);
+        expect(designedTableColumns('soat', ['noPoliza', 'estado', 'fechaExpedicion', 'tipoTarifa'], {
+            keyOrder: ['soat.noPoliza', 'soat.estado'],
+            keyOverrides: { 'soat.fechaExpedicion': { label: 'Fecha' } },
+        })).toEqual(['noPoliza', 'estado']);
         expect(
             designedTableColumns('soat', ['noPoliza', 'estado', 'tipoTarifa'], {
                 keyOrder: ['soat.noPoliza', 'soat.tipoTarifa', 'soat.estado'],

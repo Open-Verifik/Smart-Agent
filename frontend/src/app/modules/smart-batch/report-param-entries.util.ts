@@ -489,25 +489,23 @@ const columnLeafForTable = (tableKey: string, rawKey: string): string | null => 
     return key.slice(tableKey.length + 1).split('.')[0] || null;
 };
 
-/** Columns the designer already named, hid, or styled — extras from live data stay out. */
+/**
+ * Columns the designer put in keyOrder for this table.
+ * A label, color, or other override on one column must not drop the rest.
+ */
 export const designedTableColumns = (
     tableKey: string,
     available: string[],
     options?: { keyOrder?: string[]; hiddenKeys?: string[]; keyOverrides?: Record<string, unknown> }
 ): string[] | null => {
-    const refs = [...(options?.keyOrder ?? []), ...Object.keys(options?.keyOverrides ?? {})];
     const designed: string[] = [];
-    for (const ref of refs) {
+    for (const ref of options?.keyOrder ?? []) {
         const leaf = columnLeafForTable(tableKey, ref);
         if (leaf && available.includes(leaf) && !isAutoOmittedParamKey(leaf) && !designed.includes(leaf)) {
             designed.push(leaf);
         }
     }
-    if (!designed.length) return null;
-    const rank = new Map(
-        (options?.keyOrder ?? []).map((key, index) => [columnLeafForTable(tableKey, key) ?? '', index])
-    );
-    return designed.sort((left, right) => (rank.get(left) ?? 9999) - (rank.get(right) ?? 9999));
+    return designed.length ? designed : null;
 };
 
 const orderColumnKeys = (

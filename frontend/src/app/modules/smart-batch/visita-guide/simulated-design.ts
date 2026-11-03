@@ -1,4 +1,4 @@
-import { emptyFlowGraph, endpointNodes, FlowGraph, graphFromLinearChain } from '../endpoint-flow-graph.util';
+import { emptyFlowGraph, endpointNodes, FlowGraph, graphFromLinearChain, removeFlowNode } from '../endpoint-flow-graph.util';
 import { AppFeature } from '../smart-batch.service';
 
 export type SimulatedAvailability = 'data' | 'empty' | 'missing';
@@ -15,6 +15,8 @@ export interface SimulatedEndpointBinding {
     inputFieldMapping?: Record<string, unknown>;
     dependencies?: unknown[];
     availability: SimulatedAvailability;
+    /** How many example rows to repeat in every object list. Omitted keeps the prepared sample. */
+    listSize?: number;
     responseOutline?: unknown;
     /** Present only for a simulated design. Live designs omit this. */
     simulatedResponse?: unknown;
@@ -121,7 +123,76 @@ export const simulatedResults = (bindings: SimulatedEndpointBinding[]): Record<n
     return results;
 };
 
+export const SIMULATED_LIST_SIZES = [5, 10, 20] as const;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+/** True when a prepared sample contains a list of objects the designer can draw as a table. */
+export const sampleHasObjectList = (value: unknown, depth = 0): boolean => {
+    if (depth > 8 || value == null) return false;
+    if (Array.isArray(value)) {
+        return value.some((item) => isRecord(item) || Array.isArray(item));
+    }
+    if (!isRecord(value)) return false;
+    return Object.values(value).some((entry) => sampleHasObjectList(entry, depth + 1));
+};
+
+const varyListCopy = (value: unknown, index: number): unknown => {
+    if (!index) return value;
+    if (Array.isArray(value)) return value.map((item) => varyListCopy(item, index));
+    if (isRecord(value)) {
+        const next: Record<string, unknown> = {};
+        for (const [key, child] of Object.entries(value)) next[key] = varyListCopy(child, index);
+        return next;
+    }
+    if (typeof value === 'string' && value.trim()) return `${value} ${index + 1}`;
+    if (typeof value === 'number' && Number.isFinite(value)) return value + index;
+    return value;
+};
+
+/** Repeat or trim every object list so a sample PDF can be tried with a chosen row count. */
+export const resizeObjectLists = (value: unknown, count: number, depth = 0): unknown => {
+    const size = Math.min(30, Math.max(1, Math.round(Number(count)) || 1));
+    if (depth > 8 || value == null) return value;
+    if (Array.isArray(value)) {
+        const hasRows = value.some((item) => isRecord(item) || Array.isArray(item));
+        if (!hasRows || !value.length) return value;
+        const seeds = value.map((item) =>
+            isRecord(item) || Array.isArray(item) ? resizeObjectLists(item, size, depth + 1) : item
+        );
+        const rows: unknown[] = [];
+        for (let index = 0; index < size; index += 1) rows.push(varyListCopy(seeds[index % seeds.length], index));
+        return rows;
+    }
+    if (!isRecord(value)) return value;
+    const next: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(value)) next[key] = resizeObjectLists(child, size, depth + 1);
+    return next;
+};
+
+export const previewHasObjectList = (data: object | null | undefined): boolean => {
+    if (!data || !('results' in data)) return false;
+    return sampleHasObjectList((data as { results?: unknown }).results);
+};
+
+export const previewWithListSize = <T extends object>(data: T, count: number): T => {
+    if (!('results' in data) || (data as { results?: unknown }).results == null) return data;
+    return {
+        ...data,
+        results: resizeObjectLists((data as { results?: unknown }).results, count),
+    } as T;
+};
+
 export const flowForSimulatedFeatures = (features: AppFeature[], current: FlowGraph, keepCurrent: boolean): FlowGraph => {
-    if (keepCurrent && endpointNodes(current).length) return current;
-    return features.length ? graphFromLinearChain(features) : emptyFlowGraph();
+    if (!features.length) return emptyFlowGraph();
+    if (!keepCurrent || !endpointNodes(current).length) return graphFromLinearChain(features);
+    const ids = new Set(features.map((feature) => feature._id).filter((id): id is string => Boolean(id)));
+    const codes = new Set(features.map((feature) => feature.code).filter((code): code is string => Boolean(code)));
+    return endpointNodes(current).reduce((graph, node) => {
+        const featureId = node.feature?._id;
+        const code = node.feature?.code;
+        const kept = ids.has(node.id) || (featureId ? ids.has(featureId) : false) || (code ? codes.has(code) : false);
+        return kept ? graph : removeFlowNode(graph, node.id);
+    }, current);
 };

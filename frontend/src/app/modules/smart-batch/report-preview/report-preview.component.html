@@ -1225,12 +1225,12 @@
                 </h4>
             }
             @if (structuralColumns(section).length > 0) {
-                <table class="w-full">
+                <table class="w-full max-w-full table-fixed border-collapse">
                     <thead>
                         <tr [class.border-b-2]="sectionShowsRowLines(section)" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
                                 <th
-                                    class="py-1.5 pr-3 text-left"
+                                    class="min-w-0 py-1.5 pr-3 text-left align-top break-words [overflow-wrap:anywhere]"
                                     [class.ring-1]="isCellSelected(section, column.key, 'label')"
                                     [class.ring-lime-500]="isCellSelected(section, column.key, 'label')"
                                     [style.font-family]="roleFontFamily(section, 'label')"
@@ -1256,7 +1256,7 @@
                             <tr [ngStyle]="rowLineBg(section)">
                                 @for (cell of row; track $index; let colIndex = $index) {
                                     <td
-                                        class="py-1.5 pr-3"
+                                        class="min-w-0 py-1.5 pr-3 align-top break-words [overflow-wrap:anywhere]"
                                         [class.ring-1]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
                                         [class.ring-orange-400]="isCellSelected(section, structuralColumns(section)[colIndex].key, 'value')"
                                         [style.font-family]="roleFontFamily(section, 'value')"
@@ -1513,12 +1513,12 @@
                                     </p>
                                 }
                             </div>
-                            <table class="w-full border-collapse">
+                            <table class="w-full max-w-full table-fixed border-collapse">
                                 <thead>
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="relative py-1 pr-2 text-left"
+                                                class="relative min-w-0 py-1 pr-2 text-left align-top break-words [overflow-wrap:anywhere]"
                                                 [class.border-b]="tableShowsRowLines(section, chunk.table.key)"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
@@ -1551,7 +1551,7 @@
                                         <tr [class.border-b]="tableShowsRowLines(section, chunk.table.key) && !last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
-                                                    class="py-1 pr-2 align-top"
+                                                    class="min-w-0 py-1 pr-2 align-top break-words [overflow-wrap:anywhere]"
                                                     [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
@@ -1798,12 +1798,12 @@
                                     </p>
                                 }
                             </div>
-                            <table class="w-full border-collapse">
+                            <table class="w-full max-w-full table-fixed border-collapse">
                                 <thead>
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
                                         @for (column of chunk.table.columns; track column.key) {
                                             <th
-                                                class="relative py-1 pr-2 text-left"
+                                                class="relative min-w-0 py-1 pr-2 text-left align-top break-words [overflow-wrap:anywhere]"
                                                 [class.border-b]="tableShowsRowLines(section, chunk.table.key)"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
@@ -1836,7 +1836,7 @@
                                         <tr [class.border-b]="tableShowsRowLines(section, chunk.table.key) && !last" [style.border-color]="tableEdge(section, chunk.table.key)">
                                             @for (column of chunk.table.columns; track column.key) {
                                                 <td
-                                                    class="py-1 pr-2 align-top"
+                                                    class="min-w-0 py-1 pr-2 align-top break-words [overflow-wrap:anywhere]"
                                                     [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [class.ring-orange-400]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'value')"
                                                     [style.font-family]="tableText(section, 'value', chunk.table.key, column.key).fontFamily"
@@ -1981,11 +1981,11 @@
                                         }
                                         @if (table.columns.length && table.rows.length) {
                                             <div class="overflow-x-auto">
-                                                <table class="w-full min-w-[320px] text-left text-sm">
+                                                <table class="w-full max-w-full table-fixed border-collapse text-left text-sm">
                                                     <thead>
                                                         <tr class="border-b-2" [style.border-color]="primaryColor()">
                                                             @for (col of table.columns; track col.key) {
-                                                                <th class="py-2 pr-3 font-medium text-stone-600">
+                                                                <th class="min-w-0 py-2 pr-3 align-top font-medium break-words text-stone-600 [overflow-wrap:anywhere]">
                                                                     {{ col.label }}
                                                                 </th>
                                                             }
@@ -1995,7 +1995,7 @@
                                                         @for (row of table.rows; track $index) {
                                                             <tr class="border-b border-stone-100">
                                                                 @for (cell of row; track $index) {
-                                                                    <td class="py-2 pr-3 text-stone-900">
+                                                                    <td class="min-w-0 py-2 pr-3 align-top break-words text-stone-900 [overflow-wrap:anywhere]">
                                                                         {{ cell }}
                                                                     </td>
                                                                 }
@@ -2108,7 +2108,7 @@
                 data-sheet-text
                 [attr.data-text-kind]="kind"
                 data-value-rule
-                class="inline-block max-w-full min-h-[1em] min-w-[1ch] whitespace-pre-wrap break-words [text-decoration:inherit]"
+                class="inline-block max-w-full min-h-[1em] min-w-[1ch] whitespace-pre-wrap break-words [overflow-wrap:anywhere] [text-decoration:inherit]"
                 [class.cursor-text]="showsTextCursor(kind, measure)"
                 [style.color]="rule.color || null"
                 [style.--report-link-color]="sheetLinkColor(section, kind, key)"
@@ -2143,7 +2143,7 @@
             <span
                 data-sheet-text
                 [attr.data-text-kind]="kind"
-                class="inline-block max-w-full min-h-[1em] min-w-[1ch] whitespace-pre-wrap break-words [text-decoration:inherit]"
+                class="inline-block max-w-full min-h-[1em] min-w-[1ch] whitespace-pre-wrap break-words [overflow-wrap:anywhere] [text-decoration:inherit]"
                 [style.--report-link-color]="sheetLinkColor(section, kind, key)"
                 [class.cursor-text]="showsTextCursor(kind, measure)"
                 (pointerdown)="onSheetTextPointerDown(kind, $event)"

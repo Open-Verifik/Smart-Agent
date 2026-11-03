@@ -676,7 +676,8 @@ export class SmartReportService {
     /** Prepared sample for one endpoint. Does not execute the Data API. */
     getSimulatedResponse(
         code: string,
-        availability: 'data' | 'empty' | 'missing' = 'data'
+        availability: 'data' | 'empty' | 'missing' = 'data',
+        listSize?: number
     ): Observable<{
         code: string;
         found: boolean;

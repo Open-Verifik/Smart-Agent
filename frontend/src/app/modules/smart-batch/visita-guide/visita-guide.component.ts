@@ -179,6 +179,10 @@ import {
     flowForSimulatedFeatures,
     nextSimulatedSequence,
     readSimulatedSession,
+    previewHasObjectList,
+    previewWithListSize,
+    sampleHasObjectList,
+    SIMULATED_LIST_SIZES,
     SimulatedAvailability,
     SimulatedEndpointBinding,
     simulatedResults,
@@ -569,6 +573,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     designSource = this._state.designSource;
     simulatedBindings = signal<SimulatedEndpointBinding[]>([]);
     readonly simulatedAvailabilities: SimulatedAvailability[] = ['data', 'empty', 'missing'];
+    readonly simulatedListSizes = SIMULATED_LIST_SIZES;
+    readonly sampleProbeSizes = [1, 10] as const;
+    readonly sampleProbeSize = signal<number | null>(null);
     private readonly _simulatedDraftEffect = effect(() => {
         const source = this.designSource();
         const endpoints = this.simulatedBindings();
@@ -1383,6 +1390,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const all = this.previewRecords();
         const idx = Math.min(Math.max(0, this.previewRecordIndex()), Math.max(0, all.length - 1));
         return all[idx] ?? { inputData: {}, results: {}, rowIndex: 0 };
+    });
+
+    sampleHasTables = computed(() => previewHasObjectList(this.previewData()));
+
+    printPreviewData = computed((): SampleReportData => {
+        const data = this.previewData();
+        const size = this.sampleProbeSize();
+        return size ? previewWithListSize(data, size) : data;
     });
 
     goToPreviewRecord(index: number): void {
@@ -4815,6 +4830,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this.simulatedBindings().find((item) => item.sequence === sequence)?.availability ?? 'data';
     }
 
+    simulatedListSize(sequence: number): number | null {
+        return this.simulatedBindings().find((item) => item.sequence === sequence)?.listSize ?? null;
+    }
+
+    simulatedSampleHasList(sequence: number): boolean {
+        const binding = this.simulatedBindings().find((item) => item.sequence === sequence);
+        if (!binding) return false;
+        return Boolean(binding.listSize) || sampleHasObjectList(binding.simulatedResponse);
+    }
+
     /** Open the designer with prepared samples. No Data API call and no credits. */
     startBlankTemplate(options?: { restore?: boolean }): void {
         const origin = this.step();
@@ -4885,7 +4910,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const features = this.selectedFeatures();
         const previous = this.simulatedBindings();
         const stillThere = (binding: SimulatedEndpointBinding) =>
-            features.some((feature) => feature.code === binding.appFeatureCode || feature._id === binding.appFeatureId);
+            features.some(
+                (feature) =>
+                    (feature._id && feature._id === binding.appFeatureId) ||
+                    (feature.code && binding.appFeatureCode && feature.code === binding.appFeatureCode)
+            );
         for (const removed of previous.filter((binding) => !stillThere(binding))) {
             this.layoutSections.update((list) => removeReportSectionsForSequence(list, removed.sequence));
         }
@@ -4906,7 +4935,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (!current || current.availability === availability || !current.appFeatureCode) return;
         try {
             const detail = await firstValueFrom(
-                this._reports.getSimulatedResponse(current.appFeatureCode, availability)
+                this._reports.getSimulatedResponse(
+                    current.appFeatureCode,
+                    availability,
+                    availability === 'data' ? current.listSize : undefined
+                )
             );
             this.simulatedBindings.update((list) =>
                 list.map((item) =>
@@ -4914,6 +4947,37 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         ? {
                               ...item,
                               availability,
+                              simulatedResponse: detail.sample,
+                              responseOutline: detail.outline ?? item.responseOutline,
+                          }
+                        : item
+                )
+            );
+            this._applySimulatedSession(true);
+        } catch {
+            this._snack.open(this._transloco.translate('visitaGuide.simulatedSampleFailed'), undefined, {
+                duration: 4000,
+            });
+        }
+    }
+
+    /** Repeat the prepared lists so a PDF can be tested with 5, 10, or 20 rows. Does not call the Data API. */
+    async setSimulatedListSize(sequence: number, listSize: number | null): Promise<void> {
+        const current = this.simulatedBindings().find((item) => item.sequence === sequence);
+        if (!current?.appFeatureCode) return;
+        const nextSize = listSize ?? undefined;
+        if ((current.listSize ?? undefined) === nextSize && current.availability === 'data') return;
+        try {
+            const detail = await firstValueFrom(
+                this._reports.getSimulatedResponse(current.appFeatureCode, 'data', nextSize)
+            );
+            this.simulatedBindings.update((list) =>
+                list.map((item) =>
+                    item.sequence === sequence
+                        ? {
+                              ...item,
+                              availability: 'data' as const,
+                              listSize: nextSize,
                               simulatedResponse: detail.sample,
                               responseOutline: detail.outline ?? item.responseOutline,
                           }
@@ -5070,35 +5134,56 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const featureId = this._featureIdForStepSequence(card.sequence);
-        const feature = this.selectedFeatures().find((item) => item._id === featureId);
-        if (!featureId || !feature) return;
-
-        const removedSequence = card.sequence;
+        const sequence = Number(card.sequence);
+        const feature = this._featureForLayoutCard(card);
+        const featureId = feature?._id || this._featureIdForStepSequence(sequence);
+        const removedName = feature ? this.featureDisplayName(feature) : card.label;
         const previousFeatures = this.selectedFeatures();
         const previousGraph = this._state.flowGraph();
+        const previousConfig = this.configuration();
+        const previousBindings = this.simulatedBindings();
+        const previousSections = this.layoutSections();
+        const previousBatch = this.batch();
+        const previousRetained = this.retainedConsult();
+        const previousExternal = this.externalPreview();
+        const previousTemplate = this.selectedTemplate();
 
         this.isRemovingLayoutConsult.set(true);
 
         try {
-            this.layoutSections.update((list) => removeReportSectionsForSequence(list, removedSequence));
-            this._clearSheetImageRulesForSequence(removedSequence);
-
-            const next = previousFeatures.filter((item) => item._id !== featureId);
-            this._state.selectedFeatures.set(next);
-            this._state.flowGraph.set(removeFlowNode(previousGraph, featureId));
+            this.layoutSections.update((list) => removeReportSectionsForSequence(list, sequence));
+            this._clearSheetImageRulesForSequence(sequence);
+            this._state.selectedFeatures.set(
+                previousFeatures.filter((item) => {
+                    if (featureId && item._id === featureId) return false;
+                    return !(card.code && item.code === card.code && !featureId);
+                })
+            );
+            this._state.flowGraph.set(this._graphWithoutConsult(previousGraph, featureId, card.code));
+            if (previousConfig) {
+                this._state.configuration.set({
+                    ...previousConfig,
+                    steps: (previousConfig.steps ?? []).filter((item) => Number(item.sequence) !== sequence),
+                });
+            }
+            this.simulatedBindings.set(
+                previousBindings.filter((item) => {
+                    if (Number(item.sequence) === sequence) return false;
+                    if (featureId && item.appFeatureId === featureId) return false;
+                    return !(card.code && item.appFeatureCode === card.code && !featureId);
+                })
+            );
+            this._forgetConsultResults(sequence);
 
             if (this.designSource() === 'simulated') {
-                await this._syncSimulatedBindingsFromSelection();
+                this._applySimulatedSession(true);
             } else {
-                await this._ensureLinkedConfiguration();
+                await this._persistConsultRemoval();
             }
             this.ensureIncludeItems();
 
             this._snack.open(
-                this._transloco.translate('visitaGuide.layoutConsultRemoved', {
-                    name: this.featureDisplayName(feature),
-                }),
+                this._transloco.translate('visitaGuide.layoutConsultRemoved', { name: removedName }),
                 undefined,
                 { duration: 4000 }
             );
@@ -5106,12 +5191,114 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             console.error('[VisitaGuide] could not remove consult from layout', error);
             this._state.selectedFeatures.set(previousFeatures);
             this._state.flowGraph.set(previousGraph);
+            this._state.configuration.set(previousConfig);
+            this.simulatedBindings.set(previousBindings);
+            this.layoutSections.set(previousSections);
+            this._state.batch.set(previousBatch);
+            this.retainedConsult.set(previousRetained);
+            this.externalPreview.set(previousExternal);
+            this._state.selectedTemplate.set(previousTemplate);
             this._snack.open(this._transloco.translate('visitaGuide.layoutConsultRemoveFailed'), undefined, {
                 duration: 5000,
             });
         } finally {
             this.isRemovingLayoutConsult.set(false);
         }
+    }
+
+    /** The endpoint behind a sidebar card, even when the saved selection no longer lists it. */
+    private _featureForLayoutCard(card: GuideResultCard): AppFeature | undefined {
+        const step = (this.configuration()?.steps ?? []).find((item) => Number(item.sequence) === Number(card.sequence));
+        const featureId = batchStepFeatureId(step);
+        const selected = this.selectedFeatures();
+        const fromSelection =
+            (featureId ? selected.find((item) => item._id === featureId) : undefined) ||
+            (card.code ? selected.find((item) => item.code === card.code) : undefined);
+        if (fromSelection) return fromSelection;
+        if (step && typeof step.appFeature === 'object' && step.appFeature) return step.appFeature;
+        const binding = this.simulatedBindings().find((item) => Number(item.sequence) === Number(card.sequence));
+        return binding ? featureForBinding(binding, this.availableFeatures()) : undefined;
+    }
+
+    private _graphWithoutConsult(graph: FlowGraph, featureId: string | undefined, code: string | undefined): FlowGraph {
+        let next = featureId ? removeFlowNode(graph, featureId) : graph;
+        const stray = endpointNodes(next).find(
+            (node) => (featureId && (node.id === featureId || node.feature?._id === featureId)) || (code && node.feature?.code === code)
+        );
+        return stray ? removeFlowNode(next, stray.id) : next;
+    }
+
+    private _forgetConsultResults(sequence: number): void {
+        const drop = (results: Record<string | number, unknown> | undefined) => purgeResultSequence(results, sequence);
+        const batch = this._state.batch();
+        if (batch?.rows?.length) {
+            this._state.batch.set({
+                ...batch,
+                rows: batch.rows.map((row) => ({
+                    ...row,
+                    results: drop(row.results as Record<string | number, unknown>) as typeof row.results,
+                })),
+            });
+        }
+        const external = this.externalPreview();
+        if (external?.results) {
+            this.externalPreview.set({
+                ...external,
+                results: drop(external.results as Record<string | number, unknown>),
+            });
+        }
+        const retained = this.retainedConsult();
+        if (retained?.results) {
+            this.retainedConsult.set({
+                ...retained,
+                results: drop(retained.results as Record<string | number, unknown>),
+            });
+        }
+        const template = this.selectedTemplate();
+        const sample = template?.sampleData;
+        if (sample?.results) {
+            this._state.selectedTemplate.set({
+                ...template!,
+                sampleData: {
+                    ...sample,
+                    results: drop(sample.results as Record<string | number, unknown>),
+                },
+            });
+        }
+    }
+
+    /** Save the shorter step list. A later reload must not put the consult back. */
+    private async _persistConsultRemoval(): Promise<void> {
+        const steps = orderedBatchSteps(this.configuration()?.steps);
+        const features = steps.flatMap((step) => {
+            if (typeof step.appFeature === 'object' && step.appFeature?._id) return [step.appFeature];
+            const id = batchStepFeatureId(step);
+            const found = id ? this.selectedFeatures().find((item) => item._id === id) : undefined;
+            return found ? [found] : [];
+        });
+        if (features.length) {
+            this._state.selectedFeatures.set(features);
+            await this._ensureLinkedConfiguration();
+            return;
+        }
+
+        const configId = this._state.configId();
+        if (!configId) return;
+        const graph = this._state.flowGraph();
+        const patch: Partial<BatchConfiguration> = {
+            steps,
+            executor: this.executor() === 'browser' ? 'browser' : 'queue',
+        };
+        if (endpointNodes(graph).length) patch.visitaFlow = serializeVisitaFlow(graph);
+        let updated;
+        try {
+            updated = await firstValueFrom(this._batch.updateConfiguration(configId, patch));
+        } catch {
+            const { visitaFlow: _ignored, ...rest } = patch;
+            updated = await firstValueFrom(this._batch.updateConfiguration(configId, rest));
+        }
+        this._state.configuration.set(updated.data);
+        if (endpointNodes(graph).length) writeStoredFlow(configId, graph);
     }
 
     private _featureIdForStepSequence(sequence: number): string | undefined {
@@ -7531,7 +7718,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             }
         }
         const hidden = new Set(section.hiddenKeys ?? []);
-        const visible = keys.filter((key) => !hidden.has(key)).slice(0, section.maxColumns || 6);
+        const visible = keys.filter((key) => !hidden.has(key));
         const concealed = keys.filter((key) => hidden.has(key));
         return [...visible, ...concealed].map((key) => ({ key, label: humanizeParamKey(key) }));
     }
@@ -8467,7 +8654,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this.inputValues()[key] ?? '';
     }
 
-    async generatePdf(_printHtmlOverride?: string | null): Promise<void> {
+    async generatePdf(_printHtmlOverride?: string | null, listSize?: number | null): Promise<void> {
         this.isGenerating.set(true);
         try {
             const template = await this._persistWorkingTemplate();
@@ -8476,7 +8663,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             const engine = this.pdfEngine() === 'pdfkit' ? 'pdfkit' : 'puppeteer';
             const batchId = this._state.batchId();
             const rowIndex = Number(this.previewData()['rowIndex']);
-            const printHtml = _printHtmlOverride ?? (await this._printHtmlForCurrentRecord());
+            const probed = Boolean(listSize);
+            const printHtml = probed
+                ? await this._printHtmlForListProbe(Number(listSize))
+                : (_printHtmlOverride ?? (await this._printHtmlForCurrentRecord()));
+            const sampleData = probed ? this.printPreviewData() : this.previewData();
+            const fileName = `${this.fileBaseName()}${probed ? `-tabla-${listSize}` : ''}.pdf`;
             if (batchId) {
                 const report = await firstValueFrom(
                     this._reports.createReport({
@@ -8495,7 +8687,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 if (!result.pdf?.buffer) throw new Error('pdf');
                 const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
                 this._state.pdfDataUrl.set(dataUrl);
-                this.downloadDataUrl(dataUrl, `${this.fileBaseName()}.pdf`);
+                this.downloadDataUrl(dataUrl, fileName);
                 this._snack.open(this._transloco.translate('visitaGuide.pdfReady'), undefined, {
                     duration: 3000,
                 });
@@ -8503,13 +8695,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             }
             const blob = await firstValueFrom(
                 this._reports.downloadTemplateSample(template._id, {
-                    sampleData: this.previewData(),
+                    sampleData,
                     ...(printHtml ? { printHtml } : {}),
                 })
             );
             const url = URL.createObjectURL(blob);
             this._state.pdfDataUrl.set(url);
-            this.downloadDataUrl(url, `${this.fileBaseName()}.pdf`);
+            this.downloadDataUrl(url, fileName);
             this._snack.open(this._transloco.translate('visitaGuide.pdfReady'), undefined, {
                 duration: 3000,
             });
@@ -8518,8 +8710,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 duration: 4000,
             });
         } finally {
+            this.sampleProbeSize.set(null);
             this.isGenerating.set(false);
         }
+    }
+
+    private async _printHtmlForListProbe(listSize: number): Promise<string | undefined> {
+        const capture = (): string | null =>
+            this._previews?.toArray().find((item) => item.printCapture())?.exportPrintHtml() ?? null;
+        this._cdr.detectChanges();
+        const before = capture();
+        this.sampleProbeSize.set(listSize);
+        let latest: string | null = null;
+        for (let attempt = 0; attempt < 16; attempt += 1) {
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            this._cdr.detectChanges();
+            latest = capture();
+            if (latest?.includes('<html') && latest !== before) return latest;
+        }
+        return latest ?? before ?? undefined;
     }
 
     private async _printHtmlForCurrentRecord(): Promise<string | undefined> {

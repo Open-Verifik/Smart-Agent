@@ -165,6 +165,31 @@ export function reportPaperSizePx(
             .layer-quiet * {
                 pointer-events: none !important;
             }
+            table {
+                table-layout: fixed !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            th,
+            td {
+                min-width: 0;
+                max-width: 100%;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
+            }
+            td {
+                overflow: hidden;
+            }
+            th [data-sheet-text],
+            td [data-sheet-text] {
+                display: block !important;
+                width: auto !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                white-space: pre-wrap !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
+            }
             [data-report-page] {
                 border-radius: 0 !important;
             }
@@ -4642,7 +4667,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         }
 
         const columns = keys.filter((key) => !hidden.has(key) && !isAutoOmittedParamKey(key));
-        const capped = this.fullContent() ? columns : columns.slice(0, section.maxColumns || 6);
+        const limit = Number(section.maxColumns);
+        const capped = limit > 0 ? columns.slice(0, limit) : columns;
         return capped.map((key) => ({ key, label: this._humanize(key) }));
     }
 
@@ -5324,7 +5350,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/>${fontHeadMarkup(this.template()?.customFonts)}<style>
 @page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
 html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
-.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;border-radius:0;break-after:avoid;page-break-after:avoid;break-inside:avoid;page-break-inside:avoid}
+.print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;border-radius:0;break-after:avoid;page-break-after:avoid}
+.print-sheet table{table-layout:fixed;width:100%;max-width:100%}
+.print-sheet th,.print-sheet td{overflow-wrap:anywhere;word-break:break-word;min-width:0}
 .print-sheet [data-report-page-inner]{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;box-sizing:border-box}
 .print-sheet [data-report-footer]{position:absolute;left:0;right:0;bottom:0;width:100%;top:auto}
 .print-sheet [data-report-top-chrome]{position:absolute;left:0;right:0;top:0;width:100%;bottom:auto}
