@@ -4270,6 +4270,14 @@
                                 "about": "Official registry for personal insolvency proceedings of non-merchant individuals. This endpoint checks whether an individual has initiated insolvency, debt negotiation, or judicial liquidation filings."
                             }
                         },
+                        "peru": {
+                            "pep": {
+                                "title": "Politically Exposed Persons (PEP — SBS 2660-2015)",
+                                "description": "Screens Peruvian citizens (DNI/CE) and full names against the SBS Resolution 4349-2016 / 02868-2025 PEP registry with a 2-year former-PEP look-back.",
+                                "source": "Source · SBS / Official Public Declarations Registry",
+                                "about": "Screens individuals against Peruvian Politically Exposed Person (PEP) categories a–m under SBS Resolution N° 2660-2015, N° 4349-2016, and N° 02868-2025, including current high-ranking officials and former officials within the mandatory 2-year post-cessation look-back window."
+                            }
+                        },
                         "interpol": {
                             "title": "INTERPOL notices",
                             "description": "Screens international notices and wanted-person records.",

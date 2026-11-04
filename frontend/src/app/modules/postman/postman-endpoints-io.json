@@ -24557,6 +24557,171 @@
           }
         }
       ]
+    },
+    {
+      "code": "peru_api_pep",
+      "name": "Peru — Politically Exposed Persons (PEP) Screening (SBS 2660-2015)",
+      "nameES": "Perú — Consulta de Personas Expuestas Políticamente (PEP) (SBS 2660-2015)",
+      "country": "Peru",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/pe/politically-exposed-persons",
+      "description": "Screen Peruvian citizens (DNI), foreign residents (CE), and full names against the SBS Resolution 2660-2015 / 4349-2016 / 02868-2025 PEP registry with a 2-year former-PEP look-back window.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "DNI",
+              "CE"
+            ]
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false
+          },
+          {
+            "field": "includeFormer",
+            "type": "Boolean",
+            "required": false
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Document type: `DNI` (default) or `CE`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Peruvian DNI (8 digits) or Carné de Extranjería (CE) number (sample: 06256217). Required if `fullName` is omitted."
+          },
+          {
+            "field": "fullName",
+            "description": "Full name of the person to screen (sample: DINA ERCILIA BOLUARTE ZEGARRA). Required if `documentNumber` is omitted."
+          },
+          {
+            "field": "includeFormer",
+            "description": "Include former officials within the 2-year post-cessation look-back window under SBS Resolution 4349-2016 / 02868-2025 (default: `true`)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Hit)",
+          "body": {
+            "data": {
+              "documentType": "DNI",
+              "documentNumber": "06256217",
+              "fullName": "DINA ERCILIA BOLUARTE ZEGARRA",
+              "isPEP": true,
+              "includeFormer": true,
+              "lookbackYears": 2,
+              "matchCount": 1,
+              "matches": [
+                {
+                  "fullName": "DINA ERCILIA BOLUARTE ZEGARRA",
+                  "documentType": "DNI",
+                  "documentNumber": "06256217",
+                  "position": "PRESIDENTA DE LA REPÚBLICA DEL PERÚ",
+                  "entity": "PRESIDENCIA DE LA REPÚBLICA - DESPACHO PRESIDENCIAL",
+                  "category": "a",
+                  "categoryDescription": "Presidentes, jefes de estado o cargos similares",
+                  "startDate": "2022-12-07",
+                  "endDate": null,
+                  "lastSeenYear": 2025,
+                  "isActive": true,
+                  "withinTwoYearWindow": true,
+                  "source": "Contraloría General de la República (DDJJ Ley 27482 / DJI Ley 31227)",
+                  "sourceUrl": "https://appdji.contraloria.gob.pe/djic/ConsultaPublicaDJIC.aspx",
+                  "matchScore": 100,
+                  "lastUpdated": "2026-11-04T19:00:00.000Z"
+                }
+              ],
+              "checkedSources": [
+                "Verifik Peru PEP Registry (SBS 4349-2016 / 02868-2025)",
+                "Contraloría General de la República - DDJJ (Ley 27482)",
+                "Contraloría General de la República - DJI (Ley 31227)",
+                "Portal del Estado Peruano - Directorio de Funcionarios (gob.pe)",
+                "Congreso de la República del Perú / OpenSanctions"
+              ],
+              "dateTime": "2026-11-04T19:00:00.000Z"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "November 4, 2026 7:00 PM"
+            },
+            "id": "PEPEP01"
+          }
+        },
+        {
+          "status": "200",
+          "label": "200 (Clean)",
+          "body": {
+            "data": {
+              "documentType": "DNI",
+              "documentNumber": "10000009",
+              "fullName": "PATRICIA CAROLINA DIAZ REYES",
+              "isPEP": false,
+              "includeFormer": true,
+              "lookbackYears": 2,
+              "matchCount": 0,
+              "matches": [],
+              "checkedSources": [
+                "Verifik Peru PEP Registry (SBS 4349-2016 / 02868-2025)",
+                "Contraloría General de la República - DDJJ (Ley 27482)",
+                "Contraloría General de la República - DJI (Ley 31227)",
+                "Portal del Estado Peruano - Directorio de Funcionarios (gob.pe)",
+                "Congreso de la República del Perú / OpenSanctions"
+              ],
+              "dateTime": "2026-11-04T19:00:00.000Z"
+            },
+            "signature": {
+              "message": "Certified by Verifik.co",
+              "dateTime": "November 4, 2026 7:00 PM"
+            },
+            "id": "PEPEP02"
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "Either documentNumber or fullName must be provided."
+          }
+        }
+      ]
     }
   ]
 }

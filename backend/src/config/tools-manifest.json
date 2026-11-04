@@ -4716,6 +4716,42 @@
 			}
 		},
 		{
+			"id": "peru_api_pep",
+			"name": "Peru - Politically Exposed Persons (PEP) Screening",
+			"category": "Peru - Politically Exposed Persons (PEP) Screening",
+			"url": "https://ai.verifik.co/api/v2/pe/politically-exposed-persons",
+			"verifikPath": "/v2/pe/politically-exposed-persons",
+			"method": "GET",
+			"description": "Screen Peruvian citizens (DNI), foreign residents (CE), and full names against the SBS Resolution 2660-2015 / 4349-2016 / 02868-2025 PEP registry with a 2-year former-PEP look-back.",
+			"country": "Peru",
+			"priceUsd": 0.2,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Document type (DNI or CE)",
+						"enum": [
+							"DNI",
+							"CE"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Peruvian DNI (8 digits) or CE number"
+					},
+					"fullName": {
+						"type": "string",
+						"description": "Full name of the person to screen"
+					},
+					"includeFormer": {
+						"type": "boolean",
+						"description": "Include former officials within the 2-year look-back window (default: true)"
+					}
+				}
+			}
+		},
+		{
 			"id": "document-liveness",
 			"name": "Document Liveness Detection",
 			"category": "Global - Document Liveness Detection",

@@ -5809,4 +5809,30 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "owners"
         ]
     },
+    "peru_api_pep": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "includeFormer"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPEP",
+            "includeFormer",
+            "lookbackYears",
+            "matchCount",
+            "matches",
+            "checkedSources",
+            "dateTime"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "DNI",
+                "CE"
+            ]
+        }
+    },
 };
