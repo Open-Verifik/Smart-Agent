@@ -844,6 +844,10 @@
             "title": "Peruvian Business Verification",
             "description": "Validate Peruvian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
         },
+        "peru_api_pep": {
+            "title": "Peruvian Politically Exposed Persons (PEP) Screening",
+            "description": "Screen Peruvian citizens (DNI/CE) and full names against the SBS Resolution 2660-2015 / 4349-2016 / 02868-2025 PEP registry with a 2-year former-PEP look-back via GET /v2/pe/politically-exposed-persons."
+        },
         "face_recognition_detect_face": {
             "title": "Face Detection",
             "description": "Provides reliable verification and validation services."
