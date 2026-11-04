@@ -929,7 +929,8 @@ a,
 
 .page:not(.compact) {
     display: grid;
-    place-items: center;
+    place-content: center;
+    justify-items: center;
     background: var(--style-page, #e8ebe6);
     padding: 20px 14px;
 }
@@ -995,4 +996,57 @@ a,
     .page .progress span {
         transition: none;
     }
+}
+
+/* Privacy policy reads as a link: underlined, with room to breathe */
+.meta a {
+    color: var(--style-ink, var(--title));
+    font-size: 15px;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.meta a:hover {
+    text-decoration-thickness: 2px;
+}
+
+/* The language picker sits outside the card: it is not part of the verification flow */
+.lang-foot {
+    display: flex;
+    justify-content: center;
+    padding: 14px 0 6px;
+}
+
+.lang-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--style-ink, var(--title));
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.lang-btn:hover {
+    opacity: 1;
+    background: rgba(127, 127, 127, 0.14);
+}
+
+.lang-btn:focus-visible {
+    opacity: 1;
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.lang-btn svg {
+    width: 18px;
+    height: 18px;
 }

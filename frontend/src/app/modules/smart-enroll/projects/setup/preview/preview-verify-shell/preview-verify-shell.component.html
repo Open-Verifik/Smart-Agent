@@ -82,23 +82,11 @@
                         </li>
                     </ul>
                     <p class="meta">
-                        <a
-                            *ngIf="privacyUrl"
-                            [href]="privacyUrl"
-                            target="_blank"
-                            rel="noopener"
-                            >{{ t('smart_enroll.verify.privacyPolicy') }}</a
-                        >
-                        <button
-                            *ngIf="!privacyUrl"
-                            type="button"
-                            class="link inline"
-                        >
-                            {{ t('smart_enroll.verify.privacyPolicy') }}
-                        </button>
-                        <button type="button" class="link inline" (click)="openSheet('language')">
-                            {{ activeLanguageLabel }}
-                        </button>
+                        @if (privacyUrl) {
+                            <a [href]="privacyUrl" target="_blank" rel="noopener">{{ t('smart_enroll.verify.privacyPolicy') }}</a>
+                        } @else {
+                            <a href="javascript:void(0)" role="link">{{ t('smart_enroll.verify.privacyPolicy') }}</a>
+                        }
                     </p>
                     <button type="button" class="primary" (click)="nextScreen()">
                         {{ t('smart_enroll.verify.agree') }}
@@ -327,6 +315,13 @@
                 </div>
             </div>
         </section>
+
+        <footer class="lang-foot">
+            <button type="button" class="lang-btn" (click)="openSheet('language')" [attr.aria-label]="t('smart_enroll.verify.languageTitle')">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>
+                <span>{{ activeLanguageLabel }}</span>
+            </button>
+        </footer>
 
         <!-- Bottom Sheets (mirrored 1:1 from VerifyShellComponent) -->
         @if (sheet) {
