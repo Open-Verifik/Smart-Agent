@@ -24867,6 +24867,342 @@
           "notes": []
         }
       }
+    },
+    {
+      "code": "brazil_api_pep",
+      "name": "Brazil — Politically Exposed Persons (PEP) Screening (COAF 40/2021)",
+      "nameES": "Brasil — Consulta de Personas Expuestas Políticamente (PEP) (COAF 40/2021)",
+      "country": "Brazil",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/br/politically-exposed-persons",
+      "description": "Screen Brazilian CPF numbers and full names against the official PEP registry under COAF Resolution 40/2021 and Decreto 10.889/2021 with mandatory 5-year grace period lookback.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to CPF search)",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: CPF",
+            "enum": [
+              "CPF"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "cpf",
+            "type": "String",
+            "required": false,
+            "description": "Brazilian CPF number (11 digits, required if not using fullName)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Brazilian CPF number (alias for cpf, required if not using fullName)",
+            "dependencyGroup": "1"
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "cpf",
+            "description": "Brazilian CPF number (11 digits, formatted `000.000.000-00` or raw digits)."
+          },
+          {
+            "field": "documentType",
+            "description": "Document type: `CPF`."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Brazilian CPF number (alias for cpf)."
+          },
+          {
+            "field": "fullName",
+            "description": "Instead of CPF, you can pass the full legal name directly (sample: LUIZ INACIO LULA DA SILVA)."
+          },
+          {
+            "field": "includeFormer",
+            "description": "Include former officials within the 5-year post-cessation look-back window under COAF Resolução 40/2021 Art. 3° (default: `true`)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Hit)",
+          "body": {
+            "data": {
+              "documentType": "CPF",
+              "documentNumber": "00068093800",
+              "fullName": "LUIZ INACIO LULA DA SILVA",
+              "isPep": true,
+              "isActivePep": true,
+              "isFormerPep": false,
+              "totalMatches": 1,
+              "categories": [
+                "I"
+              ],
+              "includeFormer": true,
+              "matches": [
+                {
+                  "fullName": "LUIZ INACIO LULA DA SILVA",
+                  "cpfMasked": "***.680.938-**",
+                  "cpfMiddle": "680938",
+                  "position": "PRESIDENTE DA REPUBLICA",
+                  "entity": "PRESIDENCIA DA REPUBLICA",
+                  "category": "I",
+                  "categoryLabel": "President and Vice-President of the Republic, Ministers of State, and equivalent Executive Branch leadership",
+                  "categoryLabelEs": "Presidente y Vicepresidente de la República, Ministros de Estado y cargos equivalentes del Poder Ejecutivo Federal",
+                  "categoryLabelPt": "Presidente e Vice-Presidente da República, Ministros de Estado e cargos equivalentes do Poder Executivo Federal",
+                  "roleLevel": "MINISTRO/PRESIDENTE",
+                  "startDate": "2023-01-01",
+                  "endDate": null,
+                  "gracePeriodEnd": null,
+                  "status": "ACTIVE",
+                  "isPep": true,
+                  "isActivePep": true,
+                  "isFormerPep": false,
+                  "withinLookbackWindow": false,
+                  "source": "PORTAL DA TRANSPARÊNCIA / CONTROLADORIA-GERAL DA UNIÃO (CGU)",
+                  "sourceUrl": "https://portaldatransparencia.gov.br/download-de-dados/pep"
+                }
+              ],
+              "regulation": {
+                "framework": "COAF Resolução N° 40/2021 / Decreto N° 10.889/2021",
+                "lookbackYears": 5,
+                "authority": "Conselho de Controle de Atividades Financeiras (COAF) / CGU"
+              },
+              "valid": true
+            },
+            "signature": {
+              "dateTime": "November 4, 2026 7:30 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "200-clean",
+          "label": "200 (Clean Record / Non-PEP)",
+          "body": {
+            "data": {
+              "documentType": "CPF",
+              "documentNumber": "10000000009",
+              "fullName": "JOAO SILVA OLIVEIRA",
+              "isPep": false,
+              "isActivePep": false,
+              "isFormerPep": false,
+              "totalMatches": 0,
+              "categories": [],
+              "includeFormer": true,
+              "matches": [],
+              "regulation": {
+                "framework": "COAF Resolução N° 40/2021 / Decreto N° 10.889/2021",
+                "lookbackYears": 5,
+                "authority": "Conselho de Controle de Atividades Financeiras (COAF) / CGU"
+              },
+              "valid": true
+            },
+            "signature": {
+              "dateTime": "November 4, 2026 7:30 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404",
+          "body": {
+            "code": "NotFound",
+            "message": "Record not found."
+          }
+        },
+        {
+          "status": "409",
+          "label": "409",
+          "body": {
+            "code": "MissingParameter",
+            "message": "Either cpf (or documentNumber) or fullName must be provided."
+          }
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Brazil — Politically Exposed Persons (PEP / COAF Resolução 40/2021)",
+          "description": "Screen Brazilian CPF numbers and full names against the official PEP registry under COAF Resolution 40/2021 and Decreto 10.889/2021 with mandatory 5-year grace period lookback.",
+          "overview": "Screen Brazilian **CPF** (*Cadastro de Pessoas Físicas*) numbers or **full legal names** against the consolidated Brazilian Politically Exposed Persons (PEP) registry for **PLD/FT** (*Prevenção à Lavagem de Dinheiro e ao Financiamento do Terrorismo*) compliance under:\n\n- **COAF Resolução N° 40/2021** (*Conselho de Controle de Atividades Financeiras*)\n- **Decreto N° 10.889/2021** (Sistema Eletrônico de Informações sobre PEP e Agentes Públicos)\n- Mandatory **5-year grace period / lookback window** (*período de carência* under Art. 3° da Resolução COAF N° 40/2021) following the cessation of public functions.\n\n---",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "cpf",
+              "description": "Brazilian CPF number (11 digits, formatted `000.000.000-00` or raw digits). Required if `fullName` is omitted."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Alias for `cpf`. Peruvian/international standard document parameter."
+            },
+            {
+              "field": "documentType",
+              "description": "Document type: `CPF` (default)."
+            },
+            {
+              "field": "fullName",
+              "description": "Full legal name of the individual to screen (e.g., `LUIZ INACIO LULA DA SILVA`). Required if `cpf` / `documentNumber` is omitted."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Include former PEPs (*ex-PEP*) within the 5-year post-cessation look-back window established by COAF Resolução 40/2021 Art. 3°. Defaults to `true`. Set to `false` to return only currently active roles."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "const options = {\n  method: \"GET\",\n  url: \"https://api.verifik.co/v2/br/politically-exposed-persons\",\n  params: {\n    cpf: \"00068093800\",\n    includeFormer: true,\n  },\n  headers: {\n    Accept: \"application/json\",\n    Authorization: \"Bearer <your_token>\",\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(data);\n} catch (error) {\n  console.error(error.response ? error.response.data : error.message);\n}"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "url = \"https://api.verifik.co/v2/br/politically-exposed-persons\"\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <your_token>\"\n}\nparams = {\n    \"cpf\": \"00068093800\",\n    \"includeFormer\": \"true\"\n}\n\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+            },
+            {
+              "lang": "curl",
+              "label": "cURL",
+              "language": "bash",
+              "code": "curl -X GET \"https://api.verifik.co/v2/br/politically-exposed-persons?cpf=00068093800&includeFormer=true\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer <your_token>\""
+            }
+          ],
+          "responses": [
+            {
+              "status": "200-hit",
+              "label": "200 (PEP Match Found)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"CPF\",\n    \"documentNumber\": \"00068093800\",\n    \"fullName\": \"LUIZ INACIO LULA DA SILVA\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\"I\"],\n    \"includeFormer\": true,\n    \"matches\": [\n      {\n        \"fullName\": \"LUIZ INACIO LULA DA SILVA\",\n        \"cpfMasked\": \"***.680.938-**\",\n        \"cpfMiddle\": \"680938\",\n        \"position\": \"PRESIDENTE DA REPUBLICA\",\n        \"entity\": \"PRESIDENCIA DA REPUBLICA\",\n        \"category\": \"I\",\n        \"categoryLabel\": \"President and Vice-President of the Republic, Ministers of State, and equivalent Executive Branch leadership\",\n        \"categoryLabelEs\": \"Presidente y Vicepresidente de la República, Ministros de Estado y cargos equivalentes del Poder Ejecutivo Federal\",\n        \"categoryLabelPt\": \"Presidente e Vice-Presidente da República, Ministros de Estado e cargos equivalentes do Poder Executivo Federal\",\n        \"roleLevel\": \"MINISTRO/PRESIDENTE\",\n        \"startDate\": \"2023-01-01\",\n        \"endDate\": null,\n        \"gracePeriodEnd\": null,\n        \"status\": \"ACTIVE\",\n        \"isPep\": true,\n        \"isActivePep\": true,\n        \"isFormerPep\": false,\n        \"withinLookbackWindow\": false,\n        \"source\": \"PORTAL DA TRANSPARÊNCIA / CONTROLADORIA-GERAL DA UNIÃO (CGU)\",\n        \"sourceUrl\": \"https://portaldatransparencia.gov.br/download-de-dados/pep\"\n      }\n    ],\n    \"regulation\": {\n      \"framework\": \"COAF Resolução N° 40/2021 / Decreto N° 10.889/2021\",\n      \"lookbackYears\": 5,\n      \"authority\": \"Conselho de Controle de Atividades Financeiras (COAF) / CGU\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:30 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "200-clean",
+              "label": "200 (Clean Record / Non-PEP)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"CPF\",\n    \"documentNumber\": \"10000000009\",\n    \"fullName\": \"JOAO SILVA OLIVEIRA\",\n    \"isPep\": false,\n    \"isActivePep\": false,\n    \"isFormerPep\": false,\n    \"totalMatches\": 0,\n    \"categories\": [],\n    \"includeFormer\": true,\n    \"matches\": [],\n    \"regulation\": {\n      \"framework\": \"COAF Resolução N° 40/2021 / Decreto N° 10.889/2021\",\n      \"lookbackYears\": 5,\n      \"authority\": \"Conselho de Controle de Atividades Financeiras (COAF) / CGU\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:30 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Validation Error)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing cpf or fullName\\n.At least one of cpf (or documentNumber) or fullName is required\"\n}"
+            }
+          ],
+          "notes": []
+        },
+        "es": {
+          "title": "Brasil — Personas Expuestas Políticamente (PEP / COAF Resolução 40/2021)",
+          "description": "Consulta en tiempo real de Personas Expuestas Políticamente (PEP) en Brasil por CPF o nombre completo bajo la Resolución COAF N° 40/2021 y el Decreto N° 10.889/2021 (PLD/FT).",
+          "overview": "Verifik ofrece acceso programático al directorio consolidado de **Personas Expuestas Políticamente (PEP)** en la República Federativa de Brasil, permitiendo a las instituciones financieras, fintechs, aseguradoras y sujetos obligados ante el **COAF / BACEN / CVM / SUSEP** realizar debida diligencia reforzada de contrapartes, clientes y directivos conforme a:\n\n- **COAF Resolução N° 40/2021** (*Conselho de Controle de Atividades Financeiras*)\n- **Decreto Presidencial N° 10.889/2021** (Sistema Eletrônico de Informações sobre PEP e Agentes Públicos)\n- Ventana obligatoria de **5 años posteriores al cese en el cargo público** (*período de carência* según el Art. 3° de la Resolução COAF N° 40/2021) durante el cual la condición de PEP se mantiene vigente para efectos de cumplimiento PLD/FT.\n\n---\n\n- **Cumplimiento PLD/FT / COAF / BACEN:** Identificación inmediata de clientes o beneficiarios finales bajo régimen reforzado de debida diligencia según la normativa financiera brasileña.\n- **Onboarding Digital Fintech:** Verificación automática mediante el número de **CPF** o **nombre completo** durante el proceso de apertura de cuentas o emisión de crédito.\n- **Debida Diligencia Corporativa y Proveedores:** Detección de altos cargos del Poder Ejecutivo, Congreso Nacional, Gobernadores, Alcaldes (*Prefeitos*), Concejales (*Vereadores*), jueces y directivos de empresas públicas estatales (Petrobras, Banco do Brasil, BNDES, Caixa Econômica Federal).\n\n---",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": "Formato de respuesta JSON"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": "Token JWT de autenticación en Verifik"
+            }
+          ],
+          "params": [
+            {
+              "field": "cpf",
+              "description": "Número de CPF brasileño (11 dígitos, formateado `000.000.000-00` o solo dígitos numéricos). Requerido si no se envía `fullName`."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Alias de `cpf` para estandarización de consultas."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: `CPF` (predeterminado)."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre legal completo de la persona a consultar (ej. `LUIZ INACIO LULA DA SILVA`). Requerido si no se envía `cpf` o `documentNumber`."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Incluye ex-funcionarios (*ex-PEP*) dentro de la ventana de 5 años posteriores al cese (*período de carência*) establecida por la Resolução COAF N° 40/2021. Valor predeterminado: `true`. Envíe `false` para filtrar únicamente cargos actualmente activos."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js (JavaScript)",
+              "language": "javascript",
+              "code": "const options = {\n  method: \"GET\",\n  url: \"https://api.verifik.co/v2/br/politically-exposed-persons\",\n  params: {\n    cpf: \"00068093800\",\n    includeFormer: true,\n  },\n  headers: {\n    Accept: \"application/json\",\n    Authorization: \"Bearer <tu_token>\",\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(JSON.stringify(data, null, 2));\n} catch (error) {\n  console.error(\"Error al consultar PEP Brasil:\", error.response?.data || error.message);\n}"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "url = \"https://api.verifik.co/v2/br/politically-exposed-persons\"\n\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <tu_token>\"\n}\n\nparams = {\n    \"cpf\": \"00068093800\",\n    \"includeFormer\": \"true\"\n}\n\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+            },
+            {
+              "lang": "curl",
+              "label": "cURL",
+              "language": "bash",
+              "code": "curl -X GET \"https://api.verifik.co/v2/br/politically-exposed-persons?cpf=00068093800&includeFormer=true\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer <tu_token>\""
+            }
+          ],
+          "responses": [
+            {
+              "status": "200-hit",
+              "label": "200 (Coincidencia PEP Encontrada)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"CPF\",\n    \"documentNumber\": \"00068093800\",\n    \"fullName\": \"LUIZ INACIO LULA DA SILVA\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\"I\"],\n    \"includeFormer\": true,\n    \"matches\": [\n      {\n        \"fullName\": \"LUIZ INACIO LULA DA SILVA\",\n        \"cpfMasked\": \"***.680.938-**\",\n        \"cpfMiddle\": \"680938\",\n        \"position\": \"PRESIDENTE DA REPUBLICA\",\n        \"entity\": \"PRESIDENCIA DA REPUBLICA\",\n        \"category\": \"I\",\n        \"categoryLabel\": \"President and Vice-President of the Republic, Ministers of State, and equivalent Executive Branch leadership\",\n        \"categoryLabelEs\": \"Presidente y Vicepresidente de la República, Ministros de Estado y cargos equivalentes del Poder Ejecutivo Federal\",\n        \"categoryLabelPt\": \"Presidente e Vice-Presidente da República, Ministros de Estado e cargos equivalentes do Poder Executivo Federal\",\n        \"roleLevel\": \"MINISTRO/PRESIDENTE\",\n        \"startDate\": \"2023-01-01\",\n        \"endDate\": null,\n        \"gracePeriodEnd\": null,\n        \"status\": \"ACTIVE\",\n        \"isPep\": true,\n        \"isActivePep\": true,\n        \"isFormerPep\": false,\n        \"withinLookbackWindow\": false,\n        \"source\": \"PORTAL DA TRANSPARÊNCIA / CONTROLADORIA-GERAL DA UNIÃO (CGU)\",\n        \"sourceUrl\": \"https://portaldatransparencia.gov.br/download-de-dados/pep\"\n      }\n    ],\n    \"regulation\": {\n      \"framework\": \"COAF Resolução N° 40/2021 / Decreto N° 10.889/2021\",\n      \"lookbackYears\": 5,\n      \"authority\": \"Conselho de Controle de Atividades Financeiras (COAF) / CGU\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:30 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "200-clean",
+              "label": "200 (Sin Coincidencias / No PEP)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"CPF\",\n    \"documentNumber\": \"10000000009\",\n    \"fullName\": \"JOAO SILVA OLIVEIRA\",\n    \"isPep\": false,\n    \"isActivePep\": false,\n    \"isFormerPep\": false,\n    \"totalMatches\": 0,\n    \"categories\": [],\n    \"includeFormer\": true,\n    \"matches\": [],\n    \"regulation\": {\n      \"framework\": \"COAF Resolução N° 40/2021 / Decreto N° 10.889/2021\",\n      \"lookbackYears\": 5,\n      \"authority\": \"Conselho de Controle de Atividades Financeiras (COAF) / CGU\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:30 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Error de Validación)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing cpf or fullName\\n.At least one of cpf (or documentNumber) or fullName is required\"\n}"
+            }
+          ],
+          "notes": []
+        }
+      }
     }
   ]
 }

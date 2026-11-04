@@ -4760,6 +4760,14 @@
                                 "about": "Evalúa si una persona califica como Persona Expuesta Políticamente (PEP) en el Perú conforme a las categorías a–m del Anexo de la Resolución SBS N° 4349-2016 y N° 02868-2025 (Reglamento SPLAFT Res. SBS N° 2660-2015), incluyendo cargos vigentes y exfuncionarios dentro de los 2 años posteriores al cese."
                             }
                         },
+                        "brazil": {
+                            "pep": {
+                                "title": "Personas Expuestas Políticamente (PEP — COAF 40/2021)",
+                                "description": "Consulta CPF brasileños y nombres en el padrón PEP bajo la Resolución COAF N° 40/2021 con ventana de 5 años para ex-PEP.",
+                                "source": "Fuente · Portal de la Transparencia / CGU",
+                                "about": "Evalúa si una persona califica como Persona Expuesta Políticamente (PEP) en Brasil conforme a la Resolución COAF N° 40/2021 y el Decreto N° 10.889/2021, abarcando cargos vigentes y exfuncionarios durante los 5 años posteriores al cese en la función pública."
+                            }
+                        },
                         "interpol": {
                             "title": "Notificaciones de INTERPOL",
                             "description": "Consulta notificaciones internacionales y registros de personas buscadas.",

@@ -4,6 +4,7 @@
  */
 import { PostmanSandboxEndpointConfig, PostmanSandboxProfile } from '../postman-sandbox.types';
 import {
+    appendSandboxResponseProfiles,
     SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
     SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
 } from '../sandbox-error-profiles';
@@ -16,6 +17,7 @@ export const BRAZIL_IDENTITY_ENDPOINT_CODE = 'brasil_api_identity_lookup';
 export const BRAZIL_VEHICLE_ENDPOINT_CODE = 'brasil_api_vehicle';
 export const BRAZIL_COMPANY_ENDPOINT_CODE = 'brasil_api_company_lookup';
 export const BRAZIL_CRIMINAL_HISTORY_ENDPOINT_CODE = 'brasil_api_criminal_history';
+export const BRAZIL_PEP_ENDPOINT_CODE = 'brazil_api_pep';
 
 const BRAZIL_CRIMINAL_DEMO_CPF = '01234567801';
 const BRAZIL_CRIMINAL_DEMO_DATE_OF_BIRTH = '17/02/2002';
@@ -196,6 +198,64 @@ export const BRAZIL_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         defaultDateOfBirth: BRAZIL_CRIMINAL_DEMO_DATE_OF_BIRTH,
         documentTypeByCode: {
             [BRAZIL_CRIMINAL_HISTORY_ENDPOINT_CODE]: 'CPF',
+        },
+        showProfileMeta: false,
+    },
+    [BRAZIL_PEP_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '00068093800',
+                    fullName: 'LUIZ INACIO LULA DA SILVA — Presidente (Cat. I)',
+                    paramOverrides: {
+                        documentType: 'CPF',
+                        cpf: '00068093800',
+                        documentNumber: '00068093800',
+                        fullName: 'LUIZ INACIO LULA DA SILVA',
+                        includeFormer: 'true',
+                    },
+                },
+                {
+                    documentNumber: '00033117800',
+                    fullName: 'FERNANDO HADDAD — Ministro da Fazenda (Cat. I)',
+                    paramOverrides: {
+                        documentType: 'CPF',
+                        cpf: '00033117800',
+                        documentNumber: '00033117800',
+                        fullName: 'FERNANDO HADDAD',
+                        includeFormer: 'true',
+                    },
+                },
+                {
+                    documentNumber: '00076850800',
+                    fullName: 'MIGUEL MOUBADDA HADDAD — Ex-PEP (Carência 5 anos)',
+                    paramOverrides: {
+                        documentType: 'CPF',
+                        cpf: '00076850800',
+                        documentNumber: '00076850800',
+                        fullName: 'MIGUEL MOUBADDA HADDAD',
+                        includeFormer: 'true',
+                    },
+                },
+                {
+                    documentNumber: '10000000009',
+                    fullName: 'JOAO SILVA OLIVEIRA — Limpo / Não PEP',
+                    paramOverrides: {
+                        documentType: 'CPF',
+                        cpf: '10000000009',
+                        documentNumber: '10000000009',
+                        fullName: 'JOAO SILVA OLIVEIRA',
+                        includeFormer: 'true',
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER, BRAZIL_CONFLICT_INVALID_DOCUMENT_TYPE],
+            }
+        ),
+        defaultDocumentNumber: '00068093800',
+        documentTypeByCode: {
+            [BRAZIL_PEP_ENDPOINT_CODE]: 'CPF',
         },
         showProfileMeta: false,
     },

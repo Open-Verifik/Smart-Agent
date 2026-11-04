@@ -198,6 +198,10 @@ export const criminalCheckDocs: Record<string, CriminalCheckDocs> = {
         en: '/background-check/peru-politically-exposed-persons',
         es: '/verifik-es/background-check/peru-politically-exposed-persons',
     },
+    brazil_api_pep: {
+        en: '/background-check/brazil-politically-exposed-persons',
+        es: '/verifik-es/background-check/brazil-politically-exposed-persons',
+    },
 };
 
 export const criminalCheckDocsUrl = (docs: CriminalCheckDocs, lang: string): string => {

@@ -5834,4 +5834,32 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "brazil_api_pep": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "cpf",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "includeFormer",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CPF"
+            ]
+        }
+    },
 };

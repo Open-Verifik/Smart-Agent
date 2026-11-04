@@ -4278,6 +4278,14 @@
                                 "about": "Screens individuals against Peruvian Politically Exposed Person (PEP) categories a–m under SBS Resolution N° 2660-2015, N° 4349-2016, and N° 02868-2025, including current high-ranking officials and former officials within the mandatory 2-year post-cessation look-back window."
                             }
                         },
+                        "brazil": {
+                            "pep": {
+                                "title": "Politically Exposed Persons (PEP — COAF 40/2021)",
+                                "description": "Screens Brazilian CPF numbers and full names against the official PEP registry under COAF Resolution 40/2021 with a 5-year grace period lookback.",
+                                "source": "Source · Portal da Transparência / CGU",
+                                "about": "Screens individuals against Brazilian Politically Exposed Person (PEP) categories I–IX under COAF Resolution N° 40/2021 and Decreto N° 10.889/2021, covering active high-ranking officials and former officials within the mandatory 5-year post-cessation look-back window."
+                            }
+                        },
                         "interpol": {
                             "title": "INTERPOL notices",
                             "description": "Screens international notices and wanted-person records.",

@@ -111,6 +111,9 @@ export class HumanAuthnDocumentsStepComponent implements OnInit {
     readonly peruSources: CriminalCheckOption[] = [
         this._checkOption('peru_api_pep', 'peru.pep'),
     ];
+    readonly brazilSources: CriminalCheckOption[] = [
+        this._checkOption('brazil_api_pep', 'brazil.pep'),
+    ];
 
     selectedCheck: CriminalCheckOption | null = null;
 
@@ -147,6 +150,7 @@ export class HumanAuthnDocumentsStepComponent implements OnInit {
         return buildCountryCheckSections(countries, {
             colombia: this.colombiaSources,
             peru: this.peruSources,
+            brazil: this.brazilSources,
         });
     }
 

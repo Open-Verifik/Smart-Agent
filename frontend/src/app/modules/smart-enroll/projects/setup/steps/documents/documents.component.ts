@@ -144,6 +144,10 @@ export class SetupDocumentsComponent implements OnInit {
         this._checkOption('peru_api_pep', 'peru.pep'),
     ];
 
+    readonly brazilSources: CriminalCheckOption[] = [
+        this._checkOption('brazil_api_pep', 'brazil.pep'),
+    ];
+
     private readonly _legacyColombiaSources = ['colombia_api_inpec', 'colombia_api_identity_lookup_procuraduria'];
 
     readonly attemptOptions: number[] = [1, 2, 3, 4, 5];
@@ -175,6 +179,7 @@ export class SetupDocumentsComponent implements OnInit {
         return buildCountryCheckSections(countries, {
             colombia: this.colombiaSources,
             peru: this.peruSources,
+            brazil: this.brazilSources,
         });
     }
 

@@ -645,6 +645,9 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             peru_api_pep: this._transloco.translate(
                 'smartEnrollProjects.setup.documents.screening.checks.peru.pep.title'
             ),
+            brazil_api_pep: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.brazil.pep.title'
+            ),
         };
         return map[value] ?? value;
     }

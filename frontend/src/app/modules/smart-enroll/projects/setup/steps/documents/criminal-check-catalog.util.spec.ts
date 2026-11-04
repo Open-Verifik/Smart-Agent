@@ -71,6 +71,7 @@ describe('criminal check catalog', () => {
             'colombia_api_sicaac_insolvency',
             'colombia_special_api_police_identity_lookup',
             'peru_api_pep',
+            'brazil_api_pep',
             'world_api_cia_world_leaders',
             'world_api_csl',
             'world_api_dea',
