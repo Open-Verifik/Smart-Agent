@@ -1,4 +1,4 @@
-export const POSTMAN_ENDPOINT_DETAIL_CACHE_KEY = 'smartAgent_postmanEndpointDetails';
+export const POSTMAN_ENDPOINT_DETAIL_CACHE_KEY = 'smartAgent_postmanEndpointDetails_v3';
 export const POSTMAN_ENDPOINT_DETAIL_CACHE_LIMIT = 20;
 export const POSTMAN_ENDPOINT_DETAIL_CACHE_TTL_MS = 30 * 60 * 1000;
 
@@ -11,7 +11,7 @@ type CacheEntry = {
 };
 
 type CachePayload = {
-    v: 1;
+    v: 3;
     entries: CacheEntry[];
 };
 
@@ -48,7 +48,7 @@ const readPayload = (storage: PostmanEndpointDetailCacheStorage): CacheEntry[] =
     try {
         const raw = storage.getItem(POSTMAN_ENDPOINT_DETAIL_CACHE_KEY);
         const parsed = raw ? (JSON.parse(raw) as CachePayload) : null;
-        const entries = parsed?.v === 1 && Array.isArray(parsed.entries) ? parsed.entries : [];
+        const entries = parsed?.v === 3 && Array.isArray(parsed.entries) ? parsed.entries : [];
         memoryByStorage.set(storage, entries);
         return entries;
     } catch {
@@ -60,7 +60,7 @@ const readPayload = (storage: PostmanEndpointDetailCacheStorage): CacheEntry[] =
 const persist = (storage: PostmanEndpointDetailCacheStorage, entries: CacheEntry[]): void => {
     memoryByStorage.set(storage, entries);
     try {
-        storage.setItem(POSTMAN_ENDPOINT_DETAIL_CACHE_KEY, JSON.stringify({ v: 1, entries }));
+        storage.setItem(POSTMAN_ENDPOINT_DETAIL_CACHE_KEY, JSON.stringify({ v: 3, entries }));
     } catch {
         // Quota or private-mode writes should not break endpoint selection.
     }
