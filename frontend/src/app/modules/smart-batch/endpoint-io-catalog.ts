@@ -5811,10 +5811,9 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
     },
     "peru_api_pep": {
         "inputs": [
-            "documentType",
-            "documentNumber",
             "fullName",
-            "includeFormer"
+            "documentType",
+            "documentNumber"
         ],
         "outputs": [
             "documentType",
