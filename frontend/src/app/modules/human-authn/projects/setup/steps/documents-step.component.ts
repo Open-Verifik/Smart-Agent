@@ -108,6 +108,9 @@ export class HumanAuthnDocumentsStepComponent implements OnInit {
         this._checkOption('colombia_api_sicaac_cases', 'colombia.sicaacCases'),
         this._checkOption('colombia_api_sicaac_insolvency', 'colombia.sicaacInsolvency'),
     ];
+    readonly peruSources: CriminalCheckOption[] = [
+        this._checkOption('peru_api_pep', 'peru.pep'),
+    ];
 
     selectedCheck: CriminalCheckOption | null = null;
 
@@ -141,7 +144,10 @@ export class HumanAuthnDocumentsStepComponent implements OnInit {
         const countries = this.documentTypesFormArray?.controls
             .map((control) => String(control.get('country')?.value || '').trim())
             .filter(Boolean) || [];
-        return buildCountryCheckSections(countries, { colombia: this.colombiaSources });
+        return buildCountryCheckSections(countries, {
+            colombia: this.colombiaSources,
+            peru: this.peruSources,
+        });
     }
 
     get configuredCountriesCount(): number {

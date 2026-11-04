@@ -194,6 +194,10 @@ export const criminalCheckDocs: Record<string, CriminalCheckDocs> = {
         en: '/legal/colombia-sicaac-cases',
         es: '/verifik-es/legal/colombia-sicaac-cases',
     },
+    peru_api_pep: {
+        en: '/background-check/peru-politically-exposed-persons',
+        es: '/verifik-es/background-check/peru-politically-exposed-persons',
+    },
 };
 
 export const criminalCheckDocsUrl = (docs: CriminalCheckDocs, lang: string): string => {

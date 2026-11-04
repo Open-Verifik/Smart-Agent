@@ -642,6 +642,9 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             colombia_api_sicaac_insolvency: this._transloco.translate(
                 'smartEnrollProjects.setup.documents.screening.checks.colombia.sicaacInsolvency.title'
             ),
+            peru_api_pep: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.peru.pep.title'
+            ),
         };
         return map[value] ?? value;
     }

@@ -140,6 +140,10 @@ export class SetupDocumentsComponent implements OnInit {
         this._checkOption('colombia_api_sicaac_insolvency', 'colombia.sicaacInsolvency'),
     ];
 
+    readonly peruSources: CriminalCheckOption[] = [
+        this._checkOption('peru_api_pep', 'peru.pep'),
+    ];
+
     private readonly _legacyColombiaSources = ['colombia_api_inpec', 'colombia_api_identity_lookup_procuraduria'];
 
     readonly attemptOptions: number[] = [1, 2, 3, 4, 5];
@@ -168,7 +172,10 @@ export class SetupDocumentsComponent implements OnInit {
             .map((control) => String(control.get('country')?.value || '').trim())
             .filter(Boolean) || [];
 
-        return buildCountryCheckSections(countries, { colombia: this.colombiaSources });
+        return buildCountryCheckSections(countries, {
+            colombia: this.colombiaSources,
+            peru: this.peruSources,
+        });
     }
 
     get documentTypesFormArray(): FormArray | null {

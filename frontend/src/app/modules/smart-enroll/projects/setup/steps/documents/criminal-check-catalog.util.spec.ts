@@ -58,7 +58,7 @@ describe('criminal check catalog', () => {
     });
 
     it('maps every catalog code to English and Spanish documentation', () => {
-        expect(Object.keys(criminalCheckDocs).length).toBe(29);
+        expect(Object.keys(criminalCheckDocs).length).toBe(30);
         expect(Object.keys(criminalCheckDocs).sort()).toEqual([
             'colombia_api_adverse_media',
             'colombia_api_identity_lookup_procuraduria',
@@ -70,6 +70,7 @@ describe('criminal check catalog', () => {
             'colombia_api_sicaac_cases',
             'colombia_api_sicaac_insolvency',
             'colombia_special_api_police_identity_lookup',
+            'peru_api_pep',
             'world_api_cia_world_leaders',
             'world_api_csl',
             'world_api_dea',
