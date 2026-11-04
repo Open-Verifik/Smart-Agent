@@ -1082,3 +1082,26 @@ a,
     outline: 2px solid currentColor;
     outline-offset: -2px;
 }
+
+/* Illustrations replace the old empty bordered squares */
+.id-icon,
+.bust {
+    width: auto;
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    display: grid;
+    place-items: center;
+    margin-bottom: 8px;
+    color: var(--style-ink, var(--title));
+}
+
+.id-icon svg {
+    width: 128px;
+    height: auto;
+}
+
+.bust svg {
+    width: 96px;
+    height: auto;
+}

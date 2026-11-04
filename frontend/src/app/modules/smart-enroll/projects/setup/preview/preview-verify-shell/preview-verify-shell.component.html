@@ -206,13 +206,7 @@
 
                 <!-- 4. Get Ready to Scan Screen -->
                 <div *ngSwitchCase="'ready'" class="center">
-                    <div class="id-icon" aria-hidden="true">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                            <rect x="2" y="5" width="20" height="14" rx="2" />
-                            <circle cx="8" cy="12" r="2" />
-                            <path d="M13 10h6M13 14h4" />
-                        </svg>
-                    </div>
+                    <div class="id-icon" aria-hidden="true"><svg viewBox="0 0 120 84" role="img" aria-hidden="true"><rect x="2" y="2" width="116" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2.5" /><rect x="14" y="20" width="34" height="42" rx="6" fill="none" stroke="currentColor" stroke-width="2.5" /><circle cx="31" cy="35" r="7" fill="none" stroke="currentColor" stroke-width="2.5" /><path d="M19 58c1-8 6-12 12-12s11 4 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /><path d="M60 26h46M60 38h34M60 50h22" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.55" /><rect x="90" y="56" width="18" height="12" rx="3" fill="var(--style-cta, currentColor)" stroke="currentColor" stroke-width="2" /></svg></div>
                     <h1>{{ t('smart_enroll.verify.readyTitle') }}</h1>
                     <p>{{ t('smart_enroll.verify.readyBody') }}</p>
                     <button type="button" class="primary" (click)="nextScreen()">
