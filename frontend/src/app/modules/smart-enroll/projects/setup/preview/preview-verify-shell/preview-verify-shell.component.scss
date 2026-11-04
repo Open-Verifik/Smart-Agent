@@ -1050,3 +1050,35 @@ a,
     width: 18px;
     height: 18px;
 }
+
+/* Sheet rows: one divider per row (on the <li>), and the whole row is the tap target */
+.sheet-rows li {
+    padding: 0;
+    border-bottom: 1px solid var(--style-line, #e8ebe6);
+}
+
+.sheet-rows li:last-child {
+    border-bottom: 0;
+}
+
+.sheet-rows button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 52px;
+    padding: 0;
+    border: 0;
+    text-align: left;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+
+.sheet-rows button:hover {
+    background: rgba(127, 127, 127, 0.08);
+}
+
+.sheet-rows button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+}
