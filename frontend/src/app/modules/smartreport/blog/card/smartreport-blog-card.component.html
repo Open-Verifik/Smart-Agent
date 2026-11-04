@@ -1,0 +1,33 @@
+<a class="srbc" [routerLink]="['/smartreport/blog', post.slug]">
+    <div class="srbc__cover">
+        <img
+            *ngIf="post.image"
+            [src]="post.image"
+            [alt]="post.imageAlt || post.title"
+            loading="lazy"
+        />
+        <span class="srbc__category" *ngIf="post.categories.length">{{ post.categories[0] }}</span>
+    </div>
+
+    <div class="srbc__avatar">
+        <img
+            *ngIf="photo && !photoFailed; else initialsTpl"
+            [src]="photo"
+            [alt]="post.author"
+            loading="lazy"
+            (error)="photoFailed = true"
+        />
+        <ng-template #initialsTpl
+            ><span>{{ initials }}</span></ng-template
+        >
+    </div>
+
+    <div class="srbc__body">
+        <h3>{{ post.title }}</h3>
+        <p class="srbc__meta">
+            <span>{{ post.author }}</span>
+            <span class="srbc__dot" aria-hidden="true">•</span>
+            <time [attr.datetime]="post.date">{{ date }}</time>
+        </p>
+    </div>
+</a>

@@ -1,0 +1,355 @@
+<div class="sr">
+    <!-- Hero -->
+    <section class="sr-hero" id="consulta">
+        <div class="sr-grid-pattern" aria-hidden="true"></div>
+
+        <smartreport-header></smartreport-header>
+
+        <div class="sr-hero__content">
+            <span class="sr-hero__badge"><span>New</span>smartREPORT</span>
+            <h1>Consulta vehículos, personas <br />y teléfonos desde un solo lugar</h1>
+            <p class="sr-hero__lead">
+                Ingresa una placa, una cédula o un número de teléfono y consulta la información
+                disponible en nuestras fuentes. <br />
+                Recibe los resultados organizados en un reporte claro para revisar los datos que
+                necesitas.
+            </p>
+        </div>
+
+        <ng-container *ngTemplateOutlet="searchBar"></ng-container>
+
+        <div class="sr-stats">
+            <div class="sr-stat" *ngFor="let stat of stats">
+                <img class="sr-stat__laurel" [src]="icons + 'laurel-blue.svg'" alt="" />
+                <div>
+                    <strong>{{ stat.value }}</strong>
+                    <span>{{ stat.label }}</span>
+                </div>
+                <img
+                    class="sr-stat__laurel sr-stat__laurel--right"
+                    [src]="icons + 'laurel-blue.svg'"
+                    alt=""
+                />
+            </div>
+        </div>
+    </section>
+
+    <!-- Query types + steps -->
+    <section class="sr-services">
+        <div class="sr-grid-pattern sr-grid-pattern--tall" aria-hidden="true"></div>
+
+        <div class="sr-titles">
+            <span class="sr-marker">servicios</span>
+            <h2>Tres tipos de consulta.<br />Una sola experiencia.</h2>
+            <p>
+                Elige el tipo de información que necesitas revisar y realiza tu consulta a partir
+                del dato que ya tienes.
+            </p>
+        </div>
+
+        <div class="sr-row">
+            <article class="sr-type" *ngFor="let type of queryTypes">
+                <div class="sr-type__preview">
+                    <div class="sr-mock">
+                        <div class="sr-mock__label">
+                            <span class="sr-mock__icon sr-mock__icon--blue"
+                                ><img [src]="icons + type.labelIcon + '.svg'" alt=""
+                            /></span>
+                            {{ type.label }}
+                        </div>
+                        <div class="sr-mock__rows">
+                            <div class="sr-mock__row" *ngFor="let row of type.rows">
+                                <span class="sr-mock__icon"
+                                    ><img [src]="icons + row.icon + '.svg'" alt=""
+                                /></span>
+                                <div>
+                                    <p>{{ row.label }}</p>
+                                    <span class="sr-mock__bar"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="sr-mock__button">Consultar</span>
+                    </div>
+                </div>
+                <div class="sr-type__copy">
+                    <span class="sr-tag">{{ type.tag }}</span>
+                    <h3>{{ type.title }}</h3>
+                    <p>{{ type.text }}</p>
+                </div>
+            </article>
+        </div>
+
+        <div class="sr-steps" id="como-funciona">
+            <div class="sr-titles sr-titles--left">
+                <span class="sr-marker">Como funciona</span>
+                <h2>Genera tu smartREPORT<br />en 3 pasos</h2>
+            </div>
+            <div class="sr-row">
+                <article class="sr-step" *ngFor="let step of steps; let i = index">
+                    <span class="sr-step__number">0{{ i + 1 }}</span>
+                    <div>
+                        <h3>{{ step.title }}</h3>
+                        <p>{{ step.text }}</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits -->
+    <section class="sr-section sr-benefits">
+        <div class="sr-titles">
+            <span class="sr-marker">Beneficios</span>
+            <h2>¿Por qué utilizar smartREPORT?</h2>
+            <p class="sr-titles__wide">
+                smartREPORT reúne los resultados de tu consulta y los presenta de forma clara para
+                que puedas revisar los datos sin saltar entre distintas fuentes.
+            </p>
+        </div>
+        <div class="sr-row">
+            <article class="sr-benefit" *ngFor="let benefit of benefits">
+                <span class="sr-benefit__icon"
+                    ><img [src]="icons + benefit.icon + '.svg'" alt=""
+                /></span>
+                <div>
+                    <h3>{{ benefit.title }}</h3>
+                    <p>{{ benefit.text }}</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Sources -->
+    <section class="sr-sources">
+        <div class="sr-titles">
+            <span class="sr-marker">Beneficios</span>
+            <h2>Información conectada<br />con múltiples fuentes</h2>
+            <p class="sr-titles__wide">
+                smartREPORT consulta distintas fuentes según el tipo de búsqueda y el país,
+                ampliando la información disponible para cada reporte
+            </p>
+        </div>
+        <div class="sr-sources__row">
+            <article class="sr-sources__card">
+                <div class="sr-sources__visual sr-hub" aria-hidden="true">
+                    <svg class="sr-hub__lines" viewBox="0 0 612 370" preserveAspectRatio="none">
+                        <line x1="114.2" y1="151.8" x2="263" y2="232.5" />
+                        <line x1="349" y1="310.5" x2="497.8" y2="391.2" />
+                        <line x1="497.8" y1="151.8" x2="349" y2="232.5" />
+                        <line x1="114.2" y1="391.2" x2="263" y2="310.5" />
+                        <line x1="307.6" y1="110.7" x2="307.6" y2="225.5" />
+                        <line x1="307.6" y1="314.7" x2="307.6" y2="429.5" />
+                    </svg>
+                    <span class="sr-hub__icon" style="left: 6.16%; top: 29.06%"
+                        ><img [src]="icons + 'car-blue.svg'" alt=""
+                    /></span>
+                    <span class="sr-hub__icon" style="left: 44.01%; top: 8.38%"
+                        ><img [src]="icons + 'clock-blue.svg'" alt=""
+                    /></span>
+                    <span class="sr-hub__icon sr-hub__icon--count" style="left: 81.34%; top: 29.06%"
+                        >+50</span
+                    >
+                    <span class="sr-hub__icon" style="left: 6.16%; top: 95.4%"
+                        ><img [src]="icons + 'user-blue.svg'" alt=""
+                    /></span>
+                    <span class="sr-hub__icon" style="left: 81.34%; top: 95.4%"
+                        ><img [src]="icons + 'clock-blue.svg'" alt=""
+                    /></span>
+                    <span class="sr-hub__icon" style="left: 44.01%; top: 116.08%"
+                        ><img [src]="icons + 'car-blue.svg'" alt=""
+                    /></span>
+                    <span class="sr-hub__center"
+                        ><img [src]="icons + 'verifik-mark-white.svg'" alt=""
+                    /></span>
+                </div>
+                <h3>Más de 50 fuentes para distintas necesidades de consulta</h3>
+                <p>
+                    Accede a información proveniente de múltiples fuentes para complementar tus
+                    consultas de vehículos, personas y teléfonos.
+                </p>
+            </article>
+            <article class="sr-sources__card">
+                <div class="sr-sources__visual sr-sources__visual--free" aria-hidden="true">
+                    <div class="sr-free">
+                        <div class="sr-free__bar">
+                            <div class="sr-search__tabs">
+                                <span class="sr-search__tab sr-search__tab--active"
+                                    ><img [src]="icons + 'car-blue.svg'" alt="" />Vehículo</span
+                                >
+                                <span class="sr-search__tab"
+                                    ><img [src]="icons + 'users-grey.svg'" alt="" />Persona</span
+                                >
+                                <span class="sr-search__tab"
+                                    ><img [src]="icons + 'phone-grey.svg'" alt="" />Teléfono</span
+                                >
+                            </div>
+                            <div class="sr-search__form sr-free__faded">
+                                <span class="sr-search__input"
+                                    ><img [src]="icons + 'search-grey.svg'" alt="" />Ingresa la
+                                    placa</span
+                                >
+                                <span class="sr-btn"
+                                    >Consultar <img [src]="icons + 'arrow-right-white.svg'" alt=""
+                                /></span>
+                            </div>
+                        </div>
+                        <span class="sr-btn sr-btn--green"
+                            >Consultar Gratis <img [src]="icons + 'arrow-right-white.svg'" alt=""
+                        /></span>
+                    </div>
+                </div>
+                <h3>Consulta Gratis</h3>
+                <p>Previsualiza el reporte antes de comprarlo.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- Use cases -->
+    <section class="sr-section">
+        <div class="sr-titles">
+            <span class="sr-marker">Casos de Uso</span>
+            <h2 class="sr-titles__case">
+                Consulta cuando necesites más información antes de decidir
+            </h2>
+        </div>
+        <div class="sr-row sr-row--tight">
+            <article class="sr-case" *ngFor="let useCase of useCases">
+                <img
+                    class="sr-case__image"
+                    [src]="images + useCase.image"
+                    [alt]="useCase.title"
+                    [style.object-position]="useCase.position"
+                />
+                <span class="sr-tag">{{ useCase.tag }}</span>
+                <div>
+                    <h3>{{ useCase.title }}</h3>
+                    <p>{{ useCase.text }}</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="sr-section sr-faq">
+        <div class="sr-faq__intro">
+            <div class="sr-titles sr-titles--left">
+                <span class="sr-marker">FAQ</span>
+                <h2>Preguntas frecuentes</h2>
+            </div>
+            <p>
+                smartREPORT te permite consultar información de vehículos, personas y teléfonos
+                desde una sola experiencia. Encuentra aquí respuestas sobre cómo funcionan las
+                consultas, qué datos necesitas, qué información puedes recibir y la cobertura
+                disponible según cada servicio.
+            </p>
+        </div>
+        <div class="sr-faq__list">
+            <button
+                class="sr-faq__item"
+                type="button"
+                *ngFor="let faq of faqs; let i = index"
+                (click)="toggleFaq(i)"
+                [attr.aria-expanded]="openFaqs.has(i)"
+            >
+                <span class="sr-faq__number">0{{ i + 1 }}.</span>
+                <span class="sr-faq__text">
+                    <span class="sr-faq__question">{{ faq.question }}</span>
+                    <span class="sr-faq__answer" *ngIf="openFaqs.has(i)">{{ faq.answer }}</span>
+                </span>
+                <img
+                    class="sr-faq__toggle"
+                    [src]="icons + (openFaqs.has(i) ? 'minus-dark.svg' : 'plus-dark.svg')"
+                    alt=""
+                />
+            </button>
+        </div>
+    </section>
+
+    <!-- Blog -->
+    <section class="sr-blog">
+        <div class="sr-titles">
+            <span class="sr-marker">Blogs</span>
+            <h2>Recursos destacados</h2>
+            <p class="sr-titles__wide sr-titles__blog">
+                Descubre los conocimientos especializados de Verifik sobre verificación de
+                identidad, procesos KYC/KYB y tendencias emergentes en la prevención del fraude.
+            </p>
+        </div>
+        <div class="sr-row sr-row--tight">
+            <a class="sr-post" *ngFor="let post of posts" [routerLink]="post.url">
+                <div class="sr-post__media">
+                    <img class="sr-post__image" [src]="post.image" alt="" />
+                    <img
+                        class="sr-post__avatar"
+                        [class.sr-post__avatar--photo]="post.photo"
+                        [src]="post.avatar"
+                        [alt]="post.author"
+                        (error)="post.avatar = images + 'blog-avatar.png'; post.photo = false"
+                    />
+                </div>
+                <div class="sr-post__body">
+                    <h3>{{ post.title }}</h3>
+                    <p class="sr-post__meta">{{ post.author }}<span></span>{{ post.date }}</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="sr-cta">
+        <span class="sr-cta__line sr-cta__line--top" aria-hidden="true"></span>
+        <span class="sr-cta__line sr-cta__line--left" aria-hidden="true"></span>
+        <span class="sr-cta__line sr-cta__line--right" aria-hidden="true"></span>
+        <span class="sr-cta__line sr-cta__line--bottom" aria-hidden="true"></span>
+        <h2>Genere reportes al instante<br />desde $1 USD con smartREPORT</h2>
+        <p>
+            Selecciona Vehículo, Persona o Teléfono, ingresa el dato correspondiente y genera tu
+            smartREPORT.
+        </p>
+        <button class="sr-cta__button" type="button" (click)="scrollTo('consulta')">
+            Hacer consulta <img [src]="icons + 'arrow-right-white.svg'" alt="" />
+        </button>
+    </section>
+
+    <smartreport-footer></smartreport-footer>
+</div>
+
+<ng-template #searchBar>
+    <div class="sr-search">
+        <div class="sr-search__tabs" role="tablist">
+            <button
+                *ngFor="let type of searchTypes"
+                type="button"
+                role="tab"
+                class="sr-search__tab"
+                [class.sr-search__tab--active]="type.id === selectedSearchType"
+                [attr.aria-selected]="type.id === selectedSearchType"
+                (click)="selectSearchType(type.id)"
+            >
+                <img
+                    [src]="
+                        icons +
+                        type.icon +
+                        (type.id === selectedSearchType ? '-blue' : '-grey') +
+                        '.svg'
+                    "
+                    alt=""
+                />
+                {{ type.label }}
+            </button>
+        </div>
+        <form class="sr-search__form" (submit)="$event.preventDefault(); search()">
+            <label class="sr-search__input">
+                <img [src]="icons + 'search-grey.svg'" alt="" />
+                <input
+                    type="text"
+                    [placeholder]="selectedPlaceholder"
+                    [attr.aria-label]="selectedPlaceholder"
+                />
+            </label>
+            <button class="sr-btn" type="submit">
+                Consultar <img [src]="icons + 'arrow-right-white.svg'" alt="" />
+            </button>
+        </form>
+    </div>
+</ng-template>

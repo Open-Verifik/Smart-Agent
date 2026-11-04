@@ -1,0 +1,417 @@
+// Values measured on verifik.co/acerca-de-verifik/ at 1440 (#1099)
+$white: #ffffff;
+$navy: #01236b;
+
+:host {
+    display: block;
+}
+
+.sra {
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    background: #eeeeee;
+    overflow-x: hidden;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p,
+    blockquote {
+        margin: 0;
+    }
+
+    img {
+        display: block;
+    }
+
+    &__header {
+        position: absolute;
+        top: 24px;
+        left: 24px;
+        right: 24px;
+        z-index: 10;
+    }
+}
+
+.sra-tabs {
+    display: flex;
+    align-self: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 80px;
+    background: rgba(255, 255, 255, 0.2);
+
+    button {
+        height: 50px;
+        padding: 0 35px;
+        border: 0;
+        border-radius: 56px;
+        background: transparent;
+        font: inherit;
+        font-size: 16px;
+        font-weight: 600;
+        color: $white;
+        cursor: pointer;
+    }
+
+    .sra-tabs__tab--active {
+        background: #0036e7;
+    }
+}
+
+.sra-hero {
+    display: flex;
+    flex-direction: column;
+    // Johan asked for clear space between the MISIÓN/VISIÓN switcher and the hero text
+    gap: 72px;
+    padding: 172px 114px 114px;
+    background-color: #10131f;
+    background-position: 100% 50%;
+    background-size: cover;
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 479px;
+        color: $white;
+
+        h2 {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 40px;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 28px;
+        }
+    }
+
+    &--center &__content {
+        align-self: center;
+        max-width: 766px;
+        text-align: center;
+    }
+
+    &__author {
+        color: #7a7a7a;
+    }
+}
+
+.sra-title {
+    max-width: 599px;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 48px;
+    letter-spacing: -0.4px;
+    text-align: center;
+    color: $white;
+
+    &--dark {
+        color: $navy;
+    }
+}
+
+.sra-lead {
+    max-width: 599px;
+    font-size: 18px;
+    line-height: 28px;
+    text-align: center;
+    color: $white;
+}
+
+.sra-blue {
+    display: flex;
+    flex-direction: column;
+    gap: 96px;
+    padding: 88px 114px;
+    background-color: #0a1f6b;
+    background-position: 100% 50%;
+    background-size: cover;
+}
+
+.sra-who {
+    padding: 48px;
+    border-radius: 32px;
+    background-color: #1b2a5c;
+    background-position: 100% 50%;
+    background-size: cover;
+
+    &__box {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 352px;
+        padding: 24px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.08);
+
+        h2 {
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 32px;
+            color: $white;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 28px;
+            color: #fff8f8;
+        }
+    }
+}
+
+.sra-values {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+
+    .sra-lead {
+        max-width: 547px;
+        margin-top: -32px;
+        margin-bottom: 10px;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(3, 356px);
+        justify-content: space-between;
+        row-gap: 64px;
+        width: 100%;
+    }
+}
+
+.sra-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    h3 {
+        padding: 6px 16px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 28px;
+        letter-spacing: -0.66px;
+        color: $white;
+    }
+
+    p {
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 22px;
+        color: $white;
+    }
+}
+
+.sra-quote {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 599px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.2);
+
+    h3 {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 24px;
+        color: $white;
+    }
+
+    p {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.49);
+    }
+}
+
+.sra-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+    padding: 88px 114px;
+
+    &__intro {
+        max-width: 599px;
+        margin-top: -32px;
+        text-align: center;
+
+        p {
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 28px;
+            color: #344f8a;
+        }
+    }
+
+    &__grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 48px;
+        max-width: 1008px;
+    }
+}
+
+.sra-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 216px;
+    height: 180px;
+    padding: 0;
+    border-radius: 16px;
+    background: $white;
+    text-align: center;
+
+    img {
+        width: 80px;
+        height: 80px;
+        border-radius: 64px;
+        object-fit: cover;
+    }
+
+    h3 {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -0.42px;
+        color: $navy;
+    }
+
+    p {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+        color: #7f8098;
+    }
+}
+
+.sra-purpose {
+    display: flex;
+
+    .sra-lead {
+        margin-bottom: 14px;
+        font-weight: 500;
+    }
+
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 88px 114px;
+    background-color: #0a1f6b;
+    background-position: center;
+    background-size: cover;
+}
+
+.sra-article {
+    padding: 88px 114px;
+    background: $white;
+
+    > div {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 599px;
+        margin: 0 auto;
+    }
+
+    h2 {
+        font-size: 32px;
+        font-weight: 600;
+        line-height: 32px;
+        color: $navy;
+    }
+
+    p {
+        font-weight: 500;
+        line-height: 28px;
+        color: #677ba7;
+    }
+}
+
+@media (max-width: 1024px) {
+    .sra-hero,
+    .sra-blue,
+    .sra-team,
+    .sra-purpose,
+    .sra-article {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .sra-values__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 48px 32px;
+    }
+}
+
+@media (max-width: 640px) {
+    .sra__header {
+        left: 16px;
+        right: 16px;
+    }
+
+    .sra-hero {
+        gap: 48px;
+        padding: 132px 31px 64px;
+
+        &__content h2 {
+            font-size: 14px;
+        }
+
+        &__content h1 {
+            font-size: 40px;
+            line-height: 40px;
+        }
+    }
+
+    .sra-tabs button {
+        padding: 0 28px;
+    }
+
+    .sra-title {
+        font-size: 28px;
+        line-height: 36px;
+    }
+
+    .sra-blue {
+        gap: 64px;
+        padding-top: 64px;
+        padding-bottom: 64px;
+    }
+
+    .sra-who {
+        padding: 14px;
+
+        &__box h2 {
+            font-size: 22px;
+        }
+    }
+
+    .sra-values__grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .sra-team__grid {
+        flex-direction: column;
+        align-items: center;
+    }
+}
