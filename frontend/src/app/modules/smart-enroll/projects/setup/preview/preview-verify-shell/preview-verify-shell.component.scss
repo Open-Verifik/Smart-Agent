@@ -972,3 +972,27 @@ a,
     width: auto;
     font: inherit;
 }
+
+/* Progress: the track and the filled part need their own colours. Reusing the border colour made the Notebook look
+   (black borders) paint every bar black, so nothing showed how far along the person is. */
+.page .progress span {
+    background: var(--style-progress-track, #e2e2e2);
+    transition: background-color 0.3s ease;
+}
+
+.page .progress span.filled {
+    background: var(--style-progress-fill, var(--style-ink, #000000));
+}
+
+.page.style-a { --style-progress-track: #d6dbd2; }
+.page.style-b { --style-progress-track: #d4d4d4; }
+.page.style-c { --style-progress-track: #e1e5ec; }
+.page.style-d { --style-progress-track: #17314d; }
+.page.style-e { --style-progress-track: #dedcee; }
+.page.style-f { --style-progress-track: #d2d2d2; }
+
+@media (prefers-reduced-motion: reduce) {
+    .page .progress span {
+        transition: none;
+    }
+}
