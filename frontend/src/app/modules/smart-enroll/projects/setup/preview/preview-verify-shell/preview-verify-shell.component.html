@@ -1,0 +1,403 @@
+<ng-container *transloco="let t">
+    <nav class="screen-nav" [attr.aria-label]="t('smart_enroll.preview.title')">
+        @for (item of screens; track item) {
+            <button
+                type="button"
+                [class.active]="activeScreen === item"
+                (click)="selectScreen(item)"
+            >
+                {{ t('smart_enroll.verify.screens.' + item) }}
+            </button>
+        }
+    </nav>
+
+    <div
+        class="page"
+        [class.compact]="deviceType === 'mobile'"
+        [ngClass]="'style-' + styleId"
+        [attr.data-style]="styleId"
+        [style.--style-cta]="branding?.buttonColor || null"
+        [style.--accent]="branding?.buttonColor || null"
+        [style.--style-cta-text]="branding?.buttonTextColor || null"
+        [style.--accent-text]="branding?.buttonTextColor || null"
+        [style.--title]="branding?.titleColor || null"
+        [style.--style-ink]="branding?.titleColor || null"
+        [style.--body]="branding?.textColor || null"
+        [style.--style-body]="branding?.textColor || null"
+        [style.--style-page]="branding?.backgroundColor || null"
+        [style.--style-page-mobile]="branding?.backgroundColor || null"
+    >
+        <section class="card" [class.dimmed]="sheet">
+            <header class="top">
+                <button
+                    type="button"
+                    class="back"
+                    (click)="previousScreen()"
+                    [attr.aria-label]="t('smart_enroll.verify.back')"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </button>
+                <div class="brand">
+                    @if (branding?.logo) {
+                        <img [src]="branding?.logo" [alt]="projectName" />
+                    } @else {
+                        <span>{{ projectName }}</span>
+                    }
+                </div>
+            </header>
+
+            <div class="progress">
+                @for (segment of segments; track segment; let i = $index) {
+                    <span [class.filled]="i <= progressAt"></span>
+                }
+            </div>
+
+            <div class="body" [ngSwitch]="activeScreen">
+                <p class="eyebrow" *ngIf="styleId === 'c' || styleId === 'd'">
+                    {{ t('smart_enroll.verify.eyebrow') }}
+                </p>
+
+                <!-- 1. Identity Consent Screen -->
+                <div *ngSwitchCase="'consent'" class="center">
+                    <h1>{{ t('smart_enroll.verify.consentTitle') }}</h1>
+                    <ul class="rows consent-rows">
+                        <li>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6" /><circle cx="12" cy="12.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 6 9.6 4h4.8l1.1 2" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+                            <span>
+                                {{ t('smart_enroll.verify.consentRow1') }}
+                                <button type="button" class="link inline" (click)="openSheet('acceptedIds')">
+                                    {{ t('smart_enroll.verify.photoId') }}
+                                </button>{{ t('smart_enroll.verify.consentRow1End') }}
+                            </span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+                            <span>{{ t('smart_enroll.verify.consentRow2', { project: projectName }) }}</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="12" cy="10.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M7.8 16.5c.7-2 2.2-3 4.2-3s3.5 1 4.2 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                            <span>{{ t('smart_enroll.verify.consentRow3') }}</span>
+                        </li>
+                    </ul>
+                    <p class="meta">
+                        @if (privacyUrl) {
+                            <a [href]="privacyUrl" target="_blank" rel="noopener">{{ t('smart_enroll.verify.privacyPolicy') }}</a>
+                        } @else {
+                            <a href="javascript:void(0)" role="link">{{ t('smart_enroll.verify.privacyPolicy') }}</a>
+                        }
+                    </p>
+                    <button type="button" class="primary" (click)="nextScreen()">
+                        {{ t('smart_enroll.verify.agree') }}
+                    </button>
+                    <button type="button" class="secondary" (click)="selectScreen('decline')">
+                        {{ t('smart_enroll.verify.decline') }}
+                    </button>
+                </div>
+
+                <!-- Decline Confirmation Screen -->
+                <div *ngSwitchCase="'decline'" class="center">
+                    <div class="icon">!</div>
+                    <h1>{{ t('smart_enroll.verify.declineTitle') }}</h1>
+                    <p>{{ t('smart_enroll.verify.declineBody') }}</p>
+                    <button type="button" class="primary" (click)="selectScreen('consent')">
+                        {{ t('smart_enroll.verify.backToConsent') }}
+                    </button>
+                    <button type="button" class="secondary" (click)="selectScreen('consent')">
+                        {{ t('smart_enroll.verify.goBackToProject', { project: projectName }) }}
+                    </button>
+                </div>
+
+                <!-- 2. Contact / Sign-Up Form Screen -->
+                <div *ngSwitchCase="'contact'" class="form">
+                    <h1>{{ t('smart_enroll.verify.nameTitle') }}</h1>
+
+                    @if (showFullNameSeparate) {
+                        <div class="field-grid">
+                            <label>
+                                {{ t('smart_enroll.verify.firstName') }}
+                                <input type="text" value="Ana" readonly />
+                            </label>
+                            <label>
+                                {{ t('smart_enroll.verify.lastName') }}
+                                <input type="text" value="García" readonly />
+                            </label>
+                        </div>
+                    } @else if (showFullNameTogether) {
+                        <label>
+                            {{ t('smart_enroll.verify.fullName') }}
+                            <input type="text" value="Ana García" readonly />
+                        </label>
+                    }
+
+                    @if (showEmail) {
+                        <label>
+                            {{ t('smart_enroll.verify.emailLabel') }}
+                            <input type="email" value="ana@verifik.co" readonly />
+                        </label>
+                    }
+
+                    @if (showPhone) {
+                        <label>
+                            {{ t('smart_enroll.verify.phoneLabel') }}
+                            <div class="phone-row">
+                                <select aria-label="Country code">
+                                    <option [value]="phoneCountryCode">{{ phoneCountryCode }}</option>
+                                </select>
+                                <input type="tel" value="300 123 4567" readonly />
+                            </div>
+                        </label>
+                        <div class="choices">
+                            <button
+                                type="button"
+                                [class.on]="phoneGateway === 'sms'"
+                                (click)="phoneGateway = 'sms'"
+                            >
+                                {{ t('smart_enroll.verify.sms') }}
+                            </button>
+                            <button
+                                type="button"
+                                [class.on]="phoneGateway === 'whatsapp'"
+                                (click)="phoneGateway = 'whatsapp'"
+                            >
+                                {{ t('smart_enroll.verify.whatsapp') }}
+                            </button>
+                        </div>
+                    }
+
+                    @if (showAgreements) {
+                        <label class="check">
+                            <input type="checkbox" checked readonly />
+                            <span>
+                                {{ t('smart_enroll.verify.agreeTerms') }}
+                                @if (showTerms) {
+                                    <a href="javascript:void(0)">{{ t('smart_enroll.verify.terms') }}</a>
+                                }
+                                @if (showPrivacy) {
+                                    <a href="javascript:void(0)">{{ t('smart_enroll.verify.privacy') }}</a>
+                                }
+                            </span>
+                        </label>
+                    }
+
+                    <button type="button" class="primary" (click)="nextScreen()">
+                        {{ t('smart_enroll.verify.continue') }}
+                    </button>
+                    <button type="button" class="secondary" (click)="selectScreen('consent')">
+                        {{ t('smart_enroll.verify.back') }}
+                    </button>
+                </div>
+
+                <!-- 3. OTP Verification Screen -->
+                <div *ngSwitchCase="'otp'" class="form">
+                    <h1>{{ t('smart_enroll.verify.codeTitle') }}</h1>
+                    <p>{{ t('smart_enroll.verify.codeEmail', { email: 'ana@verifik.co' }) }}</p>
+                    <div class="otp">
+                        @for (digit of otpSample; track $index) {
+                            <input type="text" [value]="digit" maxlength="1" readonly />
+                        }
+                    </div>
+                    <button type="button" class="link">{{ t('smart_enroll.verify.sendAgain') }}</button>
+                    <button type="button" class="primary" (click)="nextScreen()">
+                        {{ t('smart_enroll.verify.continue') }}
+                    </button>
+                </div>
+
+                <!-- 4. Get Ready to Scan Screen -->
+                <div *ngSwitchCase="'ready'" class="center">
+                    <div class="id-icon" aria-hidden="true"><svg viewBox="0 0 120 84" role="img" aria-hidden="true"><rect x="2" y="2" width="116" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2.5" /><rect x="14" y="20" width="34" height="42" rx="6" fill="none" stroke="currentColor" stroke-width="2.5" /><circle cx="31" cy="35" r="7" fill="none" stroke="currentColor" stroke-width="2.5" /><path d="M19 58c1-8 6-12 12-12s11 4 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /><path d="M60 26h46M60 38h34M60 50h22" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.55" /><rect x="90" y="56" width="18" height="12" rx="3" fill="var(--style-cta, currentColor)" stroke="currentColor" stroke-width="2" /></svg></div>
+                    <h1>{{ t('smart_enroll.verify.readyTitle') }}</h1>
+                    <p>{{ t('smart_enroll.verify.readyBody') }}</p>
+                    <button type="button" class="primary" (click)="nextScreen()">
+                        {{ t('smart_enroll.verify.imReady') }}
+                    </button>
+                    <button type="button" class="secondary" (click)="openSheet('document')">
+                        {{ t('smart_enroll.verify.documentTitle') }}
+                    </button>
+                </div>
+
+                <!-- 5. Front of ID Capture Screen -->
+                <div *ngSwitchCase="'front'" class="capture">
+                    <h1>{{ t('smart_enroll.verify.frontTitle') }}</h1>
+                    <div class="modes">
+                        <button
+                            type="button"
+                            [class.on]="captureMode === 'auto'"
+                            (click)="captureMode = 'auto'"
+                        >
+                            {{ t('smart_enroll.verify.auto') }}
+                        </button>
+                        <button
+                            type="button"
+                            [class.on]="captureMode === 'manual'"
+                            (click)="captureMode = 'manual'"
+                        >
+                            {{ t('smart_enroll.verify.manual') }}
+                        </button>
+                    </div>
+                    <div class="well">
+                        <img
+                            class="well-bg"
+                            src="images/ui/placeholders/blurry-street.jpg"
+                            alt=""
+                        />
+                        <div class="guide" aria-hidden="true"></div>
+                        <div class="pill" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M13.5 10.5h4M13.5 13.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg><span>{{ t('smart_enroll.verify.moveId') }}</span></div>
+                        <img
+                            class="well-id"
+                            src="images/ui/placeholders/drivers-license.png"
+                            alt=""
+                        />
+                    </div>
+                    @if (captureMode === 'auto') {
+                        <p>{{ t('smart_enroll.verify.autoHelp') }}</p>
+                    }
+                    @if (captureMode === 'manual') {
+                        <button
+                            type="button"
+                            class="shutter"
+                            (click)="nextScreen()"
+                            [attr.aria-label]="t('smart_enroll.verify.manual')"
+                        ></button>
+                    }
+                    <button type="button" class="link" (click)="openSheet('trouble')">
+                        {{ t('smart_enroll.verify.havingTrouble') }}
+                    </button>
+                </div>
+
+                <!-- 6. Review Front of ID Screen -->
+                <div *ngSwitchCase="'reviewFront'" class="form">
+                    <h1>{{ t('smart_enroll.verify.reviewTitle') }}</h1>
+                    <img
+                        class="preview"
+                        src="images/ui/placeholders/drivers-license.png"
+                        alt=""
+                    />
+                    <p>{{ t('smart_enroll.verify.reviewBody') }}</p>
+                    <button type="button" class="primary" (click)="nextScreen()">
+                        {{ t('smart_enroll.verify.submitPhoto') }}
+                    </button>
+                    <button type="button" class="secondary" (click)="selectScreen('front')">
+                        {{ t('smart_enroll.verify.retake') }}
+                    </button>
+                </div>
+
+                <!-- 7. Verify with a Selfie Screen -->
+                <div *ngSwitchCase="'selfie'" class="center">
+                    <div class="selfie-well">
+                        <img src="images/ui/placeholders/face.png" alt="" />
+                    </div>
+                    <h1>{{ t('smart_enroll.verify.selfieTitle') }}</h1>
+                    <p>{{ t('smart_enroll.verify.selfieBody') }}</p>
+                    <button type="button" class="primary" (click)="nextScreen()">
+                        {{ t('smart_enroll.verify.continue') }}
+                    </button>
+                    <button type="button" class="link" (click)="nextScreen()">
+                        {{ t('smart_enroll.verify.skip') }}
+                    </button>
+                </div>
+
+                <!-- 8. Verification Submitted Screen -->
+                <div *ngSwitchCase="'submitted'" class="center">
+                    <div class="clock" aria-hidden="true">✓</div>
+                    <h1>{{ t('smart_enroll.verify.submittedTitle') }}</h1>
+                    <p>
+                        <button type="button" class="link inline" (click)="selectScreen('consent')">
+                            {{ t('smart_enroll.verify.submittedBody', { project: projectName }) }}
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="lang-foot">
+            <button type="button" class="lang-btn" (click)="openSheet('language')" [attr.aria-label]="t('smart_enroll.verify.languageTitle')">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.5" /></svg>
+                <span>{{ activeLanguageLabel }}</span>
+            </button>
+        </footer>
+
+        <!-- Bottom Sheets (mirrored 1:1 from VerifyShellComponent) -->
+        @if (sheet) {
+            <div class="sheet">
+                @if (sheet === 'acceptedIds') {
+                    <div>
+                        <h2>{{ t('smart_enroll.verify.acceptedTitle') }}</h2>
+                        <p>{{ t('smart_enroll.verify.acceptedBody') }}</p>
+                        <ul class="sheet-rows">
+                            <li>{{ t('smart_enroll.verify.passport') }}</li>
+                            <li>{{ t('smart_enroll.verify.license') }}</li>
+                            <li>{{ t('smart_enroll.verify.nationalId') }}</li>
+                        </ul>
+                    </div>
+                }
+                @if (sheet === 'language') {
+                    <div>
+                        <h2>{{ t('smart_enroll.verify.languageTitle') }}</h2>
+                        <ul class="sheet-rows">
+                            @for (lang of languages; track lang.id) {
+                                <li>
+                                    <button type="button" (click)="selectLanguage(lang.id)">
+                                        <span>{{ lang.label }}</span>
+                                        @if (lang.id === activeLang) {
+                                            <span>✓</span>
+                                        }
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                @if (sheet === 'document') {
+                    <div class="form">
+                        <h2>{{ t('smart_enroll.verify.documentTitle') }}</h2>
+                        <p>{{ t('smart_enroll.verify.documentBody') }}</p>
+                        <label>
+                            {{ t('smart_enroll.verify.country') }}
+                            <select>
+                                <option>Colombia</option>
+                                <option>United States</option>
+                                <option>Mexico</option>
+                            </select>
+                        </label>
+                        <label>
+                            {{ t('smart_enroll.verify.category') }}
+                            <select>
+                                <option>{{ t('smart_enroll.verify.nationalId') }}</option>
+                                <option>{{ t('smart_enroll.verify.passport') }}</option>
+                                <option>{{ t('smart_enroll.verify.license') }}</option>
+                            </select>
+                        </label>
+                    </div>
+                }
+                @if (sheet === 'trouble') {
+                    <div>
+                        <h2>{{ t('smart_enroll.verify.troubleTitle') }}</h2>
+                        <ul class="sheet-rows">
+                            <li>
+                                <button type="button" (click)="closeSheet()">
+                                    {{ t('smart_enroll.verify.anotherDevice') }}
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" (click)="captureMode = 'auto'; closeSheet()">
+                                    {{ t('smart_enroll.verify.captureAuto') }}
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" (click)="closeSheet()">
+                                    {{ t('smart_enroll.verify.selectFile') }}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                <button type="button" class="primary" (click)="closeSheet()">
+                    {{ sheet === 'document' ? t('smart_enroll.verify.continue') : t('smart_enroll.verify.back') }}
+                </button>
+            </div>
+        }
+    </div>
+</ng-container>
+

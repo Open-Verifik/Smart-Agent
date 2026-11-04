@@ -158,7 +158,7 @@ describe('resolveTextRole', () => {
         expect(saved.keyOverrides?.estado?.labelStyle).toBeUndefined();
     });
 
-    it('caps a data table at the six columns the sheet shows by default', () => {
+    it('keeps every column of a data table until the designer sets a limit', () => {
         const block: ReportSection = {
             id: 'tabla',
             type: 'dataTable',
@@ -166,7 +166,7 @@ describe('resolveTextRole', () => {
             label: 'Filas',
         };
         const saved = materializeSectionTypography(block, '#111827');
-        expect(saved.maxColumns).toBe(6);
+        expect(saved.maxColumns).toBeUndefined();
         expect(saved.showRowLines).toBe(true);
         expect(saved.style?.labelStyle?.color).toBe('#6B7280');
         expect(saved.style?.valueStyle?.color).toBe('#111827');

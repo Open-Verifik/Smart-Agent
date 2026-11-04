@@ -9,6 +9,7 @@ import {
     flattenSampleResultsForPdf,
     formatReportCellValue,
     humanizeParamKey,
+    tableDataName,
     isHiddenParamKey,
     layoutParamGroups,
     layoutTableRulesKey,
@@ -75,6 +76,8 @@ describe('humanizeParamKey', () => {
         expect(humanizeParamKey('tipoTarifa')).toBe('Tipo de tarifa');
         expect(displayParamLabel('soat.tipoTarifa', 'Tipo tarifa')).toBe('Tipo de tarifa');
         expect(displayParamLabel('soat.tipoTarifa', 'Tarifa pactada')).toBe('Tarifa pactada');
+        expect(displayParamLabel('item.nombre', 'Item · Nombre')).toBe('Nombre');
+        expect(displayParamLabel('item.nombre')).toBe('Nombre');
     });
 });
 
@@ -225,10 +228,17 @@ describe('designedTableColumns', () => {
             collectObjectTables(soat, {
                 keyOrder: ['soat.noPoliza', 'soat.tipoTarifa', 'soat.estado'],
             })[0]?.columns.map((column) => column.key)
-        ).toEqual(['noPoliza', 'estado']);
+        ).toEqual(['noPoliza', 'estado', 'fechaExpedicion']);
         expect(designedTableColumns('soat', ['noPoliza', 'estado', 'tipoTarifa'], {
             keyOverrides: { 'soat.estado': { label: 'Estado' } },
-        })).toEqual(['estado']);
+        })).toBeNull();
+        expect(collectObjectTables(soat, {
+            keyOverrides: { 'soat.estado': { label: 'Estado' }, 'soat.fechaExpedicion': { labelStyle: { color: '#111' } } },
+        })[0]?.columns.map((column) => column.key)).toEqual(['noPoliza', 'estado', 'fechaExpedicion']);
+        expect(designedTableColumns('soat', ['noPoliza', 'estado', 'fechaExpedicion', 'tipoTarifa'], {
+            keyOrder: ['soat.noPoliza', 'soat.estado'],
+            keyOverrides: { 'soat.fechaExpedicion': { label: 'Fecha' } },
+        })).toEqual(['noPoliza', 'estado']);
         expect(
             designedTableColumns('soat', ['noPoliza', 'estado', 'tipoTarifa'], {
                 keyOrder: ['soat.noPoliza', 'soat.tipoTarifa', 'soat.estado'],

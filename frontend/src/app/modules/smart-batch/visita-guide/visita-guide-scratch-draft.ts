@@ -35,6 +35,7 @@ export type ScratchLayoutDraft = {
     watermarkHeight: number;
     watermarkRotation: number;
     showPageNumbers: boolean;
+    pageNumberDivider?: boolean;
     pageNumberPosition?:
         | 'top-left'
         | 'top-center'

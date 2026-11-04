@@ -3,7 +3,7 @@ import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '
 import { ReportHeaderLogo, ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import { chainProfileForFeature } from '../endpoint-chain.util';
 import { ReportCustomFont } from '../report-fonts.util';
-import { emptyFlowGraph, endpointNodes, flowSeedFields, FlowGraph } from '../endpoint-flow-graph.util';
+import { emptyFlowGraph, endpointNodes, flowOptionalSeedFields, flowSeedFields, hydrateFlowGraph, FlowGraph } from '../endpoint-flow-graph.util';
 import {
     buildInputRow,
     GuideEntity,
@@ -46,6 +46,8 @@ export class VisitaGuideStateService {
     clonedTemplate = signal<SmartReportTemplate | null>(null);
     selectedTemplate = signal<SmartReportTemplate | null>(null);
     templateChoice = signal<GuideTemplateChoice | null>(null);
+    /** `simulated` designs with prepared samples and never calls the Data API. */
+    designSource = signal<'live' | 'simulated' | null>(null);
     includeItems = signal<GuideIncludeItem[]>([]);
     layoutSections = signal<ReportSection[]>([]);
 
@@ -82,6 +84,7 @@ export class VisitaGuideStateService {
     pageNumberPosition = signal<
         'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
     >('bottom-center');
+    pageNumberDivider = signal(false);
     pageSize = signal<'A4' | 'Letter' | 'Legal'>('A4');
     orientation = signal<'portrait' | 'landscape'>('portrait');
     pdfEngine = signal<'puppeteer' | 'pdfkit'>('puppeteer');
@@ -101,6 +104,8 @@ export class VisitaGuideStateService {
     step = signal<GuideStepId>('intent');
     /** Opened a saved template in the layout designer from the workspace. */
     editingSavedLayout = signal(false);
+    /** Layout asked for another consult: country, category, then the endpoint flow. */
+    addingConsult = signal(false);
 
     inputFields = computed(() => {
         const features = this.selectedFeatures();
@@ -108,13 +113,17 @@ export class VisitaGuideStateService {
         const profiles = Object.fromEntries(
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
-        const seed = endpointNodes(graph).length ? flowSeedFields(graph, profiles) : undefined;
-        return inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', features, seed);
+        const hydrated = hydrateFlowGraph(graph, features);
+        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
+        return inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', features, seed, optional);
     });
 
     isMixed = computed(() => this.entities().length > 1);
 
     visibleSteps = computed((): GuideStepId[] => {
+        if (this.addingConsult()) return ['country', 'entity', 'endpoints', 'layout', 'generate'];
+        if (this.designSource() === 'simulated') return ['layout', 'generate'];
         if (this.editingSavedLayout()) return ['layout', 'generate'];
         const intent = this.intent();
         const steps: GuideStepId[] = ['intent'];
@@ -139,6 +148,7 @@ export class VisitaGuideStateService {
     });
 
     applyDeductions(): void {
+        if (this.addingConsult()) return;
         const fromIntent = intentEntity(this.intent());
         if (fromIntent && (this.entities().length !== 1 || this.entities()[0] !== fromIntent)) {
             this.entities.set([fromIntent]);
@@ -170,13 +180,16 @@ export class VisitaGuideStateService {
         const profiles = Object.fromEntries(
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
-        const seed = endpointNodes(graph).length ? flowSeedFields(graph, profiles) : undefined;
+        const hydrated = hydrateFlowGraph(graph, features);
+        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
         return buildInputRow(
             this.entities(),
             this.countryIsos()[0] ?? 'co',
             this.inputValues(),
             features,
-            seed
+            seed,
+            optional
         );
     }
 
@@ -199,6 +212,8 @@ export class VisitaGuideStateService {
         this.clonedTemplate.set(null);
         this.selectedTemplate.set(null);
         this.templateChoice.set(null);
+        this.designSource.set(null);
+        this.addingConsult.set(false);
         this.includeItems.set([]);
         this.layoutSections.set([]);
         this.reportTitle.set('');
@@ -231,6 +246,7 @@ export class VisitaGuideStateService {
         this.watermarkRotation.set(-15);
         this.showPageNumbers.set(true);
         this.pageNumberPosition.set('bottom-center');
+        this.pageNumberDivider.set(false);
         this.pageSize.set('A4');
         this.orientation.set('portrait');
         this.pdfEngine.set('puppeteer');

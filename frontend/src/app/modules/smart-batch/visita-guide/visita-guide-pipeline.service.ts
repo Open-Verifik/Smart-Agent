@@ -9,8 +9,9 @@ import {
     SmartBatchService,
 } from '../smart-batch.service';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { chainStepFeedTemplates } from '../endpoint-chain.util';
+import { canonicalChainField, chainStepFeedTemplates } from '../endpoint-chain.util';
 import { chainStepFeedTemplatesFromGraph, endpointNodes, FlowGraph } from '../endpoint-flow-graph.util';
+import { allowedQueryFields } from '../query-modes.util';
 import { defaultSystemKey, GuideEntity, GUIDE_COUNTRIES } from './visita-guide.catalog';
 
 export const serializeVisitaFlow = (graph: FlowGraph): FlowGraph => ({
@@ -56,6 +57,19 @@ export interface GuidePipelineResult {
 
 const featureId = (appFeature: string | AppFeature): string =>
     typeof appFeature === 'string' ? appFeature : appFeature._id;
+
+/** Keep parameter defaults inside the query option the flow selected, and apply fixed values. */
+const queryDefaults = (
+    feature: AppFeature,
+    graph: FlowGraph | undefined,
+    base: Record<string, unknown>
+): Record<string, unknown> => {
+    const fixed = (feature._id && graph?.fixed?.[feature._id]) || {};
+    const merged = { ...base, ...fixed };
+    const allowed = allowedQueryFields(feature, graph?.ports?.[feature._id]?.queryMode);
+    if (!allowed) return merged;
+    return Object.fromEntries(Object.entries(merged).filter(([key]) => allowed.has(canonicalChainField(key))));
+};
 
 /** Mongoose Map keys cannot contain `.` or `$`; chain templates belong in parameterDefaults. */
 const sanitizeInputFieldMapping = (mapping: unknown): Record<string, string> => {
@@ -246,6 +260,7 @@ export class VisitaGuidePipelineService {
                     termsPosition: base?.termsPosition,
                     showPageNumbers: base?.showPageNumbers,
                     pageNumberPosition: base?.pageNumberPosition,
+                    pageNumberDivider: base?.pageNumberDivider,
                     pageSize: base?.pageSize ?? 'A4',
                     orientation: base?.orientation ?? 'portrait',
                     pdfEngine: base?.pdfEngine ?? 'puppeteer',
@@ -349,11 +364,11 @@ export class VisitaGuidePipelineService {
                 appFeature: feature._id,
                 sequence,
                 enabled: true,
-                parameterDefaults: {
+                parameterDefaults: queryDefaults(feature, graph, {
                     ...(previous?.parameterDefaults ?? {}),
                     ...mapping.parameterDefaults,
                     ...chained,
-                },
+                }),
                 inputFieldMapping: {
                     ...sanitizeInputFieldMapping(previous?.inputFieldMapping),
                     ...mapping.inputFieldMapping,

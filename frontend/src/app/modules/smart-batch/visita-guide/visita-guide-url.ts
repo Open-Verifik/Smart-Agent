@@ -18,7 +18,7 @@ export const GUIDE_STEPS = new Set<GuideStepId>([
     'generate',
 ]);
 
-const INTENTS = new Set<GuideIntent>(['report', 'person', 'vehicle', 'company', 'template', 'other']);
+const INTENTS = new Set<GuideIntent>(['report', 'person', 'vehicle', 'company', 'template', 'other', 'blank']);
 const ENTITIES = new Set<GuideEntity>(['citizen', 'vehicle', 'company']);
 const MODES = new Set<GuideMode>(['single', 'batch']);
 const TEMPLATE_CHOICES = new Set<GuideTemplateChoice>(['visita', 'mine', 'scratch']);

@@ -259,7 +259,6 @@ export const materializeSectionTypography = (
     }
 
     if (section.type === 'keyValueGrid' && !next.columnsPerRow) next.columnsPerRow = 2;
-    if (section.type === 'dataTable' && !next.maxColumns) next.maxColumns = 6;
     if (next.keyOverrides) next.keyOverrides = withoutFixedValues(next.keyOverrides);
 
     return next;

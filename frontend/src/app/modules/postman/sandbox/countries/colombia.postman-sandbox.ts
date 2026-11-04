@@ -1364,32 +1364,40 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         showProfileMeta: false,
     },
     [COLOMBIA_SICAAC_CASES_ENDPOINT_CODE]: {
-        profiles: [
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '75086330',
+                    fullName: 'Active dispute record (Convocado)',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '10254228',
+                    fullName: 'Active dispute record (Convocante)',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '900123456',
+                    fullName: 'Corporate commercial conciliation (NIT)',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '12345678',
+                    fullName: 'Clean record (No disputes found)',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+            ],
             {
-                documentNumber: '75086330',
-                fullName: 'Active dispute record (Convocado)',
-                responseType: 'success' as const,
-                expectedStatus: 200,
-            },
-            {
-                documentNumber: '10254228',
-                fullName: 'Active dispute record (Convocante)',
-                responseType: 'success' as const,
-                expectedStatus: 200,
-            },
-            {
-                documentNumber: '900123456',
-                fullName: 'Corporate commercial conciliation (NIT)',
-                responseType: 'success' as const,
-                expectedStatus: 200,
-            },
-            {
-                documentNumber: '12345678',
-                fullName: 'Clean record (No disputes found)',
-                responseType: 'success' as const,
-                expectedStatus: 200,
-            },
-        ],
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                ],
+            }
+        ),
         defaultDocumentNumber: '75086330',
         documentTypeByCode: {
             [COLOMBIA_SICAAC_CASES_ENDPOINT_CODE]: 'CC',
@@ -1397,20 +1405,28 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         showProfileMeta: false,
     },
     [COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE]: {
-        profiles: [
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '75086330',
+                    fullName: 'Insolvency proceeding in progress (En Trámite)',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+                {
+                    documentNumber: '12345678',
+                    fullName: 'Clean insolvency status (No records)',
+                    responseType: 'success' as const,
+                    expectedStatus: 200,
+                },
+            ],
             {
-                documentNumber: '75086330',
-                fullName: 'Insolvency proceeding in progress (En Trámite)',
-                responseType: 'success' as const,
-                expectedStatus: 200,
-            },
-            {
-                documentNumber: '12345678',
-                fullName: 'Clean insolvency status (No records)',
-                responseType: 'success' as const,
-                expectedStatus: 200,
-            },
-        ],
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                ],
+            }
+        ),
         defaultDocumentNumber: '75086330',
         documentTypeByCode: {
             [COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE]: 'CC',

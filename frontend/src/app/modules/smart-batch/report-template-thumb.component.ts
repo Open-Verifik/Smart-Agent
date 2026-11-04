@@ -43,6 +43,7 @@ const MM_TO_PX = 3.7795275591;
                             [legendPosition]="template().legendPosition || 'left'"
                             [showPageNumbers]="template().showPageNumbers || false"
                             [pageNumberPosition]="template().pageNumberPosition || 'bottom-center'"
+                            [pageNumberDivider]="template().pageNumberDivider || false"
                             [watermarkEnabled]="template().watermark?.enabled || false"
                             [watermarkType]="template().watermark?.type || 'text'"
                             [watermarkLogoUrl]="template().watermark?.logo || undefined"

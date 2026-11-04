@@ -165,21 +165,33 @@ export const humanizeParamKey = (key: string): string =>
     key.split('.').filter((part) => part && part !== ROOT_TABLE_KEY).map(humanizeSegment).join(' · ') ||
     key;
 
-/** Prefer the Spanish field name over a leftover camelCase label. */
+/** Name of the records a table shows, with the table's own word first. */
+export const tableDataName = (key: string): string => {
+    const parts = String(key || '')
+        .split('.')
+        .filter((part) => part && part !== ROOT_TABLE_KEY)
+        .map((part) => humanizeSegment(part));
+    return parts.reverse().join(' · ');
+};
+
+/** Prefer the field's own name. A path such as `item.nombre` must not keep the parent word in front. */
 export const displayParamLabel = (key: string, fallback?: string): string => {
-    const leaf = paramKeyLeaf(key);
+    const base = layoutTableRulesKey(key);
+    const leaf = paramKeyLeaf(base);
     const mapped = PARAM_KEY_LABELS[leaf];
     const naive = splitParamSegment(leaf);
+    const autoFull = humanizeParamKey(base);
     if (
         fallback &&
-        !sameLabel(fallback, key) &&
+        !sameLabel(fallback, base) &&
         !sameLabel(fallback, leaf) &&
         !sameLabel(fallback, naive) &&
+        !sameLabel(fallback, autoFull) &&
         !(mapped && sameLabel(fallback, mapped))
     ) {
         return fallback;
     }
-    return mapped || fallback || humanizeParamKey(key);
+    return mapped || naive || fallback || leaf;
 };
 
 const isScalar = (value: unknown): boolean =>
@@ -486,25 +498,23 @@ const columnLeafForTable = (tableKey: string, rawKey: string): string | null => 
     return key.slice(tableKey.length + 1).split('.')[0] || null;
 };
 
-/** Columns the designer already named, hid, or styled — extras from live data stay out. */
+/**
+ * Columns the designer put in keyOrder for this table.
+ * A label, color, or other override on one column must not drop the rest.
+ */
 export const designedTableColumns = (
     tableKey: string,
     available: string[],
     options?: { keyOrder?: string[]; hiddenKeys?: string[]; keyOverrides?: Record<string, unknown> }
 ): string[] | null => {
-    const refs = [...(options?.keyOrder ?? []), ...Object.keys(options?.keyOverrides ?? {})];
     const designed: string[] = [];
-    for (const ref of refs) {
+    for (const ref of options?.keyOrder ?? []) {
         const leaf = columnLeafForTable(tableKey, ref);
         if (leaf && available.includes(leaf) && !isAutoOmittedParamKey(leaf) && !designed.includes(leaf)) {
             designed.push(leaf);
         }
     }
-    if (!designed.length) return null;
-    const rank = new Map(
-        (options?.keyOrder ?? []).map((key, index) => [columnLeafForTable(tableKey, key) ?? '', index])
-    );
-    return designed.sort((left, right) => (rank.get(left) ?? 9999) - (rank.get(right) ?? 9999));
+    return designed.length ? designed : null;
 };
 
 const orderColumnKeys = (
@@ -512,15 +522,14 @@ const orderColumnKeys = (
     tableKey: string,
     options?: { keyOrder?: string[]; hiddenKeys?: string[]; keyOverrides?: Record<string, unknown> }
 ): string[] => {
-    const designed = designedTableColumns(tableKey, columnKeys, options);
+    const usable = columnKeys.filter((column) => !isAutoOmittedParamKey(column));
+    const designed = designedTableColumns(tableKey, usable, options);
     if (designed?.length) {
-        return designed.filter(
-            (column) =>
-                !isAutoOmittedParamKey(column) &&
-                !isHiddenParamKey(tableColumnPath(tableKey, column), options?.hiddenKeys)
+        const rest = usable.filter((column) => !designed.includes(column));
+        return [...designed, ...rest].filter(
+            (column) => !isHiddenParamKey(tableColumnPath(tableKey, column), options?.hiddenKeys)
         );
     }
-    const usable = columnKeys.filter((column) => !isAutoOmittedParamKey(column));
     const keyOrder = options?.keyOrder;
     if (!keyOrder?.length || usable.length < 2) return usable;
     const rank = new Map(keyOrder.map((key, index) => [key, index]));
@@ -663,6 +672,46 @@ export const collectObjectTables = (
 
     walk(value, '', 1);
     return tables;
+};
+
+/**
+ * Every real column of a table pulled out of a block.
+ * keyOrder only sorts. A column stays hidden only when the author hid it.
+ */
+export const extractedTableColumns = (
+    value: unknown,
+    tableKey: string,
+    options?: {
+        keyOrder?: string[];
+        hiddenKeys?: string[];
+        keyOverrides?: Record<string, { label?: string } | undefined>;
+    }
+): { columns: { key: string; label: string }[]; hiddenKeys: string[] } => {
+    const table = collectObjectTables(value, {
+        hiddenKeys: [],
+        hideColumns: false,
+        keyOrder: options?.keyOrder,
+        keyOverrides: options?.keyOverrides,
+    }).find((item) => item.key === tableKey);
+    const columns = (table?.columns ?? []).map((column) => ({
+        key: column.key,
+        label: options?.keyOverrides?.[tableColumnPath(tableKey, column.key)]?.label || column.label,
+    }));
+    const known = new Set(columns.map((column) => column.key));
+    const hiddenKeys: string[] = [];
+    for (const stored of options?.hiddenKeys ?? []) {
+        const leaf =
+            !tableKey || tableKey === ROOT_TABLE_KEY
+                ? stored
+                : stored.startsWith(`${tableKey}.`)
+                  ? stored.slice(tableKey.length + 1)
+                  : '';
+        if (!leaf || leaf.includes('.') || leaf.includes('#') || !known.has(leaf) || hiddenKeys.includes(leaf)) {
+            continue;
+        }
+        hiddenKeys.push(leaf);
+    }
+    return { columns, hiddenKeys };
 };
 
 /**

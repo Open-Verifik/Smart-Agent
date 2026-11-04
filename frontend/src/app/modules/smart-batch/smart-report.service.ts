@@ -64,6 +64,8 @@ export interface ReportSectionFrame {
     page?: number;
     /** Height the designer dragged a data block to; content can still grow past it. */
     minHeight?: number;
+    /** Title or text box the designer sized by hand. It no longer shrinks to the words. */
+    fixedBox?: boolean;
 }
 
 /** Conditional image swap on a floating sheet image (same fields as layout image blocks). */
@@ -357,6 +359,8 @@ export interface SmartReportTemplate {
         | 'bottom-left'
         | 'bottom-center'
         | 'bottom-right';
+    /** Hairline above or below the page number. */
+    pageNumberDivider?: boolean;
 
     // Watermark
     watermark?: {
@@ -424,6 +428,28 @@ export interface SmartReportTemplate {
 
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
+    /**
+     * Endpoint setup for this template. Kept separate from `sections`.
+     * `simulated` uses prepared samples and must not run Data API queries.
+     */
+    endpointDesign?: {
+        source: 'simulated' | 'live';
+        flow?: unknown;
+        endpoints?: Array<{
+            sequence: number;
+            appFeatureCode: string;
+            appFeatureId?: string;
+            name?: string;
+            method?: string;
+            url?: string;
+            parameterDefaults?: Record<string, unknown>;
+            inputFieldMapping?: Record<string, unknown>;
+            dependencies?: unknown[];
+            availability?: 'data' | 'empty' | 'missing';
+            responseOutline?: unknown;
+            simulatedResponse?: unknown;
+        }>;
+    };
 
     /** Designer sample emails. Batch sends live on each SmartReport instead. */
     emailHistory?: ReportEmailDelivery[];
@@ -644,6 +670,44 @@ export class SmartReportService {
             .get<{
                 data: SmartReportTemplate;
             }>(`${environment.apiUrl}/v2/smart-report-templates/${id}`)
+            .pipe(map((res) => res.data));
+    }
+
+    /** Prepared sample for one endpoint. Does not execute the Data API. */
+    getSimulatedResponse(
+        code: string,
+        availability: 'data' | 'empty' | 'missing' = 'data',
+        listSize?: number
+    ): Observable<{
+        code: string;
+        found: boolean;
+        name?: string;
+        country?: string;
+        method?: string;
+        url?: string;
+        inputs?: unknown[];
+        availability: 'data' | 'empty' | 'missing';
+        outline?: unknown;
+        sample: unknown;
+    }> {
+        return this._httpClient
+            .get<{
+                data: {
+                    code: string;
+                    found: boolean;
+                    name?: string;
+                    country?: string;
+                    method?: string;
+                    url?: string;
+                    inputs?: unknown[];
+                    availability: 'data' | 'empty' | 'missing';
+                    outline?: unknown;
+                    sample: unknown;
+                };
+            }>(
+                `${environment.apiUrl}/v2/smart-report-templates/simulated-responses/${encodeURIComponent(code)}`,
+                { params: { availability } }
+            )
             .pipe(map((res) => res.data));
     }
 

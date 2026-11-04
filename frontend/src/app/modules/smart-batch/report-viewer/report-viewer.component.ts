@@ -848,16 +848,37 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             this._reportService.getTemplates(configId || undefined).subscribe({
                 next: (templates) => {
                     this.templates.set(templates);
-                    if (templates.length > 0) {
-                        const preferredId = config
+                    if (templates.length > 0 || this._route.snapshot.queryParamMap.get('templateId')) {
+                        const fromConfig = config
                             ? typeof config.preferredReportTemplate === 'string'
                                 ? config.preferredReportTemplate
                                 : config.preferredReportTemplate?._id
                             : null;
+                        const preferredId = this._route.snapshot.queryParamMap.get('templateId') || fromConfig;
                         const preferred = preferredId
                             ? templates.find((t) => t._id === preferredId)
                             : null;
-                        this.selectedTemplate.set(preferred ?? templates[0]);
+                        if (preferred) {
+                            this.selectedTemplate.set(preferred);
+                        } else if (preferredId) {
+                            this._reportService.getTemplate(preferredId).subscribe({
+                                next: (full) => {
+                                    if (!full?._id) {
+                                        if (templates[0]) this.selectedTemplate.set(templates[0]);
+                                        return;
+                                    }
+                                    this.templates.update((list) =>
+                                        list.some((item) => item._id === full._id) ? list : [full, ...list]
+                                    );
+                                    this.selectedTemplate.set(full);
+                                },
+                                error: () => {
+                                    if (templates[0]) this.selectedTemplate.set(templates[0]);
+                                },
+                            });
+                        } else if (templates[0]) {
+                            this.selectedTemplate.set(templates[0]);
+                        }
                     }
                     this.isLoading.set(false);
                 },
