@@ -24584,46 +24584,43 @@
       "input": {
         "dependencies": [
           {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name for search (alternative to document search)",
+            "dependencyGroup": "2"
+          },
+          {
             "field": "documentType",
             "type": "String",
             "required": false,
+            "description": "Document type (required if not using fullName)",
             "enum": [
               "DNI",
               "CE"
-            ]
+            ],
+            "dependencyGroup": "1"
           },
           {
             "field": "documentNumber",
             "type": "String",
-            "required": false
-          },
-          {
-            "field": "fullName",
-            "type": "String",
-            "required": false
-          },
-          {
-            "field": "includeFormer",
-            "type": "Boolean",
-            "required": false
+            "required": false,
+            "description": "Peruvian DNI (8 digits) or Carné de Extranjería (CE) number (required if not using fullName)",
+            "dependencyGroup": "1"
           }
         ],
         "documentedParams": [
           {
             "field": "documentType",
-            "description": "Document type: `DNI` (default) or `CE`."
+            "description": "Document type: `DNI` or `CE`."
           },
           {
             "field": "documentNumber",
-            "description": "Peruvian DNI (8 digits) or Carné de Extranjería (CE) number (sample: 06256217). Required if `fullName` is omitted."
+            "description": "Peruvian DNI (8 digits) or Carné de Extranjería (CE) number (sample: 06256217)."
           },
           {
             "field": "fullName",
-            "description": "Full name of the person to screen (sample: DINA ERCILIA BOLUARTE ZEGARRA). Required if `documentNumber` is omitted."
-          },
-          {
-            "field": "includeFormer",
-            "description": "Include former officials within the 2-year post-cessation look-back window under SBS Resolution 4349-2016 / 02868-2025 (default: `true`)."
+            "description": "Instead of documentType and documentNumber, you can pass the full name directly (sample: DINA ERCILIA BOLUARTE ZEGARRA)."
           }
         ]
       },
