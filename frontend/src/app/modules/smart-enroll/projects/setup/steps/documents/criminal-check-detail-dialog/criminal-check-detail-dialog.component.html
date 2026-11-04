@@ -1,0 +1,535 @@
+<ng-container *transloco="let t">
+    <div class="criminal-check-dialog flex max-h-[92vh] w-full flex-col overflow-hidden bg-white dark:bg-slate-900">
+        <!-- Dialog Header -->
+        <header class="flex flex-col gap-3 border-b border-stone-200 bg-stone-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/90">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-2 min-w-0">
+                    <span class="inline-flex items-center rounded-md bg-stone-200/80 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-stone-700 dark:bg-slate-800 dark:text-stone-300">
+                        {{ t(data.check.sourceKey) }}
+                    </span>
+                    @if (detail()?.method) {
+                        <span class="inline-flex items-center rounded-md bg-emerald-100 px-2 py-0.5 font-mono text-[11px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                            {{ detail()?.method }}
+                        </span>
+                    }
+                    @if (detail()?.endpointPath) {
+                        <span class="inline-flex items-center rounded-md bg-stone-100 px-2.5 py-0.5 font-mono text-xs text-stone-600 dark:bg-slate-800/80 dark:text-stone-300">
+                            {{ detail()?.endpointPath }}
+                        </span>
+                    }
+                    @if (smartEnrollPrice() != null) {
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:border-emerald-800/80 dark:bg-emerald-950/60 dark:text-emerald-300">
+                            <span class="font-bold text-emerald-700 dark:text-emerald-400">
+                                {{ smartEnrollPrice() | currency:'USD':'symbol':'1.2-2' }}
+                            </span>
+                            @if (listPrice() !== smartEnrollPrice()) {
+                                <span class="text-stone-400 line-through text-[11px]">
+                                    {{ listPrice() | currency:'USD':'symbol':'1.2-2' }}
+                                </span>
+                                <span class="rounded bg-emerald-600 px-1 py-0.2 text-[9px] font-bold text-white uppercase tracking-wider">
+                                    -{{ discountPercent() }}% SmartEnroll
+                                </span>
+                            }
+                        </span>
+                    }
+                </div>
+
+                <div class="flex items-center gap-3 shrink-0">
+                    @if (isSelected()) {
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 whitespace-nowrap shrink-0">
+                            <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">check_circle</mat-icon>
+                            <span>{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.meta.statusActive') }}</span>
+                        </span>
+                    } @else {
+                        <span class="inline-flex items-center rounded-full bg-stone-200/80 px-3 py-1 text-xs font-medium text-stone-600 dark:bg-slate-800 dark:text-stone-300 whitespace-nowrap shrink-0">
+                            <span>{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.meta.statusInactive') }}</span>
+                        </span>
+                    }
+                    <button mat-icon-button (click)="close()" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="m-0 text-xl font-bold tracking-tight text-stone-900 dark:text-white">
+                    {{ t(data.check.titleKey) }}
+                </h2>
+                <p class="m-0 mt-1 text-sm text-stone-500 dark:text-stone-400">
+                    {{ t(data.check.descriptionKey) }}
+                </p>
+            </div>
+
+            <!-- Segmented Navigation Tabs -->
+            <nav class="mt-2 flex items-center gap-2 border-b border-stone-200/60 pt-1 dark:border-slate-800/80">
+                <button
+                    type="button"
+                    class="nav-tab"
+                    [class.is-active]="activeTab() === 'overview'"
+                    (click)="selectTab('overview')"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-[16px]">info</mat-icon>
+                    <span>{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.tabs.overview') }}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="nav-tab"
+                    [class.is-active]="activeTab() === 'params'"
+                    (click)="selectTab('params')"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-[16px]">input</mat-icon>
+                    <span>{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.tabs.params') }}</span>
+                    @if (paramsList().length) {
+                        <span class="count-badge">{{ paramsList().length }}</span>
+                    }
+                </button>
+
+                <button
+                    type="button"
+                    class="nav-tab"
+                    [class.is-active]="activeTab() === 'responses'"
+                    (click)="selectTab('responses')"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-[16px]">data_object</mat-icon>
+                    <span>{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.tabs.responses') }}</span>
+                    @if (responseSamples().length) {
+                        <span class="count-badge">{{ responseSamples().length }}</span>
+                    }
+                </button>
+
+                <button
+                    type="button"
+                    class="nav-tab"
+                    [class.is-active]="activeTab() === 'code'"
+                    (click)="selectTab('code')"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-[16px]">code</mat-icon>
+                    <span>{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.tabs.code') }}</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Dialog Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <!-- TAB 1: OVERVIEW -->
+            @if (activeTab() === 'overview') {
+                <div class="space-y-6">
+                    <!-- Clean Unified Metadata Strip (Anti-slop: single bar instead of nested box-cards) -->
+                    <div class="grid grid-cols-2 divide-y divide-stone-200/60 rounded-xl border border-stone-200 bg-stone-50/60 dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-800/40 md:grid-cols-4 md:divide-x md:divide-y-0">
+                        <div class="p-3.5">
+                            <span class="stat-label block">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.statsAuthority') }}</span>
+                            <span class="stat-value mt-1 block truncate">{{ t(data.check.sourceKey) }}</span>
+                        </div>
+                        <div class="p-3.5">
+                            <span class="stat-label block">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.statsType') }}</span>
+                            <span class="stat-value mt-1 block">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.statsTypeVal') }}</span>
+                        </div>
+                        <div class="p-3.5">
+                            <span class="stat-label block">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.statsCost') }}</span>
+                            <div class="mt-1 flex items-baseline gap-1.5">
+                                <span class="stat-value font-bold text-emerald-600 dark:text-emerald-400">
+                                    {{ smartEnrollPrice() != null ? (smartEnrollPrice() | currency:'USD':'symbol':'1.2-2') : 'Included' }}
+                                </span>
+                                @if (listPrice() && listPrice() !== smartEnrollPrice()) {
+                                    <span class="text-xs text-stone-400 line-through">
+                                        {{ listPrice() | currency:'USD':'symbol':'1.2-2' }}
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        <div class="p-3.5">
+                            <span class="stat-label block">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.statsHit') }}</span>
+                            <span class="stat-value mt-1 block">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.statsHitVal') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Clean About Text (Anti-slop: natural typography instead of card-in-card) -->
+                    <section class="space-y-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-slate-400">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.aboutTitle') }}
+                        </h4>
+                        <p class="m-0 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
+                            {{ t(data.check.aboutKey) }}
+                        </p>
+                    </section>
+
+                    <!-- SmartEnroll Automated Background Execution Callout (Anti-slop: clean left-accent strip) -->
+                    <div class="rounded-r-xl border-l-4 border-blue-500 bg-blue-50/60 p-4 text-blue-900 dark:bg-blue-950/30 dark:text-blue-200">
+                        <div class="flex items-start gap-3">
+                            <mat-icon class="!h-5 !w-5 !text-[20px] text-blue-600 dark:text-blue-400 shrink-0 mt-0.5">bolt</mat-icon>
+                            <div class="space-y-1">
+                                <strong class="block text-sm font-semibold">
+                                    {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.howItWorksTitle') }}
+                                </strong>
+                                <p class="m-0 text-xs leading-relaxed text-blue-800/90 dark:text-blue-300">
+                                    {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.overview.howItWorksBody') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- TAB 2: WHAT IT SENDS (PARAMETERS) -->
+            @if (activeTab() === 'params') {
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-stone-900 dark:text-white">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.title') }}
+                        </h4>
+                        <p class="m-0 mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.subtitle') }}
+                        </p>
+                    </div>
+
+                    @if (!paramsList().length) {
+                        <p class="text-sm text-stone-500 dark:text-stone-400 italic">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.empty') }}
+                        </p>
+                    } @else if (hasSearchGroups()) {
+                        <!-- Search Modes Callout Notice -->
+                        <div class="flex items-start gap-2.5 rounded-lg border border-sky-200/80 bg-sky-50/60 p-3 text-xs text-sky-950 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-200">
+                            <mat-icon class="!h-4 !w-4 !text-[16px] text-sky-600 dark:text-sky-400 shrink-0 mt-0.5">alt_route</mat-icon>
+                            <p class="m-0 leading-relaxed">
+                                {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.searchGroupsIntro') }}
+                            </p>
+                        </div>
+
+                        <!-- Search Mode Groups (Postman-aligned Option A / Option B) -->
+                        <div class="space-y-4">
+                            @for (group of paramGroups(); track group.id) {
+                                <div class="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900/40">
+                                    <div class="flex flex-col gap-1 border-b border-stone-200/80 bg-stone-50/90 px-4 py-2.5 dark:border-slate-800 dark:bg-slate-800/60 sm:flex-row sm:items-center sm:justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <mat-icon class="!h-4 !w-4 !text-[16px] text-stone-600 dark:text-slate-300">{{ group.icon }}</mat-icon>
+                                            <h5 class="m-0 text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200">
+                                                {{ group.titleKey ? (t(group.titleKey) || group.titleFallback) : group.titleFallback }}
+                                            </h5>
+                                        </div>
+                                        @if (group.badgeFallback) {
+                                            <span class="inline-flex w-fit items-center rounded bg-stone-200/70 px-2 py-0.5 font-mono text-[10px] font-semibold text-stone-700 dark:bg-slate-800 dark:text-stone-300">
+                                                {{ group.badgeKey ? (t(group.badgeKey) || group.badgeFallback) : group.badgeFallback }}
+                                            </span>
+                                        }
+                                    </div>
+
+                                    @if (group.hintFallback) {
+                                        <div class="border-b border-stone-100 bg-stone-50/30 px-4 py-2 text-xs text-stone-600 dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-stone-400">
+                                            {{ group.hintKey ? (t(group.hintKey) || group.hintFallback) : group.hintFallback }}
+                                        </div>
+                                    }
+
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left text-xs">
+                                            <thead class="bg-stone-100/60 text-[11px] font-semibold uppercase tracking-wider text-stone-500 dark:bg-slate-800/40 dark:text-slate-400">
+                                                <tr>
+                                                    <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colField') }}</th>
+                                                    <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colType') }}</th>
+                                                    <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colRequirement') }}</th>
+                                                    <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colFormat') }}</th>
+                                                    <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colExtraction') }}</th>
+                                                    <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colDescription') }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-stone-100 dark:divide-slate-800">
+                                                @for (param of group.params; track param.field) {
+                                                    <tr class="align-top hover:bg-stone-50/60 dark:hover:bg-slate-800/40">
+                                                        <td class="px-3.5 py-3 font-mono font-bold text-stone-900 dark:text-white">
+                                                            {{ param.field }}
+                                                        </td>
+                                                        <td class="px-3.5 py-3 font-mono text-stone-600 dark:text-stone-300">
+                                                            {{ param.type || 'String' }}
+                                                        </td>
+                                                        <td class="px-3.5 py-3">
+                                                            @if (param.requirementKind === 'required') {
+                                                                <span class="inline-flex items-center gap-1 rounded bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/50">
+                                                                    <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                                                                    {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.required') }}
+                                                                </span>
+                                                            } @else if (param.requirementKind === 'conditional') {
+                                                                <div class="flex flex-col gap-0.5">
+                                                                    <span class="inline-flex w-fit items-center gap-1 rounded bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/50">
+                                                                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                                                        {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.conditional') }}
+                                                                    </span>
+                                                                    @if (param.conditionalHint) {
+                                                                        <span class="text-[10px] text-stone-500 dark:text-stone-400 leading-tight">
+                                                                            {{ param.conditionalHint }}
+                                                                        </span>
+                                                                    }
+                                                                </div>
+                                                            } @else {
+                                                                <span class="inline-flex rounded bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-slate-800 dark:text-stone-400">
+                                                                    {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.optional') }}
+                                                                </span>
+                                                            }
+                                                        </td>
+                                                        <td class="px-3.5 py-3">
+                                                            @if (param.allowed?.length) {
+                                                                <div class="flex flex-wrap gap-1 max-w-[140px]">
+                                                                    @for (val of param.allowed.slice(0, 6); track val) {
+                                                                        <span class="rounded bg-stone-100 px-1 py-0.5 font-mono text-[10px] text-stone-700 dark:bg-slate-800 dark:text-stone-300">{{ val }}</span>
+                                                                    }
+                                                                    @if (param.allowed.length > 6) {
+                                                                        <span class="text-[10px] text-stone-400">+{{ param.allowed.length - 6 }} more</span>
+                                                                    }
+                                                                </div>
+                                                            } @else if (param.dateFormat) {
+                                                                <span class="font-mono text-[10px] text-stone-500">{{ param.dateFormat }}</span>
+                                                            } @else {
+                                                                <span class="text-stone-400">—</span>
+                                                            }
+                                                        </td>
+                                                        <td class="px-3.5 py-3">
+                                                            <div class="flex items-center gap-1.5 font-medium text-blue-700 dark:text-blue-300 text-xs">
+                                                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">auto_awesome</mat-icon>
+                                                                <span>{{ param.sourceHint }}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-3.5 py-3 text-stone-600 dark:text-stone-300 max-w-[200px]">
+                                                            {{ param.description || '—' }}
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <!-- Standard Flat Parameters Table -->
+                        <div class="overflow-hidden rounded-xl border border-stone-200 dark:border-slate-800">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-stone-100/80 uppercase font-semibold text-stone-600 dark:bg-slate-800/70 dark:text-slate-300">
+                                    <tr>
+                                        <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colField') }}</th>
+                                        <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colType') }}</th>
+                                        <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colRequirement') }}</th>
+                                        <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colFormat') }}</th>
+                                        <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colExtraction') }}</th>
+                                        <th class="px-3.5 py-2.5">{{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.colDescription') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-100 dark:divide-slate-800">
+                                    @for (param of paramsList(); track param.field) {
+                                        <tr class="align-top hover:bg-stone-50/60 dark:hover:bg-slate-800/40">
+                                            <td class="px-3.5 py-3 font-mono font-bold text-stone-900 dark:text-white">
+                                                {{ param.field }}
+                                            </td>
+                                            <td class="px-3.5 py-3 text-stone-600 dark:text-stone-300 font-mono">
+                                                {{ param.type || 'String' }}
+                                            </td>
+                                            <td class="px-3.5 py-3">
+                                                @if (param.requirementKind === 'required' || param.required) {
+                                                    <span class="inline-flex rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                                                        {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.required') }}
+                                                    </span>
+                                                } @else if (param.requirementKind === 'conditional') {
+                                                    <div class="flex flex-col gap-0.5">
+                                                        <span class="inline-flex w-fit rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                                                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.conditional') }}
+                                                        </span>
+                                                        @if (param.conditionalHint) {
+                                                            <span class="text-[10px] text-stone-500 dark:text-stone-400">
+                                                                {{ param.conditionalHint }}
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                } @else {
+                                                    <span class="inline-flex rounded bg-stone-100 px-1.5 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-slate-800 dark:text-stone-400">
+                                                        {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.params.optional') }}
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="px-3.5 py-3">
+                                                @if (param.allowed?.length) {
+                                                    <div class="flex flex-wrap gap-1 max-w-[140px]">
+                                                        @for (val of param.allowed.slice(0, 6); track val) {
+                                                            <span class="rounded bg-stone-100 px-1 py-0.5 font-mono text-[10px] text-stone-700 dark:bg-slate-800 dark:text-stone-300">{{ val }}</span>
+                                                        }
+                                                        @if (param.allowed.length > 6) {
+                                                            <span class="text-[10px] text-stone-400">+{{ param.allowed.length - 6 }} more</span>
+                                                        }
+                                                    </div>
+                                                } @else if (param.dateFormat) {
+                                                    <span class="font-mono text-[10px] text-stone-500">{{ param.dateFormat }}</span>
+                                                } @else {
+                                                    <span class="text-stone-400">—</span>
+                                                }
+                                            </td>
+                                            <td class="px-3.5 py-3">
+                                                <div class="flex items-center gap-1.5 font-medium text-blue-700 dark:text-blue-300 text-xs">
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">auto_awesome</mat-icon>
+                                                    <span>{{ param.sourceHint }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-3.5 py-3 text-stone-600 dark:text-stone-300 max-w-[200px]">
+                                                {{ param.description || '—' }}
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- TAB 3: SAMPLE RESPONSES -->
+            @if (activeTab() === 'responses') {
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-stone-900 dark:text-white">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.responses.title') }}
+                        </h4>
+                        <p class="m-0 mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.responses.subtitle') }}
+                        </p>
+                    </div>
+
+                    @if (!responseSamples().length) {
+                        <p class="text-sm text-stone-500 italic">No response samples available.</p>
+                    } @else {
+                        <!-- Response Status Switcher Pills -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            @for (res of responseSamples(); let i = $index; track res.status + i) {
+                                <button
+                                    type="button"
+                                    class="response-pill"
+                                    [class.is-selected]="selectedResponseIndex() === i"
+                                    [class.is-hit]="res.isHit"
+                                    [class.is-clean]="res.isClean"
+                                    (click)="selectResponse(i)"
+                                >
+                                    @if (res.isHit) {
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">warning</mat-icon>
+                                    } @else if (res.isClean) {
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">verified_user</mat-icon>
+                                    }
+                                    <span>{{ res.label }}</span>
+                                </button>
+                            }
+                        </div>
+
+                        <!-- Response Code Container -->
+                        <div class="overflow-hidden rounded-xl border border-stone-200 dark:border-slate-800 bg-slate-950">
+                            <div class="flex items-center justify-between border-b border-slate-800/80 bg-slate-900/90 px-4 py-2 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-emerald-400 font-bold">
+                                        {{ currentResponse()?.status }}
+                                    </span>
+                                    <span class="text-slate-400">{{ currentResponse()?.label }}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="copy-btn"
+                                    (click)="copy(currentResponse()?.formattedJson || '', 'response')"
+                                >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">
+                                        {{ copiedKey() === 'response' ? 'check' : 'content_copy' }}
+                                    </mat-icon>
+                                    <span>{{ copiedKey() === 'response' ? t('smartEnrollProjects.setup.documents.screening.detailsModal.responses.copied') : t('smartEnrollProjects.setup.documents.screening.detailsModal.responses.copyJson') }}</span>
+                                </button>
+                            </div>
+
+                            <pre class="hljs m-0 max-h-[380px] overflow-auto p-4 font-mono text-xs leading-relaxed text-slate-100"><code [innerHTML]="highlightedResponseHtml()"></code></pre>
+                        </div>
+
+                        <p class="m-0 text-xs text-stone-500 dark:text-stone-400 italic">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.responses.notice') }}
+                        </p>
+                    }
+                </div>
+            }
+
+            <!-- TAB 4: API EXAMPLE -->
+            @if (activeTab() === 'code') {
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-stone-900 dark:text-white">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.code.title') }}
+                        </h4>
+                        <p class="m-0 mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.code.subtitle') }}
+                        </p>
+                    </div>
+
+                    <!-- Code Language Selector -->
+                    <div class="flex items-center gap-2">
+                        @for (item of codeExamples(); let i = $index; track item.lang) {
+                            <button
+                                type="button"
+                                class="lang-tab"
+                                [class.is-selected]="selectedCodeIndex() === i"
+                                (click)="selectCode(i)"
+                            >
+                                {{ item.label }}
+                            </button>
+                        }
+                    </div>
+
+                    <!-- Code Snippet Box -->
+                    <div class="overflow-hidden rounded-xl border border-stone-200 dark:border-slate-800 bg-slate-950">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 bg-slate-900/90 px-4 py-2 text-xs">
+                            <span class="font-mono text-slate-400">{{ currentCodeExample()?.label }}</span>
+                            <button
+                                type="button"
+                                class="copy-btn"
+                                (click)="copy(currentCodeExample()?.code || '', 'code')"
+                            >
+                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">
+                                    {{ copiedKey() === 'code' ? 'check' : 'content_copy' }}
+                                </mat-icon>
+                                <span>{{ copiedKey() === 'code' ? t('smartEnrollProjects.setup.documents.screening.detailsModal.responses.copied') : t('smartEnrollProjects.setup.documents.screening.detailsModal.code.copyCode') }}</span>
+                            </button>
+                        </div>
+                        <pre class="hljs m-0 max-h-[340px] overflow-auto p-4 font-mono text-xs leading-relaxed text-slate-100"><code [innerHTML]="highlightedCodeHtml()"></code></pre>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Dialog Footer: Only 2 action areas, no redundant Close button -->
+        <footer class="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 bg-stone-50/90 p-4 dark:border-slate-800 dark:bg-slate-900/90">
+            <div class="flex flex-wrap items-center gap-2">
+                <a
+                    mat-stroked-button
+                    [href]="docsUrl()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="!rounded-xl"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-[16px] mr-1.5">open_in_new</mat-icon>
+                    {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.actions.readDocs') }}
+                </a>
+
+                <a
+                    mat-stroked-button
+                    [href]="postmanUrl()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="!rounded-xl"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-[16px] mr-1.5">play_arrow</mat-icon>
+                    {{ t('smartEnrollProjects.setup.documents.screening.detailsModal.actions.tryInPostman') }}
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button
+                    mat-flat-button
+                    [color]="isSelected() ? 'warn' : 'primary'"
+                    (click)="toggleCheck()"
+                    class="!rounded-xl shadow-sm"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-[16px] mr-1.5">
+                        {{ isSelected() ? 'remove_circle_outline' : 'add_circle_outline' }}
+                    </mat-icon>
+                    {{ isSelected() ? t('smartEnrollProjects.setup.documents.screening.detailsModal.meta.removeFromProject') : t('smartEnrollProjects.setup.documents.screening.detailsModal.meta.addToProject') }}
+                </button>
+            </div>
+        </footer>
+    </div>
+</ng-container>

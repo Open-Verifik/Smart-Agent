@@ -31,6 +31,13 @@ import {
 import { documentFailureReasonKey, livenessFailureReasonKey } from '../app-registration-record.utils';
 import { isIncompleteSmartAccessWizard, resumeStepIndex } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
+import {
+    enrollmentSegment,
+    readEnrollmentClient,
+    readVerifyStyle,
+    VERIFY_STYLE_LABELS,
+} from '../enrollment-client.util';
+import { environment } from 'environments/environment';
 import type {
     AppRegistrationFunnel,
     EnrollClientRef,
@@ -178,6 +185,25 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         if (!onboardingFlows.length) return null;
         const active = onboardingFlows.find((f) => f.status && f.status !== 'draft');
         return active ?? onboardingFlows[0];
+    });
+
+    isV2 = computed(() => readEnrollmentClient(this.flow()) === 'v2');
+
+    verifyStyleLabel = computed(() => {
+        const style = readVerifyStyle(this.flow());
+        if (!style) return null;
+        const labels = VERIFY_STYLE_LABELS[style];
+        if (!labels) return style.toUpperCase();
+        const lang = (this._transloco?.getActiveLang() || 'es').toLowerCase();
+        return lang.startsWith('es') ? labels.es : labels.en;
+    });
+
+    liveEnrollmentUrl = computed(() => {
+        const p = this.project();
+        if (!p?._id) return '';
+        const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
+        const segment = enrollmentSegment(readEnrollmentClient(this.flow()));
+        return `${base}/${segment}/${p._id}`;
     });
 
     target = computed<'personal' | 'business'>(() => {
@@ -573,6 +599,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             world_api_europol: 'Europol',
             world_api_ofac: 'OFAC',
             world_api_onu: 'ONU',
+            world_api_csl: 'CSL',
+            world_api_dss_most_wanted: 'DSS Most Wanted',
+            world_api_us_terrorists: 'US Terrorist Exclusion',
+            world_api_secret_service: 'Secret Service',
+            world_api_sec: 'SEC Sanctions',
+            world_api_health_exclusions: 'HHS Health Exclusions',
+            world_api_cia_world_leaders: 'World Leaders (PEP)',
+            world_api_eu_terrorists: 'EU Terrorists',
+            world_api_eu_fsf: 'EU Financial Sanctions (FSF)',
+            world_api_ofsi: 'UK OFSI Sanctions',
+            world_api_world_bank: 'World Bank Debarred',
+            world_api_iadb: 'IADB Sanctions',
+            world_api_offshore_leaks: 'Offshore Leaks',
             colombia_api_inpec: this._transloco.translate(
                 'smartEnrollProjects.setup.documents.screening.checks.colombia.inpec.title'
             ),
@@ -584,6 +623,24 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             ),
             colombia_special_api_police_identity_lookup: this._transloco.translate(
                 'smartEnrollProjects.setup.documents.screening.checks.colombia.police.title'
+            ),
+            colombia_api_jcc_sanctions: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.jccSanctions.title'
+            ),
+            colombia_api_paco_sanctions: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.pacoSanctions.title'
+            ),
+            colombia_api_rama_jepms: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.ramaJepms.title'
+            ),
+            colombia_api_adverse_media: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.adverseMedia.title'
+            ),
+            colombia_api_sicaac_cases: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.sicaacCases.title'
+            ),
+            colombia_api_sicaac_insolvency: this._transloco.translate(
+                'smartEnrollProjects.setup.documents.screening.checks.colombia.sicaacInsolvency.title'
             ),
         };
         return map[value] ?? value;

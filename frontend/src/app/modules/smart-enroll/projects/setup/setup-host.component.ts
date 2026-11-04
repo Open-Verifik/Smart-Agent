@@ -33,6 +33,7 @@ import { SmartAccessLeaveDialogComponent, type SmartAccessLeaveAction } from 'ap
 import { draftProjectName, type WizardProgress } from 'app/modules/smart-access/projects/setup/smart-access-setup-draft.util';
 
 import { environment } from 'environments/environment';
+import { enrollmentBlockers, enrollmentSegment, readEnrollmentClient, savedVerifyStyle } from '../enrollment-client.util';
 import {
     ADDRESS_PATTERN,
     CITY_NAME_PATTERN,
@@ -386,7 +387,12 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return Array.from(out);
     }
 
+    private _savedEnrollmentClient = '';
+    private _savedFlowOrder = '';
+
     private _initProjectFlowForm(target: string, currentData: any): FormGroup {
+        this._savedEnrollmentClient = currentData?.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : '';
+        this._savedFlowOrder = currentData?.onboardingSettings?.flowOrder === 'consent_first' ? 'consent_first' : '';
         const rawBizStyle = currentData?.signUpForm?.businessBasicInfoStyle;
         const businessBasicInfoStyleNormalized: 'name' | 'name_number' =
             rawBizStyle === 'name_number'
@@ -401,6 +407,11 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             target: [target, [Validators.required]],
             type: ['onboarding', [Validators.required]],
             version: [currentData?.version ?? 3, [Validators.required]],
+            onboardingSettings: this._formBuilder.group({
+                enrollmentClient: [currentData?.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : ''],
+                verifyStyle: [savedVerifyStyle(currentData?.onboardingSettings?.verifyStyle)],
+                flowOrder: [currentData?.onboardingSettings?.flowOrder === 'consent_first' ? 'consent_first' : ''],
+            }),
             business: this._formBuilder.group(
                 {
                     attemptLimit: [currentData?.business?.attemptLimit || 3, [Validators.required, Validators.min(1), Validators.max(5)]],
@@ -540,6 +551,28 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return null;
     };
 
+    private _enrollmentClientPayload(projectFlowData: any): any {
+        if (!projectFlowData) return projectFlowData;
+
+        const style = savedVerifyStyle(projectFlowData.onboardingSettings?.verifyStyle);
+        const selected = projectFlowData.onboardingSettings?.enrollmentClient === 'v2' || Boolean(style) ? 'v2' : '';
+        const blockers = enrollmentBlockers(projectFlowData);
+        const rest = { ...projectFlowData };
+
+        delete rest.onboardingSettings;
+
+        const settings: Record<string, string> = {};
+
+        if (selected === 'v2' && !blockers.length) settings.enrollmentClient = 'v2';
+        else if ((selected === 'v2' && blockers.length) || this._savedEnrollmentClient === 'v2') settings.enrollmentClient = 'legacy';
+        if (style) settings.verifyStyle = style;
+        if (projectFlowData.onboardingSettings?.flowOrder === 'consent_first') settings.flowOrder = 'consent_first';
+        else if (projectFlowData.onboardingSettings?.flowOrder === '' && this._savedFlowOrder === 'consent_first') settings.flowOrder = 'contact_first';
+        if (!Object.keys(settings).length) return rest;
+
+        return { ...rest, onboardingSettings: settings };
+    }
+
     private _pickV3SignUpFormPayload(
         signUpForm: Record<string, unknown> | null | undefined,
         target: string
@@ -560,7 +593,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
      */
     private _prepareProjectFlowData(data: any): Project<SmartEnrollProjectFlow> {
         const { dataProtection, branding, projectFlow: projectFlowData, ...restProject } = data;
-        const { steps, business, documents, liveness, signUpForm, representatives, integrations, ...restProjectFlow } = projectFlowData;
+        const { steps, business, documents, liveness, signUpForm, representatives, integrations, ...restProjectFlow } =
+            this._enrollmentClientPayload(projectFlowData);
 
         const formData: any = restProject;
 
@@ -603,6 +637,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             formData.projectFlow = { ...restProjectFlow, integrations };
         } else if (this.stepIndex === 5) {
             formData.branding = branding;
+            if (restProjectFlow.onboardingSettings) formData.projectFlow = { ...restProjectFlow, onboardingSettings: restProjectFlow.onboardingSettings };
         }
 
         return formData;
@@ -1006,7 +1041,11 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             (environment as any).production && (environment as any).kycBaseUrl
                 ? (environment as any).kycBaseUrl
                 : (environment as any).sandBoxKYCBaseUrl || (environment as any).kycBaseUrl || `${origin}`;
-        const url = `${baseUrl}/sign-up/${this.projectId}`;
+        const rawFlow = this.form.get('projectFlow')?.getRawValue?.() || this.form.get('projectFlow')?.value;
+        const client = readEnrollmentClient(rawFlow);
+        const blocked = enrollmentBlockers(rawFlow);
+        const segment = blocked.length ? 'sign-up' : enrollmentSegment(client);
+        const url = `${baseUrl}/${segment}/${this.projectId}`;
         window.open(url, '_blank');
     }
 

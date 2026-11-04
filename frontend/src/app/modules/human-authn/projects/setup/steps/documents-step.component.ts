@@ -22,6 +22,7 @@ import {
     isCountryCheckSelected,
     toggleCountryCheck,
 } from 'app/modules/smart-enroll/projects/setup/steps/documents/criminal-check-catalog.util';
+import { CriminalCheckDetailDialogComponent } from 'app/modules/smart-enroll/projects/setup/steps/documents/criminal-check-detail-dialog/criminal-check-detail-dialog.component';
 import { DocumentVerificationTypeListComponent } from 'app/modules/smart-enroll/projects/setup/steps/documents/document-verification-type/document-verification-type-list.component';
 
 /**
@@ -81,12 +82,31 @@ export class HumanAuthnDocumentsStepComponent implements OnInit {
         this._checkOption('world_api_europol', 'europol'),
         this._checkOption('world_api_ofac', 'ofac'),
         this._checkOption('world_api_onu', 'un'),
+        this._checkOption('world_api_csl', 'csl'),
+        this._checkOption('world_api_dss_most_wanted', 'dss'),
+        this._checkOption('world_api_us_terrorists', 'usTerrorists'),
+        this._checkOption('world_api_secret_service', 'secretService'),
+        this._checkOption('world_api_sec', 'sec'),
+        this._checkOption('world_api_health_exclusions', 'healthExclusions'),
+        this._checkOption('world_api_cia_world_leaders', 'ciaWorldLeaders'),
+        this._checkOption('world_api_eu_terrorists', 'euTerrorists'),
+        this._checkOption('world_api_eu_fsf', 'euFsf'),
+        this._checkOption('world_api_ofsi', 'ofsi'),
+        this._checkOption('world_api_world_bank', 'worldBank'),
+        this._checkOption('world_api_iadb', 'iadb'),
+        this._checkOption('world_api_offshore_leaks', 'offshoreLeaks'),
     ];
     readonly colombiaSources: CriminalCheckOption[] = [
         this._checkOption('colombia_api_inpec', 'colombia.inpec'),
         this._checkOption('colombia_api_identity_lookup_procuraduria', 'colombia.procuraduria'),
         this._checkOption('colombia_api_police_rnmc', 'colombia.rnmc'),
         this._checkOption('colombia_special_api_police_identity_lookup', 'colombia.police'),
+        this._checkOption('colombia_api_jcc_sanctions', 'colombia.jccSanctions'),
+        this._checkOption('colombia_api_paco_sanctions', 'colombia.pacoSanctions'),
+        this._checkOption('colombia_api_rama_jepms', 'colombia.ramaJepms'),
+        this._checkOption('colombia_api_adverse_media', 'colombia.adverseMedia'),
+        this._checkOption('colombia_api_sicaac_cases', 'colombia.sicaacCases'),
+        this._checkOption('colombia_api_sicaac_insolvency', 'colombia.sicaacInsolvency'),
     ];
 
     selectedCheck: CriminalCheckOption | null = null;
@@ -205,8 +225,19 @@ export class HumanAuthnDocumentsStepComponent implements OnInit {
         event.preventDefault();
         event.stopPropagation();
         this.selectedCheck = check;
-        if (!this.checkDetailsDialog) return;
-        this._dialog.open(this.checkDetailsDialog, { width: '560px', maxHeight: '90vh', autoFocus: false });
+
+        this._dialog.open(CriminalCheckDetailDialogComponent, {
+            data: {
+                check,
+                isSelected: this.isEndpointSelected(check.value),
+                onToggle: () => this.toggleCriminalEndpoint(check.value),
+            },
+            width: '840px',
+            maxWidth: '95vw',
+            maxHeight: '92vh',
+            panelClass: 'criminal-check-dialog-panel',
+            autoFocus: false,
+        });
     }
 
     docsUrl(check: CriminalCheckOption): string {

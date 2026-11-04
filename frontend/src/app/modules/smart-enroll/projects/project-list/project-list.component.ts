@@ -8,10 +8,16 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterModule } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { requiresSmartEnrollSubscription } from 'app/core/client-settings/override-conditions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { environment } from 'environments/environment';
+import {
+    enrollmentSegment,
+    readEnrollmentClient,
+    readVerifyStyle,
+    VERIFY_STYLE_LABELS,
+} from '../enrollment-client.util';
 import { DateTime } from 'luxon';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -58,6 +64,7 @@ export class ProjectListComponent implements OnInit {
     private _router = inject(Router);
     private _authGate = inject(AuthRequiredGateService);
     private _dialog = inject(MatDialog);
+    private _transloco = inject(TranslocoService);
     projects = signal<EnrollProject[]>([]);
     loading = signal(true);
     error = signal<string | null>(null);
@@ -169,7 +176,9 @@ export class ProjectListComponent implements OnInit {
      */
     liveEnrollmentUrl(project: EnrollProject): string {
         const base = (environment.kycBaseUrl ?? '').replace(/\/+$/, '');
-        return `${base}/sign-up/${project._id}`;
+        const segment = enrollmentSegment(readEnrollmentClient(this.currentFlow(project)));
+
+        return `${base}/${segment}/${project._id}`;
     }
 
     openLiveEnrollment(project: EnrollProject, event?: Event): void {
@@ -238,8 +247,24 @@ export class ProjectListComponent implements OnInit {
     currentFlow(project: EnrollProject): EnrollProjectFlow | null {
         const flows = project.projectFlows;
         if (!flows?.length) return null;
-        const active = flows.find((f) => f.status && f.status !== 'draft');
-        return active ?? flows[0];
+        const onboardingFlows = flows.filter((f) => f.type === 'onboarding');
+        const candidates = onboardingFlows.length ? onboardingFlows : flows;
+        const active = candidates.find((f) => f.status && f.status !== 'draft');
+        return active ?? candidates[0];
+    }
+
+    isV2Project(project: EnrollProject): boolean {
+        return readEnrollmentClient(this.currentFlow(project)) === 'v2';
+    }
+
+    projectStyleLabel(project: EnrollProject): string | null {
+        const flow = this.currentFlow(project);
+        const style = readVerifyStyle(flow);
+        if (!style) return null;
+        const labels = VERIFY_STYLE_LABELS[style];
+        if (!labels) return style.toUpperCase();
+        const lang = (this._transloco?.getActiveLang() || 'es').toLowerCase();
+        return lang.startsWith('es') ? labels.es : labels.en;
     }
 
     isDraftFlow(flow: EnrollProjectFlow | null): boolean {

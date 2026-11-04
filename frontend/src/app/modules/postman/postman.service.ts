@@ -270,6 +270,24 @@ export class PostmanService {
         });
     }
 
+    /**
+     * Resolves and hydrates an ApiEndpoint by feature code.
+     */
+    getOrHydrateEndpointByCode(code: string): Observable<ApiEndpoint | null> {
+        const existing = this.endpoints().find((endpoint) => endpoint.code === code);
+        if (existing && !catalogNeedsDetailHydration(existing)) {
+            return of(existing);
+        }
+
+        return this._fetchFeatureDetail(code).pipe(
+            map((feature) => {
+                if (!feature) return existing || null;
+                return this._createEndpointFromFeature(feature, this._apiUrl());
+            }),
+            catchError(() => of(existing || null))
+        );
+    }
+
     private _fetchCatalogCountries() {
         const apiUrl = this._apiUrl();
         const workspaceUrl = `${apiUrl}/v2/app-features/countries`;
