@@ -4752,6 +4752,14 @@
                                 "about": "Registro oficial para procedimientos de insolvencia de persona natural no comerciante. Este endpoint consulta si la persona ha iniciado procesos de negociación de deudas o liquidación patrimonial."
                             }
                         },
+                        "peru": {
+                            "pep": {
+                                "title": "Personas Expuestas Políticamente (PEP — SBS 2660-2015)",
+                                "description": "Consulta ciudadanos (DNI/CE) y nombres contra el padrón PEP según Resolución SBS N° 4349-2016 / 02868-2025 con ventana de 2 años para ex-PEP.",
+                                "source": "Fuente · SBS / Registro Oficial de Declaraciones",
+                                "about": "Evalúa si una persona califica como Persona Expuesta Políticamente (PEP) en el Perú conforme a las categorías a–m del Anexo de la Resolución SBS N° 4349-2016 y N° 02868-2025 (Reglamento SPLAFT Res. SBS N° 2660-2015), incluyendo cargos vigentes y exfuncionarios dentro de los 2 años posteriores al cese."
+                            }
+                        },
                         "interpol": {
                             "title": "Notificaciones de INTERPOL",
                             "description": "Consulta notificaciones internacionales y registros de personas buscadas.",

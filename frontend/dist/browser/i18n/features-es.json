@@ -844,6 +844,10 @@
             "title": "Verificación Empresarial Peruana v3",
             "description": "Valida empresas peruanas por RUC con la API KYB v3 de Verifik."
         },
+        "peru_api_pep": {
+            "title": "Consulta de Personas Expuestas Políticamente (PEP) en Perú",
+            "description": "Consulta ciudadanos (DNI/CE) y nombres contra el padrón PEP según Resolución SBS N° 2660-2015 / 4349-2016 / 02868-2025 (con ventana de 2 años para ex-PEP) vía GET /v2/pe/politically-exposed-persons."
+        },
         "face_recognition_detect_face": {
             "title": "Detección Facial",
             "description": "Proporciona servicios confiables de verificación y validación."
