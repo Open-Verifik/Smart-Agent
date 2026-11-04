@@ -63,6 +63,7 @@ import {
     formatReportCellValue,
     humanizeParamKey,
     isAutoOmittedParamKey,
+    tableDataName,
     LayoutSheetChunk,
     tableColumnPath,
     valueAtDataPath,
@@ -1091,12 +1092,9 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         const el = this.reportPage?.nativeElement;
         if (!el) return { x: 1, y: 1 };
         const currentWidth = el.offsetWidth;
-        const currentHeight = el.offsetHeight;
-        if (!currentWidth || !currentHeight) return { x: 1, y: 1 };
-        return {
-            x: this.pageWidthPx() / currentWidth,
-            y: this.pageHeightPx() / currentHeight,
-        };
+        if (!currentWidth) return { x: 1, y: 1 };
+        const scale = this.pageWidthPx() / currentWidth;
+        return { x: scale, y: scale };
     }
 
     private _readPointerScale(): { x: number; y: number } {
@@ -2820,7 +2818,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     zoomedStackHeightPx(): number {
         const pages = Math.max(1, this.visiblePages().length);
         const gap = 16;
-        return (this.pageHeightPx() * pages + gap * Math.max(0, pages - 1)) * this._viewZoom();
+        let total = 0;
+        for (let index = 0; index < pages; index += 1) {
+            total += this.designPageStretchPx(index) ?? this.pageHeightPx();
+        }
+        return (total + gap * Math.max(0, pages - 1)) * this._viewZoom();
     }
 
     private _viewZoom(): number {
@@ -2834,6 +2836,20 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     pageHeightPx(): number {
         return this.paperSizeMm().height * MM_TO_PX;
+    }
+
+    /** Extra sheet height so a full list is not cut off by the page edge. */
+    designPageStretchPx(pageIndex: number): number | null {
+        if (!this.reorderable() || this.thumbnailMode() || this.printCapture()) return null;
+        const base = this.pageHeightPx();
+        let bottom = 0;
+        for (const section of this.template().sections ?? []) {
+            if (isReportPageAnchor(section)) continue;
+            const frame = this.displayFrame(section);
+            if (!frame || (frame.page ?? 0) !== pageIndex) continue;
+            bottom = Math.max(bottom, (Number(frame.y) || 0) + (Number(frame.height) || 0) + 24);
+        }
+        return bottom > base + 4 ? Math.ceil(bottom) : null;
     }
 
     /** Last usable Y before the footer / bottom margin. */
@@ -2877,6 +2893,18 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             height: size.height,
             page: lowest.page ?? 0,
         });
+    }
+
+    /** The drawn box stays put. Extra content stays inside it, without a scrollbar. */
+    keepsDrawnFrame(section: ReportSection): boolean {
+        return (
+            section.type === 'dataTable' ||
+            section.type === 'table' ||
+            section.type === 'keyValueGrid' ||
+            section.type === 'card' ||
+            section.type === 'repeater' ||
+            section.type === 'reportBlocks'
+        );
     }
 
     /** Lists, tables and repeaters keep the designed box on the sheet. The PDF grows them. */
@@ -3014,9 +3042,17 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             else if (extra > 0) style['min-height'] = `${extra / scales.y}px`;
             style['overflow'] = 'visible';
         } else if (height) {
-            if (flowClip || clipToFrame || section.type === 'shape') style['height'] = `${height}px`;
-            else style['min-height'] = `${height}px`;
-            style['overflow'] = flowClip || (clipToFrame && !moveRing) ? 'hidden' : 'visible';
+            if (this.keepsDrawnFrame(section)) {
+                style['height'] = `${height}px`;
+                style['overflow'] = 'visible';
+                style['overflow-x'] = 'visible';
+            } else if (flowClip || clipToFrame || section.type === 'shape') {
+                style['height'] = `${height}px`;
+                style['overflow'] = flowClip || (clipToFrame && !moveRing) ? 'hidden' : 'visible';
+            } else {
+                style['min-height'] = `${height}px`;
+                style['overflow'] = 'visible';
+            }
         } else {
             style['overflow'] = clipToFrame && !moveRing ? 'hidden' : 'visible';
         }
@@ -3653,17 +3689,27 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return result;
     }
 
-    /** Shapes, rules and spacers keep the size the user drew. Data blocks do not. */
+    /** Shapes keep the drawn size. Lists and tables grow until every row is visible. */
     private _locksFrameHeight(section: ReportSection): boolean {
         return section.type === 'shape' || section.type === 'divider' || section.type === 'spacer';
     }
 
     /**
      * Border-box height of the data inside the block.
-     * The host's offsetHeight is the saved frame, so a short block still
-     * reports the tall box and the selection ring never tightens.
+     * A clipped list reports the hidden rows through the clip box, so the
+     * frame can grow to the whole table instead of the short selection.
      */
     private _contentBoxHeight(el: HTMLElement): number {
+        const clip = el.querySelector(':scope > [data-section-clip]') as HTMLElement | null;
+        if (clip) {
+            let needed = 0;
+            for (const node of Array.from(clip.children)) {
+                const child = node as HTMLElement;
+                if (child.dataset?.['printHide'] != null) continue;
+                needed = Math.max(needed, child.offsetTop + child.offsetHeight);
+            }
+            return el.offsetHeight + Math.max(0, needed - clip.clientHeight);
+        }
         let bottom = 0;
         let found = false;
         for (const node of Array.from(el.children)) {
@@ -4687,45 +4733,45 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return [];
     }
 
-    /** Declared columns, or the ones the backend would derive from the records. */
+    /** Declared columns first, then any column still present in the records. */
     structuralColumns(section: ReportSection): { key: string; label: string }[] {
         const hidden = new Set(section.hiddenKeys ?? []);
-
-        if (section.columns?.length) {
-            return section.columns
-                .filter((column) => !hidden.has(column.key))
-                .map((column) => ({
-                    key: column.key,
-                    label: column.label || this._humanize(column.key),
-                }));
-        }
-
+        const declared = (section.columns ?? [])
+            .filter((column) => column?.key)
+            .map((column) => ({
+                key: column.key,
+                label: column.label || this._humanize(column.key),
+            }));
+        const labeled: { key: string; label: string }[] = [];
         const raw = this._valueAt(section.dataPath);
         if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
             const table = raw as Record<string, unknown>;
-            if (Array.isArray(table['columns']) && table['columns'].length > 0) {
-                return (table['columns'] as { key?: string; label?: string }[])
-                    .filter((column) => column?.key && !hidden.has(column.key))
-                    .map((column) => ({
+            if (Array.isArray(table['columns'])) {
+                for (const column of table['columns'] as { key?: string; label?: string }[]) {
+                    if (!column?.key) continue;
+                    labeled.push({
                         key: String(column.key),
                         label: column.label || this._humanize(String(column.key)),
-                    }));
+                    });
+                }
             }
         }
-
-        const records = this.structuralRecords(section);
         const keys: string[] = [];
-
-        for (const record of records) {
+        for (const record of this.structuralRecords(section)) {
             for (const key of Object.keys(record)) {
                 if (!keys.includes(key)) keys.push(key);
             }
         }
-
-        const columns = keys.filter((key) => !hidden.has(key) && !isAutoOmittedParamKey(key));
-        const limit = Number(section.maxColumns);
-        const capped = limit > 0 ? columns.slice(0, limit) : columns;
-        return capped.map((key) => ({ key, label: this._humanize(key) }));
+        const discovered = keys.map((key) => ({ key, label: this._humanize(key) }));
+        const seen = new Set<string>();
+        const ordered: { key: string; label: string }[] = [];
+        for (const column of [...declared, ...labeled, ...discovered]) {
+            if (!column.key || seen.has(column.key) || hidden.has(column.key)) continue;
+            if (isAutoOmittedParamKey(column.key) && !declared.some((item) => item.key === column.key)) continue;
+            seen.add(column.key);
+            ordered.push(column);
+        }
+        return ordered;
     }
 
     /** Two rows are enough to show shape without reproducing the document. */
@@ -4799,7 +4845,12 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     tableLabel(section: ReportSection, table: { key: string; label: string }): string {
-        return displayParamLabel(table.key, section.keyOverrides?.[table.key]?.label || table.label);
+        this._activeLang();
+        const custom = section.keyOverrides?.[table.key]?.label;
+        if (typeof custom === 'string') return custom.trim();
+        const name = tableDataName(table.key) || (section.label || '').trim();
+        if (!name) return this._transloco.translate('smartReport.sheetTable');
+        return this._transloco.translate('smartReport.sheetTableOf', { name });
     }
 
     tableFill(section: ReportSection, key: string): string {
@@ -4812,10 +4863,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
 
     tableHeaderFill(section: ReportSection, key: string): string {
         return `color-mix(in srgb, ${this.tableFill(section, key)} 82%, #000000)`;
-    }
-
-    tableShowsBadge(section: ReportSection, key: string): boolean {
-        return section.keyOverrides?.[key]?.showTableBadge !== false;
     }
 
     tableColumnKey(tableKey: string, column: string): string {
@@ -5048,6 +5095,28 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     columnWidth(section: ReportSection, key: string): number | null {
         const value = Number(this._cellSize(section, key).width);
         return value > 0 ? value / this._scaleFactors.x : null;
+    }
+
+    /**
+     * Column widths are shares of the table. A column without a width keeps a
+     * baseline so one wide column cannot crush the others.
+     */
+    columnShareWidth(
+        section: ReportSection,
+        columns: { key: string }[],
+        tableKey: string,
+        columnKey: string
+    ): string | null {
+        if (!columns?.length) return null;
+        const stored = columns.map((column) =>
+            this.columnWidth(section, this.tableColumnKey(tableKey, column.key))
+        );
+        if (!stored.some((width) => width != null && width > 0)) return null;
+        const weights = stored.map((width) => (width != null && width > 0 ? width : 96));
+        const total = weights.reduce((sum, width) => sum + width, 0);
+        const index = columns.findIndex((column) => column.key === columnKey);
+        if (index < 0 || !(total > 0)) return null;
+        return `${(weights[index] / total) * 100}%`;
     }
 
     /**

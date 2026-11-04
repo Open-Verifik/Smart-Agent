@@ -88,16 +88,18 @@ import {
     REPORT_UI_Z_TOOLBAR,
 } from '../report-design-z-index.constants';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
+import { EndpointInfoDialogComponent } from './endpoint-info-dialog.component';
 import { ReportCellPart, ReportHeaderLogo, ReportKeyOverride, ReportRowLineStyle, ReportSection, ReportSectionFrame, ReportShapeKind, ReportSheetImage, ReportTextRole, ReportTextRoleStyle, SampleReportData, SmartReport, SmartReportService, SmartReportTemplate, cloneReportValue, templateLayerZ } from '../smart-report.service';
 import {
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
     collectObjectTables,
-    designedTableColumns,
+    extractedTableColumns,
     isAutoOmittedParamKey,
     formatReportCellValue,
     layoutTableRulesKey,
     tableColumnPath,
+    tableDataName,
     isHiddenParamKey,
     layoutParamGroups,
     mergeLayoutKeyOrder,
@@ -936,8 +938,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     allowsMultiEntity = computed(() => this.intent() === 'report' || this.intent() === 'template');
 
-    stepIndex = computed(() => Math.max(0, this.visibleSteps().indexOf(this.step())));
-    stepCount = computed(() => Math.max(this.visibleSteps().length, 1));
     currentTitleKey = computed(() => STEP_TITLE_KEYS[this.step()]);
     canGoBack = computed(
         () =>
@@ -4036,6 +4036,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
         field.order = this.layoutSections().length;
         field.frame = frame;
+        if (isTable) {
+            const extracted = extractedTableColumns(valueAtDataPath(this.previewData(), source.dataPath), key, {
+                keyOrder: source.keyOrder,
+                hiddenKeys: source.hiddenKeys,
+                keyOverrides: source.keyOverrides,
+            });
+            if (extracted.columns.length) field.columns = extracted.columns;
+            if (extracted.hiddenKeys.length) field.hiddenKeys = extracted.hiddenKeys;
+        }
         this.layoutSections.update((list) => {
             const next = list.map((section) => {
                 if (!options.extract || section.id !== source.id) return section;
@@ -4791,6 +4800,25 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             return { x: event.dropPoint.x, y: event.dropPoint.y };
         }
         return null;
+    }
+
+    openLayoutConsultInfo(card: GuideResultCard): void {
+        const feature =
+            this.availableFeatures().find((item) => item.code === card.code) ||
+            this.selectedFeatures().find((item) => item.code === card.code) ||
+            ({
+                _id: card.code || card.label,
+                code: card.code || '',
+                name: card.label,
+            } as AppFeature);
+        this._dialog.open(EndpointInfoDialogComponent, {
+            data: { feature, allowAdd: false },
+            width: '720px',
+            maxWidth: '92vw',
+            maxHeight: '70vh',
+            panelClass: 'endpoint-info-panel',
+            autoFocus: false,
+        });
     }
 
     addCardToLayout(card: GuideResultCard, at?: { x: number; y: number } | null): void {
@@ -6922,14 +6950,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     selectedLayoutCellTitle(): string {
         const key = this._selectedLayoutRulesKey();
         if (!key) return '';
-        const override = this.selectedLayoutSection()?.keyOverrides?.[key]?.label;
         const section = this.selectedLayoutSection();
+        const override = section?.keyOverrides?.[key]?.label;
+        if (typeof override === 'string') return override;
         if (section?.type === 'dataTable') {
             const column = this.selectedDataTableColumns().find((item) => item.key === key);
             if (column) return column.label;
         }
         const option = this.layoutParamOptions().find((item) => item.key === key);
-        return override || option?.label || humanizeParamKey(key);
+        const plain = option?.label || humanizeParamKey(key);
+        const columns = this.selectedLayoutTableColumns();
+        if (columns.length && !columns.some((column) => column.key === key)) {
+            const name = tableDataName(key) || (section?.label || '').trim() || plain;
+            return name
+                ? this._transloco.translate('smartReport.sheetTableOf', { name })
+                : this._transloco.translate('smartReport.sheetTable');
+        }
+        return plain;
     }
 
     selectedCellRuleCount(): number {
@@ -7276,18 +7313,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const custom = this.selectedLayoutCellOverride()?.backgroundColor;
         if (custom) return custom;
         return this.selectedLayoutCellIsTable() ? '#fffbeb' : '#fafaf9';
-    }
-
-    selectedLayoutTableBadge(): boolean {
-        return this.selectedLayoutCellOverride()?.showTableBadge !== false;
-    }
-
-    setSelectedLayoutTableBadge(visible: boolean): void {
-        if (visible) {
-            this._patchSelectedKeyOverride({}, ['showTableBadge']);
-            return;
-        }
-        this._patchSelectedKeyOverride({ showTableBadge: false });
     }
 
     selectedLayoutCellHasBorder(): boolean {
@@ -7680,12 +7705,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const section = this.selectedLayoutSection();
         if (section?.type !== 'dataTable') return [];
         const hidden = new Set(section.hiddenKeys ?? []);
-        const source = section.columns?.length
-            ? section.columns.map((column) => ({
-                  key: column.key,
-                  label: column.label || humanizeParamKey(column.key),
-              }))
-            : this._derivedDataTableColumns(section);
+        const saved = (section.columns ?? []).filter((column) => column?.key);
+        const seen = new Set<string>();
+        const source: { key: string; label: string }[] = [];
+        for (const column of [...saved, ...this._derivedDataTableColumns(section)]) {
+            if (!column?.key || seen.has(column.key)) continue;
+            if (isAutoOmittedParamKey(column.key) && !saved.some((item) => item.key === column.key)) continue;
+            seen.add(column.key);
+            source.push({ key: column.key, label: column.label || humanizeParamKey(column.key) });
+        }
         return source.map((column) => ({ ...column, visible: !hidden.has(column.key) }));
     }
 
@@ -8044,36 +8072,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 }).map((item) => item.key);
                 if (!discovered.length) return section;
                 const keyOrder = mergeLayoutKeyOrder(section.keyOrder, discovered);
-                let hiddenKeys = section.hiddenKeys;
-                for (const table of collectObjectTables(value, {
-                    hideColumns: false,
-                    keyOrder: section.keyOrder,
-                    hiddenKeys: section.hiddenKeys,
-                    keyOverrides: section.keyOverrides,
-                })) {
-                    const available = table.columns.map((column) => column.key);
-                    const designed = designedTableColumns(table.key, available, {
-                        keyOrder: section.keyOrder,
-                        keyOverrides: section.keyOverrides,
-                    });
-                    if (!designed?.length) continue;
-                    for (const column of available) {
-                        if (designed.includes(column) && !isAutoOmittedParamKey(column)) continue;
-                        hiddenKeys = setHiddenParamKey(hiddenKeys, tableColumnPath(table.key, column), false);
-                    }
-                }
                 const prev = section.keyOrder ?? [];
-                const hiddenSame =
-                    (hiddenKeys ?? []).length === (section.hiddenKeys ?? []).length &&
-                    (hiddenKeys ?? []).every((key, index) => key === (section.hiddenKeys ?? [])[index]);
-                if (
-                    prev.length === keyOrder.length &&
-                    prev.every((key, index) => key === keyOrder[index]) &&
-                    hiddenSame
-                ) {
+                if (prev.length === keyOrder.length && prev.every((key, index) => key === keyOrder[index])) {
                     return section;
                 }
-                return { ...section, keyOrder, hiddenKeys };
+                return { ...section, keyOrder };
             })
         );
     }

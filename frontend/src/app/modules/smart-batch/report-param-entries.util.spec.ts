@@ -9,6 +9,7 @@ import {
     flattenSampleResultsForPdf,
     formatReportCellValue,
     humanizeParamKey,
+    tableDataName,
     isHiddenParamKey,
     layoutParamGroups,
     layoutTableRulesKey,
@@ -227,7 +228,7 @@ describe('designedTableColumns', () => {
             collectObjectTables(soat, {
                 keyOrder: ['soat.noPoliza', 'soat.tipoTarifa', 'soat.estado'],
             })[0]?.columns.map((column) => column.key)
-        ).toEqual(['noPoliza', 'estado']);
+        ).toEqual(['noPoliza', 'estado', 'fechaExpedicion']);
         expect(designedTableColumns('soat', ['noPoliza', 'estado', 'tipoTarifa'], {
             keyOverrides: { 'soat.estado': { label: 'Estado' } },
         })).toBeNull();

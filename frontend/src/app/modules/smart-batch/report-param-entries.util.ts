@@ -165,6 +165,15 @@ export const humanizeParamKey = (key: string): string =>
     key.split('.').filter((part) => part && part !== ROOT_TABLE_KEY).map(humanizeSegment).join(' · ') ||
     key;
 
+/** Name of the records a table shows, with the table's own word first. */
+export const tableDataName = (key: string): string => {
+    const parts = String(key || '')
+        .split('.')
+        .filter((part) => part && part !== ROOT_TABLE_KEY)
+        .map((part) => humanizeSegment(part));
+    return parts.reverse().join(' · ');
+};
+
 /** Prefer the field's own name. A path such as `item.nombre` must not keep the parent word in front. */
 export const displayParamLabel = (key: string, fallback?: string): string => {
     const base = layoutTableRulesKey(key);
@@ -513,15 +522,14 @@ const orderColumnKeys = (
     tableKey: string,
     options?: { keyOrder?: string[]; hiddenKeys?: string[]; keyOverrides?: Record<string, unknown> }
 ): string[] => {
-    const designed = designedTableColumns(tableKey, columnKeys, options);
+    const usable = columnKeys.filter((column) => !isAutoOmittedParamKey(column));
+    const designed = designedTableColumns(tableKey, usable, options);
     if (designed?.length) {
-        return designed.filter(
-            (column) =>
-                !isAutoOmittedParamKey(column) &&
-                !isHiddenParamKey(tableColumnPath(tableKey, column), options?.hiddenKeys)
+        const rest = usable.filter((column) => !designed.includes(column));
+        return [...designed, ...rest].filter(
+            (column) => !isHiddenParamKey(tableColumnPath(tableKey, column), options?.hiddenKeys)
         );
     }
-    const usable = columnKeys.filter((column) => !isAutoOmittedParamKey(column));
     const keyOrder = options?.keyOrder;
     if (!keyOrder?.length || usable.length < 2) return usable;
     const rank = new Map(keyOrder.map((key, index) => [key, index]));
@@ -664,6 +672,46 @@ export const collectObjectTables = (
 
     walk(value, '', 1);
     return tables;
+};
+
+/**
+ * Every real column of a table pulled out of a block.
+ * keyOrder only sorts. A column stays hidden only when the author hid it.
+ */
+export const extractedTableColumns = (
+    value: unknown,
+    tableKey: string,
+    options?: {
+        keyOrder?: string[];
+        hiddenKeys?: string[];
+        keyOverrides?: Record<string, { label?: string } | undefined>;
+    }
+): { columns: { key: string; label: string }[]; hiddenKeys: string[] } => {
+    const table = collectObjectTables(value, {
+        hiddenKeys: [],
+        hideColumns: false,
+        keyOrder: options?.keyOrder,
+        keyOverrides: options?.keyOverrides,
+    }).find((item) => item.key === tableKey);
+    const columns = (table?.columns ?? []).map((column) => ({
+        key: column.key,
+        label: options?.keyOverrides?.[tableColumnPath(tableKey, column.key)]?.label || column.label,
+    }));
+    const known = new Set(columns.map((column) => column.key));
+    const hiddenKeys: string[] = [];
+    for (const stored of options?.hiddenKeys ?? []) {
+        const leaf =
+            !tableKey || tableKey === ROOT_TABLE_KEY
+                ? stored
+                : stored.startsWith(`${tableKey}.`)
+                  ? stored.slice(tableKey.length + 1)
+                  : '';
+        if (!leaf || leaf.includes('.') || leaf.includes('#') || !known.has(leaf) || hiddenKeys.includes(leaf)) {
+            continue;
+        }
+        hiddenKeys.push(leaf);
+    }
+    return { columns, hiddenKeys };
 };
 
 /**

@@ -36,7 +36,7 @@
             [style.max-width]="pageWidthCss()"
             [style.min-width]="pageWidthCss()"
             [style.min-height]="pageHeightCss()"
-            [style.height]="pageHeightCss()"
+            [style.height]="designPageStretchPx(pageIndex) ? designPageStretchPx(pageIndex) + 'px' : pageHeightCss()"
             [style.background-color]="pageBackgroundColor() || '#ffffff'"
             style="border: 1px solid #e5e7eb"
         >
@@ -628,10 +628,19 @@
                         @if (isSectionDropAfter(section)) {
                             <div class="pointer-events-none absolute bottom-0 left-1 right-1 z-20 h-1 rounded-full bg-indigo-500"></div>
                         }
-                        <ng-container
-                            [ngTemplateOutlet]="sectionBody"
-                            [ngTemplateOutletContext]="{ section: section, measure: false }"
-                        ></ng-container>
+                        @if (keepsDrawnFrame(section)) {
+                            <div data-section-clip class="absolute inset-0 overflow-hidden">
+                                <ng-container
+                                    [ngTemplateOutlet]="sectionBody"
+                                    [ngTemplateOutletContext]="{ section: section, measure: false }"
+                                ></ng-container>
+                            </div>
+                        } @else {
+                            <ng-container
+                                [ngTemplateOutlet]="sectionBody"
+                                [ngTemplateOutletContext]="{ section: section, measure: false }"
+                            ></ng-container>
+                        }
                     </div>
                     }
                 }
@@ -1231,9 +1240,10 @@
                         <tr [class.border-b-2]="sectionShowsRowLines(section)" [style.border-color]="primaryColor()">
                             @for (column of structuralColumns(section); track column.key) {
                                 <th
-                                    class="min-w-0 py-1.5 pr-3 text-left align-top break-words [overflow-wrap:anywhere]"
+                                    class="relative min-w-0 py-1.5 pr-3 text-left align-top break-words [overflow-wrap:anywhere]"
                                     [class.ring-1]="isCellSelected(section, column.key, 'label')"
                                     [class.ring-lime-500]="isCellSelected(section, column.key, 'label')"
+                                    [style.width]="columnShareWidth(section, structuralColumns(section), '', column.key)"
                                     [style.font-family]="roleFontFamily(section, 'label')"
                                     [style.font-size.px]="roleFontSize(section, 'label')"
                                     [style.font-weight]="roleFontWeight(section, 'label')"
@@ -1492,28 +1502,21 @@
                                     [ngTemplateOutletContext]="{ mode: 'cell' }"
                                 ></ng-container>
                             }
-                            <div class="mb-1.5 flex items-center gap-2">
-                                @if (tableShowsBadge(section, chunk.table.key)) {
-                                    <span
-                                        class="rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-950"
-                                        [style.background-color]="tableHeaderFill(section, chunk.table.key)"
-                                    >
-                                        {{ 'smartReport.sheetTable' | transloco }}
-                                    </span>
-                                }
-                                @if (chunk.table.key !== '__list') {
-                                    <p
-                                        class="min-w-0 flex-1 truncate tracking-wide"
-                                        [style.font-family]="roleFontFamily(section, 'label')"
-                                        [style.font-size.px]="roleFontSize(section, 'label')"
-                                        [style.font-weight]="roleFontWeight(section, 'label')"
-                                        [style.color]="roleColor(section, 'label')"
-                                [style.--report-link-color]="roleLinkColor(section, 'label')"
-                                    >
-                                        {{ tableLabel(section, chunk.table) }}
-                                    </p>
-                                }
-                            </div>
+                            @if (tableLabel(section, chunk.table); as tableTitle) {
+                                <p
+                                    class="mb-1.5 min-w-0 truncate tracking-wide"
+                                    [style.font-family]="roleFontFamily(section, 'label')"
+                                    [style.font-size.px]="roleFontSize(section, 'label')"
+                                    [style.font-weight]="roleFontWeight(section, 'label')"
+                                    [style.color]="roleColor(section, 'label')"
+                                    [style.--report-link-color]="roleLinkColor(section, 'label')"
+                                >
+                                    <ng-container
+                                        [ngTemplateOutlet]="sheetText"
+                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', tableTitle, measure, false, chunk.table.key, tableTitle)"
+                                    ></ng-container>
+                                </p>
+                            }
                             <table class="w-full max-w-full table-fixed border-collapse">
                                 <thead>
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
@@ -1523,7 +1526,7 @@
                                                 [class.border-b]="tableShowsRowLines(section, chunk.table.key)"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
-                                                [style.width.px]="columnWidth(section, tableColumnKey(chunk.table.key, column.key))"
+                                                [style.width]="columnShareWidth(section, chunk.table.columns, chunk.table.key, column.key)"
                                                 [style.border-color]="tableEdge(section, chunk.table.key)"
                                                 [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
                                                 [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
@@ -1538,10 +1541,6 @@
                                                 <ng-container
                                                     [ngTemplateOutlet]="sheetText"
                                                     [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
-                                                ></ng-container>
-                                                <ng-container
-                                                    [ngTemplateOutlet]="cellResizeHandles"
-                                                    [ngTemplateOutletContext]="{ section: section, key: tableColumnKey(chunk.table.key, column.key), axes: 'w', measure: measure }"
                                                 ></ng-container>
                                             </th>
                                         }
@@ -1777,28 +1776,21 @@
                                     [ngTemplateOutletContext]="{ mode: 'cell' }"
                                 ></ng-container>
                             }
-                            <div class="mb-1.5 flex items-center gap-2">
-                                @if (tableShowsBadge(section, chunk.table.key)) {
-                                    <span
-                                        class="rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-950"
-                                        [style.background-color]="tableHeaderFill(section, chunk.table.key)"
-                                    >
-                                        {{ 'smartReport.sheetTable' | transloco }}
-                                    </span>
-                                }
-                                @if (chunk.table.key !== '__list') {
-                                    <p
-                                        class="min-w-0 flex-1 truncate tracking-wide"
-                                        [style.font-family]="roleFontFamily(section, 'label')"
-                                        [style.font-size.px]="roleFontSize(section, 'label')"
-                                        [style.font-weight]="roleFontWeight(section, 'label')"
-                                        [style.color]="roleColor(section, 'label')"
-                                [style.--report-link-color]="roleLinkColor(section, 'label')"
-                                    >
-                                        {{ tableLabel(section, chunk.table) }}
-                                    </p>
-                                }
-                            </div>
+                            @if (tableLabel(section, chunk.table); as tableTitle) {
+                                <p
+                                    class="mb-1.5 min-w-0 truncate tracking-wide"
+                                    [style.font-family]="roleFontFamily(section, 'label')"
+                                    [style.font-size.px]="roleFontSize(section, 'label')"
+                                    [style.font-weight]="roleFontWeight(section, 'label')"
+                                    [style.color]="roleColor(section, 'label')"
+                                    [style.--report-link-color]="roleLinkColor(section, 'label')"
+                                >
+                                    <ng-container
+                                        [ngTemplateOutlet]="sheetText"
+                                        [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', tableTitle, measure, false, chunk.table.key, tableTitle)"
+                                    ></ng-container>
+                                </p>
+                            }
                             <table class="w-full max-w-full table-fixed border-collapse">
                                 <thead>
                                     <tr [style.background-color]="tableHeaderFill(section, chunk.table.key)">
@@ -1808,7 +1800,7 @@
                                                 [class.border-b]="tableShowsRowLines(section, chunk.table.key)"
                                                 [class.ring-1]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
                                                 [class.ring-lime-500]="isCellSelected(section, tableColumnKey(chunk.table.key, column.key), 'label')"
-                                                [style.width.px]="columnWidth(section, tableColumnKey(chunk.table.key, column.key))"
+                                                [style.width]="columnShareWidth(section, chunk.table.columns, chunk.table.key, column.key)"
                                                 [style.border-color]="tableEdge(section, chunk.table.key)"
                                                 [style.font-family]="tableText(section, 'label', chunk.table.key, column.key).fontFamily"
                                                 [style.font-size.px]="tableText(section, 'label', chunk.table.key, column.key).fontSize"
@@ -1823,10 +1815,6 @@
                                                 <ng-container
                                                     [ngTemplateOutlet]="sheetText"
                                                     [ngTemplateOutletContext]="sheetTextContext(section, 'cellLabel', entryLabel(section, { key: tableColumnKey(chunk.table.key, column.key), label: column.label }), measure, false, tableColumnKey(chunk.table.key, column.key), column.label)"
-                                                ></ng-container>
-                                                <ng-container
-                                                    [ngTemplateOutlet]="cellResizeHandles"
-                                                    [ngTemplateOutletContext]="{ section: section, key: tableColumnKey(chunk.table.key, column.key), axes: 'w', measure: measure }"
                                                 ></ng-container>
                                             </th>
                                         }

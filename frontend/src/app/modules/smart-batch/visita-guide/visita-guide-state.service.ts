@@ -3,7 +3,7 @@ import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '
 import { ReportHeaderLogo, ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
 import { chainProfileForFeature } from '../endpoint-chain.util';
 import { ReportCustomFont } from '../report-fonts.util';
-import { emptyFlowGraph, endpointNodes, flowSeedFields, FlowGraph } from '../endpoint-flow-graph.util';
+import { emptyFlowGraph, endpointNodes, flowOptionalSeedFields, flowSeedFields, hydrateFlowGraph, FlowGraph } from '../endpoint-flow-graph.util';
 import {
     buildInputRow,
     GuideEntity,
@@ -113,8 +113,10 @@ export class VisitaGuideStateService {
         const profiles = Object.fromEntries(
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
-        const seed = endpointNodes(graph).length ? flowSeedFields(graph, profiles) : undefined;
-        return inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', features, seed);
+        const hydrated = hydrateFlowGraph(graph, features);
+        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
+        return inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', features, seed, optional);
     });
 
     isMixed = computed(() => this.entities().length > 1);
@@ -178,13 +180,16 @@ export class VisitaGuideStateService {
         const profiles = Object.fromEntries(
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
-        const seed = endpointNodes(graph).length ? flowSeedFields(graph, profiles) : undefined;
+        const hydrated = hydrateFlowGraph(graph, features);
+        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
         return buildInputRow(
             this.entities(),
             this.countryIsos()[0] ?? 'co',
             this.inputValues(),
             features,
-            seed
+            seed,
+            optional
         );
     }
 

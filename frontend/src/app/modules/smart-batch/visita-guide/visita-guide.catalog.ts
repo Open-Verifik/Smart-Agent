@@ -286,7 +286,8 @@ const toGuideInputField = (
 const inputFieldsFromFeatures = (
     entities: GuideEntity[],
     features: FeatureParamShape[],
-    seedOverride?: string[]
+    seedOverride?: string[],
+    optionalSeeds?: string[]
 ): GuideInputField[] => {
     const mixedCitizenCompany = entities.includes('citizen') && entities.includes('company');
     const usingOverride = seedOverride !== undefined;
@@ -309,6 +310,19 @@ const inputFieldsFromFeatures = (
             options = mergeEnumValues(options, enumsForCanonical(owner, canonical));
         }
         byKey.set(key, { canonical, required: true, options });
+    }
+
+    for (const canonical of optionalSeeds ?? []) {
+        if ([...byKey.values()].some((meta) => meta.canonical === canonical)) continue;
+        const feature = features[0];
+        if (!feature) continue;
+        const key = rowKeyForParam(canonical, feature, mixedCitizenCompany, entities);
+        if (byKey.has(key)) continue;
+        let options: string[] | undefined;
+        for (const owner of features) {
+            options = mergeEnumValues(options, enumsForCanonical(owner, canonical));
+        }
+        byKey.set(key, { canonical, required: false, options });
     }
 
     const fields = [...byKey.entries()]
@@ -369,10 +383,11 @@ export const inputFieldsFor = (
     entities: GuideEntity[],
     iso: string,
     features: FeatureParamShape[] = [],
-    seedOverride?: string[]
+    seedOverride?: string[],
+    optionalSeeds?: string[]
 ): GuideInputField[] => {
     if (iso.toLowerCase() !== 'co') return [];
-    if (features.length) return inputFieldsFromFeatures(entities, features, seedOverride);
+    if (features.length) return inputFieldsFromFeatures(entities, features, seedOverride, optionalSeeds);
     return inputFieldsFromEntities(entities);
 };
 
@@ -381,10 +396,11 @@ export const buildInputRow = (
     iso: string,
     values: Record<string, string>,
     features: FeatureParamShape[] = [],
-    seedOverride?: string[]
+    seedOverride?: string[],
+    optionalSeeds?: string[]
 ): Record<string, string> => {
     const row: Record<string, string> = {};
-    for (const field of inputFieldsFor(entities, iso, features, seedOverride)) {
+    for (const field of inputFieldsFor(entities, iso, features, seedOverride, optionalSeeds)) {
         const value = (values[field.key] ?? '').trim();
         if (!value) continue;
         row[field.key] = value;

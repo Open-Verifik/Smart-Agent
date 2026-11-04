@@ -1,0 +1,1103 @@
+{
+	"api/clients": {
+		"en": "/api/accounts/create-account",
+		"es": "/api/cuentas/verificar-cuenta"
+	},
+	"api/clients/auth": {
+		"en": "/api/accounts/authenticate",
+		"es": "/api/cuentas/autenticar"
+	},
+	"api/clients/sync": {
+		"en": "/api/accounts/update-account",
+		"es": "/api/cuentas/actualizar-cuenta"
+	},
+	"api/clients/sync/password": {
+		"en": "/api/accounts/change-password",
+		"es": "/api/cuentas/cambiar-contrasena"
+	},
+	"api/clients/{id}": {
+		"en": "/api/accounts/delete-account",
+		"es": "/api/cuentas/eliminar-cuenta"
+	},
+	"api/licenses": {
+		"en": "/api/licenses/create-license",
+		"es": "/api/licencias/eliminar-licencia"
+	},
+	"api/licenses/my-license": {
+		"en": "/api/licenses/get-my-license",
+		"es": "/api/licencias/obtener-mi-licencia"
+	},
+	"api/licenses/{licenseid}": {
+		"en": "/api/licenses/delete-license",
+		"es": "/api/licencias/eliminar-licencia"
+	},
+	"api/tags/decrypt": {
+		"en": "/api/tags/decrypt-tag",
+		"es": "/api/etiquetas/descifrar-etiqueta"
+	},
+	"api/tags/lease": {
+		"en": "/api/tags/lease-tag",
+		"es": "/api/etiquetas/alquilar-etiqueta"
+	},
+	"api/tags/lease-offline": {
+		"en": "/api/tags/lease-offline",
+		"es": "/api/etiquetas/alquiler-etiqueta-offline"
+	},
+	"api/tags/lease-recovery": {
+		"en": "/api/tags/lease-recovery",
+		"es": "/api/etiquetas/recuperar-etiqueta"
+	},
+	"api/tags/preview": {
+		"en": "/api/tags/preview-tag",
+		"es": "/api/etiquetas/vista-previa-etiqueta"
+	},
+	"api/tags/preview-zelfproof": {
+		"en": "/functions/preview-zelfproof",
+		"es": "/api/etiquetas/vista-previa-zelfproof"
+	},
+	"api/tags/search": {
+		"en": "/api/tags/search-tag",
+		"es": "/api/etiquetas/buscar-etiqueta"
+	},
+	"api/tags/search-by-domain": {
+		"en": "/api/tags/search-by-domain",
+		"es": "/api/etiquetas/buscar-etiqueta-por-dominio"
+	},
+	"api/zelf-proof/decrypt": {
+		"en": "/functions/decrypt-zelfproof",
+		"es": "/funciones/descifrar-zelfproof"
+	},
+	"api/zelf-proof/encrypt": {
+		"en": "/functions/create-qr-zelfproof",
+		"es": "/funciones/crear-qr-zelfproof"
+	},
+	"api/zelf-proof/preview": {
+		"es": "/funciones/vista-previa-zelfproof"
+	},
+	"v2/app-logins": {
+		"en": "/resources/retrieve-an-app-login",
+		"es": "/recursos/inicios-de-sesion-de-app/listar-los-inicios-de-sesion-en-la-app"
+	},
+	"v2/app-logins/{id}": {
+		"en": "/resources/retrieve-an-app-login",
+		"es": "/resources/recuperar-un-inicio-sesion-aplicacion"
+	},
+	"v2/app-registrations": {
+		"en": "/resources/app-registrations/retrieve-an-app-registration",
+		"es": "/resources/registros-aplicacion/listar-todos-los-registros-aplicacion"
+	},
+	"v2/app-registrations/resend-link": {
+		"en": "/resources/app-registrations/resend-an-app-registration-link",
+		"es": "/resources/registros-aplicacion/reenviar-enlace-registro-aplicacion"
+	},
+	"v2/app-registrations/sync": {
+		"en": "/resources/app-registrations/sync-app-registration-status",
+		"es": "/resources/registros-aplicacion/sincronizar-estado-registro-aplicacion"
+	},
+	"v2/app-registrations/{id}": {
+		"en": "/resources/app-registrations/retrieve-an-app-registration",
+		"es": "/resources/registros-aplicacion/recuperar-un-registro-aplicacion"
+	},
+	"v2/app-registrations/{id}/resend-link": {
+		"en": "/resources/app-registrations/resend-an-app-registration-link",
+		"es": "/resources/registros-aplicacion/reenviar-enlace-registro-aplicacion"
+	},
+	"v2/app-registrations/{id}/sync": {
+		"en": "/resources/app-registrations/sync-app-registration-status",
+		"es": "/resources/registros-aplicacion/sincronizar-estado-registro-aplicacion"
+	},
+	"v2/ar/buenos-aires/technical-inspection": {
+		"en": "/vehicle-validation/argentina/buenos-aires-technical-inspection",
+		"es": "/validacion-vehiculos/argentina/buenos-aires-technical-inspection",
+		"fr": "/vehicle-validation/argentina/buenos-aires-technical-inspection"
+	},
+	"v2/ar/buenos-aires/traffic-infractions": {
+		"en": "/vehicle-validation/argentina/buenos-aires-traffic-infractions",
+		"es": "/validacion-vehiculos/argentina/buenos-aires-traffic-infractions",
+		"fr": "/vehicle-validation/argentina/buenos-aires-traffic-infractions"
+	},
+	"v2/ar/cedula": {
+		"en": "/identity-validation/argentina",
+		"es": "/validaciones-de-identidad/argentina",
+		"fr": "/identity/argentina"
+	},
+	"v2/ar/cedula/extra": {
+		"en": "/identity/argentina-extra",
+		"es": "/identidad/argentina-extra",
+		"fr": "/identity/argentina-extra"
+	},
+	"v2/ar/company": {
+		"en": "/business-validation/argentina",
+		"es": "/validacion-empresarial/argentina",
+		"fr": "/business-validation/argentina"
+	},
+	"v2/ar/dnrec/antecedentes": {
+		"en": "/background-check/argentina-certificate-verify",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-argentina-certificado-penal",
+		"fr": "/background-check/argentina-certificate-verify"
+	},
+	"v2/ar/rto": {
+		"en": "/vehicle-validation/argentina/rto",
+		"es": "/validacion-vehiculos/argentina/rto",
+		"fr": "/vehicle-validation/argentina/rto"
+	},
+	"v2/ar/vehicle": {
+		"en": "/vehicle-validation/argentina",
+		"es": "/validacion-de-vehiculo/argentina",
+		"fr": "/vehicle-validation/argentina"
+	},
+	"v2/auth/session": {
+		"en": "/authentication/renew-your-token-jwt",
+		"es": "/accounts/authentication/renew-your-token-jwt"
+	},
+	"v2/biometric-validations/app-login": {
+		"en": "/resources/biometric-validations/create-an-app-login-biometric-validation",
+		"es": "/resources/crear-una-validacion-biometrica-inicio-sesion-aplicacion"
+	},
+	"v2/biometric-validations/app-registration": {
+		"en": "/resources/biometric-validations/create-an-app-registration-biometric-validation",
+		"es": "/resources/registros-aplicacion/crear-una-validacion-biometrica-registro-aplicacion"
+	},
+	"v2/biometric-validations/validate": {
+		"en": "/resources/biometric-validations/validate-an-app-login-biometric-validation",
+		"es": "/resources/validar-una-validacion-biometrica-inicio-sesion-aplicacion"
+	},
+	"v2/bo/cedula": {
+		"en": "/identity/bolivia",
+		"es": "/validaciones-de-identidad/bolivia",
+		"fr": "/identity/bolivia"
+	},
+	"v2/bo/company": {
+		"en": "/business-validation/bolivia",
+		"es": "/validacion-empresarial/bolivia"
+	},
+	"v2/bo/vehicle": {
+		"en": "/vehicle-validation/bolivia",
+		"es": "/validacion-vehiculos/bolivia",
+		"fr": "/vehicle-validation/bolivia"
+	},
+	"v2/bo/vehicle-soat": {
+		"en": "/transit/bolivia/vehicle-soat",
+		"es": "/transito/bolivia/vehicle-soat",
+		"fr": "/transit/bolivie/vehicle-soat"
+	},
+	"v2/bo/votacion": {
+		"en": "/identity/bolivia/votacion",
+		"es": "/identidad/bolivia/votacion",
+		"fr": "/identite/bolivie/votacion"
+	},
+	"v2/br/background-check": {
+		"en": "/background-check/brazil",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-brasil",
+		"fr": "/background-check/brazil"
+	},
+	"v2/br/cedula": {
+		"en": "/identity/brazil",
+		"es": "/identidad/brasil",
+		"fr": "/identity/brazil"
+	},
+	"v2/br/company": {
+		"en": "/business-validation/brazil",
+		"es": "/validacion-empresarial/brazil",
+		"fr": "/business-validation/brazil"
+	},
+	"v2/br/vehicle": {
+		"en": "/vehicle-validation/brazil",
+		"es": "/validacion-de-vehiculo/brasil",
+		"fr": "/vehicle-validation/brazil"
+	},
+	"v2/ca/company": {
+		"en": "/business-validation/canada",
+		"es": "/validacion-empresarial/canada",
+		"fr": "/business-validation/canada"
+	},
+	"v2/ca/ontario/driver-license": {
+		"en": "/driver-validation/ontario-driver-license",
+		"es": "/validaciones-de-identidad/canada/licencia-de-conducir-de-ontario",
+		"fr": "/driver-validation/ontario-driver-license"
+	},
+	"v2/ca/ontario/plate": {
+		"en": "/vehicle-validation/canada/ontario-plate",
+		"es": "/validacion-vehiculos/canada/placa-ontario",
+		"fr": "/vehicle-validation/canada/ontario-plate"
+	},
+	"v2/check-lists": {
+		"en": "/check-list/retrieve-a-check-list",
+		"es": "/check-list/actualizar-un-check-list",
+		"fr": "/check-list/retrieve-a-check-list"
+	},
+	"v2/check-lists/{id}": {
+		"en": "/check-list/retrieve-a-check-list",
+		"es": "/check-list/actualizar-un-check-list",
+		"fr": "/check-list/retrieve-a-check-list"
+	},
+	"v2/cl/cedula": {
+		"en": "/identity/chile",
+		"es": "/identidad/chile",
+		"fr": "/identity/chile"
+	},
+	"v2/cl/company": {
+		"en": "/business-validation/chilean",
+		"es": "/validacion-empresarial/chilean",
+		"fr": "/business-validation/chilean"
+	},
+	"v2/cl/driver-license": {
+		"en": "/driver-validation/chile-driver-license",
+		"es": "/validaciones-conductores/chile-licencia-conducir",
+		"fr": "/driver-validation/chile-driver-license"
+	},
+	"v2/cl/driver-license/block": {
+		"en": "/driver-validation/chile-driver-license-block",
+		"es": "/validaciones-conductores/chile-bloqueo-licencia-conducir",
+		"fr": "/driver-validation/chile-driver-license-block"
+	},
+	"v2/cl/registro-civil/certificado": {
+		"en": "/background-check/chile-certificate-verify",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-chile-certificado-registro-civil",
+		"fr": "/background-check/chile-certificate-verify"
+	},
+	"v2/cl/taxpayer": {
+		"en": "/identity/chile-taxpayer",
+		"es": "/identidad/chile-taxpayer",
+		"fr": "/identity/chile-taxpayer"
+	},
+	"v2/cl/transport-vehicle": {
+		"en": "/vehicle-validation/chile/transport-vehicle",
+		"es": "/validacion-vehiculos/chile/transport-vehicle",
+		"fr": "/vehicle-validation/chile/transport-vehicle"
+	},
+	"v2/cl/validate/documents": {
+		"en": "/identity/chile-validate-documents",
+		"es": "/identidad/chile-validate-documents",
+		"fr": "/identity/chile-validate-documents"
+	},
+	"v2/cl/vehicle": {
+		"en": "/vehicle-validation/chile",
+		"es": "/validacion-vehiculos/chile",
+		"fr": "/vehicle-validation/chile"
+	},
+	"v2/cl/vehicle-soap": {
+		"en": "/vehicle-validation/chile/vehicle-soap",
+		"es": "/validacion-vehiculos/chile/vehicle-soap",
+		"fr": "/vehicle-validation/chile/vehicle-soap"
+	},
+	"v2/cl/vehicle-soap-plate": {
+		"en": "/vehicle-validation/chile/vehicle-soap-plate",
+		"es": "/validacion-vehiculos/chile/vehicle-soap-plate",
+		"fr": "/vehicle-validation/chile/vehicle-soap-plate"
+	},
+	"v2/cl/vehicle-stolen": {
+		"en": "/vehicle-validation/chile/vehicle-stolen",
+		"es": "/validacion-vehiculos/chile/vehicle-stolen",
+		"fr": "/vehicle-validation/chile/vehicle-stolen"
+	},
+	"v2/clients/me": {
+		"en": "/accounts/clients/account-information",
+		"es": "/informacion-cuenta"
+	},
+	"v2/co/adres": {
+		"en": "/legal/colombia-adres"
+	},
+	"v2/co/afiliaciones": {
+		"en": "/legal/verify-colombian-affiliations",
+		"es": "/legal/verificar-afiliaciones-colombianas"
+	},
+	"v2/co/bogota/impuestos": {
+		"es": "/vehicle-validation/colombia/taxes-in-bogota"
+	},
+	"v2/co/bogota/taxi-drivers/card": {
+		"en": "/vehicle-validation/colombia/bogota-taxi-drivers-by-control-card",
+		"es": "/validacion-de-vehiculo/colombia/taxis-conductores-bogota-por-tarjeta",
+		"fr": "/vehicle-validation/colombia/bogota-taxi-drivers-by-control-card"
+	},
+	"v2/co/bogota/taxi-drivers/card/{controlcardnumber}": {
+		"en": "/vehicle-validation/colombia/bogota-taxi-drivers-by-control-card",
+		"es": "/validacion-de-vehiculo/colombia/taxis-conductores-bogota-por-tarjeta",
+		"fr": "/vehicle-validation/colombia/bogota-taxi-drivers-by-control-card"
+	},
+	"v2/co/bogota/taxi-drivers/plate": {
+		"en": "/vehicle-validation/colombia/bogota-taxi-drivers-by-plate",
+		"es": "/validacion-de-vehiculo/colombia/taxis-conductores-bogota-por-placa",
+		"fr": "/vehicle-validation/colombia/bogota-taxi-drivers-by-plate"
+	},
+	"v2/co/bogota/vehicle/accidentality": {
+		"en": "/vehicle-validation/colombia/bogota-vehicle-accidentality",
+		"es": "/validacion-vehiculos/colombia/accidentalidad-vehiculos-bogota",
+		"fr": "/vehicle-validation/colombia/bogota-vehicle-accidentality"
+	},
+	"v2/co/bogota/vehicle/fines": {
+		"en": "/vehicle-validation/colombia/vehicle-fines-check-in-bogot-tta-colombia",
+		"es": "/vehicle-validation/colombia/vehicle-fines-check-in-bogota-colombia",
+		"fr": "/vehicle-validation/colombia/vehicle-fines-check-in-bogot-tta-colombia"
+	},
+	"v2/co/bogota/vehicle/tax": {
+		"en": "/vehicle-validation/colombia/bogota-taxes",
+		"es": "/validacion-de-vehiculo/colombia/impuestos-en-bogota",
+		"fr": "/vehicle-validation/colombia/bogota-taxes"
+	},
+	"v2/co/cedula": {
+		"en": "/identity-validation/colombia/colombian-citizen",
+		"es": "/validacion-identidad/colombia/ciudadano-colombiano"
+	},
+	"v2/co/cedula/barcode": {
+		"en": "/identity-validation/colombia/colombian-cedula-barcode",
+		"es": "/validacion-identidad/colombia/cedula-codigo-barras-pdf417"
+	},
+	"v2/co/cedula/by-name": {
+		"en": "/identity-validation/colombia/colombian-citizen-by-name",
+		"es": "/validacion-identidad/colombia/ciudadano-colombiano-por-nombre",
+		"fr": "/identity-validation/colombia/colombian-citizen-by-name"
+	},
+	"v2/co/cedula/extra": {
+		"en": "/identity-validation/colombia/colombian-citizen-with-extra-data",
+		"es": "/validacion-identidad/colombia/ciudadano-colombiano-con-datos-extra",
+		"fr": "/identity/colombia-full-id"
+	},
+	"v2/co/cedula/premium": {
+		"en": "/identity-validation/colombia/colombian-cedula-premium",
+		"es": "/validacion-identidad/colombia/cedula-premium-cc",
+		"fr": "/identity-validation/colombia/colombian-cedula-premium"
+	},
+	"v2/co/cedula/registraduria": {
+		"en": "/identity/colombia-cedula-registraduria",
+		"es": "/identity/colombia-cedula-registraduria",
+		"fr": "/identity/colombia-cedula-registraduria"
+	},
+	"v2/co/cedula/rethus": {
+		"en": "/legal/colombia-rethus",
+		"es": "/legal/colombia-rethus"
+	},
+	"v2/co/company/dian": {
+		"en": "/business-validation/colombia/colombian-company-dian-verification",
+		"es": "/business-validation/colombia-dian-verification",
+		"fr": "/business-validation/colombia-dian-verification"
+	},
+	"v2/co/company/dian/invoicer": {
+		"en": "/business-validation/colombia/verify-legal-invoicer-in-dian-for-colombian-companies",
+		"es": "/business-validation/colombia-legal-invoicer-verification",
+		"fr": "/business-validation/colombia-legal-invoicer-verification"
+	},
+	"v2/co/contracts": {
+		"en": "/background-check/colombia-public-contracts",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-contratos-publicos",
+		"fr": "/background-check/colombia-public-contracts"
+	},
+	"v2/co/contraloria/certificado": {
+		"en": "/background-check/colombia-comptroller-certificate",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-contraloria",
+		"fr": "/background-check/colombia-comptroller-certificate"
+	},
+	"v2/co/copnia": {
+		"en": "/legal/colombia-copnia",
+		"es": "/legal/colombia-copnia",
+		"fr": "/legal/colombia-copnia"
+	},
+	"v2/co/copnia/matricula": {
+		"en": "/legal/colombia-copnia-license",
+		"es": "/legal/colombia-copnia-license",
+		"fr": "/legal/colombia-copnia-license"
+	},
+	"v2/co/deudoresmorosos": {
+		"en": "/finance/delinquent-debtors",
+		"es": "/finance/deudores-morosos"
+	},
+	"v2/co/fasecolda/sinister": {
+		"en": "/vehicle-validation/colombia/sinister-verification-fasecolda",
+		"es": "/validacion-vehiculos/colombia/verificacion-siniestros-fasecolda",
+		"fr": "/vehicle-validation/colombia/sinister-verification-fasecolda"
+	},
+	"v2/co/fasecolda/values-by-code": {
+		"en": "/vehicle-validation/colombia/vehicle-values-by-code-fasecolda",
+		"es": "/validacion-vehiculos/colombia/vehiculo-por-codigo-fasecolda",
+		"fr": "/vehicle-validation/colombia/vehicle-values-by-code-fasecolda"
+	},
+	"v2/co/fasecolda/values-by-plate": {
+		"en": "/vehicle-validation/colombia/vehicle-values-by-plate-fasecolda",
+		"es": "/validacion-de-vehiculo/colombia/valores-de-vehiculos-por-placa-fasecolda",
+		"fr": "/vehicle-validation/colombia/vehicle-values-by-plate-fasecolda"
+	},
+	"v2/co/foreigner-id/ce": {
+		"en": "/identity/colombia-ce",
+		"es": "/identidad/colombia-ce",
+		"fr": "/identity/colombia-ce"
+	},
+	"v2/co/foreigner-id/pep": {
+		"en": "/identity-validation/colombia/special-stay-permit-pep",
+		"es": "/validaciones-de-identidad/colombia/permiso-especial-de-permanencia-pep-documento-de-identificacion",
+		"fr": "/identity/colombia-pep-id"
+	},
+	"v2/co/foreigner-id/ppt": {
+		"en": "/identity/colombia-ppt",
+		"es": "/identidad/colombia-ppt",
+		"fr": "/identity/colombia-ppt"
+	},
+	"v2/co/inpec": {
+		"en": "/background-check/colombia-inpec",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-inpec",
+		"fr": "/background-check/colombia-inpec"
+	},
+	"v2/co/legal-process": {
+		"es": "/legal/court-case-records-lookup"
+	},
+	"v2/co/legal-process/{casenumber}": {
+		"es": "/legal/court-case-records-lookup"
+	},
+	"v2/co/medellin/vehicle/fines": {
+		"en": "/vehicle-validation/colombia/medellin-vehicle-fines",
+		"es": "/validacion-vehiculos/colombia/medellin-multas-vehiculo",
+		"fr": "/vehicle-validation/colombia/medellin-vehicle-fines"
+	},
+	"v2/co/policia/consultar": {
+		"en": "/background-check/colombia-police-record-check",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-policia",
+		"fr": "/background-check/colombia-police-record-check"
+	},
+	"v2/co/policia/rnmc": {
+		"en": "/background-check/colombia-police-compliance-corrective-measures",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-cumplimiento-policial",
+		"fr": "/background-check/colombia/verify-police-compliance-with-corrective-measures"
+	},
+	"v2/co/policia/rnmc/premium": {
+		"en": "/background-check/colombia-police-compliance-corrective-measures-premium",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-cumplimiento-policial-premium"
+	},
+	"v2/co/politically-exposed-persons": {
+		"en": "/identity-validation/colombia/colombian-politically-exposed-persons",
+		"es": "/identity-validation/colombia/colombian-politically-exposed-persons",
+		"fr": "/identity-validation/colombia/colombian-politically-exposed-persons"
+	},
+	"v2/co/procuraduria": {
+		"en": "/identity/colombia-procuraduria",
+		"es": "/identity/colombia-procuraduria",
+		"fr": "/identity/colombia-procuraduria"
+	},
+	"v2/co/procuraduria/antecedentes": {
+		"en": "/background-check/colombia-disciplinary-records-attorneys-office",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-procuraduria",
+		"fr": "/background-check/colombia-disciplinary-records-attorneys-office"
+	},
+	"v2/co/rama/abogados": {
+		"en": "/legal/lawyer-verification",
+		"es": "/legal/verificacion-abogados",
+		"fr": "/legal/lawyer-verification"
+	},
+	"v2/co/rama/certificado/vigencia": {
+		"en": "/legal/certificate-of-validity-for-legal-professionals",
+		"es": "/legal/certificado-vigencia-profesionales-legales",
+		"fr": "/legal/certificate-of-validity-for-legal-professionals"
+	},
+	"v2/co/rama/juzgado/expedientes": {
+		"en": "/legal/colombia-judicial-records",
+		"es": "/legal/antecedentes-judiciales-colombia",
+		"fr": "/legal/colombia-judicial-records"
+	},
+	"v2/co/rama/proceso": {
+		"en": "/legal/retrieve-details-of-a-legal-process-by-number",
+		"es": "/legal/recuperar-detalles-proceso-legal-por-numero",
+		"fr": "/legal/retrieve-details-of-a-legal-process-by-number"
+	},
+	"v2/co/rama/procesos": {
+		"en": "/legal/colombian-legal-processes",
+		"es": "/legal/procesos-judiciales-colombianos",
+		"fr": "/legal/colombian-legal-processes"
+	},
+	"v2/co/registraduria/certificado": {
+		"en": "/identity/colombia-registraduria-certificate",
+		"es": "/identidad/colombia-registraduria-certificate",
+		"fr": "/identity/colombia-registraduria-certificate"
+	},
+	"v2/co/registraduria/matrimonio": {
+		"en": "/identity/colombia-registraduria-matrimonio",
+		"es": "/identity/colombia-registraduria-matrimonio",
+		"fr": "/identity/colombia-registraduria-matrimonio"
+	},
+	"v2/co/registraduria/serial": {
+		"en": "/identity/colombia-registraduria-serial",
+		"es": "/identity/colombia-registraduria-serial",
+		"fr": "/identity/colombia-registraduria-serial"
+	},
+	"v2/co/registraduria/votacion": {
+		"en": "/legal/voting",
+		"es": "/legal/votacion",
+		"fr": "/legal/voting"
+	},
+	"v2/co/rues": {
+		"en": "/business-validation/colombia-rues-v2",
+		"es": "/validacion-empresarial/colombia-registro-empresarial-rues"
+	},
+	"v2/co/rues/complete": {
+		"en": "/business-validation/colombia-rues-complete-v2",
+		"es": "/business-validation/colombia/complete-business-registry-rues"
+	},
+	"v2/co/rui": {
+		"en": "/background-check/colombia-rui",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-colombia-rui"
+	},
+	"v2/co/runt/conductor": {
+		"en": "/vehicle-validation/colombia/drivers-license-verification",
+		"es": "/validacion-vehiculos/colombia/licencia-conducir-runt",
+		"fr": "/vehicle-validation/colombia/drivers-license-verification"
+	},
+	"v2/co/runt/propietarios": {
+		"en": "/vehicle-validation/colombia/runt-vehicle-owners",
+		"es": "/validacion-vehiculos/colombia/runt-propietarios-vehiculo",
+		"fr": "/vehicle-validation/colombia/runt-vehicle-owners"
+	},
+	"v2/co/runt/vehicle-by-plate": {
+		"en": "/vehicle-validation/colombia/complete-vehicle-with-historical-records-by-license-plate-and-identification-card",
+		"es": "/validacion-de-vehiculo/colombia/consulta-completa-de-vehiculo-con-historial-por-placa-y-documento-de-identificacion-runt",
+		"fr": "/vehicle-validation/colombia/complete-vehicle-with-historical-records-by-license-plate-and-identification-card"
+	},
+	"v2/co/runt/vehicle-by-plate-only": {
+		"en": "/vehicle-validation/colombia/runt-vehicle-by-plate-only",
+		"es": "/validacion-vehiculos/colombia/runt-vehicle-by-plate-only",
+		"fr": "/vehicle-validation/colombia/runt-vehicle-by-plate-only"
+	},
+	"v2/co/runt/vehicle-by-plate-simplified": {
+		"en": "/vehicle-validation/colombia/runt-vehicle-records-by-plate-number-simplified",
+		"es": "/validacion-vehiculos/colombia/registros-vehiculos-por-placa-simplificado-runt",
+		"fr": "/vehicle-validation/colombia/runt-vehicle-records-by-plate-number-simplified"
+	},
+	"v2/co/runt/vehicle-by-vin": {
+		"en": "/vehicle-validation/colombia/runt-vehicle-by-vin",
+		"es": "/validacion-vehiculos/colombia/registros-vehiculos-por-vin-runt",
+		"fr": "/vehicle-validation/colombia/runt-vehicle-by-vin"
+	},
+	"v2/co/runt/vehiculo": {
+		"en": "/vehicle-validation/colombia/vehicle-s-soat-and-rtm-by-plate-and-identification-document",
+		"es": "/validacion-vehiculos/colombia/runt-soat-rtm",
+		"fr": "/vehicle-validation/colombia/vehicle-s-soat-and-rtm-by-plate-and-identification-document"
+	},
+	"v2/co/sena/certificados": {
+		"en": "/certificates/sena-certificates",
+		"es": "/certificados/sena-certificados",
+		"fr": "/certificates/sena-certificates"
+	},
+	"v2/co/sigep/name": {
+		"en": "/legal/sigep-public-servant-by-name",
+		"es": "/legal/sigep-servidor-publico-por-nombre",
+		"fr": "/legal/sigep-public-servant-by-name"
+	},
+	"v2/co/sigep/number": {
+		"en": "/legal/sigep-public-servant-by-number",
+		"es": "/legal/sigep-servidor-publico-por-numero",
+		"fr": "/legal/sigep-public-servant-by-number"
+	},
+	"v2/co/simit/acuerdos": {
+		"en": "/vehicle-validation/colombia/simit-agreements",
+		"es": "/validacion-vehiculos/colombia/acuerdos-simit",
+		"fr": "/vehicle-validation/colombia/simit-agreements"
+	},
+	"v2/co/simit/comparendo": {
+		"en": "/vehicle-validation/colombia/simit-comparendo-details",
+		"es": "/validacion-vehiculos/colombia/simit-comparendo-detalles",
+		"fr": "/vehicle-validation/colombia/simit-comparendo-details"
+	},
+	"v2/co/simit/comparendos": {
+		"en": "/vehicle-validation/colombia/simit-fines",
+		"es": "/validacion-vehiculos/colombia/multas-simit",
+		"fr": "/vehicle-validation/colombia/simit-fines"
+	},
+	"v2/co/simit/consultar": {
+		"en": "/vehicle-validation/colombia/general-query-of-simit-by-identification-document",
+		"es": "/validacion-vehiculos/colombia/consulta-general-por-documento-simit",
+		"fr": "/vehicle-validation/colombia/general-query-of-simit-by-identification-document"
+	},
+	"v2/co/simit/consultar/placa": {
+		"en": "/vehicle-validation/colombia/general-query-of-simit-by-license-plate",
+		"es": "/validacion-de-vehiculo/colombia/consulta-general-de-simit-por-numero-de-placa",
+		"fr": "/vehicle-validation/colombia/general-query-of-simit-by-license-plate"
+	},
+	"v2/co/simit/resoluciones": {
+		"en": "/vehicle-validation/colombia/simit-resolutions",
+		"es": "/validacion-vehiculos/colombia/resoluciones-simit",
+		"fr": "/vehicle-validation/colombia/simit-resolutions"
+	},
+	"v2/co/simit/suspensiones": {
+		"en": "/vehicle-validation/colombia/simit-suspensiones",
+		"es": "/validacion-vehiculos/colombia/suspensiones-licencia-simit",
+		"fr": "/vehicle-validation/colombia/simit-suspensiones"
+	},
+	"v2/co/sisconmp/trainings": {
+		"en": "/vehicle-validation/colombia/information-system-for-drivers-transporting-dangerous-goods",
+		"es": "/validacion-de-vehiculo/colombia/sistema-de-informacion-para-conductores-que-transportan-mercancias-peligrosas",
+		"fr": "/vehicle-validation/colombia/information-system-for-drivers-transporting-dangerous-goods"
+	},
+	"v2/co/situacion-militar": {
+		"en": "/identity/colombia-situacion-militar",
+		"es": "/identity/colombia-situacion-militar",
+		"fr": "/identity/colombia-situacion-militar"
+	},
+	"v2/co/vehiculo/pico-y-placa": {
+		"en": "/vehicle-validation/colombia/vehicle-validation-colombia-bogota-pico-y-placa",
+		"es": "/vehicle-validation/colombia/verifik-pico-y-placa-for-bogota",
+		"fr": "/vehicle-validation/colombia/vehicle-validation-colombia-bogota-pico-y-placa"
+	},
+	"v2/cr/cedula": {
+		"en": "/identity/costa-rica",
+		"es": "/validaciones-de-identidad/costa-rica",
+		"fr": "/identity/costa-rica"
+	},
+	"v2/cr/company": {
+		"en": "/business-validation/costa-rica",
+		"es": "/validacion-empresarial/costa-rica",
+		"fr": "/business-validation/costa-rica"
+	},
+	"v2/cr/vehicle": {
+		"en": "/vehicle-validation/costa-rica",
+		"es": "/validacion-vehiculos/costa-rica",
+		"fr": "/vehicle-validation/costa-rica"
+	},
+	"v2/cr/votacion": {
+		"en": "/identity/costa-rica/votacion",
+		"es": "/identity/costa-rica/votacion",
+		"fr": "/identity/costa-rica/votacion"
+	},
+	"v2/dea": {
+		"en": "/background-check/international/dea-background-check",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-dea",
+		"fr": "/background-check/international/dea-background-check"
+	},
+	"v2/do/cedula": {
+		"en": "/identity/dominican-republic",
+		"es": "/identidad/republica-dominicana"
+	},
+	"v2/document-liveness": {
+		"es": "/resources/listar-todas-las-vivacidades-documentos"
+	},
+	"v2/document-liveness/{id}": {
+		"es": "/resources/recuperar-una-vivacidad-documento"
+	},
+	"v2/document-validations/app-registration": {
+		"en": "/resources/document-validations/create-an-app-registration-document-validation",
+		"es": "/resources/registros-aplicacion/crear-una-validacion-documento-registro-aplicacion"
+	},
+	"v2/ec/cedula": {
+		"en": "/identity-validation/ecuador",
+		"es": "/identity-validation/ecuador",
+		"fr": "/identity/ecuador"
+	},
+	"v2/ec/vehiculo/placa": {
+		"en": "/vehicle-validation/ecuador/vehicle-by-plate",
+		"es": "/vehicle-validation/ecuador/vehicle-by-plate"
+	},
+	"v2/ec/vehiculo/placa/multas": {
+		"en": "/vehicle-validation/ecuador/vehicle-information-lookup",
+		"es": "/validacion-de-vehiculo/ecuador/consulta-de-informacion-de-vehiculo",
+		"fr": "/vehicle-validation/ecuador"
+	},
+	"v2/email-validations": {
+		"en": "/resources/app-registrations/validate-an-app-registration-email-validation",
+		"es": "/resources/email-validations-validaciones-de-correo-electronico/retrieve-an-email-validation-recuperar-una-validacion-de-correo-electronico"
+	},
+	"v2/email-validations/app-registration": {
+		"en": "/resources/app-registrations/create-an-app-registration-email-validation",
+		"es": "/resources/registros-aplicacion/crear-una-validacion-email-registro-aplicacion"
+	},
+	"v2/email-validations/validate": {
+		"en": "/resources/validate-an-email-validation",
+		"es": "/resources/validaciones-de-correo-electronico/validar-la-validacion-de-correo-electronico"
+	},
+	"v2/email-validations/{id}": {
+		"en": "/resources/app-registrations/validate-an-app-registration-email-validation",
+		"es": "/resources/email-validations-validaciones-de-correo-electronico/retrieve-an-email-validation-recuperar-una-validacion-de-correo-electronico"
+	},
+	"v2/email-validations/{id}/validate": {
+		"en": "/resources/validate-an-email-validation",
+		"es": "/resources/validaciones-de-correo-electronico/validar-la-validacion-de-correo-electronico"
+	},
+	"v2/es/cedula": {
+		"en": "/identity-validation/spain-citizen",
+		"es": "/validaciones-de-identidad/ciudadano-espanol",
+		"fr": "/identity/spain-citizen"
+	},
+	"v2/es/company": {
+		"en": "/business-validation/spain",
+		"es": "/validacion-empresarial/espana",
+		"fr": "/business-validation/spain"
+	},
+	"v2/es/vehicle": {
+		"en": "/vehicle-validation/spain",
+		"es": "/validacion-vehiculos/espana",
+		"fr": "/vehicle-validation/spain"
+	},
+	"v2/europol": {
+		"en": "/background-check/international/europol-background-check",
+		"es": "/verificacion-de-antecedentes/internacional/verificacion-de-antecedentes-de-europol",
+		"fr": "/background-check/international/europol-background-check"
+	},
+	"v2/face-recognition/collections": {
+		"en": "/resources/collections/list-all-collection",
+		"es": "/resources/colecciones/listar-todas-las-colecciones"
+	},
+	"v2/face-recognition/collections/{id}": {
+		"en": "/resources/retrieve-a-collection",
+		"es": "/resources/recuperar-una-coleccion"
+	},
+	"v2/face-recognition/compare": {
+		"en": "/verifik-biometrics-apis/compare-biometrics",
+		"es": "/api-s-de-biometria/comparar/comparar-1-1"
+	},
+	"v2/face-recognition/compare-live": {
+		"en": "/biometrics/compare-live",
+		"es": "/comparar-en-vivo"
+	},
+	"v2/face-recognition/compare-with-liveness": {
+		"en": "/biometrics/compare-with-liveness",
+		"es": "/comparar-con-deteccion-vitalidad"
+	},
+	"v2/face-recognition/detect": {
+		"en": "/verifik-biometrics-apis/liveness/face-detection"
+	},
+	"v2/face-recognition/liveness": {
+		"en": "/verifik-biometrics-apis/liveness/liveness-detection",
+		"es": "/deteccion-vitalidad"
+	},
+	"v2/face-recognition/liveness-score": {
+		"en": "/biometrics/liveness-score",
+		"es": "/puntaje-vitalidad"
+	},
+	"v2/face-recognition/persons": {
+		"en": "/resources/persons/delete-a-person",
+		"es": "/resources/persons-personas/list-all-persons-listar-todas-las-personas"
+	},
+	"v2/face-recognition/persons/lookup": {
+		"en": "/resources/lookup-a-person",
+		"es": "/resources/lookup-a-person",
+		"fr": "/resources/lookup-a-person"
+	},
+	"v2/face-recognition/persons/search-live-face": {
+		"en": "/resources/create-a-person-with-liveness",
+		"es": "/resources/personas/crear-una-persona-con-deteccion-de-vida"
+	},
+	"v2/face-recognition/persons/{id}": {
+		"en": "/resources/persons/delete-a-person",
+		"es": "/resources/persons/update-a-person"
+	},
+	"v2/face-recognition/search": {
+		"en": "/verifik-biometrics-apis/search/search-1-n-or-crop",
+		"es": "/api-s-de-biometria/busqueda/busqueda-1-n"
+	},
+	"v2/face-recognition/search-active-user": {
+		"en": "/biometrics/search-active-user",
+		"es": "/buscar-usuario-activo"
+	},
+	"v2/face-recognition/search-live-face": {
+		"en": "/biometrics/search-live-face",
+		"es": "/buscar-cara-en-vivo"
+	},
+	"v2/face-recognition/search/crops": {
+		"en": "/biometrics/search-crops",
+		"es": "/api-s-de-biometria/busqueda/buscar-1-n-or-crop-recortar"
+	},
+	"v2/face-recognition/verify": {
+		"en": "/biometrics/verify-face",
+		"es": "/verificar-cara"
+	},
+	"v2/fbi": {
+		"en": "/background-check/international/fbi-background-check",
+		"es": "/verificacion-de-antecedentes/internacional/verificacion-de-antecedentes-del-fbi",
+		"fr": "/background-check/international/fbi-background-check"
+	},
+	"v2/gt/cedula": {
+		"en": "/identity-validation/guatemala",
+		"es": "/identity-validation/guatemala"
+	},
+	"v2/gt/cedula/extra": {
+		"en": "/identity/guatemala-extra",
+		"es": "/identidad/guatemala-extra"
+	},
+	"v2/hn/cedula": {
+		"en": "/identity/honduras",
+		"es": "/identidad/honduras"
+	},
+	"v2/hn/votacion": {
+		"en": "/identity/honduras/votacion",
+		"es": "/identidad/honduras/votacion",
+		"fr": "/identity/honduras/votacion"
+	},
+	"v2/human-id/decrypt": {
+		"en": "/biometrics/humanID-decrypt",
+		"es": "/biometrics/humanID-desencriptar"
+	},
+	"v2/human-id/encrypt": {
+		"en": "/biometrics/humanID-encrypt",
+		"es": "/biometrics/humanID-encriptar"
+	},
+	"v2/human-id/encrypt-qr-code": {
+		"en": "/biometrics/humanID-encrypt-qr-code",
+		"es": "/biometrics/humanID-encriptar-codigo-qr"
+	},
+	"v2/human-id/preview": {
+		"en": "/biometrics/humanID-preview",
+		"es": "/biometrics/humanID-vista-previa"
+	},
+	"v2/in/epic": {
+		"en": "/legal/epic-eci",
+		"es": "/legal/epic-eci",
+		"fr": "/legal/epic-eci"
+	},
+	"v2/in/epic/votacion": {
+		"en": "/legal/voting-eci-epic",
+		"es": "/legal/votacion-eci-epic",
+		"fr": "/legal/voting-eci-epic"
+	},
+	"v2/interpol": {
+		"en": "/background-check/international/interpol-background-check",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-interpol",
+		"fr": "/background-check/international/interpol-background-check"
+	},
+	"v2/ip-lookup": {
+		"en": "/identity/ip-lookup",
+		"es": "/identity/ip-lookup",
+		"fr": "/identity/ip-lookup"
+	},
+	"v2/look-ups/phone": {
+		"en": "/identity/phone-lookup",
+		"es": "/identity/phone-lookup",
+		"fr": "/identity/phone-lookup"
+	},
+	"v2/mx/company": {
+		"en": "/business-validation/mexican-companies",
+		"es": "/validacion-empresarial/mexico",
+		"fr": "/business-validation/mexican-companies"
+	},
+	"v2/mx/curp": {
+		"en": "/identity/mexico",
+		"es": "/validaciones-de-identidad/mexico",
+		"fr": "/identity/mexico"
+	},
+	"v2/mx/ine": {
+		"en": "/identity/mexico-ine",
+		"es": "/identity/mexico-ine",
+		"fr": "/identity/mexico-ine"
+	},
+	"v2/mx/ine/ocr": {
+		"en": "/identity/mexico-ine-ocr",
+		"es": "/identity/mexico-ine-ocr",
+		"fr": "/identity/mexico-ine-ocr"
+	},
+	"v2/mx/vehiculo/placa": {
+		"en": "/vehicle-validation/mexico",
+		"es": "/validacion-vehiculos/mexico",
+		"fr": "/vehicle-validation/mexico"
+	},
+	"v2/ocr/scan-prompt": {
+		"en": "/verifik-biometrics-apis-1/scan-prompt",
+		"es": "/escaneo-prompt"
+	},
+	"v2/ocr/scan-prompt/template/:id": {
+		"en": "/ocr-engines/scan-prompt/delete-a-scan-prompt-template"
+	},
+	"v2/ocr/scan-prompt/templates": {
+		"en": "/ocr-engines/scan-prompt/list-of-scan-prompt-templates"
+	},
+	"v2/ofac": {
+		"en": "/background-check/international/ofac-background-check",
+		"es": "/verificacion-de-antecedentes/internacional/verificacion-de-antecedentes-ofac",
+		"fr": "/background-check/international/ofac-background-check"
+	},
+	"v2/onu": {
+		"en": "/background-check/international/onu-background-check",
+		"es": "/verificacion-de-antecedentes/internacional/verificacion-de-antecedentes-onu",
+		"fr": "/background-check/international/onu-background-check"
+	},
+	"v2/pa/cedula": {
+		"en": "/identity/panama",
+		"es": "/identidad/panama",
+		"fr": "/identity/panama"
+	},
+	"v2/pa/company": {
+		"en": "/business-validation/panama",
+		"es": "/validacion-empresarial/panama",
+		"fr": "/business-validation/panama"
+	},
+	"v2/passport/us/entries": {
+		"en": "/background-check/united-states-passport-entries",
+		"es": "/verificacion-antecendentes/verificacion-antecendentes-estados-unidos-entradas-pasaporte"
+	},
+	"v2/pe/driver-license": {
+		"en": "/driver-validation/peru-driver-license",
+		"es": "/validaciones-conductores/peru-licencia-conducir",
+		"fr": "/driver-validation/peru-driver-license"
+	},
+	"v2/pe/foreigner-id/ce": {
+		"en": "/identity-validation/peru/peruvian-foreigner-resident",
+		"es": "/identidad/peru-cedula-extranjero",
+		"fr": "/identity/peru-foreigner-id"
+	},
+	"v2/pe/vehiculo/placa": {
+		"en": "/vehicle-validation/peru/vehicle-information",
+		"es": "/validacion-vehiculos/peru/informacion-vehiculo",
+		"fr": "/vehicle-validation/peru/vehicle-information"
+	},
+	"v2/pe/vehiculo/soat": {
+		"en": "/vehicle-validation/peru/peruvian-vehicle-insurance",
+		"es": "/validacion-de-vehiculo/peru/seguro-de-vehiculos-en-peru",
+		"fr": "/vehicle-validation/peru/vehicle-insurance"
+	},
+	"v2/phone-validations": {
+		"en": "/resources/app-registrations/validate-an-app-registration-phone-validation",
+		"es": "/resources/registros-aplicacion/validar-una-validacion-telefono-registro-aplicacion",
+		"fr": "/resources/phone-validations/validate-an-app-registration-phone-validation"
+	},
+	"v2/phone-validations/app-registration": {
+		"en": "/resources/app-registrations/create-an-app-registration-phone-validation",
+		"es": "/resources/registros-aplicacion/crear-una-validacion-telefono-registro-aplicacion",
+		"fr": "/resources/phone-validations/create-an-app-registration-phone-validation"
+	},
+	"v2/phone-validations/manual": {
+		"en": "/resources/create-a-manual-phone-validation",
+		"es": "/resources/crear-una-validacion-telefono-manual",
+		"fr": "/resources/create-a-manual-phone-validation"
+	},
+	"v2/phone-validations/{id}": {
+		"en": "/resources/retrieve-a-phone-validation",
+		"es": "/recursos/validaciones-de-telefono/recuperar-una-validacion-de-telefono",
+		"fr": "/resources/retrieve-a-phone-validation"
+	},
+	"v2/project-flows": {
+		"en": "/resources/project-flows/create-a-project-flow/smart-enroll-project-flow"
+	},
+	"v2/projects/email-login": {
+		"en": "/accounts/authentication/api-key-access-via-email",
+		"es": "/autenticacion/acceso-con-llave-por-email"
+	},
+	"v2/projects/phone-login": {
+		"en": "/authentication/api-key-access-via-phone",
+		"es": "/cuentas/autenticacion/telefono-de-autenticacion"
+	},
+	"v2/py/cic": {
+		"en": "/identity/paraguay",
+		"es": "/identidad/paraguay",
+		"fr": "/identity/paraguay"
+	},
+	"v2/py/company": {
+		"en": "/business-validation/paraguay",
+		"es": "/validacion-empresarial/paraguay",
+		"fr": "/business-validation/paraguay"
+	},
+	"v2/py/vehicle": {
+		"en": "/vehicle-validation/paraguay",
+		"es": "/validacion-vehiculos/paraguay",
+		"fr": "/vehicle-validation/paraguay"
+	},
+	"v2/sv/dui": {
+		"en": "/identity/el-salvador",
+		"es": "/validaciones-de-identidad/el-salvador"
+	},
+	"v2/usa/company": {
+		"en": "/business-validation/united-states",
+		"es": "/validacion-empresarial/united-states"
+	},
+	"v2/usa/florida/driver-license": {
+		"en": "/identity-validation/united-states/florida-driver-license-validation",
+		"es": "/validaciones-de-identidad/estados-unidos/validacion-de-licencia-de-conducir-de-florida"
+	},
+	"v2/usa/kansas/driver-license": {
+		"en": "/identity-validation/united-states/kansas-drivers-license-verification",
+		"es": "/validaciones-vehiculos/licencia-de-manejo-kansas"
+	},
+	"v2/usa/ssn": {
+		"en": "/identity-validation/united-states/ssn-verification-social-security-number",
+		"es": "/identity-validation/united-states/ssn-verification-social-security-number"
+	},
+	"v2/usa/vehicle": {
+		"en": "/vehicle-validation/united-states/vehicle-information",
+		"es": "/validacion-de-vehiculo/estados-unidos/informacion-del-vehiculo"
+	},
+	"v2/usa/vehicle-by-vin": {
+		"en": "/vehicle-validation/united-states/vehicle-by-vin",
+		"es": "/validacion-vehiculos/estados-unidos-vin"
+	},
+	"v2/uy/cedula": {
+		"en": "/identity-validation/uruguay-citizen",
+		"es": "/identidad/uruguay"
+	},
+	"v2/ve/cedula": {
+		"en": "/identity-validation/venezuela/venezuelan-citizen-information",
+		"es": "/validaciones-de-identidad/venezuela",
+		"fr": "/identity/venezuela"
+	},
+	"v2/ve/foreigner-id": {
+		"en": "/identity/venezuela-foreigner-id",
+		"es": "/identidad/venezuela-foreigner-id",
+		"fr": "/identity/venezuela-foreigner-id"
+	},
+	"v2/webhooks": {
+		"es": "/resources/webhooks/delete-a-webhook-eliminar-un-webhook"
+	},
+	"v2/webhooks/{id}": {
+		"es": "/resources/webhooks/delete-a-webhook-eliminar-un-webhook"
+	},
+	"v3/ar/vehicle": {
+		"en": "/vehicle-validation/argentina/vehicle-v3",
+		"es": "/validacion-vehiculos/argentina/vehicle-v3",
+		"fr": "/vehicle-validation/argentina/vehicle-v3"
+	},
+	"v3/cl/vehicle": {
+		"en": "/vehicle-validation/chile/vehicle-technical-review",
+		"es": "/validacion-vehiculos/chile/vehicle-technical-review",
+		"fr": "/vehicle-validation/chile/vehicle-technical-review"
+	},
+	"v3/co/ministerio-de-trabajo/certificados": {
+		"en": "/certificates/colombia-ministerio-trabajo-certificados-v3",
+		"es": "/certificados/colombia-ministerio-trabajo-certificados-v3",
+		"fr": "/certificates/colombia-ministerio-trabajo-certificados-v3"
+	},
+	"v3/co/rues": {
+		"en": "/business-validation/colombia-rues-v3",
+		"es": "/business-validation/colombia-rues-v3",
+		"fr": "/business-validation/colombia-rues-v3"
+	},
+	"v3/co/rues-complete": {
+		"en": "/business-validation/colombia-rues-business-information",
+		"es": "/business-validation/rues-complete-v3",
+		"fr": "/business-validation/rues-complete-v3"
+	},
+	"v3/co/runt/conductor": {
+		"en": "/vehicle-validation/colombia/runt-drivers-license-basic",
+		"es": "/validacion-vehiculos/colombia/licencia-conducir-runt-basico",
+		"fr": "/vehicle-validation/colombia/runt-drivers-license-basic"
+	},
+	"v3/ec/company": {
+		"en": "/business-validation/ecuador",
+		"es": "/validacion-empresarial/ecuador",
+		"fr": "/business-validation/ecuador"
+	},
+	"v3/ocr/scan-studio": {
+		"en": "/ocr-engines/scan-studio",
+		"es": "/scan-docs-apis/scan-studio/example-tarjeta-de-propiedad"
+	},
+	"v3/pe/cedula": {
+		"en": "/identity-validation/peru/peru-citizen",
+		"es": "/validaciones-de-identidad/peru/ciudadano-peruano",
+		"fr": "/identity/peru"
+	},
+	"v3/pe/cedula/extra": {
+		"en": "/identity-validation/peru/v3-peruvian-citizen",
+		"es": "/identidad/peru-id-completo",
+		"fr": "/identity/peru-full-id"
+	},
+	"v3/pe/company": {
+		"en": "/business-validation/peru",
+		"es": "/validacion-empresarial/peru",
+		"fr": "/business-validation/peru"
+	},
+	"v3/project-flows": {
+		"en": "/resources/project-flows/project-flows-delete",
+		"es": "/recursos/flujos-de-proyecto/list-all-project-flows-listar-todos-los-flujos-de-proyecto"
+	},
+	"v3/project-flows/{id}": {
+		"en": "/resources/project-flows/project-flows-delete",
+		"es": "/resources/flujos-de-proyecto/actualizar-un-flujo-de-proyecto"
+	},
+	"v3/projects": {
+		"en": "/resources/projects/retrieve-a-project",
+		"es": "/resources/proyectos/listar-todos-los-proyectos"
+	},
+	"v3/projects/{id}": {
+		"en": "/resources/projects/retrieve-a-project",
+		"es": "/resources/proyectos/actualizar-un-proyecto"
+	}
+}

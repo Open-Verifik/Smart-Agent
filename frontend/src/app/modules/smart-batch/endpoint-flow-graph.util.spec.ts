@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { chainProfileForFeature } from './endpoint-chain.util';
+import { queryModesForFeature } from './query-modes.util';
 import {
     addEndpointNode,
+    applyQueryMode,
     autoConnect,
     chainStepFeedTemplatesFromGraph,
     connectPorts,
@@ -10,6 +12,7 @@ import {
     flattenFlowGraph,
     FLOW_RESULT_ID,
     FLOW_START_ID,
+    flowOptionalSeedFields,
     flowSeedFields,
     startOutputPorts,
     flowNodeHeight,
@@ -170,5 +173,42 @@ describe('endpoint-flow-graph', () => {
             seen.add(color);
         }
         expect(wireColorForIndex(FLOW_WIRE_COLORS.length)).toBe(FLOW_WIRE_COLORS[0]);
+    });
+
+    it('keeps only the selected query option in the flow seed', () => {
+        const fbi = {
+            _id: 'fbi',
+            code: 'world_api_fbi',
+            name: 'FBI',
+            dependencies: [
+                { field: 'fullName', required: false, dependencyGroup: '2' },
+                { field: 'documentType', required: false, dependencyGroup: '1', enum: ['CC', 'CE'] },
+                { field: 'documentNumber', required: false, dependencyGroup: '1' },
+                {
+                    field: 'dateOfBirth',
+                    required: false,
+                    dependencyGroup: '1',
+                    requiredWhen: { field: 'documentType', in: ['CCPA'] },
+                },
+                {
+                    field: 'expirationDate',
+                    required: false,
+                    dependencyGroup: '1',
+                    requiredWhen: { field: 'documentType', in: ['CE'] },
+                },
+            ],
+        };
+        const modes = queryModesForFeature(fbi);
+        const profiles = {
+            fbi: { inputs: ['fullName', 'documentType', 'documentNumber', 'dateOfBirth', 'expirationDate'], outputs: [], inputEnums: {} },
+        };
+        let graph = addEndpointNode(emptyFlowGraph(), fbi as never, 0, 0);
+        graph = applyQueryMode(graph, 'fbi', modes[0].id, modes);
+        expect(flowSeedFields(graph, profiles)).toEqual(['fullName']);
+        expect(flowOptionalSeedFields(graph, profiles)).toEqual([]);
+
+        graph = applyQueryMode(graph, 'fbi', modes[1].id, modes);
+        expect(flowSeedFields(graph, profiles)).toEqual(['documentType', 'documentNumber']);
+        expect(flowOptionalSeedFields(graph, profiles)).toEqual(['dateOfBirth', 'expirationDate']);
     });
 });

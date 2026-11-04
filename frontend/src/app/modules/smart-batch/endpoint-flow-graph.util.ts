@@ -1,4 +1,5 @@
 import { canonicalChainField, canFeed, ChainProfile, sharedChainFields } from './endpoint-chain.util';
+import { QueryMode, queryModesForFeature } from './query-modes.util';
 import { AppFeature } from './smart-batch.service';
 
 export type FlowNodeKind = 'start' | 'endpoint' | 'merge' | 'result';
@@ -30,6 +31,7 @@ export interface FlowNodePorts {
     outputs?: string[];
     hiddenInputs?: string[];
     hiddenOutputs?: string[];
+    queryMode?: string;
 }
 
 export interface FlowGraph {
@@ -302,6 +304,52 @@ export const setFixedValue = (graph: FlowGraph, nodeId: string, port: string, va
     return { ...graph, edges, fixed: { ...graph.fixed, [nodeId]: nextFixed } };
 };
 
+export const queryModeFor = (graph: FlowGraph, nodeId: string): string | undefined => graph.ports?.[nodeId]?.queryMode;
+
+export const setQueryMode = (graph: FlowGraph, nodeId: string, modeId: string): FlowGraph =>
+    patchNodePorts(graph, nodeId, { queryMode: modeId });
+
+/** Inputs of the selected query option. Null when the endpoint has a single way to query. */
+export const nodeQueryInputs = (
+    graph: FlowGraph,
+    node: FlowGraphNode
+): { required: string[]; optional: string[] } | null => {
+    const modes = node.feature ? queryModesForFeature(node.feature) : [];
+    if (modes.length < 2) return null;
+    const mode = modes.find((item) => item.id === queryModeFor(graph, node.id)) ?? modes[0];
+    const hidden = new Set(hiddenPortsFor(graph, node.id, 'inputs'));
+    const fixed = graph.fixed[node.id] ?? {};
+    const required: string[] = [];
+    const optional: string[] = [];
+    for (const field of mode.fields) {
+        const name = canonicalChainField(field.field);
+        if (hidden.has(name) || hidden.has(field.field)) continue;
+        const when = field.requiredWhen;
+        if (!when?.values.length) {
+            required.push(name);
+            continue;
+        }
+        const whenName = canonicalChainField(when.field);
+        const fixedValue = (fixed[whenName] ?? fixed[when.field] ?? '').trim().toUpperCase();
+        if (fixedValue && when.values.some((value) => value.toUpperCase() === fixedValue)) required.push(name);
+        else optional.push(name);
+    }
+    return { required: [...new Set(required)], optional: [...new Set(optional)] };
+};
+
+export const applyQueryMode = (graph: FlowGraph, nodeId: string, modeId: string, modes: QueryMode[]): FlowGraph => {
+    const mode = modes.find((item) => item.id === modeId);
+    if (!mode) return graph;
+    const keep = new Set(mode.fields.map((field) => canonicalChainField(field.field)));
+    const drop = [
+        ...new Set(modes.flatMap((item) => item.fields.map((field) => canonicalChainField(field.field)))),
+    ].filter((field) => !keep.has(field));
+    let next = setQueryMode(graph, nodeId, modeId);
+    for (const field of drop) next = hidePort(next, nodeId, 'inputs', field);
+    for (const field of keep) next = addExtraPort(next, nodeId, 'inputs', field);
+    return next;
+};
+
 export const unboundInputs = (
     graph: FlowGraph,
     profiles: Record<string, ChainProfile>
@@ -317,18 +365,47 @@ export const unboundInputs = (
     return out;
 };
 
+const pushSeedField = (
+    graph: FlowGraph,
+    node: FlowGraphNode,
+    field: string,
+    seed: string[],
+    seen: Set<string>
+): void => {
+    const canonical = canonicalChainField(field);
+    if (seen.has(canonical)) return;
+    const fixed = graph.fixed[node.id] ?? {};
+    if ((fixed[field] ?? fixed[canonical] ?? '').trim()) return;
+    const edge = incomingEdgeForField(graph, node.id, field);
+    if (edge && edge.from !== FLOW_START_ID) return;
+    seen.add(canonical);
+    seed.push(canonical);
+};
+
+const seedFieldsForNode = (graph: FlowGraph, node: FlowGraphNode, profile: ChainProfile | undefined, optional: boolean): string[] => {
+    const plan = nodeQueryInputs(graph, node);
+    if (plan) return optional ? plan.optional : plan.required;
+    return optional ? [] : (profile?.inputs ?? []);
+};
+
 export const flowSeedFields = (graph: FlowGraph, profiles: Record<string, ChainProfile>): string[] => {
     const seed: string[] = [];
     const seen = new Set<string>();
     for (const node of endpointNodes(graph)) {
-        for (const field of profiles[node.id]?.inputs ?? []) {
-            const canonical = canonicalChainField(field);
-            if (seen.has(canonical)) continue;
-            if ((graph.fixed[node.id]?.[field] ?? '').trim()) continue;
-            const edge = incomingEdgeForField(graph, node.id, field);
-            if (edge && edge.from !== FLOW_START_ID) continue;
-            seen.add(canonical);
-            seed.push(canonical);
+        for (const field of seedFieldsForNode(graph, node, profiles[node.id], false)) {
+            pushSeedField(graph, node, field, seed, seen);
+        }
+    }
+    return seed;
+};
+
+/** Conditional inputs of the selected query option. The form can leave them empty. */
+export const flowOptionalSeedFields = (graph: FlowGraph, profiles: Record<string, ChainProfile>): string[] => {
+    const seed: string[] = [];
+    const seen = new Set<string>();
+    for (const node of endpointNodes(graph)) {
+        for (const field of seedFieldsForNode(graph, node, profiles[node.id], true)) {
+            pushSeedField(graph, node, field, seed, seen);
         }
     }
     return seed;
@@ -595,8 +672,18 @@ export const parseFlowGraph = (value: unknown): FlowGraph | null => {
             const outputs = readList('outputs');
             const hiddenInputs = readList('hiddenInputs');
             const hiddenOutputs = readList('hiddenOutputs');
-            if (inputs.length || outputs.length || hiddenInputs.length || hiddenOutputs.length) {
-                ports[nodeId] = { inputs, outputs, hiddenInputs, hiddenOutputs };
+            const queryMode =
+                typeof rawPorts['queryMode'] === 'string' && rawPorts['queryMode'].trim()
+                    ? rawPorts['queryMode'].trim()
+                    : undefined;
+            if (inputs.length || outputs.length || hiddenInputs.length || hiddenOutputs.length || queryMode) {
+                ports[nodeId] = {
+                    inputs,
+                    outputs,
+                    hiddenInputs,
+                    hiddenOutputs,
+                    ...(queryMode ? { queryMode } : {}),
+                };
             }
         }
     }

@@ -103,8 +103,6 @@ export const layoutItemSectionFromBlock = (
     };
     if (options.isTable) {
         section.maxRows = cloned.maxRows ?? 200;
-        if (cloned.maxColumns != null) section.maxColumns = cloned.maxColumns;
-        if (cloned.columns) section.columns = cloned.columns;
     }
     if (nestedOverrides) section.keyOverrides = nestedOverrides;
     return section;
