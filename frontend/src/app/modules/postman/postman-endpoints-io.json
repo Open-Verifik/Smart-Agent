@@ -24718,7 +24718,155 @@
             "message": "Either documentNumber or fullName must be provided."
           }
         }
-      ]
+      ],
+      "docs": {
+        "en": {
+          "title": "Peru — Politically Exposed Persons (PEP / SBS 2660-2015 & 4349-2016)",
+          "description": "Screen Peruvian DNI or CE numbers and full names against official Peruvian PEP directories under SBS Resolution 2660-2015, SBS Resolution 4349-2016 (modified by Res. SBS 00199-2025 & 02868-2025), and PLAFT regulations.",
+          "overview": "Screen Peruvian **DNI** (*Documento Nacional de Identidad*), **CE** (*Carné de Extranjería*), or **full names** against the consolidated Peruvian Politically Exposed Persons (PEP) directory for **PLAFT** (*Prevención del Lavado de Activos y del Financiamiento del Terrorismo*) compliance under:\n\n- **Resolución SBS N° 2660-2015** (*Reglamento de Gestión de Riesgos de Lavado de Activos y del Financiamiento del Terrorismo*)\n- **Resolución SBS N° 4349-2016** (modified by **Resolución SBS N° 00199-2025** and **Resolución SBS N° 02868-2025**), including the **Anexo Numeral 2** classification categories (`a` through `m`) and the mandatory **2-year post-cessation look-back window** (*ex-PEP*).\n\n---",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "Peruvian DNI (8 digits) or CE (9–12 alphanumeric characters). Required if `fullName` is omitted."
+            },
+            {
+              "field": "documentType",
+              "description": "DNI` (default) or `CE`."
+            },
+            {
+              "field": "fullName",
+              "description": "Full name of the individual to screen (e.g., `DINA ERCILIA BOLUARTE ZEGARRA`). Required if `documentNumber` is omitted."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Include former PEPs (*ex-PEP*) within the 2-year post-cessation look-back window established by Res. SBS 4349-2016 / 02868-2025. Defaults to `true`. Set to `false` to return only currently active roles."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "const options = {\n  method: \"GET\",\n  url: \"https://api.verifik.co/v2/pe/politically-exposed-persons\",\n  params: {\n    documentType: \"DNI\",\n    documentNumber: \"06256217\",\n    includeFormer: true,\n  },\n  headers: {\n    Accept: \"application/json\",\n    Authorization: \"Bearer <your_token>\",\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(data);\n} catch (error) {\n  console.error(error.response ? error.response.data : error.message);\n}"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "url = \"https://api.verifik.co/v2/pe/politically-exposed-persons\"\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <your_token>\"\n}\nparams = {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"06256217\",\n    \"includeFormer\": \"true\"\n}\n\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+            },
+            {
+              "lang": "curl",
+              "label": "cURL",
+              "language": "bash",
+              "code": "curl -X GET \"https://api.verifik.co/v2/pe/politically-exposed-persons?documentType=DNI&documentNumber=06256217&includeFormer=true\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer <your_token>\""
+            }
+          ],
+          "responses": [
+            {
+              "status": "200-hit",
+              "label": "200 (PEP Match Found)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"06256217\",\n    \"fullName\": \"DINA ERCILIA BOLUARTE ZEGARRA\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": true,\n    \"totalMatches\": 2,\n    \"categories\": [\"a\", \"b\"],\n    \"includeFormer\": true,\n    \"matches\": [\n      {\n        \"fullName\": \"DINA ERCILIA BOLUARTE ZEGARRA\",\n        \"documentType\": \"DNI\",\n        \"documentNumber\": \"06256217\",\n        \"position\": \"PRESIDENTA DE LA REPÚBLICA DEL PERÚ\",\n        \"entity\": \"DESPACHO PRESIDENCIAL\",\n        \"category\": \"a\",\n        \"categoryLabel\": \"President of the Republic, Vice Presidents, Members of Congress, and Parliamentarians\",\n        \"categoryLabelEs\": \"Presidente de la República, Vicepresidentes, Congresistas y Parlamentarios\",\n        \"department\": \"LIMA\",\n        \"startDate\": \"2022-12-07\",\n        \"endDate\": null,\n        \"status\": \"ACTIVE\",\n        \"isPep\": true,\n        \"isActivePep\": true,\n        \"isFormerPep\": false,\n        \"withinLookbackWindow\": false,\n        \"source\": \"PORTAL DEL ESTADO PERUANO / CONTRALORÍA GENERAL DE LA REPÚBLICA\",\n        \"sourceUrl\": \"https://www.gob.pe/presidencia\",\n        \"fiscalYear\": \"2025\",\n        \"declarationOpportunity\": \"AL INICIO\"\n      }\n    ],\n    \"regulation\": {\n      \"framework\": \"Resolución SBS N° 2660-2015 / Resolución SBS N° 4349-2016 (modificada por Res. SBS N° 00199-2025 y N° 02868-2025)\",\n      \"lookbackYears\": 2,\n      \"authority\": \"Superintendencia de Banca, Seguros y AFP (SBS) - UIF-Perú\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:15 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "200-clean",
+              "label": "200 (Clean Record / Non-PEP)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000009\",\n    \"fullName\": \"JUAN CARLOS QUISPE MAMANI\",\n    \"isPep\": false,\n    \"isActivePep\": false,\n    \"isFormerPep\": false,\n    \"totalMatches\": 0,\n    \"categories\": [],\n    \"includeFormer\": true,\n    \"matches\": [],\n    \"regulation\": {\n      \"framework\": \"Resolución SBS N° 2660-2015 / Resolución SBS N° 4349-2016 (modificada por Res. SBS N° 00199-2025 y N° 02868-2025)\",\n      \"lookbackYears\": 2,\n      \"authority\": \"Superintendencia de Banca, Seguros y AFP (SBS) - UIF-Perú\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:15 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Validation Error)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing documentNumber or fullName\\n.At least one of documentNumber or fullName is required\"\n}"
+            }
+          ],
+          "notes": []
+        },
+        "es": {
+          "title": "Perú — Personas Expuestas Políticamente (PEP / SBS 2660-2015 y 4349-2016)",
+          "description": "Consulta en tiempo real de Personas Expuestas Políticamente (PEP) en el Perú por DNI, CE o nombre completo bajo las Resoluciones SBS N° 2660-2015, 4349-2016, 00199-2025 y 02868-2025 (PLAFT).",
+          "overview": "Verifik ofrece acceso programático al directorio consolidado de **Personas Expuestas Políticamente (PEP)** en la República del Perú, permitiendo a los sujetos obligados ante la **UIF-Perú / SBS** realizar la debida diligencia en el conocimiento del cliente, beneficiario final, directores y proveedores conforme a:\n\n- **Resolución SBS N° 2660-2015** (*Reglamento de Gestión de Riesgos de Lavado de Activos y del Financiamiento del Terrorismo*)\n- **Resolución SBS N° 4349-2016** (modificada por **Resolución SBS N° 00199-2025** y **Resolución SBS N° 02868-2025**), incluyendo las categorías `a` a `m` del **Anexo Numeral 2** y la ventana regulatoria de **2 años posteriores al cese en el cargo** (*ex-PEP*).\n\n---\n\n- **Cumplimiento PLAFT / UIF-Perú:** Identificación automatizada de clientes o contrapartes bajo régimen reforzado de debida diligencia conforme a la normativa de la Superintendencia de Banca, Seguros y AFP (SBS).\n- **Onboarding Financiero, Fintech y Seguros:** Validación por **DNI**, **Carné de Extranjería (CE)** o **nombre completo** durante procesos de vinculación digital.\n- **Debida Diligencia de Proveedores y Contratación:** Detección de altos funcionarios, congresistas, alcaldes, gobernadores regionales, magistrados y responsables de logística/contrataciones del Estado.\n\n---",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": "Formato de respuesta JSON"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": "Token JWT de autenticación en Verifik"
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "Número de DNI peruano (8 dígitos) o Carné de Extranjería (`CE`, 9 a 12 caracteres). Requerido si no se envía `fullName`."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: `DNI` (predeterminado) o `CE`."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo de la persona a consultar (ej. `DINA ERCILIA BOLUARTE ZEGARRA`). Requerido si no se envía `documentNumber`."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Incluye ex-funcionarios (*ex-PEP*) dentro de la ventana de 2 años posteriores al cese establecida por la Res. SBS 4349-2016 / 02868-2025. Valor predeterminado: `true`. Envíe `false` para filtrar únicamente cargos vigentes."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js (JavaScript)",
+              "language": "javascript",
+              "code": "const options = {\n  method: \"GET\",\n  url: \"https://api.verifik.co/v2/pe/politically-exposed-persons\",\n  params: {\n    documentType: \"DNI\",\n    documentNumber: \"06256217\",\n    includeFormer: true,\n  },\n  headers: {\n    Accept: \"application/json\",\n    Authorization: \"Bearer <tu_token>\",\n  },\n};\n\ntry {\n  const { data } = await axios.request(options);\n  console.log(JSON.stringify(data, null, 2));\n} catch (error) {\n  console.error(\"Error al consultar PEP Perú:\", error.response?.data || error.message);\n}"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "url = \"https://api.verifik.co/v2/pe/politically-exposed-persons\"\n\nheaders = {\n    \"Accept\": \"application/json\",\n    \"Authorization\": \"Bearer <tu_token>\"\n}\n\nparams = {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"06256217\",\n    \"includeFormer\": \"true\"\n}\n\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+            },
+            {
+              "lang": "curl",
+              "label": "cURL",
+              "language": "bash",
+              "code": "curl -X GET \"https://api.verifik.co/v2/pe/politically-exposed-persons?documentType=DNI&documentNumber=06256217&includeFormer=true\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer <tu_token>\""
+            }
+          ],
+          "responses": [
+            {
+              "status": "200-hit",
+              "label": "200 (Coincidencia PEP Encontrada)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"06256217\",\n    \"fullName\": \"DINA ERCILIA BOLUARTE ZEGARRA\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": true,\n    \"totalMatches\": 2,\n    \"categories\": [\"a\", \"b\"],\n    \"includeFormer\": true,\n    \"matches\": [\n      {\n        \"fullName\": \"DINA ERCILIA BOLUARTE ZEGARRA\",\n        \"documentType\": \"DNI\",\n        \"documentNumber\": \"06256217\",\n        \"position\": \"PRESIDENTA DE LA REPÚBLICA DEL PERÚ\",\n        \"entity\": \"DESPACHO PRESIDENCIAL\",\n        \"category\": \"a\",\n        \"categoryLabel\": \"President of the Republic, Vice Presidents, Members of Congress, and Parliamentarians\",\n        \"categoryLabelEs\": \"Presidente de la República, Vicepresidentes, Congresistas y Parlamentarios\",\n        \"department\": \"LIMA\",\n        \"startDate\": \"2022-12-07\",\n        \"endDate\": null,\n        \"status\": \"ACTIVE\",\n        \"isPep\": true,\n        \"isActivePep\": true,\n        \"isFormerPep\": false,\n        \"withinLookbackWindow\": false,\n        \"source\": \"PORTAL DEL ESTADO PERUANO / CONTRALORÍA GENERAL DE LA REPÚBLICA\",\n        \"sourceUrl\": \"https://www.gob.pe/presidencia\",\n        \"fiscalYear\": \"2025\",\n        \"declarationOpportunity\": \"AL INICIO\"\n      }\n    ],\n    \"regulation\": {\n      \"framework\": \"Resolución SBS N° 2660-2015 / Resolución SBS N° 4349-2016 (modificada por Res. SBS N° 00199-2025 y N° 02868-2025)\",\n      \"lookbackYears\": 2,\n      \"authority\": \"Superintendencia de Banca, Seguros y AFP (SBS) - UIF-Perú\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:15 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "200-clean",
+              "label": "200 (Sin Coincidencias / No PEP)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"10000009\",\n    \"fullName\": \"JUAN CARLOS QUISPE MAMANI\",\n    \"isPep\": false,\n    \"isActivePep\": false,\n    \"isFormerPep\": false,\n    \"totalMatches\": 0,\n    \"categories\": [],\n    \"includeFormer\": true,\n    \"matches\": [],\n    \"regulation\": {\n      \"framework\": \"Resolución SBS N° 2660-2015 / Resolución SBS N° 4349-2016 (modificada por Res. SBS N° 00199-2025 y N° 02868-2025)\",\n      \"lookbackYears\": 2,\n      \"authority\": \"Superintendencia de Banca, Seguros y AFP (SBS) - UIF-Perú\"\n    },\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 7:15 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Error de Validación)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing documentNumber or fullName\\n.At least one of documentNumber or fullName is required\"\n}"
+            }
+          ],
+          "notes": []
+        }
+      }
     }
   ]
 }
