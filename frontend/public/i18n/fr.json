@@ -4331,6 +4331,46 @@
                 }
             },
             "integrations": {
+                "enrollmentClient": {
+                    "title": "Expérience d’inscription",
+                    "subtitle": "Choisissez la page ouverte par le lien publié.",
+                    "legacy": "Inscription actuelle (/sign-up)",
+                    "v2": "Nouvelle inscription (/verify)",
+                    "blocked": "La nouvelle inscription reste désactivée tant que le projet exige :",
+                    "blockers": {
+                        "business": "Vérification d’entreprise ou KYB",
+                        "extraFields": "Champs de profil supplémentaires",
+                        "backgroundCheck": "Vérification des antécédents",
+                        "nameCheck": "Vérification du nom",
+                        "screening": "Filtrage",
+                        "zeroKnowledge": "Preuve à divulgation nulle",
+                        "taxInformation": "Informations fiscales",
+                        "representatives": "Représentants légaux",
+                        "signature": "Signature ou formulaire supplémentaire"
+                    }
+                },
+                "verifyStyle": {
+                    "title": "Apparence de la vérification",
+                    "subtitle": "Le client voit ceci sur la nouvelle inscription. Sans choix, cette page utilise Forêt. L’inscription actuelle ne change pas.",
+                    "sample": "Continuer",
+                    "unset": "Non choisi",
+                    "names": {
+                        "a": "Forêt",
+                        "b": "Éditorial",
+                        "c": "Papier",
+                        "d": "Coffre",
+                        "e": "Porcelaine",
+                        "f": "Carnet"
+                    },
+                    "descriptions": {
+                        "a": "Esthétique sauge éco-minimaliste avec typographie Inter serrée et boutons pilule vert chartreuse.",
+                        "b": "Mise en page éditoriale à fort contraste avec typographie condensée Barlow et touches monochromes.",
+                        "c": "Esthétique tactile papier chaleureuse avec typographie moderne Outfit et accents fusain profonds.",
+                        "d": "Mode sombre coffre-fort numérique avec typographie technique Space Grotesk et bleu électrique.",
+                        "e": "Esthétique porcelaine raffinée avec typographie délicate Inter Tight et boutons indigo épurés.",
+                        "f": "Style carnet néo-brutaliste avec grands titres en Roboto Condensed et touches vert néon."
+                    }
+                },
                 "redirect": {
                     "title": "URL de redirection",
                     "subtitle": "Où envoyer le client une fois l’inscription terminée.",
@@ -4371,6 +4411,28 @@
                 }
             },
             "ui": {
+                "verifyStyle": {
+                    "title": "Apparence de la vérification",
+                    "subtitle": "Le client voit ceci sur la nouvelle inscription. Sans choix, cette page utilise Forêt. L’inscription actuelle ne change pas.",
+                    "sample": "Continuer",
+                    "unset": "Non choisi",
+                    "names": {
+                        "a": "Forêt",
+                        "b": "Éditorial",
+                        "c": "Papier",
+                        "d": "Coffre",
+                        "e": "Porcelaine",
+                        "f": "Carnet"
+                    },
+                    "descriptions": {
+                        "a": "Esthétique sauge éco-minimaliste avec typographie Inter serrée et boutons pilule vert chartreuse.",
+                        "b": "Mise en page éditoriale à fort contraste avec typographie condensée Barlow et touches monochromes.",
+                        "c": "Esthétique tactile papier chaleureuse avec typographie moderne Outfit et accents fusain profonds.",
+                        "d": "Mode sombre coffre-fort numérique avec typographie technique Space Grotesk et bleu électrique.",
+                        "e": "Esthétique porcelaine raffinée avec typographie délicate Inter Tight et boutons indigo épurés.",
+                        "f": "Style carnet néo-brutaliste avec grands titres en Roboto Condensed et touches vert néon."
+                    }
+                },
                 "colors": {
                     "heading": "Couleurs de marque",
                     "title": "Titre",

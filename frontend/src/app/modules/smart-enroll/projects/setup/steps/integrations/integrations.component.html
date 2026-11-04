@@ -4,6 +4,41 @@
         @let sourceCtrl = integrationsFormGroup?.get('source');
         @let apiUrlCtrl = integrationsFormGroup?.get('apiUrl');
 
+        <section class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40">
+            <header>
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.integrations.enrollmentClient.title') }}
+                </h2>
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.integrations.enrollmentClient.subtitle') }}
+                </p>
+            </header>
+
+            @if (enrollmentClientControl) {
+                <mat-radio-group class="flex flex-col gap-3" [formControl]="enrollmentClientControl">
+                    <mat-radio-button [value]="''">
+                        {{ t('smartEnrollProjects.setup.integrations.enrollmentClient.legacy') }}
+                    </mat-radio-button>
+                    <mat-radio-button value="v2" [disabled]="enrollmentBlocked">
+                        {{ t('smartEnrollProjects.setup.integrations.enrollmentClient.v2') }}
+                    </mat-radio-button>
+                </mat-radio-group>
+            }
+
+            @if (enrollmentBlocked) {
+                <div
+                    class="flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+                >
+                    <span>{{ t('smartEnrollProjects.setup.integrations.enrollmentClient.blocked') }}</span>
+                    <ul class="list-disc space-y-1 pl-5">
+                        @for (reason of enrollmentBlockerKeys; track reason) {
+                            <li>{{ t('smartEnrollProjects.setup.integrations.enrollmentClient.blockers.' + reason) }}</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </section>
+
         <!-- 1. Redirect URL -->
         <section
             class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
