@@ -519,7 +519,7 @@
       "method": "POST",
       "url": "v2/projects",
       "description": "Bundled Verifik KYC solution: identity, document, biometrics, and watchlist checks orchestrated end-to-end. Used as the default reference for full KYC flows.",
-      "price": 0.00001,
+      "price": 1e-05,
       "isAvailable": false,
       "catalogHidden": false,
       "headers": [],
@@ -11206,7 +11206,7 @@
       "method": "DELETE",
       "url": "v2/face-recognition/persons/@monitor.personId",
       "description": "Delete an enrolled face person by id",
-      "price": 0.00001,
+      "price": 1e-05,
       "isAvailable": true,
       "catalogHidden": false,
       "headers": [
@@ -25428,6 +25428,1488 @@
           }
         }
       ],
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Brazil — Medical Professional (CRM)",
+          "description": "Validate and consult Brazilian medical professionals by CRM registration number and State (UF) or by full name, with optional CPF and Date of Birth cross-validation.",
+          "overview": "Validates and retrieves registration details for physicians registered in Brazil across all 27 state jurisdictions (*Unidades Federativas* — `UF`). You can query by **CRM number and State (`uf`)** or by **Full Name (`fullName`)**.\n\nWhen querying by CRM number and `uf`, you can also optionally provide the physician's 11-digit `cpf` and `dateOfBirth` (`DD/MM/YYYY`) to cross-validate whether those identity credentials match the registered physician (`identityValidated: true | false`).\n\n---\n\n- **National Brazilian Coverage:** Cross-checks active and inactive medical registrations in all 27 Federal Units.\n- **Specialty Certifications (RQE):** Returns registered medical specialty titles (*Registro de Qualificação de Especialista*).\n- **Fraud Prevention & Identity Match:** Optional CPF + DOB verification against the physician record.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "Physician's CRM registration number (up to 7 digits). Alias: crm."
+            },
+            {
+              "field": "uf",
+              "description": "2-letter Brazilian state code (SP, RJ, MG, etc.). Required in CRM mode."
+            },
+            {
+              "field": "fullName",
+              "description": "Physician's full name (minimum 3 characters). Alternative to CRM + UF."
+            },
+            {
+              "field": "cpf",
+              "description": "Optional 11-digit Brazilian CPF to cross-validate with dateOfBirth."
+            },
+            {
+              "field": "dateOfBirth",
+              "description": "Optional Date of birth in DD/MM/YYYY format to cross-validate with cpf."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/br/medical-professional', {\n  params: { documentNumber: '123456', uf: 'SP' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            },
+            {
+              "lang": "python",
+              "label": "Python",
+              "language": "python",
+              "code": "import requests\n\nresponse = requests.get('https://api.verifik.co/v2/br/medical-professional', params={'documentNumber': '123456', 'uf': 'SP'}, headers={'Authorization': 'Bearer <token>'})\nprint(response.json())"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Active Physician)",
+              "body": {
+                "data": {
+                  "ambiguous": false,
+                  "arrayName": [
+                    "CARLOS",
+                    "EDUARDO",
+                    "MENDES",
+                    "SILVA"
+                  ],
+                  "cpf": "12345678909",
+                  "crm": "123456",
+                  "dateOfBirth": "15/04/1980",
+                  "documentNumber": "123456",
+                  "documentType": "CRM",
+                  "firstName": "CARLOS",
+                  "fullName": "CARLOS EDUARDO MENDES SILVA",
+                  "identityValidated": true,
+                  "isActive": true,
+                  "isHealthWorker": true,
+                  "lastName": "EDUARDO MENDES SILVA",
+                  "licenses": [
+                    {
+                      "city": null,
+                      "crm": "123456",
+                      "establishment": null,
+                      "fullName": "CARLOS EDUARDO MENDES SILVA",
+                      "isActive": true,
+                      "registrationType": "Principal",
+                      "registrationTypeCode": "P",
+                      "specialties": [
+                        {
+                          "name": "CARDIOLOGIA",
+                          "raw": "CARDIOLOGIA - RQE Nº: 45120",
+                          "rqe": "45120"
+                        },
+                        {
+                          "name": "CLÍNICA MÉDICA",
+                          "raw": "CLÍNICA MÉDICA - RQE Nº: 38910",
+                          "rqe": "38910"
+                        }
+                      ],
+                      "status": "Regular",
+                      "statusCode": "A",
+                      "statusDescription": "Médico que está regularmente inscrito no Conselho Regional de Medicina e se encontra apto ao exercício da medicina.",
+                      "uf": "SP",
+                      "updatedAtDate": "04/11/2026"
+                    }
+                  ],
+                  "matchMethod": "crm_uf_validated",
+                  "registrationType": "Principal",
+                  "registrationTypeCode": "P",
+                  "specialties": [
+                    {
+                      "name": "CARDIOLOGIA",
+                      "raw": "CARDIOLOGIA - RQE Nº: 45120",
+                      "rqe": "45120"
+                    },
+                    {
+                      "name": "CLÍNICA MÉDICA",
+                      "raw": "CLÍNICA MÉDICA - RQE Nº: 38910",
+                      "rqe": "38910"
+                    }
+                  ],
+                  "status": "Regular",
+                  "statusCode": "A",
+                  "statusDescription": "Médico que está regularmente inscrito no Conselho Regional de Medicina e se encontra apto ao exercício da medicina.",
+                  "uf": "SP",
+                  "updatedAtDate": "04/11/2026"
+                },
+                "signature": {
+                  "dateTime": "November 4, 2026 6:30 PM",
+                  "message": "Certified by Verifik.co"
+                }
+              }
+            },
+            {
+              "status": "404",
+              "label": "404 (Not Found)",
+              "body": {
+                "code": "NotFound",
+                "message": "Medical professional not found in the official registry for the provided parameters."
+              }
+            }
+          ],
+          "notes": []
+        },
+        "es": {
+          "title": "Brasil — Profesional Médico (CRM)",
+          "description": "Valida y consulta profesionales médicos de Brasil por número de registro CRM y Estado (UF) o por nombre completo, con validación cruzada opcional de CPF y Fecha de Nacimiento.",
+          "overview": "Permite consultar y validar los datos de médicos matriculados en la República Federativa de Brasil a través de los Consejos Regionales de Medicina en las 27 entidades federativas (`UF`). Es posible consultar por **Número de CRM y Estado (`uf`)** o por **Nombre Completo (`fullName`)**.\n\nAl consultar por CRM y estado, es posible suministrar adicionalmente el `cpf` (11 dígitos) y la `dateOfBirth` (`DD/MM/YYYY`) del profesional para realizar una validación de identidad cruzada (`identityValidated: true | false`).\n\n---\n\n- **Cobertura Federal Nacional:** Consulta los registros de médicos activos, jubilados o suspendidos en los 27 estados.\n- **Especialidades Médicas Registradas (RQE):** Retorna especialidades con su número de Registro de Calificación de Especialista.\n- **Validación Cruzada de Identidad:** Corrobora si el CPF y la fecha de nacimiento corresponden efectivamente al titular de la matrícula médica.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "Número de matrícula CRM (hasta 7 dígitos). Sinónimo: crm."
+            },
+            {
+              "field": "uf",
+              "description": "Sigla del estado brasileño (SP, RJ, MG, etc.). Obligatorio con CRM."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo del médico (mínimo 3 caracteres). Alternativa a CRM + UF."
+            },
+            {
+              "field": "cpf",
+              "description": "CPF de 11 dígitos opcional para validación cruzada con dateOfBirth."
+            },
+            {
+              "field": "dateOfBirth",
+              "description": "Fecha de nacimiento en formato DD/MM/YYYY opcional para validación cruzada."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/br/medical-professional', {\n  params: { documentNumber: '123456', uf: 'SP' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Active Physician)",
+              "body": {
+                "data": {
+                  "ambiguous": false,
+                  "arrayName": [
+                    "CARLOS",
+                    "EDUARDO",
+                    "MENDES",
+                    "SILVA"
+                  ],
+                  "cpf": "12345678909",
+                  "crm": "123456",
+                  "dateOfBirth": "15/04/1980",
+                  "documentNumber": "123456",
+                  "documentType": "CRM",
+                  "firstName": "CARLOS",
+                  "fullName": "CARLOS EDUARDO MENDES SILVA",
+                  "identityValidated": true,
+                  "isActive": true,
+                  "isHealthWorker": true,
+                  "lastName": "EDUARDO MENDES SILVA",
+                  "licenses": [
+                    {
+                      "city": null,
+                      "crm": "123456",
+                      "establishment": null,
+                      "fullName": "CARLOS EDUARDO MENDES SILVA",
+                      "isActive": true,
+                      "registrationType": "Principal",
+                      "registrationTypeCode": "P",
+                      "specialties": [
+                        {
+                          "name": "CARDIOLOGIA",
+                          "raw": "CARDIOLOGIA - RQE Nº: 45120",
+                          "rqe": "45120"
+                        },
+                        {
+                          "name": "CLÍNICA MÉDICA",
+                          "raw": "CLÍNICA MÉDICA - RQE Nº: 38910",
+                          "rqe": "38910"
+                        }
+                      ],
+                      "status": "Regular",
+                      "statusCode": "A",
+                      "statusDescription": "Médico que está regularmente inscrito no Conselho Regional de Medicina e se encontra apto ao exercício da medicina.",
+                      "uf": "SP",
+                      "updatedAtDate": "04/11/2026"
+                    }
+                  ],
+                  "matchMethod": "crm_uf_validated",
+                  "registrationType": "Principal",
+                  "registrationTypeCode": "P",
+                  "specialties": [
+                    {
+                      "name": "CARDIOLOGIA",
+                      "raw": "CARDIOLOGIA - RQE Nº: 45120",
+                      "rqe": "45120"
+                    },
+                    {
+                      "name": "CLÍNICA MÉDICA",
+                      "raw": "CLÍNICA MÉDICA - RQE Nº: 38910",
+                      "rqe": "38910"
+                    }
+                  ],
+                  "status": "Regular",
+                  "statusCode": "A",
+                  "statusDescription": "Médico que está regularmente inscrito no Conselho Regional de Medicina e se encontra apto ao exercício da medicina.",
+                  "uf": "SP",
+                  "updatedAtDate": "04/11/2026"
+                },
+                "signature": {
+                  "dateTime": "November 4, 2026 6:30 PM",
+                  "message": "Certified by Verifik.co"
+                }
+              }
+            },
+            {
+              "status": "404",
+              "label": "404 (Not Found)",
+              "body": {
+                "code": "NotFound",
+                "message": "Medical professional not found in the official registry for the provided parameters."
+              }
+            }
+          ],
+          "notes": []
+        }
+      }
+    },
+    {
+      "code": "panama_api_health_worker",
+      "name": "Panama — Health Worker & Medical Professional Verification (MINSA / Consejo Técnico de Salud)",
+      "nameES": "Panamá — Verificación de Profesionales de la Salud y Médicos (MINSA / Consejo Técnico de Salud)",
+      "country": "Panama",
+      "category": "professional_license",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/pa/health-worker",
+      "description": "Verify Panamanian physicians, specialists, dentists, nurses, pharmacists, and medical technologists by Cédula or full name against official Ministry of Health (MINSA) personnel and health professional registries.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Panamanian Cédula (e.g. 8-224-2444 or 8-0224-02444)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "cedula",
+            "type": "String",
+            "required": false,
+            "description": "Panamanian Cédula (synonym of documentNumber)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: CEDULA or CCPA",
+            "enum": [
+              "CEDULA",
+              "CCPA"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name of the health professional (minimum 3 characters)",
+            "dependencyGroup": "2"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Success)",
+          "body": "{\n  \"data\": {\n    \"cedula\": \"8-224-2444\",\n    \"cedulaPadded\": \"8-0224-02444\",\n    \"documentType\": \"CEDULA\",\n    \"documentNumber\": \"8-224-2444\",\n    \"fullName\": \"LOURDES N SUAREZ\",\n    \"position\": \"MEDICO ESPECIALISTA I\",\n    \"professionCategory\": \"M\\u00c9DICO ESPECIALISTA\",\n    \"entity\": \"MINISTERIO DE SALUD DE PANAM\\u00c1 (MINSA)\",\n    \"startDate\": \"14-01-1993\",\n    \"contractStatus\": \"PERMANENTE\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"cedula\": \"8-224-2444\",\n        \"fullName\": \"LOURDES N SUAREZ\",\n        \"position\": \"MEDICO ESPECIALISTA I\",\n        \"professionCategory\": \"M\\u00c9DICO ESPECIALISTA\",\n        \"entity\": \"MINISTERIO DE SALUD DE PANAM\\u00c1 (MINSA)\",\n        \"status\": \"ACTIVO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+        },
+        {
+          "status": "409",
+          "label": "409 (Missing Parameter)",
+          "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either cedula (documentNumber) or fullName is required.\"\n}"
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Panama — Health Worker & Medical Professional Verification (MINSA / Consejo Técnico de Salud)",
+          "description": "Verify Panamanian physicians, specialists, dentists, nurses, pharmacists, and medical technologists by Cédula or full name against official Ministry of Health (MINSA) registries.",
+          "overview": "Validates and retrieves registration details for physicians, specialists, dentists, nurses, pharmacists, and medical technologists in Panama. Queries can be executed by **Cédula (`documentNumber` or `cedula`)** or by **Full Name (`fullName`)**.\n\nThe verification checks official registries maintained by the Ministry of Health (*Ministerio de Salud — MINSA*) and the Technical Health Council (*Consejo Técnico de Salud*), returning professional standing, category, position, institution, and start date.\n\n---\n\n- **National Coverage:** Covers public health institutions, medical personnel, and licensed professionals throughout the Republic of Panama.\n- **Multi-Profession Identification:** Identifies general practitioners, medical specialists, odontologists, registered nurses, and pharmacy personnel.\n- **Identity Consistency:** Validates official Panamanian Cédula formats (standard `X-XXX-XXXX` and padded `X-XXXX-XXXXX`).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "cedula",
+              "description": "Panamanian Cédula (e.g. 8-224-2444 or 8-0224-02444). Required if fullName is omitted."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Alias for cedula. Standard document number parameter."
+            },
+            {
+              "field": "documentType",
+              "description": "Document type: CEDULA (default) or CCPA."
+            },
+            {
+              "field": "fullName",
+              "description": "Full name of the health professional. Required if document number is omitted."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/pa/health-worker', {\n  params: { documentNumber: '8-224-2444', documentType: 'CEDULA' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"cedula\": \"8-224-2444\",\n    \"cedulaPadded\": \"8-0224-02444\",\n    \"documentType\": \"CEDULA\",\n    \"documentNumber\": \"8-224-2444\",\n    \"fullName\": \"LOURDES N SUAREZ\",\n    \"position\": \"MEDICO ESPECIALISTA I\",\n    \"professionCategory\": \"M\\u00c9DICO ESPECIALISTA\",\n    \"entity\": \"MINISTERIO DE SALUD DE PANAM\\u00c1 (MINSA)\",\n    \"startDate\": \"14-01-1993\",\n    \"contractStatus\": \"PERMANENTE\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"cedula\": \"8-224-2444\",\n        \"fullName\": \"LOURDES N SUAREZ\",\n        \"position\": \"MEDICO ESPECIALISTA I\",\n        \"professionCategory\": \"M\\u00c9DICO ESPECIALISTA\",\n        \"entity\": \"MINISTERIO DE SALUD DE PANAM\\u00c1 (MINSA)\",\n        \"status\": \"ACTIVO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either cedula (documentNumber) or fullName is required.\"\n}"
+            }
+          ]
+        },
+        "es": {
+          "title": "Panamá — Verificación de Profesionales de la Salud y Médicos (MINSA / Consejo Técnico de Salud)",
+          "description": "Verifica médicos especialistas, médicos generales, odontólogos, enfermeros y profesionales de la salud en Panamá por Cédula o nombre completo ante el Ministerio de Salud (MINSA).",
+          "overview": "Permite consultar y certificar el registro profesional de médicos generales, médicos especialistas, odontólogos, enfermeros, farmacéuticos y personal técnico de la salud en la República de Panamá. Las consultas pueden realizarse mediante **Cédula (`documentNumber` o `cedula`)** o por **Nombre Completo (`fullName`)**.\n\nLa verificación consulta los registros oficiales del Ministerio de Salud (*MINSA*) y del Consejo Técnico de Salud, acreditando la condición laboral, cargo, categoría profesional e institución sanitaria de adscripción.\n\n---\n\n- **Cobertura Sanitaria Nacional:** Abarca personal activo y permanente de la red hospitalaria y de salud de Panamá.\n- **Multicategoría Profesional:** Detecta idoneidad y cargos para médicos especialistas, odontólogos, enfermeros y tecnólogos médicos.\n- **Homologación de Cédula:** Compatible con el formato tradicional (`8-224-2444`) y el formato computarizado ampliado (`8-0224-02444`).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "cedula",
+              "description": "Cédula panameña (ej. 8-224-2444 o 8-0224-02444). Obligatorio si se omite fullName."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Sinónimo de cedula."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: CEDULA (predeterminado) o CCPA."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo del profesional. Obligatorio si se omite la cédula."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/pa/health-worker', {\n  params: { documentNumber: '8-224-2444', documentType: 'CEDULA' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"cedula\": \"8-224-2444\",\n    \"cedulaPadded\": \"8-0224-02444\",\n    \"documentType\": \"CEDULA\",\n    \"documentNumber\": \"8-224-2444\",\n    \"fullName\": \"LOURDES N SUAREZ\",\n    \"position\": \"MEDICO ESPECIALISTA I\",\n    \"professionCategory\": \"M\\u00c9DICO ESPECIALISTA\",\n    \"entity\": \"MINISTERIO DE SALUD DE PANAM\\u00c1 (MINSA)\",\n    \"startDate\": \"14-01-1993\",\n    \"contractStatus\": \"PERMANENTE\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"cedula\": \"8-224-2444\",\n        \"fullName\": \"LOURDES N SUAREZ\",\n        \"position\": \"MEDICO ESPECIALISTA I\",\n        \"professionCategory\": \"M\\u00c9DICO ESPECIALISTA\",\n        \"entity\": \"MINISTERIO DE SALUD DE PANAM\\u00c1 (MINSA)\",\n        \"status\": \"ACTIVO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either cedula (documentNumber) or fullName is required.\"\n}"
+            }
+          ]
+        }
+      },
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "panama_api_pep",
+      "name": "Panama — Politically Exposed Persons (PEP) Screening (Ley 23 / SBP 10-2015)",
+      "nameES": "Panamá — Consulta de Personas Expuestas Políticamente (PEP / Ley 23 y SBP 10-2015)",
+      "country": "Panama",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/pa/politically-exposed-persons",
+      "description": "Screen Panamanian citizens (Cédula) and full names against official Ley N° 23 de 2015, Acuerdo SBP N° 10-2015, National Assembly Deputies, and Executive PEP registries with 2-year lookback.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Panamanian Cédula (e.g. 8-204-1062)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "cedula",
+            "type": "String",
+            "required": false,
+            "description": "Panamanian Cédula (synonym of documentNumber)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: CEDULA or CCPA",
+            "enum": [
+              "CEDULA",
+              "CCPA"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full legal name to screen",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "includeFormer",
+            "type": "Boolean",
+            "required": false,
+            "description": "Include former PEPs within 2-year lookback window (default: true)"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Success)",
+          "body": "{\n  \"data\": {\n    \"documentType\": \"CEDULA\",\n    \"documentNumber\": \"8-204-1062\",\n    \"fullName\": \"LAURENTINO CORTIZO COHEN\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO - ALTO MANDO / PRESIDENCIA\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"LAURENTINO CORTIZO COHEN\",\n        \"documentNumber\": \"8-204-1062\",\n        \"entity\": \"PRESIDENCIA DE LA REP\\u00daBLICA DE PANAM\\u00c1\",\n        \"position\": \"PRESIDENTE DE LA REP\\u00daBLICA\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+        },
+        {
+          "status": "409",
+          "label": "409 (Missing Parameter)",
+          "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing cedula (documentNumber) or fullName.\"\n}"
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Panama — Politically Exposed Persons (PEP / Ley 23 de 2015 & SBP 10-2015)",
+          "description": "Screen Panamanian citizens (Cédula) and full names against official PEP registries under Ley N° 23 de 2015 and SBP 10-2015 with 2-year lookback.",
+          "overview": "Screen Panamanian citizens by **Cédula (`documentNumber` or `cedula`)** or **Full Legal Name (`fullName`)** against consolidated official registries of Politically Exposed Persons (PEP) for anti-money laundering (AML/CFT) compliance under:\n\n- **Ley N° 23 de 2015** (*Prevención del blanqueo de capitales y financiamiento del terrorismo*)\n- **Acuerdo SBP N° 10-2015** (Superintendencia de Bancos de Panamá)\n- Mandatory **2-year post-mandate lookback window** (*período de carencia* following cessation of public duties).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "cedula",
+              "description": "Panamanian Cédula (e.g. 8-204-1062). Required if fullName is omitted."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Alias for cedula."
+            },
+            {
+              "field": "documentType",
+              "description": "Document type: CEDULA (default) or CCPA."
+            },
+            {
+              "field": "fullName",
+              "description": "Full legal name of the individual to screen. Required if cédula is omitted."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Include former PEPs (ex-PEP) within 2-year window (default: true)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/pa/politically-exposed-persons', {\n  params: { documentNumber: '8-204-1062', includeFormer: true },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"CEDULA\",\n    \"documentNumber\": \"8-204-1062\",\n    \"fullName\": \"LAURENTINO CORTIZO COHEN\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO - ALTO MANDO / PRESIDENCIA\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"LAURENTINO CORTIZO COHEN\",\n        \"documentNumber\": \"8-204-1062\",\n        \"entity\": \"PRESIDENCIA DE LA REP\\u00daBLICA DE PANAM\\u00c1\",\n        \"position\": \"PRESIDENTE DE LA REP\\u00daBLICA\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing cedula (documentNumber) or fullName.\"\n}"
+            }
+          ]
+        },
+        "es": {
+          "title": "Panamá — Consulta de Personas Expuestas Políticamente (PEP / Ley 23 y SBP 10-2015)",
+          "description": "Consulta de Personas Expuestas Políticamente (PEP) en Panamá conforme a la Ley N° 23 de 2015 y Acuerdo SBP N° 10-2015 con 2 años para ex-PEP por Cédula o nombre completo.",
+          "overview": "Permite consultar y verificar si un ciudadano panameño ostenta la condición de **Persona Expuesta Políticamente (PEP)** por **Cédula (`documentNumber` o `cedula`)** o por **Nombre Completo (`fullName`)** conforme al marco regulatorio de prevención de blanqueo de capitales:\n\n- **Ley N° 23 de 2015** (*Prevención del blanqueo de capitales*)\n- **Acuerdo SBP N° 10-2015** de la Superintendencia de Bancos de Panamá\n- Período de carencia de **2 años posteriores al cese de funciones** (*ex-PEP*).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "cedula",
+              "description": "Cédula panameña (ej. 8-204-1062). Obligatorio si se omite fullName."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Sinónimo de cedula."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: CEDULA (predeterminado) o CCPA."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo de la persona a consultar. Obligatorio si se omite la cédula."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Incluye ex-funcionarios dentro de la ventana de 2 años (predeterminado: true)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/pa/politically-exposed-persons', {\n  params: { documentNumber: '8-204-1062', includeFormer: true },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"CEDULA\",\n    \"documentNumber\": \"8-204-1062\",\n    \"fullName\": \"LAURENTINO CORTIZO COHEN\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO - ALTO MANDO / PRESIDENCIA\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"LAURENTINO CORTIZO COHEN\",\n        \"documentNumber\": \"8-204-1062\",\n        \"entity\": \"PRESIDENCIA DE LA REP\\u00daBLICA DE PANAM\\u00c1\",\n        \"position\": \"PRESIDENTE DE LA REP\\u00daBLICA\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing cedula (documentNumber) or fullName.\"\n}"
+            }
+          ]
+        }
+      },
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "chile_api_health_worker",
+      "name": "Chile — Health Worker & Medical Professional Verification (SIS / RNPI)",
+      "nameES": "Chile — Verificación de Prestadores Individuales de Salud y Médicos (SIS / RNPI)",
+      "country": "Chile",
+      "category": "professional_license",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/cl/health-worker",
+      "description": "Verify Chilean physicians, surgeons, dentists, nurses, midwives, medical technologists, and specialists by RUT or full name against the National Registry of Individual Health Providers (RNPI / Superintendencia de Salud).",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Chilean RUT number (e.g. 4738039-1 or 12443604-4)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "rut",
+            "type": "String",
+            "required": false,
+            "description": "Chilean RUT (synonym of documentNumber)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: RUT",
+            "enum": [
+              "RUT"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name of the medical professional (minimum 3 characters)",
+            "dependencyGroup": "2"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Success)",
+          "body": "{\n  \"data\": {\n    \"rut\": \"4738039-1\",\n    \"documentType\": \"RUT\",\n    \"documentNumber\": \"4738039-1\",\n    \"fullName\": \"HERNANDEZ PARRA HECTOR\",\n    \"profession\": \"M\\u00c9DICO CIRUJANO\",\n    \"specialty\": \"CIRUG\\u00cdA GENERAL\",\n    \"region\": \"BIOB\\u00cdO\",\n    \"city\": \"CHILL\\u00c1N\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"rut\": \"4738039-1\",\n        \"fullName\": \"HERNANDEZ PARRA HECTOR\",\n        \"profession\": \"M\\u00c9DICO CIRUJANO\",\n        \"specialty\": \"CIRUG\\u00cdA GENERAL\",\n        \"status\": \"ACTIVO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+        },
+        {
+          "status": "409",
+          "label": "409 (Missing Parameter)",
+          "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either rut (documentNumber) or fullName is required.\"\n}"
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Chile — Health Worker & Medical Professional Verification (SIS / RNPI)",
+          "description": "Verify Chilean physicians, surgeons, dentists, nurses, midwives, and specialists by RUT or full name against the official RNPI / Superintendencia de Salud registry.",
+          "overview": "Validates and verifies medical professionals and individual health providers in the Republic of Chile by **RUT (`documentNumber` or `rut`)** or **Full Name (`fullName`)**.\n\nThe service checks the official **Registro Nacional de Prestadores Individuales de Salud (RNPI)** maintained by the **Superintendencia de Salud (SIS)**, providing certified confirmation of medical degrees, recognized specialties, issuing institutions, and professional registration status.\n\n---\n\n- **Certified Health Professions:** Validates physicians, surgeons (*médico cirujano*), dentists (*cirujano dentista*), nurses, midwives, and medical technologists.\n- **Accredited Medical Specialties:** Confirms medical specialties and sub-specialties certified by CONACEM or recognized universities.\n- **Official Compliance:** Essential for clinics, telemedicine platforms, health insurers (FONASA / ISAPRE), and pharmacies to verify provider credentials.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "rut",
+              "description": "Chilean RUT number (e.g. 4738039-1). Required if fullName is omitted."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Alias for rut."
+            },
+            {
+              "field": "documentType",
+              "description": "Document type: RUT (default)."
+            },
+            {
+              "field": "fullName",
+              "description": "Full name of the medical professional. Required if RUT is omitted."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/cl/health-worker', {\n  params: { documentNumber: '4738039-1', documentType: 'RUT' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"rut\": \"4738039-1\",\n    \"documentType\": \"RUT\",\n    \"documentNumber\": \"4738039-1\",\n    \"fullName\": \"HERNANDEZ PARRA HECTOR\",\n    \"profession\": \"M\\u00c9DICO CIRUJANO\",\n    \"specialty\": \"CIRUG\\u00cdA GENERAL\",\n    \"region\": \"BIOB\\u00cdO\",\n    \"city\": \"CHILL\\u00c1N\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"rut\": \"4738039-1\",\n        \"fullName\": \"HERNANDEZ PARRA HECTOR\",\n        \"profession\": \"M\\u00c9DICO CIRUJANO\",\n        \"specialty\": \"CIRUG\\u00cdA GENERAL\",\n        \"status\": \"ACTIVO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either rut (documentNumber) or fullName is required.\"\n}"
+            }
+          ]
+        },
+        "es": {
+          "title": "Chile — Verificación de Prestadores Individuales de Salud y Médicos (SIS / RNPI)",
+          "description": "Consulta y valida médicos cirujanos, dentistas, enfermeros y especialistas de salud en Chile por RUT o nombre completo ante el Registro Nacional de Prestadores Individuales (RNPI).",
+          "overview": "Permite consultar y certificar la habilitación profesional de médicos cirujanos, cirujanos dentistas, enfermeros, matronas, tecnólogos médicos y especialistas en salud en la República de Chile por **RUT (`documentNumber` o `rut`)** o por **Nombre Completo (`fullName`)**.\n\nLa verificación consulta el **Registro Nacional de Prestadores Individuales de Salud (RNPI)** administrado por la **Superintendencia de Salud (SIS)**, certificando el título profesional, especialidades acreditadas, entidad emisora y estado de habilitación para el ejercicio de la profesión médica.\n\n---\n\n- **Acreditación Profesional Oficial:** Valida títulos emitidos por universidades chilenas o revalidados ante la Universidad de Chile.\n- **Especialidades Médicas Certificadas:** Confirma especialidades médicas y subespecialidades inscritas y certificadas (CONACEM / CONACEO).\n- **Cumplimiento y Telemedicina:** Indispensable para clínicas, centros médicos, plataformas de salud digital y aseguradoras (FONASA / ISAPRE).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "rut",
+              "description": "RUT del profesional de salud (ej. 4738039-1). Obligatorio si se omite fullName."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Sinónimo de rut."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: RUT (predeterminado)."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo del profesional. Obligatorio si se omite el RUT."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/cl/health-worker', {\n  params: { documentNumber: '4738039-1', documentType: 'RUT' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"rut\": \"4738039-1\",\n    \"documentType\": \"RUT\",\n    \"documentNumber\": \"4738039-1\",\n    \"fullName\": \"HERNANDEZ PARRA HECTOR\",\n    \"profession\": \"M\\u00c9DICO CIRUJANO\",\n    \"specialty\": \"CIRUG\\u00cdA GENERAL\",\n    \"region\": \"BIOB\\u00cdO\",\n    \"city\": \"CHILL\\u00c1N\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"rut\": \"4738039-1\",\n        \"fullName\": \"HERNANDEZ PARRA HECTOR\",\n        \"profession\": \"M\\u00c9DICO CIRUJANO\",\n        \"specialty\": \"CIRUG\\u00cdA GENERAL\",\n        \"status\": \"ACTIVO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either rut (documentNumber) or fullName is required.\"\n}"
+            }
+          ]
+        }
+      },
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "chile_api_pep",
+      "name": "Chile — Politically Exposed Persons (PEP) Screening (Ley 19.913 / UAF)",
+      "nameES": "Chile — Consulta de Personas Expuestas Políticamente (PEP / Ley 19.913 y UAF)",
+      "country": "Chile",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/cl/politically-exposed-persons",
+      "description": "Screen Chilean citizens (RUT) and full names against official PEP registries under Ley N° 19.913, Circular UAF N° 49/2012, and senior public officials registries with 2-year lookback.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Chilean RUT number (e.g. 16152235-6 or 7012456-8)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "rut",
+            "type": "String",
+            "required": false,
+            "description": "Chilean RUT (synonym of documentNumber)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: RUT",
+            "enum": [
+              "RUT"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full legal name of the person to screen",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "includeFormer",
+            "type": "Boolean",
+            "required": false,
+            "description": "Include former PEPs within 2-year lookback window (default: true)"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Success)",
+          "body": "{\n  \"data\": {\n    \"documentType\": \"RUT\",\n    \"documentNumber\": \"16152235-6\",\n    \"fullName\": \"GABRIEL BORIC FONT\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO - PRESIDENCIA Y MINISTERIOS\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"GABRIEL BORIC FONT\",\n        \"documentNumber\": \"16152235-6\",\n        \"entity\": \"PRESIDENCIA DE LA REP\\u00daBLICA DE CHILE\",\n        \"position\": \"PRESIDENTE DE LA REP\\u00daBLICA\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+        },
+        {
+          "status": "409",
+          "label": "409 (Missing Parameter)",
+          "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing rut (documentNumber) or fullName.\"\n}"
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Chile — Politically Exposed Persons (PEP / Ley 19.913 & UAF)",
+          "description": "Screen Chilean citizens (RUT) and full names against official PEP registries under Ley N° 19.913 and Circular UAF N° 49/2012 with 2-year lookback.",
+          "overview": "Screen Chilean citizens by **RUT (`documentNumber` or `rut`)** or **Full Legal Name (`fullName`)** against consolidated official registries of Politically Exposed Persons (PEP) for anti-money laundering and terrorism financing prevention (AML/CFT) under:\n\n- **Ley N° 19.913** (*Crea la Unidad de Análisis Financiero y regula el sistema antilavado*)\n- **Circular UAF N° 49/2012** (Instrucciones sobre Personas Expuestas Políticamente)\n- Mandatory **2-year post-mandate lookback window** (*período de carencia* following cessation of public office).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "rut",
+              "description": "Chilean RUT number (e.g. 16152235-6). Required if fullName is omitted."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Alias for rut."
+            },
+            {
+              "field": "documentType",
+              "description": "Document type: RUT (default)."
+            },
+            {
+              "field": "fullName",
+              "description": "Full legal name of the person to screen. Required if RUT is omitted."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Include former PEPs within 2-year window (default: true)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/cl/politically-exposed-persons', {\n  params: { documentNumber: '16152235-6', includeFormer: true },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"RUT\",\n    \"documentNumber\": \"16152235-6\",\n    \"fullName\": \"GABRIEL BORIC FONT\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO - PRESIDENCIA Y MINISTERIOS\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"GABRIEL BORIC FONT\",\n        \"documentNumber\": \"16152235-6\",\n        \"entity\": \"PRESIDENCIA DE LA REP\\u00daBLICA DE CHILE\",\n        \"position\": \"PRESIDENTE DE LA REP\\u00daBLICA\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing rut (documentNumber) or fullName.\"\n}"
+            }
+          ]
+        },
+        "es": {
+          "title": "Chile — Consulta de Personas Expuestas Políticamente (PEP / Ley 19.913 y UAF)",
+          "description": "Consulta de Personas Expuestas Políticamente (PEP) en Chile conforme a la Ley N° 19.913 y Circular UAF N° 49/2012 con 2 años para ex-PEP por RUT o nombre completo.",
+          "overview": "Permite consultar y verificar si un ciudadano chileno ostenta la condición de **Persona Expuesta Políticamente (PEP)** por **RUT (`documentNumber` o `rut`)** o por **Nombre Completo (`fullName`)** conforme al marco legal chileno:\n\n- **Ley N° 19.913** (*Crea la Unidad de Análisis Financiero*)\n- **Circular UAF N° 49/2012** (Instrucciones sobre Personas Expuestas Políticamente)\n- Período de carencia de **2 años posteriores a la dejación del cargo público** (*ex-PEP*).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "rut",
+              "description": "RUT chileno (ej. 16152235-6). Obligatorio si se omite fullName."
+            },
+            {
+              "field": "documentNumber",
+              "description": "Sinónimo de rut."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: RUT (predeterminado)."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo de la persona a consultar. Obligatorio si se omite el RUT."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Incluye ex-funcionarios dentro de la ventana de 2 años (predeterminado: true)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/cl/politically-exposed-persons', {\n  params: { documentNumber: '16152235-6', includeFormer: true },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"RUT\",\n    \"documentNumber\": \"16152235-6\",\n    \"fullName\": \"GABRIEL BORIC FONT\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO - PRESIDENCIA Y MINISTERIOS\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"GABRIEL BORIC FONT\",\n        \"documentNumber\": \"16152235-6\",\n        \"entity\": \"PRESIDENCIA DE LA REP\\u00daBLICA DE CHILE\",\n        \"position\": \"PRESIDENTE DE LA REP\\u00daBLICA\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing rut (documentNumber) or fullName.\"\n}"
+            }
+          ]
+        }
+      },
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "argentina_api_health_worker",
+      "name": "Argentina — Health Worker & Medical Professional Verification (SISA / REFEPS)",
+      "nameES": "Argentina — Verificación de Profesionales de la Salud y Médicos (SISA / REFEPS)",
+      "country": "Argentina",
+      "category": "professional_license",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/ar/health-worker",
+      "description": "Validate Argentine physicians, dentists, psychologists, nurses, and healthcare professionals across national and provincial jurisdictions via the Federal Health Professionals Registry (REFEPS / SISA / Ministerio de Salud).",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Argentine DNI (e.g. 20123456 or 28456789)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dni",
+            "type": "String",
+            "required": false,
+            "description": "Argentine DNI (synonym of documentNumber)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: DNI",
+            "enum": [
+              "DNI"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full name of the medical professional",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "matricula",
+            "type": "String",
+            "required": false,
+            "description": "Provincial or national license number"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Success)",
+          "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"20123456\",\n    \"fullName\": \"ANDREA GOMEZ\",\n    \"profession\": \"M\\u00c9DICO\",\n    \"specialty\": \"CARDIOLOG\\u00cdA\",\n    \"jurisdiction\": \"BUENOS AIRES\",\n    \"licenseNumber\": \"142857\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"documentNumber\": \"20123456\",\n        \"fullName\": \"ANDREA GOMEZ\",\n        \"profession\": \"M\\u00c9DICO\",\n        \"specialty\": \"CARDIOLOG\\u00cdA\",\n        \"licenseNumber\": \"142857\",\n        \"licenseType\": \"PROVINCIAL\",\n        \"jurisdiction\": \"BUENOS AIRES\",\n        \"status\": \"HABILITADO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+        },
+        {
+          "status": "409",
+          "label": "409 (Missing Parameter)",
+          "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either documentNumber (DNI) or fullName is required.\"\n}"
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Argentina — Health Worker & Medical Professional Verification (SISA / REFEPS)",
+          "description": "Validate Argentine physicians, dentists, psychologists, nurses, and health professionals across jurisdictions via REFEPS / SISA / Ministerio de Salud.",
+          "overview": "Validates and verifies medical professionals and healthcare practitioners across the Argentine Republic by **DNI (`documentNumber`)** or **Full Name (`fullName`)**, with optional professional license number (**`matricula`**).\n\nThe service queries the official **Registro Federal de Profesionales de la Salud (REFEPS)** integrated in the **Sistema de Información Sanitaria Argentino (SISA)** of the **Ministerio de Salud de la Nación (MSAL)**, confirming professional license numbers, degree titles, specialties, provincial health authority, and authorization status.\n\n---\n\n- **National and Provincial Scope:** Unifies records across the 23 provinces and the Autonomous City of Buenos Aires (CABA).\n- **Comprehensive Health Disciplines:** Validates physicians (*médicos*), dentists (*odontólogos*), psychologists, nurses, and pharmacists.\n- **Accredited Specialties:** Confirms medical specialties registered with provincial colleges and the national ministry.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "Argentine DNI (e.g. 20123456). Required if fullName is omitted."
+            },
+            {
+              "field": "documentType",
+              "description": "Document type: DNI (default)."
+            },
+            {
+              "field": "fullName",
+              "description": "Full name of the medical professional. Required if DNI is omitted."
+            },
+            {
+              "field": "matricula",
+              "description": "Provincial or national professional license number (optional filter)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/ar/health-worker', {\n  params: { documentNumber: '20123456', documentType: 'DNI' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"20123456\",\n    \"fullName\": \"ANDREA GOMEZ\",\n    \"profession\": \"M\\u00c9DICO\",\n    \"specialty\": \"CARDIOLOG\\u00cdA\",\n    \"jurisdiction\": \"BUENOS AIRES\",\n    \"licenseNumber\": \"142857\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"documentNumber\": \"20123456\",\n        \"fullName\": \"ANDREA GOMEZ\",\n        \"profession\": \"M\\u00c9DICO\",\n        \"specialty\": \"CARDIOLOG\\u00cdA\",\n        \"licenseNumber\": \"142857\",\n        \"licenseType\": \"PROVINCIAL\",\n        \"jurisdiction\": \"BUENOS AIRES\",\n        \"status\": \"HABILITADO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either documentNumber (DNI) or fullName is required.\"\n}"
+            }
+          ]
+        },
+        "es": {
+          "title": "Argentina — Verificación de Profesionales de la Salud y Médicos (SISA / REFEPS)",
+          "description": "Valida médicos, odontólogos, psicólogos, enfermeros y profesionales de la salud en Argentina a través de REFEPS / SISA / Ministerio de Salud.",
+          "overview": "Permite consultar y validar el estado de habilitación profesional y matrículas de médicos, odontólogos, psicólogos, enfermeros y profesionales sanitarios en toda la República Argentina por **DNI (`documentNumber`)** o **Nombre Completo (`fullName`)**, con opción de filtrar por número de **matrícula (`matricula`)**.\n\nLa verificación consulta el **Registro Federal de Profesionales de la Salud (REFEPS)** integrado en el **Sistema de Información Sanitaria Argentino (SISA)** del **Ministerio de Salud de la Nación (MSAL)**, certificando matrículas nacionales o provinciales, títulos universitarios, especialidades y vigencia para el ejercicio profesional.\n\n---\n\n- **Cobertura Federal Consolidada:** Unifica datos de colegios profesionales y ministerios de salud de las 23 provincias y CABA.\n- **Múltiples Disciplinas Sanitarias:** Médicos, cirujanos, odontólogos, psicólogos, farmacéuticos y enfermeros universitarios.\n- **Especialidades Médicas Registradas:** Consulta especialidades clínicas y quirúrgicas certificadas y registradas ante la autoridad sanitaria.",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "DNI argentino del profesional (ej. 20123456). Obligatorio si se omite fullName."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: DNI (predeterminado)."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo del profesional de salud. Obligatorio si se omite el DNI."
+            },
+            {
+              "field": "matricula",
+              "description": "Número de matrícula provincial o nacional opcional."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/ar/health-worker', {\n  params: { documentNumber: '20123456', documentType: 'DNI' },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"20123456\",\n    \"fullName\": \"ANDREA GOMEZ\",\n    \"profession\": \"M\\u00c9DICO\",\n    \"specialty\": \"CARDIOLOG\\u00cdA\",\n    \"jurisdiction\": \"BUENOS AIRES\",\n    \"licenseNumber\": \"142857\",\n    \"isHealthWorker\": true,\n    \"isActive\": true,\n    \"totalRegistrations\": 1,\n    \"registrations\": [\n      {\n        \"documentNumber\": \"20123456\",\n        \"fullName\": \"ANDREA GOMEZ\",\n        \"profession\": \"M\\u00c9DICO\",\n        \"specialty\": \"CARDIOLOG\\u00cdA\",\n        \"licenseNumber\": \"142857\",\n        \"licenseType\": \"PROVINCIAL\",\n        \"jurisdiction\": \"BUENOS AIRES\",\n        \"status\": \"HABILITADO\"\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"Either documentNumber (DNI) or fullName is required.\"\n}"
+            }
+          ]
+        }
+      },
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
+    },
+    {
+      "code": "argentina_api_pep",
+      "name": "Argentina — Politically Exposed Persons (PEP) Screening (UIF Res. 35/2023)",
+      "nameES": "Argentina — Consulta de Personas Expuestas Políticamente (PEP / UIF Res. 35/2023)",
+      "country": "Argentina",
+      "category": "background_check",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/ar/politically-exposed-persons",
+      "description": "Screen Argentine citizens (DNI, CUIT, CUIL) and full names against official PEP registries under UIF Resolution 35/2023, Decreto 823/2021, and the National Public Administration with 2-year lookback.",
+      "price": 0.2,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": false,
+            "description": "Argentine DNI, CUIT, or CUIL (e.g. 12063372 or 22195694)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "dni",
+            "type": "String",
+            "required": false,
+            "description": "Argentine DNI (synonym of documentNumber)",
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "description": "Document type: DNI, CUIT, or CUIL",
+            "enum": [
+              "DNI",
+              "CUIT",
+              "CUIL"
+            ],
+            "dependencyGroup": "1"
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": false,
+            "description": "Full legal name to screen",
+            "dependencyGroup": "2"
+          },
+          {
+            "field": "includeFormer",
+            "type": "Boolean",
+            "required": false,
+            "description": "Include former PEPs within 2-year lookback window (default: true)"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Success)",
+          "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"12063372\",\n    \"fullName\": \"JAVIER GERARDO MILEI\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO NACIONAL - PRESIDENCIA Y MINISTERIOS\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"JAVIER GERARDO MILEI\",\n        \"documentNumber\": \"12063372\",\n        \"entity\": \"PRESIDENCIA DE LA NACI\\u00d3N ARGENTINA\",\n        \"position\": \"PRESIDENTE DE LA NACI\\u00d3N\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+        },
+        {
+          "status": "409",
+          "label": "409 (Missing Parameter)",
+          "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing documentNumber (DNI/CUIT) or fullName.\"\n}"
+        }
+      ],
+      "docs": {
+        "en": {
+          "title": "Argentina — Politically Exposed Persons (PEP / UIF Res. 35/2023)",
+          "description": "Screen Argentine citizens (DNI, CUIT, CUIL) and full names against official PEP registries under UIF Resolution 35/2023 with 2-year lookback.",
+          "overview": "Screen Argentine citizens by **DNI, CUIT, or CUIL (`documentNumber`)** or **Full Legal Name (`fullName`)** against consolidated official registries of Politically Exposed Persons (PEP) for anti-money laundering and terrorism financing prevention (AML/CFT) under:\n\n- **Resolución UIF N° 35/2023** (*Nómina de Personas Expuestas Políticamente de la Unidad de Información Financiera*)\n- **Decreto N° 823/2021** (Régimen de Transparencia de la APN)\n- Mandatory **2-year post-mandate lookback window** (*período de carencia* following cessation of public duties).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "Argentine DNI, CUIT, or CUIL (e.g. 12063372). Required if fullName is omitted."
+            },
+            {
+              "field": "documentType",
+              "description": "Document type: DNI (default), CUIT, or CUIL."
+            },
+            {
+              "field": "fullName",
+              "description": "Full legal name of the individual to screen. Required if document number is omitted."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Include former PEPs within 2-year window (default: true)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/ar/politically-exposed-persons', {\n  params: { documentNumber: '12063372', includeFormer: true },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"12063372\",\n    \"fullName\": \"JAVIER GERARDO MILEI\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO NACIONAL - PRESIDENCIA Y MINISTERIOS\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"JAVIER GERARDO MILEI\",\n        \"documentNumber\": \"12063372\",\n        \"entity\": \"PRESIDENCIA DE LA NACI\\u00d3N ARGENTINA\",\n        \"position\": \"PRESIDENTE DE LA NACI\\u00d3N\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing documentNumber (DNI/CUIT) or fullName.\"\n}"
+            }
+          ]
+        },
+        "es": {
+          "title": "Argentina — Consulta de Personas Expuestas Políticamente (PEP / UIF Res. 35/2023)",
+          "description": "Consulta de Personas Expuestas Políticamente (PEP) en Argentina conforme a la Resolución UIF N° 35/2023 con 2 años para ex-PEP por DNI, CUIT o nombre completo.",
+          "overview": "Permite consultar y verificar si un ciudadano o residente argentino ostenta la condición de **Persona Expuesta Políticamente (PEP)** por **DNI, CUIT o CUIL (`documentNumber` o `dni`)** o por **Nombre Completo (`fullName`)** conforme al marco regulatorio de la UIF:\n\n- **Resolución UIF N° 35/2023** (*Nómina oficial de Personas Expuestas Políticamente*)\n- **Decreto N° 823/2021** (Régimen de Transparencia de la APN)\n- Período reglamentario de carencia de **2 años posteriores al cese de funciones** (*ex-PEP*).",
+          "headers": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "description": ""
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>",
+              "description": ""
+            }
+          ],
+          "params": [
+            {
+              "field": "documentNumber",
+              "description": "DNI, CUIT o CUIL argentino (ej. 12063372). Obligatorio si se omite fullName."
+            },
+            {
+              "field": "documentType",
+              "description": "Tipo de documento: DNI (predeterminado), CUIT o CUIL."
+            },
+            {
+              "field": "fullName",
+              "description": "Nombre completo de la persona a consultar. Obligatorio si se omite el DNI."
+            },
+            {
+              "field": "includeFormer",
+              "description": "Incluye ex-funcionarios dentro de la ventana de 2 años (predeterminado: true)."
+            }
+          ],
+          "requestExamples": [
+            {
+              "lang": "javascript",
+              "label": "Node.js / JavaScript",
+              "language": "javascript",
+              "code": "import axios from 'axios';\n\nconst response = await axios.get('https://api.verifik.co/v2/ar/politically-exposed-persons', {\n  params: { documentNumber: '12063372', includeFormer: true },\n  headers: { Authorization: 'Bearer <token>' }\n});\nconsole.log(response.data);"
+            }
+          ],
+          "notes": [],
+          "responses": [
+            {
+              "status": "200",
+              "label": "200 (Success)",
+              "body": "{\n  \"data\": {\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"12063372\",\n    \"fullName\": \"JAVIER GERARDO MILEI\",\n    \"isPep\": true,\n    \"isActivePep\": true,\n    \"isFormerPep\": false,\n    \"totalMatches\": 1,\n    \"categories\": [\n      \"PODER EJECUTIVO NACIONAL - PRESIDENCIA Y MINISTERIOS\"\n    ],\n    \"matches\": [\n      {\n        \"fullName\": \"JAVIER GERARDO MILEI\",\n        \"documentNumber\": \"12063372\",\n        \"entity\": \"PRESIDENCIA DE LA NACI\\u00d3N ARGENTINA\",\n        \"position\": \"PRESIDENTE DE LA NACI\\u00d3N\",\n        \"isActive\": true\n      }\n    ],\n    \"valid\": true\n  },\n  \"signature\": {\n    \"dateTime\": \"November 4, 2026 8:00 PM\",\n    \"message\": \"Certified by Verifik.co\"\n  }\n}"
+            },
+            {
+              "status": "409",
+              "label": "409 (Missing Parameter)",
+              "body": "{\n  \"code\": \"MissingParameter\",\n  \"message\": \"missing documentNumber (DNI/CUIT) or fullName.\"\n}"
+            }
+          ]
+        }
+      },
       "smartBatchSuccessWhen": [
         {
           "httpStatus": 404,

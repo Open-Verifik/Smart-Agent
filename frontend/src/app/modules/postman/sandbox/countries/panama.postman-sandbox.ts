@@ -12,6 +12,8 @@ import {
 
 export const PANAMA_IDENTITY_ENDPOINT_CODE = 'panama_api_identity_lookup';
 export const PANAMA_BUSINESS_ENDPOINT_CODE = 'panama_api_business_lookup';
+export const PANAMA_HEALTH_WORKER_ENDPOINT_CODE = 'panama_api_health_worker';
+export const PANAMA_PEP_ENDPOINT_CODE = 'panama_api_pep';
 
 const PANAMA_COMPANY_DEMO_RUC = '155703400-2-2021';
 const PANAMA_COMPANY_DEMO_DV = '39';
@@ -161,6 +163,77 @@ export const PANAMA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         defaultDv: PANAMA_COMPANY_DEMO_DV,
         documentTypeByCode: {
             [PANAMA_BUSINESS_ENDPOINT_CODE]: 'RUC',
+        },
+        showProfileMeta: false,
+    },
+    [PANAMA_HEALTH_WORKER_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '8-224-2444',
+                    fullName: 'LOURDES N SUAREZ — Médico Especialista I (MINSA)',
+                    paramOverrides: {
+                        documentType: 'CEDULA',
+                        documentNumber: '8-224-2444',
+                    },
+                },
+                {
+                    documentNumber: '8-222-1461',
+                    fullName: 'CARLOS BRANDARIZ — Odontólogo I (MINSA)',
+                    paramOverrides: {
+                        documentType: 'CEDULA',
+                        documentNumber: '8-222-1461',
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+            }
+        ),
+        defaultDocumentNumber: '8-224-2444',
+        documentTypeByCode: {
+            [PANAMA_HEALTH_WORKER_ENDPOINT_CODE]: 'CEDULA',
+        },
+        showProfileMeta: false,
+    },
+    [PANAMA_PEP_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '8-204-1062',
+                    fullName: 'LAURENTINO CORTIZO COHEN — PEP Activo / Poder Ejecutivo',
+                    paramOverrides: {
+                        documentType: 'CEDULA',
+                        documentNumber: '8-204-1062',
+                        includeFormer: true,
+                    },
+                },
+                {
+                    documentNumber: '8-161-172',
+                    fullName: 'BENICIO ENACIO ROBINSON — Diputado Asamblea Nacional',
+                    paramOverrides: {
+                        documentType: 'CEDULA',
+                        documentNumber: '8-161-172',
+                        includeFormer: true,
+                    },
+                },
+                {
+                    documentNumber: '8-712-901',
+                    fullName: 'MARIA DEL CARMEN RIOS — Limpio / No PEP',
+                    paramOverrides: {
+                        documentType: 'CEDULA',
+                        documentNumber: '8-712-901',
+                        includeFormer: true,
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+            }
+        ),
+        defaultDocumentNumber: '8-204-1062',
+        documentTypeByCode: {
+            [PANAMA_PEP_ENDPOINT_CODE]: 'CEDULA',
         },
         showProfileMeta: false,
     },

@@ -5932,4 +5932,184 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "panama_api_health_worker": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "cedula",
+            "fullName"
+        ],
+        "outputs": [
+            "cedula",
+            "cedulaPadded",
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "position",
+            "professionCategory",
+            "entity",
+            "startDate",
+            "contractStatus",
+            "isHealthWorker",
+            "isActive",
+            "totalRegistrations",
+            "registrations",
+            "checkedSources",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CEDULA",
+                "CCPA"
+            ]
+        }
+    },
+    "panama_api_pep": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "cedula",
+            "fullName",
+            "includeFormer"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CEDULA",
+                "CCPA"
+            ]
+        }
+    },
+    "chile_api_health_worker": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "rut",
+            "fullName"
+        ],
+        "outputs": [
+            "rut",
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "profession",
+            "specialty",
+            "region",
+            "city",
+            "isHealthWorker",
+            "isActive",
+            "totalRegistrations",
+            "registrations",
+            "checkedSources",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "RUT"
+            ]
+        }
+    },
+    "chile_api_pep": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "rut",
+            "fullName",
+            "includeFormer"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "RUT"
+            ]
+        }
+    },
+    "argentina_api_health_worker": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "dni",
+            "fullName",
+            "matricula"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "profession",
+            "specialty",
+            "jurisdiction",
+            "licenseNumber",
+            "isHealthWorker",
+            "isActive",
+            "totalRegistrations",
+            "registrations",
+            "checkedSources",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "DNI"
+            ]
+        }
+    },
+    "argentina_api_pep": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "dni",
+            "fullName",
+            "includeFormer"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "DNI",
+                "CUIT",
+                "CUIL"
+            ]
+        }
+    },
 };

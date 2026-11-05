@@ -25,6 +25,8 @@ export const ARGENTINA_TECHNICAL_INSPECTION_ENDPOINT_CODE =
 export const ARGENTINA_RTO_ENDPOINT_CODE = 'argentina_api_rto';
 export const ARGENTINA_COMPANY_ENDPOINT_CODE = 'argentina_api_company_lookup';
 export const ARGENTINA_CERTIFICATE_VERIFY_ENDPOINT_CODE = 'ar_certificate_verify';
+export const ARGENTINA_HEALTH_WORKER_ENDPOINT_CODE = 'argentina_api_health_worker';
+export const ARGENTINA_PEP_ENDPOINT_CODE = 'argentina_api_pep';
 
 const ARGENTINA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '10000001', fullName: 'MARIA ELENA LOPEZ GARCIA' },
@@ -188,6 +190,77 @@ export const ARGENTINA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEnd
             ARGENTINA_CERTIFICATE_ERROR_PROFILE_404,
         ],
         defaultDocumentNumber: '02118499487',
+        showProfileMeta: false,
+    },
+    [ARGENTINA_HEALTH_WORKER_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '20123456',
+                    fullName: 'ANDREA GOMEZ — Médico (Cardiología / SISA)',
+                    paramOverrides: {
+                        documentType: 'DNI',
+                        documentNumber: '20123456',
+                    },
+                },
+                {
+                    documentNumber: '28456789',
+                    fullName: 'LUCAS MARTINEZ — Médico (Pediatría / SISA)',
+                    paramOverrides: {
+                        documentType: 'DNI',
+                        documentNumber: '28456789',
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+            }
+        ),
+        defaultDocumentNumber: '20123456',
+        documentTypeByCode: {
+            [ARGENTINA_HEALTH_WORKER_ENDPOINT_CODE]: 'DNI',
+        },
+        showProfileMeta: false,
+    },
+    [ARGENTINA_PEP_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '12063372',
+                    fullName: 'JAVIER GERARDO MILEI — PEP Activo / Presidente de la Nación',
+                    paramOverrides: {
+                        documentType: 'DNI',
+                        documentNumber: '12063372',
+                        includeFormer: true,
+                    },
+                },
+                {
+                    documentNumber: '22195694',
+                    fullName: 'LUIS ANDRES CAPUTO — Ministro de Economía',
+                    paramOverrides: {
+                        documentType: 'DNI',
+                        documentNumber: '22195694',
+                        includeFormer: true,
+                    },
+                },
+                {
+                    documentNumber: '35123456',
+                    fullName: 'MARTIN FEDERICO SANCHEZ — Limpio / No PEP',
+                    paramOverrides: {
+                        documentType: 'DNI',
+                        documentNumber: '35123456',
+                        includeFormer: true,
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+            }
+        ),
+        defaultDocumentNumber: '12063372',
+        documentTypeByCode: {
+            [ARGENTINA_PEP_ENDPOINT_CODE]: 'DNI',
+        },
         showProfileMeta: false,
     },
 };

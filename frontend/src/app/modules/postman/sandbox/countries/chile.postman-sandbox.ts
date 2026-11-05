@@ -39,6 +39,8 @@ export const CHILE_VEHICLE_SOAP_ENDPOINT_CODE = 'chile_api_vehicle_soap';
 export const CHILE_VEHICLE_SOAP_PLATE_ENDPOINT_CODE = 'chile_api_vehicle_soap_plate';
 export const CHILE_VEHICLE_STOLEN_ENDPOINT_CODE = 'chile_api_vehicle_stolen';
 export const CHILE_CERTIFICATE_VERIFY_ENDPOINT_CODE = 'cl_certificate_verify';
+export const CHILE_HEALTH_WORKER_ENDPOINT_CODE = 'chile_api_health_worker';
+export const CHILE_PEP_ENDPOINT_CODE = 'chile_api_pep';
 
 const CHILE_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '10000001', fullName: 'MARIA ELENA LOPEZ GARCIA — valid' },
@@ -280,6 +282,77 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
             CHILE_CERTIFICATE_ERROR_PROFILE_404,
         ],
         defaultDocumentNumber: '50070080804',
+        showProfileMeta: false,
+    },
+    [CHILE_HEALTH_WORKER_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '4738039-1',
+                    fullName: 'HERNANDEZ PARRA HECTOR — Médico Cirujano (Cirugía General)',
+                    paramOverrides: {
+                        documentType: 'RUT',
+                        documentNumber: '4738039-1',
+                    },
+                },
+                {
+                    documentNumber: '12443604-4',
+                    fullName: 'PAREDES MOLINA CARLOS — Médico Cirujano (Traumatología)',
+                    paramOverrides: {
+                        documentType: 'RUT',
+                        documentNumber: '12443604-4',
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+            }
+        ),
+        defaultDocumentNumber: '4738039-1',
+        documentTypeByCode: {
+            [CHILE_HEALTH_WORKER_ENDPOINT_CODE]: 'RUT',
+        },
+        showProfileMeta: false,
+    },
+    [CHILE_PEP_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '16152235-6',
+                    fullName: 'GABRIEL BORIC FONT — PEP Activo / Presidente de la República',
+                    paramOverrides: {
+                        documentType: 'RUT',
+                        documentNumber: '16152235-6',
+                        includeFormer: true,
+                    },
+                },
+                {
+                    documentNumber: '7012456-8',
+                    fullName: 'MARIO MARCEL CULLELL — Ministro de Hacienda',
+                    paramOverrides: {
+                        documentType: 'RUT',
+                        documentNumber: '7012456-8',
+                        includeFormer: true,
+                    },
+                },
+                {
+                    documentNumber: '18945612-3',
+                    fullName: 'CAMILA ANDREA SILVA SOTO — Limpio / No PEP',
+                    paramOverrides: {
+                        documentType: 'RUT',
+                        documentNumber: '18945612-3',
+                        includeFormer: true,
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+            }
+        ),
+        defaultDocumentNumber: '16152235-6',
+        documentTypeByCode: {
+            [CHILE_PEP_ENDPOINT_CODE]: 'RUT',
+        },
         showProfileMeta: false,
     },
 };
