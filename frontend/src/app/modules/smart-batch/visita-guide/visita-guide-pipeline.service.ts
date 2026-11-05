@@ -360,10 +360,12 @@ export class VisitaGuidePipelineService {
             const entity = this._entityForFeature(feature, entities);
             const mapping = this._mappingFor(entity, mixed, hasCitizen, hasCompany);
             const chained = feedTemplates[index] ?? {};
+            const queryMode = graph?.ports?.[feature._id]?.queryMode?.trim();
             return {
                 appFeature: feature._id,
                 sequence,
                 enabled: true,
+                ...(queryMode ? { queryMode } : {}),
                 parameterDefaults: queryDefaults(feature, graph, {
                     ...(previous?.parameterDefaults ?? {}),
                     ...mapping.parameterDefaults,

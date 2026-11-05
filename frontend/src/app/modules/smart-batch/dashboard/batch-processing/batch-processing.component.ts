@@ -20,7 +20,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom, Subject } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { escapeCsvRow, getBatchInputCsvHeaders, inputDataValueForCsvCell } from '../../batch-input-csv.util';
-import { getBatchSkippedStepsFromInput } from '../../batch-required-fields.util';
+import { getBatchSkippedStepsFromInput, prepareStepsForRun } from '../../batch-required-fields.util';
 import {
     AppFeature,
     BatchConfiguration,
@@ -544,7 +544,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         if (!pending.length) return;
         void this._browserRunner.runBatch(
             batch,
-            this.configSteps(),
+            prepareStepsForRun(this.configSteps(), this.configuration()),
             (next) => this.batch.set(next),
             (err) => this._reportFailure('batchProcessing.runInTabFailed', err)
         );

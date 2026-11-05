@@ -13,13 +13,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
     BatchRequiredField,
+    dependenciesAskedOfTheUser,
     extractRequiredFieldsFromConfig,
     getStepCompatibilityViews,
     StepCompatibilityView,
 } from '../batch-required-fields.util';
 import { BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
-import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
-
 /** Represents a required field extracted from step dependencies */
 interface RequiredField {
     field: string;
@@ -323,20 +322,18 @@ export class QuickValidateComponent implements OnInit {
             code?: string;
             dependencies?: unknown[];
         };
-        const fields: RequiredField[] = ((feature?.dependencies || []) as Array<Record<string, any>>)
-            .filter((dep) => dep?.field && isClientVisibleBatchDependencyField(String(dep.field)))
-            .map((dep) => ({
-                field: String(dep.field),
-                required: dep.required || false,
-                stepName: feature?.name || 'Unknown Step',
-                stepSequence: step.sequence,
-                enumValues: (dep.enum as string[] | null | undefined) || undefined,
-                type: (dep.type as string) || 'string',
-                description: (dep.description as string) || undefined,
-                dependencyGroup: dep.dependencyGroup as string | undefined,
-                requiredWhen: dep.requiredWhen as { field: string; in?: string[] } | undefined,
-                dateFormat: (dep.dateFormat as string) || undefined,
-            }));
+        const fields: RequiredField[] = dependenciesAskedOfTheUser(step, this.configuration()).map((dep) => ({
+            field: dep.field,
+            required: Boolean(dep.required),
+            stepName: feature?.name || 'Unknown Step',
+            stepSequence: step.sequence,
+            enumValues: dep.enum || undefined,
+            type: dep.type || 'string',
+            description: dep.description,
+            dependencyGroup: dep.dependencyGroup,
+            requiredWhen: dep.requiredWhen,
+            dateFormat: dep.dateFormat,
+        }));
 
         const xor = this.computeXorFieldGroups(fields);
 

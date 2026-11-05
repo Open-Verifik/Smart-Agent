@@ -26,6 +26,7 @@ import {
 } from '../add-credits/services/payment.service';
 import { CreditsService } from '../add-credits/services/credits.service';
 import { extractClientSettingsPayload, invoiceBillingDetailsComplete } from '../settings/utils/invoice-billing-complete';
+import { prepareStepsForRun } from '../smart-batch/batch-required-fields.util';
 import { BatchBrowserRunnerService } from '../smart-batch/batch-browser-runner.service';
 import {
     BatchConfiguration,
@@ -1062,7 +1063,7 @@ export class PlateReportComponent implements OnInit {
             const progress = await firstValueFrom(this._batches.getBatchProgress(this._batchId));
             if (runInBrowser && progress.data.status === 'processing' && !this._runner.running()) {
                 const current = await firstValueFrom(this._batches.getSmartBatch(this._batchId));
-                await this._runner.runBatch(current.data, config?.steps ?? [], () => undefined);
+                await this._runner.runBatch(current.data, prepareStepsForRun(config?.steps ?? [], config), () => undefined);
             }
 
             const loaded = await firstValueFrom(this._batches.getSmartBatch(this._batchId));

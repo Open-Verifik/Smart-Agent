@@ -41,4 +41,19 @@ describe('resolveStepParams', () => {
         });
         expect(params.vin).toBe('WVWZZZ1JZXW000001');
     });
+
+    it('sends only the name when the FBI consult was configured by name', () => {
+        const dependencies = [
+            { field: 'fullName', dependencyGroup: '2' },
+            { field: 'documentType', dependencyGroup: '1' },
+            { field: 'documentNumber', dependencyGroup: '1' },
+        ];
+        const params = resolveStepParams({
+            step: { queryMode: '2', parameterDefaults: { fullName: '{{results.1.fullName}}' } },
+            dependencies,
+            inputData: { documentType: 'CC', documentNumber: '1032386359' },
+            results: { 1: { fullName: 'ANA PEREZ' } },
+        });
+        expect(params).toEqual({ fullName: 'ANA PEREZ' });
+    });
 });

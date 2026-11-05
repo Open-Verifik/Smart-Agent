@@ -65,7 +65,7 @@ import {
     parseFlowGraph,
     usedFeatureIds,
 } from '../endpoint-flow-graph.util';
-import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
+import { getBatchSkippedStepsFromInput, prepareStepsForRun } from '../batch-required-fields.util';
 import { getPresetStepCount } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
@@ -8806,7 +8806,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
             await this._browserRunner.retryRowSteps(
                 batch,
-                config.steps ?? [],
+                prepareStepsForRun(config.steps ?? [], config),
                 0,
                 [card.sequence],
                 (next) => this._state.batch.set(next)
@@ -9767,7 +9767,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (executor !== 'browser') return;
         void this._browserRunner.runBatch(
             batch,
-            config.steps ?? [],
+            prepareStepsForRun(config.steps ?? [], config),
             (next) => this._state.batch.set(next),
             () => this._state.consultError.set(this._transloco.translate('visitaGuide.consultFailed'))
         );
