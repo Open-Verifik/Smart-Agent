@@ -852,6 +852,34 @@
             "title": "Brazilian Politically Exposed Persons (PEP) Screening",
             "description": "Screen Brazilian CPF numbers and full names against the official PEP registry under COAF Resolution 40/2021 with a 5-year grace period lookback via GET /v2/br/politically-exposed-persons."
         },
+        "brazil_api_medical_professional": {
+            "title": "Brazil — Medical Professional Verification (CRM / CFM)",
+            "description": "Verify Brazilian physicians by CRM license number and state (UF) or full name, including registration status, inscription type, medical specialties (RQE), and optional CPF + Date of Birth identity match via GET /v2/br/medical-professional."
+        },
+        "panama_api_health_worker": {
+            "title": "Panama — Health Worker & Medical Professional Verification (MINSA)",
+            "description": "Verify Panamanian physicians, specialists, dentists, nurses, pharmacists, and medical technologists by Cédula or full name against official Ministry of Health (MINSA) personnel registries via GET /v2/pa/health-worker."
+        },
+        "panama_api_pep": {
+            "title": "Panama — Politically Exposed Persons (PEP) Screening (Ley 23 / SBP 10-2015)",
+            "description": "Screen Panamanian citizens (Cédula) and full names against official PEP registries under Ley N° 23 de 2015 and SBP 10-2015 with 2-year lookback via GET /v2/pa/politically-exposed-persons."
+        },
+        "chile_api_health_worker": {
+            "title": "Chile — Health Worker & Medical Professional Verification (SIS / RNPI)",
+            "description": "Verify Chilean physicians, surgeons, dentists, nurses, and medical specialists by RUT or full name against the National Registry of Individual Health Providers (RNPI) via GET /v2/cl/health-worker."
+        },
+        "chile_api_pep": {
+            "title": "Chile — Politically Exposed Persons (PEP) Screening (Ley 19.913 / UAF)",
+            "description": "Screen Chilean citizens (RUT) and full names against official PEP registries under Ley N° 19.913 and Circular UAF N° 49/2012 with 2-year lookback via GET /v2/cl/politically-exposed-persons."
+        },
+        "argentina_api_health_worker": {
+            "title": "Argentina — Health Worker & Medical Professional Verification (SISA / REFEPS)",
+            "description": "Validate Argentine physicians, dentists, psychologists, and health professionals across national and provincial jurisdictions via REFEPS / SISA via GET /v2/ar/health-worker."
+        },
+        "argentina_api_pep": {
+            "title": "Argentina — Politically Exposed Persons (PEP) Screening (UIF Res. 35/2023)",
+            "description": "Screen Argentine citizens (DNI/CUIT) and full names against official PEP registries under UIF Resolution 35/2023 with 2-year lookback via GET /v2/ar/politically-exposed-persons."
+        },
         "face_recognition_detect_face": {
             "title": "Face Detection",
             "description": "Provides reliable verification and validation services."

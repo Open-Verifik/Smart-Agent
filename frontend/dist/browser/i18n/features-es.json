@@ -852,6 +852,34 @@
             "title": "Consulta de Personas Expuestas Políticamente (PEP) en Brasil",
             "description": "Consulta CPF brasileños y nombres en el padrón PEP bajo la Resolución COAF N° 40/2021 (con ventana de 5 años para ex-PEP) vía GET /v2/br/politically-exposed-persons."
         },
+        "brazil_api_medical_professional": {
+            "title": "Brasil — Verificación de Profesionales Médicos (CRM / CFM)",
+            "description": "Verifica médicos en Brasil por número de registro CRM y estado (UF) o nombre completo, incluyendo situación registral, tipo de inscripción, especialidades médicas (RQE) y validación de identidad por CPF y fecha de nacimiento vía GET /v2/br/medical-professional."
+        },
+        "panama_api_health_worker": {
+            "title": "Panamá — Verificación de Profesionales de la Salud (MINSA)",
+            "description": "Verifica médicos especialistas, médicos generales, odontólogos, enfermeros y profesionales de la salud en Panamá por Cédula o nombre completo ante el Ministerio de Salud (MINSA) vía GET /v2/pa/health-worker."
+        },
+        "panama_api_pep": {
+            "title": "Panamá — Consulta de Personas Expuestas Políticamente (PEP)",
+            "description": "Consulta cédulas panameñas y nombres en los registros oficiales PEP bajo la Ley 23 de 2015 y Acuerdo SBP 10-2015 con 2 años para ex-PEP vía GET /v2/pa/politically-exposed-persons."
+        },
+        "chile_api_health_worker": {
+            "title": "Chile — Verificación de Prestadores de Salud y Médicos (SIS / RNPI)",
+            "description": "Consulta y valida médicos cirujanos, dentistas, enfermeros y especialistas de salud en Chile por RUT o nombre completo ante el Registro Nacional de Prestadores Individuales (RNPI) vía GET /v2/cl/health-worker."
+        },
+        "chile_api_pep": {
+            "title": "Chile — Consulta de Personas Expuestas Políticamente (PEP / UAF)",
+            "description": "Consulta RUT chilenos y nombres en el registro PEP bajo la Ley N° 19.913 y Circular UAF N° 49/2012 con 2 años para ex-PEP vía GET /v2/cl/politically-exposed-persons."
+        },
+        "argentina_api_health_worker": {
+            "title": "Argentina — Verificación de Profesionales de la Salud (SISA / REFEPS)",
+            "description": "Valida matrículas y habilitación de médicos, odontólogos, psicólogos y profesionales de la salud en Argentina a través de REFEPS / SISA vía GET /v2/ar/health-worker."
+        },
+        "argentina_api_pep": {
+            "title": "Argentina — Consulta de Personas Expuestas Políticamente (PEP / UIF)",
+            "description": "Consulta DNI, CUIT o nombres en la nómina PEP bajo la Resolución UIF N° 35/2023 con 2 años para ex-PEP vía GET /v2/ar/politically-exposed-persons."
+        },
         "face_recognition_detect_face": {
             "title": "Detección Facial",
             "description": "Proporciona servicios confiables de verificación y validación."

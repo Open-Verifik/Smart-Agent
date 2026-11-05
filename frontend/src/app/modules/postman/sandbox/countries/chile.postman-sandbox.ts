@@ -323,7 +323,7 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
                     paramOverrides: {
                         documentType: 'RUT',
                         documentNumber: '16152235-6',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
                 {
@@ -332,7 +332,7 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
                     paramOverrides: {
                         documentType: 'RUT',
                         documentNumber: '7012456-8',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
                 {
@@ -341,7 +341,7 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
                     paramOverrides: {
                         documentType: 'RUT',
                         documentNumber: '18945612-3',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
             ],

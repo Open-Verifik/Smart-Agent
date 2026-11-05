@@ -231,7 +231,7 @@ export const ARGENTINA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEnd
                     paramOverrides: {
                         documentType: 'DNI',
                         documentNumber: '12063372',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
                 {
@@ -240,7 +240,7 @@ export const ARGENTINA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEnd
                     paramOverrides: {
                         documentType: 'DNI',
                         documentNumber: '22195694',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
                 {
@@ -249,7 +249,7 @@ export const ARGENTINA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEnd
                     paramOverrides: {
                         documentType: 'DNI',
                         documentNumber: '35123456',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
             ],

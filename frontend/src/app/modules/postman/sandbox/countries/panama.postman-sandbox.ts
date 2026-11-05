@@ -205,7 +205,7 @@ export const PANAMA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
                     paramOverrides: {
                         documentType: 'CEDULA',
                         documentNumber: '8-204-1062',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
                 {
@@ -214,7 +214,7 @@ export const PANAMA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
                     paramOverrides: {
                         documentType: 'CEDULA',
                         documentNumber: '8-161-172',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
                 {
@@ -223,7 +223,7 @@ export const PANAMA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
                     paramOverrides: {
                         documentType: 'CEDULA',
                         documentNumber: '8-712-901',
-                        includeFormer: true,
+                        includeFormer: 'true',
                     },
                 },
             ],
