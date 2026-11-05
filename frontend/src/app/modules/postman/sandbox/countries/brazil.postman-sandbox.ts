@@ -18,6 +18,7 @@ export const BRAZIL_VEHICLE_ENDPOINT_CODE = 'brasil_api_vehicle';
 export const BRAZIL_COMPANY_ENDPOINT_CODE = 'brasil_api_company_lookup';
 export const BRAZIL_CRIMINAL_HISTORY_ENDPOINT_CODE = 'brasil_api_criminal_history';
 export const BRAZIL_PEP_ENDPOINT_CODE = 'brazil_api_pep';
+export const BRAZIL_MEDICAL_PROFESSIONAL_ENDPOINT_CODE = 'brazil_api_medical_professional';
 
 const BRAZIL_CRIMINAL_DEMO_CPF = '01234567801';
 const BRAZIL_CRIMINAL_DEMO_DATE_OF_BIRTH = '17/02/2002';
@@ -256,6 +257,58 @@ export const BRAZIL_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         defaultDocumentNumber: '00068093800',
         documentTypeByCode: {
             [BRAZIL_PEP_ENDPOINT_CODE]: 'CPF',
+        },
+        showProfileMeta: false,
+    },
+    [BRAZIL_MEDICAL_PROFESSIONAL_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [
+                {
+                    documentNumber: '123456',
+                    fullName: 'CARLOS EDUARDO SILVA — CRM 123456/SP (Regular / Cardiologia)',
+                    paramOverrides: {
+                        documentType: 'CRM',
+                        documentNumber: '123456',
+                        uf: 'SP',
+                    },
+                },
+                {
+                    documentNumber: '123456',
+                    fullName: 'CARLOS EDUARDO SILVA — CRM 123456/SP + Validação CPF/Data Nasc.',
+                    paramOverrides: {
+                        documentType: 'CRM',
+                        documentNumber: '123456',
+                        uf: 'SP',
+                        cpf: '12345678909',
+                        dateOfBirth: '15/05/1980',
+                    },
+                },
+                {
+                    documentNumber: '654321',
+                    fullName: 'MARIANA COSTA OLIVEIRA — CRM 654321/RJ (Suspensão temporária)',
+                    paramOverrides: {
+                        documentType: 'CRM',
+                        documentNumber: '654321',
+                        uf: 'RJ',
+                    },
+                },
+                {
+                    documentNumber: '777777',
+                    fullName: 'ROBERTO ALMEIDA SANTOS — CRM 777777/MG (Aposentado)',
+                    paramOverrides: {
+                        documentType: 'CRM',
+                        documentNumber: '777777',
+                        uf: 'MG',
+                    },
+                },
+            ],
+            {
+                conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+            }
+        ),
+        defaultDocumentNumber: '123456',
+        documentTypeByCode: {
+            [BRAZIL_MEDICAL_PROFESSIONAL_ENDPOINT_CODE]: 'CRM',
         },
         showProfileMeta: false,
     },

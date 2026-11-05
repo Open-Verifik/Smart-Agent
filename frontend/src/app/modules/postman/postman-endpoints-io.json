@@ -25203,6 +25203,239 @@
           "notes": []
         }
       }
+    },
+    {
+      "code": "brazil_api_medical_professional",
+      "name": "Brazil — Medical Professional Verification (CRM / CFM)",
+      "nameES": "Brasil — Verificación de Profesionales Médicos (CRM / CFM)",
+      "country": "Brazil",
+      "category": "identity",
+      "group": "apiRequest",
+      "method": "GET",
+      "url": "v2/br/medical-professional",
+      "description": "Verify Brazilian physicians by CRM license number and state (UF) or full name, including registration status, inscription type, medical specialties (RQE), and optional CPF + Date of Birth identity match.",
+      "price": 0.3,
+      "isAvailable": true,
+      "catalogHidden": false,
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>"
+        }
+      ],
+      "input": {
+        "dependencies": [
+          {
+            "field": "documentType",
+            "type": "String",
+            "required": false,
+            "enum": [
+              "CRM"
+            ],
+            "default": "CRM",
+            "dependencyGroup": "1",
+            "description": "Document type (CRM). Optional when searching by CRM and UF."
+          },
+          {
+            "field": "documentNumber",
+            "type": "String",
+            "required": true,
+            "min": 1,
+            "max": 10,
+            "dependencyGroup": "1",
+            "description": "Physician's CRM registration number (up to 7 digits, e.g. 123456)."
+          },
+          {
+            "field": "uf",
+            "type": "String",
+            "required": true,
+            "enum": [
+              "AC",
+              "AL",
+              "AM",
+              "AP",
+              "BA",
+              "CE",
+              "DF",
+              "ES",
+              "GO",
+              "MA",
+              "MG",
+              "MS",
+              "MT",
+              "PA",
+              "PB",
+              "PE",
+              "PI",
+              "PR",
+              "RJ",
+              "RN",
+              "RO",
+              "RR",
+              "RS",
+              "SC",
+              "SE",
+              "SP",
+              "TO"
+            ],
+            "dependencyGroup": "1",
+            "description": "Two-letter Brazilian federative unit (State) of the CRM registration (e.g. SP, RJ, MG, DF)."
+          },
+          {
+            "field": "cpf",
+            "type": "String",
+            "required": false,
+            "min": 11,
+            "max": 14,
+            "dependencyGroup": "1",
+            "description": "Optional 11-digit CPF to cross-validate identity with dateOfBirth via CFM Validar."
+          },
+          {
+            "field": "dateOfBirth",
+            "type": "String",
+            "required": false,
+            "min": 10,
+            "max": 10,
+            "dependencyGroup": "1",
+            "description": "Optional Date of Birth in DD/MM/YYYY format to cross-validate identity with cpf via CFM Validar."
+          },
+          {
+            "field": "fullName",
+            "type": "String",
+            "required": true,
+            "min": 3,
+            "max": 120,
+            "dependencyGroup": "2",
+            "description": "Full name of the Brazilian medical professional to search."
+          }
+        ],
+        "documentedParams": [
+          {
+            "field": "documentType",
+            "description": "Must be CRM when searching by medical registration number."
+          },
+          {
+            "field": "documentNumber",
+            "description": "Physician CRM registration number (numeric digits)."
+          },
+          {
+            "field": "uf",
+            "description": "Two-letter Brazilian State code (UF) of the Regional Medical Council (CRM), e.g. SP, RJ, MG."
+          },
+          {
+            "field": "cpf",
+            "description": "Optional 11-digit Brazilian CPF number for identity validation (Validar)."
+          },
+          {
+            "field": "dateOfBirth",
+            "description": "Optional date of birth (DD/MM/YYYY or YYYY-MM-DD) for identity validation (Validar)."
+          },
+          {
+            "field": "fullName",
+            "description": "Full name of the physician (Option B search)."
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": "200",
+          "label": "200 (Active Physician)",
+          "body": {
+            "data": {
+              "ambiguous": false,
+              "arrayName": [
+                "CARLOS",
+                "EDUARDO",
+                "MENDES",
+                "SILVA"
+              ],
+              "cpf": "12345678909",
+              "crm": "123456",
+              "dateOfBirth": "15/04/1980",
+              "documentNumber": "123456",
+              "documentType": "CRM",
+              "firstName": "CARLOS",
+              "fullName": "CARLOS EDUARDO MENDES SILVA",
+              "identityValidated": true,
+              "isActive": true,
+              "isHealthWorker": true,
+              "lastName": "EDUARDO MENDES SILVA",
+              "licenses": [
+                {
+                  "city": null,
+                  "crm": "123456",
+                  "establishment": null,
+                  "fullName": "CARLOS EDUARDO MENDES SILVA",
+                  "isActive": true,
+                  "registrationType": "Principal",
+                  "registrationTypeCode": "P",
+                  "specialties": [
+                    {
+                      "name": "CARDIOLOGIA",
+                      "raw": "CARDIOLOGIA - RQE Nº: 45120",
+                      "rqe": "45120"
+                    },
+                    {
+                      "name": "CLÍNICA MÉDICA",
+                      "raw": "CLÍNICA MÉDICA - RQE Nº: 38910",
+                      "rqe": "38910"
+                    }
+                  ],
+                  "status": "Regular",
+                  "statusCode": "A",
+                  "statusDescription": "Médico que está regularmente inscrito no Conselho Regional de Medicina e se encontra apto ao exercício da medicina.",
+                  "uf": "SP",
+                  "updatedAtDate": "04/11/2026"
+                }
+              ],
+              "matchMethod": "crm_uf_validated",
+              "registrationType": "Principal",
+              "registrationTypeCode": "P",
+              "specialties": [
+                {
+                  "name": "CARDIOLOGIA",
+                  "raw": "CARDIOLOGIA - RQE Nº: 45120",
+                  "rqe": "45120"
+                },
+                {
+                  "name": "CLÍNICA MÉDICA",
+                  "raw": "CLÍNICA MÉDICA - RQE Nº: 38910",
+                  "rqe": "38910"
+                }
+              ],
+              "status": "Regular",
+              "statusCode": "A",
+              "statusDescription": "Médico que está regularmente inscrito no Conselho Regional de Medicina e se encontra apto ao exercício da medicina.",
+              "uf": "SP",
+              "updatedAtDate": "04/11/2026"
+            },
+            "signature": {
+              "dateTime": "November 4, 2026 6:30 PM",
+              "message": "Certified by Verifik.co"
+            }
+          }
+        },
+        {
+          "status": "404",
+          "label": "404 (Not Found)",
+          "body": {
+            "code": "NotFound",
+            "message": "Medical professional not found in the official registry for the provided parameters."
+          }
+        }
+      ],
+      "smartBatchSuccessWhen": [
+        {
+          "httpStatus": 404,
+          "responseCodes": [
+            "NotFound"
+          ]
+        }
+      ]
     }
   ]
 }

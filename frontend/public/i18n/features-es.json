@@ -852,6 +852,10 @@
             "title": "Consulta de Personas Expuestas Políticamente (PEP) en Brasil",
             "description": "Consulta CPF brasileños y nombres en el padrón PEP bajo la Resolución COAF N° 40/2021 (con ventana de 5 años para ex-PEP) vía GET /v2/br/politically-exposed-persons."
         },
+        "brazil_api_medical_professional": {
+            "title": "Brasil — Verificación de Profesionales Médicos (CRM / CFM)",
+            "description": "Verifica médicos en Brasil por número de registro CRM y estado (UF) o nombre completo, incluyendo situación registral, tipo de inscripción, especialidades médicas (RQE) y validación de identidad por CPF y fecha de nacimiento vía GET /v2/br/medical-professional."
+        },
         "face_recognition_detect_face": {
             "title": "Detección Facial",
             "description": "Proporciona servicios confiables de verificación y validación."

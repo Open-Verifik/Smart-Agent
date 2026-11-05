@@ -5862,4 +5862,74 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             ]
         }
     },
+    "brazil_api_medical_professional": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "uf",
+            "cpf",
+            "dateOfBirth",
+            "fullName"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "crm",
+            "uf",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "status",
+            "statusCode",
+            "statusDescription",
+            "registrationType",
+            "registrationTypeCode",
+            "isActive",
+            "isHealthWorker",
+            "specialties",
+            "identityValidated",
+            "cpf",
+            "dateOfBirth",
+            "updatedAtDate",
+            "matchMethod",
+            "ambiguous",
+            "licenses",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CRM"
+            ],
+            "uf": [
+                "AC",
+                "AL",
+                "AM",
+                "AP",
+                "BA",
+                "CE",
+                "DF",
+                "ES",
+                "GO",
+                "MA",
+                "MG",
+                "MS",
+                "MT",
+                "PA",
+                "PB",
+                "PE",
+                "PI",
+                "PR",
+                "RJ",
+                "RN",
+                "RO",
+                "RR",
+                "RS",
+                "SC",
+                "SE",
+                "SP",
+                "TO"
+            ]
+        }
+    },
 };
