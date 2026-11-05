@@ -852,6 +852,10 @@
             "title": "Brazilian Politically Exposed Persons (PEP) Screening",
             "description": "Screen Brazilian CPF numbers and full names against the official PEP registry under COAF Resolution 40/2021 with a 5-year grace period lookback via GET /v2/br/politically-exposed-persons."
         },
+        "brazil_api_medical_professional": {
+            "title": "Brazil — Medical Professional Verification (CRM / CFM)",
+            "description": "Verify Brazilian physicians by CRM license number and state (UF) or full name, including registration status, inscription type, medical specialties (RQE), and optional CPF + Date of Birth identity match via GET /v2/br/medical-professional."
+        },
         "face_recognition_detect_face": {
             "title": "Face Detection",
             "description": "Provides reliable verification and validation services."
