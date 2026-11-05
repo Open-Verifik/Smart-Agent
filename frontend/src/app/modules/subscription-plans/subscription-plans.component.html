@@ -81,7 +81,7 @@
                     </button>
                     <button
                         type="button"
-                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-stone-950 dark:hover:bg-stone-200"
                         (click)="currentView === 'current' ? switchToExplore() : switchToCurrent()"
                     >
                         <mat-icon class="!h-4 !w-4 !text-base">{{
@@ -510,7 +510,7 @@
                             class="rounded-full px-5 py-2 transition"
                             [ngClass]="
                                 selectedInterval === 'month'
-                                    ? 'bg-stone-950 text-white dark:bg-white dark:text-gray-950'
+                                    ? 'bg-stone-950 text-white dark:bg-white dark:text-stone-950'
                                     : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white'
                             "
                             (click)="changeInterval('month')"
@@ -522,7 +522,7 @@
                             class="relative rounded-full px-5 py-2 transition"
                             [ngClass]="
                                 selectedInterval === 'year'
-                                    ? 'bg-stone-950 text-white dark:bg-white dark:text-gray-950'
+                                    ? 'bg-stone-950 text-white dark:bg-white dark:text-stone-950'
                                     : 'text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white'
                             "
                             (click)="changeInterval('year')"
@@ -719,35 +719,32 @@
                         <!-- Plan zones: where each plan is the recommendation -->
                         <div
                             *ngIf="planZones.length"
-                            class="relative mt-3 h-8"
+                            class="mt-3 flex w-full h-8 overflow-hidden rounded-lg border border-stone-200/90 bg-stone-100 p-0.5 dark:border-gray-800 dark:bg-gray-900 gap-1"
                             role="group"
                             [attr.aria-label]="'subscriptionPlans.zones.label' | transloco"
                         >
                             <button
                                 *ngFor="let zone of planZones; trackBy: trackByZone"
                                 type="button"
-                                class="absolute top-0 flex h-full items-center justify-center overflow-hidden border-l-2 border-white px-1.5 text-[10px] font-semibold uppercase tracking-wide transition first:rounded-l-lg first:border-l-0 last:rounded-r-lg dark:border-gray-900"
-                                [ngStyle]="getZoneStyle(zone)"
+                                class="flex-1 min-w-0 flex h-full items-center justify-center rounded-md px-1.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider transition-all duration-150"
                                 [ngClass]="
                                     isActiveZone(zone)
-                                        ? 'bg-stone-950 text-white dark:bg-white dark:text-gray-950'
-                                        : 'bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-800 dark:bg-gray-800 dark:text-stone-400 dark:hover:bg-gray-700 dark:hover:text-white'
+                                        ? 'bg-stone-950 text-white shadow-sm dark:bg-white dark:text-stone-950'
+                                        : 'text-stone-600 hover:bg-stone-200/70 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-gray-800 dark:hover:text-white'
                                 "
                                 [matTooltip]="
                                     'subscriptionPlans.zones.tooltip'
                                         | transloco
                                             : {
                                                   plan: zone.name,
-                                                  from: formatNumber(toDisplayVolume(zone.from)),
+                                                  from: formatNumber(getZoneFromDisplay(zone)),
                                                   to: formatNumber(toDisplayVolume(zone.to)),
                                               }
                                 "
                                 [attr.aria-pressed]="isActiveZone(zone)"
                                 (click)="selectZone(zone)"
                             >
-                                <span *ngIf="showZoneLabel(zone)" class="truncate">{{
-                                    zone.name
-                                }}</span>
+                                <span class="truncate">{{ zone.name }}</span>
                             </button>
                         </div>
                         <div
@@ -1084,7 +1081,7 @@
                             <!-- Recommended badge -->
                             <span
                                 *ngIf="isRecommendedPlan(plan)"
-                                class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-stone-950 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm dark:bg-white dark:text-gray-950"
+                                class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-stone-950 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm dark:bg-white dark:text-stone-950"
                             >
                                 {{ 'subscriptionPlans.card.recommended' | transloco }}
                             </span>
@@ -1326,14 +1323,14 @@
                                 class="mt-auto inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold transition"
                                 [ngClass]="{
                                     'mt-5': true,
-                                    'bg-emerald-600/15 text-emerald-700 cursor-default dark:bg-emerald-400/15 dark:text-emerald-300':
+                                    'bg-emerald-600/15 text-emerald-700 cursor-default dark:bg-emerald-400/20 dark:text-emerald-300 border border-emerald-500/20':
                                         plan.code === currentSubscription?.subscriptionPlan?.code,
-                                    'bg-stone-950 text-white hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200':
+                                    'bg-stone-950 text-white hover:bg-stone-800 dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 shadow-sm':
                                         plan.code !== currentSubscription?.subscriptionPlan?.code &&
-                                        isPlanCompetitive(plan),
-                                    'border border-stone-300 bg-white text-stone-900 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100 dark:hover:bg-gray-800':
+                                        (isPlanCompetitive(plan) || isRecommendedPlan(plan)),
+                                    'border border-stone-300 bg-white text-stone-900 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-100 dark:hover:bg-gray-700':
                                         plan.code !== currentSubscription?.subscriptionPlan?.code &&
-                                        !isPlanCompetitive(plan),
+                                        !(isPlanCompetitive(plan) || isRecommendedPlan(plan)),
                                 }"
                                 [disabled]="
                                     plan.code === currentSubscription?.subscriptionPlan?.code
@@ -1518,7 +1515,7 @@
         <div class="mt-6">
             <button
                 type="button"
-                class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-stone-950 dark:hover:bg-stone-200"
                 (click)="openPostmanForFeature(selectedFeatureForModal)"
                 [disabled]="!selectedFeatureForModal.code"
             >
