@@ -670,6 +670,15 @@ export class PlateReportComponent implements OnInit {
             return show('plateReport.accountUnavailable');
         }
 
+        if (message.includes('endpoints_not_in_account')) {
+            const codes = message.split('endpoints_not_in_account').pop()?.trim() ?? '';
+            this.errorKey.set('plateReport.endpointsNotInAccount');
+            this.errorDetail.set(codes);
+            this.needsSignIn.set(false);
+            this.phase.set('form');
+            return true;
+        }
+
         if (message === 'account' || message === 'project_not_allowed') return show('plateReport.accountFailed');
         if (message === 'signupform_validation_not_passed') return show('plateReport.verificationRequired');
 

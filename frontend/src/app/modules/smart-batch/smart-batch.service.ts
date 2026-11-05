@@ -97,6 +97,8 @@ export interface BatchConfiguration {
     executor?: SmartBatchExecutor;
     /** Visual VISITA chain so the same consultation can be reopened and reused. */
     visitaFlow?: unknown;
+    /** Imported feature codes this environment could not attach. Running the consult reports them. */
+    unavailableFeatureCodes?: string[];
     createdAt?: string;
     updatedAt?: string;
 }
@@ -178,15 +180,24 @@ export class SmartBatchService {
             .pipe(tap((res) => console.log('Features loaded', res)));
     }
 
-    /** Full feature, including `docs`, which the catalog list omits. */
+    /**
+     * Catalog lookup for template import. Public only: a 401 on the private
+     * fallback would sign the user out.
+     */
+    lookupFeatureForImport(code: string) {
+        const encoded = encodeURIComponent(code);
+        return this._httpClient.get<{ data?: AppFeature | null }>(`${environment.apiUrl}/v2/public/app-features/${encoded}`).pipe(
+            map((response) => response?.data ?? null),
+            catchError(() => of(null))
+        );
+    }
+
+    /** Full feature, including `docs`, which the catalog list omits. Public only: a 401 on the private route signs the user out. */
     getFeatureDetail(codeOrId: string) {
         const encoded = encodeURIComponent(codeOrId);
-        const read = (url: string) =>
-            this._httpClient.get<{ data?: unknown }>(url).pipe(map((response) => response?.data ?? null));
-        return read(`${environment.apiUrl}/v2/public/app-features/${encoded}`).pipe(
-            catchError(() =>
-                read(`${environment.apiUrl}/v2/app-features/${encoded}`).pipe(catchError(() => of(null)))
-            )
+        return this._httpClient.get<{ data?: unknown }>(`${environment.apiUrl}/v2/public/app-features/${encoded}`).pipe(
+            map((response) => response?.data ?? null),
+            catchError(() => of(null))
         );
     }
 
