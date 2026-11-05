@@ -106,6 +106,8 @@ export interface BatchStep {
     sequence: number;
     enabled: boolean;
     parameterDefaults?: any;
+    /** dependencyGroup selected in the flow. FBI by name is not the same consult as FBI by document. */
+    queryMode?: string;
     inputFieldMapping?: Map<string, string> | any;
     outputFieldsToKeep?: string[];
     maxRetries?: number;

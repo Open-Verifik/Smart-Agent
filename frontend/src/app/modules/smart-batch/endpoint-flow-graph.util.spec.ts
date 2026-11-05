@@ -211,4 +211,39 @@ describe('endpoint-flow-graph', () => {
         expect(flowSeedFields(graph, profiles)).toEqual(['documentType', 'documentNumber']);
         expect(flowOptionalSeedFields(graph, profiles)).toEqual(['dateOfBirth', 'expirationDate']);
     });
+
+    it('drops the FBI name once a previous consult feeds it', () => {
+        const citizen = {
+            _id: 'citizen',
+            code: 'colombia_api_name',
+            name: 'Nombre',
+            dependencies: [
+                { field: 'documentType', required: true },
+                { field: 'documentNumber', required: true },
+            ],
+        };
+        const fbi = {
+            _id: 'fbi',
+            code: 'world_api_fbi',
+            name: 'FBI',
+            dependencies: [
+                { field: 'fullName', required: false, dependencyGroup: '2' },
+                { field: 'documentType', required: false, dependencyGroup: '1' },
+                { field: 'documentNumber', required: false, dependencyGroup: '1' },
+            ],
+        };
+        const profiles = {
+            citizen: { inputs: ['documentType', 'documentNumber'], outputs: ['fullName'], inputEnums: {} },
+            fbi: { inputs: ['fullName', 'documentType', 'documentNumber'], outputs: [], inputEnums: {} },
+        };
+        const modes = queryModesForFeature(fbi);
+        let graph = addEndpointNode(emptyFlowGraph(), citizen as never, 0, 0);
+        graph = addEndpointNode(graph, fbi as never, 0, 200);
+        graph = applyQueryMode(graph, 'fbi', modes[0].id, modes);
+        expect(modes[0].id).toBe('2');
+        expect(flowSeedFields(graph, profiles)).toEqual(['documentType', 'documentNumber', 'fullName']);
+
+        graph = connectPorts(graph, 'citizen', 'fullName', 'fbi', 'fullName');
+        expect(flowSeedFields(graph, profiles)).toEqual(['documentType', 'documentNumber']);
+    });
 });

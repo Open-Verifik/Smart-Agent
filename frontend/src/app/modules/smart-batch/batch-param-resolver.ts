@@ -44,9 +44,11 @@ const resolveTemplate = (value: unknown, context: Record<string, unknown>): unkn
     return getByPath(context, exact[1]);
 };
 
+const groupOf = (dependency: { dependencyGroup?: string }): string => (dependency.dependencyGroup ?? '').trim();
+
 export const resolveStepParams = (options: {
-    step: { parameterDefaults?: Record<string, unknown>; inputFieldMapping?: unknown };
-    dependencies?: { field?: string; default?: unknown }[];
+    step: { parameterDefaults?: Record<string, unknown>; inputFieldMapping?: unknown; queryMode?: string };
+    dependencies?: { field?: string; default?: unknown; dependencyGroup?: string }[];
     inputData?: Record<string, unknown>;
     results?: Record<string, unknown>;
 }): Record<string, unknown> => {
@@ -54,13 +56,22 @@ export const resolveStepParams = (options: {
     const results = options.results || {};
     const context = { input: inputData, inputData, results, steps: results };
     const params: Record<string, unknown> = {};
+    const declared = (options.dependencies || []).filter((dependency) => dependency.field);
+    const mode = typeof options.step.queryMode === 'string' ? options.step.queryMode.trim() : '';
+    const locked = Boolean(mode) && declared.some((dependency) => groupOf(dependency) === mode);
+    const dependencies = locked
+        ? declared.filter((dependency) => {
+              const group = groupOf(dependency);
+              return !group || group === mode;
+          })
+        : declared;
 
-    for (const dependency of options.dependencies || []) {
+    for (const dependency of dependencies) {
         if (!dependency.field || dependency.default == null) continue;
         params[dependency.field] = dependency.default;
     }
 
-    for (const dependency of options.dependencies || []) {
+    for (const dependency of dependencies) {
         if (!dependency.field) continue;
         const raw = getByPath(inputData, dependency.field);
         if (!isEmpty(raw)) params[dependency.field] = raw;
@@ -83,7 +94,7 @@ export const resolveStepParams = (options: {
         ...collectCanonicalScalarValues(results),
         ...collectCanonicalScalarValues(inputData),
     };
-    for (const dependency of options.dependencies || []) {
+    for (const dependency of dependencies) {
         if (!dependency.field || !isEmpty(params[dependency.field])) continue;
         const raw = fromPrior[canonicalChainField(dependency.field)];
         if (!isEmpty(raw)) params[dependency.field] = raw;
@@ -92,6 +103,12 @@ export const resolveStepParams = (options: {
         if (!isEmpty(params[key])) continue;
         const raw = fromPrior[canonicalChainField(key)];
         if (!isEmpty(raw)) params[key] = raw;
+    }
+
+    if (locked) {
+        for (const dependency of declared) {
+            if (groupOf(dependency) && groupOf(dependency) !== mode && dependency.field) delete params[dependency.field];
+        }
     }
 
     for (const key of Object.keys(params)) {
