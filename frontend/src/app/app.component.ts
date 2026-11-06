@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { isStaffSessionRevoked } from 'app/core/auth/session-rejection';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
@@ -134,6 +135,16 @@ export class AppComponent implements OnInit {
     }
 
     /**
+     * Drops a `staff_session_revoked` boot and opens sign-in.
+     * Does not apply the cached account and does not call token refresh.
+     * @private
+     */
+    private _rejectRevokedSession(): void {
+        this._authService.signOut(true);
+        this._sessionService.handleRevokedSession();
+    }
+
+    /**
      * Purges session data and handles cleanup for expired tokens.
      * @private
      */
@@ -167,8 +178,8 @@ export class AppComponent implements OnInit {
             },
             error: (err) => {
                 console.error('[AppComponent] Background session sync failed', err);
-                if (err.status === 401 || err.status === 403 || err.status === 404) {
-                    this._purgeExpiredSession();
+                if (isStaffSessionRevoked(err)) {
+                    this._rejectRevokedSession();
                 }
             },
         });

@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { isStaffSessionRevoked } from 'app/core/auth/session-rejection';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
@@ -262,15 +263,20 @@ export class BridgeComponent implements OnInit {
         }
 
         const hydrated = await this.hydrateUserFromApi();
+        if (hydrated === 'revoked') {
+            this.status.set('error');
+            this.errorMessage.set('This staff session is no longer valid. Sign in again.');
+            return;
+        }
         // Incomplete admin handoff `user` payloads can overwrite canRecharge/settings.
-        if (!hydrated) {
+        if (hydrated !== 'ok') {
             await this.applyOptionalBase64UserOverlay();
         }
 
         this.startSuccessCountdownAndRedirect(redirect);
     }
 
-    private async hydrateUserFromApi(): Promise<boolean> {
+    private async hydrateUserFromApi(): Promise<'ok' | 'revoked' | 'skipped'> {
         try {
             const res = await firstValueFrom(this._authApiService.getSession().pipe(take(1)));
             const userData = res.data?.user || res.user || res;
@@ -278,13 +284,18 @@ export class BridgeComponent implements OnInit {
                 localStorage.setItem('verifik_account', JSON.stringify(userData));
                 this._userService.user = userData;
                 this._sessionService.resetReloadTracking();
-                return true;
+                return 'ok';
             }
         } catch (e) {
+            if (isStaffSessionRevoked(e)) {
+                this._authService.signOut(true);
+                this._sessionService.handleRevokedSession();
+                return 'revoked';
+            }
             console.warn('[Bridge] Session hydrate skipped or failed:', e);
         }
 
-        return false;
+        return 'skipped';
     }
 
     /** Legacy SSO: incoming token is already the client JWT */

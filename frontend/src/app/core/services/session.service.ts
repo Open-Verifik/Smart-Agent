@@ -35,6 +35,7 @@ export class SessionService {
     private readonly RELOAD_TRACKING_KEY = 'session_reload_tracking';
     private readonly AUTH_MODAL_ID = 'verifik-auth-modal';
     private _authModalPending = false;
+    private readonly _authCacheCleaners: Array<() => void> = [];
 
     constructor() {
         // Initialize reload tracking from localStorage (persists across reloads)
@@ -86,12 +87,14 @@ export class SessionService {
      * @param options.clearWeb2Only Only clear Web2 credentials (preserve wallet)
      * @param options.silent Don't navigate, just cleanup
      * @param options.showModal Show auth modal instead of redirecting
+     * @param options.redirectToSignIn Navigate home and open the sign-in dialog
      */
     handleSessionExpired(
         options: {
             clearWeb2Only?: boolean;
             silent?: boolean;
             showModal?: boolean;
+            redirectToSignIn?: boolean;
         } = {}
     ): void {
         // Prevent multiple simultaneous logout attempts
@@ -112,6 +115,8 @@ export class SessionService {
             this._clearWeb3Credentials();
         }
 
+        this._runAuthCacheCleaners();
+
         // Emit session expired event
         this._sessionExpired$.next(true);
 
@@ -125,14 +130,42 @@ export class SessionService {
 
         if (options.showModal) {
             this.openAuthModal();
+        }
+
+        if (options.redirectToSignIn) {
+            void this._router.navigate(['/']);
+            return;
+        }
+
+        if (options.showModal) {
             return;
         }
 
         // Navigate if not silent
         if (!options.silent) {
             // Navigate to home (which will show auth modal or redirect appropriately)
-            this._router.navigate(['/']);
+            void this._router.navigate(['/']);
         }
+    }
+
+    /**
+     * Drops a revoked Web2 session and opens sign-in.
+     * Does not reload and does not request a replacement token.
+     */
+    handleRevokedSession(): void {
+        this.handleSessionExpired({
+            clearWeb2Only: true,
+            showModal: true,
+            redirectToSignIn: true,
+        });
+    }
+
+    /**
+     * Registers in-memory auth cleanup (session user, cached role, account snapshot).
+     * Called when the Web2 session is cleared.
+     */
+    registerAuthCacheCleaner(cleaner: () => void): void {
+        this._authCacheCleaners.push(cleaner);
     }
 
     /**
@@ -165,6 +198,16 @@ export class SessionService {
             .catch(() => {
                 this._authModalPending = false;
             });
+    }
+
+    private _runAuthCacheCleaners(): void {
+        for (const cleaner of this._authCacheCleaners) {
+            try {
+                cleaner();
+            } catch (error) {
+                console.warn('[SessionService] Auth cache cleanup failed', error);
+            }
+        }
     }
 
     /**
