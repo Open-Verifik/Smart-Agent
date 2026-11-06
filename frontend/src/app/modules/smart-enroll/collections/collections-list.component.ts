@@ -18,32 +18,32 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { DateTime } from 'luxon';
 import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
-import { DateTime } from 'luxon';
 import { SMART_ENROLL_PROJECT_TYPE } from '../biometrics/biometrics.constants';
 import { CollectionsService } from '../biometrics/collections.service';
 import type { Collection } from '../biometrics/collections.types';
 import { classifyCollections, getOnboardingCollectionCodes } from '../biometrics/collections.util';
-import type { Person } from '../biometrics/people.types';
 import { PeopleService } from '../biometrics/people.service';
+import type { Person } from '../biometrics/people.types';
+import { BiometricsCollectionsTableComponent } from '../shared/biometrics-collections-table.component';
 import {
     BIOMETRICS_CONFIRM_DIALOG_PANEL_CLASS,
     BiometricsConfirmDialogComponent,
     ConfirmDialogData,
 } from '../shared/biometrics-confirm-dialog.component';
-import { BiometricsCollectionsTableComponent } from '../shared/biometrics-collections-table.component';
 import {
-    CollectionDialogComponent,
     COLLECTION_DIALOG_PANEL_CLASS,
+    CollectionDialogComponent,
     CollectionDialogData,
 } from '../shared/collection-dialog.component';
 import {
-    EditPersonDialogComponent,
     EDIT_PERSON_DIALOG_PANEL_CLASS,
+    EditPersonDialogComponent,
     EditPersonDialogData,
 } from '../shared/edit-person-dialog.component';
 
@@ -174,7 +174,10 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
                 next: (response) => {
                     const created = response?.data;
                     const shouldMovePeople =
-                        people.length > 0 && this.expandedCollection && created?._id && created?.code;
+                        people.length > 0 &&
+                        this.expandedCollection &&
+                        created?._id &&
+                        created?.code;
 
                     if (!shouldMovePeople) {
                         this._fetchRecords();
@@ -185,7 +188,10 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
                     this._collectionsService
                         .movePeopleToCollection(
                             peopleIds,
-                            { _id: this.expandedCollection!._id, code: this.expandedCollection!.code },
+                            {
+                                _id: this.expandedCollection!._id,
+                                code: this.expandedCollection!.code,
+                            },
                             { _id: created._id, code: created.code }
                         )
                         .subscribe({
@@ -270,13 +276,40 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (!result || result.action !== 'update') return;
-            this.loading.set(true);
-            this._peopleService.updatePerson(result.person).subscribe({
-                next: () => this._fetchRecords(),
-                error: () => this._showError('smartEnrollPeople.updateError'),
-                complete: () => this.loading.set(false),
-            });
+            if (!result) return;
+
+            if (result.action === 'updated') {
+                this._snackBar.open(
+                    this._transloco.translate('smartEnrollPeople.updateSuccess'),
+                    this._transloco.translate('close'),
+                    { duration: 4000 }
+                );
+                this._fetchRecords();
+                return;
+            }
+
+            if (result.action === 'update') {
+                this.loading.set(true);
+                this._peopleService.updatePerson(result.person).subscribe({
+                    next: () => {
+                        this._snackBar.open(
+                            this._transloco.translate('smartEnrollPeople.updateSuccess'),
+                            this._transloco.translate('close'),
+                            { duration: 4000 }
+                        );
+                        this._fetchRecords();
+                    },
+                    error: (err) => {
+                        const message =
+                            err?.error?.message ||
+                            this._transloco.translate('smartEnrollPeople.updateError');
+                        this._snackBar.open(message, this._transloco.translate('close'), {
+                            duration: 5000,
+                        });
+                    },
+                    complete: () => this.loading.set(false),
+                });
+            }
         });
     }
 
@@ -308,7 +341,10 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
             });
     }
 
-    onCollectionSelectionChange(event: { collection: Collection | null; selectedPeople: Person[] }): void {
+    onCollectionSelectionChange(event: {
+        collection: Collection | null;
+        selectedPeople: Person[];
+    }): void {
         this.expandedCollection = event.collection;
         this.selectedPeople = event.selectedPeople || [];
     }
@@ -359,7 +395,8 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
     }
 
     triggerImageUpload(): void {
-        if (!this.disableActions && this.scopeFilter === 'onboarding') this.imageInput?.nativeElement.click();
+        if (!this.disableActions && this.scopeFilter === 'onboarding')
+            this.imageInput?.nativeElement.click();
     }
 
     private _fetchRecords(): void {
@@ -373,8 +410,8 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
                 next: ({ all, onboarding }) => {
                     const onboardingCodes = getOnboardingCollectionCodes(onboarding.data || []);
                     this.onboardingCollectionCodes.set(onboardingCodes);
-                    const data = classifyCollections(all.data || [], onboardingCodes).map((collection) =>
-                        this._mapCollectionRow(collection)
+                    const data = classifyCollections(all.data || [], onboardingCodes).map(
+                        (collection) => this._mapCollectionRow(collection)
                     );
                     this.collectionsData.set(data);
                     this.loading.set(false);
@@ -386,14 +423,20 @@ export class CollectionsListComponent implements OnInit, OnDestroy {
         }
 
         const params: Record<string, unknown> = this.selectedImagePreview
-            ? { image: this.selectedImagePreview, searchMode: this.searchMode, minScore: this.minScore }
+            ? {
+                  image: this.selectedImagePreview,
+                  searchMode: this.searchMode,
+                  minScore: this.minScore,
+              }
             : {};
 
         this._collectionsService.getCollectionByProjectType(this.projectType, params).subscribe({
             next: (response) => {
                 const onboardingCodes = getOnboardingCollectionCodes(response.data || []);
                 this.onboardingCollectionCodes.set(onboardingCodes);
-                const data = (response.data || []).map((collection) => this._mapCollectionRow(collection));
+                const data = (response.data || []).map((collection) =>
+                    this._mapCollectionRow(collection)
+                );
                 this.collectionsData.set(data);
                 this.loading.set(false);
                 this._cdr.markForCheck();

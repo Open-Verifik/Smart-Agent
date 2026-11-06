@@ -3085,6 +3085,7 @@
         "noCollectionsAvailable": "Aucune collection disponible",
         "getError": "Échec du chargement des personnes",
         "updateError": "Échec de la mise à jour de la personne",
+        "updateSuccess": "Personne mise à jour avec succès",
         "deleteError": "Échec de la suppression de la personne",
         "imageSizeError": "L'image doit faire 5 Mo ou moins",
         "collections": "Collections",
@@ -4511,12 +4512,12 @@
             },
             "ui": {
                 "flowOrder": {
-                  "title": "Ordre d'inscription",
-                  "subtitle": "Choisissez ce qui vient en premier sur la nouvelle page d'inscription. L'option A demande les coordonnées puis le consentement. L'option B commence par le consentement, comme Stripe Identity.",
-                  "contact_first": "A · Coordonnées d'abord",
-                  "contact_first_desc": "Nom, e-mail et conditions, puis l'écran de consentement.",
-                  "consent_first": "B · Consentement d'abord",
-                  "consent_first_desc": "L'écran de consentement d'abord, puis nom, e-mail et conditions."
+                    "title": "Ordre d'inscription",
+                    "subtitle": "Choisissez ce qui vient en premier sur la nouvelle page d'inscription. L'option A demande les coordonnées puis le consentement. L'option B commence par le consentement, comme Stripe Identity.",
+                    "contact_first": "A · Coordonnées d'abord",
+                    "contact_first_desc": "Nom, e-mail et conditions, puis l'écran de consentement.",
+                    "consent_first": "B · Consentement d'abord",
+                    "consent_first_desc": "L'écran de consentement d'abord, puis nom, e-mail et conditions."
                 },
                 "verifyStyle": {
                     "title": "Apparence de la vérification",
@@ -9969,62 +9970,23 @@
                 "Normal : demandes générales, questions ou améliorations."
             ],
             "responseTitle": "Temps de réponse",
-            "responseHeaders": [
-                "Sévérité",
-                "Temps de première réponse"
-            ],
+            "responseHeaders": ["Sévérité", "Temps de première réponse"],
             "responseRows": {
-                "critical": [
-                    "Critique",
-                    "Jusqu'à 4 heures ouvrables"
-                ],
-                "urgent": [
-                    "Urgent",
-                    "Jusqu'à 8 heures ouvrables"
-                ],
-                "medium": [
-                    "Moyen",
-                    "Jusqu'à 2 jours ouvrables"
-                ],
-                "normal": [
-                    "Normal",
-                    "Jusqu'à 5 jours ouvrables"
-                ]
+                "critical": ["Critique", "Jusqu'à 4 heures ouvrables"],
+                "urgent": ["Urgent", "Jusqu'à 8 heures ouvrables"],
+                "medium": ["Moyen", "Jusqu'à 2 jours ouvrables"],
+                "normal": ["Normal", "Jusqu'à 5 jours ouvrables"]
             },
             "availabilityTitle": "Disponibilité de référence",
-            "availabilityHeaders": [
-                "Service",
-                "Disponibilité cible"
-            ],
+            "availabilityHeaders": ["Service", "Disponibilité cible"],
             "availabilityRows": {
-                "smartCheck": [
-                    "SmartCheck / API de données",
-                    "99,5 %"
-                ],
-                "smartAccessComm": [
-                    "SmartAccess — communications",
-                    "99,0 %"
-                ],
-                "smartAccessBio": [
-                    "SmartAccess — biométrie",
-                    "99,0 %"
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll — communications",
-                    "99,0 %"
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll — biométrie",
-                    "99,0 %"
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll — documents",
-                    "99,0 %"
-                ],
-                "smartEnrollDataApi": [
-                    "SmartEnroll — DataAPI",
-                    "99,5 %"
-                ]
+                "smartCheck": ["SmartCheck / API de données", "99,5 %"],
+                "smartAccessComm": ["SmartAccess — communications", "99,0 %"],
+                "smartAccessBio": ["SmartAccess — biométrie", "99,0 %"],
+                "smartEnrollComm": ["SmartEnroll — communications", "99,0 %"],
+                "smartEnrollBio": ["SmartEnroll — biométrie", "99,0 %"],
+                "smartEnrollDoc": ["SmartEnroll — documents", "99,0 %"],
+                "smartEnrollDataApi": ["SmartEnroll — DataAPI", "99,5 %"]
             },
             "definitionsTitle": "Définitions",
             "definitions": [
@@ -10035,19 +9997,10 @@
             "responseNote": "Les temps indiqués sont des objectifs de première réponse et ne garantissent pas le temps de résolution.",
             "compensationTitle": "Compensation de service",
             "compensationIntro": "Toute compensation applicable est évaluée selon l'impact, la durée et les conditions commerciales convenues.",
-            "compensationHeaders": [
-                "Service",
-                "Compensation"
-            ],
+            "compensationHeaders": ["Service", "Compensation"],
             "compensationRows": {
-                "dataApiHigh": [
-                    "Data API — impact élevé",
-                    "Crédit de service à évaluer"
-                ],
-                "dataApiLow": [
-                    "Data API — impact faible",
-                    "Crédit de service à évaluer"
-                ],
+                "dataApiHigh": ["Data API — impact élevé", "Crédit de service à évaluer"],
+                "dataApiLow": ["Data API — impact faible", "Crédit de service à évaluer"],
                 "emailTelHigh": [
                     "E-mail / téléphone — impact élevé",
                     "Crédit de service à évaluer"
@@ -10056,31 +10009,16 @@
                     "E-mail / téléphone — impact faible",
                     "Crédit de service à évaluer"
                 ],
-                "biometricsHigh": [
-                    "Biométrie — impact élevé",
-                    "Crédit de service à évaluer"
-                ],
-                "biometricsLow": [
-                    "Biométrie — impact faible",
-                    "Crédit de service à évaluer"
-                ],
-                "docScanHigh": [
-                    "Scan de documents — impact élevé",
-                    "Crédit de service à évaluer"
-                ],
-                "docScanLow": [
-                    "Scan de documents — impact faible",
-                    "Crédit de service à évaluer"
-                ]
+                "biometricsHigh": ["Biométrie — impact élevé", "Crédit de service à évaluer"],
+                "biometricsLow": ["Biométrie — impact faible", "Crédit de service à évaluer"],
+                "docScanHigh": ["Scan de documents — impact élevé", "Crédit de service à évaluer"],
+                "docScanLow": ["Scan de documents — impact faible", "Crédit de service à évaluer"]
             },
             "compensationDisclaimer": "Les compensations ne s'appliquent pas aux erreurs causées par le client, des intégrations tierces ou une mauvaise configuration.",
             "billingTitle": "Facturation",
             "billingIntro": "La facturation est réalisée selon les volumes, plans et prix indiqués dans la proposition commerciale.",
             "billingTableTitle": "Concepts de facturation",
-            "billingHeaders": [
-                "Concept",
-                "Description"
-            ],
+            "billingHeaders": ["Concept", "Description"],
             "billingRows": {
                 "codes": [
                     "Codes / requêtes",
