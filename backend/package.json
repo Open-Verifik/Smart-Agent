@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "node --test src/utils/chat-usage.util.test.js src/repositories/chat-usage.repository.test.js src/middleware/chat-usage-admin.test.js src/db/mongo.test.js src/controllers/agent.controller.chat-usage.test.js",
         "start": "kill -9 $(lsof -t -i:3060) || true; nodemon src/index.js --delay=2s --ignore 'data/*'",
         "withdraw": "node scripts/withdraw-funds.js",
         "withdraw:avax": "node scripts/withdraw-funds.js --asset AVAX",
@@ -39,7 +39,8 @@
         "koa-body": "^7.0.0",
         "koa-mount": "^4.2.0",
         "koa-static": "^5.0.0",
-        "mime-types": "^3.0.2"
+        "mime-types": "^3.0.2",
+        "mongodb": "^6.21.0"
     },
     "devDependencies": {
         "bip39": "^3.1.0",
