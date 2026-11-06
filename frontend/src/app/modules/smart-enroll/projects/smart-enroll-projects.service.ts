@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
-import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
 import { projectHasOnboardingFlow } from './onboarding-flow.util';
 import type {
@@ -94,42 +94,85 @@ export class SmartEnrollProjectsService {
         }
     }
 
+    private _plansCache: { data: unknown[]; expiresAt: number } | null = null;
+    private _plansInFlight$: Observable<{ data: unknown[] }> | null = null;
+    private _settingsCache: { data?: ClientSettingsOverrideSnapshot; expiresAt: number } | null = null;
+    private _settingsInFlight$: Observable<{ data?: ClientSettingsOverrideSnapshot }> | null = null;
+
     /**
      * Active Smart Enroll subscriptions for the current client (non-staff gate).
-     * Mirrors client-panel getClientEnrollPlan query.
+     * Mirrors client-panel getClientEnrollPlan query. Cached for 60s.
      */
-    getActiveSmartEnrollPlans(): Observable<{ data: unknown[] }> {
+    getActiveSmartEnrollPlans(force = false): Observable<{ data: unknown[] }> {
+        if (!force && this._plansCache && Date.now() < this._plansCache.expiresAt) {
+            return of({ data: this._plansCache.data });
+        }
+        if (!force && this._plansInFlight$) {
+            return this._plansInFlight$;
+        }
+
         const params: Record<string, string | string[]> = {
             sort: 'startDate',
             where_status: 'active',
             populates: ['plan'],
         };
-        return this._http
+        const request$ = this._http
             .get<{ data: unknown[] }>(`${this.apiUrl}/v2/client-smart-enroll-plans`, {
                 params,
                 headers: this.authHeaders,
             })
             .pipe(
+                tap((res) => {
+                    this._plansCache = {
+                        data: res?.data ?? [],
+                        expiresAt: Date.now() + 60_000,
+                    };
+                    this._plansInFlight$ = null;
+                }),
                 catchError((err) => {
+                    this._plansInFlight$ = null;
                     console.error('Error loading client smart enroll plans:', err);
                     return throwError(() => err);
-                })
+                }),
+                shareReplay({ bufferSize: 1, refCount: false })
             );
+
+        this._plansInFlight$ = request$;
+        return request$;
     }
 
-    /** Client settings for subscription override checks (JWT-scoped). */
-    getClientSettings(): Observable<{ data?: ClientSettingsOverrideSnapshot }> {
-        return this._http
+    /** Client settings for subscription override checks (JWT-scoped). Cached for 60s. */
+    getClientSettings(force = false): Observable<{ data?: ClientSettingsOverrideSnapshot }> {
+        if (!force && this._settingsCache && Date.now() < this._settingsCache.expiresAt) {
+            return of({ data: this._settingsCache.data });
+        }
+        if (!force && this._settingsInFlight$) {
+            return this._settingsInFlight$;
+        }
+
+        const request$ = this._http
             .get<{ data?: ClientSettingsOverrideSnapshot }>(`${this.apiUrl}/v2/client-settings`, {
                 params: { findOne: 'true' },
                 headers: this.authHeaders,
             })
             .pipe(
+                tap((res) => {
+                    this._settingsCache = {
+                        data: res?.data,
+                        expiresAt: Date.now() + 60_000,
+                    };
+                    this._settingsInFlight$ = null;
+                }),
                 catchError((err) => {
+                    this._settingsInFlight$ = null;
                     console.error('Error loading client settings:', err);
                     return throwError(() => err);
-                })
+                }),
+                shareReplay({ bufferSize: 1, refCount: false })
             );
+
+        this._settingsInFlight$ = request$;
+        return request$;
     }
 
     listProjects(): Observable<EnrollProject[]> {

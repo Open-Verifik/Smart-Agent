@@ -21,6 +21,7 @@ import {
 import { DateTime } from 'luxon';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { OnboardingService } from 'app/core/services/onboarding.service';
 import { SmartEnrollPlansService } from '../../plans/smart-enroll-plans.service';
 import {
     UsageQuotaPreviewComponent,
@@ -65,6 +66,7 @@ export class ProjectListComponent implements OnInit {
     private _authGate = inject(AuthRequiredGateService);
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
+    private _onboardingService = inject(OnboardingService);
     projects = signal<EnrollProject[]>([]);
     loading = signal(true);
     error = signal<string | null>(null);
@@ -88,16 +90,24 @@ export class ProjectListComponent implements OnInit {
         forkJoin({
             plans: this._projectsService.getActiveSmartEnrollPlans(),
             settings: this._projectsService.getClientSettings(),
-            catalog: this._enrollPlansService.getCatalogPlans().pipe(catchError(() => of({ data: [] }))),
         }).subscribe({
-            next: ({ plans, settings, catalog }) => {
+            next: ({ plans, settings }) => {
                 const rows = plans?.data ?? [];
                 this.activePlan.set((rows[0] as EnrollUsagePlanPreview) ?? null);
 
+                if (rows.length > 0) {
+                    this._onboardingService.markTaskCompletedLocally('subscribe_smart_enroll');
+                }
+
                 if (!rows.length && requiresSmartEnrollSubscription(settings?.data)) {
-                    this.teaserPlan.set(this._buildTeaserPlan(catalog?.data ?? []));
-                    this.noActivePlan.set(true);
-                    this.loading.set(false);
+                    this._enrollPlansService
+                        .getCatalogPlans()
+                        .pipe(catchError(() => of({ data: [] })))
+                        .subscribe((catalog) => {
+                            this.teaserPlan.set(this._buildTeaserPlan(catalog?.data ?? []));
+                            this.noActivePlan.set(true);
+                            this.loading.set(false);
+                        });
                     return;
                 }
 

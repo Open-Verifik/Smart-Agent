@@ -57,7 +57,9 @@
 
             @if (imageValue('logo'); as src) {
                 <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
-                    <img [src]="src" alt="" class="h-16 w-16 rounded-lg border border-stone-200 object-contain dark:border-gray-700" />
+                    <div class="flex h-16 min-w-[4rem] max-w-[12rem] items-center justify-center rounded-xl border border-stone-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
+                        <img [src]="src" alt="" class="max-h-12 max-w-[10.5rem] h-auto w-auto object-contain" />
+                    </div>
                     <div class="flex-1 min-w-[10rem]">
                         <p class="m-0 text-sm font-semibold text-stone-800 dark:text-stone-100">
                             {{ t('smartEnrollProjects.setup.ui.images.currentLogo') }}

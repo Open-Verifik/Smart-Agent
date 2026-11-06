@@ -30,7 +30,7 @@ import {
     ReportValueRulesDialogResult,
 } from '../report-value-rules-dialog.component';
 import { resolveRuleImageSource, shapeRuleTestSamples } from '../report-shape-rules.util';
-import { sanitizeValueRules } from '../report-value-rules.util';
+import { ReportValueRule, sanitizeValueRules } from '../report-value-rules.util';
 import { imageAspectRatio, scalableImageSrc } from '../report-image.util';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 import { LayoutTextDialogComponent, LayoutTextDialogData } from '../report-builder/layout-text-dialog/layout-text-dialog.component';
@@ -300,14 +300,18 @@ type LayoutDesignSnapshot = {
 
 type LayoutLayerKind = 'section' | 'image' | 'watermark' | 'signature' | 'logo' | 'header';
 
-type LayoutLayerItem = {
+export type LayoutLayerItem = {
     id: string;
     kind: LayoutLayerKind;
     label: string;
     editValue: string;
     icon: string;
     z: number;
+    page: number;
+    typeBadge: string;
 };
+
+export type LayoutLayerRow = LayoutLayerItem;
 
 const LAYER_NAME_MAX = 80;
 
@@ -332,6 +336,99 @@ type GuideResultCard = {
     fields: { label: string; value: unknown }[];
 };
 
+const SMART_FIELD_LABELS: Record<string, string> = {
+    foundInFbi: 'FBI',
+    foundInDea: 'DEA',
+    foundInOnu: 'ONU',
+    foundInOfac: 'OFAC',
+    foundInInterpol: 'Interpol',
+    details: 'Detalles',
+    legend: 'Leyenda',
+    records: 'Registros',
+    code: 'Código',
+    message: 'Mensaje',
+    observations: 'Observaciones',
+    notes: 'Notas',
+    status: 'Estado',
+    score: 'Puntaje',
+    valid: 'Válido',
+    validity: 'Vigencia',
+    department: 'Departamento',
+    municipality: 'Municipio',
+    city: 'Ciudad',
+    address: 'Dirección',
+    phone: 'Teléfono',
+    email: 'Correo electrónico',
+    birthDate: 'Fecha de nacimiento',
+    expeditionDate: 'Fecha de expedición',
+    expirationDate: 'Fecha de vencimiento',
+    issueDate: 'Fecha de emisión',
+    createdAt: 'Fecha de creación',
+    updatedAt: 'Fecha de actualización',
+    queryDate: 'Fecha de consulta',
+    consultDate: 'Fecha de consulta',
+    documentType: 'Tipo de documento',
+    documentNumber: 'Número de documento',
+    fullName: 'Nombre completo',
+    firstName: 'Primer nombre',
+    secondName: 'Segundo nombre',
+    lastName: 'Primer apellido',
+    firstSurname: 'Primer apellido',
+    secondSurname: 'Segundo apellido',
+    consultedSubject: 'Sujeto consultado',
+    hasSanctions: 'Sanciones',
+    hasInabilities: 'Inhabilidades',
+    hasCriminalRecord: 'Antecedentes penales',
+    hasDisciplinaryRecord: 'Antecedentes disciplinarios',
+    hasFiscalRecord: 'Responsabilidad fiscal',
+    hasInterpolRedNotice: 'Circular roja Interpol',
+    pep: 'Persona expuesta políticamente (PEP)',
+    isPep: 'Persona expuesta políticamente (PEP)',
+};
+
+const SMART_DEFAULT_VALUE_RULES: ReportValueRule[] = [
+    {
+        id: 'rule-sin-hallazgos',
+        operator: 'contains',
+        value: 'Sin hallazgos',
+        color: '#16a34a',
+        backgroundColor: '#dcfce7',
+        badge: 'check',
+        text: 'Sin hallazgos',
+        bold: true,
+    },
+    {
+        id: 'rule-no-requerido',
+        operator: 'contains',
+        value: 'NO ES REQUERIDO',
+        color: '#16a34a',
+        backgroundColor: '#dcfce7',
+        badge: 'check',
+        text: 'Sin requerimientos',
+        bold: true,
+    },
+    {
+        id: 'rule-sin-registros',
+        operator: 'contains',
+        value: 'No se encontraron registros',
+        color: '#475569',
+        backgroundColor: '#f1f5f9',
+        badge: 'dot',
+        text: 'Sin registros',
+        bold: true,
+    },
+    {
+        id: 'rule-con-hallazgos',
+        operator: 'contains',
+        value: 'Con hallazgos',
+        color: '#dc2626',
+        backgroundColor: '#fee2e2',
+        badge: 'warning',
+        text: 'Con hallazgos',
+        bold: true,
+    },
+];
+
 @Component({
     selector: 'visita-guide',
     standalone: true,
@@ -353,6 +450,7 @@ type GuideResultCard = {
         EndpointChainBoardComponent,
     ],
     templateUrl: './visita-guide.component.html',
+    styleUrls: ['./visita-guide.component.scss'],
     styles: [
         `
             .layout-format-more {
@@ -799,6 +897,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _layoutEditorHideCount = 0;
     documentZoom = signal(1);
     documentHover = signal<'paper' | 'page' | null>(null);
+    layoutLayersPanelOpen = signal<boolean>(false);
+    layoutLayersPageFilter = signal<'current' | 'all'>('current');
+    activeLayoutPage = signal<number>(1);
     private _documentViewportAbort: AbortController | null = null;
     private readonly _documentViewportEffect = effect(() => {
         this.step();
@@ -2515,6 +2616,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     onLayoutSectionClick = (section: ReportSection, source?: { additive?: boolean }): void => {
         if (isReportPageAnchor(section) || this.isLayoutLayerLocked(`sec:${section.id}`)) return;
+        if (section.frame?.page != null) {
+            this.activeLayoutPage.set((section.frame.page ?? 0) + 1);
+        }
         this._clearLockedLayerPeek();
         const grouped =
             !source?.additive &&
@@ -2690,11 +2794,28 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return 40;
     }
 
-    /** Front of the sheet first: the top row covers the ones below it. */
-    layoutLayers(): LayoutLayerItem[] {
+    private readonly _layoutLayersComputed = computed<LayoutLayerItem[]>(() => {
         const layers: LayoutLayerItem[] = [];
         for (const section of this.layoutSections()) {
             if (isReportPageAnchor(section)) continue;
+            const badge =
+                section.type === 'table' || section.type === 'dataTable'
+                    ? 'Table'
+                    : section.type === 'keyValueGrid'
+                      ? 'Fields'
+                      : section.type === 'header'
+                        ? 'Title'
+                        : section.type === 'text'
+                          ? 'Text'
+                          : section.type === 'divider'
+                            ? 'Line'
+                            : section.type === 'shape'
+                              ? section.shape === 'icon'
+                                  ? 'Icon'
+                                  : 'Shape'
+                              : section.type === 'image'
+                                ? 'Image'
+                                : 'Block';
             layers.push({
                 id: `sec:${section.id}`,
                 kind: 'section',
@@ -2702,6 +2823,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 editValue: this._layoutSectionLayerEditValue(section),
                 icon: this._layoutSectionLayerIcon(section),
                 z: this._stackZ(section),
+                page: (section.frame?.page ?? 0) + 1,
+                typeBadge: badge,
             });
         }
         this.sheetImages().forEach((image, index) => {
@@ -2714,6 +2837,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 editValue: named || fallback,
                 icon: 'image',
                 z: Number(image.zIndex) > 0 ? Number(image.zIndex) : 48 + index,
+                page: (image.page ?? 0) + 1,
+                typeBadge: 'Image',
             });
         });
         if (this.watermarkEnabled()) {
@@ -2724,6 +2849,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...this._overlayLayerNames('watermark', fallback),
                 icon: 'branding_watermark',
                 z: this._overlayLayerZ('watermark', 700),
+                page: 1,
+                typeBadge: 'Watermark',
             });
         }
         if (this.signatureEnabled() && this.signatureImage()) {
@@ -2734,6 +2861,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...this._overlayLayerNames('signature', fallback),
                 icon: 'draw',
                 z: this._overlayLayerZ('signature', 180),
+                page: this.signaturePage() ?? 1,
+                typeBadge: 'Signature',
             });
         }
         if (this.logoDataUrl() && !this.headerLogos().length) {
@@ -2744,6 +2873,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...this._overlayLayerNames('logo', fallback),
                 icon: 'business',
                 z: this._overlayLayerZ('logo', 90),
+                page: 1,
+                typeBadge: 'Logo',
             });
         }
         this.headerLogos().forEach((logo, index) => {
@@ -2757,25 +2888,56 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 ...this._overlayLayerNames(id, fallback),
                 icon: 'business',
                 z: this._overlayLayerZ(id, 220 + index),
+                page: 1,
+                typeBadge: 'Logo',
             });
         });
         return layers.sort((left, right) => right.z - left.z || left.label.localeCompare(right.label));
+    });
+
+    private readonly _layoutLayerZMapComputed = computed<Record<string, number>>(() =>
+        Object.fromEntries(this._layoutLayersComputed().map((layer) => [layer.id, layer.z]))
+    );
+
+    private readonly _layoutHiddenLayerIdsComputed = computed<string[]>(() =>
+        Object.entries(this.layoutLayerFlags())
+            .filter(([, flags]) => flags.hidden)
+            .map(([id]) => id)
+    );
+
+    private readonly _layoutLockedLayerIdsComputed = computed<string[]>(() =>
+        Object.entries(this.layoutLayerFlags())
+            .filter(([, flags]) => flags.locked)
+            .map(([id]) => id)
+    );
+
+    readonly filteredLayoutLayers = computed<LayoutLayerItem[]>(() => {
+        const layers = this._layoutLayersComputed();
+        if (this.layoutLayersPageFilter() === 'all') return layers;
+        const page = this.activeLayoutPage();
+        const onPage = layers.filter((layer) => layer.page === page);
+        return onPage.length ? onPage : layers;
+    });
+
+    /** Front of the sheet first: the top row covers the ones below it. */
+    layoutLayers(): LayoutLayerItem[] {
+        return this._layoutLayersComputed();
     }
 
     layoutLayerZMap(): Record<string, number> {
-        return Object.fromEntries(this.layoutLayers().map((layer) => [layer.id, layer.z]));
+        return this._layoutLayerZMapComputed();
     }
 
     layoutHiddenLayerIds(): string[] {
-        return Object.entries(this.layoutLayerFlags())
-            .filter(([, flags]) => flags.hidden)
-            .map(([id]) => id);
+        return this._layoutHiddenLayerIdsComputed();
     }
 
     layoutLockedLayerIds(): string[] {
-        return Object.entries(this.layoutLayerFlags())
-            .filter(([, flags]) => flags.locked)
-            .map(([id]) => id);
+        return this._layoutLockedLayerIdsComputed();
+    }
+
+    toggleLayoutLayersPanel(): void {
+        this.layoutLayersPanelOpen.update((v) => !v);
     }
 
     isLayoutLayerHidden(id: string): boolean {
@@ -2856,6 +3018,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectLayoutLayer(layer: LayoutLayerItem, event?: Event): void {
+        if (layer.page) {
+            this.activeLayoutPage.set(layer.page);
+        }
         if (this.isLayoutLayerLocked(layer.id)) {
             this._pinLockedLayer(layer);
             return;
@@ -5783,7 +5948,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     onDocumentViewportMove(event: MouseEvent): void {
-        this.documentHover.set(this._eventOverPaper(event) ? 'paper' : 'page');
+        const next: 'paper' | 'page' = this._eventOverPaper(event) ? 'paper' : 'page';
+        if (this.documentHover() !== next) {
+            this.documentHover.set(next);
+        }
     }
 
     onDocumentViewportLeave(): void {
@@ -5852,6 +6020,24 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             },
             { passive: false, capture: true, signal: abort.signal }
         );
+
+        this._zone.runOutsideAngular(() => {
+            document.addEventListener(
+                'pointermove',
+                (event) => {
+                    if (this.step() !== 'layout') return;
+                    const target = event.target;
+                    if (!(target instanceof Element)) return;
+                    const viewport = target.closest('[data-document-viewport]');
+                    if (!viewport) return;
+                    const next: 'paper' | 'page' = target.closest('[data-report-page]') ? 'paper' : 'page';
+                    if (this.documentHover() !== next) {
+                        this._zone.run(() => this.documentHover.set(next));
+                    }
+                },
+                { passive: true, capture: true, signal: abort.signal }
+            );
+        });
     }
 
     addPageSheet(afterPage?: number): void {
@@ -7904,6 +8090,150 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.layoutEditorKind.set(null);
     }
 
+    private _pushLayoutUndo(): void {
+        this._flushLayoutHistory();
+        this._queueLayoutHistory(this._layoutDesignSnapshot());
+        this._flushLayoutHistory();
+    }
+
+    selectedLayoutDataSection(): ReportSection | null {
+        const s = this.selectedLayoutSection();
+        return s && (s.type === 'keyValueGrid' || s.type === 'dataTable') ? s : null;
+    }
+
+    smartFormatSection(sectionId?: string): void {
+        const targetId = sectionId || this.selectedLayoutSectionId();
+        if (!targetId) {
+            this.smartFormatAllSections();
+            return;
+        }
+
+        const section = this.layoutSections().find((s) => s.id === targetId);
+        if (!section || (section.type !== 'keyValueGrid' && section.type !== 'dataTable')) {
+            this._snack.open('Selecciona un bloque de datos para formatear', undefined, { duration: 2500 });
+            return;
+        }
+
+        this._pushLayoutUndo();
+        this._applySmartFormatToSection(section.id);
+        this._snack.open('Formato inteligente aplicado al bloque', undefined, { duration: 2500 });
+    }
+
+    smartFormatAllSections(): void {
+        const dataSections = this.layoutSections().filter(
+            (s) => s.type === 'keyValueGrid' || s.type === 'dataTable'
+        );
+        if (!dataSections.length) {
+            this._snack.open('No hay bloques de datos para formatear', undefined, { duration: 2500 });
+            return;
+        }
+
+        this._pushLayoutUndo();
+        for (const s of dataSections) {
+            this._applySmartFormatToSection(s.id);
+        }
+        this._snack.open(`Formato inteligente aplicado a ${dataSections.length} bloques`, undefined, {
+            duration: 2500,
+        });
+    }
+
+    smartFormatSelectedSection(): void {
+        const dataSection = this.selectedLayoutDataSection();
+        if (dataSection) {
+            this.smartFormatSection(dataSection.id);
+        } else {
+            this.smartFormatAllSections();
+        }
+    }
+
+    private _applySmartFormatToSection(sectionId: string): void {
+        const section = this.layoutSections().find((s) => s.id === sectionId);
+        if (!section || !section.dataPath) return;
+
+        const data = valueAtDataPath(this.previewData(), section.dataPath);
+        const discovered = collectLayoutSheetItems(data, { hiddenKeys: [] });
+        const itemKeys = new Set(discovered.map((d) => d.key));
+
+        const keyOverrides: Record<string, any> = { ...(section.keyOverrides ?? {}) };
+
+        // 1. Always hide arrayName (raw array dump)
+        if (itemKeys.has('arrayName') || keyOverrides['arrayName']) {
+            keyOverrides['arrayName'] = { ...(keyOverrides['arrayName'] ?? {}), hidden: true };
+        }
+
+        // 2. Redundant identity echo keys
+        const identityKeys = [
+            'fullName',
+            'firstName',
+            'lastName',
+            'firstSurname',
+            'secondSurname',
+            'documentNumber',
+            'documentType',
+            'consultedSubject',
+        ];
+        const isLookupResult = section.dataPath.startsWith('results.');
+        if (isLookupResult) {
+            const nonIdentityVisibleItems = discovered.filter(
+                (item) => item.key !== 'arrayName' && !identityKeys.includes(item.key)
+            );
+            if (nonIdentityVisibleItems.length > 0) {
+                // Section has other fields/tables: hide redundant identity echoes
+                for (const k of identityKeys) {
+                    if (itemKeys.has(k)) {
+                        keyOverrides[k] = { ...(keyOverrides[k] ?? {}), hidden: true };
+                    }
+                }
+            } else {
+                // All fields were identity: keep fullName, documentType, documentNumber visible
+                for (const k of ['arrayName', 'firstName', 'lastName', 'firstSurname', 'secondSurname', 'consultedSubject']) {
+                    if (itemKeys.has(k)) {
+                        keyOverrides[k] = { ...(keyOverrides[k] ?? {}), hidden: true };
+                    }
+                }
+            }
+        }
+
+        // 3. Labels and colSpan for long text
+        const longTextKeys = new Set(['legend', 'details', 'message', 'observations', 'notes']);
+        const gridCols = Number(section.columnsPerRow) || 2;
+
+        for (const item of discovered) {
+            const k = item.key;
+            const existing = keyOverrides[k] ?? {};
+            const nextOverride = { ...existing };
+
+            // Localized label if not set
+            if (!nextOverride.label) {
+                const localized = SMART_FIELD_LABELS[k] || humanizeParamField(k);
+                if (localized) {
+                    nextOverride.label = localized;
+                }
+            }
+
+            // ColSpan for long text or length > 65
+            const valStr = item.kind === 'field' && item.entry?.value != null ? String(item.entry.value).trim() : '';
+            if (longTextKeys.has(k.toLowerCase()) || valStr.length > 65) {
+                if (!nextOverride.colSpan || nextOverride.colSpan < gridCols) {
+                    nextOverride.colSpan = gridCols;
+                }
+            }
+
+            keyOverrides[k] = nextOverride;
+        }
+
+        // 4. Clean semantic status rules if section doesn't have custom rules
+        let valueRules = section.valueRules;
+        if (!valueRules || !valueRules.length) {
+            valueRules = SMART_DEFAULT_VALUE_RULES;
+        }
+
+        this._patchLayoutSectionById(section.id, () => ({
+            keyOverrides,
+            valueRules,
+        }));
+    }
+
     async saveLayoutTemplate(): Promise<boolean> {
         this.isSavingLayout.set(true);
         try {
@@ -7914,9 +8244,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
             this._refreshTemplates();
             return true;
-        } catch {
-            this._snack.open(this._transloco.translate('visitaGuide.layoutSaveFailed'), undefined, {
-                duration: 3500,
+        } catch (err: unknown) {
+            console.error('Failed to save layout template:', err);
+            const detail = this._extractSaveErrorMessage(err);
+            const fallback = this._transloco.translate('visitaGuide.layoutSaveFailed');
+            const alert = detail ? `${fallback}: ${detail}` : fallback;
+            this._snack.open(alert, undefined, {
+                duration: 4500,
             });
             return false;
         } finally {
@@ -7924,18 +8258,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
+    private _extractSaveErrorMessage(err: unknown): string | null {
+        if (!err) return null;
+        if (typeof err === 'string') return err;
+        const e = err as { error?: { message?: string; error?: string }; message?: string };
+        const msg = e.error?.message || e.error?.error || e.message;
+        if (msg && msg !== 'template') return msg;
+        return null;
+    }
+
     private async _persistGuideToSmartBatch(): Promise<boolean> {
-        try {
-            await this._ensureLinkedConfiguration();
-            const template = await this._persistWorkingTemplate();
-            if (!template && this.isReportStudio()) return false;
-            await this._syncConfigurationExtras(template?._id ?? null);
-            this._markLayoutClean();
-            this._persistLayoutDraft(this._layoutDesignSnapshot());
-            return true;
-        } catch {
-            return false;
-        }
+        await this._ensureLinkedConfiguration();
+        const template = await this._persistWorkingTemplate();
+        if (!template && this.isReportStudio()) return false;
+        await this._syncConfigurationExtras(template?._id ?? null);
+        this._markLayoutClean();
+        this._persistLayoutDraft(this._layoutDesignSnapshot());
+        return true;
     }
 
     private async _ensureLinkedConfiguration(): Promise<void> {

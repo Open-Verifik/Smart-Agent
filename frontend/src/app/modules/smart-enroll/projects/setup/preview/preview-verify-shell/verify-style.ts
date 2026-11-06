@@ -393,3 +393,68 @@ export const resolveVerifyStyle = (preview: string | null | undefined, saved: un
     return parseVerifyStyle(saved) || 'a';
 };
 
+export type VerifyLogoShape = 'tall' | 'square' | 'compact' | 'wide' | 'ultrawide';
+
+export interface VerifyLogoMetrics {
+    shape: VerifyLogoShape;
+    aspectRatio: number;
+    heightPx: number;
+    maxWidthPx: number;
+}
+
+export const DEFAULT_VERIFY_LOGO_METRICS: VerifyLogoMetrics = {
+    shape: 'compact',
+    aspectRatio: 1.8,
+    heightPx: 40,
+    maxWidthPx: 168,
+};
+
+/**
+ * Classifies a brand logo by its intrinsic aspect ratio (width / height) and computes
+ * optical dimensions so square/circular marks, vertical crests, compact lockups, and
+ * wide wordmarks (e.g. icon + text rectangles) carry balanced visual weight in the header.
+ */
+export const resolveLogoMetrics = (naturalWidth: number, naturalHeight: number): VerifyLogoMetrics => {
+    if (!Number.isFinite(naturalWidth) || !Number.isFinite(naturalHeight) || naturalWidth <= 0 || naturalHeight <= 0) {
+        return { ...DEFAULT_VERIFY_LOGO_METRICS };
+    }
+
+    const aspectRatio = naturalWidth / naturalHeight;
+    let shape: VerifyLogoShape;
+    let baseHeightPx: number;
+    let maxWidthPx: number;
+
+    if (aspectRatio < 0.85) {
+        shape = 'tall';
+        baseHeightPx = 52;
+        maxWidthPx = 120;
+    } else if (aspectRatio <= 1.35) {
+        shape = 'square';
+        baseHeightPx = 48;
+        maxWidthPx = 72;
+    } else if (aspectRatio <= 2.2) {
+        shape = 'compact';
+        baseHeightPx = 40;
+        maxWidthPx = 168;
+    } else if (aspectRatio <= 3.8) {
+        shape = 'wide';
+        baseHeightPx = 34;
+        maxWidthPx = 204;
+    } else {
+        shape = 'ultrawide';
+        baseHeightPx = 30;
+        maxWidthPx = 232;
+    }
+
+    const cappedHeight = Math.min(baseHeightPx, Math.round(maxWidthPx / aspectRatio));
+    const heightPx = Math.max(24, cappedHeight);
+
+    return {
+        shape,
+        aspectRatio: Number(aspectRatio.toFixed(2)),
+        heightPx,
+        maxWidthPx,
+    };
+};
+
+

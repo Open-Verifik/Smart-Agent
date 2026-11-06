@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+    applySmartFormatToSection,
     applyVisibleKeyReorder,
     collectLayoutSheetItems,
     collectObjectTables,
@@ -7,16 +8,25 @@ import {
     designedTableColumns,
     displayParamLabel,
     flattenSampleResultsForPdf,
+    formatParamDisplayValue,
     formatReportCellValue,
     humanizeParamKey,
-    tableDataName,
+    IDENTITY_ECHO_KEYS,
+    isIdentityEchoKey,
+    isLongSpanParamEntry,
+    isNotFoundPayload,
     isHiddenParamKey,
     layoutParamGroups,
     layoutTableRulesKey,
     layoutTableRowIndex,
+    PARAM_FIELD_I18N_KEY,
     relativeLayoutItemKey,
     setHiddenParamKey,
+    shouldAutoSpanFullRow,
     sortByKeyOrder,
+    sortScalarParamEntries,
+    tableDataName,
+    translateParamField,
     valueAtDataPath,
 } from './report-param-entries.util';
 
@@ -122,17 +132,17 @@ describe('collectScalarParams', () => {
             ],
         });
         expect(rows.map((row) => row.key)).toEqual([
-            'owners.0.name',
             'owners.0.id',
-            'owners.1.name',
+            'owners.0.name',
             'owners.1.id',
+            'owners.1.name',
         ]);
-        expect(rows[0]).toMatchObject({ label: 'Owners · 1 · Name', value: 'Ana' });
+        expect(rows[0]).toMatchObject({ label: 'Owners · 1 · Id', value: '1' });
     });
 
     it('skips object arrays when they will be rendered as tables', () => {
         const rows = collectScalarParams(nestedPayload, { skipObjectArrays: true });
-        expect(rows.map((row) => row.key)).toEqual(['data.plate', 'data.owner.name']);
+        expect(rows.map((row) => row.key)).toEqual(['data.owner.name', 'data.plate']);
     });
 
     it('honors hiddenKeys including nested prefixes', () => {
@@ -169,7 +179,7 @@ describe('layoutParamGroups', () => {
         });
         expect(groups.find((group) => group.key === 'data')).toMatchObject({
             kind: 'fields',
-            keys: ['data.plate', 'data.owner.name'],
+            keys: ['data.owner.name', 'data.plate'],
         });
     });
 });
@@ -301,5 +311,241 @@ describe('flattenSampleResultsForPdf', () => {
             ]
         );
         expect(Object.keys(sample.results?.['1'] as object)).toEqual(['data.owner.name', 'data.plate']);
+    });
+});
+
+describe('translateParamField', () => {
+    it('translates common background check and identity fields in Spanish by default', () => {
+        expect(translateParamField('foundInFbi')).toBe('Hallazgo en FBI');
+        expect(translateParamField('arrayName')).toBe('Nombres desglosados');
+        expect(translateParamField('legend')).toBe('Nota legal');
+        expect(translateParamField('details')).toBe('Resultado de la consulta');
+        expect(translateParamField('foundInDea')).toBe('Hallazgo en DEA');
+        expect(translateParamField('foundInInterpol')).toBe('Hallazgo en Interpol');
+        expect(translateParamField('fullName')).toBe('Nombre completo');
+        expect(translateParamField('records')).toBe('Registros asociados');
+    });
+
+    it('supports custom translate function and falls back to dictionary if key is untranslated', () => {
+        const customTranslate = (key: string) => {
+            if (key === 'visitaGuide.foundInFbi') return 'FBI Match';
+            if (key === 'visitaGuide.arrayName') return 'Parsed Names';
+            return key; // returns the key itself when not translated
+        };
+        expect(translateParamField('foundInFbi', customTranslate)).toBe('FBI Match');
+        expect(translateParamField('arrayName', customTranslate)).toBe('Parsed Names');
+        // Untranslated returns key -> should fall back to built-in dictionary
+        expect(translateParamField('legend', customTranslate)).toBe('Nota legal');
+        expect(translateParamField('details', customTranslate)).toBe('Resultado de la consulta');
+    });
+
+    it('handles nested dotted keys using the leaf property', () => {
+        expect(translateParamField('results.1.foundInFbi')).toBe('Hallazgo en FBI');
+        expect(translateParamField('data.records')).toBe('Registros asociados');
+    });
+});
+
+describe('formatParamDisplayValue', () => {
+    it('formats boolean match/finding fields appropriately in Spanish and English', () => {
+        expect(formatParamDisplayValue('foundInFbi', false)).toBe('Sin hallazgos');
+        expect(formatParamDisplayValue('foundInFbi', true)).toBe('Con hallazgos');
+        expect(formatParamDisplayValue('foundInFbi', 'false')).toBe('Sin hallazgos');
+        expect(formatParamDisplayValue('foundInFbi', 'true')).toBe('Con hallazgos');
+
+        expect(formatParamDisplayValue('foundInFbi', false, { lang: 'en' })).toBe('No matches found');
+        expect(formatParamDisplayValue('foundInFbi', true, { lang: 'en' })).toBe('Match found');
+
+        expect(formatParamDisplayValue('hasRecords', false)).toBe('Sin hallazgos');
+        expect(formatParamDisplayValue('hasRecords', true)).toBe('Con hallazgos');
+        expect(formatParamDisplayValue('isPep', true)).toBe('Con hallazgos');
+    });
+
+    it('formats standard boolean fields as Sí/No or Yes/No', () => {
+        expect(formatParamDisplayValue('active', true)).toBe('Sí');
+        expect(formatParamDisplayValue('active', false)).toBe('No');
+        expect(formatParamDisplayValue('active', true, { lang: 'en' })).toBe('Yes');
+        expect(formatParamDisplayValue('active', false, { lang: 'en' })).toBe('No');
+    });
+});
+
+describe('collectScalarParams (smart response formatting)', () => {
+    it('formats booleans for finding fields as Sin hallazgos / Con hallazgos', () => {
+        const rows = collectScalarParams({
+            foundInFbi: false,
+            foundInDea: true,
+        });
+        const fbi = rows.find((r) => r.key === 'foundInFbi');
+        const dea = rows.find((r) => r.key === 'foundInDea');
+        expect(fbi).toMatchObject({ label: 'Hallazgo en FBI', value: 'Sin hallazgos' });
+        expect(dea).toMatchObject({ label: 'Hallazgo en DEA', value: 'Con hallazgos' });
+    });
+
+    it('formats NotFound envelope cleanly without raw error jargon', () => {
+        const notFoundPayload = {
+            code: 'NotFound',
+            message: 'Record not found.',
+        };
+        const rows = collectScalarParams(notFoundPayload);
+        expect(rows).toEqual([
+            { key: 'code', label: 'Estado', value: 'Sin registros' },
+            { key: 'message', label: 'Detalle', value: 'No se encontraron registros en la fuente oficial.' },
+        ]);
+        expect(isNotFoundPayload(notFoundPayload)).toBe(true);
+    });
+
+    it('orders scalar params by semantic priority (findings first, identity next, footnotes/legend last)', () => {
+        const payload = {
+            legend: 'Esta es una leyenda legal muy extensa que contiene avisos de privacidad y uso de la información.',
+            lastName: 'Gomez',
+            foundInFbi: false,
+            city: 'Medellin',
+            firstName: 'Carlos',
+            details: 'Consulta realizada sin novedades',
+            records: '0',
+        };
+        const rows = collectScalarParams(payload);
+        const keys = rows.map((r) => r.key);
+
+        // Priority 1: findings (foundInFbi, details) must be before domain, identity, and legend
+        expect(keys.indexOf('foundInFbi')).toBeLessThan(keys.indexOf('city'));
+        expect(keys.indexOf('details')).toBeLessThan(keys.indexOf('city'));
+
+        // Priority 2: domain (city) before identity
+        expect(keys.indexOf('city')).toBeLessThan(keys.indexOf('firstName'));
+        expect(keys.indexOf('city')).toBeLessThan(keys.indexOf('lastName'));
+
+        // Priority 3: identity (firstName, lastName) before footnotes
+        expect(keys.indexOf('firstName')).toBeLessThan(keys.indexOf('legend'));
+        expect(keys.indexOf('lastName')).toBeLessThan(keys.indexOf('legend'));
+
+        // Priority 4: legend and records at the end
+        expect(keys.indexOf('legend')).toBe(keys.length - 1);
+        expect(keys[0]).toBe('foundInFbi');
+    });
+});
+
+describe('shouldAutoSpanFullRow & isLongSpanParamEntry', () => {
+    it('identifies legend, details, and long text entries as full-width span candidates', () => {
+        expect(shouldAutoSpanFullRow({ key: 'legend', value: 'Nota breve' }, 2)).toBe(true);
+        expect(shouldAutoSpanFullRow({ key: 'results.0.legend', value: 'Nota breve' }, 2)).toBe(true);
+        expect(shouldAutoSpanFullRow({ key: 'details', value: 'Detalle' }, 2)).toBe(true);
+        expect(shouldAutoSpanFullRow({ key: 'observations', value: 'OK' }, 2)).toBe(true);
+
+        const longValue = 'A'.repeat(70);
+        expect(shouldAutoSpanFullRow({ key: 'customRemark', value: longValue }, 2)).toBe(true);
+        expect(isLongSpanParamEntry({ key: 'customRemark', value: longValue })).toBe(true);
+
+        expect(shouldAutoSpanFullRow({ key: 'city', value: 'Bogotá' }, 2)).toBe(false);
+        expect(isLongSpanParamEntry({ key: 'city', value: 'Bogotá' })).toBe(false);
+
+        // If gridCols is 1, auto-span is unnecessary
+        expect(shouldAutoSpanFullRow({ key: 'legend', value: 'Nota breve' }, 1)).toBe(false);
+    });
+});
+
+describe('applySmartFormatToSection', () => {
+    it('hides arrayName, firstName, lastName, fullName on lookup blocks while preserving at least 1 meaningful result field and auto-spanning legend across 2 columns', () => {
+        const rawSectionData = {
+            arrayName: ['CARLOS', 'GOMEZ', 'PEREZ'],
+            firstName: 'Carlos',
+            lastName: 'Gomez Perez',
+            fullName: 'Carlos Gomez Perez',
+            foundInFbi: false,
+            details: 'Sin antecedentes encontrados',
+            legend: 'Esta es una leyenda legal de la fuente oficial que debe ocupar toda la fila del reporte.',
+        };
+
+        const section = {
+            id: 'step-background-check',
+            type: 'keyValueGrid',
+            dataPath: 'results.1',
+            label: 'Antecedentes FBI',
+        };
+
+        const formatted = applySmartFormatToSection(section, rawSectionData, { gridCols: 2 });
+
+        // Identity echo fields must be hidden
+        expect(formatted.keyOverrides?.['arrayName']?.hidden).toBe(true);
+        expect(formatted.keyOverrides?.['firstName']?.hidden).toBe(true);
+        expect(formatted.keyOverrides?.['lastName']?.hidden).toBe(true);
+        expect(formatted.keyOverrides?.['fullName']?.hidden).toBe(true);
+
+        // Meaningful result fields stay visible with translated labels
+        expect(formatted.keyOverrides?.['foundInFbi']?.hidden).toBeFalsy();
+        expect(formatted.keyOverrides?.['foundInFbi']?.label).toBe('Hallazgo en FBI');
+
+        expect(formatted.keyOverrides?.['details']?.hidden).toBeFalsy();
+        expect(formatted.keyOverrides?.['details']?.label).toBe('Resultado de la consulta');
+
+        // Legend auto-spans across 2 columns
+        expect(formatted.keyOverrides?.['legend']?.colSpan).toBe(2);
+        expect(formatted.keyOverrides?.['legend']?.label).toBe('Nota legal');
+
+        // Default status rules added
+        expect(formatted.statusRules).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ id: 'smart-ok', value: 'Sin hallazgos', tone: 'success' }),
+                expect.objectContaining({ id: 'smart-no-reg', value: 'No se encontraron registros', tone: 'neutral' }),
+                expect.objectContaining({ id: 'smart-match', value: 'Con hallazgos', tone: 'danger' }),
+            ])
+        );
+    });
+
+    it('keeps fullName, documentType, documentNumber visible if ALL fields in the response were identity fields', () => {
+        const rawSectionData = {
+            arrayName: ['ANA', 'MARIA', 'LOPEZ'],
+            firstName: 'Ana Maria',
+            lastName: 'Lopez',
+            fullName: 'Ana Maria Lopez',
+            documentNumber: '98765432',
+            documentType: 'CC',
+        };
+
+        const section = {
+            id: 'step-identity-lookup',
+            type: 'keyValueGrid',
+            dataPath: 'results.2',
+            label: 'Consulta Registraduria',
+        };
+
+        const formatted = applySmartFormatToSection(section, rawSectionData, { gridCols: 2 });
+
+        // Redundant technical echoes are hidden
+        expect(formatted.keyOverrides?.['arrayName']?.hidden).toBe(true);
+        expect(formatted.keyOverrides?.['firstName']?.hidden).toBe(true);
+        expect(formatted.keyOverrides?.['lastName']?.hidden).toBe(true);
+
+        // Essential identity anchors remain visible
+        expect(formatted.keyOverrides?.['fullName']?.hidden).toBeFalsy();
+        expect(formatted.keyOverrides?.['fullName']?.label).toBe('Nombre completo');
+        expect(formatted.keyOverrides?.['documentNumber']?.hidden).toBeFalsy();
+        expect(formatted.keyOverrides?.['documentNumber']?.label).toBe('Número de documento');
+        expect(formatted.keyOverrides?.['documentType']?.hidden).toBeFalsy();
+        expect(formatted.keyOverrides?.['documentType']?.label).toBe('Tipo de documento');
+    });
+
+    it('does not hide identity fields in profile/input sections, but still hides arrayName', () => {
+        const rawSectionData = {
+            arrayName: ['ANA', 'MARIA', 'LOPEZ'],
+            firstName: 'Ana Maria',
+            lastName: 'Lopez',
+            fullName: 'Ana Maria Lopez',
+            documentNumber: '98765432',
+            documentType: 'CC',
+        };
+
+        const profileSection = {
+            id: 'profile-header',
+            type: 'keyValueGrid',
+            dataPath: 'inputData',
+            label: 'Perfil del Ciudadano',
+        };
+
+        const formatted = applySmartFormatToSection(profileSection, rawSectionData);
+
+        expect(formatted.keyOverrides?.['arrayName']?.hidden).toBe(true);
+        expect(formatted.keyOverrides?.['fullName']?.hidden).toBeFalsy();
+        expect(formatted.keyOverrides?.['firstName']?.hidden).toBeFalsy();
+        expect(formatted.keyOverrides?.['lastName']?.hidden).toBeFalsy();
     });
 });

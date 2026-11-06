@@ -179,7 +179,7 @@ export class AppComponent implements OnInit {
      * @private
      */
     private _trackOnboardingVisited(url: string): void {
-        if (!this._sessionService.hasValidAuthentication()) {
+        if (!this._sessionService.hasValidAuthentication() || this._onboardingService.areAllTasksCompleted()) {
             return;
         }
 

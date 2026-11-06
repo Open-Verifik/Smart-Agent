@@ -127,13 +127,420 @@ export type LayoutParamGroup = {
 const BLOB_KEY_PATTERN = /base64|pdfbytes|pdfdata/i;
 const ROOT_TABLE_KEY = '__list';
 
-const PARAM_KEY_LABELS: Record<string, string> = {
+export const DEFAULT_PARAM_LABELS: Record<string, string> = {
     tipoTarifa: 'Tipo de tarifa',
     soat: 'SOAT',
     consultStats: 'Estadísticas de consultas',
     successPercent: 'Porcentaje de éxito',
     foundPercent: 'Porcentaje encontradas',
     failedPercent: 'Porcentaje de fallos',
+    arrayName: 'Nombres desglosados',
+    fullName: 'Nombre completo',
+    firstName: 'Nombres',
+    lastName: 'Apellidos',
+    firstSurname: 'Primer apellido',
+    secondSurname: 'Segundo apellido',
+    lastSurname: 'Segundo apellido',
+    consultedSubject: 'Sujeto consultado',
+    foundInFbi: 'Hallazgo en FBI',
+    foundInDea: 'Hallazgo en DEA',
+    foundInOnu: 'Hallazgo en ONU',
+    foundInOfac: 'Hallazgo en OFAC',
+    foundInInterpol: 'Hallazgo en Interpol',
+    details: 'Resultado de la consulta',
+    legend: 'Nota legal',
+    records: 'Registros asociados',
+    code: 'Estado',
+    message: 'Detalle',
+    status: 'Estado',
+    hasRecords: 'Posee registros',
+    hasAntecedentes: 'Posee registros',
+    hasMatches: 'Posee registros',
+    documentNumber: 'Número de documento',
+    documentType: 'Tipo de documento',
+};
+
+const PARAM_KEY_LABELS: Record<string, string> = { ...DEFAULT_PARAM_LABELS };
+
+export const PARAM_FIELD_I18N_KEY: Record<string, string> = {
+    arrayName: 'visitaGuide.arrayName',
+    fullName: 'visitaGuide.fullName',
+    firstName: 'visitaGuide.firstName',
+    lastName: 'visitaGuide.lastName',
+    firstSurname: 'visitaGuide.firstSurname',
+    secondSurname: 'visitaGuide.secondSurname',
+    lastSurname: 'visitaGuide.lastSurname',
+    consultedSubject: 'visitaGuide.consultedSubject',
+    foundInFbi: 'visitaGuide.foundInFbi',
+    foundInDea: 'visitaGuide.foundInDea',
+    foundInOnu: 'visitaGuide.foundInOnu',
+    foundInOfac: 'visitaGuide.foundInOfac',
+    foundInInterpol: 'visitaGuide.foundInInterpol',
+    details: 'visitaGuide.details',
+    legend: 'visitaGuide.legend',
+    records: 'visitaGuide.records',
+    code: 'visitaGuide.code',
+    message: 'visitaGuide.message',
+    status: 'visitaGuide.status',
+    hasRecords: 'visitaGuide.hasRecords',
+    hasAntecedentes: 'visitaGuide.hasAntecedentes',
+    hasMatches: 'visitaGuide.hasMatches',
+    documentNumber: 'visitaGuide.documentNumber',
+    documentType: 'visitaGuide.documentType',
+};
+
+export const lookupNormalizedKey = <T>(map: Record<string, T>, key: string): T | undefined => {
+    if (map[key] !== undefined) return map[key];
+    const leaf = paramKeyLeaf(key);
+    if (map[leaf] !== undefined) return map[leaf];
+    const normalized = leaf.toLowerCase().replace(/[-_\s]+/g, '');
+    for (const [k, v] of Object.entries(map)) {
+        if (k.toLowerCase().replace(/[-_\s]+/g, '') === normalized) {
+            return v;
+        }
+    }
+    return undefined;
+};
+
+export const translateParamField = (
+    field: string,
+    translate?: (key: string) => string
+): string => {
+    const leaf = paramKeyLeaf(field);
+    const i18nKey = lookupNormalizedKey(PARAM_FIELD_I18N_KEY, leaf);
+    if (translate && i18nKey) {
+        const translated = translate(i18nKey);
+        if (translated && translated !== i18nKey) {
+            return translated;
+        }
+    }
+    const defaultLabel = lookupNormalizedKey(DEFAULT_PARAM_LABELS, leaf);
+    if (defaultLabel) {
+        return defaultLabel;
+    }
+    return humanizeParamKey(field);
+};
+
+export const formatParamDisplayValue = (
+    key: string,
+    value: unknown,
+    options?: { lang?: 'es' | 'en' }
+): string => {
+    const lang = options?.lang ?? 'es';
+    const leaf = paramKeyLeaf(key);
+    const isBool =
+        typeof value === 'boolean' ||
+        (typeof value === 'string' &&
+            (value.trim().toLowerCase() === 'true' || value.trim().toLowerCase() === 'false'));
+
+    if (isBool) {
+        const boolVal = typeof value === 'boolean' ? value : value.trim().toLowerCase() === 'true';
+        if (
+            /^(foundIn|isFound|hasMatch|hasRecord|hasAntecedentes|hasMatches|hasAlert|hasSanction|isPep|pep)/i.test(
+                leaf
+            )
+        ) {
+            if (lang === 'en') {
+                return boolVal ? 'Match found' : 'No matches found';
+            }
+            return boolVal ? 'Con hallazgos' : 'Sin hallazgos';
+        }
+        if (lang === 'en') {
+            return boolVal ? 'Yes' : 'No';
+        }
+        return boolVal ? 'Sí' : 'No';
+    }
+
+    if (value == null) return '—';
+    return String(value);
+};
+
+export const isNotFoundPayload = (node: unknown): boolean => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) return false;
+    const rec = node as Record<string, unknown>;
+    const code = rec.code != null ? String(rec.code).trim() : '';
+    const message = rec.message != null ? String(rec.message).trim() : '';
+    if (!/^not_?found$/i.test(code)) return false;
+    if (!/^record not found/i.test(message)) return false;
+    const allowed = new Set(['code', 'message', 'status', 'error', 'statuscode', 'httpstatus']);
+    return Object.keys(rec).every((k) => allowed.has(k.toLowerCase()));
+};
+
+export const getParamSemanticPriority = (
+    rawKey: string
+): { group: number; subRank: number; leaf: string } => {
+    const leaf = paramKeyLeaf(rawKey);
+    const norm = leaf.toLowerCase().replace(/[-_\s]+/g, '');
+
+    // Priority 1 (Primary findings / results):
+    if (
+        /^foundin/i.test(leaf) ||
+        /^isfound/i.test(leaf) ||
+        /^hasmatch/i.test(leaf) ||
+        /^hasrecord/i.test(leaf) ||
+        /^hasantecedentes/i.test(leaf) ||
+        /^hasmatches/i.test(leaf) ||
+        /^hasalert/i.test(leaf) ||
+        /^hassanction/i.test(leaf) ||
+        /^ispep/i.test(leaf) ||
+        /^pep/i.test(leaf)
+    ) {
+        return { group: 1, subRank: 10, leaf };
+    }
+    if (norm === 'status') return { group: 1, subRank: 20, leaf };
+    if (norm === 'result' || norm === 'resultado') return { group: 1, subRank: 30, leaf };
+    if (norm === 'estado') return { group: 1, subRank: 40, leaf };
+    if (norm === 'details' || norm === 'detalle') return { group: 1, subRank: 50, leaf };
+    if (norm === 'summary' || norm === 'resumen') return { group: 1, subRank: 60, leaf };
+    if (norm === 'code') return { group: 1, subRank: 70, leaf };
+
+    // Priority 4 (Full-width footnotes / notices - ALWAYS LAST):
+    if (norm === 'records') return { group: 4, subRank: 10, leaf };
+    if (norm === 'message' || norm === 'mensaje') return { group: 4, subRank: 20, leaf };
+    if (norm === 'observations' || norm === 'observaciones') return { group: 4, subRank: 30, leaf };
+    if (norm === 'notes' || norm === 'notas') return { group: 4, subRank: 40, leaf };
+    if (norm === 'legend' || norm === 'leyenda') return { group: 4, subRank: 50, leaf };
+
+    // Priority 3 (Subject identity fields):
+    if (norm === 'fullname' || norm === 'nombrecompleto') return { group: 3, subRank: 10, leaf };
+    if (norm === 'firstname' || norm === 'nombres') return { group: 3, subRank: 20, leaf };
+    if (norm === 'lastname' || norm === 'apellidos') return { group: 3, subRank: 30, leaf };
+    if (norm === 'firstsurname' || norm === 'primerapellido') return { group: 3, subRank: 40, leaf };
+    if (norm === 'secondsurname' || norm === 'segundoapellido' || norm === 'lastsurname') return { group: 3, subRank: 50, leaf };
+    if (norm === 'documenttype' || norm === 'tipodocumento') return { group: 3, subRank: 60, leaf };
+    if (norm === 'documentnumber' || norm === 'numerodocumento') return { group: 3, subRank: 70, leaf };
+    if (norm === 'consultedsubject' || norm === 'sujetoconsultado') return { group: 3, subRank: 80, leaf };
+    if (norm === 'arrayname' || norm === 'nombresdesglosados') return { group: 3, subRank: 90, leaf };
+
+    // Priority 2 (Domain-specific fields):
+    return { group: 2, subRank: 0, leaf };
+};
+
+export const sortScalarParamEntries = (entries: ScalarParamEntry[]): ScalarParamEntry[] => {
+    return [...entries].sort((a, b) => {
+        const prioA = getParamSemanticPriority(a.key);
+        const prioB = getParamSemanticPriority(b.key);
+        if (prioA.group !== prioB.group) {
+            return prioA.group - prioB.group;
+        }
+        if (prioA.group === 1 || prioA.group === 3 || prioA.group === 4) {
+            if (prioA.subRank !== prioB.subRank) {
+                return prioA.subRank - prioB.subRank;
+            }
+            return prioA.leaf.localeCompare(prioB.leaf);
+        }
+        // Priority 2 (Domain-specific fields): sorted alphabetically
+        return a.key.localeCompare(b.key, undefined, { numeric: true });
+    });
+};
+
+export const LONG_SPAN_LEAF_KEYS = new Set([
+    'legend',
+    'leyenda',
+    'details',
+    'detalle',
+    'message',
+    'mensaje',
+    'observations',
+    'observaciones',
+    'notes',
+    'notas',
+    'description',
+    'descripcion',
+    'summary',
+    'resumen',
+]);
+
+export const isLongSpanParamEntry = (entry: { key: string; value?: string | null }): boolean => {
+    const leaf = paramKeyLeaf(entry.key);
+    const norm = leaf.toLowerCase().replace(/[-_\s]+/g, '');
+    if (LONG_SPAN_LEAF_KEYS.has(norm)) {
+        return true;
+    }
+    return String(entry.value || '').length > 65;
+};
+
+export const shouldAutoSpanFullRow = (
+    entry: { key: string; value: string },
+    gridCols = 2
+): boolean => {
+    return gridCols > 1 && isLongSpanParamEntry(entry);
+};
+
+export const IDENTITY_ECHO_KEYS = new Set([
+    'arrayname',
+    'fullname',
+    'firstname',
+    'lastname',
+    'firstsurname',
+    'secondsurname',
+    'lastsurname',
+    'documentnumber',
+    'documenttype',
+    'consultedsubject',
+    'nombrecompleto',
+    'nombres',
+    'apellidos',
+    'numerodocumento',
+    'tipodocumento',
+]);
+
+export const isIdentityEchoKey = (rawKey: string): boolean => {
+    const leaf = paramKeyLeaf(rawKey);
+    const norm = leaf.toLowerCase().replace(/[-_\s]+/g, '');
+    if (norm === 'arrayname') return true;
+    return IDENTITY_ECHO_KEYS.has(norm);
+};
+
+export interface SmartFormatSectionOptions {
+    hideIdentityEchoes?: boolean;
+    gridCols?: number;
+    translate?: (key: string) => string;
+}
+
+export const applySmartFormatToSection = <
+    T extends {
+        id?: string;
+        type?: string;
+        dataPath?: string;
+        label?: string;
+        columns?: string[];
+        keyOverrides?: Record<string, any>;
+        statusRules?: any[];
+        style?: Record<string, any>;
+    }
+>(
+    section: T,
+    rawSectionData: unknown,
+    options?: SmartFormatSectionOptions
+): T => {
+    const cloned: T = {
+        ...section,
+        keyOverrides: { ...(section.keyOverrides || {}) },
+    };
+
+    const isProfile =
+        Boolean(section.id && (section.id.includes('profile') || section.id.includes('input'))) ||
+        section.dataPath === 'inputData' ||
+        /perfil|identidad|profile/i.test(section.label || '');
+
+    const gridCols = options?.gridCols ?? 2;
+    const scalars = collectScalarParams(rawSectionData, { translate: options?.translate });
+
+    if (isProfile) {
+        for (const entry of scalars) {
+            const existing = cloned.keyOverrides?.[entry.key] || {};
+            const nextOverride = { ...existing };
+            const leaf = paramKeyLeaf(entry.key);
+            const norm = leaf.toLowerCase().replace(/[-_\s]+/g, '');
+
+            if (norm === 'arrayname') {
+                nextOverride.hidden = true;
+            }
+            if (!nextOverride.label) {
+                const label = translateParamField(entry.key, options?.translate);
+                if (label) nextOverride.label = label;
+            }
+            if (shouldAutoSpanFullRow(entry, gridCols)) {
+                nextOverride.colSpan = gridCols;
+            }
+            cloned.keyOverrides![entry.key] = nextOverride;
+        }
+        if (!cloned.keyOverrides!['arrayName']?.hidden) {
+            cloned.keyOverrides!['arrayName'] = {
+                ...(cloned.keyOverrides!['arrayName'] || {}),
+                hidden: true,
+            };
+        }
+        return cloned;
+    }
+
+    // Lookup / step sections (e.g. results.*)
+    const tables = collectObjectTables(rawSectionData);
+    const nonEchoScalars = scalars.filter((entry) => !isIdentityEchoKey(entry.key));
+    const hasNonEchoContent = nonEchoScalars.length > 0 || tables.length > 0;
+
+    const shouldHideIdentity = (entryKey: string): boolean => {
+        if (options?.hideIdentityEchoes === false) return false;
+        const leaf = paramKeyLeaf(entryKey);
+        const norm = leaf.toLowerCase().replace(/[-_\s]+/g, '');
+        if (norm === 'arrayname') return true;
+        if (!isIdentityEchoKey(entryKey)) return false;
+
+        if (hasNonEchoContent) {
+            return true;
+        }
+
+        // If ALL fields in the response were identity fields, keep fullName, documentType, documentNumber visible
+        const keepKeys = new Set([
+            'fullname',
+            'nombrecompleto',
+            'documenttype',
+            'tipodocumento',
+            'documentnumber',
+            'numerodocumento',
+        ]);
+        if (keepKeys.has(norm)) {
+            return false;
+        }
+        return true;
+    };
+
+    for (const entry of scalars) {
+        const existing = cloned.keyOverrides?.[entry.key] || {};
+        const nextOverride = { ...existing };
+
+        if (shouldHideIdentity(entry.key)) {
+            nextOverride.hidden = true;
+        }
+        if (!nextOverride.label) {
+            const label = translateParamField(entry.key, options?.translate);
+            if (label) nextOverride.label = label;
+        }
+        if (shouldAutoSpanFullRow(entry, gridCols)) {
+            nextOverride.colSpan = gridCols;
+        }
+        cloned.keyOverrides![entry.key] = nextOverride;
+    }
+
+    if (!cloned.statusRules || cloned.statusRules.length === 0) {
+        cloned.statusRules = [
+            {
+                id: 'smart-ok',
+                match: 'contains',
+                value: 'Sin hallazgos',
+                tone: 'success',
+                target: 'badge',
+                badgeText: 'Sin hallazgos',
+            },
+            {
+                id: 'smart-no-req',
+                match: 'contains',
+                value: 'NO ES REQUERIDO',
+                tone: 'success',
+                target: 'badge',
+                badgeText: 'Sin requerimientos',
+            },
+            {
+                id: 'smart-no-reg',
+                match: 'contains',
+                value: 'No se encontraron registros',
+                tone: 'neutral',
+                target: 'badge',
+                badgeText: 'Sin registros',
+            },
+            {
+                id: 'smart-match',
+                match: 'contains',
+                value: 'Con hallazgos',
+                tone: 'danger',
+                target: 'badge',
+                badgeText: 'Con hallazgos',
+            },
+        ];
+    }
+
+    return cloned;
 };
 
 const splitParamSegment = (segment: string): string =>
@@ -381,6 +788,9 @@ export type CollectScalarOptions = {
     maxItems?: number;
     /** When true, arrays of objects are left for tables instead of exploding into cells. */
     skipObjectArrays?: boolean;
+    keyOrder?: string[];
+    lang?: 'es' | 'en';
+    translate?: (key: string) => string;
 };
 
 /**
@@ -397,17 +807,40 @@ export const collectScalarParams = (
     const rows: ScalarParamEntry[] = [];
     const seen = new WeakSet<object>();
 
-    const push = (key: string, text: string): void => {
+    const isNotFoundRoot =
+        isNotFoundPayload(value) ||
+        (value != null &&
+            typeof value === 'object' &&
+            'data' in value &&
+            isNotFoundPayload((value as Record<string, unknown>).data));
+
+    const push = (key: string, rawVal: unknown, inNotFoundNode?: boolean): void => {
         if (isAutoOmittedParamKey(key) || isHiddenParamKey(key, hidden) || rows.length >= maxItems) return;
-        rows.push({ key, label: humanizeParamKey(key), value: text });
+        const leaf = paramKeyLeaf(key);
+        let text: string;
+        const inNotFound = inNotFoundNode || isNotFoundRoot;
+        if (inNotFound && leaf.toLowerCase() === 'code' && /^not_?found$/i.test(String(rawVal ?? ''))) {
+            text = 'Sin registros';
+        } else if (
+            inNotFound &&
+            leaf.toLowerCase() === 'message' &&
+            /^record not found/i.test(String(rawVal ?? ''))
+        ) {
+            text = 'No se encontraron registros en la fuente oficial.';
+        } else {
+            text = formatParamDisplayValue(key, rawVal, { lang: options?.lang });
+        }
+        rows.push({ key, label: translateParamField(key, options?.translate), value: text });
     };
 
     const walk = (node: unknown, prefix: string, depth: number): void => {
         if (rows.length >= maxItems || node == null) return;
 
+        const inNotFoundNode = isNotFoundPayload(node);
+
         if (isScalar(node)) {
             if (!prefix) return;
-            push(prefix, String(node));
+            push(prefix, node, inNotFoundNode);
             return;
         }
 
@@ -416,25 +849,25 @@ export const collectScalarParams = (
         seen.add(node);
 
         if (depth > maxDepth) {
-            if (prefix) push(prefix, '…');
+            if (prefix) push(prefix, '…', inNotFoundNode);
             return;
         }
 
         if (Array.isArray(node)) {
             if (node.length === 0) {
-                if (prefix) push(prefix, '—');
+                if (prefix) push(prefix, '—', inNotFoundNode);
                 return;
             }
             if (skipObjectArrays && isObjectRecordArray(node)) return;
             if (node.every((item) => isCodeDescriptionObject(item))) {
                 node.forEach((item, index) => {
                     const key = prefix ? `${prefix}.${index}` : String(index);
-                    push(key, formatCodeDescriptionLine(item));
+                    push(key, formatCodeDescriptionLine(item), inNotFoundNode);
                 });
                 return;
             }
             if (node.every((item) => item == null || isScalar(item))) {
-                push(prefix || 'items', node.map((item) => (item == null ? '—' : String(item))).join(', '));
+                push(prefix || 'items', node.map((item) => (item == null ? '—' : String(item))).join(', '), inNotFoundNode);
                 return;
             }
             node.forEach((item, index) => {
@@ -447,7 +880,7 @@ export const collectScalarParams = (
         const record = node as Record<string, unknown>;
         const keys = Object.keys(record);
         if (keys.length === 0) {
-            if (prefix) push(prefix, '—');
+            if (prefix) push(prefix, '—', inNotFoundNode);
             return;
         }
 
@@ -457,7 +890,7 @@ export const collectScalarParams = (
             if (BLOB_KEY_PATTERN.test(rawKey) || isHiddenParamKey(key, hidden)) continue;
             const entry = record[rawKey];
             if (isScalar(entry)) {
-                push(key, String(entry));
+                push(key, entry, inNotFoundNode);
                 continue;
             }
             walk(entry, key, depth + 1);
@@ -465,7 +898,9 @@ export const collectScalarParams = (
     };
 
     walk(value, '', 1);
-    return rows;
+    return options?.keyOrder?.length
+        ? sortByKeyOrder(rows, options.keyOrder, (r) => r.key)
+        : sortScalarParamEntries(rows);
 };
 
 export const tableColumnPath = (tableKey: string, column: string): string =>

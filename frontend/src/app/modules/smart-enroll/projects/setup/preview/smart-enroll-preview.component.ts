@@ -216,6 +216,9 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy
 
     setDeviceType(device: DeviceType): void {
         this.deviceType = device;
+        if (device === 'desktop' && !this._dialogRef) {
+            this.toggleFullscreen();
+        }
         this._cdr.markForCheck();
     }
 
@@ -243,6 +246,9 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy
             .subscribe(() => {
                 this.isFullscreen = false;
                 this._dialogRef = null;
+                if (this.deviceType === 'desktop') {
+                    this.deviceType = 'tablet';
+                }
                 this._cdr.markForCheck();
             });
 
