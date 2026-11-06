@@ -29,14 +29,12 @@ import {
 import { sanitizeMatrix, sanitizePapaObjectRows } from 'app/core/utils/spreadsheet-sanitize.util';
 import * as XLSX from 'xlsx';
 import {
+    dependenciesAskedOfTheUser,
     extractRequiredFieldsFromConfig,
     getUnionEnumValuesForField,
 } from '../../batch-required-fields.util';
 import { getBatchInputCsvHeaders } from '../../batch-input-csv.util';
-import {
-    isClientVisibleBatchDependencyField,
-    stripClientHiddenRowFields,
-} from '../../smart-batch-dependency.constants';
+import { stripClientHiddenRowFields } from '../../smart-batch-dependency.constants';
 import { BatchConfiguration, BatchStep, SmartBatch, SmartBatchService } from '../../smart-batch.service';
 import { TutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
@@ -1140,14 +1138,7 @@ export class CreateBatchComponent implements OnInit {
             const r = row as Record<string, unknown>;
             sortedSteps.forEach((step) => {
                 const feature = step.appFeature as any;
-                const rawDeps = feature?.dependencies || [];
-                const deps: FeatureDependency[] = rawDeps.filter(
-                    (d: any) =>
-                        d &&
-                        typeof d.field === 'string' &&
-                        d.field.length > 0 &&
-                        isClientVisibleBatchDependencyField(d.field)
-                );
+                const deps: FeatureDependency[] = dependenciesAskedOfTheUser(step, config);
                 if (!deps.length) return;
                 const stepLabel = feature?.name || 'Unknown Step';
                 this.appendStepDependencyValidationErrors(
@@ -1463,20 +1454,18 @@ export class CreateBatchComponent implements OnInit {
             code?: string;
             dependencies?: unknown[];
         };
-        const fields: RequiredField[] = ((feature?.dependencies || []) as Array<Record<string, any>>)
-            .filter((dep) => dep?.field && isClientVisibleBatchDependencyField(String(dep.field)))
-            .map((dep) => ({
-                field: String(dep.field),
-                required: dep.required || false,
-                stepName: feature?.name || 'Unknown Step',
-                stepSequence: step.sequence,
-                enumValues: (dep.enum as string[] | null | undefined) || undefined,
-                type: (dep.type as string) || 'string',
-                description: (dep.description as string) || undefined,
-                dependencyGroup: dep.dependencyGroup as string | undefined,
-                requiredWhen: dep.requiredWhen as { field: string; in?: string[] } | undefined,
-                dateFormat: (dep.dateFormat as string) || undefined,
-            }));
+        const fields: RequiredField[] = dependenciesAskedOfTheUser(step, this.configuration()).map((dep) => ({
+            field: dep.field,
+            required: Boolean(dep.required),
+            stepName: feature?.name || 'Unknown Step',
+            stepSequence: step.sequence,
+            enumValues: dep.enum || undefined,
+            type: dep.type || 'string',
+            description: dep.description,
+            dependencyGroup: dep.dependencyGroup,
+            requiredWhen: dep.requiredWhen,
+            dateFormat: dep.dateFormat,
+        }));
 
         const xor = this.computeXorFieldGroups(fields);
 

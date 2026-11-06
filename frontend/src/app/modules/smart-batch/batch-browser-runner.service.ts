@@ -147,7 +147,6 @@ export class BatchBrowserRunnerService {
             if ('message' in outcome) {
                 errors.push({ step: step.sequence, message: outcome.message, code: outcome.code });
             }
-            break;
         }
 
         const status: SmartBatchRowStatus =

@@ -386,8 +386,8 @@ export const inputFieldsFor = (
     seedOverride?: string[],
     optionalSeeds?: string[]
 ): GuideInputField[] => {
-    if (iso.toLowerCase() !== 'co') return [];
     if (features.length) return inputFieldsFromFeatures(entities, features, seedOverride, optionalSeeds);
+    if (iso.toLowerCase() !== 'co') return [];
     return inputFieldsFromEntities(entities);
 };
 

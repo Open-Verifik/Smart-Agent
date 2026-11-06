@@ -15,6 +15,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { catchError, firstValueFrom, interval, of, Subscription } from 'rxjs';
+import { endpointsNotInAccountCodes } from '../account-endpoint-access.util';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { DesktopRecommendedService } from '../report-builder/desktop-recommended-dialog/desktop-recommended.service';
@@ -64,7 +65,7 @@ import {
     parseFlowGraph,
     usedFeatureIds,
 } from '../endpoint-flow-graph.util';
-import { getBatchSkippedStepsFromInput } from '../batch-required-fields.util';
+import { getBatchSkippedStepsFromInput, prepareStepsForRun } from '../batch-required-fields.util';
 import { getPresetStepCount } from '../batch-required-fields.util';
 import { compareFeaturesForSelectedCountry, countryFlagImageUrl, filterFeaturesForCountries, filterFeaturesForCountry, getCountryFlag, isWorldCountry } from '../smart-batch-country.util';
 import {
@@ -2230,79 +2231,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._goTo('template', from);
     }
 
-    /** A new report design skips the template gallery and opens the editor with every consulted endpoint. */
+    /** A new report design opens the editor with the consultas in the side list, not on the sheet. */
     private _openConsultedEndpointsInDesigner(): void {
         this._state.templateChoice.set('scratch');
         this._state.selectedTemplate.set(null);
         this._resetLayoutBranding();
         this.ensureIncludeItems();
-        const sections = this._sectionsForConsultedCards(this.layoutSourceCards());
-        this.layoutSections.set(sections);
+        this.layoutSections.set([]);
         this.selectedLayoutSectionIds.set([]);
-        this.selectedLayoutSectionId.set(sections[0]?.id ?? null);
+        this.selectedLayoutSectionId.set(null);
         this._preferCompactFormatBar();
         writeScratchDraft(this._layoutDesignSnapshot());
         this.enterLayout();
         this.step.set('layout');
-    }
-
-    private _sectionsForConsultedCards(
-        cards: GuideResultCard[],
-        start?: { page: number; y: number; order: number }
-    ): ReportSection[] {
-        const width = 620;
-        const height = 280;
-        const gap = 24;
-        const margin = 36;
-        const preview = this._layoutEditorPreview;
-        const pageWidth = preview?.pageWidthPx() ?? (this.orientation() === 'landscape' ? 297 : 210) * 3.7795275591;
-        const pageHeight = preview?.pageHeightPx() ?? (this.orientation() === 'landscape' ? 210 : 297) * 3.7795275591;
-        const x = Math.max(margin, Math.round((pageWidth - width) / 2));
-        let page = start?.page ?? 0;
-        let y = start?.y ?? margin;
-        return cards.map((card, index) => {
-            if (y + height > pageHeight - margin && y > margin) {
-                page += 1;
-                y = margin;
-            }
-            const frame = { page, x, y, width, height };
-            y += height + gap;
-            return {
-                ...this._sectionFromCard(card),
-                order: (start?.order ?? 0) + index,
-                frame,
-            };
-        });
-    }
-
-    private _appendMissingConsultCards(): void {
-        const missing = this.layoutSourceCards().filter((card) => !this.isCardOnLayout(card.sequence));
-        if (!missing.length) return;
-        const margin = 36;
-        const gap = 24;
-        let page = 0;
-        let y = margin;
-        for (const section of this.layoutSections()) {
-            const frame = section.frame;
-            if (!frame) continue;
-            const framePage = frame.page ?? 0;
-            const bottom = (frame.y ?? 0) + (frame.height ?? 280) + gap;
-            if (framePage > page || (framePage === page && bottom > y)) {
-                page = framePage;
-                y = bottom;
-            }
-        }
-        const fresh = this._sectionsForConsultedCards(missing, {
-            page,
-            y,
-            order: this.layoutSections().length,
-        });
-        this.layoutSections.update((list) => [...list, ...fresh]);
-        const top = fresh[fresh.length - 1];
-        if (!top) return;
-        this.selectedLayoutSectionId.set(top.id);
-        this._focusLayoutEditor(top, 'block');
-        if (top.frame) this._showFrameOnSheet(top.frame);
     }
 
     private async _finishEndpointsAndReturnToLayout(): Promise<void> {
@@ -2343,7 +2284,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this._openLayoutConsultInput();
                 return;
             }
-            this._appendMissingConsultCards();
             writeScratchDraft(this._layoutDesignSnapshot());
             this._dropTrailFrom('layout');
             this.enterLayout();
@@ -2391,7 +2331,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _returnToLayoutAfterConsult(): void {
         this.consultThenReturnToLayout.set(false);
         this.ensureIncludeItems();
-        this._appendMissingConsultCards();
         writeScratchDraft(this._layoutDesignSnapshot());
         this._dropTrailFrom('layout');
         this.enterLayout();
@@ -5539,12 +5478,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (top.frame) this._showFrameOnSheet(top.frame);
     }
 
-    /** New reports start with one consult block; the rest are added by hand. */
+    /** Consultas stay in the side list until they are dragged onto the sheet. */
     seedDefaultLayout(): void {
-        if (this.layoutSections().length) return;
-        const card = this.layoutSourceCards()[0];
-        if (!card) return;
-        this.addCardToLayout(card);
+        return;
     }
 
     useVisitaLayout(): void {
@@ -9209,7 +9145,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
             await this._browserRunner.retryRowSteps(
                 batch,
-                config.steps ?? [],
+                prepareStepsForRun(config.steps ?? [], config),
                 0,
                 [card.sequence],
                 (next) => this._state.batch.set(next)
@@ -10153,9 +10089,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             if (!this._alive) return;
             this.maybeStartBrowserRunner(started.data, resolved.configuration);
             this._startPoll(batchId);
-        } catch {
+        } catch (error) {
             this.isWorking.set(false);
-            this._state.consultError.set(this._transloco.translate('visitaGuide.consultFailed'));
+            const missingEndpoints = endpointsNotInAccountCodes(error);
+            this._state.consultError.set(
+                missingEndpoints
+                    ? this._transloco.translate('visitaGuide.endpointsNotInAccount', { codes: missingEndpoints })
+                    : this._transloco.translate('visitaGuide.consultFailed')
+            );
             this.step.set(this.mode() === 'batch' ? 'mode' : 'input');
         }
     }
@@ -10165,7 +10106,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (executor !== 'browser') return;
         void this._browserRunner.runBatch(
             batch,
-            config.steps ?? [],
+            prepareStepsForRun(config.steps ?? [], config),
             (next) => this._state.batch.set(next),
             () => this._state.consultError.set(this._transloco.translate('visitaGuide.consultFailed'))
         );

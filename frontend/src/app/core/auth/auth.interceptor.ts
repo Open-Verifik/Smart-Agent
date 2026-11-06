@@ -75,7 +75,9 @@ export const authInterceptor = (
                         req.url.includes('api.verifik.co') ||
                         req.url.includes('verifik.app') ||
                         req.url.includes('localhost:3006') ||
-                        req.url.includes('127.0.0.1:3006');
+                        req.url.includes('127.0.0.1:3006') ||
+                        req.url.includes('localhost:3001') ||
+                        req.url.includes('127.0.0.1:3001');
 
                     const hasWalletAuth = !!localStorage.getItem('x402_agent_address');
 
