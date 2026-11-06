@@ -3126,6 +3126,7 @@
         "noCollectionsAvailable": "没有可用的集合",
         "getError": "加载人员失败",
         "updateError": "更新人员失败",
+        "updateSuccess": "人员信息更新成功",
         "deleteError": "删除人员失败",
         "imageSizeError": "图像大小必须为 5MB 或更小",
         "collections": "集合",
@@ -10095,80 +10096,22 @@
                 "一般：不影响服务可用性的一般咨询。"
             ],
             "responseTitle": "响应时间",
-            "responseHeaders": [
-                "严重级别",
-                "受理",
-                "初审",
-                "升级",
-                "解决"
-            ],
+            "responseHeaders": ["严重级别", "受理", "初审", "升级", "解决"],
             "responseRows": {
-                "critical": [
-                    "严重",
-                    "0.5 小时",
-                    "0.5 小时",
-                    "15 分钟",
-                    "48 小时"
-                ],
-                "urgent": [
-                    "紧急",
-                    "0.5 小时",
-                    "0.5 小时",
-                    "15 分钟",
-                    "48 小时"
-                ],
-                "medium": [
-                    "中等",
-                    "1 小时",
-                    "1 小时",
-                    "0.5 小时",
-                    "96 小时"
-                ],
-                "normal": [
-                    "一般",
-                    "1 小时",
-                    "1 小时",
-                    "0.5 小时",
-                    "96 小时"
-                ]
+                "critical": ["严重", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
+                "urgent": ["紧急", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
+                "medium": ["中等", "1 小时", "1 小时", "0.5 小时", "96 小时"],
+                "normal": ["一般", "1 小时", "1 小时", "0.5 小时", "96 小时"]
             },
             "availabilityTitle": "平台可用性",
-            "availabilityHeaders": [
-                "产品",
-                "可用性",
-                "备注"
-            ],
+            "availabilityHeaders": ["产品", "可用性", "备注"],
             "availabilityRows": {
-                "smartCheck": [
-                    "SmartCheck",
-                    "90.0%",
-                    "DB Screening — 依赖政府数据源"
-                ],
-                "smartAccessComm": [
-                    "SmartAccess（邮箱/电话）",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess（生物识别）",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll（邮箱/电话）",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll（生物识别）",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll（文档扫描）",
-                    "98.0%",
-                    ""
-                ],
+                "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 依赖政府数据源"],
+                "smartAccessComm": ["SmartAccess（邮箱/电话）", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess（生物识别）", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll（邮箱/电话）", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll（生物识别）", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll（文档扫描）", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll（DB Screening）",
                     "90.0%",
@@ -10185,66 +10128,28 @@
             "responseNote": "说明：48 小时表示我们可能根据事件复杂度，最多用 48 小时解决。响应时间从用户最后一条消息起算。",
             "compensationTitle": "停机补偿",
             "compensationIntro": "受影响月份将按无效服务调用成本提供等值额度补偿。若因 Verifik 内部问题（数据库、服务器、内部 API）导致不可用且未有效解决，Verifik 将按以下方式补偿：",
-            "compensationHeaders": [
-                "服务可用性",
-                "额度补偿",
-                "产品"
-            ],
+            "compensationHeaders": ["服务可用性", "额度补偿", "产品"],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% 及以上",
-                    "无补偿",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% 及以下",
-                    "补偿",
-                    "SmartCheck"
-                ],
-                "emailTelHigh": [
-                    "邮箱/电话 — 99.00% 及以上",
-                    "无补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "emailTelLow": [
-                    "邮箱/电话 — 98.99% 及以下",
-                    "补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% 及以上", "无补偿", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% 及以下", "补偿", "SmartCheck"],
+                "emailTelHigh": ["邮箱/电话 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
+                "emailTelLow": ["邮箱/电话 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
                 "biometricsHigh": [
                     "生物识别 — 99.00% 及以上",
                     "无补偿",
                     "SmartAccess, SmartEnroll"
                 ],
-                "biometricsLow": [
-                    "生物识别 — 98.99% 及以下",
-                    "补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "docScanHigh": [
-                    "文档扫描 — 99.00% 及以上",
-                    "无补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "docScanLow": [
-                    "文档扫描 — 98.99% 及以下",
-                    "补偿",
-                    "SmartAccess, SmartEnroll"
-                ]
+                "biometricsLow": ["生物识别 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
+                "docScanHigh": ["文档扫描 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
+                "docScanLow": ["文档扫描 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"]
             },
             "compensationDisclaimer": "DB Screening 内部服务问题不包括不可抗力（迁移、断连或托管数据库政府外部干预）。Verifik 为中间方，不控制或更新所查询的政府数据库。",
             "billingTitle": "SmartCheck 计费方案",
             "billingIntro": "本计费方案适用于 smartCHECK 政府数据库查询服务。Verifik 并非所服务国家政府数据库的所有者、管理者或责任方；因此不保证响应时间、平均可用性或数据准确性。",
             "billingTableTitle": "可计费与不可计费 HTTP 状态码",
-            "billingHeaders": [
-                "可计费",
-                "不可计费"
-            ],
+            "billingHeaders": ["可计费", "不可计费"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "计划维护",
             "maintenance": "计划维护在夜间及周末进行，并提前通过邮件通知用户。",

@@ -3660,6 +3660,7 @@
         "noCollectionsAvailable": "No hay colecciones disponibles",
         "getError": "Error al cargar personas",
         "updateError": "Error al actualizar persona",
+        "updateSuccess": "Persona actualizada correctamente",
         "deleteError": "Error al eliminar persona",
         "imageSizeError": "La imagen debe ser de 5MB o menos",
         "collections": "Colecciones",
@@ -11496,80 +11497,26 @@
                 "Normal: Solicitudes generales que no afectan la disponibilidad."
             ],
             "responseTitle": "Tiempos de respuesta",
-            "responseHeaders": [
-                "Criticidad",
-                "Atención",
-                "Revisión",
-                "Escalamiento",
-                "Solución"
-            ],
+            "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
             "responseRows": {
-                "critical": [
-                    "Crítico",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "urgent": [
-                    "Urgente",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "medium": [
-                    "Medio",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ],
-                "normal": [
-                    "Normal",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ]
+                "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
+                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
             },
             "availabilityTitle": "Disponibilidad de la plataforma",
-            "availabilityHeaders": [
-                "Producto",
-                "Disponibilidad",
-                "Notas"
-            ],
+            "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depende de fuentes gubernamentales"
                 ],
-                "smartAccessComm": [
-                    "SmartAccess (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll (Escaneo de docs)",
-                    "98.0%",
-                    ""
-                ],
+                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -11592,16 +11539,8 @@
                 "Producto"
             ],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% o mayor",
-                    "Sin crédito",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% o menor",
-                    "Compensación",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% o mayor",
                     "Sin crédito",
@@ -11637,15 +11576,9 @@
             "billingTitle": "Esquema de cobro por servicio SmartCheck",
             "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
             "billingTableTitle": "Códigos HTTP facturables",
-            "billingHeaders": [
-                "Cobro",
-                "Ausente de cobro"
-            ],
+            "billingHeaders": ["Cobro", "Ausente de cobro"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "Mantenimiento programado",
             "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",

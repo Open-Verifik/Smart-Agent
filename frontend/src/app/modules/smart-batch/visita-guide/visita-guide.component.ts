@@ -1324,7 +1324,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             pageNumberDivider: this.pageNumberDivider(),
             watermark: this._watermarkPayload(),
             logoSettings: {
-                enabled: this.headerLogos().length ? false : Boolean(this.logoDataUrl()),
+                enabled: this.headerLogos().length ? false : Boolean(this.logoDataUrl() || base.logo),
                 x: this.logoX(),
                 y: this.logoY(),
                 width: this.logoWidth(),
@@ -6130,8 +6130,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             order: this.layoutSections().length,
             label: this._transloco.translate(labelKey),
             dataPath: REPORT_DATE_STAMP_PATHS[kind],
+            pairLayout: 'inline',
             style: { fontSize: 12, textAlign: 'left' },
-            frame: this._consumePendingContentFrame(48),
+            frame: this._consumePendingContentFrame(48, 300),
         };
         this._placeLayoutSection(section);
         this.selectedLayoutSectionId.set(section.id);
@@ -7260,7 +7261,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _patchSheetImage(id: string, patch: Partial<ReportSheetImage>): void {
-        this._state.sheetImages.update((list) => list.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+        this._state.sheetImages.update((list) =>
+            list.map((item) => {
+                if (item.id !== id) return item;
+                const next = { ...item, ...patch };
+                if (typeof patch.x === 'number') next.x = patch.x;
+                if (typeof patch.y === 'number') next.y = patch.y;
+                return next;
+            })
+        );
     }
 
     private _ruleFieldSelectValue(binding: {
@@ -8626,7 +8635,13 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.sheetImages.update((list) =>
             list.map((item) =>
                 item.id === image.id
-                    ? { ...item, ...image, src: scalableImageSrc(image.src ?? item.src) }
+                    ? {
+                          ...item,
+                          ...image,
+                          x: typeof image.x === 'number' ? image.x : item.x,
+                          y: typeof image.y === 'number' ? image.y : item.y,
+                          src: scalableImageSrc(image.src ?? item.src),
+                      }
                     : item
             )
         );
@@ -8911,7 +8926,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 height: logo.height || HEADER_LOGO_DEFAULT_HEIGHT,
             }));
         }
-        if (!template.logo || template.logoSettings?.enabled) return [];
+        if (
+            !template.logo ||
+            template.logoSettings?.enabled ||
+            template.logoSettings?.x !== undefined ||
+            template.logoSettings?.y !== undefined
+        ) {
+            return [];
+        }
         return [
             {
                 id: 'company-logo',
@@ -9591,7 +9613,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             pageNumberDivider: this.pageNumberDivider(),
             watermark: this._watermarkPayload(),
             logoSettings: {
-                enabled: this.headerLogos().length ? false : Boolean(this.logoDataUrl()),
+                enabled: this.headerLogos().length ? false : Boolean(this.logoDataUrl() || draft.logo),
                 x: this.logoX(),
                 y: this.logoY(),
                 width: this.logoWidth(),
