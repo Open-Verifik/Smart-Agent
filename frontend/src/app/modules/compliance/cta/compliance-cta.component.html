@@ -1,0 +1,20 @@
+<section class="ccta">
+    <span class="ccta__line ccta__line--top" aria-hidden="true"></span>
+    <span class="ccta__line ccta__line--left" aria-hidden="true"></span>
+    <span class="ccta__line ccta__line--right" aria-hidden="true"></span>
+    <span class="ccta__line ccta__line--bottom" aria-hidden="true"></span>
+
+    <div class="ccta__card">
+        <h2>{{ copy.ctaTitle }}</h2>
+        <p>{{ copy.ctaText }}</p>
+        <a class="ccta__button" [href]="bookingUrl">
+            {{ copy.ctaButton }}
+            <mat-icon svgIcon="heroicons_outline:arrow-right"></mat-icon>
+        </a>
+    </div>
+</section>
+
+<footer class="cfoot">
+    <img src="images/compliance/logo-verifik.svg" alt="Verifik" />
+    <p>© {{ year }} Verifik. {{ copy.rights }}</p>
+</footer>

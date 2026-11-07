@@ -1,0 +1,174 @@
+<div class="ch">
+    <section class="ch__top">
+        <compliance-header
+            [locale]="locale"
+            [country]="country?.key"
+            [query]="query"
+            [alternateUrl]="alternateUrl"
+        ></compliance-header>
+
+        <div class="ch__featured" *ngIf="featured.length">
+            <compliance-card
+                class="ch__featured-main"
+                [post]="featured[0]"
+                [locale]="locale"
+                variant="hero"
+            ></compliance-card>
+            <div class="ch__featured-side" *ngIf="featured.length > 1">
+                <compliance-card
+                    *ngFor="let post of featured.slice(1)"
+                    [post]="post"
+                    [locale]="locale"
+                    variant="side"
+                ></compliance-card>
+            </div>
+        </div>
+    </section>
+
+    <section class="ch__body" [class.ch__body--filter-open]="filterOpen" #results>
+        <aside class="ch__filter">
+            <button
+                class="ch__filter-toggle"
+                type="button"
+                (click)="filterOpen = !filterOpen"
+                [attr.aria-expanded]="filterOpen"
+                aria-controls="compliance-filter"
+            >
+                <mat-icon svgIcon="heroicons_outline:adjustments-horizontal"></mat-icon>
+                {{ copy.filter }}
+            </button>
+
+            <div class="ch__filter-panel" id="compliance-filter" *ngIf="filterOpen">
+                <div class="ch__filter-active" *ngIf="topics.length">
+                    <div class="ch__filter-head">
+                        <span>{{ copy.filteredBy }}</span>
+                        <button type="button" (click)="clearTopics()">{{ copy.clear }}</button>
+                    </div>
+                    <div class="ch__chips">
+                        <button
+                            type="button"
+                            class="ch__chip"
+                            *ngFor="let key of topics"
+                            (click)="toggleTopic(key)"
+                            [attr.aria-label]="copy.removeTopic(topicLabel(key))"
+                        >
+                            {{ topicLabel(key) }}
+                            <mat-icon svgIcon="heroicons_outline:x-circle"></mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ch__group" *ngFor="let category of categories">
+                    <button
+                        type="button"
+                        class="ch__group-head"
+                        (click)="toggleGroup(category.key)"
+                        [attr.aria-expanded]="!collapsed.has(category.key)"
+                    >
+                        {{ category.label[locale] }}
+                        <mat-icon svgIcon="heroicons_outline:chevron-down"></mat-icon>
+                    </button>
+                    <div class="ch__topics" *ngIf="!collapsed.has(category.key)">
+                        <button
+                            type="button"
+                            class="ch__topic"
+                            *ngFor="let topic of category.topics"
+                            [class.ch__topic--active]="isSelected(topic.key)"
+                            [attr.aria-pressed]="isSelected(topic.key)"
+                            (click)="toggleTopic(topic.key)"
+                        >
+                            {{ topic.label[locale] }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="ch__results">
+            <div class="ch__toolbar">
+                <p>
+                    {{ copy.latest }}
+                    <span *ngIf="!loading">{{ copy.results(posts.length, total) }}</span>
+                </p>
+                <div class="ch__views">
+                    <button
+                        type="button"
+                        [class.ch__view--active]="view === 'grid'"
+                        [attr.aria-pressed]="view === 'grid'"
+                        [attr.aria-label]="copy.gridView"
+                        (click)="view = 'grid'"
+                    >
+                        <mat-icon svgIcon="heroicons_outline:squares-2x2"></mat-icon>
+                    </button>
+                    <button
+                        type="button"
+                        [class.ch__view--active]="view === 'list'"
+                        [attr.aria-pressed]="view === 'list'"
+                        [attr.aria-label]="copy.listView"
+                        (click)="view = 'list'"
+                    >
+                        <mat-icon svgIcon="heroicons_outline:list-bullet"></mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="ch__state" *ngIf="loading">
+                <span class="ch__spinner" role="status" [attr.aria-label]="copy.loading"></span>
+            </div>
+
+            <div class="ch__state ch__empty" *ngIf="!loading && !posts.length">
+                <p>{{ copy.empty }}</p>
+                <a [routerLink]="homePath">{{ copy.emptyAction }}</a>
+            </div>
+
+            <div class="ch__posts ch__posts--{{ view }}" *ngIf="!loading && posts.length">
+                <compliance-card
+                    *ngFor="let post of posts"
+                    [post]="post"
+                    [locale]="locale"
+                    [variant]="view"
+                ></compliance-card>
+            </div>
+
+            <nav
+                class="ch__pages"
+                *ngIf="!loading && pageCount > 1"
+                [attr.aria-label]="copy.latest"
+            >
+                <button
+                    type="button"
+                    class="ch__page-step"
+                    (click)="goToPage(page - 1)"
+                    [disabled]="page === 1"
+                    [attr.aria-label]="copy.previous"
+                >
+                    <mat-icon svgIcon="heroicons_outline:chevron-left"></mat-icon>
+                </button>
+                <ng-container *ngFor="let item of pageItems">
+                    <span class="ch__ellipsis" *ngIf="item === null">…</span>
+                    <button
+                        type="button"
+                        class="ch__page"
+                        *ngIf="item !== null"
+                        [class.ch__page--current]="item === page"
+                        [attr.aria-current]="item === page ? 'page' : null"
+                        (click)="goToPage(item)"
+                    >
+                        {{ item }}
+                    </button>
+                </ng-container>
+                <button
+                    type="button"
+                    class="ch__page-step"
+                    (click)="goToPage(page + 1)"
+                    [disabled]="page === pageCount"
+                    [attr.aria-label]="copy.next"
+                >
+                    <mat-icon svgIcon="heroicons_outline:chevron-right"></mat-icon>
+                </button>
+            </nav>
+        </div>
+    </section>
+
+    <compliance-cta [locale]="locale"></compliance-cta>
+</div>
