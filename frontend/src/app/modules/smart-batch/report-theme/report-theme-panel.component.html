@@ -88,7 +88,6 @@
                     {{ 'reportTheme.scoreProfile' | transloco }}
                     <select
                         class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                        style="color-scheme: dark"
                         [disabled]="!score().enabled"
                         [ngModel]="profileId()"
                         (ngModelChange)="patchScore({ profile: $event })"
@@ -105,20 +104,14 @@
                             type="button"
                             class="rounded-lg border px-2 py-1.5 text-xs font-semibold"
                             [disabled]="!score().enabled"
-                            [class.border-stone-950]="score().format === 'unit'"
-                            [class.bg-stone-950]="score().format === 'unit'"
-                            [class.text-white]="score().format === 'unit'"
-                            [class.border-stone-200]="score().format !== 'unit'"
+                            [ngClass]="score().format === 'unit' ? selectedFormatClass : idleFormatClass"
                             (click)="patchScore({ format: 'unit' })"
                         >{{ 'reportTheme.formatUnit' | transloco }}</button>
                         <button
                             type="button"
                             class="rounded-lg border px-2 py-1.5 text-xs font-semibold"
                             [disabled]="!score().enabled"
-                            [class.border-stone-950]="score().format === 'percent'"
-                            [class.bg-stone-950]="score().format === 'percent'"
-                            [class.text-white]="score().format === 'percent'"
-                            [class.border-stone-200]="score().format !== 'percent'"
+                            [ngClass]="score().format === 'percent' ? selectedFormatClass : idleFormatClass"
                             (click)="patchScore({ format: 'percent' })"
                         >{{ 'reportTheme.formatPercent' | transloco }}</button>
                     </div>

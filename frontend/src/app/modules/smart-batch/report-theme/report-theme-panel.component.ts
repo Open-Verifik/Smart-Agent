@@ -26,10 +26,24 @@ const MAX_LOGO_BYTES = 400_000;
     standalone: true,
     imports: [CommonModule, FormsModule, TranslocoModule, ColorHexFieldComponent],
     templateUrl: './report-theme-panel.component.html',
+    styles: [
+        `
+            :host {
+                display: block;
+                color-scheme: light;
+            }
+            :host-context(.dark) {
+                color-scheme: dark;
+            }
+        `,
+    ],
 })
 export class ReportThemePanelComponent {
     private _transloco = inject(TranslocoService);
 
+    readonly selectedFormatClass = 'border-stone-950 bg-stone-950 text-white';
+    readonly idleFormatClass =
+        'border-stone-200 bg-white text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100';
     readonly themes = REPORT_THEME_IDS;
     readonly fonts = THEME_FONT_OPTIONS;
     readonly blocks = THEME_BLOCK_KINDS;
