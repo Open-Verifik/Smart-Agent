@@ -113,7 +113,7 @@
 </ng-template>
 
 <ng-template #gauge let-score="score">
-    @if (theme() === 'smart_enroll_v2') {
+    @if (theme() === 'light_cards') {
         <div class="flex h-full flex-col rounded-[22px] px-4 py-3" [style.background]="tokens().surface">
             <div class="mb-2 flex gap-1">
                 @for (tick of [0, 1, 2, 3]; track tick) {
@@ -280,7 +280,7 @@
                 }
             </div>
         </div>
-    } @else if (theme() === 'smart_enroll_v2') {
+    } @else if (theme() === 'light_cards') {
         <div class="grid h-full grid-cols-3 grid-rows-2 gap-2">
             @for (category of score.categories; track category.id) {
                 <div class="flex flex-col justify-center rounded-2xl px-3" [style.background]="tokens().surface">
@@ -386,11 +386,11 @@
 
 <ng-template #findings let-score="score">
     <div class="flex h-full flex-col">
-        <p class="m-0 text-[11px] font-semibold" [style.color]="theme() === 'smart_enroll_v2' ? tokens().accent : tokens().accent">
+        <p class="m-0 text-[11px] font-semibold" [style.color]="theme() === 'light_cards' ? tokens().accent : tokens().accent">
             @if (usesCustomEyebrow()) {
                 {{ config().eyebrow }}
             } @else {
-                {{ (theme() === 'smart_enroll_v2' ? 'reportTheme.sample.findingsImportant' : 'reportTheme.sample.findingsKey') | transloco }}
+                {{ (theme() === 'light_cards' ? 'reportTheme.sample.findingsImportant' : 'reportTheme.sample.findingsKey') | transloco }}
             }
         </p>
         <div class="mt-1.5 flex min-h-0 flex-1 flex-col gap-1.5">
@@ -399,7 +399,7 @@
                     <span class="mt-1 h-2 w-2 shrink-0 rounded-full" [style.background]="toneColor(finding.tone)"></span>
                     <p class="m-0 text-[11px] leading-snug">
                         <strong>{{ finding.titleKey | transloco }}</strong>
-                        <span [style.color]="tokens().muted"> — {{ finding.detailKey | transloco: matchParams(score) }}</span>
+                        <span [style.color]="tokens().muted"> — {{ finding.detailKey | transloco }}</span>
                     </p>
                 </div>
             }

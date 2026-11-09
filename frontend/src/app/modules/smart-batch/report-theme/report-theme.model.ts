@@ -1,9 +1,10 @@
 /**
  * Theme ids shared with verifik-backend PR #760 (`cursor/report-theme-blocks-75f3`).
  * `premium_dark` is the Cabify Chile driver report. The other three are the
- * light Smart Enroll card, the certificate, and the chart dashboard.
+ * light card layout, the certificate, and the chart dashboard.
+ * Reports format API lookup results only. They do not include biometrics.
  */
-export const REPORT_THEME_IDS = ['premium_dark', 'smart_enroll_v2', 'editorial', 'dashboard'] as const;
+export const REPORT_THEME_IDS = ['premium_dark', 'light_cards', 'editorial', 'dashboard'] as const;
 
 export type ReportThemeId = (typeof REPORT_THEME_IDS)[number];
 
@@ -144,11 +145,6 @@ export interface VerificationScoreModel {
     documentMasked: string;
     plate: string;
     licenseClass: string;
-    /**
-     * Face similarity, 0–1 (1 = identical). Format with `formatRatioPercent`.
-     * A passing sample is 0.93, which must render as 93%, not 0.93% and not 7%.
-     */
-    faceMatch: number;
     reportNumber: string;
     /** Already localized by the active language when the sample is built. */
     issuedLabel: string;
@@ -210,7 +206,7 @@ const TOKEN_PRESETS: Record<ReportThemeId, ReportThemeTokens> = {
         displayFont: 'Manrope',
         bodyFont: 'Manrope',
     },
-    smart_enroll_v2: {
+    light_cards: {
         logo: '',
         accent: '#6d4aff',
         brand: '#6d4aff',

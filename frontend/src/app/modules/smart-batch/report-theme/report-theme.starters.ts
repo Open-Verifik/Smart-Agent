@@ -46,7 +46,7 @@ const STARTER_FRAMES: Record<ReportThemeId, FrameSpec[]> = {
             { kind: 'sources', height: 300 },
         ]),
     ],
-    smart_enroll_v2: [
+    light_cards: [
         ...stack(0, [
             { kind: 'coverPage', height: 64 },
             { kind: 'scoreGauge', height: 430 },

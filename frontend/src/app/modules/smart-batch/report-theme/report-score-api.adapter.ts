@@ -7,7 +7,7 @@ import type { ReportThemeId, ReportThemeTokens, ScoreSettings } from './report-t
  * Branch `cursor/report-theme-blocks-75f3`. Names live only in this file.
  *
  * Theme id on the template and on preview/generate:
- *   reportTheme: "premium_dark" | "smart_enroll_v2" | "editorial" | "dashboard"
+ *   reportTheme: "premium_dark" | "light_cards" | "editorial" | "dashboard"
  *
  * Score display. The canonical value stays 0–1. The wire field is `scoreScale`:
  *   "percent" (default) — show score × 100 with a % sign, e.g. 98%
@@ -169,7 +169,7 @@ const starterFrom = (theme: unknown, value: unknown): ThemeStarterPayload | null
 };
 
 const isThemeId = (value: unknown): value is ReportThemeId =>
-    value === 'premium_dark' || value === 'smart_enroll_v2' || value === 'editorial' || value === 'dashboard';
+    value === 'premium_dark' || value === 'light_cards' || value === 'editorial' || value === 'dashboard';
 
 /**
  * Accept the list or map shape from `GET /v2/smart-report-templates/theme-starters`.

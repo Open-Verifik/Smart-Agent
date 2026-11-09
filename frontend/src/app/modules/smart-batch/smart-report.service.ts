@@ -350,7 +350,7 @@ export interface SmartReportTemplate {
     // Branding
     logo?: string;
     /**
-     * One of premium_dark, smart_enroll_v2, editorial, dashboard.
+     * One of premium_dark, light_cards, editorial, dashboard.
      * Omitted on templates that are still built from free shapes.
      */
     /** PR 760 theme id. Omitted on templates that are still built from free shapes. */

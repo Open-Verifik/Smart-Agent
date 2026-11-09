@@ -1,9 +1,10 @@
 import type { ScoreSettings, VerificationScoreModel } from './report-theme.model';
-import { decisionForScore, formatRatioPercent } from './report-theme.format';
+import { decisionForScore } from './report-theme.format';
 
 /**
- * Synthetic Cabify Chile driver. Names and document numbers are fake.
- * The shape matches the score block the backend will fill on a live run.
+ * Synthetic Cabify Chile driver built only from API lookups.
+ * Document, license, background, lists, vehicle, and company records.
+ * No biometrics, liveness, or face match. Names and numbers are fake.
  */
 export const syntheticVerificationScore = (profile: string, language: 'en' | 'es' = 'es'): VerificationScoreModel => {
     const value = 0.89;
@@ -21,19 +22,18 @@ export const syntheticVerificationScore = (profile: string, language: 'en' | 'es
         documentMasked: '••••78-5',
         plate: 'ZZTT99',
         licenseClass: 'B',
-        faceMatch: 0.93,
         reportNumber: 'SR-2611-0413',
         issuedLabel: language === 'en' ? 'Nov 9, 2026, 15:42 CLT' : '9 nov 2026, 15:42 CLT',
         verificationCode: 'VK-3HPL-91KC',
-        weightedAverage: 0.93,
-        deductions: 0.072,
+        weightedAverage: 0.9,
+        deductions: 0.01,
         categories: [
-            { id: 'background', labelKey: 'reportTheme.sample.catBackground', score: 1, weight: 0.25 },
-            { id: 'driving', labelKey: 'reportTheme.sample.catDriving', score: 0.95, weight: 0.25 },
-            { id: 'identity', labelKey: 'reportTheme.sample.catIdentity', score: 1, weight: 0.15 },
-            { id: 'biometrics', labelKey: 'reportTheme.sample.catBiometrics', score: 1, weight: 0.15 },
-            { id: 'lists', labelKey: 'reportTheme.sample.catLists', score: 0.7, weight: 0.1 },
-            { id: 'vehicle', labelKey: 'reportTheme.sample.catVehicle', score: 0.7, weight: 0.1 },
+            { id: 'identity', labelKey: 'reportTheme.sample.catIdentity', score: 1, weight: 0.2 },
+            { id: 'background', labelKey: 'reportTheme.sample.catBackground', score: 1, weight: 0.2 },
+            { id: 'driving', labelKey: 'reportTheme.sample.catDriving', score: 0.95, weight: 0.2 },
+            { id: 'vehicle', labelKey: 'reportTheme.sample.catVehicle', score: 0.7, weight: 0.15 },
+            { id: 'lists', labelKey: 'reportTheme.sample.catLists', score: 0.7, weight: 0.15 },
+            { id: 'companies', labelKey: 'reportTheme.sample.catCompanies', score: 1, weight: 0.1 },
         ],
         checks: [
             {
@@ -43,9 +43,9 @@ export const syntheticVerificationScore = (profile: string, language: 'en' | 'es
                 score: 1,
                 deduction: 0,
                 fields: [
-                    { labelKey: 'reportTheme.sample.fieldDocument', value: 'Vigente' },
+                    { labelKey: 'reportTheme.sample.fieldDocument', value: language === 'en' ? 'Valid' : 'Vigente' },
                     { labelKey: 'reportTheme.sample.fieldName', value: 'Valentina Prueba Soto' },
-                    { labelKey: 'reportTheme.sample.fieldFace', value: formatRatioPercent(0.93) },
+                    { labelKey: 'reportTheme.sample.fieldDocumentNumber', value: '••••78-5' },
                 ],
                 noteKey: 'reportTheme.sample.noteIdentity',
             },
@@ -72,14 +72,6 @@ export const syntheticVerificationScore = (profile: string, language: 'en' | 'es
                 noteKey: 'reportTheme.sample.noteLicense',
             },
             {
-                id: 'biometrics',
-                labelKey: 'reportTheme.sample.catBiometrics',
-                status: 'clear',
-                score: 1,
-                deduction: 0,
-                fields: [{ labelKey: 'reportTheme.sample.fieldLiveness', value: language === 'en' ? 'Passed' : 'Aprobada' }],
-            },
-            {
                 id: 'lists',
                 labelKey: 'reportTheme.sample.catLists',
                 status: 'review',
@@ -99,6 +91,15 @@ export const syntheticVerificationScore = (profile: string, language: 'en' | 'es
                     { labelKey: 'reportTheme.sample.fieldInsurance', value: language === 'en' ? 'Expired 31 Oct 2026' : 'Venció el 31/10/2026' },
                 ],
                 noteKey: 'reportTheme.sample.noteVehicle',
+            },
+            {
+                id: 'companies',
+                labelKey: 'reportTheme.sample.catCompanies',
+                status: 'clear',
+                score: 1,
+                deduction: 0,
+                fields: [{ labelKey: 'reportTheme.sample.fieldCompanyRecords', value: '0' }],
+                noteKey: 'reportTheme.sample.noteCompanies',
             },
         ],
         findings: [
@@ -124,6 +125,7 @@ export const syntheticVerificationScore = (profile: string, language: 'en' | 'es
             { nameKey: 'reportTheme.sample.sourceLists', status: 'ok', reference: 'INT-LIST-04', consultedAt: '15:42' },
             { nameKey: 'reportTheme.sample.sourceInsurance', status: 'ok', reference: 'SOAP', consultedAt: '15:42' },
             { nameKey: 'reportTheme.sample.sourceVehicle', status: 'empty', reference: 'RVM', consultedAt: '15:42' },
+            { nameKey: 'reportTheme.sample.sourceCompanies', status: 'ok', reference: 'SII', consultedAt: '15:42' },
         ],
     };
 };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decisionForScore, formatDeduction, formatRatioPercent, formatScore } from './report-theme.format';
+import { decisionForScore, formatDeduction, formatScore } from './report-theme.format';
 import { defaultScoreSettings, defaultThemeTokens } from './report-theme.model';
 import { ensureVerificationSample, syntheticVerificationScore } from './report-theme.sample';
 import { parseScoreProfiles, parseThemeStarters, resolveScoreProfileId, verificationRequestFields } from './report-score-api.adapter';
@@ -56,9 +56,15 @@ describe('score display', () => {
         expect(formatScore(sample.value, 'percent')).toBe('89%');
         expect(formatScore(0.98, 'percent')).toBe('98%');
         expect(formatDeduction(0.03, 'percent')).toBe('−3%');
-        expect(formatRatioPercent(sample.faceMatch)).toBe('93%');
-        expect(formatRatioPercent(0.33)).toBe('33%');
-        expect(sample.faceMatch).toBeGreaterThanOrEqual(0.9);
+        expect(sample.categories.map((category) => category.id)).toEqual([
+            'identity',
+            'background',
+            'driving',
+            'vehicle',
+            'lists',
+            'companies',
+        ]);
+        expect(JSON.stringify(sample)).not.toMatch(/face|liveness|biometric/i);
     });
 
     it('does not replace a live score', () => {
@@ -109,7 +115,7 @@ describe('theme starter catalog', () => {
 
 describe('theme starters', () => {
     it('gives every theme a cover, a score gauge and the rest of the blocks inside the sheet', () => {
-        for (const theme of ['premium_dark', 'smart_enroll_v2', 'editorial', 'dashboard'] as const) {
+        for (const theme of ['premium_dark', 'light_cards', 'editorial', 'dashboard'] as const) {
             expect(starterFitsSheet(theme)).toBe(true);
             const types = starterSections(theme).map((section) => section.type);
             expect(types).toEqual([
