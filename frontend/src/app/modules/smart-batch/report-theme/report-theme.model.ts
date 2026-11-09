@@ -144,6 +144,11 @@ export interface VerificationScoreModel {
     documentMasked: string;
     plate: string;
     licenseClass: string;
+    /**
+     * Face similarity, 0–1 (1 = identical). Format with `formatRatioPercent`.
+     * A passing sample is 0.93, which must render as 93%, not 0.93% and not 7%.
+     */
+    faceMatch: number;
     reportNumber: string;
     /** Already localized by the active language when the sample is built. */
     issuedLabel: string;

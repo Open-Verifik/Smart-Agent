@@ -1,5 +1,5 @@
 import type { ScoreSettings, VerificationScoreModel } from './report-theme.model';
-import { decisionForScore } from './report-theme.format';
+import { decisionForScore, formatRatioPercent } from './report-theme.format';
 
 /**
  * Synthetic Cabify Chile driver. Names and document numbers are fake.
@@ -21,6 +21,7 @@ export const syntheticVerificationScore = (profile: string, language: 'en' | 'es
         documentMasked: '••••78-5',
         plate: 'ZZTT99',
         licenseClass: 'B',
+        faceMatch: 0.93,
         reportNumber: 'SR-2611-0413',
         issuedLabel: language === 'en' ? 'Nov 9, 2026, 15:42 CLT' : '9 nov 2026, 15:42 CLT',
         verificationCode: 'VK-3HPL-91KC',
@@ -44,7 +45,7 @@ export const syntheticVerificationScore = (profile: string, language: 'en' | 'es
                 fields: [
                     { labelKey: 'reportTheme.sample.fieldDocument', value: 'Vigente' },
                     { labelKey: 'reportTheme.sample.fieldName', value: 'Valentina Prueba Soto' },
-                    { labelKey: 'reportTheme.sample.fieldFace', value: '93%' },
+                    { labelKey: 'reportTheme.sample.fieldFace', value: formatRatioPercent(0.93) },
                 ],
                 noteKey: 'reportTheme.sample.noteIdentity',
             },

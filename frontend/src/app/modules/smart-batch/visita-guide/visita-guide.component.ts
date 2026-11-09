@@ -59,6 +59,7 @@ import {
     type ThemeBlockConfig,
     type ThemeBlockKind,
 } from '../report-theme/report-theme.model';
+import { FALLBACK_SCORE_PROFILES, resolveScoreProfileId, type ScoreProfileOption } from '../report-theme/report-score-api.adapter';
 import { ensureVerificationSample } from '../report-theme/report-theme.sample';
 import { frameForAddedBlock, starterSections, themeBlockSection, withStarterFrames } from '../report-theme/report-theme.starters';
 import { ReportTemplateThumbComponent } from '../report-template-thumb.component';
@@ -716,6 +717,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     reportTheme = this._state.reportTheme;
     themeTokens = this._state.themeTokens;
     scoreSettings = this._state.scoreSettings;
+    scoreProfiles = signal<ScoreProfileOption[]>(FALLBACK_SCORE_PROFILES);
     identityColor = this._state.identityColor;
     pageBackgroundColor = this._state.pageBackgroundColor;
     logoDataUrl = this._state.logoDataUrl;
@@ -1670,6 +1672,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this._state.applyDeductions();
                 this.ensureFeaturesLoaded();
                 this._reports.getTemplates().subscribe();
+                this._reports
+                    .getScoreProfiles()
+                    .pipe(take(1))
+                    .subscribe((profiles) => {
+                        this.scoreProfiles.set(profiles);
+                        const current = this.scoreSettings();
+                        const profile = resolveScoreProfileId(current.profile, profiles);
+                        if (profile !== current.profile) {
+                            this._state.scoreSettings.set({ ...current, profile });
+                        }
+                    });
                 this._resumeFromUrl();
             },
             panelClass: 'auth-required-dialog',

@@ -87,12 +87,15 @@
                 <label class="block text-[11px] text-stone-500">
                     {{ 'reportTheme.scoreProfile' | transloco }}
                     <select
-                        class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                        class="mt-1 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-950 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                        style="color-scheme: dark"
                         [disabled]="!score().enabled"
-                        [value]="score().profile"
-                        (change)="patchScore({ profile: $any($event.target).value })"
+                        [ngModel]="profileId()"
+                        (ngModelChange)="patchScore({ profile: $event })"
                     >
-                        <option [value]="cabifyProfile">{{ 'reportTheme.profileCabify' | transloco }}</option>
+                        @for (profile of profileChoices(); track profile.id) {
+                            <option [ngValue]="profile.id">{{ profileLabel(profile) }}</option>
+                        }
                     </select>
                 </label>
                 <div class="text-[11px] text-stone-500">

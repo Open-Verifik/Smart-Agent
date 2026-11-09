@@ -399,7 +399,7 @@
                     <span class="mt-1 h-2 w-2 shrink-0 rounded-full" [style.background]="toneColor(finding.tone)"></span>
                     <p class="m-0 text-[11px] leading-snug">
                         <strong>{{ finding.titleKey | transloco }}</strong>
-                        <span [style.color]="tokens().muted"> — {{ finding.detailKey | transloco }}</span>
+                        <span [style.color]="tokens().muted"> — {{ finding.detailKey | transloco: matchParams(score) }}</span>
                     </p>
                 </div>
             }

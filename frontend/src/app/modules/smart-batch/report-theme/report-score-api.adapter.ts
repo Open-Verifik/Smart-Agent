@@ -58,6 +58,57 @@ export const SCORE_API = {
 /** Path of PR 760's starter catalog. Joined with `environment.apiUrl`. */
 export const THEME_STARTERS_PATH = '/v2/smart-report-templates/theme-starters';
 
+/**
+ * Score profiles for the builder dropdown.
+ *
+ * The builder asks `GET /v2/smart-report-templates/score-profiles` (same template
+ * API as the theme starters; not named in the PR notes we could read). Accepted
+ * bodies: `{ data: [{ id, name? }] }`, `{ data: ["cabify_driver"] }`, or
+ * `{ data: { profiles: [...] } }`. A missing route or an empty list falls back
+ * to `FALLBACK_SCORE_PROFILES`. `cabify_driver` is the default whenever the
+ * score toggle is on and the current id is not in the list.
+ */
+export const SCORE_PROFILES_PATH = '/v2/smart-report-templates/score-profiles';
+
+export interface ScoreProfileOption {
+    id: string;
+    /** Label returned by the API. The fallback catalog uses `labelKey` instead. */
+    label?: string;
+    labelKey?: string;
+}
+
+export const FALLBACK_SCORE_PROFILES: ScoreProfileOption[] = [
+    { id: 'cabify_driver', labelKey: 'reportTheme.profileCabify' },
+];
+
+export const parseScoreProfiles = (body: unknown): ScoreProfileOption[] => {
+    const root = asRecord(body);
+    const data = root && 'data' in root ? root['data'] : body;
+    const list = Array.isArray(data)
+        ? data
+        : asRecord(data)?.['profiles'];
+    if (!Array.isArray(list)) return [];
+    const profiles: ScoreProfileOption[] = [];
+    for (const item of list) {
+        if (typeof item === 'string' && item.trim()) {
+            profiles.push({ id: item.trim() });
+            continue;
+        }
+        const record = asRecord(item);
+        const id = typeof record?.['id'] === 'string' ? record['id'].trim() : '';
+        if (!id) continue;
+        const label = typeof record?.['name'] === 'string' ? record['name'] : typeof record?.['label'] === 'string' ? record['label'] : undefined;
+        profiles.push({ id, ...(label ? { label } : {}) });
+    }
+    return profiles;
+};
+
+export const resolveScoreProfileId = (current: string | undefined, profiles: ScoreProfileOption[]): string => {
+    const known = profiles.length ? profiles : FALLBACK_SCORE_PROFILES;
+    if (current && known.some((profile) => profile.id === current)) return current;
+    return known.find((profile) => profile.id === 'cabify_driver')?.id ?? known[0].id;
+};
+
 export interface VerificationRequestInput {
     theme?: ReportThemeId | null;
     themeTokens?: ReportThemeTokens | null;

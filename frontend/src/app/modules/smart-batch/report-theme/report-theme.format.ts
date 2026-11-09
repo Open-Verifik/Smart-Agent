@@ -8,6 +8,18 @@ export const decisionForScore = (value: number): ScoreDecision => {
     return 'reject';
 };
 
+/**
+ * Similarity or other ratio in `[0, 1]` as a whole-number percent.
+ * `0.93` is a passing face match and becomes `93%`.
+ * A value already on a 0–100 scale must not be passed here: it would be clamped to `100%`.
+ * This is not a distance. Do not print `1 - ratio` (that would show a passing 0.93 match as 7%).
+ */
+export const formatRatioPercent = (ratio: number): string => {
+    if (!Number.isFinite(ratio)) return '0%';
+    const clamped = Math.max(0, Math.min(1, ratio));
+    return `${Math.round(clamped * 100)}%`;
+};
+
 export const formatScore = (value: number, format: ScoreDisplayFormat): string => {
     if (!Number.isFinite(value)) return format === 'unit' ? '0.00' : '0';
     const clamped = Math.max(0, Math.min(1, value));

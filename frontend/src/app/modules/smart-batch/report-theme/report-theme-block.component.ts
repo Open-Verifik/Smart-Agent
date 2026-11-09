@@ -6,6 +6,7 @@ import {
     categoryShare,
     formatDeduction,
     formatScaleMax,
+    formatRatioPercent,
     formatScore,
     formatWeight,
     radarLabelPoint,
@@ -63,6 +64,12 @@ export class ReportThemeBlockComponent {
 
     points(value: number): string {
         return formatScore(value, this.format());
+    }
+
+    /** Face similarity and any other 0–1 ratio printed inside a sentence. */
+    matchParams(score: VerificationScoreModel): { match: string } {
+        const ratio = Number.isFinite(score.faceMatch) ? score.faceMatch : 0.93;
+        return { match: formatRatioPercent(ratio) };
     }
 
     scaleMax(): string {

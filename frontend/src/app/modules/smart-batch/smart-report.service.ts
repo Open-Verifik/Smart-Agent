@@ -5,9 +5,13 @@ import { catchError, map, Observable, of, shareReplay, tap, throwError } from 'r
 import type { ReportChartBreakdown, ReportChartKind, ReportChartPalette } from './report-chart.util';
 import { ensureVerificationSample } from './report-theme/report-theme.sample';
 import {
+    FALLBACK_SCORE_PROFILES,
+    parseScoreProfiles,
     parseThemeStarters,
+    SCORE_PROFILES_PATH,
     THEME_STARTERS_PATH,
     verificationRequestFields,
+    type ScoreProfileOption,
     type ThemeStarterPayload,
     type VerificationRequestInput,
 } from './report-theme/report-score-api.adapter';
@@ -925,6 +929,7 @@ export interface SampleReportData {
 export class SmartReportService {
     templates = signal<SmartReportTemplate[]>([]);
     private _themeStarters: Observable<ThemeStarterPayload[]> | null = null;
+    private _scoreProfiles: Observable<ScoreProfileOption[]> | null = null;
     reports = signal<SmartReport[]>([]);
     isLoading = signal(false);
 
@@ -1143,6 +1148,24 @@ export class SmartReportService {
             );
         }
         return this._themeStarters;
+    }
+
+    /**
+     * Profiles for the score dropdown. Falls back to `cabify_driver` when
+     * `GET /v2/smart-report-templates/score-profiles` is missing or empty.
+     */
+    getScoreProfiles(): Observable<ScoreProfileOption[]> {
+        if (!this._scoreProfiles) {
+            this._scoreProfiles = this._httpClient.get<unknown>(`${environment.apiUrl}${SCORE_PROFILES_PATH}`).pipe(
+                map((body) => {
+                    const parsed = parseScoreProfiles(body);
+                    return parsed.length ? parsed : FALLBACK_SCORE_PROFILES;
+                }),
+                catchError(() => of(FALLBACK_SCORE_PROFILES)),
+                shareReplay(1)
+            );
+        }
+        return this._scoreProfiles;
     }
 
     /**

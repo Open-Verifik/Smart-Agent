@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { decisionForScore, formatDeduction, formatScore } from './report-theme.format';
+import { decisionForScore, formatDeduction, formatRatioPercent, formatScore } from './report-theme.format';
 import { defaultScoreSettings, defaultThemeTokens } from './report-theme.model';
 import { ensureVerificationSample, syntheticVerificationScore } from './report-theme.sample';
-import { parseThemeStarters, verificationRequestFields } from './report-score-api.adapter';
+import { parseScoreProfiles, parseThemeStarters, resolveScoreProfileId, verificationRequestFields } from './report-score-api.adapter';
 import { starterFitsSheet, starterSections } from './report-theme.starters';
 
 describe('verification score API adapter', () => {
@@ -56,6 +56,9 @@ describe('score display', () => {
         expect(formatScore(sample.value, 'percent')).toBe('89%');
         expect(formatScore(0.98, 'percent')).toBe('98%');
         expect(formatDeduction(0.03, 'percent')).toBe('−3%');
+        expect(formatRatioPercent(sample.faceMatch)).toBe('93%');
+        expect(formatRatioPercent(0.33)).toBe('33%');
+        expect(sample.faceMatch).toBeGreaterThanOrEqual(0.9);
     });
 
     it('does not replace a live score', () => {
@@ -70,6 +73,17 @@ describe('score display', () => {
         const filled = ensureVerificationSample({ rowIndex: 0 }, defaultScoreSettings(), 'en');
         expect(filled.verificationScore?.profile).toBe('cabify_driver');
         expect(filled.verificationScore?.subjectName).toBe('Valentina Prueba Soto');
+    });
+});
+
+describe('score profiles', () => {
+    it('reads an id list or named records and defaults a blank choice to cabify_driver', () => {
+        expect(parseScoreProfiles({ data: ['cabify_driver'] }).map((item) => item.id)).toEqual(['cabify_driver']);
+        expect(parseScoreProfiles({ data: { profiles: [{ id: 'cabify_driver', name: 'Cabify driver' }] } })[0].label).toBe(
+            'Cabify driver'
+        );
+        expect(resolveScoreProfileId('', [])).toBe('cabify_driver');
+        expect(resolveScoreProfileId('other', [{ id: 'cabify_driver' }, { id: 'other' }])).toBe('other');
     });
 });
 
