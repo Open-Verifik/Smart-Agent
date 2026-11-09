@@ -1929,7 +1929,20 @@
                         </button>
                     }
                     @case ('layout') {
-                        <div class="grid gap-3 lg:grid-cols-[172px_minmax(0,1fr)]">
+                        <report-theme-panel
+                            [themeId]="reportTheme()"
+                            [tokens]="themeTokens()"
+                            [score]="scoreSettings()"
+                            [blockConfig]="selectedThemeConfig()"
+                            (themeSelected)="applyReportTheme($event)"
+                            (starterRequested)="applyReportTheme($event, true)"
+                            (tokensChange)="onThemeTokens($event)"
+                            (scoreChange)="onScoreSettings($event)"
+                            (addBlock)="addThemeBlock($event)"
+                            (configChange)="onThemeBlockConfig($event)"
+                            (logoRejected)="onThemeLogoRejected()"
+                        />
+                        <div class="mt-3 grid gap-3 lg:grid-cols-[172px_minmax(0,1fr)]">
                             <div
                                 cdkDropList
                                 id="visita-layout-data"

@@ -1,0 +1,483 @@
+<div
+    class="box-border flex h-full min-h-0 flex-col overflow-hidden"
+    [style.color]="tokens().ink"
+    [style.font-family]="bodyFont()"
+>
+    @if (shown(); as score) {
+        @switch (kind()) {
+            @case ('coverPage') {
+                <ng-container [ngTemplateOutlet]="cover" [ngTemplateOutletContext]="{ score: score }" />
+            }
+            @case ('scoreGauge') {
+                <ng-container [ngTemplateOutlet]="gauge" [ngTemplateOutletContext]="{ score: score }" />
+            }
+            @case ('categoryBreakdown') {
+                <ng-container [ngTemplateOutlet]="categories" [ngTemplateOutletContext]="{ score: score }" />
+            }
+            @case ('checkTable') {
+                <ng-container [ngTemplateOutlet]="checks" [ngTemplateOutletContext]="{ score: score }" />
+            }
+            @case ('findings') {
+                <ng-container [ngTemplateOutlet]="findings" [ngTemplateOutletContext]="{ score: score }" />
+            }
+            @case ('sources') {
+                <ng-container [ngTemplateOutlet]="sources" [ngTemplateOutletContext]="{ score: score }" />
+            }
+        }
+    } @else {
+        <div
+            class="flex h-full items-center justify-center rounded-2xl border border-dashed px-4 text-center text-[12px]"
+            [style.border-color]="tokens().line"
+            [style.color]="tokens().muted"
+            [style.background]="tokens().card"
+        >
+            {{ 'reportTheme.scoreOff' | transloco }}
+        </div>
+    }
+</div>
+
+<ng-template #wordmark>
+    @if (tokens().logo) {
+        <img [src]="tokens().logo" alt="" class="h-7 max-w-[140px] object-contain object-left" />
+    } @else {
+        <span class="text-[22px] font-extrabold leading-none tracking-[-0.04em]" [style.color]="tokens().brand" [style.font-family]="displayFont()">cabify</span>
+    }
+</ng-template>
+
+<ng-template #verified>
+    <span class="text-[11px]" [style.color]="tokens().muted">{{ 'reportTheme.sample.verifiedWith' | transloco }}</span>
+</ng-template>
+
+<ng-template #bands let-score="score">
+    <div class="mt-auto flex items-end justify-between gap-4 pt-2 text-[9px] leading-snug" [style.color]="tokens().muted">
+        <p class="m-0 max-w-[70%]">{{ 'reportTheme.sample.bands' | transloco }}</p>
+        <p class="m-0 text-right">
+            {{ 'reportTheme.sample.code' | transloco }}
+            <span class="font-semibold" [style.color]="tokens().ink">{{ score.verificationCode }}</span>
+        </p>
+    </div>
+</ng-template>
+
+<ng-template #cover let-score="score">
+    <div class="flex h-full flex-col">
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-2">
+                <ng-container [ngTemplateOutlet]="wordmark" />
+                @if (theme() !== 'editorial') {
+                    <span class="h-4 w-px" [style.background]="tokens().line"></span>
+                    <ng-container [ngTemplateOutlet]="verified" />
+                }
+            </div>
+            <div class="text-right text-[10px] leading-tight" [style.color]="tokens().muted">
+                <div>{{ 'reportTheme.sample.reportNo' | transloco: { number: score.reportNumber } }}</div>
+                <div>{{ score.issuedLabel }}</div>
+                @if (theme() === 'dashboard') {
+                    <div class="mt-0.5 font-medium" [style.color]="tokens().ink">
+                        {{ score.subjectName }} · {{ score.documentLabel }} {{ score.documentMasked }} · {{ score.plate }}
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (theme() === 'editorial') {
+            <p class="mb-1 mt-6 text-[11px] font-semibold uppercase tracking-[0.16em]" [style.color]="tokens().accent">
+                @if (usesCustomEyebrow()) {
+                    {{ config().eyebrow }}
+                } @else {
+                    {{ 'reportTheme.sample.eyebrowChile' | transloco }}
+                }
+            </p>
+            <h1 class="m-0 text-[40px] font-extrabold leading-[0.95] tracking-[-0.04em]" [style.font-family]="displayFont()">
+                {{ score.subjectName }}
+            </h1>
+            <p class="mb-0 mt-3 text-[13px]" [style.color]="tokens().muted">
+                {{ score.documentLabel }} {{ score.documentMasked }} · {{ 'reportTheme.sample.fieldPlate' | transloco }} {{ score.plate }} ·
+                {{ 'reportTheme.sample.fieldClass' | transloco }} {{ score.licenseClass }}
+            </p>
+            <div class="mt-4 h-px w-full" [style.background]="tokens().ink"></div>
+        } @else if (theme() === 'dashboard' || theme() === 'premium_dark') {
+            <h1 class="m-0 mt-3 text-[26px] font-extrabold leading-tight tracking-[-0.03em]" [style.font-family]="displayFont()">
+                @if (usesCustomEyebrow()) {
+                    {{ config().eyebrow }}
+                } @else {
+                    {{ 'reportTheme.sample.titleDriver' | transloco }}
+                }
+            </h1>
+            @if (theme() === 'premium_dark') {
+                <p class="m-0 mt-1 text-[13px] font-semibold uppercase tracking-[0.08em]" [style.color]="tokens().brand">
+                    {{ score.subjectName }}
+                </p>
+            }
+        }
+    </div>
+</ng-template>
+
+<ng-template #gauge let-score="score">
+    @if (theme() === 'smart_enroll_v2') {
+        <div class="flex h-full flex-col rounded-[22px] px-4 py-3" [style.background]="tokens().surface">
+            <div class="mb-2 flex gap-1">
+                @for (tick of [0, 1, 2, 3]; track tick) {
+                    <span class="h-1 flex-1 rounded-full" [style.background]="tokens().success"></span>
+                }
+            </div>
+            <p class="m-0 text-[11px] font-semibold" [style.color]="tokens().accent">
+                @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { {{ 'reportTheme.sample.completed' | transloco }} }
+            </p>
+            <h2 class="m-0 mt-1 text-[28px] font-extrabold leading-none tracking-[-0.04em]" [style.font-family]="displayFont()">
+                {{ decisionKey(score.decision) | transloco }}
+            </h2>
+            <p class="m-0 mt-1 line-clamp-2 text-[12px] leading-snug" [style.color]="tokens().muted">
+                {{ summaryKey(score.decision) | transloco }}
+            </p>
+            <div class="mt-2 grid min-h-0 flex-1 grid-cols-[180px_minmax(0,1fr)] items-center gap-3">
+                <div class="flex flex-col items-center">
+                    <svg viewBox="0 0 200 118" class="h-[118px] w-[180px]">
+                        <path d="M16 100 A84 84 0 0 1 184 100" fill="none" [attr.stroke]="tokens().line" stroke-width="14" stroke-linecap="round" />
+                        <path
+                            d="M16 100 A84 84 0 0 1 184 100"
+                            fill="none"
+                            [attr.stroke]="toneColor(score.decision)"
+                            stroke-width="14"
+                            stroke-linecap="round"
+                            [attr.stroke-dasharray]="semiDash(score.value)"
+                        />
+                        <text x="100" y="86" text-anchor="middle" [attr.fill]="tokens().ink" font-size="36" font-weight="800">{{ points(score.value) }}</text>
+                        <text x="100" y="104" text-anchor="middle" [attr.fill]="tokens().muted" font-size="8">VERIFICATION SCORE{{ format() === 'unit' ? ' / ' + scaleMax() : '' }}</text>
+                    </svg>
+                    <span
+                        class="mt-1 rounded-full px-4 py-1 text-[12px] font-bold text-white"
+                        [style.background]="toneColor(score.decision)"
+                    >{{ decisionKey(score.decision) | transloco }}</span>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    @for (row of enrollRows(score); track row.label) {
+                        <div class="flex items-center gap-2 rounded-xl px-2 py-1" [style.background]="tokens().card">
+                            <span class="h-6 w-6 shrink-0 rounded-lg" [style.background]="tokens().surface" [style.color]="tokens().accent">
+                                <svg viewBox="0 0 24 24" class="h-6 w-6 p-1" fill="none" [attr.stroke]="tokens().accent" stroke-width="1.7">
+                                    <circle cx="12" cy="12" r="7" />
+                                </svg>
+                            </span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-[9px] uppercase tracking-wide" [style.color]="tokens().muted">{{ row.label }}</span>
+                                <span class="block truncate text-[12px] font-semibold">{{ row.value }}</span>
+                            </span>
+                            <span class="text-[10px] font-semibold" [style.color]="toneColor(row.ok ? 'clear' : 'review')">
+                                {{ (row.ok ? 'reportTheme.sample.statusClear' : 'reportTheme.sample.statusReview') | transloco }}
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <ng-container [ngTemplateOutlet]="stats" [ngTemplateOutletContext]="{ score: score }" />
+        </div>
+    } @else if (theme() === 'editorial') {
+        <div class="flex h-full items-center gap-5">
+            <div class="relative h-[150px] w-[150px] shrink-0">
+                <svg viewBox="0 0 120 120" class="h-full w-full">
+                    <circle cx="60" cy="60" r="46" fill="none" [attr.stroke]="tokens().line" stroke-width="4" />
+                    <circle
+                        cx="60"
+                        cy="60"
+                        r="46"
+                        fill="none"
+                        [attr.stroke]="toneColor(score.decision)"
+                        stroke-width="4"
+                        stroke-linecap="round"
+                        [attr.stroke-dasharray]="ringDash(score.value, 46)"
+                        transform="rotate(-90 60 60)"
+                    />
+                    <text x="60" y="58" text-anchor="middle" [attr.fill]="tokens().ink" font-size="32" font-weight="800">{{ points(score.value) }}</text>
+                    @if (format() === 'unit') {
+                        <text x="60" y="76" text-anchor="middle" [attr.fill]="tokens().muted" font-size="8">{{ 'reportTheme.sample.ofScale' | transloco: { max: scaleMax() } }}</text>
+                    }
+                </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="m-0 text-[11px] font-semibold uppercase tracking-[0.14em]" [style.color]="tokens().accent">
+                    @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { VERIFICATION SCORE }
+                </p>
+                <h2 class="m-0 mt-1 text-[28px] font-semibold leading-none" [style.color]="toneColor(score.decision)" [style.font-family]="displayFont()">
+                    {{ decisionKey(score.decision) | transloco }}
+                </h2>
+                <p class="m-0 mt-2 text-[12px] leading-snug" [style.color]="tokens().muted">{{ summaryKey(score.decision) | transloco }}</p>
+                <ng-container [ngTemplateOutlet]="stats" [ngTemplateOutletContext]="{ score: score }" />
+            </div>
+        </div>
+    } @else {
+        <div class="grid h-full grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,0.7fr))] gap-2">
+            <div class="flex items-center gap-3 rounded-2xl px-3" [style.background]="tokens().surface">
+                <svg viewBox="0 0 120 120" class="h-[120px] w-[120px] shrink-0">
+                    <circle cx="60" cy="60" r="42" fill="none" [attr.stroke]="tokens().line" stroke-width="10" />
+                    <circle
+                        cx="60"
+                        cy="60"
+                        r="42"
+                        fill="none"
+                        [attr.stroke]="toneColor(score.decision)"
+                        stroke-width="10"
+                        stroke-linecap="round"
+                        [attr.stroke-dasharray]="ringDash(score.value, 42)"
+                        transform="rotate(-90 60 60)"
+                    />
+                    <text x="60" y="58" text-anchor="middle" [attr.fill]="tokens().ink" font-size="26" font-weight="800">{{ points(score.value) }}</text>
+                    @if (format() === 'unit') {
+                        <text x="60" y="74" text-anchor="middle" [attr.fill]="tokens().muted" font-size="8">/{{ scaleMax() }}</text>
+                    }
+                </svg>
+                <div class="min-w-0">
+                    <p class="m-0 text-[10px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().accent">
+                        @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { VERIFICATION SCORE }
+                    </p>
+                    <span
+                        class="mt-1 inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold text-white"
+                        [style.background]="toneColor(score.decision)"
+                    >{{ decisionKey(score.decision) | transloco }}</span>
+                    <p class="m-0 mt-1 text-[10px] leading-snug" [style.color]="tokens().muted">
+                        {{ 'reportTheme.sample.profileRules' | transloco: { profile: score.profile, version: score.rulesVersion } }}
+                    </p>
+                </div>
+            </div>
+            <ng-container [ngTemplateOutlet]="kpi" [ngTemplateOutletContext]="{ label: 'reportTheme.sample.coverage', value: weight(score.coverage), hint: 'reportTheme.sample.documentMatches' }" />
+            <ng-container [ngTemplateOutlet]="kpi" [ngTemplateOutletContext]="{ label: 'reportTheme.sample.confidence', value: ('reportTheme.sample.confidenceHigh' | transloco), hint: 'reportTheme.sample.documentMatches' }" />
+            <ng-container [ngTemplateOutlet]="kpi" [ngTemplateOutletContext]="{ label: 'reportTheme.sample.checks', value: '' + score.checkCount, hint: 'reportTheme.sample.checksReview', hintParams: { count: score.reviewCount } }" />
+        </div>
+    }
+</ng-template>
+
+<ng-template #stats let-score="score">
+    <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]" [style.color]="tokens().muted">
+        <span>{{ 'reportTheme.sample.coverage' | transloco }} <strong [style.color]="tokens().ink">{{ weight(score.coverage) }}</strong></span>
+        <span>{{ 'reportTheme.sample.confidence' | transloco }} <strong [style.color]="tokens().ink">{{ 'reportTheme.sample.confidenceHigh' | transloco }}</strong></span>
+        <span>{{ 'reportTheme.sample.checks' | transloco }} <strong [style.color]="tokens().ink">{{ score.checkCount }}</strong></span>
+    </div>
+</ng-template>
+
+<ng-template #kpi let-label="label" let-value="value" let-hint="hint" let-hintParams="hintParams">
+    <div class="flex flex-col justify-center rounded-2xl px-3" [style.background]="tokens().surface">
+        <div class="text-[9px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().muted">{{ label | transloco }}</div>
+        <div class="text-[22px] font-extrabold leading-none" [style.font-family]="displayFont()">{{ value }}</div>
+        <div class="mt-1 h-1 w-10 rounded-full" [style.background]="tokens().accent"></div>
+        <div class="mt-1 text-[9px] leading-tight" [style.color]="tokens().muted">{{ hint | transloco: hintParams }}</div>
+    </div>
+</ng-template>
+
+<ng-template #categories let-score="score">
+    @if (theme() === 'editorial') {
+        <div class="flex h-full flex-col">
+            <p class="m-0 text-[11px] font-semibold uppercase tracking-[0.14em]" [style.color]="tokens().accent">
+                @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { {{ 'reportTheme.sample.categoryEyebrow' | transloco }} }
+            </p>
+            <div class="mt-2 flex min-h-0 flex-1 flex-col justify-between">
+                @for (category of score.categories; track category.id) {
+                    <div class="grid grid-cols-[140px_minmax(0,1fr)_auto_auto] items-baseline gap-3 text-[13px]">
+                        <span>{{ category.labelKey | transloco }}</span>
+                        <span class="border-b border-dotted" [style.border-color]="tokens().line"></span>
+                        @if (config().showWeights) {
+                            <span class="text-[11px]" [style.color]="tokens().muted">{{ 'reportTheme.sample.weight' | transloco }} {{ weight(category.weight) }}</span>
+                        }
+                        <span class="font-semibold tabular-nums">{{ points(category.score) }}</span>
+                    </div>
+                }
+            </div>
+        </div>
+    } @else if (theme() === 'smart_enroll_v2') {
+        <div class="grid h-full grid-cols-3 grid-rows-2 gap-2">
+            @for (category of score.categories; track category.id) {
+                <div class="flex flex-col justify-center rounded-2xl px-3" [style.background]="tokens().surface">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="truncate text-[12px] font-semibold">{{ category.labelKey | transloco }}</span>
+                        <span class="text-[16px] font-extrabold tabular-nums">{{ points(category.score) }}</span>
+                    </div>
+                    <div class="mt-1.5 h-1.5 overflow-hidden rounded-full" [style.background]="tokens().line">
+                        <div class="h-full rounded-full" [style.width.%]="category.score * 100" [style.background]="toneColor(category.score >= 0.9 ? 'success' : 'warning')"></div>
+                    </div>
+                    @if (config().showWeights) {
+                        <div class="mt-1 text-[10px]" [style.color]="tokens().muted">{{ 'reportTheme.sample.weight' | transloco }} {{ weight(category.weight) }}</div>
+                    }
+                </div>
+            }
+        </div>
+    } @else if (theme() === 'dashboard') {
+        <div class="flex h-full flex-col gap-2">
+            <div class="rounded-2xl px-3 py-2" [style.background]="tokens().surface">
+                <p class="m-0 text-[10px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().accent">
+                    @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { {{ 'reportTheme.sample.howScore' | transloco }} }
+                </p>
+                <div class="mt-2 flex h-3 overflow-hidden rounded-full">
+                    @for (category of score.categories; track category.id; let index = $index) {
+                        <div [style.width.%]="sharePercent(category.score, category.weight)" [style.background]="segmentColor(index)"></div>
+                    }
+                    <div class="min-w-[8px] flex-1" [style.background]="tokens().line"></div>
+                </div>
+                <div class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[9px]" [style.color]="tokens().muted">
+                    @for (category of score.categories; track category.id; let index = $index) {
+                        <span class="inline-flex items-center gap-1">
+                            <span class="h-1.5 w-1.5 rounded-full" [style.background]="segmentColor(index)"></span>
+                            {{ category.labelKey | transloco }} {{ sharePercent(category.score, category.weight) }}
+                        </span>
+                    }
+                    <span>{{ 'reportTheme.sample.deductions' | transloco }} {{ points(score.deductions) }}</span>
+                </div>
+                <p class="m-0 mt-1 text-[10px] font-medium" [style.color]="toneColor(score.decision)">
+                    {{ 'reportTheme.sample.weightedNote' | transloco: { average: points(score.weightedAverage), score: points(score.value) } }}
+                </p>
+            </div>
+            <div class="grid min-h-0 flex-1 grid-cols-2 gap-2">
+                <div class="flex flex-col rounded-2xl px-3 py-2" [style.background]="tokens().surface">
+                    <p class="m-0 text-[10px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().accent">{{ 'reportTheme.sample.categoryEyebrow' | transloco }}</p>
+                    <div class="mt-2 flex min-h-0 flex-1 items-end gap-2">
+                        @for (category of score.categories; track category.id) {
+                            <div class="flex min-w-0 flex-1 flex-col items-center justify-end gap-1">
+                                <span class="text-[10px] font-bold tabular-nums">{{ points(category.score) }}</span>
+                                <div
+                                    class="w-full rounded-t-md"
+                                    [style.height.%]="barHeight(category.score)"
+                                    [style.background]="toneColor(category.score >= 0.9 ? 'success' : 'warning')"
+                                ></div>
+                                <span class="line-clamp-2 text-center text-[8px] leading-tight" [style.color]="tokens().muted">{{ category.labelKey | transloco }}</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="rounded-2xl px-2 py-2" [style.background]="tokens().surface">
+                    <p class="m-0 px-1 text-[10px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().accent">{{ 'reportTheme.sample.riskProfile' | transloco }}</p>
+                    <svg viewBox="0 0 160 156" class="mx-auto h-[150px] w-full">
+                        <polygon [attr.points]="radarRing(1)" fill="none" [attr.stroke]="tokens().line" stroke-width="1" />
+                        <polygon [attr.points]="radarRing(0.5)" fill="none" [attr.stroke]="tokens().line" stroke-width="1" />
+                        <polygon [attr.points]="radarShape(categoryScores(score))" [attr.fill]="tokens().accent" fill-opacity="0.25" [attr.stroke]="tokens().accent" stroke-width="1.5" />
+                        @for (category of score.categories; track category.id; let index = $index) {
+                            <line x1="80" y1="78" [attr.x2]="axisEnd(index, score.categories.length).x" [attr.y2]="axisEnd(index, score.categories.length).y" [attr.stroke]="tokens().line" />
+                            <text
+                                [attr.x]="labelPoint(index, score.categories.length).x"
+                                [attr.y]="labelPoint(index, score.categories.length).y"
+                                text-anchor="middle"
+                                [attr.fill]="tokens().muted"
+                                font-size="7"
+                            >{{ category.labelKey | transloco }}</text>
+                        }
+                    </svg>
+                </div>
+            </div>
+        </div>
+    } @else {
+        <div class="flex h-full flex-col rounded-2xl px-3 py-2" [style.background]="tokens().surface">
+            <p class="m-0 text-[10px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().accent">
+                @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { {{ 'reportTheme.sample.categoryEyebrow' | transloco }} }
+            </p>
+            <div class="mt-2 flex min-h-0 flex-1 flex-col justify-between">
+                @for (category of score.categories; track category.id) {
+                    <div>
+                        <div class="flex items-baseline justify-between text-[12px]">
+                            <span>{{ category.labelKey | transloco }}</span>
+                            <span class="font-bold tabular-nums">{{ points(category.score) }}</span>
+                        </div>
+                        <div class="mt-1 h-1.5 overflow-hidden rounded-full" [style.background]="tokens().line">
+                            <div class="h-full rounded-full" [style.width.%]="category.score * 100" [style.background]="toneColor(category.score >= 0.9 ? 'success' : 'warning')"></div>
+                        </div>
+                        @if (config().showWeights) {
+                            <div class="text-[9px]" [style.color]="tokens().muted">{{ 'reportTheme.sample.weight' | transloco }} {{ weight(category.weight) }}</div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</ng-template>
+
+<ng-template #findings let-score="score">
+    <div class="flex h-full flex-col">
+        <p class="m-0 text-[11px] font-semibold" [style.color]="theme() === 'smart_enroll_v2' ? tokens().accent : tokens().accent">
+            @if (usesCustomEyebrow()) {
+                {{ config().eyebrow }}
+            } @else {
+                {{ (theme() === 'smart_enroll_v2' ? 'reportTheme.sample.findingsImportant' : 'reportTheme.sample.findingsKey') | transloco }}
+            }
+        </p>
+        <div class="mt-1.5 flex min-h-0 flex-1 flex-col gap-1.5">
+            @for (finding of score.findings; track finding.titleKey) {
+                <div class="flex items-start gap-2 rounded-xl px-2.5 py-1.5" [style.background]="tokens().surface">
+                    <span class="mt-1 h-2 w-2 shrink-0 rounded-full" [style.background]="toneColor(finding.tone)"></span>
+                    <p class="m-0 text-[11px] leading-snug">
+                        <strong>{{ finding.titleKey | transloco }}</strong>
+                        <span [style.color]="tokens().muted"> — {{ finding.detailKey | transloco }}</span>
+                    </p>
+                </div>
+            }
+        </div>
+        <ng-container [ngTemplateOutlet]="bands" [ngTemplateOutletContext]="{ score: score }" />
+    </div>
+</ng-template>
+
+<ng-template #checks let-score="score">
+    <div class="flex h-full flex-col overflow-hidden rounded-2xl" [style.background]="tokens().surface">
+        <div class="flex items-center justify-between px-3 py-2">
+            <p class="m-0 text-[11px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().accent">
+                @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { {{ 'reportTheme.sample.checksTitle' | transloco }} }
+            </p>
+            <p class="m-0 text-[10px]" [style.color]="tokens().muted">{{ 'reportTheme.sample.checksNote' | transloco: { count: score.checkCount } }}</p>
+        </div>
+        <table class="w-full border-collapse text-left text-[11px]">
+            <thead>
+                <tr [style.color]="tokens().muted">
+                    <th class="px-3 py-1 font-medium">{{ 'reportTheme.sample.colCheck' | transloco }}</th>
+                    <th class="px-2 py-1 font-medium">{{ 'reportTheme.sample.colStatus' | transloco }}</th>
+                    @if (config().showFields) {
+                        <th class="px-2 py-1 font-medium">{{ 'reportTheme.sample.colDetails' | transloco }}</th>
+                    }
+                    <th class="px-2 py-1 text-right font-medium">{{ 'reportTheme.sample.colScore' | transloco }}</th>
+                    @if (config().showDeductions) {
+                        <th class="px-3 py-1 text-right font-medium">{{ 'reportTheme.sample.colDeduction' | transloco }}</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (check of score.checks; track check.id) {
+                    <tr class="align-top" [style.border-top]="'1px solid ' + tokens().line">
+                        <td class="px-3 py-1.5 font-semibold">{{ check.labelKey | transloco }}</td>
+                        <td class="px-2 py-1.5">
+                            <span
+                                class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                [style.color]="toneColor(check.status)"
+                                [style.background]="tokens().card"
+                            >{{ statusKey(check.status) | transloco }}</span>
+                        </td>
+                        @if (config().showFields) {
+                            <td class="px-2 py-1.5" [style.color]="tokens().muted">
+                                @for (field of check.fields; track field.labelKey) {
+                                    <span class="mr-2 inline-block"><span class="font-medium" [style.color]="tokens().ink">{{ field.labelKey | transloco }}:</span> {{ field.value }}</span>
+                                }
+                            </td>
+                        }
+                        <td class="px-2 py-1.5 text-right font-semibold tabular-nums">{{ points(check.score) }}</td>
+                        @if (config().showDeductions) {
+                            <td class="px-3 py-1.5 text-right tabular-nums" [style.color]="check.deduction ? tokens().warning : tokens().muted">
+                                {{ check.deduction ? deduction(check.deduction) : '—' }}
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</ng-template>
+
+<ng-template #sources let-score="score">
+    <div class="flex h-full flex-col">
+        <p class="m-0 text-[11px] font-semibold uppercase tracking-[0.12em]" [style.color]="tokens().accent">
+            @if (usesCustomEyebrow()) { {{ config().eyebrow }} } @else { {{ 'reportTheme.sample.sourcesTitle' | transloco }} }
+        </p>
+        <div class="mt-2 flex min-h-0 flex-1 flex-col justify-between">
+            @for (source of score.sources; track source.nameKey) {
+                <div class="grid grid-cols-[minmax(0,1.4fr)_auto_auto_auto] items-center gap-3 border-b py-1.5 text-[12px]" [style.border-color]="tokens().line">
+                    <span class="font-medium">{{ source.nameKey | transloco }}</span>
+                    <span class="text-[10px] font-semibold" [style.color]="source.status === 'ok' ? tokens().success : source.status === 'error' ? tokens().danger : tokens().muted">
+                        {{ ('reportTheme.sample.source' + (source.status === 'ok' ? 'Ok' : source.status === 'error' ? 'Error' : 'Empty')) | transloco }}
+                    </span>
+                    <span [style.color]="tokens().muted">{{ source.reference }}</span>
+                    <span class="tabular-nums" [style.color]="tokens().muted">{{ source.consultedAt }}</span>
+                </div>
+            }
+        </div>
+        <ng-container [ngTemplateOutlet]="bands" [ngTemplateOutletContext]="{ score: score }" />
+    </div>
+</ng-template>

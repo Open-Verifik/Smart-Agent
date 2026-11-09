@@ -14,7 +14,7 @@ import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
-import { catchError, firstValueFrom, interval, of, Subscription } from 'rxjs';
+import { catchError, firstValueFrom, interval, of, Subscription, take } from 'rxjs';
 import { endpointsNotInAccountCodes } from '../account-endpoint-access.util';
 import { BatchBrowserRunnerService } from '../batch-browser-runner.service';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
@@ -44,6 +44,23 @@ import {
     ReportPreviewComponent,
     reportPaperSizePx,
 } from '../report-preview/report-preview.component';
+import { ReportThemePanelComponent } from '../report-theme/report-theme-panel.component';
+import { mergeThemeFonts } from '../report-theme/report-theme.fonts';
+import {
+    defaultScoreSettings,
+    defaultThemeTokens,
+    isReportThemeId,
+    normalizeScoreSettings,
+    readThemeBlockConfig,
+    themeBlockKindFromType,
+    type ReportThemeId,
+    type ReportThemeTokens,
+    type ScoreSettings,
+    type ThemeBlockConfig,
+    type ThemeBlockKind,
+} from '../report-theme/report-theme.model';
+import { ensureVerificationSample } from '../report-theme/report-theme.sample';
+import { frameForAddedBlock, starterSections, themeBlockSection, withStarterFrames } from '../report-theme/report-theme.starters';
 import { ReportTemplateThumbComponent } from '../report-template-thumb.component';
 import { ColorHexFieldComponent } from '../color-hex-field.component';
 import {
@@ -295,6 +312,10 @@ type LayoutDesignSnapshot = {
     signatureWidth: number;
     signatureHeight: number;
     signaturePage?: number;
+    reportTheme?: ReportThemeId;
+    scoreScale?: 'percent' | 'unit';
+    themeTokens?: ReportThemeTokens;
+    scoreSettings?: ScoreSettings;
     layoutOverlayZ?: Record<string, number>;
     layoutLayerFlags?: Record<string, { hidden?: boolean; locked?: boolean; name?: string }>;
 };
@@ -446,6 +467,7 @@ const SMART_DEFAULT_VALUE_RULES: ReportValueRule[] = [
         OverlayModule,
         TranslocoModule,
         ReportPreviewComponent,
+        ReportThemePanelComponent,
         ReportTemplateThumbComponent,
         ColorHexFieldComponent,
         EndpointChainBoardComponent,
@@ -557,6 +579,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _authGate = inject(AuthRequiredGateService);
     private _transloco = inject(TranslocoService);
+    private _reportLang = toSignal(this._transloco.langChanges$, { initialValue: this._transloco.getActiveLang() });
     private readonly _activeLang = toSignal(this._transloco.langChanges$, {
         initialValue: this._transloco.getActiveLang(),
     });
@@ -690,6 +713,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     clonedTemplate = this._state.clonedTemplate;
     reportTitle = this._state.reportTitle;
     primaryColor = this._state.primaryColor;
+    reportTheme = this._state.reportTheme;
+    themeTokens = this._state.themeTokens;
+    scoreSettings = this._state.scoreSettings;
     identityColor = this._state.identityColor;
     pageBackgroundColor = this._state.pageBackgroundColor;
     logoDataUrl = this._state.logoDataUrl;
@@ -1284,6 +1310,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this.layoutSections().find((section) => section.id === id) ?? null;
     });
 
+    selectedThemeConfig = computed((): ThemeBlockConfig | null => {
+        const section = this.selectedLayoutSection();
+        if (!section || !themeBlockKindFromType(section.type)) return null;
+        return readThemeBlockConfig(section.config);
+    });
+
     previewTemplate = computed((): SmartReportTemplate | null => {
         const template =
             this.templateChoice() === 'scratch' && !this.selectedTemplate()
@@ -1339,6 +1371,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             layoutOverlayZ: { ...this.layoutOverlayZ() },
             bodyTopPadding: base.bodyTopPadding ?? 0,
             sampleData: this.previewData(),
+            reportTheme: this._themedLayout() ? this.reportTheme() : base.reportTheme,
+            scoreScale: this.scoreSettings().format,
+            themeTokens: this._themedLayout() ? this.themeTokens() : base.themeTokens,
+            scoreSettings: this.scoreSettings(),
             sections: useLayout ? layout : this._sectionsForPreview(base),
         };
     });
@@ -1491,7 +1527,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     previewData = computed((): SampleReportData => {
         const all = this.previewRecords();
         const idx = Math.min(Math.max(0, this.previewRecordIndex()), Math.max(0, all.length - 1));
-        return all[idx] ?? { inputData: {}, results: {}, rowIndex: 0 };
+        const base = all[idx] ?? { inputData: {}, results: {}, rowIndex: 0 };
+        const language = this._activeReportLang();
+        return ensureVerificationSample(base, this.scoreSettings(), language);
     });
 
     sampleHasTables = computed(() => previewHasObjectList(this.previewData()));
@@ -2036,6 +2074,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                             language: lang,
                             sampleData: this.previewData(),
                             ...(printHtml ? { printHtml } : {}),
+                            ...this._verificationRequest(),
                         })
                     .subscribe({
                         next: (res) => {
@@ -3232,6 +3271,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (section.type === 'divider') return this._transloco.translate('visitaGuide.layoutAddDivider');
         if (section.type === 'shape') return this._transloco.translate('visitaGuide.layoutShapes');
         if (section.type === 'image') return this._transloco.translate('visitaGuide.layoutLayerImage');
+        if (themeBlockKindFromType(section.type)) {
+            return this._transloco.translate('reportTheme.block.' + section.type);
+        }
         return section.type;
     }
 
@@ -4560,6 +4602,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             signatureWidth: this.signatureWidth(),
             signatureHeight: this.signatureHeight(),
             signaturePage: this.signaturePage(),
+            reportTheme: this.reportTheme(),
+            scoreScale: this.scoreSettings().format,
+            themeTokens: this.themeTokens(),
+            scoreSettings: this.scoreSettings(),
             layoutOverlayZ: { ...this.layoutOverlayZ() },
             layoutLayerFlags: cloneReportValue(this.layoutLayerFlags()),
         };
@@ -4667,6 +4713,12 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.signatureWidth.set(snapshot.signatureWidth ?? 160);
         this._state.signatureHeight.set(snapshot.signatureHeight ?? 64);
         this._state.signaturePage.set(snapshot.signaturePage ?? 0);
+        if (isReportThemeId(snapshot.reportTheme)) this._state.reportTheme.set(snapshot.reportTheme);
+        if (snapshot.scoreScale === 'unit' || snapshot.scoreScale === 'percent') {
+            this._state.scoreSettings.update((current) => ({ ...current, format: snapshot.scoreScale! }));
+        }
+        if (snapshot.themeTokens) this._state.themeTokens.set({ ...defaultThemeTokens(this.reportTheme()), ...snapshot.themeTokens });
+        if (snapshot.scoreSettings) this._state.scoreSettings.set(normalizeScoreSettings(snapshot.scoreSettings));
         this.layoutOverlayZ.set({ ...(snapshot.layoutOverlayZ ?? {}) });
         this.layoutLayerFlags.set(cloneReportValue(snapshot.layoutLayerFlags ?? {}));
         this._signatureAnchored = true;
@@ -5478,9 +5530,138 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (top.frame) this._showFrameOnSheet(top.frame);
     }
 
-    /** Consultas stay in the side list until they are dragged onto the sheet. */
+    /** A blank sheet opens on the Cabify premium-dark starter. */
     seedDefaultLayout(): void {
-        return;
+        if (this.layoutSections().length) return;
+        this.applyReportTheme('premium_dark', true);
+    }
+
+    /** True when the sheet contains a themed block, so preview/generate send the theme. */
+    private _themedLayout(): boolean {
+        return this.layoutSections().some((section) => themeBlockKindFromType(section.type) != null);
+    }
+
+    private _activeReportLang(): 'en' | 'es' {
+        return this._reportLang() === 'es' ? 'es' : 'en';
+    }
+
+    private _verificationRequest(): {
+        theme: ReportThemeId | null;
+        themeTokens: ReportThemeTokens | null;
+        scoreSettings: ScoreSettings;
+    } {
+        const themed = this._themedLayout();
+        return {
+            theme: themed ? this.reportTheme() : null,
+            themeTokens: themed ? this.themeTokens() : null,
+            scoreSettings: this.scoreSettings(),
+        };
+    }
+
+    /**
+     * Apply a theme's colors and fonts. `replaceLayout` drops the current sheet
+     * in for that theme's starter (cover, score, categories, findings, checks, sources).
+     */
+    applyReportTheme(theme: ReportThemeId, replaceLayout = false): void {
+        const tokens = defaultThemeTokens(theme);
+        this._state.reportTheme.set(theme);
+        this._state.themeTokens.set(tokens);
+        this._state.pageBackgroundColor.set(tokens.page);
+        this._state.primaryColor.set(tokens.accent);
+        this._state.customFonts.set(mergeThemeFonts(this.customFonts(), tokens));
+        if (!this.reportTitle()) {
+            this._state.reportTitle.set(this._transloco.translate('reportTheme.sample.titleDriver'));
+        }
+        if (!replaceLayout) return;
+        this._state.scoreSettings.set(defaultScoreSettings());
+        const local = starterSections(theme);
+        this._installStarter(local);
+        const epoch = ++this._starterEpoch;
+        this._reports
+            .getThemeStarters()
+            .pipe(take(1))
+            .subscribe((starters) => {
+                if (epoch !== this._starterEpoch || this.reportTheme() !== theme) return;
+                const remote = starters.find((item) => item.reportTheme === theme);
+                if (!remote?.sections.length || !this._layoutStillStarter(local)) return;
+                this._installStarter(this._sectionsFromRemoteStarter(remote.sections, theme));
+            });
+    }
+
+    private _starterEpoch = 0;
+
+    private _installStarter(sections: ReportSection[]): void {
+        this.layoutSections.set(sections);
+        this._state.showPageNumbers.set(false);
+        this.selectedLayoutSectionId.set(sections[0]?.id ?? null);
+        this.selectedLayoutSectionIds.set(sections[0] ? [sections[0].id] : []);
+        this._preferCompactFormatBar();
+    }
+
+    private _layoutStillStarter(local: ReportSection[]): boolean {
+        const current = this.layoutSections();
+        if (current.length !== local.length) return false;
+        return current.every((section, index) => section.id === local[index]?.id && section.type === local[index]?.type);
+    }
+
+    private _sectionsFromRemoteStarter(sections: { id?: string; type?: string; order?: number }[], theme: ReportThemeId): ReportSection[] {
+        const mapped = sections.map((section, index) => ({
+            ...(section as ReportSection),
+            id: section.id || `theme-remote-${index}`,
+            type: (section.type || 'text') as ReportSection['type'],
+            order: section.order ?? index,
+        }));
+        return withStarterFrames(mapped, theme);
+    }
+
+    onThemeTokens(tokens: ReportThemeTokens): void {
+        this._state.themeTokens.set(tokens);
+        this._state.primaryColor.set(tokens.accent);
+        this._state.customFonts.set(mergeThemeFonts(this.customFonts(), tokens));
+    }
+
+    onScoreSettings(settings: ScoreSettings): void {
+        this._state.scoreSettings.set(normalizeScoreSettings(settings));
+    }
+
+    onThemeLogoRejected(): void {
+        this._snack.open(this._transloco.translate('reportTheme.logoTooLarge'), undefined, { duration: 3000 });
+    }
+
+    addThemeBlock(kind: ThemeBlockKind): void {
+        const frame = frameForAddedBlock(
+            kind,
+            this.layoutSections().map((section) => section.frame ?? {})
+        );
+        const section = {
+            ...themeBlockSection(kind, frame),
+            id: `theme-${kind}-${Date.now()}`,
+            order: this.layoutSections().length,
+        };
+        this._placeLayoutSection(section);
+        this.selectedLayoutSectionId.set(section.id);
+        this.selectedLayoutSectionIds.set([section.id]);
+        this._focusLayoutEditor(section, 'block');
+    }
+
+    onThemeBlockConfig(config: ThemeBlockConfig): void {
+        const id = this.selectedLayoutSectionId();
+        if (!id) return;
+        this.layoutSections.update((list) =>
+            list.map((section) =>
+                section.id === id
+                    ? {
+                          ...section,
+                          config: {
+                              showWeights: config.showWeights !== false,
+                              showDeductions: config.showDeductions !== false,
+                              showFields: config.showFields !== false,
+                              ...(config.eyebrow?.trim() ? { eyebrow: config.eyebrow.trim() } : {}),
+                          },
+                      }
+                    : section
+            )
+        );
     }
 
     useVisitaLayout(): void {
@@ -8982,6 +9163,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                         engine,
                         ...(Number.isFinite(rowIndex) ? { rowIndex } : {}),
                         ...(printHtml ? { printHtml } : {}),
+                        ...this._verificationRequest(),
                     })
                 );
                 if (!result.pdf?.buffer) throw new Error('pdf');
@@ -8997,6 +9179,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this._reports.downloadTemplateSample(template._id, {
                     sampleData,
                     ...(printHtml ? { printHtml } : {}),
+                    ...this._verificationRequest(),
                 })
             );
             const url = URL.createObjectURL(blob);
@@ -9637,6 +9820,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             security: this._securityPayload(),
             signature: this._signaturePayload(),
             sampleData: this._sampleDataForPersist(draft),
+            reportTheme: this._themedLayout() ? this.reportTheme() : undefined,
+            scoreScale: this.scoreSettings().format,
+            themeTokens: this._themedLayout() ? this.themeTokens() : undefined,
+            scoreSettings: this.scoreSettings(),
             endpointDesign: this._endpointDesignForSave(),
             batchConfiguration:
                 this.designSource() === 'simulated' ? undefined : (configId ?? draft.batchConfiguration),
@@ -9893,6 +10080,23 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private hydrateCustomize(template: SmartReportTemplate, force = false): void {
         if (force || !this.reportTitle()) this._state.reportTitle.set(template.name);
+        if (isReportThemeId(template.reportTheme)) {
+            this._state.reportTheme.set(template.reportTheme);
+            this._state.themeTokens.set({
+                ...defaultThemeTokens(template.reportTheme),
+                ...(template.themeTokens ?? {}),
+            });
+        }
+        if (template.scoreSettings || template.scoreScale) {
+            const settings = normalizeScoreSettings(template.scoreSettings);
+            this._state.scoreSettings.set(
+                template.scoreScale === 'unit' || template.scoreScale === 'percent'
+                    ? { ...settings, format: template.scoreScale, enabled: template.scoreSettings?.enabled ?? true }
+                    : settings
+            );
+        } else if (force) {
+            this._state.scoreSettings.set({ ...defaultScoreSettings(), enabled: false });
+        }
         if (force || template.primaryColor) this._state.primaryColor.set(template.primaryColor || '#0f172a');
         if (force || template.identityColor) this._state.identityColor.set(template.identityColor || '#000000');
         if (force || template.pageBackgroundColor) {

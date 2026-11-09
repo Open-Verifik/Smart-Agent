@@ -1,6 +1,13 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '../smart-batch.service';
 import { ReportHeaderLogo, ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
+import {
+    defaultScoreSettings,
+    defaultThemeTokens,
+    type ReportThemeId,
+    type ReportThemeTokens,
+    type ScoreSettings,
+} from '../report-theme/report-theme.model';
 import { chainProfileForFeature } from '../endpoint-chain.util';
 import { ReportCustomFont } from '../report-fonts.util';
 import { emptyFlowGraph, endpointNodes, flowOptionalSeedFields, flowSeedFields, hydrateFlowGraph, FlowGraph } from '../endpoint-flow-graph.util';
@@ -52,6 +59,10 @@ export class VisitaGuideStateService {
     layoutSections = signal<ReportSection[]>([]);
 
     reportTitle = signal('');
+    /** Active cover direction. Freeform templates ignore it until a theme block is on the sheet. */
+    reportTheme = signal<ReportThemeId>('premium_dark');
+    themeTokens = signal<ReportThemeTokens>(defaultThemeTokens('premium_dark'));
+    scoreSettings = signal<ScoreSettings>({ ...defaultScoreSettings(), enabled: false });
     primaryColor = signal('#0f172a');
     identityColor = signal('#000000');
     pageBackgroundColor = signal('#ffffff');
@@ -217,6 +228,9 @@ export class VisitaGuideStateService {
         this.includeItems.set([]);
         this.layoutSections.set([]);
         this.reportTitle.set('');
+        this.reportTheme.set('premium_dark');
+        this.themeTokens.set(defaultThemeTokens('premium_dark'));
+        this.scoreSettings.set({ ...defaultScoreSettings(), enabled: false });
         this.primaryColor.set('#0f172a');
         this.identityColor.set('#000000');
         this.pageBackgroundColor.set('#ffffff');
