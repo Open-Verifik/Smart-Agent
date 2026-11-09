@@ -1,6 +1,8 @@
 import { Component, DestroyRef, effect, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { BlockingNotificationService } from 'app/core/notifications/blocking-notification.service';
 import { InboxItem } from 'app/core/notifications/app-notifications.models';
@@ -17,8 +19,10 @@ export class BlockingNotificationModalHostComponent implements OnInit {
     private readonly _blocking = inject(BlockingNotificationService);
     private readonly _notifications = inject(AppNotificationsService);
     private readonly _dialog = inject(MatDialog);
+    private readonly _router = inject(Router);
 
     private _dialogOpen = false;
+    private static _hasBootstrapped = false;
 
     constructor() {
         effect(() => {
@@ -31,11 +35,32 @@ export class BlockingNotificationModalHostComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this._bootstrapIfNeeded();
+        if (this._isRootRelevantPage()) {
+            this._bootstrapIfNeeded();
+        } else {
+            this._router.events
+                .pipe(
+                    filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+                    takeUntilDestroyed(this._destroyRef)
+                )
+                .subscribe((event: NavigationEnd) => {
+                    const path = event.urlAfterRedirects.split('?')[0].split('#')[0];
+                    if (path === '' || path === '/' || path === '/home') {
+                        this._bootstrapIfNeeded();
+                    }
+                });
+        }
+    }
+
+    private _isRootRelevantPage(): boolean {
+        const url = (this._router.url || '').split('?')[0].split('#')[0];
+        return url === '' || url === '/' || url === '/home';
     }
 
     private _bootstrapIfNeeded(): void {
+        if (BlockingNotificationModalHostComponent._hasBootstrapped) return;
         if (!this._blocking.canRun()) return;
+        BlockingNotificationModalHostComponent._hasBootstrapped = true;
         this._notifications
             .bootstrapInbox()
             .pipe(takeUntilDestroyed(this._destroyRef))

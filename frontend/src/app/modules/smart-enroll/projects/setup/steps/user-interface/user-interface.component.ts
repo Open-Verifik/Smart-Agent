@@ -1,14 +1,31 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, inject } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    SimpleChanges,
+    inject,
+} from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { Subscription } from 'rxjs';
 
-import { Attachment } from 'app/core/services/attachment.service';
-import { FileDropZoneComponent } from 'app/shared/file-drop-zone/file-drop-zone.component';
-import { SwatchPickerComponent } from 'app/shared/swatch-picker/swatch-picker.component';
+import { Attachment } from '../../../../../../core/services/attachment.service';
+import { FileDropZoneComponent } from '../../../../../../shared/file-drop-zone/file-drop-zone.component';
+import { SwatchPickerComponent } from '../../../../../../shared/swatch-picker/swatch-picker.component';
+import {
+    parseVerifyStyle,
+    VERIFY_STYLE_COLOR_DEFAULTS,
+    VerifyStyleColorDefaults,
+} from '../../preview/preview-verify-shell/verify-style';
+import { VerifyStylePickerComponent } from '../../../verify-style-picker.component';
 
 const HALF_MEGABYTE = 0.5 * 1024 * 1024;
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -33,18 +50,108 @@ const TWO_MEGABYTES = 2 * 1024 * 1024;
         TranslocoModule,
         FileDropZoneComponent,
         SwatchPickerComponent,
+        VerifyStylePickerComponent,
     ],
     templateUrl: './user-interface.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetupUserInterfaceComponent {
+export class SetupUserInterfaceComponent implements OnInit, OnChanges, OnDestroy {
     @Input() form!: FormGroup;
     @Input() loading = false;
     @Input() saving = false;
 
+    readonly customOverrides = new Set<string>();
+
     private _cdr = inject(ChangeDetectorRef);
     private _snack = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
+
+    private _isApplyingDefaults = false;
+    private _subscriptions: Subscription[] = [];
+
+    ngOnInit(): void {
+        this._initSubscriptions();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['form'] && !changes['form'].firstChange) {
+            this._initSubscriptions();
+        }
+    }
+
+    ngOnDestroy(): void {
+        this._destroySubscriptions();
+    }
+
+    markCustomOverride(field: string): void {
+        this.customOverrides.add(field);
+    }
+
+    applyStyleDefaults(styleId: unknown): void {
+        const validId = parseVerifyStyle(styleId);
+        if (!validId || !VERIFY_STYLE_COLOR_DEFAULTS[validId]) return;
+
+        const defaults = VERIFY_STYLE_COLOR_DEFAULTS[validId];
+        this._isApplyingDefaults = true;
+        try {
+            const fields: (keyof VerifyStyleColorDefaults)[] = [
+                'buttonColor',
+                'buttonTextColor',
+                'titleColor',
+                'textColor',
+                'backgroundColor',
+            ];
+            for (const field of fields) {
+                if (!this.customOverrides.has(field)) {
+                    const ctrl = this.brandingFormGroup?.get(field);
+                    if (ctrl) {
+                        ctrl.setValue(defaults[field]);
+                        ctrl.markAsDirty();
+                    }
+                }
+            }
+        } finally {
+            this._isApplyingDefaults = false;
+            this._cdr.markForCheck();
+        }
+    }
+
+    private _destroySubscriptions(): void {
+        this._subscriptions.forEach((sub) => sub.unsubscribe());
+        this._subscriptions = [];
+    }
+
+    private _initSubscriptions(): void {
+        this._destroySubscriptions();
+        if (!this.form) return;
+
+        const colorFields: (keyof VerifyStyleColorDefaults)[] = [
+            'buttonColor',
+            'buttonTextColor',
+            'titleColor',
+            'textColor',
+            'backgroundColor',
+        ];
+
+        colorFields.forEach((field) => {
+            const ctrl = this.brandingFormGroup?.get(field);
+            if (ctrl) {
+                const sub = ctrl.valueChanges.subscribe(() => {
+                    if (!this._isApplyingDefaults) {
+                        this.customOverrides.add(field);
+                    }
+                });
+                this._subscriptions.push(sub);
+            }
+        });
+
+        if (this.verifyStyleControl) {
+            const sub = this.verifyStyleControl.valueChanges.subscribe((styleId) => {
+                this.applyStyleDefaults(styleId);
+            });
+            this._subscriptions.push(sub);
+        }
+    }
 
     readonly logoMaxSize = HALF_MEGABYTE;
     readonly imageMaxSize = TWO_MEGABYTES;
@@ -87,6 +194,20 @@ export class SetupUserInterfaceComponent {
 
     get brandingFormGroup(): FormGroup | null {
         return (this.form?.get('branding') as FormGroup) || null;
+    }
+
+    get verifyStyleControl(): FormControl | null {
+        return (this.form?.get('projectFlow.onboardingSettings.verifyStyle') as FormControl) || null;
+    }
+
+    get flowOrderControl(): FormControl | null {
+        return (this.form?.get('projectFlow.onboardingSettings.flowOrder') as FormControl) || null;
+    }
+
+    /** A is the default (contact first), stored as an empty value so existing projects stay untouched. */
+    selectFlowOrder(order: 'contact_first' | 'consent_first'): void {
+        this.flowOrderControl?.setValue(order === 'consent_first' ? 'consent_first' : '');
+        this.flowOrderControl?.markAsDirty();
     }
 
     imageValue(forControl: 'logo' | 'image'): string | null {

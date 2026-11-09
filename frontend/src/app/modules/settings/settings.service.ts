@@ -1,6 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { isStaffSessionRevoked } from 'app/core/auth/session-rejection';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
+import { SessionService } from 'app/core/services/session.service';
 import { environment } from 'environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -163,8 +166,9 @@ export class SettingsService {
      * Uses apiUrl from environment (e.g., https://verifik.app)
      */
     private readonly apiUrl = environment.apiUrl;
-
-    constructor(private _httpWrapper: HttpWrapperService) {}
+    private _httpWrapper = inject(HttpWrapperService);
+    private _authService = inject(AuthService);
+    private _sessionService = inject(SessionService);
 
     /**
      * Get the current access token from localStorage
@@ -210,6 +214,10 @@ export class SettingsService {
             }),
             catchError((error) => {
                 console.error('[SettingsService] Token renewal failed:', error);
+                if (isStaffSessionRevoked(error)) {
+                    this._authService.signOut(true);
+                    this._sessionService.handleRevokedSession();
+                }
                 return throwError(() => error);
             })
         );

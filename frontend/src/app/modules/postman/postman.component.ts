@@ -864,14 +864,14 @@ export class PostmanComponent {
         // Effect: Sync URL code param -> Selected Endpoint (route is source of truth for code)
         effect(() => {
             const params = this._queryParamMap();
-            const codeParam = params?.get('code');
+            const codeParam = params?.get('code')?.trim();
             if (!codeParam) {
                 this._openedCodeFromUrl = null;
                 return;
             }
-            const isoParam = params?.get('country');
+            const isoParam = params?.get('country')?.trim().toLowerCase() || null;
             const selectedCountry = this._postmanService.selectedCountry();
-            const selectedIso = countryNameToIso(selectedCountry);
+            const selectedIso = countryNameToIso(selectedCountry)?.toLowerCase() || null;
             if (isoParam && selectedIso && isoParam !== selectedIso) {
                 return;
             }
@@ -895,7 +895,7 @@ export class PostmanComponent {
         // Effect: Sync URL country param -> selectedCountry, then load that slim catalog.
         effect(() => {
             const params = this._queryParamMap();
-            const isoParam = params?.get('country');
+            const isoParam = params?.get('country')?.trim().toLowerCase() || null;
             const countryRows = this._postmanService.catalogCountries();
             const catalogEndpoints = countryRows.map((row) => ({ country: row.country }) as ApiEndpoint);
 
@@ -931,9 +931,9 @@ export class PostmanComponent {
             }
 
             const currentParams = this._queryParamMap();
-            const desiredCountryIso = countryNameToIso(selected.country);
-            const currentCode = currentParams?.get('code') ?? null;
-            const currentCountry = currentParams?.get('country') ?? null;
+            const desiredCountryIso = countryNameToIso(selected.country)?.toLowerCase() || null;
+            const currentCode = currentParams?.get('code')?.trim() ?? null;
+            const currentCountry = currentParams?.get('country')?.trim().toLowerCase() ?? null;
 
             if (currentCode === selected.code && currentCountry === desiredCountryIso) {
                 return;

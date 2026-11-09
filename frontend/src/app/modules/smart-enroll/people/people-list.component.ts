@@ -17,15 +17,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import { SMART_ENROLL_PROJECT_TYPE } from '../biometrics/biometrics.constants';
-import type { Person } from '../biometrics/people.types';
 import { PeopleService } from '../biometrics/people.service';
+import type { Person } from '../biometrics/people.types';
 import {
     BIOMETRICS_CONFIRM_DIALOG_PANEL_CLASS,
     BiometricsConfirmDialogComponent,
@@ -33,8 +33,8 @@ import {
 } from '../shared/biometrics-confirm-dialog.component';
 import { BiometricsPeopleTableComponent } from '../shared/biometrics-people-table.component';
 import {
-    EditPersonDialogComponent,
     EDIT_PERSON_DIALOG_PANEL_CLASS,
+    EditPersonDialogComponent,
 } from '../shared/edit-person-dialog.component';
 
 export type PeopleScopeFilter = 'onboarding' | 'all';
@@ -197,13 +197,40 @@ export class PeopleListComponent implements OnInit, OnDestroy {
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (!result || result.action !== 'update') return;
-            this.loading.set(true);
-            this._peopleService.updatePerson(result.person).subscribe({
-                next: () => this._fetchRecords(),
-                error: () => this._showError('smartEnrollPeople.updateError'),
-                complete: () => this.loading.set(false),
-            });
+            if (!result) return;
+
+            if (result.action === 'updated') {
+                this._snackBar.open(
+                    this._transloco.translate('smartEnrollPeople.updateSuccess'),
+                    this._transloco.translate('close'),
+                    { duration: 4000 }
+                );
+                this._fetchRecords();
+                return;
+            }
+
+            if (result.action === 'update') {
+                this.loading.set(true);
+                this._peopleService.updatePerson(result.person).subscribe({
+                    next: () => {
+                        this._snackBar.open(
+                            this._transloco.translate('smartEnrollPeople.updateSuccess'),
+                            this._transloco.translate('close'),
+                            { duration: 4000 }
+                        );
+                        this._fetchRecords();
+                    },
+                    error: (err) => {
+                        const message =
+                            err?.error?.message ||
+                            this._transloco.translate('smartEnrollPeople.updateError');
+                        this._snackBar.open(message, this._transloco.translate('close'), {
+                            duration: 5000,
+                        });
+                    },
+                    complete: () => this.loading.set(false),
+                });
+            }
         });
     }
 
@@ -283,13 +310,18 @@ export class PeopleListComponent implements OnInit, OnDestroy {
     }
 
     triggerImageUpload(): void {
-        if (!this.disableActions && this.scopeFilter === 'onboarding') this.imageInput?.nativeElement.click();
+        if (!this.disableActions && this.scopeFilter === 'onboarding')
+            this.imageInput?.nativeElement.click();
     }
 
     private _fetchRecords(): void {
         this.loading.set(true);
         const params: Record<string, unknown> = this.selectedImagePreview
-            ? { image: this.selectedImagePreview, searchMode: this.searchMode, minScore: this.minScore }
+            ? {
+                  image: this.selectedImagePreview,
+                  searchMode: this.searchMode,
+                  minScore: this.minScore,
+              }
             : {};
 
         const request$ =
@@ -324,7 +356,10 @@ export class PeopleListComponent implements OnInit, OnDestroy {
         });
     }
 
-    private _showCreateError(err: { error?: { code?: string; message?: string } }, isLiveness: boolean): void {
+    private _showCreateError(
+        err: { error?: { code?: string; message?: string } },
+        isLiveness: boolean
+    ): void {
         const message = err?.error?.message || '';
         const code = err?.error?.code || '';
 

@@ -267,6 +267,7 @@
         "searchingHint": "VISITA가 출처를 선택합니다. 엔드포인트를 고를 필요가 없습니다.",
         "inputRequired": "계속하려면 값을 입력하세요.",
         "consultFailed": "조회에 실패했습니다. 값을 확인한 뒤 다시 시도하세요.",
+        "endpointsNotInAccount": "이 조회를 실행할 수 없습니다. 계정에 다음 엔드포인트가 없습니다: {{codes}}.",
         "noResults": "이 값에 대한 정보를 찾지 못했습니다.",
         "continueToReport": "보고서에 포함",
         "newConsultation": "새 조회",
@@ -438,11 +439,102 @@
         "flowShowLibrary": "엔드포인트 표시",
         "flowHideConfig": "설정 숨기기",
         "flowShowConfig": "설정 표시",
+        "endpointInfoOpen": "정보",
+        "endpointInfoKicker": "엔드포인트 정보",
+        "endpointInfoCost": "비용",
+        "endpointInfoPurpose": "용도",
+        "endpointInfoNoPurpose": "설명이 없습니다.",
+        "endpointInfoInput": "입력",
+        "endpointInfoOutput": "응답",
+        "endpointInfoViewSample": "예시 보기",
+        "endpointInfoHideSample": "예시 숨기기",
+        "endpointInfoTypeText": "텍스트",
+        "endpointInfoTypeNumber": "숫자",
+        "endpointInfoTypeBoolean": "예/아니오",
+        "endpointInfoTypeList": "목록",
+        "endpointInfoTypeObject": "객체",
+        "endpointInfoCredits": "{{cost}} 크레딧",
+        "endpointInfoSource": "출처 · {{name}}",
+        "endpointInfoSourcePlain": "출처",
+        "endpointInfoSends": "보내는 값",
+        "endpointInfoApiLead": "API 직접 호출 예시",
+        "endpointInfoApiHint": "흐름 밖에서 이 엔드포인트를 HTTP로 호출하는 방법입니다.",
+        "endpointInfoDocsOfficial": "공식 문서 보기",
+        "endpointInfoCopyCode": "코드 복사",
+        "endpointInfoParameter": "매개변수",
+        "endpointInfoRequirement": "요건",
+        "endpointInfoAllowed": "허용 값 / 형식",
+        "endpointInfoRequiredBadge": "필수",
+        "endpointInfoConditional": "조건부",
+        "endpointInfoTypeDate": "날짜",
+        "endpointInfoMoreAlternatives": "다른 방법",
+        "endpointInfoHideAlternatives": "다른 방법 숨기기",
+        "endpointInfoMoreValues": "+{{count}}",
+        "endpointInfoModeNameSearch": "옵션 {{letter}} — 전체 이름으로 검색",
+        "endpointInfoModeDocumentSearch": "옵션 {{letter}} — 문서로 검색",
+        "endpointInfoModePlateSearch": "옵션 {{letter}} — 번호판으로 검색",
+        "endpointInfoModeVinSearch": "옵션 {{letter}} — VIN으로 검색",
+        "endpointInfoModeGeneric": "옵션 {{letter}}",
+        "endpointInfoModeNameHint": "전체 이름으로 조회합니다.",
+        "endpointInfoModeDocumentHint": "문서 유형과 번호로 조회합니다.",
+        "endpointInfoModePlateHint": "차량 번호판으로 조회합니다.",
+        "endpointInfoModeVinHint": "VIN으로 조회합니다.",
+        "endpointInfoDesign": "디자인에서",
+        "endpointInfoDesignHint": "보고서 디자인에 넣었을 때의 데이터 블록입니다.",
+        "endpointInfoDesignMore": "이 블록에는 필드가 {{count}}개 더 있습니다.",
+        "endpointInfoSampleText": "텍스트",
+        "endpointInfoSummary": "요약",
+        "endpointInfoParams": "입력 매개변수",
+        "endpointInfoResponse": "응답 예시",
+        "endpointInfoApi": "API 예시",
+        "endpointInfoTry": "엔드포인트 테스트",
+        "endpointInfoDocs": "문서",
+        "endpointInfoCountry": "국가",
+        "endpointInfoCategory": "범주",
+        "endpointInfoStatus": "상태",
+        "endpointInfoMethod": "메서드",
+        "endpointInfoShape": "이 조회는 {{shape}}을(를) 반환합니다.",
+        "endpointInfoShapeList": "레코드 목록",
+        "endpointInfoShapeNested": "중첩 목록이 있는 객체",
+        "endpointInfoShapeObject": "단일 레코드",
+        "endpointInfoQueryMode": "조회 방식",
+        "endpointInfoModeAll": "모든 필드",
+        "endpointInfoModeName": "이름으로",
+        "endpointInfoModeDocument": "문서로",
+        "endpointInfoNoParams": "이 엔드포인트는 입력 매개변수를 선언하지 않습니다.",
+        "endpointInfoRequired": "필수",
+        "endpointInfoOptional": "선택",
+        "endpointInfoNoSample": "문서에 예시 JSON이 없습니다.",
+        "endpointInfoField": "필드",
+        "endpointInfoType": "데이터 형식",
+        "endpointInfoDescription": "설명",
+        "endpointInfoExample": "예시",
+        "endpointInfoTokenHint": "코드의 <token>은 자리 표시자입니다. 앱 안의 테스트는 세션을 사용하며 자격 증명을 표시하지 않습니다.",
+        "endpointInfoTryHint": "데이터를 입력하고 조회를 실행하세요. 표시된 비용이 사용될 수 있습니다.",
+        "endpointInfoTryMissing": "필수 항목이 없습니다.",
+        "endpointInfoTryRun": "엔드포인트 테스트",
+        "endpointInfoTryStatus": "상태",
+        "endpointInfoDocsMissing": "이 엔드포인트의 문서가 로드되지 않았습니다.",
+        "endpointInfoOpenDocs": "문서 열기",
+        "endpointInfoOpenPostman": "Postman에서 열기",
+        "endpointInfoCopy": "복사",
+        "endpointInfoCopied": "복사됨",
+        "endpointInfoClose": "닫기",
+        "endpointInfoAdd": "이 프로젝트에 추가",
+        "endpointInfoTryGo": "Postman에서 테스트",
+        "endpointInfoModesHint": "이 조회는 여러 방식으로 할 수 있습니다. 흐름에서 하나를 고릅니다.",
+        "endpointInfoModeLetter": "옵션 {{letter}}",
+        "endpointInfoHidden": "비공개",
+        "endpointInfoAvailable": "사용 가능",
         "flowCanvas": "플로우 캔버스",
         "flowConfig": "설정",
         "flowWiresHint": "시작에서 같은 필드를 여러 블록으로 보낼 수 있습니다. 한 블록의 초록 출력을 다음 블록의 회색 입력으로 드래그할 수도 있습니다.",
         "flowDeleteWire": "연결 삭제",
         "flowInputs": "입력",
+        "flowQueryMode": "조회 방식",
+        "flowQueryModeHint": "하나를 고르면 흐름은 그 방식의 데이터만 요청합니다.",
+        "flowQueryOption": "옵션 {{letter}}",
+        "flowQueryWhen": "{{when}}이(가) {{values}}일 때 필수",
         "flowOutputs": "출력",
         "flowAskUser": "플로우 시작 시 묻기",
         "flowFromStart": "플로우 입력",
@@ -748,7 +840,7 @@
         "layoutTableCellColor": "셀 글자",
         "explainer": {
             "currentSetupLabel": "Current setup",
-            "eyebrow_intent": "STEP 01 · GOAL",
+            "eyebrow_intent": "GOAL",
             "eyebrow_country": "GEOGRAPHY · OFFICIAL SOURCES",
             "eyebrow_entity": "SUBJECT TYPE · VERIFICATION TARGET",
             "eyebrow_mode": "EXECUTION MODE · SINGLE OR BATCH",
@@ -1333,6 +1425,7 @@
         "pageOf": "{{total}}페이지 중 {{current}}페이지",
         "sectionShape": "도형",
         "sheetTable": "표",
+        "sheetTableOf": "{{name}} 표",
         "createSignature": "새 서명 만들기",
         "signatureTabDraw": "그리기",
         "signatureTabType": "입력",
@@ -3033,6 +3126,7 @@
         "noCollectionsAvailable": "사용 가능한 컬렉션이 없습니다",
         "getError": "사람 로드 실패",
         "updateError": "사람 업데이트 실패",
+        "updateSuccess": "사람 정보가 성공적으로 업데이트되었습니다",
         "deleteError": "사람 삭제 실패",
         "imageSizeError": "이미지는 5MB 이하여야 합니다",
         "collections": "컬렉션",
@@ -9688,6 +9782,7 @@
         "resuming": "재개 중...",
         "resumeFailed": "실행을 재개할 수 없습니다. 다시 시도하세요.",
         "startFailed": "실행을 시작할 수 없습니다. 다시 시도하세요.",
+        "endpointsNotInAccount": "이 조회를 실행할 수 없습니다. 계정에 다음 엔드포인트가 없습니다: {{codes}}.",
         "resumed": "재개됨",
         "runQueued": "실행이 대기열에 추가되었습니다. 처리는 서버에서 계속되므로 이 탭을 닫아도 됩니다.",
         "runInTab": "이 탭에서 시작했습니다. 배치가 끝날 때까지 열어 두세요.",
@@ -10001,80 +10096,22 @@
                 "일반: 가용성에 영향 없는 일반 문의."
             ],
             "responseTitle": "응답 시간",
-            "responseHeaders": [
-                "심각도",
-                "접수",
-                "검토",
-                "에스컬레이션",
-                "해결"
-            ],
+            "responseHeaders": ["심각도", "접수", "검토", "에스컬레이션", "해결"],
             "responseRows": {
-                "critical": [
-                    "치명",
-                    "0.5시간",
-                    "0.5시간",
-                    "15분",
-                    "48시간"
-                ],
-                "urgent": [
-                    "긴급",
-                    "0.5시간",
-                    "0.5시간",
-                    "15분",
-                    "48시간"
-                ],
-                "medium": [
-                    "중간",
-                    "1시간",
-                    "1시간",
-                    "0.5시간",
-                    "96시간"
-                ],
-                "normal": [
-                    "일반",
-                    "1시간",
-                    "1시간",
-                    "0.5시간",
-                    "96시간"
-                ]
+                "critical": ["치명", "0.5시간", "0.5시간", "15분", "48시간"],
+                "urgent": ["긴급", "0.5시간", "0.5시간", "15분", "48시간"],
+                "medium": ["중간", "1시간", "1시간", "0.5시간", "96시간"],
+                "normal": ["일반", "1시간", "1시간", "0.5시간", "96시간"]
             },
             "availabilityTitle": "플랫폼 가용성",
-            "availabilityHeaders": [
-                "제품",
-                "가용성",
-                "비고"
-            ],
+            "availabilityHeaders": ["제품", "가용성", "비고"],
             "availabilityRows": {
-                "smartCheck": [
-                    "SmartCheck",
-                    "90.0%",
-                    "DB Screening — 정부 소스에 의존"
-                ],
-                "smartAccessComm": [
-                    "SmartAccess(이메일/전화)",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess(생체인증)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll(이메일/전화)",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll(생체인증)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll(문서 스캔)",
-                    "98.0%",
-                    ""
-                ],
+                "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 정부 소스에 의존"],
+                "smartAccessComm": ["SmartAccess(이메일/전화)", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess(생체인증)", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll(이메일/전화)", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll(생체인증)", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll(문서 스캔)", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll(DB Screening)",
                     "90.0%",
@@ -10091,66 +10128,32 @@
             "responseNote": "참고: 48시간은 사건 복잡도에 따라 최대 48시간이 소요될 수 있음을 의미합니다. 응답 시간은 사용자의 마지막 메시지부터 계산됩니다.",
             "compensationTitle": "다운타임 보상",
             "compensationIntro": "영향을 받은 달에는 무효 서비스 호출 비용에 상응하는 크레딧 보상이 제공됩니다. Verifik 내부 문제(DB, 서버, 내부 API)로 인한 중단이 효과적으로 해결되지 않으면 다음과 같이 보상합니다:",
-            "compensationHeaders": [
-                "서비스 가용성",
-                "크레딧 보상",
-                "제품"
-            ],
+            "compensationHeaders": ["서비스 가용성", "크레딧 보상", "제품"],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% 이상",
-                    "보상 없음",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% 이하",
-                    "보상",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% 이상", "보상 없음", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% 이하", "보상", "SmartCheck"],
                 "emailTelHigh": [
                     "이메일/전화 — 99.00% 이상",
                     "보상 없음",
                     "SmartAccess, SmartEnroll"
                 ],
-                "emailTelLow": [
-                    "이메일/전화 — 98.99% 이하",
-                    "보상",
-                    "SmartAccess, SmartEnroll"
-                ],
+                "emailTelLow": ["이메일/전화 — 98.99% 이하", "보상", "SmartAccess, SmartEnroll"],
                 "biometricsHigh": [
                     "생체인증 — 99.00% 이상",
                     "보상 없음",
                     "SmartAccess, SmartEnroll"
                 ],
-                "biometricsLow": [
-                    "생체인증 — 98.99% 이하",
-                    "보상",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "docScanHigh": [
-                    "문서 스캔 — 99.00% 이상",
-                    "보상 없음",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "docScanLow": [
-                    "문서 스캔 — 98.99% 이하",
-                    "보상",
-                    "SmartAccess, SmartEnroll"
-                ]
+                "biometricsLow": ["생체인증 — 98.99% 이하", "보상", "SmartAccess, SmartEnroll"],
+                "docScanHigh": ["문서 스캔 — 99.00% 이상", "보상 없음", "SmartAccess, SmartEnroll"],
+                "docScanLow": ["문서 스캔 — 98.99% 이하", "보상", "SmartAccess, SmartEnroll"]
             },
             "compensationDisclaimer": "DB Screening 내부 문제에는 불가항력(마이그레이션, 연결 해제, 정부 외부 개입)이 포함되지 않습니다. Verifik는 중개자이며 조회하는 정부 DB를 통제·갱신하지 않습니다.",
             "billingTitle": "SmartCheck 과금 방식",
             "billingIntro": "본 방식은 smartCHECK(정부 DB 조회)에 적용됩니다. Verifik는 해당 국가 정부 DB의 소유·관리 주체가 아니며, 응답 시간·평균 가동률·데이터 정확성을 보장하지 않습니다.",
             "billingTableTitle": "과금/비과금 HTTP 코드",
-            "billingHeaders": [
-                "과금",
-                "비과금"
-            ],
+            "billingHeaders": ["과금", "비과금"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "예정 유지보수",
             "maintenance": "예정 유지보수는 야간 및 주말에 진행되며 사전 이메일로 안내됩니다.",

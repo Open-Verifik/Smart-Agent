@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
-import { map, Observable, tap } from 'rxjs';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import type { ReportChartBreakdown, ReportChartKind, ReportChartPalette } from './report-chart.util';
 import type { ReportCustomFont, ReportFontWeight } from './report-fonts.util';
 import type { ReportValueRule } from './report-value-rules.util';
@@ -500,6 +500,154 @@ const SYSTEM_TEMPLATE_FIELDS = [
     'presetSteps',
 ] as const;
 
+export const TEMPLATE_WRITE_KEYS = [
+    'name',
+    'description',
+    'type',
+    'systemKey',
+    'country',
+    'category',
+    'tier',
+    'nameKey',
+    'descriptionKey',
+    'presetSteps',
+    'batchConfiguration',
+    'logo',
+    'primaryColor',
+    'identityColor',
+    'pageBackgroundColor',
+    'header',
+    'footer',
+    'legend',
+    'legendPosition',
+    'termsAndConditions',
+    'termsPosition',
+    'sections',
+    'pageSize',
+    'orientation',
+    'margins',
+    'pdfEngine',
+    'showPageNumbers',
+    'pageNumberPosition',
+    'pageNumberDivider',
+    'watermark',
+    'security',
+    'signature',
+    'logoSettings',
+    'sheetImages',
+    'customFonts',
+    'headerLogos',
+    'bodyTopPadding',
+    'layoutLayerFlags',
+    'layoutOverlayZ',
+    'sampleData',
+    'endpointDesign',
+    'isActive',
+] as const;
+
+export const SECTION_ALLOWED_KEYS = new Set([
+    'id',
+    'type',
+    'order',
+    'dataPath',
+    'label',
+    'layerName',
+    'staticContent',
+    'columns',
+    'maxColumns',
+    'maxRows',
+    'columnsPerRow',
+    'hiddenKeys',
+    'keyOrder',
+    'showRowLines',
+    'rowLineStyle',
+    'rowLineColor',
+    'rowLineWidth',
+    'rowLineMark',
+    'keyOverrides',
+    'valueRules',
+    'ruleField',
+    'ruleColumnKey',
+    'ruleRulesSectionId',
+    'ruleTableMode',
+    'frame',
+    'itemTitle',
+    'itemTemplate',
+    'linkToSectionId',
+    'linkUrl',
+    'pairLayout',
+    'chartKind',
+    'chartPalette',
+    'chartBreakdown',
+    'chartKeys',
+    'chartColors',
+    'blockIds',
+    'showDisplayRows',
+    'showWhenEmpty',
+    'emptyMessage',
+    'shape',
+    'iconSvg',
+    'iconName',
+    'iconKeepColors',
+    'x',
+    'y',
+    'width',
+    'height',
+    'page',
+    'style',
+    'condition',
+    'customCells',
+    'statusRules',
+    'config',
+    'cellOverrides',
+]);
+
+export const FRAME_ALLOWED_KEYS = new Set([
+    'x',
+    'y',
+    'width',
+    'height',
+    'page',
+    'minHeight',
+    'fixedBox',
+]);
+
+/** Sanitize a section removing transient/runtime-only properties */
+export const sanitizeSectionForApi = (section: Partial<ReportSection>): Partial<ReportSection> => {
+    if (!section || typeof section !== 'object') return section;
+    const sec = { ...section } as Record<string, unknown>;
+
+    for (const key of Object.keys(sec)) {
+        if (!SECTION_ALLOWED_KEYS.has(key)) {
+            delete sec[key];
+        }
+    }
+
+    if (sec['frame'] && typeof sec['frame'] === 'object') {
+        const frame = { ...(sec['frame'] as Record<string, unknown>) };
+        for (const fKey of Object.keys(frame)) {
+            if (!FRAME_ALLOWED_KEYS.has(fKey)) {
+                delete frame[fKey];
+            }
+        }
+        sec['frame'] = frame as unknown as ReportSectionFrame;
+    }
+
+    if (sec['style'] && typeof sec['style'] === 'object') {
+        const style = { ...(sec['style'] as Record<string, unknown>) };
+        delete style['isDragging'];
+        delete style['selected'];
+        delete style['active'];
+        delete style['hovered'];
+        delete style['preview'];
+        delete style['dragging'];
+        delete style['resizing'];
+        sec['style'] = style as unknown as ReportSection['style'];
+    }
+
+    return sec as Partial<ReportSection>;
+};
+
 /** Drop fields the template API rejects on write. */
 export const sanitizeTemplateForApi = (
     template: Partial<SmartReportTemplate>,
@@ -541,7 +689,112 @@ export const sanitizeTemplateForApi = (
         }
     }
 
+    // Retain only valid top-level write keys
+    const allowedKeys = new Set<string>(TEMPLATE_WRITE_KEYS);
+    for (const key of Object.keys(payload)) {
+        if (!allowedKeys.has(key)) {
+            delete (payload as Record<string, unknown>)[key];
+        }
+    }
+
+    // Sanitize nested sections, header, and footer
+    if (Array.isArray(payload.sections)) {
+        payload.sections = payload.sections.map((s) => sanitizeSectionForApi(s) as ReportSection);
+    }
+    if (payload.header && typeof payload.header === 'object') {
+        payload.header = sanitizeSectionForApi(payload.header) as ReportSection;
+    }
+    if (payload.footer && typeof payload.footer === 'object') {
+        payload.footer = sanitizeSectionForApi(payload.footer) as ReportSection;
+    }
+
     return payload;
+};
+
+/** Extract disallowed field names from a 400/409 backend validation error message */
+export const extractDisallowedFields = (errorOrMessage: unknown): string[] => {
+    let text = '';
+    if (typeof errorOrMessage === 'string') {
+        text = errorOrMessage;
+    } else if (errorOrMessage && typeof errorOrMessage === 'object') {
+        const err = errorOrMessage as Record<string, unknown>;
+        if (typeof err['error'] === 'string') {
+            text = err['error'];
+        } else if (err['error'] && typeof err['error'] === 'object') {
+            const nested = err['error'] as Record<string, unknown>;
+            if (typeof nested['message'] === 'string') {
+                text = nested['message'];
+            }
+        }
+        if (!text && typeof err['message'] === 'string') {
+            text = err['message'];
+        }
+    }
+
+    if (!text || typeof text !== 'string') return [];
+
+    const fields: string[] = [];
+    const regex = /["'\\]*([^"'\s\\]+)["'\\]*\s+is not allowed/gi;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(text)) !== null) {
+        if (match[1]) {
+            fields.push(match[1]);
+        }
+    }
+    return Array.from(new Set(fields));
+};
+
+/** Omit a disallowed property path from a payload object */
+export const omitDisallowedPath = (obj: any, path: string): boolean => {
+    if (!obj || typeof obj !== 'object' || !path) return false;
+
+    if (Object.prototype.hasOwnProperty.call(obj, path)) {
+        delete obj[path];
+        return true;
+    }
+
+    const parts = path.replace(/\[(\w+)\]/g, '.$1').split('.');
+    if (parts.length === 1) {
+        if (parts[0] in obj) {
+            delete obj[parts[0]];
+            return true;
+        }
+        let removed = false;
+        if (Array.isArray(obj.sections)) {
+            for (const section of obj.sections) {
+                if (section && typeof section === 'object') {
+                    if (path in section) {
+                        delete section[path];
+                        removed = true;
+                    }
+                    if (section.frame && typeof section.frame === 'object' && path in section.frame) {
+                        delete section.frame[path];
+                        removed = true;
+                    }
+                    if (section.style && typeof section.style === 'object' && path in section.style) {
+                        delete section.style[path];
+                        removed = true;
+                    }
+                }
+            }
+        }
+        return removed;
+    }
+
+    let current: any = obj;
+    for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (current == null || typeof current !== 'object') return false;
+        current = current[part];
+    }
+    if (current && typeof current === 'object') {
+        const lastPart = parts[parts.length - 1];
+        if (lastPart in current) {
+            delete current[lastPart];
+            return true;
+        }
+    }
+    return false;
 };
 
 export const cloneReportValue = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -712,32 +965,72 @@ export class SmartReportService {
     }
 
     createTemplate(template: Partial<SmartReportTemplate>): Observable<SmartReportTemplate> {
-        return this._httpClient
-            .post<{
+        const payload = sanitizeTemplateForApi(template, 'create');
+        const execute = (body: Partial<SmartReportTemplate>) =>
+            this._httpClient.post<{
                 data: SmartReportTemplate;
-            }>(`${environment.apiUrl}/v2/smart-report-templates`, sanitizeTemplateForApi(template, 'create'))
-            .pipe(
-                map((res) => res.data),
-                tap((newTemplate) => {
-                    this.templates.update((list) => [newTemplate, ...list]);
-                })
-            );
+            }>(`${environment.apiUrl}/v2/smart-report-templates`, body);
+
+        return execute(payload).pipe(
+            catchError((err: any) => {
+                if (err?.status === 400 || err?.status === 409) {
+                    const disallowed = extractDisallowedFields(err);
+                    if (disallowed.length > 0) {
+                        const fallbackPayload = cloneReportValue(payload);
+                        let modified = false;
+                        for (const field of disallowed) {
+                            if (omitDisallowedPath(fallbackPayload, field)) {
+                                modified = true;
+                            }
+                        }
+                        if (modified) {
+                            return execute(fallbackPayload);
+                        }
+                    }
+                }
+                return throwError(() => err);
+            }),
+            map((res) => res.data),
+            tap((newTemplate) => {
+                this.templates.update((list) => [newTemplate, ...list]);
+            })
+        );
     }
 
     updateTemplate(
         id: string,
         template: Partial<SmartReportTemplate>
     ): Observable<SmartReportTemplate> {
-        return this._httpClient
-            .put<{
+        const payload = sanitizeTemplateForApi(template, 'update');
+        const execute = (body: Partial<SmartReportTemplate>) =>
+            this._httpClient.put<{
                 data: SmartReportTemplate;
-            }>(`${environment.apiUrl}/v2/smart-report-templates/${id}`, sanitizeTemplateForApi(template, 'update'))
-            .pipe(
-                map((res) => res.data),
-                tap((updated) => {
-                    this.templates.update((list) => list.map((t) => (t._id === id ? updated : t)));
-                })
-            );
+            }>(`${environment.apiUrl}/v2/smart-report-templates/${id}`, body);
+
+        return execute(payload).pipe(
+            catchError((err: any) => {
+                if (err?.status === 400 || err?.status === 409) {
+                    const disallowed = extractDisallowedFields(err);
+                    if (disallowed.length > 0) {
+                        const fallbackPayload = cloneReportValue(payload);
+                        let modified = false;
+                        for (const field of disallowed) {
+                            if (omitDisallowedPath(fallbackPayload, field)) {
+                                modified = true;
+                            }
+                        }
+                        if (modified) {
+                            return execute(fallbackPayload);
+                        }
+                    }
+                }
+                return throwError(() => err);
+            }),
+            map((res) => res.data),
+            tap((updated) => {
+                this.templates.update((list) => list.map((t) => (t._id === id ? updated : t)));
+            })
+        );
     }
 
     deleteTemplate(id: string): Observable<any> {

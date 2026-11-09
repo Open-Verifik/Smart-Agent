@@ -35,6 +35,7 @@ import {
 import { getStepDisplayFields } from '../../step-result-presenters/registry';
 import { inferBatchCategory, SmartBatchInputModeService } from '../../smart-batch-input-mode.service';
 import { BatchExecutorControlComponent } from '../../batch-executor-control.component';
+import { endpointsNotInAccountCodes } from '../../account-endpoint-access.util';
 import { BatchBrowserRunnerService } from '../../batch-browser-runner.service';
 
 type RowFilter = 'all' | 'pending' | 'completed' | 'failed' | 'partial';
@@ -947,8 +948,25 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         );
     }
 
+    rowErrorMessage(error: { message?: string; code?: string }): string {
+        const codes = endpointsNotInAccountCodes(error.message || '');
+        if (codes || error.code === 'endpoints_not_in_account') {
+            return this._transloco.translate('batchProcessing.endpointsNotInAccount', { codes: codes || '' });
+        }
+        return error.message || '';
+    }
+
     private _reportFailure(key: string, error: unknown): void {
         console.error(key, error);
+        const missingEndpoints = endpointsNotInAccountCodes(error);
+        if (missingEndpoints) {
+            this._snack.open(
+                this._transloco.translate('batchProcessing.endpointsNotInAccount', { codes: missingEndpoints }),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 7000 }
+            );
+            return;
+        }
         const body = (error as { error?: { message?: string; code?: string } })?.error;
         const detail = body?.message || body?.code;
 

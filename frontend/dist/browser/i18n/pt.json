@@ -267,6 +267,7 @@
         "searchingHint": "Consultamos apenas as fontes que você escolheu.",
         "inputRequired": "Informe o dado para continuar.",
         "consultFailed": "Não foi possível concluir a consulta. Verifique o dado e tente novamente.",
+        "endpointsNotInAccount": "Não é possível fazer esta consulta porque a sua conta não tem estes endpoints: {{codes}}.",
         "noResults": "Não encontramos informações para este dado.",
         "continueToReport": "Incluir isto em um relatório",
         "newConsultation": "Nova consulta",
@@ -438,11 +439,102 @@
         "flowShowLibrary": "Mostrar endpoints",
         "flowHideConfig": "Ocultar configuração",
         "flowShowConfig": "Mostrar configuração",
+        "endpointInfoOpen": "Ficha",
+        "endpointInfoKicker": "Ficha do endpoint",
+        "endpointInfoCost": "Custo",
+        "endpointInfoPurpose": "Para que serve",
+        "endpointInfoNoPurpose": "Sem descrição.",
+        "endpointInfoInput": "Entrada",
+        "endpointInfoOutput": "Resposta",
+        "endpointInfoViewSample": "Ver exemplo",
+        "endpointInfoHideSample": "Ocultar exemplo",
+        "endpointInfoTypeText": "texto",
+        "endpointInfoTypeNumber": "número",
+        "endpointInfoTypeBoolean": "sim/não",
+        "endpointInfoTypeList": "lista",
+        "endpointInfoTypeObject": "objeto",
+        "endpointInfoCredits": "{{cost}} créditos",
+        "endpointInfoSource": "Fonte · {{name}}",
+        "endpointInfoSourcePlain": "Fonte",
+        "endpointInfoSends": "O que envia",
+        "endpointInfoApiLead": "Exemplos de chamada direta pela API",
+        "endpointInfoApiHint": "Assim se consome este endpoint por HTTP, fora do fluxo.",
+        "endpointInfoDocsOfficial": "Ler documentação oficial",
+        "endpointInfoCopyCode": "Copiar código",
+        "endpointInfoParameter": "Parâmetro",
+        "endpointInfoRequirement": "Requisito",
+        "endpointInfoAllowed": "Valores permitidos / formato",
+        "endpointInfoRequiredBadge": "Obrigatório",
+        "endpointInfoConditional": "Condicional",
+        "endpointInfoTypeDate": "Data",
+        "endpointInfoMoreAlternatives": "Mais alternativas",
+        "endpointInfoHideAlternatives": "Ocultar alternativas",
+        "endpointInfoMoreValues": "+{{count}} mais",
+        "endpointInfoModeNameSearch": "Opção {{letter}} — Busca por nome completo",
+        "endpointInfoModeDocumentSearch": "Opção {{letter}} — Busca por documento",
+        "endpointInfoModePlateSearch": "Opção {{letter}} — Busca por placa",
+        "endpointInfoModeVinSearch": "Opção {{letter}} — Busca por VIN",
+        "endpointInfoModeGeneric": "Opção {{letter}}",
+        "endpointInfoModeNameHint": "Consulta pelo nome completo.",
+        "endpointInfoModeDocumentHint": "Consulta pelo tipo e número do documento.",
+        "endpointInfoModePlateHint": "Consulta pela placa do veículo.",
+        "endpointInfoModeVinHint": "Consulta pelo VIN do veículo.",
+        "endpointInfoDesign": "No design",
+        "endpointInfoDesignHint": "Assim ficaria o bloco de dados ao adicioná-lo ao design do relatório.",
+        "endpointInfoDesignMore": "O bloco inclui mais {{count}} campos.",
+        "endpointInfoSampleText": "Texto",
+        "endpointInfoSummary": "Resumo",
+        "endpointInfoParams": "Parâmetros de entrada",
+        "endpointInfoResponse": "Resposta de exemplo",
+        "endpointInfoApi": "Exemplo de API",
+        "endpointInfoTry": "Testar endpoint",
+        "endpointInfoDocs": "Documentação",
+        "endpointInfoCountry": "País",
+        "endpointInfoCategory": "Categoria",
+        "endpointInfoStatus": "Estado",
+        "endpointInfoMethod": "Método",
+        "endpointInfoShape": "Esta consulta devolve {{shape}}.",
+        "endpointInfoShapeList": "uma lista de registros",
+        "endpointInfoShapeNested": "objetos com listas aninhadas",
+        "endpointInfoShapeObject": "um registro",
+        "endpointInfoQueryMode": "Forma de consulta",
+        "endpointInfoModeAll": "Todos os campos",
+        "endpointInfoModeName": "Por nome",
+        "endpointInfoModeDocument": "Por documento",
+        "endpointInfoNoParams": "Este endpoint não declara parâmetros de entrada.",
+        "endpointInfoRequired": "Obrigatório",
+        "endpointInfoOptional": "Opcional",
+        "endpointInfoNoSample": "Não há um JSON de exemplo na documentação.",
+        "endpointInfoField": "Campo",
+        "endpointInfoType": "Tipo de dado",
+        "endpointInfoDescription": "Descrição",
+        "endpointInfoExample": "Exemplo",
+        "endpointInfoTokenHint": "O código usa <token> como marcador. O teste no aplicativo usa a sua sessão e não mostra a credencial.",
+        "endpointInfoTryHint": "Preencha os dados e execute a consulta. Ela pode consumir o custo indicado.",
+        "endpointInfoTryMissing": "Faltam campos obrigatórios.",
+        "endpointInfoTryRun": "Testar endpoint",
+        "endpointInfoTryStatus": "Estado",
+        "endpointInfoDocsMissing": "Não há documentação carregada para este endpoint.",
+        "endpointInfoOpenDocs": "Abrir documentação",
+        "endpointInfoOpenPostman": "Abrir no Postman",
+        "endpointInfoCopy": "Copiar",
+        "endpointInfoCopied": "Copiado",
+        "endpointInfoClose": "Fechar",
+        "endpointInfoAdd": "Adicionar a este projeto",
+        "endpointInfoTryGo": "Testar no Postman",
+        "endpointInfoModesHint": "Esta consulta pode ser feita de várias formas. No fluxo você escolhe uma.",
+        "endpointInfoModeLetter": "Opção {{letter}}",
+        "endpointInfoHidden": "Não público",
+        "endpointInfoAvailable": "Disponível",
         "flowCanvas": "Tela do fluxo",
         "flowConfig": "Configuração",
         "flowWiresHint": "A partir de Início você pode enviar o mesmo campo para vários blocos. Você também pode arrastar uma saída verde de um bloco até a entrada cinza do bloco seguinte.",
         "flowDeleteWire": "Excluir conexão",
         "flowInputs": "Entradas",
+        "flowQueryMode": "Forma de consulta",
+        "flowQueryModeHint": "Escolha uma opção. O fluxo só pede os dados dessa forma.",
+        "flowQueryOption": "Opção {{letter}}",
+        "flowQueryWhen": "Obrigatório se {{when}} for {{values}}",
         "flowOutputs": "Saídas",
         "flowAskUser": "Perguntar quando o fluxo começar",
         "flowFromStart": "Entrada do fluxo",
@@ -748,7 +840,7 @@
         "layoutTableCellColor": "Texto das células",
         "explainer": {
             "currentSetupLabel": "Current setup",
-            "eyebrow_intent": "STEP 01 · GOAL",
+            "eyebrow_intent": "GOAL",
             "eyebrow_country": "GEOGRAPHY · OFFICIAL SOURCES",
             "eyebrow_entity": "SUBJECT TYPE · VERIFICATION TARGET",
             "eyebrow_mode": "EXECUTION MODE · SINGLE OR BATCH",
@@ -1333,6 +1425,7 @@
         "pageOf": "Página {{current}} de {{total}}",
         "sectionShape": "Forma",
         "sheetTable": "Tabela",
+        "sheetTableOf": "Tabela de {{name}}",
         "createSignature": "Criar nova assinatura",
         "signatureTabDraw": "Desenhar",
         "signatureTabType": "Digitar",
@@ -3033,6 +3126,7 @@
         "noCollectionsAvailable": "Nenhuma coleção disponível",
         "getError": "Falha ao carregar pessoas",
         "updateError": "Falha ao atualizar pessoa",
+        "updateSuccess": "Pessoa atualizada com sucesso",
         "deleteError": "Falha ao eliminar pessoa",
         "imageSizeError": "A imagem deve ter 5MB ou menos",
         "collections": "Coleções",
@@ -9688,6 +9782,7 @@
         "resuming": "Retomando...",
         "resumeFailed": "Não foi possível retomar a execução. Tente novamente.",
         "startFailed": "Não foi possível iniciar a execução. Tente novamente.",
+        "endpointsNotInAccount": "Não é possível fazer esta consulta porque a sua conta não tem estes endpoints: {{codes}}.",
         "resumed": "Retomado",
         "runQueued": "Execução na fila. O processamento continua no servidor, você pode fechar esta aba.",
         "runInTab": "Iniciado nesta aba. Mantenha-a aberta até o lote terminar.",
@@ -10009,72 +10104,24 @@
                 "Solução"
             ],
             "responseRows": {
-                "critical": [
-                    "Crítico",
-                    "0,5 h",
-                    "0,5 h",
-                    "15 min",
-                    "48 h"
-                ],
-                "urgent": [
-                    "Urgente",
-                    "0,5 h",
-                    "0,5 h",
-                    "15 min",
-                    "48 h"
-                ],
-                "medium": [
-                    "Médio",
-                    "1 h",
-                    "1 h",
-                    "0,5 h",
-                    "96 h"
-                ],
-                "normal": [
-                    "Normal",
-                    "1 h",
-                    "1 h",
-                    "0,5 h",
-                    "96 h"
-                ]
+                "critical": ["Crítico", "0,5 h", "0,5 h", "15 min", "48 h"],
+                "urgent": ["Urgente", "0,5 h", "0,5 h", "15 min", "48 h"],
+                "medium": ["Médio", "1 h", "1 h", "0,5 h", "96 h"],
+                "normal": ["Normal", "1 h", "1 h", "0,5 h", "96 h"]
             },
             "availabilityTitle": "Disponibilidade da plataforma",
-            "availabilityHeaders": [
-                "Produto",
-                "Disponibilidade",
-                "Notas"
-            ],
+            "availabilityHeaders": ["Produto", "Disponibilidade", "Notas"],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90,0%",
                     "DB Screening — depende de fontes governamentais"
                 ],
-                "smartAccessComm": [
-                    "SmartAccess (E-mail/Tel)",
-                    "99,0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess (Biometria)",
-                    "98,0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll (E-mail/Tel)",
-                    "99,0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll (Biometria)",
-                    "98,0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll (Digitalização)",
-                    "98,0%",
-                    ""
-                ],
+                "smartAccessComm": ["SmartAccess (E-mail/Tel)", "99,0%", ""],
+                "smartAccessBio": ["SmartAccess (Biometria)", "98,0%", ""],
+                "smartEnrollComm": ["SmartEnroll (E-mail/Tel)", "99,0%", ""],
+                "smartEnrollBio": ["SmartEnroll (Biometria)", "98,0%", ""],
+                "smartEnrollDoc": ["SmartEnroll (Digitalização)", "98,0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90,0%",
@@ -10097,16 +10144,8 @@
                 "Produto"
             ],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90,0% ou superior",
-                    "Sem crédito",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89,99% ou inferior",
-                    "Compensação",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90,0% ou superior", "Sem crédito", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89,99% ou inferior", "Compensação", "SmartCheck"],
                 "emailTelHigh": [
                     "E-mail/Tel — 99,00% ou superior",
                     "Sem crédito",
@@ -10142,15 +10181,9 @@
             "billingTitle": "Esquema de cobrança SmartCheck",
             "billingIntro": "Este esquema aplica-se ao smartCHECK para consulta de bases governamentais. A Verifik não é proprietária nem responsável por essas bases; portanto não garante tempo de resposta, uptime médio ou precisão dos dados.",
             "billingTableTitle": "Códigos HTTP faturáveis e não faturáveis",
-            "billingHeaders": [
-                "Faturável",
-                "Não faturável"
-            ],
+            "billingHeaders": ["Faturável", "Não faturável"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "Manutenção programada",
             "maintenance": "A manutenção programada ocorre à noite e nos fins de semana, com aviso prévio por e-mail.",

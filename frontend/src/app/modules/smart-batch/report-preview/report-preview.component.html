@@ -30,7 +30,7 @@
             data-report-page
             [attr.data-report-row]="previewData()?.rowIndex"
             [attr.data-report-page-index]="pageIndex"
-            class="mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-none"
+            class="rp-page mx-auto flex shrink-0 flex-col relative overflow-hidden rounded-none"
             [class.shadow-lg]="!thumbnailMode()"
             [style.width]="pageWidthCss()"
             [style.max-width]="pageWidthCss()"
@@ -746,7 +746,7 @@
     height and bin-pack them into pages. Hidden but still laid out so
     getBoundingClientRect returns real values.
 -->
-@if (!thumbnailMode()) {
+@if (!thumbnailMode() && !hasFreeLayout()) {
 <div
     aria-hidden="true"
     class="px-8 sm:px-10 lg:px-12"
@@ -1414,7 +1414,7 @@
                                     [class.cursor-pointer]="clickable() && !reorderable()"
                                     [class.report-move-hand]="showsCellMoveHand(section, entry.key)"
                                     [ngStyle]="rowLineBg(section, entry.key, last)"
-                                    [style.grid-column]="cellGridColumn(section, entry.key)"
+                                    [style.grid-column]="cellGridColumn(section, entry.key, entry.value)"
                                     [style.min-height.px]="cellMinHeight(section, entry.key)"
                                     [style.background-color]="cellBackground(section, entry.key) || null"
                                     [style.border]="cellHasBox(section, entry.key) ? cellBorder(section, entry.key) : null"

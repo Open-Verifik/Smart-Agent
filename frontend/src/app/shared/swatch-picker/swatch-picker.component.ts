@@ -3,9 +3,11 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    EventEmitter,
     Input,
     OnInit,
     Optional,
+    Output,
     Self,
     forwardRef,
     inject,
@@ -36,6 +38,7 @@ export class SwatchPickerComponent implements OnInit, ControlValueAccessor {
     @Input() custom = true;
     @Input() required = false;
     @Input() disabled = false;
+    @Output() colorChange = new EventEmitter<string>();
 
     private _cdr = inject(ChangeDetectorRef);
 
@@ -59,8 +62,10 @@ export class SwatchPickerComponent implements OnInit, ControlValueAccessor {
         if (this.disabled) return;
         this.selectedColor = color;
         this.isCustomSelected = false;
+        this.control?.markAsDirty();
         this._onChange(color);
         this._onTouched();
+        this.colorChange.emit(color);
         this._cdr.markForCheck();
     }
 
@@ -70,8 +75,10 @@ export class SwatchPickerComponent implements OnInit, ControlValueAccessor {
         this.customColor = color;
         this.selectedColor = color;
         this.isCustomSelected = true;
+        this.control?.markAsDirty();
         this._onChange(color);
         this._onTouched();
+        this.colorChange.emit(color);
         this._cdr.markForCheck();
     }
 

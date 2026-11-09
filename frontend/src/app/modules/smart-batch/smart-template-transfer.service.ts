@@ -141,18 +141,18 @@ export class SmartTemplateTransferService {
     }
 
     /**
-     * Creates the consultation first, then the template linked to it. Feature codes are
-     * resolved before anything is written, so a file that cannot be imported leaves no
-     * half-created records behind.
+     * Creates the consultation first, then the template linked to it.
+     * Endpoints the account has not contracted are still saved. The block happens
+     * when someone runs the consultation, not while importing the file.
      */
     async importFile(
         file: SmartTemplateExportFile,
         existing: { templateNames: string[]; configurationNames: string[]; suffix: string }
     ): Promise<TemplateImportResult> {
-        const steps = file.configuration ? await this._resolveSteps(file.configuration.steps) : null;
+        const resolved = file.configuration ? await this._resolveSteps(file.configuration.steps) : null;
         let configurationId: string | null = null;
 
-        if (file.configuration && steps) {
+        if (file.configuration && resolved) {
             const source = file.configuration;
             const payload: BatchConfiguration = {
                 name: this._uniqueName(source.name, existing.configurationNames, existing.suffix, 150),
@@ -161,7 +161,8 @@ export class SmartTemplateTransferService {
                 inputFormat: source.inputFormat || 'csv',
                 outputFormat: source.outputFormat || 'csv',
                 mergeStrategy: source.mergeStrategy || 'sequential',
-                steps,
+                steps: resolved.steps,
+                ...(resolved.unavailable.length ? { unavailableFeatureCodes: resolved.unavailable } : {}),
                 ...(source.executor ? { executor: source.executor } : {}),
             };
 
@@ -258,33 +259,38 @@ export class SmartTemplateTransferService {
         };
     }
 
-    private async _resolveSteps(steps: ExportedBatchStep[]): Promise<BatchStep[]> {
+    private async _resolveSteps(steps: ExportedBatchStep[]): Promise<{ steps: BatchStep[]; unavailable: string[] }> {
         const list = Array.isArray(steps) ? steps.filter((step) => step && typeof step.featureCode === 'string') : [];
         const codes = [...new Set(list.map((step) => step.featureCode))];
         const ids = new Map<string, string>();
 
         await Promise.all(
             codes.map(async (code) => {
-                const feature = (await firstValueFrom(this._batches.getFeatureDetail(code))) as AppFeature | null;
+                const feature = await firstValueFrom(this._batches.lookupFeatureForImport(code));
                 if (feature?._id) ids.set(code, feature._id);
             })
         );
 
-        const missing = codes.filter((code) => !ids.has(code));
+        const unavailable = codes.filter((code) => !ids.has(code));
+        let sequence = 0;
+        const resolvedSteps = list
+            .filter((step) => ids.has(step.featureCode))
+            .map((step) => {
+                sequence += 1;
+                return {
+                    appFeature: ids.get(step.featureCode)!,
+                    sequence: Number(step.sequence) > 0 ? Number(step.sequence) : sequence,
+                    enabled: step.enabled !== false,
+                    parameterDefaults: step.parameterDefaults ?? {},
+                    inputFieldMapping: step.inputFieldMapping ?? {},
+                    outputFieldsToKeep: step.outputFieldsToKeep ?? [],
+                    ...(step.maxRetries != null ? { maxRetries: step.maxRetries } : {}),
+                    ...(step.retryDelayBaseSeconds != null ? { retryDelayBaseSeconds: step.retryDelayBaseSeconds } : {}),
+                    ...(step.timeoutSeconds != null ? { timeoutSeconds: step.timeoutSeconds } : {}),
+                };
+            });
 
-        if (missing.length) throw new TemplateImportError('missingFeatures', missing);
-
-        return list.map((step, index) => ({
-            appFeature: ids.get(step.featureCode)!,
-            sequence: Number(step.sequence) > 0 ? Number(step.sequence) : index + 1,
-            enabled: step.enabled !== false,
-            parameterDefaults: step.parameterDefaults ?? {},
-            inputFieldMapping: step.inputFieldMapping ?? {},
-            outputFieldsToKeep: step.outputFieldsToKeep ?? [],
-            ...(step.maxRetries != null ? { maxRetries: step.maxRetries } : {}),
-            ...(step.retryDelayBaseSeconds != null ? { retryDelayBaseSeconds: step.retryDelayBaseSeconds } : {}),
-            ...(step.timeoutSeconds != null ? { timeoutSeconds: step.timeoutSeconds } : {}),
-        }));
+        return { steps: resolvedSteps, unavailable };
     }
 
     private _uniqueName(name: string, taken: string[], suffix: string, maxLength: number): string {

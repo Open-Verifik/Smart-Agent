@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { STRICT_URL_PATTERN } from 'app/shared/validators/validation-patterns';
+import { EnrollmentBlocker, enrollmentBlockers } from '../../../enrollment-client.util';
 import { SetupService } from '../../setup.service';
 
 /**
@@ -60,6 +61,23 @@ export class SetupIntegrationsComponent implements OnInit {
 
     ngOnInit(): void {
         this._requestWebhooks();
+        if (this.enrollmentBlocked && this.enrollmentClientControl?.value === 'v2') {
+            this.enrollmentClientControl.setValue('');
+        }
+    }
+
+    get enrollmentClientControl(): FormControl | null {
+        return (this.form?.get('projectFlow.onboardingSettings.enrollmentClient') as FormControl) || null;
+    }
+
+    get enrollmentBlockerKeys(): EnrollmentBlocker[] {
+        const flow = this.form?.get('projectFlow')?.getRawValue?.() || this.form?.get('projectFlow')?.value;
+
+        return enrollmentBlockers(flow);
+    }
+
+    get enrollmentBlocked(): boolean {
+        return this.enrollmentBlockerKeys.length > 0;
     }
 
     get exampleRedirectUrl(): string {

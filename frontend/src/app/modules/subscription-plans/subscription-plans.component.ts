@@ -13,17 +13,17 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { environment } from 'environments/environment';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
-import type { BringBackOffer } from 'app/core/user/user.types';
 import { UserService } from 'app/core/user/user.service';
+import type { BringBackOffer } from 'app/core/user/user.types';
+import { environment } from 'environments/environment';
 import { Subject, catchError, forkJoin, of } from 'rxjs';
-import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
-import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
     extractClientSettingsPayload,
     invoiceBillingDetailsComplete,
 } from '../settings/utils/invoice-billing-complete';
+import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
+import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
     applyApiRequestDiscountToBasePrice,
     formatBenefitRowsFromChanges,
@@ -166,12 +166,11 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                 catchError((err) => {
                     console.error('Failed to load session for bring-back offer:', err);
                     return of(null);
-                }),
+                })
             )
             .subscribe((user) => {
                 const offer = user?.bringBackOffer;
-                this.bringBackOffer =
-                    offer?.kind === 'bring_back' && offer.eligible ? offer : null;
+                this.bringBackOffer = offer?.kind === 'bring_back' && offer.eligible ? offer : null;
             });
     }
 
@@ -236,7 +235,10 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     get isAtUsageBaseline(): boolean {
-        return this.usageBaselinePerMonth != null && this.requestsPerMonth === this.usageBaselinePerMonth;
+        return (
+            this.usageBaselinePerMonth != null &&
+            this.requestsPerMonth === this.usageBaselinePerMonth
+        );
     }
 
     get showBringBackPromoBanner(): boolean {
@@ -379,7 +381,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         // Deprecated: replaced by Privy modal
         this.openFeatureModal(feature);
     }
-    
+
     openFeatureModal(feature: AppFeature): void {
         this.selectedFeatureForModal = feature;
     }
@@ -398,11 +400,14 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     copyUrlToClipboard(url?: string): void {
         const fullUrl = this.getFullEndpointUrl(url);
         if (!fullUrl || fullUrl === 'N/A') return;
-        navigator.clipboard.writeText(fullUrl).then(() => {
-            this._snackBar.open('URL copied to clipboard!', undefined, { duration: 2000 });
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-        });
+        navigator.clipboard
+            .writeText(fullUrl)
+            .then(() => {
+                this._snackBar.open('URL copied to clipboard!', undefined, { duration: 2000 });
+            })
+            .catch((err) => {
+                console.error('Failed to copy text: ', err);
+            });
     }
 
     /**
@@ -567,9 +572,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         if (mode === 'budget') {
             // Seed budget from current reference plan total so the UI doesn't jump
             const plan = this._getReferencePlan();
-            this.targetMonthlyBudget = plan
-                ? Math.round(this.getEstimatedTotal(plan))
-                : null;
+            this.targetMonthlyBudget = plan ? Math.round(this.getEstimatedTotal(plan)) : null;
         }
     }
 
@@ -788,21 +791,39 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         return { left: `${left}%`, width: `${width}%` };
     }
 
-    showZoneLabel(zone: PlanZone): boolean {
-        const max = this._zoneTrackMax || 1;
+    getZoneFromDisplay(zone: PlanZone): number {
+        return zone.from <= 1 ? 0 : this.toDisplayVolume(zone.from);
+    }
 
-        return ((zone.to - zone.from + 1) / max) * 100 >= PLAN_ZONE_MIN_LABEL_PERCENT;
+    showZoneLabel(zone: PlanZone): boolean {
+        return true;
     }
 
     isActiveZone(zone: PlanZone): boolean {
-        return this.requestsPerMonth >= zone.from && this.requestsPerMonth <= zone.to;
+        if (
+            this.requestsPerMonth <= zone.to &&
+            (this.requestsPerMonth >= zone.from || (this.requestsPerMonth === 0 && zone.from <= 1))
+        ) {
+            return true;
+        }
+        return false;
     }
 
-    /** Snap the estimator to the first volume where this zone's plan becomes the recommendation. */
+    /** Snap the estimator to the sweet spot volume of this zone's plan. */
     selectZone(zone: PlanZone): void {
         this._volumeTouchedByUser = true;
-        this.requestsPerMonth = zone.from;
-        this.requestsPerYear = zone.from * 12;
+        const targetPlan = this.plans.find((p) => p._id === zone.planId);
+        let targetVolume = zone.from;
+        if (targetPlan) {
+            const included = this.getIncludedRequests(targetPlan);
+            if (this._isStarterPlan(targetPlan)) {
+                targetVolume = Number.isFinite(included) && included > 0 ? included : zone.to;
+            } else if (Number.isFinite(included) && included >= zone.from && included <= zone.to) {
+                targetVolume = included;
+            }
+        }
+        this.requestsPerMonth = targetVolume;
+        this.requestsPerYear = targetVolume * 12;
         this._syncBudgetFromRequests();
     }
 
@@ -836,7 +857,8 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         const runnerUp = this.runnerUpPlan;
         if (!best || !runnerUp) return null;
 
-        const savings = this.getDisplayEstimatedTotal(runnerUp) - this.getDisplayEstimatedTotal(best);
+        const savings =
+            this.getDisplayEstimatedTotal(runnerUp) - this.getDisplayEstimatedTotal(best);
 
         return savings >= 1 ? savings : null;
     }
@@ -858,11 +880,15 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         const best = this.recommendedPlan;
         if (!best || best._id === plan._id) return 0;
 
-        return Math.round(this.getDisplayEstimatedTotal(plan) - this.getDisplayEstimatedTotal(best));
+        return Math.round(
+            this.getDisplayEstimatedTotal(plan) - this.getDisplayEstimatedTotal(best)
+        );
     }
 
     isRecommendedPlan(plan: SubscriptionPlan): boolean {
-        return Boolean(plan._id) && plan._id === this.getBestValuePlanId() && this.requestsPerMonth > 0;
+        return (
+            Boolean(plan._id) && plan._id === this.getBestValuePlanId() && this.requestsPerMonth > 0
+        );
     }
 
     /** Included requests per month for a plan, or null when the plan has no prepaid volume. */
@@ -888,7 +914,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
     /** Whole-percent discount of the plan rate vs the base request price. */
     getRateDiscountPercent(plan: SubscriptionPlan): number {
-        const percent = Math.round((1 - this.getEffectiveCostPerRequest(plan) / this.BASE_REQUEST_PRICE) * 100);
+        const percent = Math.round(
+            (1 - this.getEffectiveCostPerRequest(plan) / this.BASE_REQUEST_PRICE) * 100
+        );
 
         return percent > 0 ? percent : 0;
     }
@@ -920,8 +948,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         }
 
         const lim = plan.limit;
-        const fromLimit =
-            typeof lim === 'number' && Number.isFinite(lim) ? Math.round(lim) : 1;
+        const fromLimit = typeof lim === 'number' && Number.isFinite(lim) ? Math.round(lim) : 1;
         return Math.max(1, fromLimit);
     }
 
@@ -948,33 +975,42 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Recommended plan at monthly volume `r`: cheapest competitive plan, preferring plans with an
-     * API discount (and skipping starter tiers from 400 req/mo) when there is any volume.
+     * Recommended plan at monthly volume `r`: cheapest competitive plan.
+     * Smart Starter covers up to its included quota (~163 requests). Above that, higher tiers with API
+     * discounts take over (Smart Basic starting at 164 requests, Smart Plus, etc.).
      */
     private _bestPlanIdAt(r: number): string {
-        const candidatesPool = this.visiblePlans.filter((p) => this._isPlanCompetitiveAt(p, r));
-        if (!candidatesPool.length) return '';
+        const starterPlan = this.visiblePlans.find((p) => this._isStarterPlan(p));
+        const starterCap = starterPlan ? this.getIncludedRequests(starterPlan) : 163;
+
+        // Up to Starter's included requests, Smart Starter is the recommended plan
+        if (r <= starterCap && starterPlan) {
+            return starterPlan._id;
+        }
+
+        const candidatesPool = this.visiblePlans.filter(
+            (p) => !this._isStarterPlan(p) && this._isPlanCompetitiveAt(p, r)
+        );
 
         const cheapest = (list: SubscriptionPlan[]): string =>
             list.reduce((best, plan) =>
-                this._getEstimatedTotalForR(plan, r) < this._getEstimatedTotalForR(best, r) ? plan : best
+                this._getEstimatedTotalForR(plan, r) < this._getEstimatedTotalForR(best, r)
+                    ? plan
+                    : best
             )._id;
 
-        if (r > 0) {
-            let candidates = candidatesPool.filter((p) => p.discount?.discount);
-            if (candidates.length && r >= 400) {
-                candidates = candidates.filter((p) => !this._isStarterPlan(p));
-            }
-            if (candidates.length) return cheapest(candidates);
+        if (candidatesPool.length) {
+            return cheapest(candidatesPool);
         }
 
-        return cheapest(candidatesPool);
+        const nonStarterPlans = this.visiblePlans.filter((p) => !this._isStarterPlan(p));
+        return nonStarterPlans.length ? cheapest(nonStarterPlans) : cheapest(this.visiblePlans);
     }
 
     /**
      * Whether a plan is competitive at the user's current request volume.
      * Current subscription always counts as competitive; otherwise the plan must beat the dominance check
-     * (no other tier is significantly cheaper at the same R) and not be a starter SKU at high volume.
+     * (no other tier is significantly cheaper at the same R) and not be a starter SKU beyond its capacity.
      */
     isPlanCompetitive(plan: SubscriptionPlan): boolean {
         return this._isPlanCompetitiveAt(plan, this.requestsPerMonth);
@@ -985,7 +1021,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         if (isCurrent) return true;
         if (!plan._id) return false;
 
-        if (this._isStarterPlan(plan) && r >= 2000) return false;
+        if (this._isStarterPlan(plan) && r > this.getIncludedRequests(plan)) return false;
         return !this._isDominatedCompetitivelyByAnyPlan(plan, r);
     }
 
@@ -1004,6 +1040,8 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
         for (const rival of paidPlans) {
             if (rival._id === plan._id) continue;
+            // Starter is an entry tier and should not dominate regular tiers above its quota
+            if (this._isStarterPlan(rival)) continue;
 
             const rivalTotal = this._getEstimatedTotalForR(rival, r);
             if (planTotal > rivalTotal + this._dominanceMarginUsd(rivalTotal)) return true;
@@ -1243,9 +1281,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (response) => {
                     const plans = response?.data?.plans ?? [];
-                    const filtered = plans.filter(
-                        (p) => p.interval === this.selectedInterval
-                    );
+                    const filtered = plans.filter((p) => p.interval === this.selectedInterval);
                     this._processPlans(filtered);
                     this.loadingPlans = false;
                 },
@@ -1294,7 +1330,10 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         this.plans = processedPlans;
 
         // Initialise budget reference plan (best value first time, otherwise keep)
-        if (!this.budgetReferencePlanId || !this.plans.some((p) => p._id === this.budgetReferencePlanId)) {
+        if (
+            !this.budgetReferencePlanId ||
+            !this.plans.some((p) => p._id === this.budgetReferencePlanId)
+        ) {
             this.budgetReferencePlanId = this.getBestValuePlanId();
         }
     }
@@ -1373,32 +1412,30 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     private _handleSessionConfirmError(error?: unknown): void {
         const isWrongAccount = this._isSessionClientMismatchError(error);
 
-        this._subscriptionService
-            .getMySubscription({ where_active: true, findOne: 1 })
-            .subscribe({
-                next: (response) => {
-                    if (response?.data) {
-                        this.currentSubscription = response.data;
-                        this._formatCurrentSubscription();
-                        this.currentView = 'current';
-                        this._loadMyListFeatures();
-                        this._showSessionConfirmSuccessToast();
-                        return;
-                    }
-                    if (isWrongAccount) {
-                        this._showSessionConfirmWrongAccountToast();
-                        return;
-                    }
-                    this._showSessionConfirmErrorToast();
-                },
-                error: () => {
-                    if (isWrongAccount) {
-                        this._showSessionConfirmWrongAccountToast();
-                        return;
-                    }
-                    this._showSessionConfirmErrorToast();
-                },
-            });
+        this._subscriptionService.getMySubscription({ where_active: true, findOne: 1 }).subscribe({
+            next: (response) => {
+                if (response?.data) {
+                    this.currentSubscription = response.data;
+                    this._formatCurrentSubscription();
+                    this.currentView = 'current';
+                    this._loadMyListFeatures();
+                    this._showSessionConfirmSuccessToast();
+                    return;
+                }
+                if (isWrongAccount) {
+                    this._showSessionConfirmWrongAccountToast();
+                    return;
+                }
+                this._showSessionConfirmErrorToast();
+            },
+            error: () => {
+                if (isWrongAccount) {
+                    this._showSessionConfirmWrongAccountToast();
+                    return;
+                }
+                this._showSessionConfirmErrorToast();
+            },
+        });
     }
 
     private _isSessionClientMismatchError(error?: unknown): boolean {
@@ -1518,8 +1555,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     private _prefetchPlansIfNeededForDiscountCta(): void {
         if (!this.currentSubscription?.subscriptionPlan) return;
         const sp = this.currentSubscription.subscriptionPlan;
-        const hasRows =
-            (sp.changesLeft?.length || 0) + (sp.changesRight?.length || 0) > 0;
+        const hasRows = (sp.changesLeft?.length || 0) + (sp.changesRight?.length || 0) > 0;
         if (hasRows || this.plans.length > 0) return;
         this._loadPlans();
     }

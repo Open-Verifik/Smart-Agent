@@ -86,7 +86,19 @@ export class AccountEnvironmentService {
                 if (typeof user.canRecharge === 'boolean') {
                     this.sessionHydrated.set(true);
                 }
+            } else {
+                this.accountSnapshot.set(null);
+                this.sessionHydrated.set(false);
             }
+            this._refreshAuthState();
+        });
+
+        this._sessionService.sessionExpired$.pipe(takeUntilDestroyed()).subscribe((expired) => {
+            if (!expired) {
+                return;
+            }
+            this.accountSnapshot.set(null);
+            this.sessionHydrated.set(false);
             this._refreshAuthState();
         });
     }

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
+import { SessionService } from 'app/core/services/session.service';
 import { User } from 'app/core/user/user.types';
 import { environment } from 'environments/environment';
 import { map, Observable, ReplaySubject, take, tap } from 'rxjs';
@@ -10,7 +11,12 @@ import { map, Observable, ReplaySubject, take, tap } from 'rxjs';
 export class UserService {
     private _httpClient = inject(HttpClient);
     private _httpWrapper = inject(HttpWrapperService);
+    private _sessionService = inject(SessionService);
     private _user: ReplaySubject<User> = new ReplaySubject<User>(1);
+
+    constructor() {
+        this._sessionService.registerAuthCacheCleaner(() => this.clearCachedUser());
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
@@ -24,6 +30,13 @@ export class UserService {
     set user(value: User) {
         // Store the value
         this._user.next(value);
+    }
+
+    /**
+     * Drops the in-memory session user, including any cached owner or role.
+     */
+    clearCachedUser(): void {
+        this._user.next(null as unknown as User);
     }
 
     get user$(): Observable<User> {

@@ -5809,4 +5809,307 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "owners"
         ]
     },
+    "peru_api_pep": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPEP",
+            "includeFormer",
+            "lookbackYears",
+            "matchCount",
+            "matches",
+            "checkedSources",
+            "dateTime"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "DNI",
+                "CE"
+            ]
+        }
+    },
+    "brazil_api_pep": {
+        "inputs": [
+            "fullName",
+            "documentType",
+            "cpf",
+            "documentNumber"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "includeFormer",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CPF"
+            ]
+        }
+    },
+    "brazil_api_medical_professional": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "uf",
+            "cpf",
+            "dateOfBirth",
+            "fullName"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "crm",
+            "uf",
+            "fullName",
+            "firstName",
+            "lastName",
+            "arrayName",
+            "status",
+            "statusCode",
+            "statusDescription",
+            "registrationType",
+            "registrationTypeCode",
+            "isActive",
+            "isHealthWorker",
+            "specialties",
+            "identityValidated",
+            "cpf",
+            "dateOfBirth",
+            "updatedAtDate",
+            "matchMethod",
+            "ambiguous",
+            "licenses",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CRM"
+            ],
+            "uf": [
+                "AC",
+                "AL",
+                "AM",
+                "AP",
+                "BA",
+                "CE",
+                "DF",
+                "ES",
+                "GO",
+                "MA",
+                "MG",
+                "MS",
+                "MT",
+                "PA",
+                "PB",
+                "PE",
+                "PI",
+                "PR",
+                "RJ",
+                "RN",
+                "RO",
+                "RR",
+                "RS",
+                "SC",
+                "SE",
+                "SP",
+                "TO"
+            ]
+        }
+    },
+    "panama_api_health_worker": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "cedula",
+            "fullName"
+        ],
+        "outputs": [
+            "cedula",
+            "cedulaPadded",
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "position",
+            "professionCategory",
+            "entity",
+            "startDate",
+            "contractStatus",
+            "isHealthWorker",
+            "isActive",
+            "totalRegistrations",
+            "registrations",
+            "checkedSources",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CEDULA",
+                "CCPA"
+            ]
+        }
+    },
+    "panama_api_pep": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "cedula",
+            "fullName",
+            "includeFormer"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "CEDULA",
+                "CCPA"
+            ]
+        }
+    },
+    "chile_api_health_worker": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "rut",
+            "fullName"
+        ],
+        "outputs": [
+            "rut",
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "profession",
+            "specialty",
+            "region",
+            "city",
+            "isHealthWorker",
+            "isActive",
+            "totalRegistrations",
+            "registrations",
+            "checkedSources",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "RUT"
+            ]
+        }
+    },
+    "chile_api_pep": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "rut",
+            "fullName",
+            "includeFormer"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "RUT"
+            ]
+        }
+    },
+    "argentina_api_health_worker": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "dni",
+            "fullName",
+            "matricula"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "profession",
+            "specialty",
+            "jurisdiction",
+            "licenseNumber",
+            "isHealthWorker",
+            "isActive",
+            "totalRegistrations",
+            "registrations",
+            "checkedSources",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "DNI"
+            ]
+        }
+    },
+    "argentina_api_pep": {
+        "inputs": [
+            "documentType",
+            "documentNumber",
+            "dni",
+            "fullName",
+            "includeFormer"
+        ],
+        "outputs": [
+            "documentType",
+            "documentNumber",
+            "fullName",
+            "isPep",
+            "isActivePep",
+            "isFormerPep",
+            "totalMatches",
+            "categories",
+            "matches",
+            "regulation",
+            "valid",
+            "signature"
+        ],
+        "inputEnums": {
+            "documentType": [
+                "DNI",
+                "CUIT",
+                "CUIL"
+            ]
+        }
+    },
 };

@@ -7,6 +7,7 @@ import {
     finalize,
     map,
     of,
+    shareReplay,
     Subject,
     tap,
     throwError,
@@ -55,6 +56,8 @@ export class AppNotificationsService {
     private _bannerGeneration = 0;
     private readonly _activeBanners = signal<InboxItem[] | null>(null);
     private readonly _detailCache = new Map<string, DetailCacheEntry>();
+    private _activeBannersInFlight$: Observable<InboxListResponse> | null = null;
+    private readonly _surfaceInFlight = new Map<string, Observable<InboxListResponse>>();
 
     readonly unreadCount = this._unreadCount.asReadonly();
     /** Home banners. Updated as soon as a cached or fresh list is available. */
@@ -173,10 +176,14 @@ export class AppNotificationsService {
             return of(payload);
         }
 
+        if (!force && this._activeBannersInFlight$) {
+            return this._activeBannersInFlight$;
+        }
+
         const generation = ++this._bannerGeneration;
         const revision = !force ? this._bannerCache?.revision : undefined;
 
-        return this._http
+        const request$ = this._http
             .get<InboxListResponse>(`${this._baseUrl}/inbox/active-banners`, {
                 params: {
                     productScope,
@@ -192,8 +199,15 @@ export class AppNotificationsService {
                         this._activeBanners.set(fallback.data || []);
                     }
                     return of(fallback);
-                })
+                }),
+                finalize(() => {
+                    this._activeBannersInFlight$ = null;
+                }),
+                shareReplay({ bufferSize: 1, refCount: false })
             );
+
+        this._activeBannersInFlight$ = request$;
+        return request$;
     }
 
     getActiveModals(productScope = APP_NOTIFICATION_PRODUCT_SCOPE) {
@@ -410,11 +424,6 @@ export class AppNotificationsService {
                 if (generation !== this._hubRefreshGeneration) return;
                 this._inboxCache = this._rememberList(this._inboxCache, inbox);
                 this._applyInboxPayload(this._inboxCache.payload);
-                if (!inbox.meta?.unchanged) {
-                    this.getActiveBanners(APP_NOTIFICATION_PRODUCT_SCOPE, true).subscribe({
-                        error: () => undefined,
-                    });
-                }
                 this._logHubDebug('refreshHubInbox', {
                     inboxCount: (this._inboxCache.payload.data || []).length,
                     unchanged: Boolean(inbox.meta?.unchanged),
@@ -477,7 +486,12 @@ export class AppNotificationsService {
             return of(current!.payload);
         }
 
-        return this._http
+        const inFlight = this._surfaceInFlight.get(url);
+        if (inFlight) {
+            return inFlight;
+        }
+
+        const request$ = this._http
             .get<InboxListResponse>(url, {
                 params: {
                     productScope,
@@ -491,8 +505,15 @@ export class AppNotificationsService {
                     writeCache(next);
                     return next.payload;
                 }),
-                catchError(() => of(readCache()?.payload ?? this._emptyList()))
+                catchError(() => of(readCache()?.payload ?? this._emptyList())),
+                finalize(() => {
+                    this._surfaceInFlight.delete(url);
+                }),
+                shareReplay({ bufferSize: 1, refCount: false })
             );
+
+        this._surfaceInFlight.set(url, request$);
+        return request$;
     }
 
     private _emptyList(perPage = 10): InboxListResponse {

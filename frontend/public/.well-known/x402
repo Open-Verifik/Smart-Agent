@@ -148,6 +148,7 @@
     "POST /api/v3/co/ministerio-de-trabajo/certificados",
     "POST /api/face-recognition/face-validation",
     "GET /api/v3/pe/company",
+    "GET /api/v2/pe/politically-exposed-persons",
     "POST /api/document-liveness",
     "POST /api/credit-intents",
     "GET /api/es/vehicle",

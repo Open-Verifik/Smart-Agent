@@ -29,6 +29,8 @@ import {
     COLOMBIA_PACO_SANCTIONS_ENDPOINT_CODE,
     COLOMBIA_POSTMAN_SANDBOX_BY_CODE,
     COLOMBIA_RAMA_JEPMS_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_CASES_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE,
 } from './colombia.postman-sandbox';
 import {
     applyPostmanSandboxParamDefaults,
@@ -72,12 +74,16 @@ const LEGACY_WORLD_CODES = [
     WORLD_ONU_ENDPOINT_CODE,
 ] as const;
 
-const COLOMBIA_4_NATIONAL_CODES = [
+const COLOMBIA_6_NATIONAL_CODES = [
     COLOMBIA_JCC_SANCTIONS_ENDPOINT_CODE,
     COLOMBIA_PACO_SANCTIONS_ENDPOINT_CODE,
     COLOMBIA_RAMA_JEPMS_ENDPOINT_CODE,
     COLOMBIA_ADVERSE_MEDIA_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_CASES_ENDPOINT_CODE,
+    COLOMBIA_SICAAC_INSOLVENCY_ENDPOINT_CODE,
 ] as const;
+
+const COLOMBIA_4_NATIONAL_CODES = COLOMBIA_6_NATIONAL_CODES;
 
 describe('World Watchlists Sandbox - Registry & Inventory', () => {
     it('registers all 13 international watchlist endpoints in WORLD_POSTMAN_SANDBOX_BY_CODE', () => {
@@ -366,15 +372,15 @@ describe('World Watchlists Sandbox - Strict "force" Prohibition', () => {
 });
 
 describe('Colombia National Sources - Sandbox Integrity & Strict "force" Prohibition', () => {
-    it('verifies all 4 Colombia national sources are registered and intact', () => {
-        expect(COLOMBIA_4_NATIONAL_CODES).toHaveLength(4);
+    it('verifies all 6 Colombia national sources are registered and intact', () => {
+        expect(COLOMBIA_6_NATIONAL_CODES).toHaveLength(6);
 
-        for (const code of COLOMBIA_4_NATIONAL_CODES) {
+        for (const code of COLOMBIA_6_NATIONAL_CODES) {
             expect(COLOMBIA_POSTMAN_SANDBOX_BY_CODE[code]).toBeDefined();
             expect(isPostmanSandboxEndpoint(code)).toBe(true);
 
             const profiles = getPostmanSandboxProfiles(code);
-            expect(profiles.length).toBeGreaterThanOrEqual(3);
+            expect(profiles.length).toBeGreaterThanOrEqual(4);
 
             // Active 200 profiles
             const successProfiles = profiles.filter(
@@ -382,16 +388,57 @@ describe('Colombia National Sources - Sandbox Integrity & Strict "force" Prohibi
             );
             expect(successProfiles.length).toBeGreaterThan(0);
 
-            // Error profiles
-            const errorProfiles = profiles.filter(
-                (p) => p.responseType === 'error' || (p.expectedStatus && p.expectedStatus >= 400)
+            // 404 Error profile
+            const notFoundProfiles = profiles.filter(
+                (p) => p.expectedStatus === 404 && p.responseType === 'error'
             );
-            expect(errorProfiles.length).toBeGreaterThan(0);
+            expect(notFoundProfiles.length).toBeGreaterThanOrEqual(1);
+            expect(notFoundProfiles.some((p) => p.documentNumber === '90040401')).toBe(true);
+
+            // 409 Conflict profiles
+            const conflictProfiles = profiles.filter(
+                (p) => p.expectedStatus === 409 && p.responseType === 'error'
+            );
+            expect(conflictProfiles.length).toBeGreaterThanOrEqual(2);
+
+            // Profile keys uniqueness
+            const keys = profiles.map(getPostmanSandboxProfileKey);
+            const uniqueKeys = new Set(keys);
+            expect(uniqueKeys.size).toBe(profiles.length);
         }
     });
 
-    it('ensures paramOverrides.force is strictly undefined across all 4 Colombia national sources', () => {
-        for (const code of COLOMBIA_4_NATIONAL_CODES) {
+    it.each(COLOMBIA_6_NATIONAL_CODES)(
+        'resolves active 200, 404, and 409 conflict profiles for %s',
+        (code) => {
+            const config = COLOMBIA_POSTMAN_SANDBOX_BY_CODE[code];
+            const defaultDoc = config.defaultDocumentNumber;
+
+            // Match active 200
+            const match200 = findMatchingPostmanSandboxProfile(code, [
+                { key: 'documentNumber', value: defaultDoc },
+            ]);
+            expect(match200).toBeDefined();
+            expect(match200?.expectedStatus).toBe(200);
+
+            // Match 404
+            const match404 = findMatchingPostmanSandboxProfile(code, [
+                { key: 'documentNumber', value: '90040401' },
+            ]);
+            expect(match404).toBeDefined();
+            expect(match404?.expectedStatus).toBe(404);
+
+            // Match 409 missing documentNumber
+            const match409Missing = findMatchingPostmanSandboxProfile(code, [
+                { key: 'documentNumber', value: '' },
+            ]);
+            expect(match409Missing).toBeDefined();
+            expect(match409Missing?.expectedStatus).toBe(409);
+        }
+    );
+
+    it('ensures paramOverrides.force is strictly undefined across all 6 Colombia national sources', () => {
+        for (const code of COLOMBIA_6_NATIONAL_CODES) {
             const profiles = getPostmanSandboxProfiles(code);
 
             for (const profile of profiles) {

@@ -12,6 +12,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
+import { endpointsNotInAccountCodes } from 'app/modules/smart-batch/account-endpoint-access.util';
 import { BatchBrowserRunnerService } from 'app/modules/smart-batch/batch-browser-runner.service';
 import {
     BatchConfiguration,
@@ -1096,7 +1097,16 @@ export class FleetAssetsComponent implements OnInit {
 
         notify('consult', 0);
 
-        const started = await firstValueFrom(this._batches.startSmartBatch(batchId));
+        let started: { data: SmartBatch };
+        try {
+            started = await firstValueFrom(this._batches.startSmartBatch(batchId));
+        } catch (error) {
+            const missingEndpoints = endpointsNotInAccountCodes(error);
+            if (missingEndpoints) {
+                throw new Error(this._transloco.translate('visitaGuide.endpointsNotInAccount', { codes: missingEndpoints }));
+            }
+            throw error;
+        }
         let batch = started.data?.rows?.length
             ? started.data
             : (await firstValueFrom(this._batches.getSmartBatch(batchId))).data;

@@ -1,0 +1,123 @@
+/* Precision Document Studio - Visita Guide Styles */
+
+.layout-format-more {
+    display: grid;
+    grid-template-rows: 0fr;
+    grid-template-columns: 0fr;
+    min-width: 0;
+    transition:
+        grid-template-rows 300ms cubic-bezier(0.22, 1, 0.36, 1),
+        grid-template-columns 0s linear 300ms;
+}
+
+.layout-format-more.is-open {
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+    transition:
+        grid-template-rows 300ms cubic-bezier(0.22, 1, 0.36, 1),
+        grid-template-columns 0s linear 0s;
+}
+
+.layout-format-more-clip {
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .layout-format-more,
+    .layout-format-more.is-open {
+        transition: none;
+    }
+}
+
+.layout-tool {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 3.5rem;
+    height: 3.25rem;
+    min-height: 3.25rem;
+    max-height: 3.25rem;
+    padding: 0 0.375rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    border-radius: 0.625rem;
+    color: #0f172a;
+    transition: background-color 120ms ease, color 120ms ease;
+
+    &:hover,
+    &.is-active {
+        background: #f1f5f9;
+    }
+
+    > svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        flex: 0 0 1.5rem;
+        display: block;
+    }
+}
+
+.layout-tool-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    height: 12px;
+    max-height: 12px;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 12px;
+    white-space: nowrap;
+    color: #475569;
+}
+
+.layout-tool-caret {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
+    display: block;
+}
+
+:host-context(.dark) {
+    .layout-tool {
+        color: #f8fafc;
+
+        &:hover,
+        &.is-active {
+            background: #1e293b;
+        }
+    }
+
+    .layout-tool-label {
+        color: #94a3b8;
+    }
+}
+
+/* Layers Drawer Precision Studio styles */
+.visita-layout-layers {
+    transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 150ms ease;
+
+    .cdk-drag-preview {
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+        border-radius: 0.5rem;
+        background-color: #ffffff;
+        border: 1px solid #7145d6;
+        padding: 0.375rem 0.5rem;
+        z-index: 1000;
+    }
+
+    .cdk-drag-placeholder {
+        opacity: 0.25;
+        background: #f1f5f9;
+        border: 1px dashed #7145d6;
+        border-radius: 0.5rem;
+    }
+
+    .cdk-drag-animating {
+        transition: transform 180ms cubic-bezier(0, 0, 0.2, 1);
+    }
+}

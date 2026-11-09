@@ -8,11 +8,11 @@ import {
     inject,
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSliderModule } from '@angular/material/slider';
@@ -24,9 +24,13 @@ import { SMART_ENROLL_PROJECT_TYPE } from '../biometrics/biometrics.constants';
 import { CollectionsService } from '../biometrics/collections.service';
 import type { Collection } from '../biometrics/collections.types';
 import { mergeAccountCollections } from '../biometrics/collections.util';
+import { PeopleService } from '../biometrics/people.service';
 import type { Person } from '../biometrics/people.types';
 import { CollectionScopeBadgeComponent } from './collection-scope-badge.component';
-import { NationalitySelectComponent, normalizeNationalityCode } from './nationality-select.component';
+import {
+    NationalitySelectComponent,
+    normalizeNationalityCode,
+} from './nationality-select.component';
 
 export const EDIT_PERSON_DIALOG_PANEL_CLASS = 'edit-person-dialog-panel';
 
@@ -67,12 +71,14 @@ export class EditPersonDialogComponent implements OnInit {
 
     private _fb = inject(FormBuilder);
     private _collectionsService = inject(CollectionsService);
+    private _peopleService = inject(PeopleService);
     private _snackBar = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
 
     editForm!: FormGroup;
     loading = false;
+    errorMessage: string | null = null;
     allCollections: Collection[] = [];
     hasWarning = false;
     showConfirmation = false;
@@ -239,15 +245,53 @@ export class EditPersonDialogComponent implements OnInit {
             return;
         }
 
-        this.dialogRef.close({
-            action: 'update',
-            person: {
-                ...this.data.person,
-                ...formData,
-                collections: formData.collections || [],
-                date_of_birth: dob,
-                nationality: normalizeNationalityCode(formData.nationality),
-                notes: formData.notes || '',
+        if (!this.data?.person?._id) {
+            this.dialogRef.close({
+                action: 'update',
+                person: {
+                    ...formData,
+                    collections: formData.collections || [],
+                    date_of_birth: dob,
+                    nationality: normalizeNationalityCode(formData.nationality),
+                    notes: formData.notes || '',
+                },
+            });
+            return;
+        }
+
+        const cleanPayload: Partial<Person> = {
+            _id: this.data.person._id,
+            name: formData.name?.trim(),
+            gender: formData.gender || 'M',
+            date_of_birth: dob,
+            nationality: normalizeNationalityCode(formData.nationality) || undefined,
+            collections: formData.collections || [],
+            notes: formData.notes?.trim() || '',
+        };
+
+        this.loading = true;
+        this.errorMessage = null;
+        this._cdr.markForCheck();
+
+        this._peopleService.updatePerson(cleanPayload).subscribe({
+            next: (response) => {
+                this.loading = false;
+                this.dialogRef.close({
+                    action: 'updated',
+                    person: response?.data || { ...this.data.person, ...cleanPayload },
+                });
+            },
+            error: (err) => {
+                this.loading = false;
+                const serverMsg = err?.error?.message || err?.message;
+                const fallbackMsg = this._transloco.translate('smartEnrollPeople.updateError');
+                const finalMsg =
+                    typeof serverMsg === 'string' && serverMsg.trim() ? serverMsg : fallbackMsg;
+                this.errorMessage = finalMsg;
+                this._snackBar.open(finalMsg, this._transloco.translate('close'), {
+                    duration: 5000,
+                });
+                this._cdr.markForCheck();
             },
         });
     }
@@ -313,12 +357,15 @@ export class EditPersonDialogComponent implements OnInit {
 
         forkJoin({
             all: this._collectionsService.getAllCollections(),
-            onboarding: this._collectionsService.getCollectionByProjectType(SMART_ENROLL_PROJECT_TYPE),
+            onboarding:
+                this._collectionsService.getCollectionByProjectType(SMART_ENROLL_PROJECT_TYPE),
         }).subscribe({
             next: ({ all, onboarding }) => {
                 const ensureCodes = [
                     ...(this.data.person?.collections || []),
-                    ...(this.data.contextCollection?.code ? [this.data.contextCollection.code] : []),
+                    ...(this.data.contextCollection?.code
+                        ? [this.data.contextCollection.code]
+                        : []),
                 ];
 
                 this.allCollections = mergeAccountCollections(

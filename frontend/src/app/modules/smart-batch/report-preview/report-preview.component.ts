@@ -160,6 +160,7 @@ export function reportPaperSizePx(
     standalone: true,
     imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './report-preview.component.html',
+    styleUrls: ['./report-preview.component.scss'],
     styles: [
         `
             .layer-quiet,
@@ -191,7 +192,9 @@ export function reportPaperSizePx(
                 overflow-wrap: anywhere !important;
                 word-break: break-word !important;
             }
+            .rp-page,
             [data-report-page] {
+                contain: layout style;
                 border-radius: 0 !important;
             }
             .selection-outline {
@@ -408,6 +411,8 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     /** Same SafeHtml instance per markup so `[innerHTML]` does not repaint every check. */
     private _iconMarkupCache = new Map<string, SafeHtml>();
     private _autolinkCache = new Map<string, SafeHtml>();
+    private _sheetChunksWeakCache = new WeakMap<ReportSection, { dataRef: unknown; chunks: LayoutSheetChunk[] }>();
+    private _sheetChunksSigCache = new Map<string, { sig: string; dataRef: unknown; chunks: LayoutSheetChunk[] }>();
 
     /** All paper cards in the rendered preview. The first card is used as the
      *  reference for canonical-to-screen scaling and overlay anchoring. */
@@ -847,6 +852,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             // Track inputs that should trigger a remeasure
             this.template().sections;
             this.previewData();
+            this._sheetChunksSigCache.clear();
             this.legend();
             this.legendPosition();
             this.termsAndConditions();
@@ -2471,7 +2477,6 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         this.sectionFontSizeChange.emit({ id: resize.id, fontSize });
         if (!frame || (frame.x === resize.startFrame.x && frame.y === resize.startFrame.y)) return;
         const next: ReportSectionFrame = { ...resize.startFrame, x: frame.x, y: frame.y };
-        delete next.fixedBox;
         delete next.minHeight;
         this.sectionFrameChange.emit({ id: resize.id, frame: next });
     }
@@ -3089,19 +3094,21 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return section.type === 'header' || section.type === 'text';
     }
 
-    /** Title and free text stay the size of the words. Resize changes the font. */
-    textWrapsInBox(_section: ReportSection): boolean {
-        return false;
+    /** Title or free text box the designer sized by hand. It no longer shrinks to the words. */
+    textWrapsInBox(section: ReportSection): boolean {
+        const frame = this.displayFrame(section) ?? section.frame;
+        return Boolean(frame?.fixedBox);
     }
 
     /** Title and free text keep a box the size of the words. */
     hugsText(section: ReportSection): boolean {
         if (this.sectionHasRichTable(section)) return false;
+        if (this.textWrapsInBox(section)) return false;
         return section.type === 'header' || section.type === 'text';
     }
 
     private _resizeScalesFont(section: ReportSection): boolean {
-        return this.isTextBlock(section) && !this.sectionHasRichTable(section);
+        return this.isTextBlock(section) && !this.sectionHasRichTable(section) && !this.textWrapsInBox(section);
     }
 
     /** Widest the words may grow before they wrap, in layout pixels. */
@@ -3850,6 +3857,7 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                 const frame = (id && frames.get(id)) || stored;
                 if (!section || !frame || !stored || !el.offsetWidth || !el.offsetHeight) return;
                 if (this.sectionHasRichTable(section)) return;
+                if (this.textWrapsInBox(section)) return;
                 const placed = this._sectionCssBox(el);
                 const inner = el.closest('[data-report-page-inner]');
                 let cssX = placed.x;
@@ -3869,12 +3877,11 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
                     Math.abs((Number(stored.width) || 0) - width) > 2 ||
                     Math.abs((Number(stored.height) || 0) - height) > 2 ||
                     Math.abs((Number(stored.y) || 0) - (Number(frame.y) || 0)) > 1 ||
-                    stored.minHeight != null ||
-                    Boolean(stored.fixedBox);
+                    stored.minHeight != null;
                 if (!changed) return;
                 const next: ReportSectionFrame = { ...frame, x, width, height };
                 delete next.minHeight;
-                delete next.fixedBox;
+                if (stored.fixedBox !== undefined) next.fixedBox = stored.fixedBox;
                 updates.push({ id, frame: next });
             });
         }
@@ -5002,13 +5009,89 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     cellRule(section: ReportSection, kind: string, key?: string, fallback?: string): ReportValueRule | null {
         if (kind !== 'cellValue') return null;
         const rules = keyValueRules(section, (key || '__value').split('#')[0]);
-        if (!rules.length) return null;
         const raw = this._liveValueForKey(section, key, fallback);
         const forMatch =
             raw != null && typeof raw === 'object'
                 ? formatReportCellValue(raw)
                 : raw ?? fallback ?? '';
-        return matchValueRule(rules, forMatch);
+        if (rules.length) {
+            const matched = matchValueRule(rules, forMatch);
+            if (matched) return matched;
+        }
+
+        // Automatic semantic status badge for criminal checks, sanction lists, and finding statuses
+        const valStr = String(forMatch).trim().toLowerCase();
+        const leafKey = ((key || '').split('.').pop() || '').trim();
+
+        if (valStr) {
+            if (
+                valStr === 'sin hallazgos' ||
+                valStr === 'sin hallazgo' ||
+                valStr === 'no registra antecedentes' ||
+                valStr === 'no registra medidas' ||
+                valStr === 'no registra' ||
+                valStr === 'sin antecedentes' ||
+                valStr === 'paz y salvo' ||
+                valStr === 'al dia' ||
+                valStr === 'al día'
+            ) {
+                return {
+                    id: 'auto-clean',
+                    operator: 'contains',
+                    color: '#15803d',
+                    backgroundColor: '#dcfce7',
+                    bold: true,
+                    badge: 'check',
+                };
+            }
+            if (
+                valStr === 'con hallazgos' ||
+                valStr === 'con hallazgo' ||
+                valStr === 'registra antecedentes' ||
+                valStr === 'registra medidas' ||
+                valStr === 'con antecedentes' ||
+                valStr === 'con deuda' ||
+                valStr === 'requerido'
+            ) {
+                return {
+                    id: 'auto-alert',
+                    operator: 'contains',
+                    color: '#b91c1c',
+                    backgroundColor: '#fee2e2',
+                    bold: true,
+                    badge: 'cross',
+                };
+            }
+        }
+
+        if (/^foundIn/i.test(leafKey)) {
+            const isTrue = valStr === 'true' || valStr === 'si' || valStr === 'yes' || valStr === '1';
+            const isFalse = valStr === 'false' || valStr === 'no' || valStr === '0';
+            if (isTrue) {
+                return {
+                    id: 'auto-foundin-true',
+                    operator: 'isTrue',
+                    color: '#b91c1c',
+                    backgroundColor: '#fee2e2',
+                    bold: true,
+                    badge: 'cross',
+                    text: 'Con hallazgos',
+                };
+            }
+            if (isFalse) {
+                return {
+                    id: 'auto-foundin-false',
+                    operator: 'isFalse',
+                    color: '#15803d',
+                    backgroundColor: '#dcfce7',
+                    bold: true,
+                    badge: 'check',
+                    text: 'Sin hallazgos',
+                };
+            }
+        }
+
+        return null;
     }
 
     ruleBadge(rule: ReportValueRule): SafeHtml | null {
@@ -5080,10 +5163,49 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         return { colSpan: override?.colSpan, minHeight: override?.minHeight, width: override?.width };
     }
 
+    sectionGridCols(section: ReportSection): number {
+        return Math.max(1, section.columnsPerRow || 2);
+    }
+
+    kvCellSpan(section: ReportSection, key: string, maxCols = 2, value?: string): number {
+        const columns = Math.max(1, maxCols);
+        const live = this.liveCellSizes()[`${section.id}|${key}`];
+        const explicit = live?.colSpan ?? section.keyOverrides?.[key]?.colSpan;
+        if (explicit !== undefined && explicit !== null && Number.isFinite(Number(explicit))) {
+            return Math.min(columns, Math.max(1, Math.round(Number(explicit))));
+        }
+
+        if (columns > 1) {
+            const leaf = (key.split('.').pop() || key).replace(/[_-\s]/g, '').toLowerCase();
+            const autoSpanKeys = [
+                'legend',
+                'leyenda',
+                'details',
+                'detalle',
+                'message',
+                'mensaje',
+                'observations',
+                'observaciones',
+                'notes',
+                'notas',
+                'description',
+                'descripcion',
+                'summary',
+                'resumen',
+            ];
+            const resolvedVal = value !== undefined ? value : (this._valueAt(key) ?? '');
+            const valStr = typeof resolvedVal === 'string' ? resolvedVal : (resolvedVal != null ? String(resolvedVal) : '');
+            if (autoSpanKeys.includes(leaf) || valStr.length > 65) {
+                return columns;
+            }
+        }
+        return 1;
+    }
+
     /** `grid-column` for a field cell that covers more than one column. */
-    cellGridColumn(section: ReportSection, key: string): string | null {
-        const columns = Math.max(1, section.columnsPerRow || 2);
-        const span = Math.min(columns, Math.round(Number(this._cellSize(section, key).colSpan) || 1));
+    cellGridColumn(section: ReportSection, key: string, value?: string): string | null {
+        const columns = this.sectionGridCols(section);
+        const span = this.kvCellSpan(section, key, columns, value);
         return span > 1 ? `span ${span} / span ${span}` : null;
     }
 
@@ -5291,13 +5413,34 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     sheetChunks(section: ReportSection): LayoutSheetChunk[] {
-        return chunkLayoutSheetItems(
+        const dataRef = this.previewData();
+        const cachedWeak = this._sheetChunksWeakCache.get(section);
+        if (cachedWeak && cachedWeak.dataRef === dataRef) {
+            return cachedWeak.chunks;
+        }
+
+        const id = section.id || '__sec__';
+        const customCells = (section as any).customCells ?? [];
+        const sig = `${id}:${section.dataPath}:${section.type}:${JSON.stringify(section.keyOverrides ?? {})}:${JSON.stringify(section.hiddenKeys ?? [])}:${JSON.stringify(section.keyOrder ?? [])}:${JSON.stringify(customCells)}:${JSON.stringify(section.columns ?? [])}:${JSON.stringify(section.style ?? {})}:${section.frame?.height ?? 0}:${section.frame?.fixedBox ?? false}`;
+
+        const cachedSig = this._sheetChunksSigCache.get(id);
+        if (cachedSig && cachedSig.sig === sig && cachedSig.dataRef === dataRef) {
+            this._sheetChunksWeakCache.set(section, cachedSig);
+            return cachedSig.chunks;
+        }
+
+        const chunks = chunkLayoutSheetItems(
             collectLayoutSheetItems(this._valueAt(section.dataPath), {
                 hiddenKeys: section.hiddenKeys,
                 keyOrder: section.keyOrder,
                 keyOverrides: section.keyOverrides,
             })
         );
+
+        const entry = { sig, dataRef, chunks };
+        this._sheetChunksWeakCache.set(section, entry);
+        this._sheetChunksSigCache.set(id, entry);
+        return chunks;
     }
 
     sectionHasStructuredData(section: ReportSection): boolean {
@@ -5472,12 +5615,14 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
         if (!sheets.length) return null;
 
         const pageCount = sheets.length;
-        return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/>${fontHeadMarkup(this.template()?.customFonts)}<style>
+        const defaultFonts =
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" />';
+        return `<!DOCTYPE html><html data-print-pages="${pageCount}"><head><meta charset="utf-8"/>${defaultFonts}${fontHeadMarkup(this.template()?.customFonts)}<style>
 @page{size:${pageWidthMm}mm ${pageHeightMm}mm;margin:0}
 html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHeightMm}mm;overflow:hidden;background:#fff}
 .print-sheet{width:${pageWidthMm}mm;height:${pageHeightMm}mm;max-height:${pageHeightMm}mm;overflow:hidden;position:relative;box-sizing:border-box;border-radius:0;break-after:avoid;page-break-after:avoid}
 .print-sheet table{table-layout:fixed;width:100%;max-width:100%}
-.print-sheet th,.print-sheet td{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+.print-sheet th,.print-sheet td{overflow-wrap:break-word;word-break:normal;min-width:0}
 .print-sheet [data-report-page-inner]{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;box-sizing:border-box}
 .print-sheet [data-report-footer]{position:absolute;left:0;right:0;bottom:0;width:100%;top:auto}
 .print-sheet [data-report-top-chrome]{position:absolute;left:0;right:0;top:0;width:100%;bottom:auto}
@@ -5540,8 +5685,39 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         cloneInner.style.margin = '0';
 
         clone.querySelectorAll('[data-sheet-image]').forEach((node) => {
-            const imagePage = Number((node as HTMLElement).getAttribute('data-sheet-image-page') || 0);
-            if (imagePage !== pageIndex) node.remove();
+            const el = node as HTMLElement;
+            const imagePage = Number(el.getAttribute('data-sheet-image-page') || 0);
+            if (imagePage !== pageIndex) {
+                el.remove();
+                return;
+            }
+            el.style.position = 'absolute';
+            el.style.left = '0';
+            el.style.top = '0';
+            el.style.right = '0';
+            el.style.bottom = '0';
+            el.style.width = '100%';
+            el.style.height = '100%';
+            el.style.pointerEvents = 'none';
+        });
+
+        clone.querySelectorAll('[data-overlay-box]').forEach((node) => {
+            const parent = (node as HTMLElement).parentElement;
+            if (
+                parent &&
+                parent !== clone &&
+                !parent.hasAttribute('data-report-page') &&
+                !parent.hasAttribute('data-report-page-inner')
+            ) {
+                parent.style.position = 'absolute';
+                parent.style.left = '0';
+                parent.style.top = '0';
+                parent.style.right = '0';
+                parent.style.bottom = '0';
+                parent.style.width = '100%';
+                parent.style.height = '100%';
+                parent.style.pointerEvents = 'none';
+            }
         });
 
         if (this.hasFreeLayout()) {
@@ -5581,12 +5757,23 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
                 ? (clone.querySelector(`[data-section-id="${CSS.escape(id)}"]`) as HTMLElement | null)
                 : null;
             if (!dst) return;
+            const section = (this.template()?.sections ?? []).find((item) => item.id === id);
+            const isHug = section ? this.hugsText(section) : src.style.width === 'max-content';
             dst.style.margin = '0';
             dst.style.maxHeight = 'none';
             dst.style.overflow = 'visible';
             dst.style.whiteSpace = 'pre-wrap';
             dst.style.overflowWrap = 'break-word';
-            dst.style.wordBreak = 'break-word';
+            dst.style.wordBreak = 'normal';
+            if (isHug) {
+                dst.style.width = 'max-content';
+                dst.style.height = 'auto';
+                if (src.style.maxWidth) {
+                    dst.style.maxWidth = src.style.maxWidth;
+                } else if (section) {
+                    dst.style.maxWidth = `${this.textHugMaxCss(section)}px`;
+                }
+            }
             dst.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, a').forEach((child) => {
                 const el = child as HTMLElement;
                 el.style.marginTop = '0';
@@ -5594,7 +5781,10 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
                 el.style.whiteSpace = 'pre-wrap';
                 el.style.maxWidth = '100%';
                 el.style.overflowWrap = 'break-word';
-                el.style.wordBreak = 'break-word';
+                el.style.wordBreak = 'normal';
+                if (isHug && el.tagName === 'DIV') {
+                    el.style.width = 'fit-content';
+                }
             });
             this._preservePrintedLineBreaks(dst);
         });
@@ -5619,28 +5809,217 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
 
     /** When the live sheet has no layout box (hidden tab), pin from saved frames. */
     private _pinPrintedLayoutFromModel(clone: HTMLElement, pageIndex: number): void {
-        if (!this.hasFreeLayout()) return;
         const pageW = this.pageWidthPx() || 1;
         const pageH = this.pageHeightPx() || 1;
-        for (const section of this.template()?.sections ?? []) {
-            const frame = this.displayFrame(section);
-            if (!frame || (frame.page ?? 0) !== pageIndex || !section.id) continue;
-            const dst = clone.querySelector(
-                `[data-section-id="${CSS.escape(section.id)}"]`
-            ) as HTMLElement | null;
-            if (!dst || (dst.style.left && dst.style.width)) continue;
+
+        if (this.hasFreeLayout()) {
+            for (const section of this.template()?.sections ?? []) {
+                const frame = this.displayFrame(section);
+                if (!frame || (frame.page ?? 0) !== pageIndex || !section.id) continue;
+                const dst = clone.querySelector(
+                    `[data-section-id="${CSS.escape(section.id)}"]`
+                ) as HTMLElement | null;
+                if (!dst || (dst.style.left && dst.style.width)) continue;
+                dst.style.position = 'absolute';
+                dst.style.margin = '0';
+                dst.style.right = 'auto';
+                dst.style.bottom = 'auto';
+                dst.style.left = `${((Number(frame.x) || 0) / pageW) * 100}%`;
+                dst.style.top = `${((Number(frame.y) || 0) / pageH) * 100}%`;
+                if (Number(frame.width) > 0) {
+                    dst.style.width = `${(Number(frame.width) / pageW) * 100}%`;
+                }
+                if (Number(frame.height) > 0) {
+                    dst.style.height = `${(Number(frame.height) / pageH) * 100}%`;
+                }
+            }
+        }
+
+        // Fallback pinning for sheetImages when offsetWidth === 0 in offscreen capture
+        const sheetImages = this.sheetImages()?.length ? this.sheetImages() : (this.template()?.sheetImages ?? []);
+        for (const image of sheetImages) {
+            if ((image.page ?? 0) !== pageIndex || !image.id) continue;
+            const overlayId = this.sheetOverlayId(image.id);
+            const dst = clone.querySelector(`[data-overlay-id="${CSS.escape(overlayId)}"]`) as HTMLElement | null;
+            if (!dst) continue;
+            const alreadyPinned = Boolean(
+                dst.style.left && dst.style.left.includes('%') && dst.style.width && dst.style.width.includes('%')
+            );
+            if (alreadyPinned) continue;
+
             dst.style.position = 'absolute';
             dst.style.margin = '0';
             dst.style.right = 'auto';
             dst.style.bottom = 'auto';
-            dst.style.left = `${((Number(frame.x) || 0) / pageW) * 100}%`;
-            dst.style.top = `${((Number(frame.y) || 0) / pageH) * 100}%`;
-            if (Number(frame.width) > 0) {
-                dst.style.width = `${(Number(frame.width) / pageW) * 100}%`;
+            dst.style.left = `${((Number(image.x) || 0) / pageW) * 100}%`;
+            dst.style.top = `${((Number(image.y) || 0) / pageH) * 100}%`;
+            if (Number(image.width) > 0) {
+                dst.style.width = `${(Number(image.width) / pageW) * 100}%`;
             }
-            if (Number(frame.height) > 0) {
-                dst.style.height = `${(Number(frame.height) / pageH) * 100}%`;
+            if (Number(image.height) > 0) {
+                dst.style.height = `${(Number(image.height) / pageH) * 100}%`;
             }
+            const rot = image.rotation || 0;
+            if (rot) {
+                dst.style.transform = `rotate(${rot}deg)`;
+                dst.style.transformOrigin = 'center center';
+            }
+            dst.querySelectorAll('img').forEach((node) => {
+                const img = node as HTMLElement;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.maxWidth = 'none';
+                img.style.maxHeight = 'none';
+                img.style.objectFit = 'contain';
+            });
+        }
+
+        // Fallback pinning for logo
+        if (pageIndex === 0) {
+            const dst = clone.querySelector('[data-overlay-id="logo"]') as HTMLElement | null;
+            if (dst) {
+                const alreadyPinned = Boolean(
+                    dst.style.left && dst.style.left.includes('%') && dst.style.width && dst.style.width.includes('%')
+                );
+                if (!alreadyPinned) {
+                    const logoX = this.logoX() ?? this.template()?.logoSettings?.x ?? 32;
+                    const logoY = this.logoY() ?? this.template()?.logoSettings?.y ?? 32;
+                    const logoW = this.logoWidth() ?? this.template()?.logoSettings?.width ?? 160;
+                    const logoH = this.logoHeight() ?? this.template()?.logoSettings?.height ?? 60;
+                    const logoRot = this.logoRotation() ?? this.template()?.logoSettings?.rotation ?? 0;
+
+                    dst.style.position = 'absolute';
+                    dst.style.margin = '0';
+                    dst.style.right = 'auto';
+                    dst.style.bottom = 'auto';
+                    dst.style.left = `${((Number(logoX) || 0) / pageW) * 100}%`;
+                    dst.style.top = `${((Number(logoY) || 0) / pageH) * 100}%`;
+                    if (Number(logoW) > 0) {
+                        dst.style.width = `${(Number(logoW) / pageW) * 100}%`;
+                    }
+                    if (Number(logoH) > 0) {
+                        dst.style.height = `${(Number(logoH) / pageH) * 100}%`;
+                    }
+                    if (logoRot) {
+                        dst.style.transform = `rotate(${logoRot}deg)`;
+                        dst.style.transformOrigin = 'center center';
+                    }
+                    dst.querySelectorAll('img').forEach((node) => {
+                        const img = node as HTMLElement;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.maxWidth = 'none';
+                        img.style.maxHeight = 'none';
+                        img.style.objectFit = 'contain';
+                    });
+                }
+            }
+        }
+
+        // Fallback pinning for signature
+        const sigPage = this.signaturePage() ?? this.template()?.signature?.page ?? 0;
+        if (pageIndex === sigPage) {
+            const dst = clone.querySelector('[data-overlay-id="signature"]') as HTMLElement | null;
+            if (dst) {
+                const alreadyPinned = Boolean(
+                    dst.style.left && dst.style.left.includes('%') && dst.style.width && dst.style.width.includes('%')
+                );
+                if (!alreadyPinned) {
+                    const sigX = this.signatureX() ?? this.template()?.signature?.x ?? 0;
+                    const sigY = this.signatureY() ?? this.template()?.signature?.y ?? 0;
+                    const sigW = this.signatureWidth() ?? this.template()?.signature?.width ?? 100;
+                    const sigH = this.signatureHeight() ?? this.template()?.signature?.height ?? 50;
+
+                    dst.style.position = 'absolute';
+                    dst.style.margin = '0';
+                    dst.style.right = 'auto';
+                    dst.style.bottom = 'auto';
+                    dst.style.left = `${((Number(sigX) || 0) / pageW) * 100}%`;
+                    dst.style.top = `${((Number(sigY) || 0) / pageH) * 100}%`;
+                    if (Number(sigW) > 0) {
+                        dst.style.width = `${(Number(sigW) / pageW) * 100}%`;
+                    }
+                    if (Number(sigH) > 0) {
+                        dst.style.height = `${(Number(sigH) / pageH) * 100}%`;
+                    }
+                    dst.querySelectorAll('img').forEach((node) => {
+                        const img = node as HTMLElement;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.maxWidth = 'none';
+                        img.style.maxHeight = 'none';
+                        img.style.objectFit = 'contain';
+                    });
+                }
+            }
+        }
+
+        // Fallback pinning for watermark
+        const watermarkDst = clone.querySelector('[data-overlay-box][data-overlay-id="watermark"]') as HTMLElement | null;
+        if (watermarkDst) {
+            const alreadyPinned = Boolean(
+                watermarkDst.style.left &&
+                    watermarkDst.style.left.includes('%') &&
+                    watermarkDst.style.width &&
+                    watermarkDst.style.width.includes('%')
+            );
+            if (!alreadyPinned) {
+                const wX = this.watermarkX() ?? this.template()?.watermark?.x ?? 250;
+                const wY = this.watermarkY() ?? this.template()?.watermark?.y ?? 420;
+                const wW = this.watermarkWidth() ?? this.template()?.watermark?.width ?? 280;
+                const wH = this.watermarkHeight() ?? this.template()?.watermark?.height ?? 160;
+                const wRot = this.watermarkRotation() ?? this.template()?.watermark?.rotation ?? -15;
+
+                watermarkDst.style.position = 'absolute';
+                watermarkDst.style.margin = '0';
+                watermarkDst.style.right = 'auto';
+                watermarkDst.style.bottom = 'auto';
+                watermarkDst.style.left = `${((Number(wX) || 0) / pageW) * 100}%`;
+                watermarkDst.style.top = `${((Number(wY) || 0) / pageH) * 100}%`;
+                if (Number(wW) > 0) {
+                    watermarkDst.style.width = `${(Number(wW) / pageW) * 100}%`;
+                }
+                if (Number(wH) > 0) {
+                    watermarkDst.style.height = `${(Number(wH) / pageH) * 100}%`;
+                }
+                if (wRot) {
+                    watermarkDst.style.transform = `rotate(${wRot}deg)`;
+                    watermarkDst.style.transformOrigin = 'center center';
+                }
+            }
+        }
+
+        // Fallback pinning for headerLogos
+        const headerLogos = this.headerLogoViews();
+        for (const hLogo of headerLogos) {
+            const overlayId = this.headerOverlayId(hLogo.id);
+            const dst = clone.querySelector(`[data-overlay-id="${CSS.escape(overlayId)}"]`) as HTMLElement | null;
+            if (!dst) continue;
+            const alreadyPinned = Boolean(
+                dst.style.left && dst.style.left.includes('%') && dst.style.width && dst.style.width.includes('%')
+            );
+            if (alreadyPinned) continue;
+
+            dst.style.position = 'absolute';
+            dst.style.margin = '0';
+            dst.style.right = 'auto';
+            dst.style.bottom = 'auto';
+            dst.style.left = `${((Number(hLogo.x) || 0) / pageW) * 100}%`;
+            dst.style.top = `${((Number(hLogo.y) || 0) / pageH) * 100}%`;
+            if (Number(hLogo.width) > 0) {
+                dst.style.width = `${(Number(hLogo.width) / pageW) * 100}%`;
+            }
+            if (Number(hLogo.height) > 0) {
+                dst.style.height = `${(Number(hLogo.height) / pageH) * 100}%`;
+            }
+            dst.querySelectorAll('img').forEach((node) => {
+                const img = node as HTMLElement;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.maxWidth = 'none';
+                img.style.maxHeight = 'none';
+                img.style.objectFit = 'contain';
+            });
         }
     }
 
@@ -5657,6 +6036,10 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         dst.style.top = `${(src.offsetTop / parentH) * 100}%`;
         dst.style.width = `${(src.offsetWidth / parentW) * 100}%`;
         dst.style.height = `${(src.offsetHeight / parentH) * 100}%`;
+        const secType = src.getAttribute('data-section-type');
+        if (secType && secType !== 'image' && secType !== 'shape') {
+            dst.style.overflow = 'visible';
+        }
         dst.style.transform = src.style.transform || 'none';
         dst.style.transformOrigin = src.style.transformOrigin || 'center center';
         const srcImgs = src.querySelectorAll('img');
@@ -5760,9 +6143,21 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             'flex-wrap',
             'align-items',
             'justify-content',
+            'flex',
+            'flex-grow',
+            'flex-shrink',
+            'flex-basis',
             'gap',
+            'column-gap',
+            'row-gap',
             'grid-template-columns',
             'grid-template-rows',
+            'grid-column',
+            'grid-column-start',
+            'grid-column-end',
+            'grid-row',
+            'grid-row-start',
+            'grid-row-end',
             'font-family',
             'font-size',
             'font-weight',
@@ -5777,6 +6172,8 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
             'color',
             '--report-link-color',
             'white-space',
+            'overflow-wrap',
+            'word-break',
             'background-color',
             'background-image',
             'background-repeat',
@@ -5817,7 +6214,18 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         for (const key of keys) {
             const value = computed.getPropertyValue(key).trim();
             if (!value || skip.has(value)) {
-                if ((key === 'margin' || key === 'padding') && (value === '0px' || value === '0')) {
+                if (
+                    (key === 'margin' ||
+                        key === 'padding' ||
+                        key === 'min-width' ||
+                        key === 'min-height' ||
+                        key === 'flex-shrink' ||
+                        key === 'flex-grow' ||
+                        key === 'flex-basis' ||
+                        ((key === 'top' || key === 'left' || key === 'right' || key === 'bottom') &&
+                            computed.position !== 'static')) &&
+                    (value === '0px' || value === '0')
+                ) {
                     css += `${key}:0;`;
                 }
                 continue;
@@ -5842,6 +6250,81 @@ html,body{margin:0;padding:0;width:${pageWidthMm}mm;height:${pageCount * pageHei
         if (elSrc.style?.backgroundSize) elDst.style.backgroundSize = elSrc.style.backgroundSize;
         if (elSrc.style?.backgroundPosition) elDst.style.backgroundPosition = elSrc.style.backgroundPosition;
         if (elSrc.style?.backgroundRepeat) elDst.style.backgroundRepeat = elSrc.style.backgroundRepeat;
+        if (elSrc.style?.gridColumn) elDst.style.gridColumn = elSrc.style.gridColumn;
+        if (elSrc.style?.gridTemplateColumns) elDst.style.gridTemplateColumns = elSrc.style.gridTemplateColumns;
+        if (elSrc.style?.minHeight) elDst.style.minHeight = elSrc.style.minHeight;
+        if (elSrc.hasAttribute('data-section-clip')) {
+            elDst.style.position = 'relative';
+            elDst.style.width = '100%';
+            elDst.style.height = 'auto';
+            elDst.style.minHeight = '100%';
+            elDst.style.overflow = 'visible';
+        }
+        if (computed.display === 'grid' || computed.display === 'inline-grid') {
+            elDst.style.width = '100%';
+            elDst.style.height = 'auto';
+            if (elSrc.style?.gridTemplateColumns) {
+                elDst.style.gridTemplateColumns = elSrc.style.gridTemplateColumns;
+            }
+        }
+        if (elSrc.hasAttribute('data-report-cell')) {
+            elDst.style.width = 'auto';
+            elDst.style.height = 'auto';
+            elDst.style.minWidth = '0';
+            if (elSrc.style?.gridColumn) elDst.style.gridColumn = elSrc.style.gridColumn;
+            if (elSrc.style?.minHeight) elDst.style.minHeight = elSrc.style.minHeight;
+        }
+        if (elSrc.hasAttribute('data-cell-part') || elSrc.hasAttribute('data-field-part')) {
+            elDst.style.width = 'auto';
+            elDst.style.height = 'auto';
+            elDst.style.minWidth = '0';
+        }
+        if (elSrc.hasAttribute('data-sheet-text') || elSrc.getAttribute('data-sheet-role') === 'title') {
+            elDst.style.width = elSrc.tagName === 'DIV' && computed.display === 'block' ? '100%' : 'auto';
+            elDst.style.height = 'auto';
+            elDst.style.maxWidth = elSrc.style?.maxWidth || '100%';
+            if (elSrc.hasAttribute('data-value-rule')) {
+                elDst.style.whiteSpace = 'nowrap';
+            }
+        }
+        const tag = elSrc.tagName;
+        const parentDisplay = elSrc.parentElement ? getComputedStyle(elSrc.parentElement).display : '';
+        const inFlexOrGrid = parentDisplay.includes('flex') || parentDisplay.includes('grid');
+        const isFitWidth = elSrc.classList.contains('w-fit') || elSrc.classList.contains('inline-block');
+        if (tag === 'TABLE') {
+            elDst.style.width = '100%';
+            elDst.style.height = 'auto';
+        } else if (tag === 'THEAD' || tag === 'TBODY' || tag === 'TR') {
+            elDst.style.height = 'auto';
+        } else if (tag === 'TH' || tag === 'TD') {
+            elDst.style.height = 'auto';
+            if (!elSrc.style?.width && !elSrc.classList.contains('w-1/3')) {
+                elDst.style.width = 'auto';
+            }
+        } else if (
+            (tag === 'DIV' || tag === 'P' || tag === 'H4') &&
+            !elSrc.hasAttribute('data-report-page') &&
+            !elSrc.hasAttribute('data-report-page-inner') &&
+            !elSrc.hasAttribute('data-report-section') &&
+            !elSrc.hasAttribute('data-overlay-box') &&
+            !elSrc.hasAttribute('data-sheet-image') &&
+            !elSrc.hasAttribute('data-report-icon') &&
+            !elSrc.hasAttribute('data-cell-part') &&
+            !elSrc.hasAttribute('data-field-part') &&
+            !elSrc.hasAttribute('data-report-cell') &&
+            !elSrc.hasAttribute('data-sheet-text') &&
+            elSrc.getAttribute('data-sheet-role') !== 'title' &&
+            !elSrc.querySelector('[data-overlay-box]') &&
+            !elSrc.classList.contains('report-chart') &&
+            !elSrc.closest('[data-section-type="shape"],[data-section-type="divider"],[data-section-type="spacer"],[data-section-type="image"],[data-overlay-box]')
+        ) {
+            if (!elSrc.style?.height && computed.position !== 'absolute') {
+                elDst.style.height = 'auto';
+            }
+            if (tag === 'DIV' && computed.display === 'block' && !elSrc.style?.width && !inFlexOrGrid && !isFitWidth) {
+                elDst.style.width = '100%';
+            }
+        }
         const srcKids = source.children;
         const dstKids = target.children;
         const n = Math.min(srcKids.length, dstKids.length);

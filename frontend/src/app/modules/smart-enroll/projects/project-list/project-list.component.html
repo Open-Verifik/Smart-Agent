@@ -108,6 +108,17 @@
                                                         : t('smartEnrollProjects.list.active')
                                                 }}
                                             </span>
+                                            @if (isV2Project(project)) {
+                                                <span class="version-badge version-badge-v2" [attr.title]="projectStyleLabel(project) || 'V2'">
+                                                    <span class="version-badge-tag">V2</span>
+                                                    @if (projectStyleLabel(project); as style) {
+                                                        <span class="version-badge-sep">·</span>
+                                                        <span class="version-badge-style">{{ style }}</span>
+                                                    }
+                                                </span>
+                                            } @else {
+                                                <span class="version-badge version-badge-v1" title="V1 (Legacy)">V1</span>
+                                            }
                                             @if (project.demoMode) {
                                                 <span class="demo-badge">({{ t('smartEnrollProjects.list.demoMode') }})</span>
                                             }

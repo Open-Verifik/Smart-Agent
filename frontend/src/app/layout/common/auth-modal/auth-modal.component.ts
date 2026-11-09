@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { isStaffSessionRevoked } from 'app/core/auth/session-rejection';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { BiometricSecurityService } from 'app/core/services/biometric-security.service';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
@@ -1024,6 +1025,19 @@ export class AuthModalComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Clears a revoked staff session instead of keeping the token or reloading into it.
+   * Returns true when the error was `staff_session_revoked`.
+   */
+  private _rejectStaffSession(err: unknown): boolean {
+    if (!isStaffSessionRevoked(err)) return false;
+    this._authService.signOut(true);
+    this._sessionService.handleRevokedSession();
+    this.isLoading.set(false);
+    this.error.set(null);
+    return true;
+  }
+
   private _completeWeb2Login(tempToken: string): void {
     this._authService.accessToken = tempToken;
 
@@ -1045,6 +1059,7 @@ export class AuthModalComponent implements OnDestroy {
               this._sessionService.safeReload();
             },
             error: (err) => {
+              if (this._rejectStaffSession(err)) return;
               console.error('Session fetch failed', err);
               this.error.set('Failed to fetch session');
               this.isLoading.set(false);
@@ -1056,6 +1071,7 @@ export class AuthModalComponent implements OnDestroy {
         }
       },
       error: (err) => {
+        if (this._rejectStaffSession(err)) return;
         console.error('Project login failed', err);
         this.error.set('Login failed');
         this.isLoading.set(false);
@@ -1077,6 +1093,7 @@ export class AuthModalComponent implements OnDestroy {
         this._sessionService.safeReload();
       },
       error: (err) => {
+        if (this._rejectStaffSession(err)) return;
         console.error('Session fetch failed', err);
         this.error.set('Failed to fetch session');
         this.isLoading.set(false);

@@ -248,6 +248,7 @@
         "emailFailed": "No pudimos enviar el correo. Puedes descargar el PDF.",
         "partial": "Algunas fuentes no respondieron. El PDF incluye lo que sí se pudo consultar.",
         "failed": "No pudimos completar la consulta. Revisa la placa e inténtalo de nuevo.",
+        "endpointsNotInAccount": "No puedes realizar esta consulta porque tu cuenta no tiene disponibles estas consultas:",
         "timeout": "La consulta sigue en proceso. Puedes revisarla de nuevo en un momento.",
         "genericError": "Algo salió mal. Inténtalo de nuevo.",
         "newReport": "Nueva consulta",
@@ -600,6 +601,7 @@
         "searchingHint": "Consultamos solo las fuentes que elegiste.",
         "inputRequired": "Ingresa el dato para continuar.",
         "consultFailed": "No pudimos completar la consulta. Revisa el dato e inténtalo de nuevo.",
+        "endpointsNotInAccount": "No puedes realizar esta consulta porque tu cuenta no tiene disponibles estas consultas: {{codes}}.",
         "noResults": "No encontramos información para este dato.",
         "continueToReport": "Incluir esto en un reporte",
         "newConsultation": "Nueva consulta",
@@ -761,11 +763,102 @@
         "flowShowLibrary": "Mostrar endpoints",
         "flowHideConfig": "Ocultar configuración",
         "flowShowConfig": "Mostrar configuración",
+        "endpointInfoOpen": "Ficha",
+        "endpointInfoKicker": "Ficha del endpoint",
+        "endpointInfoCost": "Costo",
+        "endpointInfoPurpose": "Para qué sirve",
+        "endpointInfoNoPurpose": "Sin descripción.",
+        "endpointInfoInput": "Entrada",
+        "endpointInfoOutput": "Respuesta",
+        "endpointInfoViewSample": "Ver ejemplo",
+        "endpointInfoHideSample": "Ocultar ejemplo",
+        "endpointInfoTypeText": "texto",
+        "endpointInfoTypeNumber": "número",
+        "endpointInfoTypeBoolean": "sí/no",
+        "endpointInfoTypeList": "lista",
+        "endpointInfoTypeObject": "objeto",
+        "endpointInfoCredits": "{{cost}} créditos",
+        "endpointInfoSource": "Fuente · {{name}}",
+        "endpointInfoSourcePlain": "Fuente",
+        "endpointInfoSends": "Qué envía",
+        "endpointInfoApiLead": "Ejemplos de llamada directa por API",
+        "endpointInfoApiHint": "Así se consume este endpoint por HTTP, fuera del flujo.",
+        "endpointInfoDocsOfficial": "Leer documentación oficial",
+        "endpointInfoCopyCode": "Copiar código",
+        "endpointInfoParameter": "Parámetro",
+        "endpointInfoRequirement": "Requisito",
+        "endpointInfoAllowed": "Valores permitidos / formato",
+        "endpointInfoRequiredBadge": "Requerido",
+        "endpointInfoConditional": "Condicional",
+        "endpointInfoTypeDate": "Fecha",
+        "endpointInfoMoreAlternatives": "Más alternativas",
+        "endpointInfoHideAlternatives": "Ocultar alternativas",
+        "endpointInfoMoreValues": "+{{count}} más",
+        "endpointInfoModeNameSearch": "Opción {{letter}} — Búsqueda por nombre completo",
+        "endpointInfoModeDocumentSearch": "Opción {{letter}} — Búsqueda por documento",
+        "endpointInfoModePlateSearch": "Opción {{letter}} — Búsqueda por placa",
+        "endpointInfoModeVinSearch": "Opción {{letter}} — Búsqueda por VIN",
+        "endpointInfoModeGeneric": "Opción {{letter}}",
+        "endpointInfoModeNameHint": "Se consulta con el nombre completo.",
+        "endpointInfoModeDocumentHint": "Se consulta con el tipo y el número de documento.",
+        "endpointInfoModePlateHint": "Se consulta con la placa del vehículo.",
+        "endpointInfoModeVinHint": "Se consulta con el VIN del vehículo.",
+        "endpointInfoDesign": "En el diseño",
+        "endpointInfoDesignHint": "Así se vería el bloque de datos al agregarlo al diseño del reporte.",
+        "endpointInfoDesignMore": "El bloque incluye {{count}} campos más.",
+        "endpointInfoSampleText": "Texto",
+        "endpointInfoSummary": "Resumen",
+        "endpointInfoParams": "Parámetros de entrada",
+        "endpointInfoResponse": "Respuesta de muestra",
+        "endpointInfoApi": "Ejemplo de API",
+        "endpointInfoTry": "Probar endpoint",
+        "endpointInfoDocs": "Documentación",
+        "endpointInfoCountry": "País",
+        "endpointInfoCategory": "Categoría",
+        "endpointInfoStatus": "Estado",
+        "endpointInfoMethod": "Método",
+        "endpointInfoShape": "Esta consulta devuelve {{shape}}.",
+        "endpointInfoShapeList": "una lista de registros",
+        "endpointInfoShapeNested": "objetos con listas anidadas",
+        "endpointInfoShapeObject": "un registro",
+        "endpointInfoQueryMode": "Forma de consulta",
+        "endpointInfoModeAll": "Todos los campos",
+        "endpointInfoModeName": "Por nombre",
+        "endpointInfoModeDocument": "Por documento",
+        "endpointInfoNoParams": "Este endpoint no declara parámetros de entrada.",
+        "endpointInfoRequired": "Obligatorio",
+        "endpointInfoOptional": "Opcional",
+        "endpointInfoNoSample": "No hay un JSON de ejemplo en la documentación.",
+        "endpointInfoField": "Campo",
+        "endpointInfoType": "Tipo de dato",
+        "endpointInfoDescription": "Descripción",
+        "endpointInfoExample": "Ejemplo",
+        "endpointInfoTokenHint": "El código usa <token> como marcador. La prueba dentro de la app usa tu sesión y no muestra la credencial.",
+        "endpointInfoTryHint": "Completa los datos y ejecuta la consulta. Puede consumir el costo indicado.",
+        "endpointInfoTryMissing": "Faltan campos obligatorios.",
+        "endpointInfoTryRun": "Probar endpoint",
+        "endpointInfoTryStatus": "Estado",
+        "endpointInfoDocsMissing": "No hay documentación cargada para este endpoint.",
+        "endpointInfoOpenDocs": "Abrir documentación",
+        "endpointInfoOpenPostman": "Abrir en Postman",
+        "endpointInfoCopy": "Copiar",
+        "endpointInfoCopied": "Copiado",
+        "endpointInfoClose": "Cerrar",
+        "endpointInfoAdd": "Agregar a este proyecto",
+        "endpointInfoTryGo": "Probar en Postman",
+        "endpointInfoModesHint": "Esta consulta se puede hacer de varias formas. En el flujo eliges una.",
+        "endpointInfoModeLetter": "Opción {{letter}}",
+        "endpointInfoHidden": "No público",
+        "endpointInfoAvailable": "Disponible",
         "flowCanvas": "Lienzo del flujo",
         "flowConfig": "Configuración",
         "flowWiresHint": "Desde Inicio puedes tirar el mismo dato a varios bloques. También puedes arrastrar un punto verde de un bloque al círculo gris del siguiente.",
         "flowDeleteWire": "Eliminar conexión",
         "flowInputs": "Entradas",
+        "flowQueryMode": "Forma de consulta",
+        "flowQueryModeHint": "Elige una opción. El flujo solo pide los datos de esa forma.",
+        "flowQueryOption": "Opción {{letter}}",
+        "flowQueryWhen": "Obligatorio si {{when}} es {{values}}",
         "flowOutputs": "Salidas",
         "flowArrayItem": "Ítem {{index}}",
         "flowArrayIndexHint": "Índice del arreglo. Vacío envía el valor completo. Si ese puesto no existe, la consulta guarda el error.",
@@ -1154,9 +1247,41 @@
         "layoutTableHeaderColor": "Texto de cabecera",
         "layoutTableCellBg": "Fondo de celdas",
         "layoutTableCellColor": "Texto de celdas",
+        "smartFormatBlock": "Auto-formatear bloque",
+        "smartFormatBlockHint": "Limpia campos repetidos, traduce etiquetas y ajusta textos largos",
+        "smartFormatAll": "Auto-formatear todo",
+        "smartFormatAllHint": "Optimiza todas las secciones de respuesta del reporte en un clic",
+        "smartFormatApplied": "Formato inteligente aplicado",
+        "layersToggle": "Capas",
+        "layersCurrentPage": "Página actual",
+        "layersAllPages": "Todas",
+        "arrayName": "Nombres desglosados",
+        "fullName": "Nombre completo",
+        "firstName": "Nombres",
+        "lastName": "Apellidos",
+        "firstSurname": "Primer apellido",
+        "secondSurname": "Segundo apellido",
+        "lastSurname": "Segundo apellido",
+        "consultedSubject": "Sujeto consultado",
+        "foundInFbi": "Hallazgo en FBI",
+        "foundInDea": "Hallazgo en DEA",
+        "foundInOnu": "Hallazgo en ONU",
+        "foundInOfac": "Hallazgo en OFAC",
+        "foundInInterpol": "Hallazgo en Interpol",
+        "details": "Resultado de la consulta",
+        "legend": "Nota legal",
+        "records": "Registros asociados",
+        "code": "Estado",
+        "message": "Detalle",
+        "status": "Estado",
+        "hasRecords": "Posee registros",
+        "hasAntecedentes": "Posee registros",
+        "hasMatches": "Posee registros",
+        "documentNumber": "Número de documento",
+        "documentType": "Tipo de documento",
         "explainer": {
             "currentSetupLabel": "Configuración actual",
-            "eyebrow_intent": "PASO 01 · OBJETIVO",
+            "eyebrow_intent": "OBJETIVO",
             "eyebrow_country": "GEOGRAFÍA · FUENTES OFICIALES",
             "eyebrow_entity": "TIPO DE SUJETO · OBJETIVO DE CONSULTA",
             "eyebrow_mode": "MODO DE EJECUCIÓN · INDIVIDUAL O LOTE",
@@ -1356,7 +1481,31 @@
         "createConfiguration": "Crear configuración",
         "loadFailed": "No se pudo cargar esta configuración. Verifica que exista y que tengas acceso.",
         "featuresLoadFailed": "No se pudieron cargar los endpoints disponibles. Inténtalo de nuevo.",
-        "saveFailed": "No se pudo guardar la configuración. Revisa el formulario e inténtalo de nuevo."
+        "saveFailed": "No se pudo guardar la configuración. Revisa el formulario e inténtalo de nuevo.",
+        "arrayName": "Nombres desglosados",
+        "fullName": "Nombre completo",
+        "firstName": "Nombres",
+        "lastName": "Apellidos",
+        "firstSurname": "Primer apellido",
+        "secondSurname": "Segundo apellido",
+        "lastSurname": "Segundo apellido",
+        "consultedSubject": "Sujeto consultado",
+        "foundInFbi": "Hallazgo en FBI",
+        "foundInDea": "Hallazgo en DEA",
+        "foundInOnu": "Hallazgo en ONU",
+        "foundInOfac": "Hallazgo en OFAC",
+        "foundInInterpol": "Hallazgo en Interpol",
+        "details": "Resultado de la consulta",
+        "legend": "Nota legal",
+        "records": "Registros asociados",
+        "code": "Estado",
+        "message": "Detalle",
+        "status": "Estado",
+        "hasRecords": "Posee registros",
+        "hasAntecedentes": "Posee registros",
+        "hasMatches": "Posee registros",
+        "documentNumber": "Número de documento",
+        "documentType": "Tipo de documento"
     },
     "batchDashboard": {
         "backToSmartBatch": "Volver a Smart Batch",
@@ -1701,6 +1850,7 @@
         "retry": "Intentar de nuevo",
         "structuralRows": "{{count}} registros",
         "sheetTable": "Tabla",
+        "sheetTableOf": "Tabla de {{name}}",
         "structuralAuto": "Columnas detectadas de los datos",
         "railData": "Datos",
         "railBlocks": "Bloques",
@@ -3510,6 +3660,7 @@
         "noCollectionsAvailable": "No hay colecciones disponibles",
         "getError": "Error al cargar personas",
         "updateError": "Error al actualizar persona",
+        "updateSuccess": "Persona actualizada correctamente",
         "deleteError": "Error al eliminar persona",
         "imageSizeError": "La imagen debe ser de 5MB o menos",
         "collections": "Colecciones",
@@ -4622,6 +4773,58 @@
                                 "description": "Consulta asuntos pendientes con autoridades judiciales colombianas. Algunos resultados pueden requerir verificación presencial.",
                                 "source": "Fuente · Policía Nacional",
                                 "about": "La consulta de antecedentes judiciales de la Policía Nacional busca una cédula y reporta si hay asuntos pendientes con autoridades judiciales colombianas. Un resultado limpio significa que no hay asuntos pendientes. Algunas respuestas oficiales indican que el certificado no puede generarse en línea y debe solicitarse de forma presencial; eso sigue siendo un resultado completado."
+                            },
+                            "jccSanctions": {
+                                "title": "Sanciones disciplinarias contables",
+                                "description": "Consulta antecedentes disciplinarios y sanciones vigentes para profesionales contables.",
+                                "source": "Fuente · Junta oficial reguladora",
+                                "about": "Registro oficial de antecedentes disciplinarios para profesionales de contaduría. Este endpoint consulta si existen sanciones o suspensiones vigentes para el número de documento."
+                            },
+                            "pacoSanctions": {
+                                "title": "Sanciones de transparencia y anticorrupción",
+                                "description": "Consulta registros nacionales de transparencia sobre sanciones fiscales, penales o disciplinarias.",
+                                "source": "Fuente · Portal oficial anticorrupción",
+                                "about": "Registro consolidado de transparencia que reúne antecedentes fiscales, disciplinarios y contractuales. Un hallazgo indica sanciones o inhabilidades registradas en el portal oficial anticorrupción."
+                            },
+                            "ramaJepms": {
+                                "title": "Ejecución de penas y medidas de seguridad",
+                                "description": "Consulta registros judiciales sobre ejecución de penas y medidas de seguridad.",
+                                "source": "Fuente · Rama judicial oficial",
+                                "about": "Base de datos judicial oficial para el seguimiento de sentencias penales y medidas de seguridad. Este endpoint consulta si existen procesos activos de ejecución de penas para el documento."
+                            },
+                            "adverseMedia": {
+                                "title": "Monitoreo de medios adversos",
+                                "description": "Consulta noticias y medios públicos indexados sobre menciones adversas, litigios o delitos financieros.",
+                                "source": "Fuente · Índice de medios adversos",
+                                "about": "Monitoreo automatizado de medios públicos que analiza artículos de prensa y reportes investigativos en busca de menciones vinculadas a litigios, fraude o riesgos reputacionales."
+                            },
+                            "sicaacCases": {
+                                "title": "Casos de arbitraje y conciliación comercial",
+                                "description": "Consulta trámites oficiales de conciliación y procesos de arbitraje comercial.",
+                                "source": "Fuente · Registro oficial de conciliación",
+                                "about": "Sistema oficial de información en conciliación y arbitraje. Este endpoint consulta si existen procesos de resolución de controversias, conciliación o arbitraje comercial registrados para el número de identificación."
+                            },
+                            "sicaacInsolvency": {
+                                "title": "Procedimientos de insolvencia de persona natural",
+                                "description": "Consulta registros oficiales sobre trámites de insolvencia y negociación de deudas.",
+                                "source": "Fuente · Registro oficial de insolvencia",
+                                "about": "Registro oficial para procedimientos de insolvencia de persona natural no comerciante. Este endpoint consulta si la persona ha iniciado procesos de negociación de deudas o liquidación patrimonial."
+                            }
+                        },
+                        "peru": {
+                            "pep": {
+                                "title": "Personas Expuestas Políticamente (PEP — SBS 2660-2015)",
+                                "description": "Consulta ciudadanos (DNI/CE) y nombres contra el padrón PEP según Resolución SBS N° 4349-2016 / 02868-2025 con ventana de 2 años para ex-PEP.",
+                                "source": "Fuente · SBS / Registro Oficial de Declaraciones",
+                                "about": "Evalúa si una persona califica como Persona Expuesta Políticamente (PEP) en el Perú conforme a las categorías a–m del Anexo de la Resolución SBS N° 4349-2016 y N° 02868-2025 (Reglamento SPLAFT Res. SBS N° 2660-2015), incluyendo cargos vigentes y exfuncionarios dentro de los 2 años posteriores al cese."
+                            }
+                        },
+                        "brazil": {
+                            "pep": {
+                                "title": "Personas Expuestas Políticamente (PEP — COAF 40/2021)",
+                                "description": "Consulta CPF brasileños y nombres en el padrón PEP bajo la Resolución COAF N° 40/2021 con ventana de 5 años para ex-PEP.",
+                                "source": "Fuente · Portal de la Transparencia / CGU",
+                                "about": "Evalúa si una persona califica como Persona Expuesta Políticamente (PEP) en Brasil conforme a la Resolución COAF N° 40/2021 y el Decreto N° 10.889/2021, abarcando cargos vigentes y exfuncionarios durante los 5 años posteriores al cese en la función pública."
                             }
                         },
                         "interpol": {
@@ -4659,6 +4862,157 @@
                             "description": "Consulta la lista consolidada de sanciones del Consejo de Seguridad de la ONU.",
                             "source": "Fuente · Naciones Unidas",
                             "about": "El Consejo de Seguridad de la ONU publica una lista consolidada de sanciones. Este endpoint consulta el nombre completo contra esa lista. Un hallazgo significa que el nombre coincide con una parte sancionada."
+                        },
+                        "csl": {
+                            "title": "Lista consolidada de vigilancia (CSL)",
+                            "description": "Consulta partes sujetas a restricciones comerciales o de exportación por el Gobierno de EE. UU.",
+                            "source": "Fuente · Comercio internacional de EE. UU.",
+                            "about": "Lista consolidada de vigilancia administrada por agencias federales de EE. UU. Consulta partes sujetas a restricciones de comercio o exportación. Un hallazgo indica coincidencia con una persona o entidad restringida."
+                        },
+                        "dss": {
+                            "title": "Más buscados de DSS",
+                            "description": "Consulta personas buscadas por el Servicio de Seguridad Diplomática.",
+                            "source": "Fuente · Servicio de Seguridad Diplomática",
+                            "about": "Registro de personas más buscadas por el Servicio de Seguridad Diplomática por fraude de pasaportes, visados y actividad criminal internacional. Un hallazgo significa coincidencia con un prófugo buscado."
+                        },
+                        "usTerrorists": {
+                            "title": "Lista de exclusión terrorista de EE. UU.",
+                            "description": "Consulta individuos designados bajo leyes antiterroristas y normas de exclusión migratoria de EE. UU.",
+                            "source": "Fuente · Departamento de Estado de EE. UU.",
+                            "about": "Lista de exclusión terrorista y organizaciones designadas conforme a normas migratorias y de seguridad nacional de EE. UU. Un hallazgo indica una coincidencia con una parte designada."
+                        },
+                        "secretService": {
+                            "title": "Más buscados del Servicio Secreto",
+                            "description": "Consulta fugitivos buscados por el Servicio Secreto de EE. UU. por delitos financieros y cibernéticos.",
+                            "source": "Fuente · Servicio Secreto de EE. UU.",
+                            "about": "Lista oficial de personas más buscadas por el Servicio Secreto de EE. UU., orientada a fugitivos por delitos financieros, falsificación y ciberdelincuencia. Un hallazgo significa coincidencia con un registro de captura."
+                        },
+                        "sec": {
+                            "title": "Sanciones de la SEC",
+                            "description": "Consulta sanciones administrativas, suspensiones bursátiles y fallos civiles de la SEC.",
+                            "source": "Fuente · Comisión de Bolsa y Valores de EE. UU. · SEC",
+                            "about": "Registro de medidas sancionatorias de la Comisión de Bolsa y Valores de EE. UU. sobre personas e instituciones inhabilitadas o sancionadas en mercados bursátiles. Un hallazgo indica una sanción activa."
+                        },
+                        "healthExclusions": {
+                            "title": "Exclusiones de programas de salud (LEIE)",
+                            "description": "Consulta personas y entidades inhabilitadas para participar en programas federales de salud de EE. UU.",
+                            "source": "Fuente · Departamento de Salud de EE. UU.",
+                            "about": "Lista de personas y entidades excluidas (LEIE) que identifica a partes inhabilitadas para prestar servicios en programas públicos de salud debido a fraude o mala conducta profesional. Un hallazgo indica exclusión activa."
+                        },
+                        "ciaWorldLeaders": {
+                            "title": "Líderes mundiales y jefes de Estado (PEP)",
+                            "description": "Consulta jefes de estado, ministros de gabinete y personas expuestas políticamente (PEP).",
+                            "source": "Fuente · Directorio de líderes mundiales",
+                            "about": "Directorio de jefes de estado y miembros de gobierno de países extranjeros, facilitando la verificación de personas expuestas políticamente (PEP). Un hallazgo indica coincidencia con un alto funcionario."
+                        },
+                        "euTerrorists": {
+                            "title": "Lista de terroristas de la Unión Europea",
+                            "description": "Consulta la lista autónoma de la Unión Europea de personas y grupos vinculados a actos terroristas.",
+                            "source": "Fuente · Unión Europea",
+                            "about": "Lista del Consejo de la Unión Europea de personas, grupos y entidades sujetas a medidas restrictivas específicas en la lucha contra el terrorismo. Un hallazgo indica coincidencia con una parte designada."
+                        },
+                        "euFsf": {
+                            "title": "Sanciones financieras de la Unión Europea (FSF)",
+                            "description": "Consulta el archivo consolidado de sanciones financieras y congelamiento de activos de la UE.",
+                            "source": "Fuente · Servicio Europeo de Acción Exterior",
+                            "about": "Archivo consolidado de personas y entidades sujetas a sanciones financieras y congelamiento de activos por parte de la Unión Europea. Un hallazgo significa coincidencia con una parte sancionada."
+                        },
+                        "ofsi": {
+                            "title": "Sanciones de OFSI de Reino Unido",
+                            "description": "Consulta personas y entidades sujetas a sanciones financieras bajo la legislación de Reino Unido.",
+                            "source": "Fuente · HM Treasury de Reino Unido · OFSI",
+                            "about": "Lista consolidada de objetivos de sanciones financieras administrada por la Oficina de Implementación de Sanciones Financieras (OFSI) de Reino Unido. Un hallazgo significa coincidencia con un objetivo sancionado."
+                        },
+                        "worldBank": {
+                            "title": "Firmas e individuos inhabilitados por el Banco Mundial",
+                            "description": "Consulta partes inhabilitadas para participar en proyectos financiados por el Banco Mundial.",
+                            "source": "Fuente · Grupo Banco Mundial",
+                            "about": "Lista oficial de partes inhabilitadas para adjudicarse contratos financiados por el Banco Mundial en el marco de sanciones anticorrupción. Un hallazgo indica inhabilitación activa."
+                        },
+                        "iadb": {
+                            "title": "Sanciones del Banco Interamericano de Desarrollo (BID)",
+                            "description": "Consulta partes sancionadas o inhabilitadas por el Banco Interamericano de Desarrollo.",
+                            "source": "Fuente · Banco Interamericano de Desarrollo",
+                            "about": "Lista de sanciones del Grupo BID sobre firmas e individuos determinados por incurrir en fraude, corrupción o prácticas prohibidas. Un hallazgo indica sanción o suspensión activa."
+                        },
+                        "offshoreLeaks": {
+                            "title": "Base de datos Offshore Leaks",
+                            "description": "Consulta entidades offshore, directivos e intermediarios derivados de investigaciones periodísticas globales.",
+                            "source": "Fuente · Índice Offshore Leaks",
+                            "about": "Base de datos de interés público que indexa directivos, intermediarios y empresas en jurisdicciones offshore internacionales. Un hallazgo indica aparición en filtraciones corporativas indexadas."
+                        }
+                    },
+                    "detailsModal": {
+                        "tabs": {
+                            "overview": "Resumen",
+                            "params": "Qué envía",
+                            "responses": "Respuesta de muestra",
+                            "code": "Ejemplo de API"
+                        },
+                        "meta": {
+                            "method": "Método",
+                            "route": "Ruta del endpoint",
+                            "cost": "Costo",
+                            "costPerQuery": "{{price}} USD / consulta",
+                            "coverage": "Cobertura",
+                            "statusActive": "Activo en este flujo",
+                            "statusInactive": "No agregado aún",
+                            "addToProject": "Agregar a este proyecto",
+                            "removeFromProject": "Quitar del proyecto"
+                        },
+                        "overview": {
+                            "statsAuthority": "Entidad / Registro",
+                            "statsType": "Tipo de consulta",
+                            "statsTypeVal": "Consulta automática en segundo plano",
+                            "statsCost": "Costo estimado",
+                            "statsHit": "Criterio de coincidencia",
+                            "statsHitVal": "Registro o sanción activa encontrada",
+                            "aboutTitle": "Acerca de este registro oficial",
+                            "howItWorksTitle": "Ejecución automática en segundo plano",
+                            "howItWorksBody": "Cuando el solicitante completa el escaneo de su documento de identidad, SmartEnroll extrae automáticamente los campos requeridos y consulta esta fuente oficial en segundo plano. El solicitante nunca experimenta demoras de bloqueo ni ve servicios externos."
+                        },
+                        "params": {
+                            "title": "Parámetros enviados al registro oficial",
+                            "subtitle": "SmartEnroll extrae y mapea automáticamente estos campos del documento de identidad verificado:",
+                            "colField": "Parámetro",
+                            "colType": "Tipo",
+                            "colRequirement": "Requisito",
+                            "colFormat": "Valores permitidos / Formato",
+                            "colExtraction": "Origen de extracción en SmartEnroll",
+                            "colDescription": "Descripción",
+                            "required": "Requerido",
+                            "optional": "Opcional",
+                            "conditional": "Condicional",
+                            "searchGroupsIntro": "Esta verificación soporta modos de búsqueda alternativos. SmartEnroll determina automáticamente el modo óptimo según el documento de identidad escaneado:",
+                            "optionFullName": "Opción A — Búsqueda por nombre completo",
+                            "optionFullNameHint": "Se utiliza al buscar al individuo en listas de control mediante sus nombres y apellidos verificados.",
+                            "optionDocument": "Opción B — Búsqueda por documento",
+                            "optionDocumentHint": "Se utiliza al consultar registros oficiales directamente con el tipo y número de documento escaneado.",
+                            "optionSerial": "Opción C — Búsqueda por serial",
+                            "optionSerialHint": "Se utiliza al consultar registros civiles con el número serial del documento.",
+                            "otherParamsTitle": "Otros parámetros",
+                            "otherParamsHint": "Parámetros contextuales adicionales que acepta este endpoint.",
+                            "xorModeBadge": "Modo Alternativo",
+                            "empty": "Esta verificación no requiere parámetros manuales adicionales."
+                        },
+                        "responses": {
+                            "title": "Estructuras de respuesta de muestra",
+                            "subtitle": "Revisa las respuestas del registro oficial para coincidencias, antecedentes limpios y casos especiales:",
+                            "copyJson": "Copiar JSON",
+                            "copied": "¡Copiado!",
+                            "hitBadge": "Registro Positivo / Coincidencia",
+                            "cleanBadge": "Limpio / Sin Registros",
+                            "notice": "Los campos devueltos por el registro oficial quedan certificados y con sello de tiempo en tu registro de auditoría de Verifik."
+                        },
+                        "code": {
+                            "title": "Ejemplos de llamada directa por API",
+                            "subtitle": "Si deseas consultar esta fuente directamente vía HTTP fuera del flujo de SmartEnroll:",
+                            "copyCode": "Copiar código"
+                        },
+                        "actions": {
+                            "close": "Cerrar",
+                            "readDocs": "Leer documentación oficial",
+                            "tryInPostman": "Probar en Postman"
                         }
                     }
                 },
@@ -4863,6 +5217,46 @@
                 }
             },
             "integrations": {
+                "enrollmentClient": {
+                    "title": "Experiencia de inscripción",
+                    "subtitle": "Elige la página que abre el enlace publicado.",
+                    "legacy": "Inscripción actual (/sign-up)",
+                    "v2": "Inscripción nueva (/verify)",
+                    "blocked": "La inscripción nueva permanece apagada mientras el proyecto necesite:",
+                    "blockers": {
+                        "business": "Verificación de empresa o KYB",
+                        "extraFields": "Campos de perfil adicionales",
+                        "backgroundCheck": "Verificación de antecedentes",
+                        "nameCheck": "Verificación de nombre",
+                        "screening": "Listas de control",
+                        "zeroKnowledge": "Prueba de conocimiento cero",
+                        "taxInformation": "Información fiscal",
+                        "representatives": "Representantes legales",
+                        "signature": "Firma o formulario adicional"
+                    }
+                },
+                "verifyStyle": {
+                    "title": "Apariencia de la verificación",
+                    "subtitle": "El cliente ve esto en la inscripción nueva. Si no eliges una, esa página usa Bosque. La inscripción actual no cambia.",
+                    "sample": "Continuar",
+                    "unset": "Sin elegir",
+                    "names": {
+                        "a": "Bosque",
+                        "b": "Editorial",
+                        "c": "Papel",
+                        "d": "Bóveda",
+                        "e": "Porcelana",
+                        "f": "Cuaderno"
+                    },
+                    "descriptions": {
+                        "a": "Estética salvia eco-minimalista con tipografía Inter condensada y botones redondeados en tono lima.",
+                        "b": "Diseño editorial de alto contraste con tipografía Barlow condensada y acentos monocromáticos.",
+                        "c": "Estética cálida de papel táctil con tipografía moderna Outfit y acentos en carbón profundo.",
+                        "d": "Modo oscuro estilo bóveda cibernética con tipografía Space Grotesk y controles en azul eléctrico.",
+                        "e": "Estética refinada de porcelana con tipografía delicada Inter Tight y botones contorneados en índigo.",
+                        "f": "Tema de libreta neo-brutalista con titulares en Roboto Condensed y acentos en lima brillante."
+                    }
+                },
                 "redirect": {
                     "title": "URL de redirección",
                     "subtitle": "Dónde enviar al cliente cuando termine la inscripción.",
@@ -4903,6 +5297,36 @@
                 }
             },
             "ui": {
+                "flowOrder": {
+                    "title": "Orden del enrolamiento",
+                    "subtitle": "Elige qué va primero en la nueva página de enrolamiento. La opción A pide los datos de contacto y luego el consentimiento. La opción B empieza con el consentimiento, como Stripe Identity.",
+                    "contact_first": "A · Contacto primero",
+                    "contact_first_desc": "Nombre, correo y términos, y luego la pantalla de consentimiento.",
+                    "consent_first": "B · Consentimiento primero",
+                    "consent_first_desc": "Primero la pantalla de consentimiento, luego nombre, correo y términos."
+                },
+                "verifyStyle": {
+                    "title": "Apariencia de la verificación",
+                    "subtitle": "El cliente ve esto en la inscripción nueva. Si no eliges una, esa página usa Bosque. La inscripción actual no cambia.",
+                    "sample": "Continuar",
+                    "unset": "Sin elegir",
+                    "names": {
+                        "a": "Bosque",
+                        "b": "Editorial",
+                        "c": "Papel",
+                        "d": "Bóveda",
+                        "e": "Porcelana",
+                        "f": "Cuaderno"
+                    },
+                    "descriptions": {
+                        "a": "Estética salvia eco-minimalista con tipografía Inter condensada y botones redondeados en tono lima.",
+                        "b": "Diseño editorial de alto contraste con tipografía Barlow condensada y acentos monocromáticos.",
+                        "c": "Estética cálida de papel táctil con tipografía moderna Outfit y acentos en carbón profundo.",
+                        "d": "Modo oscuro estilo bóveda cibernética con tipografía Space Grotesk y controles en azul eléctrico.",
+                        "e": "Estética refinada de porcelana con tipografía delicada Inter Tight y botones contorneados en índigo.",
+                        "f": "Tema de libreta neo-brutalista con titulares en Roboto Condensed y acentos en lima brillante."
+                    }
+                },
                 "colors": {
                     "heading": "Colores de marca",
                     "title": "Título",
@@ -8518,6 +8942,145 @@
                 "id_registered": "Identidad registrada",
                 "continue_to_platform": "Continuar"
             }
+        },
+        "verify": {
+            "acceptedBody": "Aceptamos estos documentos con foto para este proyecto.",
+            "acceptedTitle": "Documentos aceptados",
+            "agreementsTitle": "Revisa y acepta",
+            "agree": "Aceptar y continuar",
+            "agreeTerms": "Acepto los términos y el aviso de privacidad.",
+            "anotherDevice": "Continuar en otro dispositivo",
+            "auto": "Auto",
+            "autoHelp": "Coloca el documento sobre una superficie plana y bien iluminada.",
+            "back": "Atrás",
+            "backTitle": "Reverso del documento",
+            "backToConsent": "Volver al consentimiento",
+            "cameraBody": "Necesitamos tu cámara para capturar tu documento.",
+            "cameraTitle": "Permitir acceso a la cámara",
+            "captureAuto": "Capturar el documento automáticamente",
+            "category": "Categoría",
+            "codeEmail": "Ingresa el código enviado a {{email}}.",
+            "codePhone": "Ingresa el código enviado a {{phone}}.",
+            "codeTitle": "Confirma que eres tú",
+            "consentRow1": "Tomaremos una foto de un",
+            "consentRow1End": " válido, y luego una selfie.",
+            "consentRow2": "{{project}} solo recibe los datos de esta verificación.",
+            "consentRow3": "Verifik usa tecnología biométrica. Puedes eliminar tus datos.",
+            "consentTitle": "Verifiquemos tu identidad",
+            "continue": "Continuar",
+            "continueHere": "Continuar en este dispositivo",
+            "continueToProject": "Continuar",
+            "copied": "Enlace copiado",
+            "copyLink": "Copiar enlace",
+            "country": "País",
+            "countryBody": "Esta verificación no está disponible desde {{country}}.",
+            "countryTitle": "No disponible en tu país",
+            "decline": "Rechazar",
+            "declineBody": "El consentimiento es necesario para verificar tu identidad.",
+            "declineTitle": "¿Estás seguro?",
+            "documentBody": "Elige el país y el tipo de documento que vas a escanear.",
+            "documentTitle": "Documento",
+            "emailLabel": "Correo",
+            "eyebrow": "Verificación",
+            "emailTitle": "Ingresa tu correo",
+            "errorBody": "Inténtalo de nuevo.",
+            "errorTitle": "Algo salió mal",
+            "firstName": "Nombre",
+            "flipBody": "Necesitamos una foto del reverso de tu documento.",
+            "flipTitle": "Voltea tu documento",
+            "frontTitle": "Frente del documento",
+            "fullName": "Nombre completo",
+            "goBackToProject": "Volver a {{project}}",
+            "grantAccess": "Permitir acceso",
+            "handoffBody": "Escanea este código QR con tu teléfono para continuar.",
+            "handoffTitle": "Continúa en tu celular",
+            "havingTrouble": "¿Tienes problemas?",
+            "identityVerification": "Verificación de Identidad",
+            "imReady": "Estoy listo",
+            "languageTitle": "Idioma",
+            "lastName": "Apellido",
+            "license": "Licencia de conducir",
+            "manual": "Manual",
+            "moveId": "Ubica tu documento en el recuadro.",
+            "nameTitle": "Ingresa tu nombre",
+            "nationalId": "Documento de identidad",
+            "ocrReviewTitle": "Confirma tus datos",
+            "ocrReviewBody": "Revisa la información extraída de tu documento y corrige cualquier campo si es necesario.",
+            "ocrStatusExtracted": "Extraído",
+            "ocrExtractedTitle": "Información extraída",
+            "ocrEditFields": "Editar",
+            "ocrDoneEditing": "Listo",
+            "ocrResetAll": "Restaurar todo",
+            "ocrResetField": "Restaurar",
+            "ocrModifiedBadge": "Modificado",
+            "ocrConfirmContinue": "Confirmar y continuar",
+            "ocrValidatingNames": "Verificando datos con la fuente oficial…",
+            "ocrNamesVerified": "Datos verificados con la fuente oficial",
+            "ocrFieldFirstName": "Nombres",
+            "ocrFieldLastName": "Apellidos",
+            "ocrFieldFullName": "Nombre completo",
+            "ocrFieldDocumentNumber": "Número de documento",
+            "ocrFieldDocumentType": "Tipo de documento",
+            "ocrFieldDateOfBirth": "Fecha de nacimiento",
+            "ocrFieldExpirationDate": "Fecha de expiración",
+            "ocrFieldDateOfIssue": "Fecha de emisión",
+            "ocrFieldAddress": "Dirección",
+            "otherOptions": "Otras opciones",
+            "passport": "Pasaporte",
+            "phoneLabel": "Teléfono",
+            "phoneTitle": "Verifica tu número de teléfono",
+            "photoId": "documento de identidad",
+            "privacy": "Aviso de privacidad",
+            "privacyPolicy": "Política de privacidad",
+            "readyBody": "Debes escanear tu licencia, pasaporte o documento de identidad con foto.",
+            "readyBodyBoth": "Escanea con tu cámara o sube una foto de tu licencia, pasaporte o documento de identidad.",
+            "readyBodyUpload": "Sube una foto clara de tu licencia, pasaporte o documento de identidad oficial.",
+            "readyTitle": "Prepárate para escanear",
+            "readyTitleBoth": "Proporciona tu documento",
+            "readyTitleUpload": "Sube tu documento de identidad",
+            "retake": "Tomar de nuevo",
+            "retryBody": "Inténtalo de nuevo con una foto más clara.",
+            "retryTitle": "No pudimos verificar esa foto",
+            "reviewBackTitle": "Revisa el reverso",
+            "reviewBody": "Comprueba que los datos se vean y estén enfocados.",
+            "reviewTitle": "Revisa el frente del documento",
+            "selectFile": "Seleccionar un archivo",
+            "selfieBody": "Tomaremos una foto de tu rostro y la compararemos con tu documento.",
+            "selfieTitle": "Verifica con una selfie",
+            "sendAgain": "Enviar de nuevo",
+            "skip": "Omitir",
+            "sms": "SMS",
+            "submitPhoto": "Enviar foto",
+            "submittedBody": "Te estamos redirigiendo a {{project}}. Si no ocurre en 7 segundos, haz clic aquí.",
+            "submittedCheckDocument": "Documento de identidad",
+            "submittedCheckLiveness": "Prueba de vida facial",
+            "submittedCheckSecurity": "Seguridad y privacidad",
+            "submittedContinueBtn": "Continuar a {{project}}",
+            "submittedLivenessDesc": "Coincidencia biométrica aprobada",
+            "submittedRedirecting": "Redirigiendo automáticamente en {{seconds}}s...",
+            "submittedSecurityDesc": "Transmisión cifrada de 256 bits",
+            "submittedStatusProtected": "Protegido",
+            "submittedStatusVerified": "Verificado",
+            "submittedSubtitle": "Tus documentos de identidad y biometría se han recibido de forma segura.",
+            "submittedTitle": "Verificación enviada",
+            "template": "Tipo de documento",
+            "terms": "Términos y condiciones",
+            "troubleTitle": "¿Tienes problemas?",
+            "tryAgain": "Intentar de nuevo",
+            "upgradeBody": "Este proyecto no tiene un plan activo de SmartEnroll.",
+            "upgradeTitle": "Se requiere una actualización",
+            "whatsapp": "WhatsApp",
+            "worksWith": "{{project}} trabaja con Verifik para verificar tu identidad.",
+            "screens": {
+                "consent": "Consentimiento",
+                "contact": "Registro",
+                "otp": "OTP",
+                "ready": "Listo",
+                "front": "Escaneo ID",
+                "reviewFront": "Revisión",
+                "selfie": "Selfie",
+                "submitted": "Enviado"
+            }
         }
     },
     "supportTickets": {
@@ -10620,6 +11183,7 @@
         "resuming": "Reanudando...",
         "resumeFailed": "No se pudo reanudar la ejecución. Inténtalo de nuevo.",
         "startFailed": "No se pudo iniciar la ejecución. Inténtalo de nuevo.",
+        "endpointsNotInAccount": "No puedes realizar esta consulta porque tu cuenta no tiene disponibles estas consultas: {{codes}}.",
         "resumed": "Reanudado",
         "runQueued": "Ejecución en cola. El procesamiento continúa en el servidor, puedes cerrar esta pestaña.",
         "runInTab": "Empezó en esta pestaña. Déjala abierta hasta que termine el lote.",
@@ -10933,80 +11497,26 @@
                 "Normal: Solicitudes generales que no afectan la disponibilidad."
             ],
             "responseTitle": "Tiempos de respuesta",
-            "responseHeaders": [
-                "Criticidad",
-                "Atención",
-                "Revisión",
-                "Escalamiento",
-                "Solución"
-            ],
+            "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
             "responseRows": {
-                "critical": [
-                    "Crítico",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "urgent": [
-                    "Urgente",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "medium": [
-                    "Medio",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ],
-                "normal": [
-                    "Normal",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ]
+                "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
+                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
             },
             "availabilityTitle": "Disponibilidad de la plataforma",
-            "availabilityHeaders": [
-                "Producto",
-                "Disponibilidad",
-                "Notas"
-            ],
+            "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depende de fuentes gubernamentales"
                 ],
-                "smartAccessComm": [
-                    "SmartAccess (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll (Escaneo de docs)",
-                    "98.0%",
-                    ""
-                ],
+                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -11029,16 +11539,8 @@
                 "Producto"
             ],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% o mayor",
-                    "Sin crédito",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% o menor",
-                    "Compensación",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% o mayor",
                     "Sin crédito",
@@ -11074,15 +11576,9 @@
             "billingTitle": "Esquema de cobro por servicio SmartCheck",
             "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
             "billingTableTitle": "Códigos HTTP facturables",
-            "billingHeaders": [
-                "Cobro",
-                "Ausente de cobro"
-            ],
+            "billingHeaders": ["Cobro", "Ausente de cobro"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "Mantenimiento programado",
             "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",

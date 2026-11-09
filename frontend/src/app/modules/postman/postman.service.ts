@@ -71,6 +71,7 @@ import {
     throwError,
 } from 'rxjs';
 import { mergeParamsFromDocs } from './postman-docs-params.util';
+import postmanEndpointsIo from './postman-endpoints-io.json';
 import { postmanEndpointDetailCache } from './postman-endpoint-detail.cache';
 import { isClientVisibleBatchDependencyField } from '../smart-batch/smart-batch-dependency.constants';
 
@@ -270,6 +271,24 @@ export class PostmanService {
         });
     }
 
+    /**
+     * Resolves and hydrates an ApiEndpoint by feature code.
+     */
+    getOrHydrateEndpointByCode(code: string): Observable<ApiEndpoint | null> {
+        const existing = this.endpoints().find((endpoint) => endpoint.code === code);
+        if (existing && !catalogNeedsDetailHydration(existing)) {
+            return of(existing);
+        }
+
+        return this._fetchFeatureDetail(code).pipe(
+            map((feature) => {
+                if (!feature) return existing || null;
+                return this._createEndpointFromFeature(feature, this._apiUrl());
+            }),
+            catchError(() => of(existing || null))
+        );
+    }
+
     private _fetchCatalogCountries() {
         const apiUrl = this._apiUrl();
         const workspaceUrl = `${apiUrl}/v2/app-features/countries`;
@@ -455,7 +474,7 @@ export class PostmanService {
         }
 
         const cached = postmanEndpointDetailCache.get(codeOrId);
-        if (cached) {
+        if (cached && !catalogNeedsDetailHydration(cached as any)) {
             return of(this._mergeHydratedFeature(endpoint, cached));
         }
 
@@ -620,6 +639,31 @@ export class PostmanService {
                     : undefined;
             if (cachedDocs && typeof cachedDocs === 'object') {
                 created.docs = cachedDocs;
+            } else {
+                const staticEndpoints =
+                    (postmanEndpointsIo as any)?.endpoints ??
+                    (Array.isArray(postmanEndpointsIo) ? postmanEndpointsIo : []);
+                const staticEntry = staticEndpoints.find((e: any) => e.code === created.code);
+                if (staticEntry?.docs && typeof staticEntry.docs === 'object') {
+                    created.docs = staticEntry.docs;
+                }
+            }
+        }
+        if (created.code && (!dependencies.length || !xorMeta)) {
+            const staticEndpoints =
+                (postmanEndpointsIo as any)?.endpoints ??
+                (Array.isArray(postmanEndpointsIo) ? postmanEndpointsIo : []);
+            const staticEntry = staticEndpoints.find((e: any) => e.code === created.code);
+            if (staticEntry?.input?.dependencies?.length) {
+                const staticRawDeps = staticEntry.input.dependencies;
+                const staticDeps = this._toPostmanDependencyMeta(staticRawDeps);
+                const staticXor = getPostmanXorGroupMetadata(staticDeps);
+                if (staticXor) {
+                    created.dependencies = staticDeps;
+                    if (listParams) {
+                        created.params = this._paramsFromDependencies(staticRawDeps, staticXor);
+                    }
+                }
             }
         }
         return applyMexicoLicenseTripleInputToEndpoint(mergeParamsFromDocs(created));

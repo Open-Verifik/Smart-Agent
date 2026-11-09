@@ -267,6 +267,7 @@
         "searchingHint": "VISITA がソースを選びます。エンドポイントを意識する必要はありません。",
         "inputRequired": "続けるには値を入力してください。",
         "consultFailed": "照会できませんでした。値を確認して再試行してください。",
+        "endpointsNotInAccount": "この照会は実行できません。アカウントで次のエンドポイントが使えません: {{codes}}。",
         "noResults": "この値の情報は見つかりませんでした。",
         "continueToReport": "レポートに含める",
         "newConsultation": "新しい照会",
@@ -438,11 +439,102 @@
         "flowShowLibrary": "エンドポイントを表示",
         "flowHideConfig": "設定を隠す",
         "flowShowConfig": "設定を表示",
+        "endpointInfoOpen": "詳細",
+        "endpointInfoKicker": "エンドポイントの詳細",
+        "endpointInfoCost": "料金",
+        "endpointInfoPurpose": "用途",
+        "endpointInfoNoPurpose": "説明はありません。",
+        "endpointInfoInput": "入力",
+        "endpointInfoOutput": "応答",
+        "endpointInfoViewSample": "例を見る",
+        "endpointInfoHideSample": "例を隠す",
+        "endpointInfoTypeText": "文字",
+        "endpointInfoTypeNumber": "数値",
+        "endpointInfoTypeBoolean": "はい/いいえ",
+        "endpointInfoTypeList": "リスト",
+        "endpointInfoTypeObject": "オブジェクト",
+        "endpointInfoCredits": "{{cost}} クレジット",
+        "endpointInfoSource": "ソース · {{name}}",
+        "endpointInfoSourcePlain": "ソース",
+        "endpointInfoSends": "送信内容",
+        "endpointInfoApiLead": "APIの直接呼び出し例",
+        "endpointInfoApiHint": "フローの外から、このエンドポイントをHTTPで呼ぶ方法です。",
+        "endpointInfoDocsOfficial": "公式ドキュメントを読む",
+        "endpointInfoCopyCode": "コードをコピー",
+        "endpointInfoParameter": "パラメータ",
+        "endpointInfoRequirement": "条件",
+        "endpointInfoAllowed": "許可値 / 形式",
+        "endpointInfoRequiredBadge": "必須",
+        "endpointInfoConditional": "条件付き",
+        "endpointInfoTypeDate": "日付",
+        "endpointInfoMoreAlternatives": "他の方法",
+        "endpointInfoHideAlternatives": "他の方法を隠す",
+        "endpointInfoMoreValues": "+{{count}}",
+        "endpointInfoModeNameSearch": "オプション {{letter}} — 氏名で検索",
+        "endpointInfoModeDocumentSearch": "オプション {{letter}} — 書類で検索",
+        "endpointInfoModePlateSearch": "オプション {{letter}} — ナンバーで検索",
+        "endpointInfoModeVinSearch": "オプション {{letter}} — VINで検索",
+        "endpointInfoModeGeneric": "オプション {{letter}}",
+        "endpointInfoModeNameHint": "氏名で照会します。",
+        "endpointInfoModeDocumentHint": "書類の種類と番号で照会します。",
+        "endpointInfoModePlateHint": "車両ナンバーで照会します。",
+        "endpointInfoModeVinHint": "VINで照会します。",
+        "endpointInfoDesign": "デザイン上",
+        "endpointInfoDesignHint": "レポートのデザインに置いたときのデータブロックです。",
+        "endpointInfoDesignMore": "このブロックには、ほかに {{count}} 件の項目があります。",
+        "endpointInfoSampleText": "テキスト",
+        "endpointInfoSummary": "概要",
+        "endpointInfoParams": "入力パラメータ",
+        "endpointInfoResponse": "応答の例",
+        "endpointInfoApi": "APIの例",
+        "endpointInfoTry": "エンドポイントを試す",
+        "endpointInfoDocs": "ドキュメント",
+        "endpointInfoCountry": "国",
+        "endpointInfoCategory": "カテゴリ",
+        "endpointInfoStatus": "状態",
+        "endpointInfoMethod": "メソッド",
+        "endpointInfoShape": "この照会は{{shape}}を返します。",
+        "endpointInfoShapeList": "レコードの一覧",
+        "endpointInfoShapeNested": "入れ子の一覧を含むオブジェクト",
+        "endpointInfoShapeObject": "1件のレコード",
+        "endpointInfoQueryMode": "照会方法",
+        "endpointInfoModeAll": "すべての項目",
+        "endpointInfoModeName": "氏名で",
+        "endpointInfoModeDocument": "書類番号で",
+        "endpointInfoNoParams": "このエンドポイントは入力パラメータを宣言していません。",
+        "endpointInfoRequired": "必須",
+        "endpointInfoOptional": "任意",
+        "endpointInfoNoSample": "ドキュメントにJSONの例がありません。",
+        "endpointInfoField": "項目",
+        "endpointInfoType": "データ型",
+        "endpointInfoDescription": "説明",
+        "endpointInfoExample": "例",
+        "endpointInfoTokenHint": "コードの <token> はプレースホルダーです。アプリ内のテストはセッションを使い、資格情報は表示しません。",
+        "endpointInfoTryHint": "データを入力して照会を実行します。表示された料金を消費する場合があります。",
+        "endpointInfoTryMissing": "必須項目が不足しています。",
+        "endpointInfoTryRun": "エンドポイントを試す",
+        "endpointInfoTryStatus": "状態",
+        "endpointInfoDocsMissing": "このエンドポイントのドキュメントは読み込まれていません。",
+        "endpointInfoOpenDocs": "ドキュメントを開く",
+        "endpointInfoOpenPostman": "Postmanで開く",
+        "endpointInfoCopy": "コピー",
+        "endpointInfoCopied": "コピーしました",
+        "endpointInfoClose": "閉じる",
+        "endpointInfoAdd": "このプロジェクトに追加",
+        "endpointInfoTryGo": "Postmanで試す",
+        "endpointInfoModesHint": "この照会は複数の方法でできます。フローでは一つを選びます。",
+        "endpointInfoModeLetter": "オプション {{letter}}",
+        "endpointInfoHidden": "非公開",
+        "endpointInfoAvailable": "利用可能",
         "flowCanvas": "フローキャンバス",
         "flowConfig": "設定",
         "flowWiresHint": "「開始」からは、同じ項目を複数のブロックへ分配できます。ブロックの緑の出力を、次のブロックの灰色の入力へドラッグすることもできます。",
         "flowDeleteWire": "接続を削除",
         "flowInputs": "入力",
+        "flowQueryMode": "照会方法",
+        "flowQueryModeHint": "一つ選ぶと、フローはその方法のデータだけを求めます。",
+        "flowQueryOption": "オプション {{letter}}",
+        "flowQueryWhen": "{{when}} が {{values}} のとき必須",
         "flowOutputs": "出力",
         "flowAskUser": "フロー開始時に入力を求める",
         "flowFromStart": "フローの入力",
@@ -748,7 +840,7 @@
         "layoutTableCellColor": "セルの文字",
         "explainer": {
             "currentSetupLabel": "Current setup",
-            "eyebrow_intent": "STEP 01 · GOAL",
+            "eyebrow_intent": "GOAL",
             "eyebrow_country": "GEOGRAPHY · OFFICIAL SOURCES",
             "eyebrow_entity": "SUBJECT TYPE · VERIFICATION TARGET",
             "eyebrow_mode": "EXECUTION MODE · SINGLE OR BATCH",
@@ -1333,6 +1425,7 @@
         "pageOf": "{{current}} / {{total}} ページ",
         "sectionShape": "図形",
         "sheetTable": "テーブル",
+        "sheetTableOf": "{{name}}の表",
         "createSignature": "新しい署名を作成",
         "signatureTabDraw": "描く",
         "signatureTabType": "入力",
@@ -3033,6 +3126,7 @@
         "noCollectionsAvailable": "利用可能なコレクションがありません",
         "getError": "人物の読み込みに失敗しました",
         "updateError": "人物の更新に失敗しました",
+        "updateSuccess": "人物が正常に更新されました",
         "deleteError": "人物の削除に失敗しました",
         "imageSizeError": "画像は 5MB 以下である必要があります",
         "collections": "コレクション",
@@ -9688,6 +9782,7 @@
         "resuming": "再開中...",
         "resumeFailed": "実行を再開できませんでした。もう一度お試しください。",
         "startFailed": "実行を開始できませんでした。もう一度お試しください。",
+        "endpointsNotInAccount": "この照会は実行できません。アカウントで次のエンドポイントが使えません: {{codes}}。",
         "resumed": "再開しました",
         "runQueued": "実行をキューに追加しました。処理はサーバーで続くため、このタブを閉じても問題ありません。",
         "runInTab": "このタブで開始しました。バッチが終わるまで開いたままにしてください。",
@@ -10001,80 +10096,22 @@
                 "通常：可用性に影響しない一般的な問い合わせ。"
             ],
             "responseTitle": "応答時間",
-            "responseHeaders": [
-                "重要度",
-                "受付",
-                "初回応答",
-                "エスカレーション",
-                "解決"
-            ],
+            "responseHeaders": ["重要度", "受付", "初回応答", "エスカレーション", "解決"],
             "responseRows": {
-                "critical": [
-                    "重大",
-                    "0.5 時間",
-                    "0.5 時間",
-                    "15 分",
-                    "48 時間"
-                ],
-                "urgent": [
-                    "緊急",
-                    "0.5 時間",
-                    "0.5 時間",
-                    "15 分",
-                    "48 時間"
-                ],
-                "medium": [
-                    "中",
-                    "1 時間",
-                    "1 時間",
-                    "0.5 時間",
-                    "96 時間"
-                ],
-                "normal": [
-                    "通常",
-                    "1 時間",
-                    "1 時間",
-                    "0.5 時間",
-                    "96 時間"
-                ]
+                "critical": ["重大", "0.5 時間", "0.5 時間", "15 分", "48 時間"],
+                "urgent": ["緊急", "0.5 時間", "0.5 時間", "15 分", "48 時間"],
+                "medium": ["中", "1 時間", "1 時間", "0.5 時間", "96 時間"],
+                "normal": ["通常", "1 時間", "1 時間", "0.5 時間", "96 時間"]
             },
             "availabilityTitle": "プラットフォーム可用性",
-            "availabilityHeaders": [
-                "製品",
-                "可用性",
-                "備考"
-            ],
+            "availabilityHeaders": ["製品", "可用性", "備考"],
             "availabilityRows": {
-                "smartCheck": [
-                    "SmartCheck",
-                    "90.0%",
-                    "DB Screening — 政府ソースに依存"
-                ],
-                "smartAccessComm": [
-                    "SmartAccess（メール/電話）",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess（生体認証）",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll（メール/電話）",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll（生体認証）",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll（書類スキャン）",
-                    "98.0%",
-                    ""
-                ],
+                "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 政府ソースに依存"],
+                "smartAccessComm": ["SmartAccess（メール/電話）", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess（生体認証）", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll（メール/電話）", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll（生体認証）", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll（書類スキャン）", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll（DB Screening）",
                     "90.0%",
@@ -10091,66 +10128,36 @@
             "responseNote": "注：48 時間は、インシデントの複雑さに応じて最大 48 時間かかる場合があることを意味します。応答時間はユーザーの最終メッセージからカウントされます。",
             "compensationTitle": "ダウンタイム補償",
             "compensationIntro": "影響を受けた月には、無効なサービス呼び出しコストに相当するクレジット補償が提供されます。Verifik 内部問題（DB、サーバー、内部 API）による不可用で有効に解決されない場合、以下のとおり補償します：",
-            "compensationHeaders": [
-                "サービス可用性",
-                "クレジット補償",
-                "製品"
-            ],
+            "compensationHeaders": ["サービス可用性", "クレジット補償", "製品"],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% 以上",
-                    "補償なし",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% 以下",
-                    "補償",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% 以上", "補償なし", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% 以下", "補償", "SmartCheck"],
                 "emailTelHigh": [
                     "メール/電話 — 99.00% 以上",
                     "補償なし",
                     "SmartAccess, SmartEnroll"
                 ],
-                "emailTelLow": [
-                    "メール/電話 — 98.99% 以下",
-                    "補償",
-                    "SmartAccess, SmartEnroll"
-                ],
+                "emailTelLow": ["メール/電話 — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"],
                 "biometricsHigh": [
                     "生体認証 — 99.00% 以上",
                     "補償なし",
                     "SmartAccess, SmartEnroll"
                 ],
-                "biometricsLow": [
-                    "生体認証 — 98.99% 以下",
-                    "補償",
-                    "SmartAccess, SmartEnroll"
-                ],
+                "biometricsLow": ["生体認証 — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"],
                 "docScanHigh": [
                     "書類スキャン — 99.00% 以上",
                     "補償なし",
                     "SmartAccess, SmartEnroll"
                 ],
-                "docScanLow": [
-                    "書類スキャン — 98.99% 以下",
-                    "補償",
-                    "SmartAccess, SmartEnroll"
-                ]
+                "docScanLow": ["書類スキャン — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"]
             },
             "compensationDisclaimer": "DB Screening の内部問題には不可抗力（移行、切断、政府による外部介入）は含まれません。Verifik は仲介者であり、照会する政府データベースを管理・更新しません。",
             "billingTitle": "SmartCheck 課金方式",
             "billingIntro": "本方式は smartCHECK（政府 DB 照会）に適用されます。Verifik は各国政府 DB の所有者・管理者ではなく、応答時間、平均稼働率、データ精度を保証しません。",
             "billingTableTitle": "課金対象/非対象 HTTP コード",
-            "billingHeaders": [
-                "課金対象",
-                "非課金"
-            ],
+            "billingHeaders": ["課金対象", "非課金"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "計画メンテナンス",
             "maintenance": "計画メンテナンスは夜間および週末に実施し、事前にメールで通知します。",

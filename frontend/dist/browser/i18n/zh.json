@@ -267,6 +267,7 @@
         "searchingHint": "VISITA 会自动选择数据源，你无需考虑接口。",
         "inputRequired": "请输入数据后再继续。",
         "consultFailed": "查询未能完成，请检查数据后重试。",
+        "endpointsNotInAccount": "无法执行这次查询，因为你的账户没有这些接口：{{codes}}。",
         "noResults": "未找到相关信息。",
         "continueToReport": "加入报告",
         "newConsultation": "新的查询",
@@ -438,11 +439,102 @@
         "flowShowLibrary": "显示端点",
         "flowHideConfig": "隐藏设置",
         "flowShowConfig": "显示设置",
+        "endpointInfoOpen": "详情",
+        "endpointInfoKicker": "接口详情",
+        "endpointInfoCost": "费用",
+        "endpointInfoPurpose": "用途",
+        "endpointInfoNoPurpose": "没有说明。",
+        "endpointInfoInput": "输入",
+        "endpointInfoOutput": "响应",
+        "endpointInfoViewSample": "查看示例",
+        "endpointInfoHideSample": "隐藏示例",
+        "endpointInfoTypeText": "文本",
+        "endpointInfoTypeNumber": "数字",
+        "endpointInfoTypeBoolean": "是/否",
+        "endpointInfoTypeList": "列表",
+        "endpointInfoTypeObject": "对象",
+        "endpointInfoCredits": "{{cost}} 积分",
+        "endpointInfoSource": "来源 · {{name}}",
+        "endpointInfoSourcePlain": "来源",
+        "endpointInfoSends": "发送内容",
+        "endpointInfoApiLead": "直接调用 API 的示例",
+        "endpointInfoApiHint": "这是在流程之外通过 HTTP 调用此端点的方式。",
+        "endpointInfoDocsOfficial": "阅读官方文档",
+        "endpointInfoCopyCode": "复制代码",
+        "endpointInfoParameter": "参数",
+        "endpointInfoRequirement": "要求",
+        "endpointInfoAllowed": "允许的值 / 格式",
+        "endpointInfoRequiredBadge": "必填",
+        "endpointInfoConditional": "有条件",
+        "endpointInfoTypeDate": "日期",
+        "endpointInfoMoreAlternatives": "更多方式",
+        "endpointInfoHideAlternatives": "隐藏其他方式",
+        "endpointInfoMoreValues": "+{{count}}",
+        "endpointInfoModeNameSearch": "选项 {{letter}} — 按全名查询",
+        "endpointInfoModeDocumentSearch": "选项 {{letter}} — 按证件查询",
+        "endpointInfoModePlateSearch": "选项 {{letter}} — 按车牌查询",
+        "endpointInfoModeVinSearch": "选项 {{letter}} — 按 VIN 查询",
+        "endpointInfoModeGeneric": "选项 {{letter}}",
+        "endpointInfoModeNameHint": "使用全名查询。",
+        "endpointInfoModeDocumentHint": "使用证件类型和号码查询。",
+        "endpointInfoModePlateHint": "使用车牌查询。",
+        "endpointInfoModeVinHint": "使用 VIN 查询。",
+        "endpointInfoDesign": "设计中",
+        "endpointInfoDesignHint": "这是把该端点加到报告设计时，数据块的样子。",
+        "endpointInfoDesignMore": "这个块还包括另外 {{count}} 个字段。",
+        "endpointInfoSampleText": "文本",
+        "endpointInfoSummary": "概览",
+        "endpointInfoParams": "输入参数",
+        "endpointInfoResponse": "示例响应",
+        "endpointInfoApi": "API 示例",
+        "endpointInfoTry": "试用接口",
+        "endpointInfoDocs": "文档",
+        "endpointInfoCountry": "国家",
+        "endpointInfoCategory": "类别",
+        "endpointInfoStatus": "状态",
+        "endpointInfoMethod": "方法",
+        "endpointInfoShape": "此查询返回{{shape}}。",
+        "endpointInfoShapeList": "记录列表",
+        "endpointInfoShapeNested": "含嵌套列表的对象",
+        "endpointInfoShapeObject": "单条记录",
+        "endpointInfoQueryMode": "查询方式",
+        "endpointInfoModeAll": "全部字段",
+        "endpointInfoModeName": "按姓名",
+        "endpointInfoModeDocument": "按证件",
+        "endpointInfoNoParams": "此接口未声明输入参数。",
+        "endpointInfoRequired": "必填",
+        "endpointInfoOptional": "可选",
+        "endpointInfoNoSample": "文档中没有示例 JSON。",
+        "endpointInfoField": "字段",
+        "endpointInfoType": "数据类型",
+        "endpointInfoDescription": "说明",
+        "endpointInfoExample": "示例",
+        "endpointInfoTokenHint": "代码中的 <token> 是占位符。应用内测试使用你的会话，不会显示凭证。",
+        "endpointInfoTryHint": "填写数据并执行查询。可能会消耗所示费用。",
+        "endpointInfoTryMissing": "缺少必填字段。",
+        "endpointInfoTryRun": "试用接口",
+        "endpointInfoTryStatus": "状态",
+        "endpointInfoDocsMissing": "尚未加载此接口的文档。",
+        "endpointInfoOpenDocs": "打开文档",
+        "endpointInfoOpenPostman": "在 Postman 中打开",
+        "endpointInfoCopy": "复制",
+        "endpointInfoCopied": "已复制",
+        "endpointInfoClose": "关闭",
+        "endpointInfoAdd": "添加到此项目",
+        "endpointInfoTryGo": "在 Postman 中试用",
+        "endpointInfoModesHint": "这个查询有多种方式。在流程里选择一种。",
+        "endpointInfoModeLetter": "选项 {{letter}}",
+        "endpointInfoHidden": "不公开",
+        "endpointInfoAvailable": "可用",
         "flowCanvas": "流程画布",
         "flowConfig": "设置",
         "flowWiresHint": "从“开始”可以把同一字段分发给多个区块。也可以把一个区块的绿色输出拖到下一个区块的灰色输入上。",
         "flowDeleteWire": "删除连接",
         "flowInputs": "输入",
+        "flowQueryMode": "查询方式",
+        "flowQueryModeHint": "选择一种。流程只要求该方式的数据。",
+        "flowQueryOption": "选项 {{letter}}",
+        "flowQueryWhen": "当 {{when}} 为 {{values}} 时必填",
         "flowOutputs": "输出",
         "flowAskUser": "流程开始时询问",
         "flowFromStart": "流程输入",
@@ -748,7 +840,7 @@
         "layoutTableCellColor": "单元格文字",
         "explainer": {
             "currentSetupLabel": "Current setup",
-            "eyebrow_intent": "STEP 01 · GOAL",
+            "eyebrow_intent": "GOAL",
             "eyebrow_country": "GEOGRAPHY · OFFICIAL SOURCES",
             "eyebrow_entity": "SUBJECT TYPE · VERIFICATION TARGET",
             "eyebrow_mode": "EXECUTION MODE · SINGLE OR BATCH",
@@ -1333,6 +1425,7 @@
         "pageOf": "第 {{current}} 页，共 {{total}} 页",
         "sectionShape": "形状",
         "sheetTable": "表格",
+        "sheetTableOf": "{{name}}表格",
         "createSignature": "创建新签名",
         "signatureTabDraw": "手写",
         "signatureTabType": "输入",
@@ -3033,6 +3126,7 @@
         "noCollectionsAvailable": "没有可用的集合",
         "getError": "加载人员失败",
         "updateError": "更新人员失败",
+        "updateSuccess": "人员信息更新成功",
         "deleteError": "删除人员失败",
         "imageSizeError": "图像大小必须为 5MB 或更小",
         "collections": "集合",
@@ -9688,6 +9782,7 @@
         "resuming": "正在恢复...",
         "resumeFailed": "无法恢复运行，请重试。",
         "startFailed": "无法启动运行，请重试。",
+        "endpointsNotInAccount": "无法执行这次查询，因为你的账户没有这些接口：{{codes}}。",
         "resumed": "已恢复",
         "runQueued": "运行已排队。处理在服务器上继续，可以关闭此标签页。",
         "runInTab": "已在此标签页启动。请保持打开直到批次完成。",
@@ -10001,80 +10096,22 @@
                 "一般：不影响服务可用性的一般咨询。"
             ],
             "responseTitle": "响应时间",
-            "responseHeaders": [
-                "严重级别",
-                "受理",
-                "初审",
-                "升级",
-                "解决"
-            ],
+            "responseHeaders": ["严重级别", "受理", "初审", "升级", "解决"],
             "responseRows": {
-                "critical": [
-                    "严重",
-                    "0.5 小时",
-                    "0.5 小时",
-                    "15 分钟",
-                    "48 小时"
-                ],
-                "urgent": [
-                    "紧急",
-                    "0.5 小时",
-                    "0.5 小时",
-                    "15 分钟",
-                    "48 小时"
-                ],
-                "medium": [
-                    "中等",
-                    "1 小时",
-                    "1 小时",
-                    "0.5 小时",
-                    "96 小时"
-                ],
-                "normal": [
-                    "一般",
-                    "1 小时",
-                    "1 小时",
-                    "0.5 小时",
-                    "96 小时"
-                ]
+                "critical": ["严重", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
+                "urgent": ["紧急", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
+                "medium": ["中等", "1 小时", "1 小时", "0.5 小时", "96 小时"],
+                "normal": ["一般", "1 小时", "1 小时", "0.5 小时", "96 小时"]
             },
             "availabilityTitle": "平台可用性",
-            "availabilityHeaders": [
-                "产品",
-                "可用性",
-                "备注"
-            ],
+            "availabilityHeaders": ["产品", "可用性", "备注"],
             "availabilityRows": {
-                "smartCheck": [
-                    "SmartCheck",
-                    "90.0%",
-                    "DB Screening — 依赖政府数据源"
-                ],
-                "smartAccessComm": [
-                    "SmartAccess（邮箱/电话）",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess（生物识别）",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll（邮箱/电话）",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll（生物识别）",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll（文档扫描）",
-                    "98.0%",
-                    ""
-                ],
+                "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 依赖政府数据源"],
+                "smartAccessComm": ["SmartAccess（邮箱/电话）", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess（生物识别）", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll（邮箱/电话）", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll（生物识别）", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll（文档扫描）", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll（DB Screening）",
                     "90.0%",
@@ -10091,66 +10128,28 @@
             "responseNote": "说明：48 小时表示我们可能根据事件复杂度，最多用 48 小时解决。响应时间从用户最后一条消息起算。",
             "compensationTitle": "停机补偿",
             "compensationIntro": "受影响月份将按无效服务调用成本提供等值额度补偿。若因 Verifik 内部问题（数据库、服务器、内部 API）导致不可用且未有效解决，Verifik 将按以下方式补偿：",
-            "compensationHeaders": [
-                "服务可用性",
-                "额度补偿",
-                "产品"
-            ],
+            "compensationHeaders": ["服务可用性", "额度补偿", "产品"],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% 及以上",
-                    "无补偿",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% 及以下",
-                    "补偿",
-                    "SmartCheck"
-                ],
-                "emailTelHigh": [
-                    "邮箱/电话 — 99.00% 及以上",
-                    "无补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "emailTelLow": [
-                    "邮箱/电话 — 98.99% 及以下",
-                    "补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% 及以上", "无补偿", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% 及以下", "补偿", "SmartCheck"],
+                "emailTelHigh": ["邮箱/电话 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
+                "emailTelLow": ["邮箱/电话 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
                 "biometricsHigh": [
                     "生物识别 — 99.00% 及以上",
                     "无补偿",
                     "SmartAccess, SmartEnroll"
                 ],
-                "biometricsLow": [
-                    "生物识别 — 98.99% 及以下",
-                    "补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "docScanHigh": [
-                    "文档扫描 — 99.00% 及以上",
-                    "无补偿",
-                    "SmartAccess, SmartEnroll"
-                ],
-                "docScanLow": [
-                    "文档扫描 — 98.99% 及以下",
-                    "补偿",
-                    "SmartAccess, SmartEnroll"
-                ]
+                "biometricsLow": ["生物识别 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
+                "docScanHigh": ["文档扫描 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
+                "docScanLow": ["文档扫描 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"]
             },
             "compensationDisclaimer": "DB Screening 内部服务问题不包括不可抗力（迁移、断连或托管数据库政府外部干预）。Verifik 为中间方，不控制或更新所查询的政府数据库。",
             "billingTitle": "SmartCheck 计费方案",
             "billingIntro": "本计费方案适用于 smartCHECK 政府数据库查询服务。Verifik 并非所服务国家政府数据库的所有者、管理者或责任方；因此不保证响应时间、平均可用性或数据准确性。",
             "billingTableTitle": "可计费与不可计费 HTTP 状态码",
-            "billingHeaders": [
-                "可计费",
-                "不可计费"
-            ],
+            "billingHeaders": ["可计费", "不可计费"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "计划维护",
             "maintenance": "计划维护在夜间及周末进行，并提前通过邮件通知用户。",

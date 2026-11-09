@@ -248,6 +248,7 @@
         "emailFailed": "We could not send the email. You can still download the PDF.",
         "partial": "Some sources did not respond. The PDF includes what we could look up.",
         "failed": "We could not finish the lookup. Check the plate and try again.",
+        "endpointsNotInAccount": "You can't run this consultation because your account doesn't have these endpoints:",
         "timeout": "The lookup is still running. Check again in a moment.",
         "genericError": "Something went wrong. Try again.",
         "newReport": "New lookup",
@@ -600,6 +601,7 @@
         "searchingHint": "We’ll query only the sources you selected.",
         "inputRequired": "Enter the value to continue.",
         "consultFailed": "We could not complete the lookup. Check the value and try again.",
+        "endpointsNotInAccount": "You can't run this consultation because your account doesn't have these endpoints: {{codes}}.",
         "noResults": "We did not find information for this value.",
         "continueToReport": "Include this in a report",
         "newConsultation": "New lookup",
@@ -1245,6 +1247,38 @@
         "layoutTableHeaderColor": "Header text",
         "layoutTableCellBg": "Cell background",
         "layoutTableCellColor": "Cell text",
+        "smartFormatBlock": "Smart format block",
+        "smartFormatBlockHint": "Cleans repeated fields, humanizes labels, and spans long text",
+        "smartFormatAll": "Smart format all",
+        "smartFormatAllHint": "Optimizes all response sections in the report in one click",
+        "smartFormatApplied": "Smart format applied",
+        "layersToggle": "Layers",
+        "layersCurrentPage": "Current page",
+        "layersAllPages": "All pages",
+        "arrayName": "Parsed Names",
+        "fullName": "Full Name",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "firstSurname": "First Surname",
+        "secondSurname": "Second Surname",
+        "lastSurname": "Second Surname",
+        "consultedSubject": "Consulted Subject",
+        "foundInFbi": "FBI Match",
+        "foundInDea": "DEA Match",
+        "foundInOnu": "UN Match",
+        "foundInOfac": "OFAC Match",
+        "foundInInterpol": "Interpol Match",
+        "details": "Check Result",
+        "legend": "Legal Notice",
+        "records": "Associated Records",
+        "code": "Status",
+        "message": "Detail",
+        "status": "Status",
+        "hasRecords": "Has Records",
+        "hasAntecedentes": "Has Records",
+        "hasMatches": "Has Records",
+        "documentNumber": "Document Number",
+        "documentType": "Document Type",
         "explainer": {
             "currentSetupLabel": "Current setup",
             "eyebrow_intent": "GOAL",
@@ -1447,7 +1481,31 @@
         "createConfiguration": "Create Configuration",
         "loadFailed": "Could not load this configuration. Check that it still exists and you have access.",
         "featuresLoadFailed": "Could not load available endpoints. Try again.",
-        "saveFailed": "Could not save the configuration. Check the form and try again."
+        "saveFailed": "Could not save the configuration. Check the form and try again.",
+        "arrayName": "Parsed Names",
+        "fullName": "Full Name",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "firstSurname": "First Surname",
+        "secondSurname": "Second Surname",
+        "lastSurname": "Second Surname",
+        "consultedSubject": "Consulted Subject",
+        "foundInFbi": "FBI Match",
+        "foundInDea": "DEA Match",
+        "foundInOnu": "UN Match",
+        "foundInOfac": "OFAC Match",
+        "foundInInterpol": "Interpol Match",
+        "details": "Check Result",
+        "legend": "Legal Notice",
+        "records": "Associated Records",
+        "code": "Status",
+        "message": "Detail",
+        "status": "Status",
+        "hasRecords": "Has Records",
+        "hasAntecedentes": "Has Records",
+        "hasMatches": "Has Records",
+        "documentNumber": "Document Number",
+        "documentType": "Document Type"
     },
     "batchDashboard": {
         "backToSmartBatch": "Back to Smart Batch",
@@ -3602,6 +3660,7 @@
         "noCollectionsAvailable": "No collections available",
         "getError": "Failed to load people",
         "updateError": "Failed to update person",
+        "updateSuccess": "Person updated successfully",
         "deleteError": "Failed to delete person",
         "imageSizeError": "Image must be 5MB or smaller",
         "collections": "Collections",
@@ -4232,6 +4291,58 @@
                                 "description": "Checks for pending matters with Colombian judicial authorities. Some results may require in-person verification.",
                                 "source": "Source · National Police",
                                 "about": "The National Police judicial background check looks up a cédula and reports whether Colombian judicial authorities have pending matters. A clear result means no pending matters. Some official responses say the certificate cannot be generated online and must be requested in person; that is still a completed result."
+                            },
+                            "jccSanctions": {
+                                "title": "Accountancy disciplinary sanctions",
+                                "description": "Checks disciplinary records and active sanctions for certified accountants.",
+                                "source": "Source · Official Regulatory Board",
+                                "about": "Official disciplinary registry for accounting professionals. This endpoint checks whether active disciplinary sanctions, suspensions, or disqualifications have been registered for a document number."
+                            },
+                            "pacoSanctions": {
+                                "title": "Anti-corruption & transparency sanctions",
+                                "description": "Screens national transparency registries for fiscal, disciplinary, or penal sanctions.",
+                                "source": "Source · Official Anti-Corruption Portal",
+                                "about": "Consolidated transparency registry aggregating fiscal, disciplinary, and contractual penalties. A hit indicates registered sanctions or disqualifications in the official transparency portal."
+                            },
+                            "ramaJepms": {
+                                "title": "Judicial penalty execution records",
+                                "description": "Checks penalty enforcement and security measures registered in the judicial system.",
+                                "source": "Source · Judicial System",
+                                "about": "Official judicial registry for monitoring criminal sentence execution and security measures. This endpoint screens a document number for active penal enforcement files."
+                            },
+                            "adverseMedia": {
+                                "title": "Adverse media screening",
+                                "description": "Screens indexed news publications for adverse mentions, legal proceedings, or financial crime.",
+                                "source": "Source · Adverse Media Index",
+                                "about": "Automated media screening index scanning publicly published news articles and investigative reports for mentions associated with legal proceedings, fraud, or reputational risks."
+                            },
+                            "sicaacCases": {
+                                "title": "Arbitration & dispute cases",
+                                "description": "Screens official pre-litigation and commercial arbitration proceedings.",
+                                "source": "Source · Official Dispute Resolution Registry",
+                                "about": "National arbitration and conciliation information system. This endpoint searches for formal dispute resolution, conciliation, and commercial arbitration proceedings registered under the identification number."
+                            },
+                            "sicaacInsolvency": {
+                                "title": "Personal insolvency proceedings",
+                                "description": "Checks official records for insolvency filings and debt restructuring proceedings.",
+                                "source": "Source · Official Insolvency Registry",
+                                "about": "Official registry for personal insolvency proceedings of non-merchant individuals. This endpoint checks whether an individual has initiated insolvency, debt negotiation, or judicial liquidation filings."
+                            }
+                        },
+                        "peru": {
+                            "pep": {
+                                "title": "Politically Exposed Persons (PEP — SBS 2660-2015)",
+                                "description": "Screens Peruvian citizens (DNI/CE) and full names against the SBS Resolution 4349-2016 / 02868-2025 PEP registry with a 2-year former-PEP look-back.",
+                                "source": "Source · SBS / Official Public Declarations Registry",
+                                "about": "Screens individuals against Peruvian Politically Exposed Person (PEP) categories a–m under SBS Resolution N° 2660-2015, N° 4349-2016, and N° 02868-2025, including current high-ranking officials and former officials within the mandatory 2-year post-cessation look-back window."
+                            }
+                        },
+                        "brazil": {
+                            "pep": {
+                                "title": "Politically Exposed Persons (PEP — COAF 40/2021)",
+                                "description": "Screens Brazilian CPF numbers and full names against the official PEP registry under COAF Resolution 40/2021 with a 5-year grace period lookback.",
+                                "source": "Source · Portal da Transparência / CGU",
+                                "about": "Screens individuals against Brazilian Politically Exposed Person (PEP) categories I–IX under COAF Resolution N° 40/2021 and Decreto N° 10.889/2021, covering active high-ranking officials and former officials within the mandatory 5-year post-cessation look-back window."
                             }
                         },
                         "interpol": {
@@ -4269,6 +4380,157 @@
                             "description": "Screens the UN Security Council consolidated sanctions list.",
                             "source": "Source · United Nations",
                             "about": "The UN Security Council publishes a consolidated sanctions list. This endpoint screens the person's full name against that list. A hit means the name matches a listed sanctioned party."
+                        },
+                        "csl": {
+                            "title": "US Consolidated Screening List",
+                            "description": "Screens parties for which the US Government maintains restrictions on certain exports, reexports, or transfers.",
+                            "source": "Source · US International Trade",
+                            "about": "Consolidated Screening List maintained by US federal agencies. Screens parties subject to international trade restrictions or export bans. A hit means the name matches a listed restricted entity or individual."
+                        },
+                        "dss": {
+                            "title": "DSS Most Wanted",
+                            "description": "Screens Diplomatic Security Service most-wanted fugitives.",
+                            "source": "Source · Diplomatic Security Service",
+                            "about": "Diplomatic Security Service registry of most-wanted fugitives involved in passport fraud, visa fraud, and international criminal activity. A hit means the name matches a published wanted fugitive record."
+                        },
+                        "usTerrorists": {
+                            "title": "US Terrorist Exclusion List",
+                            "description": "Screens individuals designated under US anti-terrorism laws and immigration exclusion provisions.",
+                            "source": "Source · US State Department",
+                            "about": "Terrorist Exclusion List and designated foreign terrorist organizations list maintained under US immigration and anti-terrorism provisions. A hit indicates a match against listed designated parties."
+                        },
+                        "secretService": {
+                            "title": "Secret Service Most Wanted",
+                            "description": "Screens fugitives sought by the US Secret Service for financial crimes and cyber investigations.",
+                            "source": "Source · US Secret Service",
+                            "about": "Official most-wanted list published by the US Secret Service, screening individuals sought for major financial fraud, counterfeiting, and cyber offenses. A hit means the name matches a wanted record."
+                        },
+                        "sec": {
+                            "title": "SEC enforcement sanctions",
+                            "description": "Screens administrative sanctions, trading bans, and civil judgments issued by the SEC.",
+                            "source": "Source · US SEC",
+                            "about": "Securities and Exchange Commission enforcement registry covering individuals and entities barred from financial securities trading or subject to civil sanctions. A hit means the name matches an enforcement action."
+                        },
+                        "healthExclusions": {
+                            "title": "HHS Health Care Exclusions (LEIE)",
+                            "description": "Screens individuals and entities excluded from federally funded healthcare programs.",
+                            "source": "Source · US Health & Human Services",
+                            "about": "List of Excluded Individuals and Entities (LEIE) identifying parties disqualified from participating in federal health care programs due to fraud or professional misconduct. A hit means the name is listed as excluded."
+                        },
+                        "ciaWorldLeaders": {
+                            "title": "World Leaders & Chiefs of State (PEP)",
+                            "description": "Screens heads of state, cabinet ministers, and senior politically exposed persons.",
+                            "source": "Source · World Leaders Directory",
+                            "about": "Directory of chiefs of state and cabinet members of foreign governments, providing screening against politically exposed persons (PEP) lists. A hit indicates a match with a current or former senior government official."
+                        },
+                        "euTerrorists": {
+                            "title": "EU Designated Terrorists",
+                            "description": "Screens the European Union autonomous sanctions list of persons and groups involved in terrorist acts.",
+                            "source": "Source · European Union",
+                            "about": "Council of the European Union list of persons, groups, and entities subject to specific restrictive measures with a view to combating terrorism. A hit means the name matches a designated party."
+                        },
+                        "euFsf": {
+                            "title": "EU Financial Sanctions (FSF)",
+                            "description": "Screens the EU Consolidated Financial Sanctions Files for asset freezes and travel bans.",
+                            "source": "Source · European External Action Service",
+                            "about": "Consolidated list of persons, groups, and entities subject to European Union financial sanctions and asset freezes. A hit means the name matches a listed sanctioned party."
+                        },
+                        "ofsi": {
+                            "title": "UK OFSI Consolidated Sanctions",
+                            "description": "Screens individuals and entities subject to financial sanctions under UK legislation.",
+                            "source": "Source · UK HM Treasury · OFSI",
+                            "about": "Office of Financial Sanctions Implementation (OFSI) consolidated list of financial sanctions targets maintained by HM Treasury in the United Kingdom. A hit means the name matches a designated sanctioned target."
+                        },
+                        "worldBank": {
+                            "title": "World Bank Debarred Parties",
+                            "description": "Screens parties debarred or ineligible to participate in World Bank-financed operations.",
+                            "source": "Source · World Bank Group",
+                            "about": "Official list of debarred firms and individuals ineligible to be awarded a World Bank-financed contract as part of anti-corruption sanctions. A hit means the party is currently debarred."
+                        },
+                        "iadb": {
+                            "title": "IADB Sanctioned Parties",
+                            "description": "Screens parties sanctioned or suspended by the Inter-American Development Bank.",
+                            "source": "Source · Inter-American Development Bank",
+                            "about": "Inter-American Development Bank Group sanctions list of firms and individuals found to have engaged in fraud, corruption, or prohibited practices. A hit indicates an active sanction or suspension."
+                        },
+                        "offshoreLeaks": {
+                            "title": "Offshore Leaks Database",
+                            "description": "Screens global offshore entities, officers, and intermediaries from major investigations.",
+                            "source": "Source · Offshore Leaks Index",
+                            "about": "Public interest database indexing officers, beneficial owners, and intermediaries across global offshore financial jurisdictions. A hit indicates an appearance in indexed corporate filings or leak investigations."
+                        }
+                    },
+                    "detailsModal": {
+                        "tabs": {
+                            "overview": "Overview",
+                            "params": "What it sends",
+                            "responses": "Sample response",
+                            "code": "API example"
+                        },
+                        "meta": {
+                            "method": "Method",
+                            "route": "Endpoint route",
+                            "cost": "Cost",
+                            "costPerQuery": "{{price}} USD / query",
+                            "coverage": "Coverage",
+                            "statusActive": "Active in this flow",
+                            "statusInactive": "Not added yet",
+                            "addToProject": "Add to this project",
+                            "removeFromProject": "Remove from project"
+                        },
+                        "overview": {
+                            "statsAuthority": "Authority / Registry",
+                            "statsType": "Screening type",
+                            "statsTypeVal": "Automated background query",
+                            "statsCost": "Estimated cost",
+                            "statsHit": "Positive hit trigger",
+                            "statsHitVal": "Active record or sanction found",
+                            "aboutTitle": "About this official record",
+                            "howItWorksTitle": "Automated background execution",
+                            "howItWorksBody": "When an applicant completes their identity scan, SmartEnroll automatically extracts the required fields and queries this official source in the background. The applicant is never blocked or exposed to external services."
+                        },
+                        "params": {
+                            "title": "Parameters submitted to the official record",
+                            "subtitle": "SmartEnroll automatically extracts and maps these fields from the verified identity document:",
+                            "colField": "Parameter",
+                            "colType": "Type",
+                            "colRequirement": "Requirement",
+                            "colFormat": "Allowed / Format",
+                            "colExtraction": "SmartEnroll extraction source",
+                            "colDescription": "Description",
+                            "required": "Required",
+                            "optional": "Optional",
+                            "conditional": "Conditional",
+                            "searchGroupsIntro": "This background check supports alternative search modes. SmartEnroll automatically determines the optimal mode based on the applicant's captured identity document:",
+                            "optionFullName": "Option A — Search by full name",
+                            "optionFullNameHint": "Used when screening the individual across watchlists using verified first and last names.",
+                            "optionDocument": "Option B — Search by document",
+                            "optionDocumentHint": "Used when querying official records directly with the document type and number from the ID scan.",
+                            "optionSerial": "Option C — Search by serial",
+                            "optionSerialHint": "Used when querying civil registries with the document serial number.",
+                            "otherParamsTitle": "Other parameters",
+                            "otherParamsHint": "Additional contextual parameters accepted by this endpoint.",
+                            "xorModeBadge": "Alternative Mode",
+                            "empty": "This background check requires no manual query parameters."
+                        },
+                        "responses": {
+                            "title": "Sample response payloads",
+                            "subtitle": "Review official registry response structures for hits, clean records, and edge cases:",
+                            "copyJson": "Copy JSON",
+                            "copied": "Copied!",
+                            "hitBadge": "Positive Record / Hit",
+                            "cleanBadge": "Clean / No Records",
+                            "notice": "Response fields returned by the official API are certified and timestamped in your Verifik audit trail."
+                        },
+                        "code": {
+                            "title": "Direct API request examples",
+                            "subtitle": "If you wish to query this official check directly via HTTP outside of SmartEnroll:",
+                            "copyCode": "Copy code"
+                        },
+                        "actions": {
+                            "close": "Close",
+                            "readDocs": "Read official documentation",
+                            "tryInPostman": "Test in Postman"
                         }
                     }
                 },
@@ -4473,6 +4735,46 @@
                 }
             },
             "integrations": {
+                "enrollmentClient": {
+                    "title": "Enrollment experience",
+                    "subtitle": "Choose the page customers open from the published link.",
+                    "legacy": "Current enrollment (/sign-up)",
+                    "v2": "New enrollment (/verify)",
+                    "blocked": "The new enrollment stays off until this project no longer needs:",
+                    "blockers": {
+                        "business": "Business or KYB verification",
+                        "extraFields": "Extra profile fields",
+                        "backgroundCheck": "Background check",
+                        "nameCheck": "Name check",
+                        "screening": "Screening",
+                        "zeroKnowledge": "Zero-knowledge proof",
+                        "taxInformation": "Tax information",
+                        "representatives": "Legal representatives",
+                        "signature": "Signature or extra form"
+                    }
+                },
+                "verifyStyle": {
+                    "title": "Verification look",
+                    "subtitle": "Customers see this on the new enrollment page. Leave it unset and that page uses Forest. The current enrollment page is unchanged.",
+                    "sample": "Continue",
+                    "unset": "Not set",
+                    "names": {
+                        "a": "Forest",
+                        "b": "Editorial",
+                        "c": "Paper",
+                        "d": "Vault",
+                        "e": "Porcelain",
+                        "f": "Notebook"
+                    },
+                    "descriptions": {
+                        "a": "Eco-minimalist sage aesthetic with tight Inter typography and vibrant chartreuse pill buttons.",
+                        "b": "High-contrast editorial layout featuring bold condensed Barlow headlines and stark monochrome accents.",
+                        "c": "Warm tactile paper aesthetic with modern Outfit typography and deep charcoal accents.",
+                        "d": "Cyber-vault dark mode with technical Space Grotesk type and electric blue accents.",
+                        "e": "Refined porcelain aesthetic with delicate Inter Tight typography and indigo bordered buttons.",
+                        "f": "Neo-brutalist notebook theme with punchy Roboto Condensed headlines and neon lime accents."
+                    }
+                },
                 "redirect": {
                     "title": "Redirect URL",
                     "subtitle": "Where to send the customer once enrollment finishes.",
@@ -4513,6 +4815,36 @@
                 }
             },
             "ui": {
+                "flowOrder": {
+                    "title": "Enrollment order",
+                    "subtitle": "Choose which comes first on the new enrollment page. Option A asks for contact details and then consent. Option B starts with consent like Stripe Identity.",
+                    "contact_first": "A · Contact first",
+                    "contact_first_desc": "Name, email and terms, then the consent screen.",
+                    "consent_first": "B · Consent first",
+                    "consent_first_desc": "Consent screen first, then name, email and terms."
+                },
+                "verifyStyle": {
+                    "title": "Verification look",
+                    "subtitle": "Customers see this on the new enrollment page. Leave it unset and that page uses Forest. The current enrollment page is unchanged.",
+                    "sample": "Continue",
+                    "unset": "Not set",
+                    "names": {
+                        "a": "Forest",
+                        "b": "Editorial",
+                        "c": "Paper",
+                        "d": "Vault",
+                        "e": "Porcelain",
+                        "f": "Notebook"
+                    },
+                    "descriptions": {
+                        "a": "Eco-minimalist sage aesthetic with tight Inter typography and vibrant chartreuse pill buttons.",
+                        "b": "High-contrast editorial layout featuring bold condensed Barlow headlines and stark monochrome accents.",
+                        "c": "Warm tactile paper aesthetic with modern Outfit typography and deep charcoal accents.",
+                        "d": "Cyber-vault dark mode with technical Space Grotesk type and electric blue accents.",
+                        "e": "Refined porcelain aesthetic with delicate Inter Tight typography and indigo bordered buttons.",
+                        "f": "Neo-brutalist notebook theme with punchy Roboto Condensed headlines and neon lime accents."
+                    }
+                },
                 "colors": {
                     "heading": "Brand colors",
                     "title": "Title",
@@ -8610,6 +8942,145 @@
                 "id_registered": "Identity registered",
                 "continue_to_platform": "Continue"
             }
+        },
+        "verify": {
+            "acceptedBody": "We accept these photo IDs for this project.",
+            "acceptedTitle": "Accepted IDs",
+            "agreementsTitle": "Review and agree",
+            "agree": "Agree and continue",
+            "agreeTerms": "I agree to the terms and privacy notice.",
+            "anotherDevice": "Continue on another device",
+            "auto": "Auto",
+            "autoHelp": "Put the ID on a flat, well-lit surface.",
+            "back": "Back",
+            "backTitle": "Back of ID",
+            "backToConsent": "Back to consent",
+            "cameraBody": "We need your camera to capture your ID.",
+            "cameraTitle": "Allow camera access",
+            "captureAuto": "Capture ID automatically",
+            "category": "Category",
+            "codeEmail": "Enter the code sent to {{email}}.",
+            "codePhone": "Enter the code sent to {{phone}}.",
+            "codeTitle": "Confirm it's you",
+            "consentRow1": "We'll take a photo of a valid",
+            "consentRow1End": ", then a selfie.",
+            "consentRow2": "{{project}} only receives this verification data.",
+            "consentRow3": "Verifik uses biometric technology. You can delete your data.",
+            "consentTitle": "Let's verify your identity",
+            "continue": "Continue",
+            "continueHere": "Continue on this device",
+            "continueToProject": "Continue",
+            "copied": "Link copied",
+            "copyLink": "Copy link",
+            "country": "Country",
+            "countryBody": "This verification is not available from {{country}}.",
+            "countryTitle": "Not available in your country",
+            "decline": "Decline",
+            "declineBody": "Consent is required to verify your identity.",
+            "declineTitle": "Are you sure?",
+            "documentBody": "Choose the country and type of ID you will scan.",
+            "documentTitle": "Document",
+            "emailLabel": "Email",
+            "eyebrow": "Verification",
+            "emailTitle": "Enter your email",
+            "errorBody": "Please try again.",
+            "errorTitle": "Something went wrong",
+            "firstName": "First name",
+            "flipBody": "We need a photo of the back of your ID.",
+            "flipTitle": "Flip your ID over",
+            "frontTitle": "Front of ID",
+            "fullName": "Full name",
+            "goBackToProject": "Go back to {{project}}",
+            "grantAccess": "Grant access",
+            "handoffBody": "Scan this QR code with your phone to continue.",
+            "handoffTitle": "Continue on your mobile device",
+            "havingTrouble": "Having trouble?",
+            "identityVerification": "Identity Verification",
+            "imReady": "I'm ready",
+            "languageTitle": "Language",
+            "lastName": "Last name",
+            "license": "Driver's license",
+            "manual": "Manual",
+            "moveId": "Move your ID into view.",
+            "nameTitle": "Enter your name",
+            "nationalId": "National ID",
+            "ocrReviewTitle": "Confirm your details",
+            "ocrReviewBody": "Review the information extracted from your ID and edit any field if needed.",
+            "ocrStatusExtracted": "Extracted",
+            "ocrExtractedTitle": "Extracted information",
+            "ocrEditFields": "Edit",
+            "ocrDoneEditing": "Done",
+            "ocrResetAll": "Reset all",
+            "ocrResetField": "Reset",
+            "ocrModifiedBadge": "Modified",
+            "ocrConfirmContinue": "Confirm and continue",
+            "ocrValidatingNames": "Verifying identity records with the official source…",
+            "ocrNamesVerified": "Identity records verified",
+            "ocrFieldFirstName": "First name",
+            "ocrFieldLastName": "Last name",
+            "ocrFieldFullName": "Full name",
+            "ocrFieldDocumentNumber": "Document number",
+            "ocrFieldDocumentType": "Document type",
+            "ocrFieldDateOfBirth": "Date of birth",
+            "ocrFieldExpirationDate": "Expiration date",
+            "ocrFieldDateOfIssue": "Issue date",
+            "ocrFieldAddress": "Address",
+            "otherOptions": "Other options",
+            "passport": "Passport",
+            "phoneLabel": "Phone number",
+            "phoneTitle": "Verify your phone number",
+            "photoId": "photo ID",
+            "privacy": "Privacy notice",
+            "privacyPolicy": "Privacy policy",
+            "readyBody": "You must scan your driver's license, passport or government-issued photo ID.",
+            "readyBodyBoth": "Scan with your camera or upload a photo of your driver's license, passport or government-issued ID.",
+            "readyBodyUpload": "Upload a clear photo of your driver's license, passport or government-issued ID.",
+            "readyTitle": "Get ready to scan",
+            "readyTitleBoth": "Provide your photo ID",
+            "readyTitleUpload": "Upload your photo ID",
+            "retake": "Retake photo",
+            "retryBody": "Try again with a clearer photo.",
+            "retryTitle": "We couldn't verify that photo",
+            "reviewBackTitle": "Review back of ID",
+            "reviewBody": "Check that your details are visible and in focus.",
+            "reviewTitle": "Review front of ID",
+            "selectFile": "Select a file",
+            "selfieBody": "We will take a photo of your face and compare it to your identification.",
+            "selfieTitle": "Verify with a selfie",
+            "sendAgain": "Send again",
+            "skip": "Skip",
+            "sms": "SMS",
+            "submitPhoto": "Submit photo",
+            "submittedBody": "We're redirecting you to {{project}}. If you are not redirected in 7 seconds, click here.",
+            "submittedCheckDocument": "Identity Document",
+            "submittedCheckLiveness": "Facial Liveness",
+            "submittedCheckSecurity": "Security & Privacy",
+            "submittedContinueBtn": "Continue to {{project}}",
+            "submittedLivenessDesc": "Biometric match passed",
+            "submittedRedirecting": "Redirecting automatically in {{seconds}}s...",
+            "submittedSecurityDesc": "256-bit encrypted transmission",
+            "submittedStatusProtected": "Protected",
+            "submittedStatusVerified": "Verified",
+            "submittedSubtitle": "Your identity details and biometrics have been safely received.",
+            "submittedTitle": "Verification submitted",
+            "template": "Document type",
+            "terms": "Terms and conditions",
+            "troubleTitle": "Having trouble?",
+            "tryAgain": "Try again",
+            "upgradeBody": "This project does not have an active SmartEnroll plan.",
+            "upgradeTitle": "Upgrade required",
+            "whatsapp": "WhatsApp",
+            "worksWith": "{{project}} works with Verifik to verify your identity.",
+            "screens": {
+                "consent": "Consent",
+                "contact": "Sign-up",
+                "otp": "OTP",
+                "ready": "Ready",
+                "front": "ID Scan",
+                "reviewFront": "Review",
+                "selfie": "Selfie",
+                "submitted": "Done"
+            }
         }
     },
     "supportTickets": {
@@ -10712,6 +11183,7 @@
         "resuming": "Resuming...",
         "resumeFailed": "Could not resume the run. Try again.",
         "startFailed": "Could not start the run. Try again.",
+        "endpointsNotInAccount": "You can't run this consultation because your account doesn't have these endpoints: {{codes}}.",
         "resumed": "Resumed",
         "runQueued": "Run queued. Processing continues on the server, so you can close this tab.",
         "runInTab": "Started in this tab. Keep it open until the batch finishes.",
@@ -11025,80 +11497,26 @@
                 "Normal: General inquiries that do not affect service availability."
             ],
             "responseTitle": "Response times",
-            "responseHeaders": [
-                "Severity",
-                "Attention",
-                "Review",
-                "Escalation",
-                "Resolution"
-            ],
+            "responseHeaders": ["Severity", "Attention", "Review", "Escalation", "Resolution"],
             "responseRows": {
-                "critical": [
-                    "Critical",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "urgent": [
-                    "Urgent",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "medium": [
-                    "Medium",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ],
-                "normal": [
-                    "Normal",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ]
+                "critical": ["Critical", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "urgent": ["Urgent", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "medium": ["Medium", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
+                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
             },
             "availabilityTitle": "Platform availability",
-            "availabilityHeaders": [
-                "Product",
-                "Availability",
-                "Notes"
-            ],
+            "availabilityHeaders": ["Product", "Availability", "Notes"],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depends on government sources"
                 ],
-                "smartAccessComm": [
-                    "SmartAccess (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll (Doc scan)",
-                    "98.0%",
-                    ""
-                ],
+                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll (Doc scan)", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -11115,22 +11533,10 @@
             "responseNote": "Note: 48 hrs means we may take up to 48 hours to resolve the incident depending on its complexity. Response times count from the user's last message.",
             "compensationTitle": "Downtime compensation",
             "compensationIntro": "Credit compensation for the affected month will be provided as a credit equivalent to the cost of the ineffective service call. If unavailability is caused by internal Verifik issues (database, servers, internal API problems) and not effectively resolved, Verifik will compensate as follows:",
-            "compensationHeaders": [
-                "Service availability",
-                "Credit compensation",
-                "Product"
-            ],
+            "compensationHeaders": ["Service availability", "Credit compensation", "Product"],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% or higher",
-                    "No credit",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% or lower",
-                    "Compensation",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% or higher", "No credit", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% or lower", "Compensation", "SmartCheck"],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% or higher",
                     "No credit",
@@ -11166,15 +11572,9 @@
             "billingTitle": "SmartCheck billing scheme",
             "billingIntro": "This billing scheme applies to smartCHECK, which allows querying government databases. Verifik is not the owner, manager, or responsible party for government databases in the countries we serve; therefore Verifik does not guarantee response time, average uptime, or data accuracy.",
             "billingTableTitle": "Billable vs non-billable HTTP codes",
-            "billingHeaders": [
-                "Billable",
-                "Non-billable"
-            ],
+            "billingHeaders": ["Billable", "Non-billable"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "Scheduled maintenance",
             "maintenance": "Scheduled maintenance is performed at night and on weekends with prior email notice to users.",
