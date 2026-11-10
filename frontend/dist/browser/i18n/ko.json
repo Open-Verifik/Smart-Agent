@@ -450,6 +450,7 @@
         "flowHideLibrary": "엔드포인트 숨기기",
         "flowShowLibrary": "엔드포인트 표시",
         "flowAddEndpoint": "조회 출처 추가",
+        "flowEndpointAdded": "이미 추가됨",
         "flowHideConfig": "설정 숨기기",
         "flowShowConfig": "설정 표시",
         "endpointInfoOpen": "정보",
