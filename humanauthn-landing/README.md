@@ -26,7 +26,7 @@ All copy lives in `src/i18n.js` (`COPY`, `META`, `LINKS`, `VIDEOS`).
 
 ## "See how it works" video
 
-YouTube ids in `VIDEOS` (`src/i18n.js`). Spanish: `PQpyeU0Bgcl`. English is empty until its upload exists, and falls back to Spanish.
+YouTube ids in `VIDEOS` (`src/i18n.js`). Spanish: `PQpyeU0Bgcl`. English: `ceJDAn1QoW8`.
 
 ## Domains
 

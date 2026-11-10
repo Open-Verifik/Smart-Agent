@@ -336,9 +336,9 @@ export const LINKS = {
 
 /**
  * "See how it works" videos (YouTube ids). Spanish was shared by Johan on 2026-11-09.
- * When the English upload exists, put its id in `en`; until then the Spanish one is used.
+ * English was shared by Johan on 2026-11-10.
  */
 export const VIDEOS = {
 	es: "PQpyeU0Bgcl",
-	en: "",
+	en: "ceJDAn1QoW8",
 };
