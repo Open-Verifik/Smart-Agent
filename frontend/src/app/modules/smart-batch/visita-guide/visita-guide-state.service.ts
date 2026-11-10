@@ -37,8 +37,8 @@ export class VisitaGuideStateService {
     entities = signal<GuideEntity[]>([]);
     countryIsos = signal<string[]>([]);
     mode = signal<GuideMode | null>(null);
-    /** queue = Async (background). browser = Sync (this tab). */
-    executor = signal<SmartBatchExecutor>('queue');
+    /** queue = Async (background). browser = Sync (this tab). New flows start in Sync. */
+    executor = signal<SmartBatchExecutor>('browser');
     inputValues = signal<Record<string, string>>({});
     selectedFeatures = signal<AppFeature[]>([]);
     flowGraph = signal<FlowGraph>(emptyFlowGraph());

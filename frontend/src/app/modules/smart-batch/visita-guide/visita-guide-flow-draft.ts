@@ -4,11 +4,17 @@ import { serializeVisitaFlow } from './visita-guide-pipeline.service';
 const STORAGE_KEY = 'smart-batch.visita-guide.flow-draft';
 const STORE_PREFIX = 'smart-batch.visita-guide.flow.';
 
+export type GuideFlowExecutor = 'queue' | 'browser';
+
 export type GuideFlowDraft = {
     graph: FlowGraph;
     inputValues?: Record<string, string>;
     configId?: string | null;
+    executor?: GuideFlowExecutor;
 };
+
+const readExecutor = (value: unknown): GuideFlowExecutor | undefined =>
+    value === 'queue' || value === 'browser' ? value : undefined;
 
 const isDraft = (value: unknown): value is GuideFlowDraft => {
     if (!value || typeof value !== 'object') return false;

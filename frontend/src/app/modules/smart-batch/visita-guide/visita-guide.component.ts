@@ -692,13 +692,19 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const graph = this._state.flowGraph();
         const inputValues = this._state.inputValues();
         const features = this._state.selectedFeatures();
+        const executor = this._state.executor();
         untracked(() => {
             if (!this._guideUrlReady) return;
             if (!endpointNodes(graph).length) {
                 if (!features.length && !this._pendingFeatureIds.length) clearFlowDraft();
                 return;
             }
-            writeFlowDraft({ graph, inputValues, configId: this._state.configId() });
+            writeFlowDraft({
+                graph,
+                inputValues,
+                configId: this._state.configId(),
+                executor: executor === 'browser' ? 'browser' : 'queue',
+            });
         });
     });
 
@@ -2063,7 +2069,33 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     selectGuideExecutor(executor: 'queue' | 'browser'): void {
-        this._state.executor.set(executor);
+        const next = executor === 'browser' ? 'browser' : 'queue';
+        if (this._state.executor() === next) return;
+        this._state.executor.set(next);
+        const graph = this._state.flowGraph();
+        const configId = this._state.configId();
+        if (endpointNodes(graph).length) {
+            writeFlowDraft({
+                graph,
+                inputValues: this._state.inputValues(),
+                configId,
+                executor: next,
+            });
+        }
+        if (!configId) return;
+        this._state.configuration.update((config) => (config ? { ...config, executor: next } : config));
+        this._batch.updateConfiguration(configId, { executor: next }).subscribe({
+            next: (res) => {
+                const saved = res?.data?.executor;
+                if (saved !== 'queue' && saved !== 'browser') return;
+                this._state.configuration.update((config) =>
+                    config ? { ...config, ...res.data, executor: saved } : config
+                );
+            },
+            error: () => {
+                /* The choice stays on the flow and is sent again with the next save. */
+            },
+        });
     }
 
     goNext(): void {
@@ -11048,6 +11080,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._pendingFeatureIds = ids;
             this._applyPendingFeatureIds();
         }
+        this._applySavedFlowExecutor();
     }
 
     private _restoreConsultationFlow(features: AppFeature[]): void {
@@ -11070,11 +11103,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 if (draft.inputValues && Object.keys(draft.inputValues).length) {
                     this._state.inputValues.set(draft.inputValues);
                 }
+                if (draft.executor) this._state.executor.set(draft.executor);
             } else if (!endpointNodes(this._state.flowGraph()).length && features.length) {
                 this._state.flowGraph.set(graphFromLinearChain(features));
             }
         }
         if (this.editingEndpointsFromLayout() && !this._consultFlowSnapshot) this._takeConsultSnapshot();
+        this._applySavedFlowExecutor();
+    }
+
+    /** The Async/Sync choice travels with the flow, including after a reload. */
+    private _applySavedFlowExecutor(): void {
+        const draft = readFlowDraft();
+        if (!draft?.executor) return;
+        const configId = this._state.configId();
+        if (configId) {
+            if (draft.configId !== configId) return;
+        } else if (draft.configId) {
+            return;
+        }
+        this._state.executor.set(draft.executor);
     }
 
     private _writeGuideUrl(state: ReturnType<typeof parseGuideUrl>): void {

@@ -450,6 +450,7 @@
         "flowHideLibrary": "Masquer les points de terminaison",
         "flowShowLibrary": "Afficher les points de terminaison",
         "flowAddEndpoint": "Ajouter des sources de consultation",
+        "flowEndpointAdded": "Déjà ajouté",
         "flowHideConfig": "Masquer la configuration",
         "flowShowConfig": "Afficher la configuration",
         "endpointInfoOpen": "Fiche",
