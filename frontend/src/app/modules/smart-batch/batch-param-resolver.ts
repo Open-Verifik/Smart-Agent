@@ -41,7 +41,13 @@ const resolveTemplate = (value: unknown, context: Record<string, unknown>): unkn
     if (typeof value !== 'string') return value;
     const exact = value.match(TEMPLATE);
     if (!exact) return value;
-    return getByPath(context, exact[1]);
+    const direct = getByPath(context, exact[1]);
+    if (!isEmpty(direct)) return direct;
+    const segments = exact[1].split('.').filter(Boolean);
+    const leaf = segments.pop() ?? '';
+    const parent = getByPath(context, segments.join('.'));
+    const alias = collectCanonicalScalarValues(parent)[canonicalChainField(leaf)];
+    return isEmpty(alias) ? direct : alias;
 };
 
 const groupOf = (dependency: { dependencyGroup?: string }): string => (dependency.dependencyGroup ?? '').trim();

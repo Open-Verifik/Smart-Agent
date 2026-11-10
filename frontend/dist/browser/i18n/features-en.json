@@ -534,7 +534,7 @@
         },
         "colombia_api_identity_lookup_premium": {
             "title": "National ID premium lookup (CC)",
-            "description": "Verify a Colombian national ID (CC) with a full profile: you type only the number, Verifik finds the issue date for you, and you get the same rich identity record as cédula extra. Uses more credits than the basic cédula check."
+            "description": "Verify a Colombian national ID (CC) with a full profile: you type only the number, and the response includes the issue date as date (DD/MM/YYYY, example 05/09/1989) plus the same rich record as cédula extra. Uses more credits than the basic cédula check."
         },
         "colombia_api_identity_pep_foreigner_id": {
             "title": "PEP (Special Stay Permit)",

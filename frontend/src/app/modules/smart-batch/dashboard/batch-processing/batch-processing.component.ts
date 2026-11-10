@@ -662,7 +662,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         try {
             const res = await firstValueFrom(this._smartBatchService.startSmartBatch(batchId));
             this.batch.set(res.data);
-            this._notify(this.isBrowserSync() ? 'batchProcessing.runInTab' : 'batchProcessing.runQueued');
+            this._warnRunMode();
             this._maybeStartBrowserRunner();
             this._schedulePoll(true);
         } catch (err) {
@@ -917,6 +917,28 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     // -------------------------------------------------------------------------
     // Dialogs & notifications
     // -------------------------------------------------------------------------
+
+    private _warnRunMode(): void {
+        const sync = this.isBrowserSync();
+        this._confirm.open({
+            title: this._transloco.translate(
+                sync ? 'createBatchConfig.runModeSyncWarningTitle' : 'createBatchConfig.runModeAsyncWarningTitle'
+            ),
+            message: this._transloco.translate(
+                sync ? 'createBatchConfig.runModeSyncWarningBody' : 'createBatchConfig.runModeAsyncWarningBody'
+            ),
+            icon: {
+                show: true,
+                name: sync ? 'heroicons_outline:exclamation-triangle' : 'heroicons_outline:information-circle',
+                color: sync ? 'warning' : 'info',
+            },
+            actions: {
+                confirm: { show: true, label: this._transloco.translate('createBatchConfig.runModeWarningOk') },
+                cancel: { show: false },
+            },
+            dismissible: true,
+        });
+    }
 
     private async _askConfirmation(options: {
         titleKey: string;
