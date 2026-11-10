@@ -1,6 +1,8 @@
 import "./styles.css";
 import { COPY, LINKS, META, VIDEOS } from "./i18n.js";
 import { ICONS } from "./icons.js";
+import { renderA } from "./pageA.js";
+import "./a.css";
 
 const VARIANT_COOKIE = "ha_variant";
 const LANG_KEY = "ha_lang";
@@ -353,11 +355,14 @@ function render() {
 	document.querySelector('meta[property="og:title"]')?.setAttribute("content", meta.title);
 	document.querySelector('meta[property="og:description"]')?.setAttribute("content", meta.description);
 
-	// Variant B leads with the use cases (the identity story); A leads with the privacy argument.
-	const body =
-		state.variant === "a"
-			? [why(t), how(t), useCases(t), developers(t, links), faq(t)]
-			: [useCases(t), how(t), why(t), developers(t, links), faq(t)];
+	document.body.classList.toggle("va", state.variant === "a");
+	if (state.variant === "a") {
+		// Variant A follows the Figma frame "humanauthn.com V1.0 (A)".
+		document.getElementById("app").innerHTML = renderA(state.lang, links).html + modal(t);
+		return;
+	}
+
+	const body = [useCases(t), how(t), why(t), developers(t, links), faq(t)];
 
 	document.getElementById("app").innerHTML = [
 		navbar(t, links),
@@ -399,8 +404,45 @@ function setLang(lang) {
 	render();
 }
 
+function closeDropdowns(except) {
+	document.querySelectorAll("[data-dropdown][aria-expanded='true']").forEach((btn) => {
+		if (btn !== except) btn.setAttribute("aria-expanded", "false");
+	});
+}
+
+function applyFilter(button) {
+	const filter = button.dataset.filter;
+	document.querySelectorAll("[data-filter]").forEach((b) => {
+		b.classList.toggle("is-active", b === button);
+		b.setAttribute("aria-pressed", String(b === button));
+	});
+	document.querySelectorAll(".va-post").forEach((post) => {
+		post.hidden = filter !== "all" && post.dataset.cat !== filter;
+	});
+}
+
+document.addEventListener("submit", (event) => {
+	const form = event.target.closest("[data-demo-form]");
+	if (!form) return;
+	event.preventDefault();
+	if (!form.reportValidity()) return;
+	// No backend yet: record the intent (no personal data) and send people to the booking calendar.
+	track("ha_demo_request", { interest: form.interest.value });
+	form.querySelector("[data-form-sent]").hidden = false;
+	window.setTimeout(() => window.open(LINKS[state.lang].demo, "_blank", "noopener"), 600);
+});
+
 document.addEventListener("click", (event) => {
-	const target = event.target.closest("[data-lang],[data-open-video],[data-close-video],[data-menu],[data-track],.nav__mobile a");
+	const dropdown = event.target.closest("[data-dropdown]");
+	closeDropdowns(dropdown);
+	if (dropdown) {
+		dropdown.setAttribute("aria-expanded", String(dropdown.getAttribute("aria-expanded") !== "true"));
+		return;
+	}
+	const filterBtn = event.target.closest("[data-filter]");
+	if (filterBtn) applyFilter(filterBtn);
+
+	const target = event.target.closest("[data-lang],[data-open-video],[data-close-video],[data-menu],[data-track],.nav__mobile a,.va-nav__mobile a");
 	if (!target) return;
 
 	if (target.dataset.track) track("ha_cta_click", { cta: target.dataset.track });
@@ -412,13 +454,16 @@ document.addEventListener("click", (event) => {
 	if (target.hasAttribute("data-menu")) {
 		menu.hidden = !menu.hidden;
 		target.setAttribute("aria-expanded", String(!menu.hidden));
-	} else if (target.closest(".nav__mobile")) {
+	} else if (target.closest(".nav__mobile, .va-nav__mobile")) {
 		menu.hidden = true;
 	}
 });
 
 document.addEventListener("keydown", (event) => {
-	if (event.key === "Escape") closeVideo();
+	if (event.key === "Escape") {
+		closeVideo();
+		closeDropdowns();
+	}
 });
 
 render();
