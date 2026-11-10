@@ -572,47 +572,6 @@
                         }
                     }
                     @case ('mode') {
-                        <p class="text-sm font-medium text-stone-700 dark:text-stone-200">
-                            {{ t('createBatchConfig.runMode') }}
-                        </p>
-                        <div class="grid gap-3 sm:grid-cols-2">
-                            <button
-                                type="button"
-                                [class]="guideExecutorCardClass(executor() === 'queue')"
-                                (click)="selectGuideExecutor('queue')"
-                            >
-                                <div>
-                                    <span class="block text-sm font-semibold">{{
-                                        t('createBatchConfig.runModeAsync')
-                                    }}</span>
-                                    <span
-                                        class="mt-1 block text-sm"
-                                        [class.text-stone-300]="executor() === 'queue'"
-                                        [class.text-stone-500]="executor() !== 'queue'"
-                                        [class.dark:text-stone-400]="executor() !== 'queue'"
-                                        >{{ t('createBatchConfig.runModeAsyncHint') }}</span
-                                    >
-                                </div>
-                            </button>
-                            <button
-                                type="button"
-                                [class]="guideExecutorCardClass(executor() === 'browser')"
-                                (click)="selectGuideExecutor('browser')"
-                            >
-                                <div>
-                                    <span class="block text-sm font-semibold">{{
-                                        t('createBatchConfig.runModeSync')
-                                    }}</span>
-                                    <span
-                                        class="mt-1 block text-sm"
-                                        [class.text-stone-300]="executor() === 'browser'"
-                                        [class.text-stone-500]="executor() !== 'browser'"
-                                        [class.dark:text-stone-400]="executor() !== 'browser'"
-                                        >{{ t('createBatchConfig.runModeSyncHint') }}</span
-                                    >
-                                </div>
-                            </button>
-                        </div>
                         <button
                             type="button"
                             class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
@@ -804,7 +763,7 @@
                                 (queryChange)="endpointSearchQuery.set($event)"
                                 (chainChange)="setEndpointChain($event)"
                                 (graphChange)="setFlowGraph($event)"
-                                [continueKey]="editingEndpointsFromLayout() ? 'visitaGuide.layoutReturnFromFlow' : 'visitaGuide.continue'"
+                                [continueKey]="flowContinueKey()"
                                 (continueChain)="confirmEndpoints()"
                                 (toggleParamFilter)="toggleRequiredParamFilter($event)"
                                 (clearParamFilters)="clearRequiredParamFilters()"
@@ -865,6 +824,41 @@
                                             >{{ t('visitaGuide.modeSingle') }}</span
                                         >
                                     }
+                                </div>
+                                <div
+                                    flow-executor
+                                    class="mr-1 inline-flex h-9 shrink-0 items-center rounded-full bg-slate-100 p-0.5 dark:bg-gray-800"
+                                    role="group"
+                                    [attr.aria-label]="t('createBatchConfig.runMode')"
+                                >
+                                    <button
+                                        type="button"
+                                        class="h-8 rounded-full px-3 text-xs font-semibold transition"
+                                        [class.bg-sky-600]="executor() === 'queue'"
+                                        [class.text-white]="executor() === 'queue'"
+                                        [class.shadow-sm]="executor() === 'queue'"
+                                        [class.text-slate-600]="executor() !== 'queue'"
+                                        [class.hover:text-slate-900]="executor() !== 'queue'"
+                                        [class.dark:text-slate-300]="executor() !== 'queue'"
+                                        [matTooltip]="t('createBatchConfig.runModeAsyncHint')"
+                                        (click)="selectGuideExecutor('queue')"
+                                    >
+                                        {{ t('createBatchConfig.runModeAsync') }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="h-8 rounded-full px-3 text-xs font-semibold transition"
+                                        [class.bg-sky-600]="executor() === 'browser'"
+                                        [class.text-white]="executor() === 'browser'"
+                                        [class.shadow-sm]="executor() === 'browser'"
+                                        [class.text-slate-600]="executor() !== 'browser'"
+                                        [class.hover:text-slate-900]="executor() !== 'browser'"
+                                        [class.dark:text-slate-300]="executor() !== 'browser'"
+                                        [matTooltip]="t('createBatchConfig.runModeSyncHint')"
+                                        (click)="selectGuideExecutor('browser')"
+                                    >
+                                        {{ t('createBatchConfig.runModeSync') }}
+                                    </button>
                                 </div>
                             </endpoint-chain-board>
                         @if (false) {
@@ -930,10 +924,6 @@
                                                 [cdkDragData]="feature"
                                                 [cdkDragDisabled]="isFeatureSelected(feature)"
                                                 class="relative"
-                                                (mouseenter)="onEndpointCardEnter(feature, $event)"
-                                                (mousemove)="onEndpointCardMove(feature, $event)"
-                                                (pointermove)="onEndpointCardMove(feature, $event)"
-                                                (mouseleave)="onEndpointCardLeave()"
                                             >
                                                 <div
                                                     class="flex w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left"
@@ -969,9 +959,13 @@
                                                         }
                                                     </span>
                                                     <div class="min-w-0 flex-1">
-                                                        <span class="block truncate text-sm font-medium text-stone-950 dark:text-white">{{
-                                                            featureDisplayName(feature)
-                                                        }}</span>
+                                                        <span
+                                                            class="block truncate text-sm font-medium text-stone-950 dark:text-white"
+                                                            (mouseenter)="onEndpointCardEnter(feature, $event)"
+                                                            (mousemove)="onEndpointCardMove(feature, $event)"
+                                                            (pointermove)="onEndpointCardMove(feature, $event)"
+                                                            (mouseleave)="onEndpointCardLeave()"
+                                                        >{{ featureDisplayName(feature) }}</span>
                                                         <div class="mt-0.5 flex flex-wrap gap-1">
                                                             @for (chip of featureParamFields(feature); track chip.field) {
                                                                 <span
@@ -1095,9 +1089,11 @@
                                                 }
                                             </span>
                                             <div class="min-w-0 flex-1">
-                                                <span class="block truncate text-sm font-medium text-stone-950 dark:text-white">{{
-                                                    featureDisplayName(feature)
-                                                }}</span>
+                                                <span
+                                                    class="block truncate text-sm font-medium text-stone-950 dark:text-white"
+                                                    [matTooltip]="featureDisplayName(feature)"
+                                                    matTooltipShowDelay="300"
+                                                >{{ featureDisplayName(feature) }}</span>
                                                 @if (featureParamFields(feature).length) {
                                                     <div class="mt-0.5 flex flex-wrap gap-1">
                                                         @for (chip of featureParamFields(feature); track chip.field) {
@@ -1143,7 +1139,7 @@
                                 [style.top.px]="endpointHoverTop()"
                             >
                                 <div
-                                    class="relative rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 text-left text-white shadow-xl opacity-0 scale-[0.97] transition-[opacity,transform] ease-out"
+                                    class="relative rounded-2xl bg-white px-4 py-3 text-left text-slate-800 opacity-0 scale-[0.97] drop-shadow-[0_12px_28px_rgba(15,23,42,0.14)] transition-[opacity,transform] ease-out"
                                     [class.duration-300]="endpointHoverVisible()"
                                     [class.duration-75]="!endpointHoverVisible()"
                                     [class.origin-top-left]="!endpointHoverFlipX() && !endpointHoverFlipY()"
@@ -1154,41 +1150,37 @@
                                     [class.scale-100]="endpointHoverVisible()"
                                 >
                                 <span
-                                    class="absolute h-2.5 w-2.5 rotate-45 border-stone-800 bg-stone-950"
-                                    [class.top-[-5px]]="!endpointHoverFlipY()"
-                                    [class.bottom-[-5px]]="endpointHoverFlipY()"
-                                    [class.left-3]="!endpointHoverFlipX()"
-                                    [class.right-3]="endpointHoverFlipX()"
-                                    [class.border-t]="!endpointHoverFlipY()"
-                                    [class.border-l]="!endpointHoverFlipY()"
-                                    [class.border-b]="endpointHoverFlipY()"
-                                    [class.border-r]="endpointHoverFlipY()"
+                                    class="absolute h-3.5 w-3.5 rotate-45 bg-white"
+                                    [class.-top-1.5]="!endpointHoverFlipY()"
+                                    [class.-bottom-1.5]="endpointHoverFlipY()"
+                                    [class.left-5]="!endpointHoverFlipX()"
+                                    [class.right-5]="endpointHoverFlipX()"
                                 ></span>
                                 <div class="flex items-start gap-2.5">
                                     <span
-                                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/15 text-white"
+                                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700"
                                     >
                                         <mat-icon class="!h-6 !w-6 !text-[26px]">{{ tip.icon }}</mat-icon>
                                     </span>
-                                    <p class="pt-1 text-sm font-semibold leading-snug text-white">{{ tip.title }}</p>
+                                    <p class="pt-1 text-sm font-semibold leading-snug text-slate-900">{{ tip.title }}</p>
                                 </div>
                                 @if (tip.description) {
-                                    <p class="mt-1 text-[11px] leading-snug text-white/80">{{ tip.description }}</p>
+                                    <p class="mt-1 text-[11px] leading-snug text-slate-500">{{ tip.description }}</p>
                                 }
-                                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/80">
+                                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
                                     @if (tip.request) {
-                                        <span class="font-mono font-medium text-white">{{ tip.request }}</span>
+                                        <span class="font-mono font-medium text-slate-700">{{ tip.request }}</span>
                                     }
                                     @if (tip.code) {
-                                        <span class="text-white/70">{{ t('visitaGuide.endpointTooltipCode') }}:
+                                        <span class="text-slate-400">{{ t('visitaGuide.endpointTooltipCode') }}:
                                             {{ tip.code }}</span>
                                     }
                                 </div>
                                 @if (tip.params.length) {
-                                    <p class="mt-2 text-[10px] font-semibold uppercase tracking-wide text-white/60">
+                                    <p class="mt-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                                         {{ t('visitaGuide.endpointTooltipParams') }}
                                     </p>
-                                    <p class="mt-0.5 text-[11px] leading-snug text-white/80">{{
+                                    <p class="mt-0.5 text-[11px] leading-snug text-slate-600">{{
                                         tip.params.join(' · ')
                                     }}</p>
                                 }
@@ -1246,21 +1238,153 @@
                                 class="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950"
                                 (click)="consultThenReturnToLayout() ? submitLayoutConsult() : goNext()"
                             >
-                                {{ t('visitaGuide.searchAction') }}
+                                {{ t(consultThenReturnToLayout() ? 'visitaGuide.layoutConsultAndReturn' : 'visitaGuide.searchAction') }}
                             </button>
                         </div>
                     }
                     @case ('consult') {
-                        <div
-                            class="flex flex-col items-center rounded-2xl border border-dashed border-stone-200 px-5 py-16 text-center dark:border-gray-800"
-                        >
-                            <mat-spinner diameter="40"></mat-spinner>
-                            <p class="mt-4 text-sm font-medium text-stone-800 dark:text-stone-100">
-                                {{ t(mode() === 'batch' ? 'visitaGuide.preparingBatch' : 'visitaGuide.searching') }}
-                            </p>
-                            <p class="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
-                                {{ t('visitaGuide.searchingHint') }}
-                            </p>
+                        <div class="mx-auto flex w-full max-w-xl flex-col gap-4">
+                            <section class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0">
+                                        <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-400">
+                                            {{ t('visitaGuide.consultFlowTitle') }}
+                                        </p>
+                                        <h2 class="mt-1 text-lg font-semibold text-stone-950 dark:text-white">
+                                            {{
+                                                t(
+                                                    consultGate() === 'stopped'
+                                                        ? 'visitaGuide.consultStopped'
+                                                        : consultGate() === 'running'
+                                                          ? mode() === 'batch'
+                                                              ? 'visitaGuide.preparingBatch'
+                                                              : 'visitaGuide.searching'
+                                                          : 'visitaGuide.consultReady'
+                                                )
+                                            }}
+                                        </h2>
+                                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                            {{ t('visitaGuide.searchingHint') }}
+                                        </p>
+                                    </div>
+                                    <div class="shrink-0 text-right">
+                                        <p class="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                            {{ t('visitaGuide.consultOf', { done: consultProgress().done, total: consultProgress().total }) }}
+                                        </p>
+                                        <span
+                                            class="mt-2 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                                            [ngClass]="
+                                                executor() === 'browser'
+                                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200'
+                                                    : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200'
+                                            "
+                                        >
+                                            {{ t(executor() === 'browser' ? 'createBatchConfig.runModeSync' : 'createBatchConfig.runModeAsync') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
+                                    <div
+                                        class="h-full rounded-full bg-sky-500 transition-all duration-300"
+                                        [style.width.%]="consultProgress().percent"
+                                    ></div>
+                                </div>
+                                <p
+                                    class="mt-3 text-sm"
+                                    [ngClass]="executor() === 'browser' ? 'text-amber-800 dark:text-amber-200' : 'text-sky-800 dark:text-sky-200'"
+                                >
+                                    {{ t(executor() === 'browser' ? 'createBatchConfig.runModeSyncWarningBody' : 'createBatchConfig.runModeAsyncWarningBody') }}
+                                </p>
+                                <div class="mt-4 flex flex-wrap items-center gap-2">
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-10 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                        (click)="goBack()"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 !text-[18px] !text-stone-700 dark:!text-stone-200">arrow_back</mat-icon>
+                                        {{ t('visitaGuide.back') }}
+                                    </button>
+                                    @if (consultGate() === 'running') {
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-10 items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-700 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+                                            (click)="stopConsult()"
+                                        >
+                                            <mat-icon class="!h-4 !w-4 !text-[18px] !text-red-700 dark:!text-red-200">stop_circle</mat-icon>
+                                            {{ t('visitaGuide.consultStop') }}
+                                        </button>
+                                    }
+                                </div>
+                                @if (!consultFlow().length) {
+                                    <div class="flex justify-center py-10">
+                                        <mat-spinner diameter="36"></mat-spinner>
+                                    </div>
+                                } @else {
+                                    <ol class="mt-6">
+                                        @for (item of consultFlow(); track item.sequence; let i = $index, last = $last) {
+                                            <li class="grid grid-cols-[2rem_minmax(0,1fr)] gap-3">
+                                                <div class="flex flex-col items-center">
+                                                    <span
+                                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                                                        [ngClass]="consultDotClass(item.phase)"
+                                                    >
+                                                        @switch (item.phase) {
+                                                            @case ('running') {
+                                                                <span class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+                                                            }
+                                                            @case ('ok') {
+                                                                <mat-icon class="!h-4 !w-4 !text-[16px] !text-white">check</mat-icon>
+                                                            }
+                                                            @case ('failed') {
+                                                                <mat-icon class="!h-4 !w-4 !text-[16px] !text-white">close</mat-icon>
+                                                            }
+                                                            @case ('skipped') {
+                                                                <mat-icon class="!h-4 !w-4 !text-[16px] !text-white">remove</mat-icon>
+                                                            }
+                                                            @default {
+                                                                {{ i + 1 }}
+                                                            }
+                                                        }
+                                                    </span>
+                                                    @if (!last) {
+                                                        <span class="my-1 w-px flex-1 bg-stone-200 dark:bg-gray-700"></span>
+                                                    }
+                                                </div>
+                                                <div
+                                                    class="mb-3 min-w-0 rounded-2xl border px-3.5 py-3"
+                                                    [ngClass]="consultCardClass(item.phase)"
+                                                >
+                                                    <div class="flex items-start justify-between gap-3">
+                                                        <div class="min-w-0">
+                                                            <p class="text-sm font-semibold text-stone-950 dark:text-white">{{ item.label }}</p>
+                                                            @if (item.code) {
+                                                                <p class="mt-0.5 break-all text-[11px] text-stone-400">{{ item.code }}</p>
+                                                            }
+                                                        </div>
+                                                        <span
+                                                            class="shrink-0 text-[11px] font-semibold"
+                                                            [ngClass]="
+                                                                item.phase === 'failed'
+                                                                    ? 'text-red-700 dark:text-red-300'
+                                                                    : item.phase === 'ok'
+                                                                      ? 'text-emerald-700 dark:text-emerald-300'
+                                                                      : item.phase === 'running' || item.phase === 'next'
+                                                                        ? 'text-sky-700 dark:text-sky-300'
+                                                                        : 'text-stone-400'
+                                                            "
+                                                        >
+                                                            {{ t(consultPhaseKey(item.phase)) }}
+                                                        </span>
+                                                    </div>
+                                                    @if (item.error) {
+                                                        <p class="mt-2 text-xs leading-relaxed text-red-700 dark:text-red-300">{{ item.error }}</p>
+                                                    }
+                                                </div>
+                                            </li>
+                                        }
+                                    </ol>
+                                }
+                            </section>
                         </div>
                     }
                     @case ('results') {
@@ -1964,16 +2088,16 @@
                                     <article
                                         cdkDrag
                                         [cdkDragData]="card"
+                                        [cdkDragDisabled]="isCardOnLayout(card.sequence)"
                                         (cdkDragStarted)="onLayoutPaletteDragStart()"
                                         (cdkDragEnded)="onLayoutPaletteDragEnd()"
-                                        class="cursor-grab rounded-lg border bg-white px-1.5 py-1 text-left dark:bg-gray-900/70"
+                                        class="rounded-lg border bg-white px-1.5 py-1 text-left dark:bg-gray-900/70"
+                                        [class.cursor-grab]="!isCardOnLayout(card.sequence)"
+                                        [class.cursor-default]="isCardOnLayout(card.sequence)"
                                         [class.border-emerald-300]="card.status === 'ok'"
                                         [class.border-red-300]="card.status === 'failed'"
                                         [class.border-stone-200]="card.status === 'empty' || card.status === 'skipped'"
                                         [class.opacity-80]="isCardOnLayout(card.sequence)"
-                                        [matTooltip]="layoutConsultTooltip(card)"
-                                        matTooltipPosition="right"
-                                        matTooltipShowDelay="300"
                                     >
                                         <div class="flex items-center gap-0.5">
                                             <span
@@ -1984,9 +2108,12 @@
                                                 [matTooltip]="t(resultStatusKey(card.status))"
                                                 [attr.aria-label]="t(resultStatusKey(card.status))"
                                             ></span>
-                                            <span class="min-w-0 flex-1 truncate text-xs font-medium text-stone-950 dark:text-white">{{
-                                                card.label
-                                            }}</span>
+                                            <span
+                                                class="min-w-0 flex-1 truncate text-xs font-medium text-stone-950 dark:text-white"
+                                                [matTooltip]="layoutConsultTooltip(card)"
+                                                matTooltipPosition="right"
+                                                matTooltipShowDelay="300"
+                                            >{{ card.label }}</span>
                                             <button
                                                 type="button"
                                                 class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
@@ -1998,17 +2125,22 @@
                                             >
                                                 <mat-icon class="!h-3.5 !w-3.5 !text-[16px]">info</mat-icon>
                                             </button>
-                                            <button
-                                                type="button"
-                                                class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-gray-800"
-                                                [matTooltip]="t('visitaGuide.layoutAddOne')"
-                                                [attr.aria-label]="t('visitaGuide.layoutAddOne')"
-                                                (pointerdown)="$event.stopPropagation()"
-                                                (mousedown)="$event.stopPropagation()"
-                                                (click)="addCardToLayout(card); $event.stopPropagation()"
+                                            <span
+                                                class="inline-flex"
+                                                [matTooltip]="t(isCardOnLayout(card.sequence) ? 'visitaGuide.layoutOnCanvas' : 'visitaGuide.layoutAddOne')"
                                             >
-                                                <mat-icon class="!h-3.5 !w-3.5 !text-[16px]">add</mat-icon>
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-stone-300 dark:hover:bg-gray-800"
+                                                    [disabled]="isCardOnLayout(card.sequence)"
+                                                    [attr.aria-label]="t(isCardOnLayout(card.sequence) ? 'visitaGuide.layoutOnCanvas' : 'visitaGuide.layoutAddOne')"
+                                                    (pointerdown)="$event.stopPropagation()"
+                                                    (mousedown)="$event.stopPropagation()"
+                                                    (click)="addCardToLayout(card); $event.stopPropagation()"
+                                                >
+                                                    <mat-icon class="!h-3.5 !w-3.5 !text-[16px]">{{ isCardOnLayout(card.sequence) ? 'check' : 'add' }}</mat-icon>
+                                                </button>
+                                            </span>
                                             <button
                                                 type="button"
                                                 class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"

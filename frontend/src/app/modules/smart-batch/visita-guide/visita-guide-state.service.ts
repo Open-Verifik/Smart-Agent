@@ -125,7 +125,8 @@ export class VisitaGuideStateService {
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
         const hydrated = hydrateFlowGraph(graph, features);
-        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const seeds = flowSeedFields(hydrated, profiles);
+        const seed = endpointNodes(hydrated).length || seeds.length ? seeds : undefined;
         const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
         return inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', features, seed, optional);
     });
@@ -192,7 +193,8 @@ export class VisitaGuideStateService {
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
         const hydrated = hydrateFlowGraph(graph, features);
-        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const seeds = flowSeedFields(hydrated, profiles);
+        const seed = endpointNodes(hydrated).length || seeds.length ? seeds : undefined;
         const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
         return buildInputRow(
             this.entities(),

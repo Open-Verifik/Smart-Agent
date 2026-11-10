@@ -76,6 +76,7 @@ import { EndpointChainBoardComponent } from './endpoint-chain-board.component';
 import {
     endpointNodes,
     flattenFlowGraph,
+    FLOW_RESULT_ID,
     FlowGraph,
     graphFromLinearChain,
     hydrateFlowGraph,
@@ -347,6 +348,16 @@ const clipLayerLabel = (value: string): string => {
 const stripLayerMarkup = (value: string): string =>
     value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 
+
+type ConsultFlowPhase = 'waiting' | 'running' | 'next' | 'ok' | 'failed' | 'skipped';
+
+interface ConsultFlowItem {
+    sequence: number;
+    label: string;
+    code?: string;
+    phase: ConsultFlowPhase;
+    error: string | null;
+}
 
 type GuideResultCard = {
     sequence: number;
@@ -627,6 +638,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         entities: GuideEntity[];
     } | null = null;
     isWorking = signal(false);
+    /** Endpoint the browser runner is calling right now. */
+    consultActiveSequence = signal<number | null>(null);
+    /** `running` only after the mode warning is accepted. */
+    consultGate = signal<'idle' | 'running' | 'stopped'>('idle');
+    private _consultStop = false;
+    /** Batch created by the consult that is on screen. Back and Stop only cancel this one. */
+    private _consultRunBatchId: string | null = null;
+    private _leavingConsult = false;
+    private readonly consultLive = signal<Record<number, { ok: boolean; error: string | null }>>({});
     isGenerating = signal(false);
     retryingSequences = signal<number[]>([]);
     isRetryingAnyResult = computed(() => this.retryingSequences().length > 0);
@@ -1069,11 +1089,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     allowsMultiEntity = computed(() => this.intent() === 'report' || this.intent() === 'template');
 
     currentTitleKey = computed(() => STEP_TITLE_KEYS[this.step()]);
-    canGoBack = computed(
-        () =>
-            this._state.editingSavedLayout() ||
-            (this.step() !== 'intent' && this.step() !== 'consult')
-    );
+    canGoBack = computed(() => this._state.editingSavedLayout() || this.step() !== 'intent');
     hasCountries = computed(() => this.countryIsos().length > 0);
     countryNames = computed(() =>
         this.countryIsos().map((iso) => countryNameForIso(iso)).filter(Boolean)
@@ -1608,6 +1624,141 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             });
     });
 
+    consultFlow = computed((): ConsultFlowItem[] => {
+        const plan = this._consultPlan();
+        const row = (this.batch()?.rows ?? [])[0];
+        const results = (row?.results ?? {}) as Record<string, unknown>;
+        const errors = row?.errors ?? [];
+        const skipped = row ? getBatchSkippedStepsFromInput(row.inputData as Record<string, unknown>) : [];
+        const live = this.consultLive();
+        const active = this.consultActiveSequence();
+        const started = Boolean(row) || active != null;
+
+        const items: ConsultFlowItem[] = plan.map((item) => {
+            const payload = results[item.sequence] ?? results[String(item.sequence)];
+            const error = errors.find((entry) => Number(entry.step) === item.sequence);
+            const skip = skipped.find((entry) => Number(entry.sequence) === item.sequence);
+            const local = live[item.sequence];
+            let phase: ConsultFlowPhase = 'waiting';
+            let message: string | null = null;
+            if (skip) {
+                phase = 'skipped';
+                message = `${skip.value} (${skip.field})`;
+            } else if (error) {
+                phase = 'failed';
+                message = error.message;
+            } else if (local && !local.ok) {
+                phase = 'failed';
+                message = local.error;
+            } else if (payload != null || local?.ok) {
+                phase = 'ok';
+            } else if (active === item.sequence) {
+                phase = 'running';
+            }
+            return { ...item, phase, error: message };
+        });
+
+        if (started && this.consultGate() === 'running' && this.isWorking() && !items.some((item) => item.phase === 'running')) {
+            const waiting = items.find((item) => item.phase === 'waiting');
+            if (waiting) waiting.phase = 'running';
+        }
+        const runningAt = items.findIndex((item) => item.phase === 'running');
+        const upcoming =
+            runningAt >= 0
+                ? items.slice(runningAt + 1).find((item) => item.phase === 'waiting')
+                : items.find((item) => item.phase === 'waiting');
+        if (upcoming) upcoming.phase = runningAt >= 0 || !started ? 'next' : upcoming.phase;
+        return items;
+    });
+
+    consultProgress = computed(() => {
+        const items = this.consultFlow();
+        const done = items.filter((item) => item.phase === 'ok' || item.phase === 'failed' || item.phase === 'skipped').length;
+        const total = items.length;
+        return { done, total, percent: total ? Math.round((done / total) * 100) : 0 };
+    });
+
+    consultPhaseKey(phase: ConsultFlowPhase): string {
+        switch (phase) {
+            case 'running':
+                return 'visitaGuide.consultNow';
+            case 'next':
+                return 'visitaGuide.consultNext';
+            case 'ok':
+                return 'visitaGuide.consultDone';
+            case 'failed':
+                return 'visitaGuide.consultStatusFailed';
+            case 'skipped':
+                return 'visitaGuide.consultSkipped';
+            default:
+                return 'visitaGuide.consultWaiting';
+        }
+    }
+
+    consultDotClass(phase: ConsultFlowPhase): string {
+        switch (phase) {
+            case 'running':
+                return 'bg-sky-600 text-white shadow-[0_0_0_4px_rgba(2,132,199,0.18)]';
+            case 'next':
+                return 'border border-sky-400 bg-white text-sky-700';
+            case 'ok':
+                return 'bg-emerald-500 text-white';
+            case 'failed':
+                return 'bg-red-500 text-white';
+            case 'skipped':
+                return 'bg-amber-400 text-white';
+            default:
+                return 'border border-stone-200 bg-stone-50 text-stone-400';
+        }
+    }
+
+    consultCardClass(phase: ConsultFlowPhase): string {
+        switch (phase) {
+            case 'running':
+                return 'border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40';
+            case 'next':
+                return 'border-sky-200 bg-white dark:border-sky-900 dark:bg-gray-900';
+            case 'ok':
+                return 'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30';
+            case 'failed':
+                return 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30';
+            case 'skipped':
+                return 'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30';
+            default:
+                return 'border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900/50';
+        }
+    }
+
+    private _consultPlan(): { sequence: number; label: string; code?: string }[] {
+        const steps = [...(this.configuration()?.steps ?? [])]
+            .filter((step) => step.enabled !== false)
+            .sort((a, b) => a.sequence - b.sequence);
+        if (steps.length) {
+            return steps.map((step) => {
+                const feature = step.appFeature as AppFeature | string;
+                const selected =
+                    typeof feature === 'string'
+                        ? this.selectedFeatures().find((item) => item._id === feature)
+                        : null;
+                const code = typeof feature === 'object' ? feature.code : selected?.code;
+                const label =
+                    typeof feature === 'object'
+                        ? this.featureDisplayName(feature)
+                        : selected
+                          ? this.featureDisplayName(selected)
+                          : `Paso ${step.sequence}`;
+                return { sequence: step.sequence, label, code };
+            });
+        }
+        const ordered = flattenFlowGraph(this.flowGraph());
+        const features = ordered.length ? ordered : this.selectedFeatures();
+        return features.map((feature, index) => ({
+            sequence: index + 1,
+            label: this.featureDisplayName(feature),
+            code: feature.code,
+        }));
+    }
+
     layoutSourceCards = computed((): GuideResultCard[] => {
         const fromResults = this.resultCards();
         if (fromResults.length) return fromResults;
@@ -1894,14 +2045,6 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.executor.set(executor);
     }
 
-    guideExecutorCardClass(selected: boolean): string {
-        const base = 'flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition';
-        if (selected) {
-            return `${base} border-stone-950 bg-stone-950 text-white dark:border-white dark:bg-white/10`;
-        }
-        return `${base} border-stone-200 bg-white text-stone-950 hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70 dark:text-white dark:hover:border-white`;
-    }
-
     goNext(): void {
         if (this.isRetryingAnyResult() && (this.step() === 'results' || this.step() === 'include')) {
             return;
@@ -2164,6 +2307,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     async goBack(): Promise<void> {
         if (!this.canGoBack()) return;
+        if (this.step() === 'consult') {
+            if (this._leavingConsult) return;
+            this._leavingConsult = true;
+            try {
+                await this._abandonConsult();
+            } finally {
+                this._leavingConsult = false;
+            }
+        }
         if (
             this.step() === 'generate' &&
             this.reportStudioStep() === 'preview' &&
@@ -2191,7 +2343,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const remembered = this._stepTrail.pop();
         if (remembered) {
             if (this.step() === 'country') this._countryReturn = null;
-            if (this.step() === 'input') this.consultThenReturnToLayout.set(false);
+            if (this.step() === 'input' && remembered !== 'endpoints') this.consultThenReturnToLayout.set(false);
             if (this._state.addingConsult() && (remembered === 'layout' || remembered === 'generate')) {
                 this._cancelConsultFlow();
                 return;
@@ -2299,6 +2451,8 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private async _finishEndpointsAndReturnToLayout(): Promise<void> {
+        const ordered = flattenFlowGraph(this.flowGraph());
+        if (ordered.length) this._state.selectedFeatures.set(ordered);
         if (this.designSource() === 'simulated') {
             if (!this.selectedFeatures().length) {
                 this._snack.open(this._transloco.translate('visitaGuide.pickEndpoints'), undefined, { duration: 2500 });
@@ -2326,16 +2480,15 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._snack.open(this._transloco.translate('visitaGuide.pickEndpoints'), undefined, { duration: 2500 });
             return;
         }
-        const previousIds = this._configurationFeatureIds();
-        const added = this.selectedFeatures().some((feature) => feature._id && !previousIds.has(feature._id));
+        const consultChanged = this._layoutFlowNeedsConsult();
         try {
             await this._ensureLinkedConfiguration();
             this.ensureIncludeItems();
-            this._commitConsultFlow();
-            if (added && this.mode() === 'single') {
-                this._openLayoutConsultInput();
+            if (consultChanged && this.mode() !== 'batch') {
+                this._beginLayoutReturnConsult();
                 return;
             }
+            this._commitConsultFlow();
             writeScratchDraft(this._layoutDesignSnapshot());
             this._dropTrailFrom('layout');
             this.enterLayout();
@@ -2366,10 +2519,138 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         void this.runConsult();
     }
 
+    /** Consult the endpoints added from the design, then come back to the sheet. */
+    private _beginLayoutReturnConsult(): void {
+        this.consultThenReturnToLayout.set(true);
+        this._state.consultError.set(null);
+        if (!this._hasRequiredInputs()) {
+            if (this.step() !== 'input') this._goTo('input');
+            return;
+        }
+        if (this.step() !== 'consult') this._goTo('consult');
+        void this.runConsult();
+    }
+
     private _openLayoutConsultInput(): void {
         this.consultThenReturnToLayout.set(true);
         this._state.consultError.set(null);
         this._goTo('input');
+    }
+
+    /**
+     * True when the canvas is no longer the flow that was on the design:
+     * a new endpoint, a removed one, another wire, or another query mode.
+     * Moving a card does not count.
+     */
+    private _layoutFlowNeedsConsult(): boolean {
+        this.flowGraph();
+        const current = this._flowConsultSignature(this.flowGraph());
+        const baseline = this._consultFlowSnapshot?.graph ?? this._savedFlowBaseline();
+        const changed = baseline
+            ? current !== this._flowConsultSignature(baseline)
+            : this._endpointIdsDifferFromConfiguration();
+        return changed || this._flowHasUnconsultedEndpoint();
+    }
+
+    private _endpointIdsDifferFromConfiguration(): boolean {
+        const previous = this._configurationFeatureIds();
+        const ids = endpointNodes(this.flowGraph())
+            .map((node) => node.feature?._id)
+            .filter((id): id is string => Boolean(id));
+        return ids.some((id) => !previous.has(id)) || ids.length !== previous.size;
+    }
+
+    /** An endpoint is on the canvas and this batch never ran it. */
+    private _flowHasUnconsultedEndpoint(): boolean {
+        const row = this.batch()?.rows?.[0];
+        if (!row) return false;
+        const results = (row.results ?? {}) as Record<string | number, unknown>;
+        const steps = orderedBatchSteps(this.configuration()?.steps);
+        const attempted = new Set<string>();
+        for (const step of steps) {
+            const id = batchStepFeatureId(step);
+            if (!id) continue;
+            const hasResult = results[step.sequence] != null || results[String(step.sequence)] != null;
+            if (hasResult) attempted.add(id);
+        }
+        for (const error of row.errors ?? []) {
+            const step = steps.find((item) => item.sequence === Number(error.step));
+            const id = batchStepFeatureId(step);
+            if (id) attempted.add(id);
+        }
+        return endpointNodes(this.flowGraph()).some((node) => {
+            const id = node.feature?._id;
+            return Boolean(id) && !attempted.has(id);
+        });
+    }
+
+    /** Last flow stored on the configuration, before this editing session. */
+    private _savedFlowBaseline(): FlowGraph | null {
+        const saved = parseFlowGraph(this.configuration()?.visitaFlow);
+        return saved && endpointNodes(saved).length ? saved : null;
+    }
+
+    private _flowConsultSignature(graph: FlowGraph): string {
+        const nodes = endpointNodes(graph)
+            .map((node) => node.id)
+            .sort();
+        const edges = graph.edges
+            .filter((edge) => edge.to !== FLOW_RESULT_ID && edge.from !== FLOW_RESULT_ID)
+            .map((edge) =>
+                [edge.from, edge.fromPort, edge.to, edge.toPort, edge.fromIndex ?? '', edge.fromPath ?? ''].join('\u001f')
+            )
+            .sort();
+        const ports = Object.keys(graph.ports ?? {})
+            .sort()
+            .map((id) => {
+                const port = graph.ports?.[id];
+                return [
+                    id,
+                    port?.queryMode ?? '',
+                    [...(port?.inputs ?? [])].sort().join(','),
+                    [...(port?.outputs ?? [])].sort().join(','),
+                    [...(port?.hiddenInputs ?? [])].sort().join(','),
+                    [...(port?.hiddenOutputs ?? [])].sort().join(','),
+                ].join('\u001f');
+            });
+        const fixed = Object.keys(graph.fixed ?? {})
+            .sort()
+            .map((id) => `${id}\u001f${JSON.stringify(graph.fixed?.[id] ?? {})}`);
+        return JSON.stringify({ nodes, edges, ports, fixed });
+    }
+
+    private _cloneFlowGraph(graph: FlowGraph): FlowGraph {
+        return {
+            nodes: graph.nodes.map((node) => ({
+                ...node,
+                feature: node.feature ? { ...node.feature } : undefined,
+            })),
+            edges: graph.edges.map((edge) => ({ ...edge })),
+            fixed: Object.fromEntries(Object.entries(graph.fixed ?? {}).map(([id, values]) => [id, { ...values }])),
+            ports: Object.fromEntries(
+                Object.entries(graph.ports ?? {}).map(([id, port]) => [
+                    id,
+                    {
+                        ...port,
+                        inputs: port.inputs ? [...port.inputs] : undefined,
+                        outputs: port.outputs ? [...port.outputs] : undefined,
+                        hiddenInputs: port.hiddenInputs ? [...port.hiddenInputs] : undefined,
+                        hiddenOutputs: port.hiddenOutputs ? [...port.hiddenOutputs] : undefined,
+                    },
+                ])
+            ),
+        };
+    }
+
+    private _takeConsultSnapshot(): void {
+        const graph = this.flowGraph();
+        const features = flattenFlowGraph(graph);
+        this._consultFlowSnapshot = {
+            features: features.length ? features : [...this.selectedFeatures()],
+            graph: this._cloneFlowGraph(graph),
+            countries: [...this.countryIsos()],
+            entities: [...this.entities()],
+        };
     }
 
     private _configurationFeatureIds(): Set<string> {
@@ -2382,6 +2663,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _returnToLayoutAfterConsult(): void {
         this.consultThenReturnToLayout.set(false);
+        this._commitConsultFlow();
         this.ensureIncludeItems();
         writeScratchDraft(this._layoutDesignSnapshot());
         this._dropTrailFrom('layout');
@@ -4991,6 +5273,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     addCardToLayout(card: GuideResultCard, at?: { x: number; y: number } | null): void {
+        if (this.isCardOnLayout(card.sequence)) {
+            this._snack.open(this._transloco.translate('visitaGuide.layoutAlreadyAdded'), undefined, { duration: 2500 });
+            return;
+        }
         const width = 620;
         const height = 420;
         const frame = at
@@ -5250,17 +5536,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     /** Country, then category, then the endpoint flow. One path writes the graph. */
     openLayoutAddConsultDialog(): void {
-        const graph = this._state.flowGraph();
-        this._consultFlowSnapshot = {
-            features: [...this.selectedFeatures()],
-            graph: {
-                ...graph,
-                nodes: graph.nodes.map((node) => ({ ...node })),
-                edges: graph.edges.map((edge) => ({ ...edge })),
-            },
-            countries: [...this.countryIsos()],
-            entities: [...this.entities()],
-        };
+        this._takeConsultSnapshot();
         this.editingEndpointsFromLayout.set(true);
         this._state.addingConsult.set(true);
         this._persistLayoutDraft(this._layoutDesignSnapshot());
@@ -5274,6 +5550,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
 
     private _commitConsultFlow(): void {
         this._consultFlowSnapshot = null;
+        this.consultThenReturnToLayout.set(false);
         this.editingEndpointsFromLayout.set(false);
         this._state.addingConsult.set(false);
     }
@@ -5287,6 +5564,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this._state.countryIsos.set(snapshot.countries);
             this._state.entities.set(snapshot.entities);
         }
+        this.consultThenReturnToLayout.set(false);
         this.editingEndpointsFromLayout.set(false);
         this._state.addingConsult.set(false);
         this.enterLayout();
@@ -5522,8 +5800,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     addAllCardsToLayout(): void {
         const fresh: ReportSection[] = [];
         for (const card of this.layoutSourceCards()) {
-            const path = `results.${card.sequence}`;
-            if (this.layoutSections().some((section) => section.dataPath === path)) continue;
+            if (this.isCardOnLayout(card.sequence)) continue;
             fresh.push({
                 ...this._sectionFromCard(card),
                 order: this.layoutSections().length + fresh.length,
@@ -5694,7 +5971,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     isCardOnLayout(sequence: number): boolean {
-        return this.layoutSections().some((section) => section.dataPath === `results.${sequence}`);
+        const root = `results.${sequence}`;
+        return this.layoutSections().some((section) => {
+            const path = (section.dataPath ?? '').trim();
+            return path === root || path.startsWith(`${root}.`) || path.startsWith(`${root}[`);
+        });
     }
 
     setLayoutTitle(value: string): void {
@@ -9408,8 +9689,16 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         });
     }
 
+    flowContinueKey(): string {
+        if (this.editingEndpointsFromLayout() && this._layoutFlowNeedsConsult()) {
+            return 'visitaGuide.layoutConsultAndReturn';
+        }
+        if (this.editingEndpointsFromLayout()) return 'visitaGuide.layoutReturnFromFlow';
+        return 'visitaGuide.executeQuery';
+    }
+
     confirmEndpoints(): void {
-        if (this.editingEndpointsFromLayout()) {
+        if (this.editingEndpointsFromLayout() || (this.consultThenReturnToLayout() && this.step() === 'endpoints')) {
             void this._finishEndpointsAndReturnToLayout();
             return;
         }
@@ -10266,11 +10555,27 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             this.step.set('layout');
             return;
         }
-        this.isWorking.set(true);
+        this.isWorking.set(false);
+        this.consultGate.set('idle');
+        this._consultStop = false;
+        this._consultRunBatchId = null;
+        this.consultActiveSequence.set(null);
+        this.consultLive.set({});
         this._state.consultError.set(null);
+
+        const accepted = await this._confirmRunMode();
+        if (!this._alive || this.step() !== 'consult' || this._consultStop) return;
+        if (!accepted) {
+            await this.goBack();
+            return;
+        }
+
+        this.consultGate.set('running');
+        this.isWorking.set(true);
 
         try {
             await this._persistEndpointFlowToSmartBatch();
+            if (!this._alive || this._consultStop) return;
             const resolved = await this._pipeline.resolve(
                 this.entities(),
                 this.countryIsos()[0] ?? 'co',
@@ -10280,7 +10585,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this._state.flowGraph(),
                 this._state.configId()
             );
-            if (!this._alive) return;
+            if (!this._alive || this._consultStop) return;
 
             this._applyStepSequenceTransition(this._state.configuration()?.steps, resolved.configuration?.steps);
             this._state.configId.set(resolved.configId);
@@ -10292,6 +10597,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             }
 
             if (this.mode() === 'batch') {
+                if (this._consultStop) return;
                 this.isWorking.set(false);
                 if (
                     this.intent() === 'report' ||
@@ -10320,15 +10626,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             );
             const batchId = created.data._id;
             if (!batchId) throw new Error('missing batch');
+            this._consultRunBatchId = batchId;
             this._state.batchId.set(batchId);
             this._state.batch.set(created.data);
 
+            if (!this._alive || this._consultStop || this.step() !== 'consult') {
+                this._consultRunBatchId = null;
+                void this._cancelConsultBatch(batchId);
+                return;
+            }
             const started = await firstValueFrom(this._batch.startSmartBatch(batchId));
             this._state.batch.set(started.data);
-            if (!this._alive) return;
+            if (!this._alive || this._consultStop || this.step() !== 'consult') {
+                this._consultRunBatchId = null;
+                void this._cancelConsultBatch(batchId);
+                return;
+            }
             this.maybeStartBrowserRunner(started.data, resolved.configuration);
             this._startPoll(batchId);
         } catch (error) {
+            if (this._consultStop || this.step() !== 'consult') return;
             this.isWorking.set(false);
             const missingEndpoints = endpointsNotInAccountCodes(error);
             this._state.consultError.set(
@@ -10336,7 +10653,65 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                     ? this._transloco.translate('visitaGuide.endpointsNotInAccount', { codes: missingEndpoints })
                     : this._transloco.translate('visitaGuide.consultFailed')
             );
-            this.step.set(this.mode() === 'batch' ? 'mode' : 'input');
+            await this.goBack();
+        }
+    }
+
+    private _confirmRunMode(): Promise<boolean> {
+        const sync = this.executor() === 'browser';
+        return firstValueFrom(
+            this._confirm
+                .open({
+                    title: this._transloco.translate(
+                        sync ? 'createBatchConfig.runModeSyncWarningTitle' : 'createBatchConfig.runModeAsyncWarningTitle'
+                    ),
+                    message: this._transloco.translate(
+                        sync ? 'createBatchConfig.runModeSyncWarningBody' : 'createBatchConfig.runModeAsyncWarningBody'
+                    ),
+                    icon: {
+                        show: true,
+                        name: sync ? 'heroicons_outline:exclamation-triangle' : 'heroicons_outline:information-circle',
+                        color: sync ? 'warning' : 'info',
+                    },
+                    actions: {
+                        confirm: {
+                            show: true,
+                            label: this._transloco.translate('visitaGuide.executeQuery'),
+                            color: 'primary',
+                        },
+                        cancel: { show: true, label: this._transloco.translate('visitaGuide.back') },
+                    },
+                    dismissible: false,
+                })
+                .afterClosed()
+        ).then((result) => result === 'confirmed');
+    }
+
+    async stopConsult(): Promise<void> {
+        await this._abandonConsult();
+    }
+
+    /** Leave the consult without touching a batch from an earlier run. */
+    private async _abandonConsult(): Promise<void> {
+        const batchId = this._consultRunBatchId;
+        this._consultStop = true;
+        this._consultRunBatchId = null;
+        this._browserRunner.stop();
+        this._stopPoll();
+        this.consultActiveSequence.set(null);
+        this.isWorking.set(false);
+        if (this.consultGate() === 'running') this.consultGate.set('stopped');
+        if (!batchId) return;
+        const cancelled = await this._cancelConsultBatch(batchId);
+        if (cancelled && this._state.batchId() === batchId) this._state.batch.set(cancelled);
+    }
+
+    private async _cancelConsultBatch(batchId: string): Promise<SmartBatch | null> {
+        try {
+            const res = await firstValueFrom(this._batch.cancelSmartBatch(batchId));
+            return res.data;
+        } catch {
+            return null;
         }
     }
 
@@ -10347,7 +10722,17 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             batch,
             prepareStepsForRun(config.steps ?? [], config),
             (next) => this._state.batch.set(next),
-            () => this._state.consultError.set(this._transloco.translate('visitaGuide.consultFailed'))
+            () => this._state.consultError.set(this._transloco.translate('visitaGuide.consultFailed')),
+            {
+                onStepStart: ({ step }) => this.consultActiveSequence.set(step.sequence),
+                onStepComplete: ({ step, ok, message }) => {
+                    this.consultLive.update((current) => ({
+                        ...current,
+                        [step.sequence]: { ok, error: ok ? null : message ?? null },
+                    }));
+                    this.consultActiveSequence.set(null);
+                },
+            }
         );
     }
 
@@ -10356,9 +10741,21 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         const tick = () => {
             this._batch.getSmartBatch(batchId).subscribe({
                 next: (res) => {
+                    if (this.step() !== 'consult') {
+                        this._stopPoll();
+                        return;
+                    }
                     this._state.batch.set(res.data);
                     const status = res.data.status;
-                    if (status === 'completed' || status === 'failed' || status === 'cancelled') {
+                    if (status === 'cancelled' || this._consultStop) {
+                        this._stopPoll();
+                        this.isWorking.set(false);
+                        this.consultActiveSequence.set(null);
+                        this.consultGate.set('stopped');
+                        return;
+                    }
+                    if (status === 'completed' || status === 'failed') {
+                        this._consultRunBatchId = null;
                         this._stopPoll();
                         this.isWorking.set(false);
                         this.retryingSequences.set([]);
@@ -10546,30 +10943,30 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     }
 
     private _restoreConsultationFlow(features: AppFeature[]): void {
+        if (this._consultFlowSnapshot) return;
         const catalog = this.availableFeatures().length ? this.availableFeatures() : features;
         if (this._pendingVisitaFlow) {
             this._state.flowGraph.set(hydrateFlowGraph(this._pendingVisitaFlow, catalog));
             this._pendingVisitaFlow = null;
             const ordered = flattenFlowGraph(this._state.flowGraph());
             if (ordered.length) this._state.selectedFeatures.set(ordered);
-            return;
-        }
-        const draft = readFlowDraft();
-        const draftIds = draft ? usedFeatureIds(draft.graph) : [];
-        const ids = new Set(features.map((feature) => feature._id).filter(Boolean));
-        const draftMatches = draftIds.length === ids.size && draftIds.every((id) => ids.has(id));
-        if (draft && draftMatches) {
-            const graph = hydrateFlowGraph(draft.graph, catalog);
-            this._state.flowGraph.set(graph);
-            this._state.selectedFeatures.set(flattenFlowGraph(graph));
-            if (draft.inputValues && Object.keys(draft.inputValues).length) {
-                this._state.inputValues.set(draft.inputValues);
+        } else {
+            const draft = readFlowDraft();
+            const draftIds = draft ? usedFeatureIds(draft.graph) : [];
+            const ids = new Set(features.map((feature) => feature._id).filter(Boolean));
+            const draftMatches = draftIds.length === ids.size && draftIds.every((id) => ids.has(id));
+            if (draft && draftMatches) {
+                const graph = hydrateFlowGraph(draft.graph, catalog);
+                this._state.flowGraph.set(graph);
+                this._state.selectedFeatures.set(flattenFlowGraph(graph));
+                if (draft.inputValues && Object.keys(draft.inputValues).length) {
+                    this._state.inputValues.set(draft.inputValues);
+                }
+            } else if (!endpointNodes(this._state.flowGraph()).length && features.length) {
+                this._state.flowGraph.set(graphFromLinearChain(features));
             }
-            return;
         }
-        if (!endpointNodes(this._state.flowGraph()).length && features.length) {
-            this._state.flowGraph.set(graphFromLinearChain(features));
-        }
+        if (this.editingEndpointsFromLayout() && !this._consultFlowSnapshot) this._takeConsultSnapshot();
     }
 
     private _writeGuideUrl(state: ReturnType<typeof parseGuideUrl>): void {

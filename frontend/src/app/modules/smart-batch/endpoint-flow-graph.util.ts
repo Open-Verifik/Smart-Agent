@@ -388,6 +388,13 @@ const seedFieldsForNode = (graph: FlowGraph, node: FlowGraphNode, profile: Chain
     return optional ? [] : (profile?.inputs ?? []);
 };
 
+const pushUniqueSeed = (field: string, seed: string[], seen: Set<string>): void => {
+    const canonical = canonicalChainField(field);
+    if (seen.has(canonical)) return;
+    seen.add(canonical);
+    seed.push(canonical);
+};
+
 export const flowSeedFields = (graph: FlowGraph, profiles: Record<string, ChainProfile>): string[] => {
     const seed: string[] = [];
     const seen = new Set<string>();
@@ -396,6 +403,7 @@ export const flowSeedFields = (graph: FlowGraph, profiles: Record<string, ChainP
             pushSeedField(graph, node, field, seed, seen);
         }
     }
+    for (const field of extraPortsFor(graph, FLOW_START_ID, 'outputs')) pushUniqueSeed(field, seed, seen);
     return seed;
 };
 
