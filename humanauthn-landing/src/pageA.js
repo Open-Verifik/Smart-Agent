@@ -45,20 +45,20 @@ export const IA = {
 	zelf: `<svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><path fill="#f26b3a" d="M16 3l4 7.5L28 12l-6 5.8 1.4 8.2L16 22l-7.4 4 1.4-8.2L4 12l8-1.5z"/><path fill="#ffb199" d="M16 9l2.2 4.2 4.6.8-3.3 3.2.8 4.6L16 19.6l-4.1 2.2.8-4.6-3.3-3.2 4.6-.8z"/></svg>`,
 };
 
-const esc = (value) =>
+export const esc = (value) =>
 	String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 /** "@docs" style hrefs point at LINKS entries; "#x" stays an in-page anchor. */
 const href = (target, links) => (target.startsWith("@") ? links[target.slice(1)] || "#" : target);
 const ext = (target) => (target.startsWith("@") ? ' target="_blank" rel="noopener"' : "");
 
-const logo = `<span class="va-logo__text">Human<span class="va-logo__lambda">Λ</span>uthn</span>`;
+export const logo = `<span class="va-logo__text">Human<span class="va-logo__lambda">Λ</span>uthn</span>`;
 
-function eyebrow(text, tone = "light") {
+export function eyebrow(text, tone = "light") {
 	return `<p class="va-eyebrow va-eyebrow--${tone}">${IA.arrow}<span>${esc(text)}</span></p>`;
 }
 
-function nav(t, lang, links) {
+export function nav(t, lang, links, cta = { label: t.nav.demo, href: "#demo", track: "demo_nav" }) {
 	const items = t.nav.items
 		.map(
 			(item, i) => `
@@ -84,7 +84,7 @@ function nav(t, lang, links) {
 					</div>
 				</div>
 				<a class="va-btn va-btn--outline va-btn--sm va-hide-sm" href="${links.login}" data-track="login">${esc(t.nav.login)}</a>
-				<a class="va-btn va-btn--violet va-btn--sm va-hide-xs" href="#demo" data-track="demo_nav">${esc(t.nav.demo)} ${IA.circleChevron}</a>
+				<a class="va-btn va-btn--violet va-btn--sm va-hide-xs" href="${cta.href}" data-track="${cta.track}">${esc(cta.label)} ${IA.circleChevron}</a>
 				<button type="button" class="va-nav__burger" aria-label="${esc(t.nav.menu)}" aria-expanded="false" data-menu>${IA.menu}</button>
 			</div>
 		</div>
@@ -97,7 +97,7 @@ function nav(t, lang, links) {
 				.join("")}
 			<div class="va-nav__mobile-ctas">
 				<a class="va-btn va-btn--outline" href="${links.login}" data-track="login">${esc(t.nav.login)}</a>
-				<a class="va-btn va-btn--violet" href="#demo" data-track="demo_nav">${esc(t.nav.demo)}</a>
+				<a class="va-btn va-btn--violet" href="${cta.href}" data-track="${cta.track}">${esc(cta.label)}</a>
 			</div>
 		</div>
 	</header>`;
@@ -294,7 +294,7 @@ function integration(t, links) {
 	</section>`;
 }
 
-function compare(t) {
+export function compare(t) {
 	const c = t.compare;
 	return `
 	<section class="va-compare" id="compare">
@@ -327,41 +327,11 @@ function compare(t) {
 	</section>`;
 }
 
-/** Illustrations for the article cards (drawn here, the Figma uses raster renders). */
-function art(kind, lang) {
-	const label = lang === "es" ? "Identidad digital" : "Digital identity";
-	if (kind === "portable") {
-		return `<div class="va-art va-art--portable" aria-hidden="true">
-			<div class="va-art__copy"><span class="va-art__tag">${label}</span><strong>${lang === "es" ? "Identidad digital portable" : "Portable digital identity"}</strong><small>${lang === "es" ? "Una credencial para diferentes experiencias" : "One credential for every experience"}</small></div>
-			<div class="va-art__id va-art__id--sm"><span class="va-art__face"></span><i></i><i></i><span class="va-art__qr"></span></div>
-			<span class="va-art__bubble va-art__bubble--a">${IA.check}</span>
-			<span class="va-art__device va-art__device--phone"></span>
-			<span class="va-art__device va-art__device--laptop"></span>
-		</div>`;
-	}
-	if (kind === "card") {
-		return `<div class="va-art va-art--card" aria-hidden="true">
-			<span class="va-art__ring"></span>
-			<span class="va-art__float va-art__float--1">${IA.browser}</span>
-			<span class="va-art__float va-art__float--2">${IA.phone}</span>
-			<span class="va-art__float va-art__float--3">${IA.user}</span>
-			<div class="va-art__id"><span class="va-art__face va-art__face--m"></span><div><strong>${label}</strong><i></i><i></i></div><span class="va-art__shield">${IA.check}</span></div>
-			<span class="va-art__stage"></span>
-		</div>`;
-	}
-	return `<div class="va-art va-art--phone" aria-hidden="true">
-		<span class="va-art__handset"><span class="va-art__ok">${IA.check}</span></span>
-		<span class="va-art__float va-art__float--1">${IA.phone}</span>
-		<span class="va-art__float va-art__float--3">${IA.user}</span>
-		<div class="va-art__id va-art__id--over"><span class="va-art__face va-art__face--f"></span><div><strong>${label}</strong><i></i><i></i></div><span class="va-art__shield">${IA.check}</span></div>
-	</div>`;
-}
-
-function resources(t, lang) {
+export function resources(t, lang, centered = false) {
 	const r = t.resources;
 	const posts = [...r.posts, r.posts[2], r.posts[0], r.posts[1]];
 	return `
-	<section class="va-section" id="resources">
+	<section class="va-section${centered ? " va-res--center" : ""}" id="resources">
 		<div class="va-container">
 			${eyebrow(r.eyebrow, "tint")}
 			<h2 class="va-h2 va-h2--narrow-l">${esc(r.title)}</h2>
@@ -377,7 +347,7 @@ function resources(t, lang) {
 					.map(
 						(p) => `
 					<article class="va-post" data-cat="${p.cat}">
-						${art(p.art, lang)}
+						<img class="va-post__img" src="/img/post-${p.art}.webp" alt="" loading="lazy" width="900" height="620" />
 						<p class="va-post__kicker">${IA.arrow}${esc(p.kicker)}</p>
 						<h3>${esc(p.title)}</h3>
 						<p class="va-post__body">${esc(p.body)}</p>
@@ -390,7 +360,7 @@ function resources(t, lang) {
 	</section>`;
 }
 
-function faq(t) {
+export function faq(t) {
 	const f = t.faq;
 	return `
 	<section class="va-section" id="faq">
@@ -440,7 +410,7 @@ function finalCta(t, links) {
 	</section>`;
 }
 
-function footer(t, links) {
+export function footer(t, links) {
 	const year = new Date().getFullYear();
 	const col = (c) => `
 		<div class="va-foot__col">

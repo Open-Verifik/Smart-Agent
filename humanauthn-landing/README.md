@@ -10,8 +10,16 @@ npm run build    # outputs dist/
 
 ## A/B variants
 
-- **A**: privacy angle ("Know it's your customer. Without storing their face."), left-aligned hero, "Why HumanAuthn" first.
-- **B**: identity angle ("Self-custody identity. Human-powered access."), centered hero, use cases first.
+Both variants follow the HumanAuthn Figma file.
+
+- **A** (`src/pageA.js`, `src/copyA.js`, `src/a.css`): frame "humanauthn.com V1.0 (A)". Privacy angle
+  ("Know it's your customer, on any device, without storing their face.").
+- **B** (`src/pageB.js`, `src/copyB.js`, `src/b.css`): desktop frame of "Diseño de Home de HumanAuthn" on page
+  "humanauthn.com V1.0 (B)". Identity angle ("Self-custody identity. Human-powered access."). Its "Download demo brief"
+  form builds a text file in the browser; nothing is sent.
+
+Images in `public/img/` were taken from the Figma canvas (export is disabled for viewers). Swap them for the original
+exports when the design team sends them.
 
 Resolution order: `?v=a|b` → path `/a` or `/b` → `ha_variant` cookie (90 days) → 50/50 draw.
 Forced variants (query or path) are not saved, so QA links don't skew the split.
@@ -22,7 +30,7 @@ CTA clicks push `ha_cta_click` with the `cta` name. Add the GTM/GA4 snippet to `
 ## Language
 
 `?lang=es|en` → path `/es` or `/en` → saved choice → browser language. The toggle in the navbar saves the choice.
-All copy lives in `src/i18n.js` (`COPY`, `META`, `LINKS`, `VIDEOS`).
+Page copy lives in `src/copyA.js` and `src/copyB.js`. Meta tags, links and video ids are in `src/i18n.js`.
 
 ## "See how it works" video
 

@@ -266,7 +266,7 @@ export const COPY_A = {
 			date: "Nov. 3, 2026 · Johan",
 		},
 		faq: {
-			eyebrow: "FAQ",
+			eyebrow: "A few good questions",
 			title: "Clarity builds trust.",
 			side: "Straight answers on how HumanAuthn checks the person, what it stores and how it fits into your stack.",
 			items: [
@@ -623,7 +623,7 @@ export const COPY_A = {
 			date: "3 nov. 2026 · Johan",
 		},
 		faq: {
-			eyebrow: "Preguntas frecuentes",
+			eyebrow: "Algunas buenas preguntas",
 			title: "La claridad genera confianza.",
 			side: "Respuestas directas sobre cómo HumanAuthn verifica a la persona, qué guarda y cómo encaja en tu stack.",
 			items: [
