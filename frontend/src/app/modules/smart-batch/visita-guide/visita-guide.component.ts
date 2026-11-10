@@ -640,7 +640,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     isWorking = signal(false);
     /** Endpoint the browser runner is calling right now. */
     consultActiveSequence = signal<number | null>(null);
-    /** `running` only after the mode warning is accepted. */
+    /** `running` only after the cost screen is accepted. */
     consultGate = signal<'idle' | 'running' | 'stopped'>('idle');
     private _consultStop = false;
     /** Batch created by the consult that is on screen. Back and Stop only cancel this one. */
@@ -717,6 +717,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
     templateChoice = this._state.templateChoice;
     designSource = this._state.designSource;
     simulatedBindings = signal<SimulatedEndpointBinding[]>([]);
+    simulatedBannerOpen = signal(true);
     readonly simulatedAvailabilities: SimulatedAvailability[] = ['data', 'empty', 'missing'];
     readonly simulatedListSizes = SIMULATED_LIST_SIZES;
     readonly sampleProbeSizes = [1, 10] as const;
@@ -1678,6 +1679,26 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return { done, total, percent: total ? Math.round((done / total) * 100) : 0 };
     });
 
+    /** What this run will charge, one line per endpoint, before any lookup starts. */
+    consultCost = computed(() => {
+        this._activeLang();
+        const ordered = flattenFlowGraph(this.flowGraph());
+        const features = (ordered.length ? ordered : this.selectedFeatures()).map((feature) => this._featureWithPrice(feature));
+        const items = features.map((feature, index) => ({
+            sequence: index + 1,
+            label: this.featureDisplayName(feature),
+            code: feature.code,
+            credits: this._featureCredits(feature),
+        }));
+        const priced = items.filter((item) => item.credits != null);
+        const total = priced.reduce((sum, item) => sum + (item.credits ?? 0), 0);
+        return {
+            items,
+            total: Number(total.toFixed(5)),
+            complete: items.length > 0 && priced.length === items.length,
+        };
+    });
+
     consultPhaseKey(phase: ConsultFlowPhase): string {
         switch (phase) {
             case 'running':
@@ -2435,15 +2456,14 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._goTo('template', from);
     }
 
-    /** A new report design opens the editor with the consultas in the side list, not on the sheet. */
+    /** A new report design opens with the template title and the first consulta already on the sheet. */
     private _openConsultedEndpointsInDesigner(): void {
         this._state.templateChoice.set('scratch');
         this._state.selectedTemplate.set(null);
         this._resetLayoutBranding();
         this.ensureIncludeItems();
         this.layoutSections.set([]);
-        this.selectedLayoutSectionIds.set([]);
-        this.selectedLayoutSectionId.set(null);
+        this._seedOpeningSheet();
         this._preferCompactFormatBar();
         writeScratchDraft(this._layoutDesignSnapshot());
         this.enterLayout();
@@ -2462,6 +2482,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 await this._syncSimulatedBindingsFromSelection();
                 this._commitConsultFlow();
                 this._dropTrailFrom('layout');
+                this._seedOpeningSheet();
                 this.enterLayout();
                 this.step.set('layout');
                 this._snack.open(this._transloco.translate('visitaGuide.layoutFlowApplied'), undefined, {
@@ -2489,8 +2510,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 return;
             }
             this._commitConsultFlow();
-            writeScratchDraft(this._layoutDesignSnapshot());
             this._dropTrailFrom('layout');
+            this._seedOpeningSheet();
+            writeScratchDraft(this._layoutDesignSnapshot());
             this.enterLayout();
             this.step.set('layout');
             this._snack.open(this._transloco.translate('visitaGuide.layoutFlowApplied'), undefined, { duration: 2500 });
@@ -2665,8 +2687,9 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.consultThenReturnToLayout.set(false);
         this._commitConsultFlow();
         this.ensureIncludeItems();
-        writeScratchDraft(this._layoutDesignSnapshot());
         this._dropTrailFrom('layout');
+        this._seedOpeningSheet();
+        writeScratchDraft(this._layoutDesignSnapshot());
         this.enterLayout();
         this.step.set('layout');
     }
@@ -5309,6 +5332,10 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         return this.configuration()?.country ?? this.countryIsos()[0] ?? 'co';
     }
 
+    dismissSimulatedBanner(): void {
+        this.simulatedBannerOpen.set(false);
+    }
+
     simulatedAvailability(sequence: number): SimulatedAvailability {
         return this.simulatedBindings().find((item) => item.sequence === sequence)?.availability ?? 'data';
     }
@@ -5336,6 +5363,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this._state.templateChoice.set('scratch');
         this._state.reportTitle.set(this._transloco.translate('visitaGuide.blankTemplateName'));
         this._resetLayoutBranding();
+        this._state.reportTitle.set(this._transloco.translate('visitaGuide.blankTemplateName'));
         this.layoutSections.set([]);
         this.simulatedBindings.set([]);
         if (options?.restore) {
@@ -5346,6 +5374,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
                 this._applySimulatedSession(Boolean(draft.flow && endpointNodes(draft.flow).length));
             }
         }
+        this._seedOpeningSheet();
         this.selectedLayoutSectionId.set(this.layoutSections()[0]?.id ?? null);
         this._preferCompactFormatBar();
         this.enterLayout();
@@ -5820,10 +5849,97 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         if (top.frame) this._showFrameOnSheet(top.frame);
     }
 
-    /** A blank sheet opens on the Cabify premium-dark starter. */
+    /** A blank sheet starts with the template title centered at the top and the first consulta under it. */
     seedDefaultLayout(): void {
-        if (this.layoutSections().length) return;
-        this.applyReportTheme('premium_dark', true);
+        if (this.layoutSections().some((section) => !isReportPageAnchor(section))) return;
+        const sections = this._openingLayoutSections();
+        if (!sections.length) return;
+        this.layoutSections.set(sections);
+        this.selectedLayoutSectionIds.set([sections[0].id]);
+        this.selectedLayoutSectionId.set(sections[0].id);
+    }
+
+    /** Fill an empty sheet, or place the first consulta under a title-only sheet. */
+    private _seedOpeningSheet(): void {
+        if (!this.layoutSections().some((section) => !isReportPageAnchor(section))) {
+            this.seedDefaultLayout();
+            return;
+        }
+        this._ensureFirstConsultaBelowTitle();
+    }
+
+    private _defaultLayoutTitle(): string {
+        const title = (this.reportTitle() || pipelineName(this.entities())).trim();
+        return title || this._transloco.translate('visitaGuide.blankTemplateName');
+    }
+
+    private _layoutContentBox(): { x: number; width: number } {
+        const paper = reportPaperSizePx(this.pageSize(), this.orientation());
+        const margin = 32;
+        return {
+            x: margin,
+            width: Math.max(280, Math.round(paper.width - margin * 2)),
+        };
+    }
+
+    private _openingLayoutSections(): ReportSection[] {
+        const title = this._defaultLayoutTitle();
+        const box = this._layoutContentBox();
+        const titleHeight = 48;
+        const gap = 16;
+        const stamp = Date.now();
+        const sections: ReportSection[] = [
+            {
+                id: `titulo-${stamp}`,
+                type: 'header',
+                order: 0,
+                label: title,
+                staticContent: title,
+                style: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', color: this.primaryColor() },
+                frame: { page: 0, x: box.x, y: box.x, width: box.width, height: titleHeight },
+            },
+        ];
+        const card = this.layoutSourceCards()[0];
+        if (!card) return sections;
+        sections.push({
+            ...this._sectionFromCard(card),
+            order: 1,
+            frame: {
+                page: 0,
+                x: box.x,
+                y: box.x + titleHeight + gap,
+                width: box.width,
+                height: 420,
+            },
+        });
+        return sections;
+    }
+
+    /** The first consulta sits under the title when the sheet has no other blocks yet. */
+    private _ensureFirstConsultaBelowTitle(): void {
+        const card = this.layoutSourceCards()[0];
+        if (!card || this.isCardOnLayout(card.sequence)) return;
+        const blocks = this.layoutSections().filter((section) => !isReportPageAnchor(section));
+        if (blocks.some((section) => section.type !== 'header')) return;
+        const box = this._layoutContentBox();
+        const lowest = blocks.reduce((bottom, section) => {
+            const y = (section.frame?.y ?? box.x) + (section.frame?.height ?? 48);
+            return Math.max(bottom, y);
+        }, box.x);
+        const section: ReportSection = {
+            ...this._sectionFromCard(card),
+            order: this.layoutSections().length,
+            frame: {
+                page: blocks[0]?.frame?.page ?? 0,
+                x: box.x,
+                y: lowest + 16,
+                width: box.width,
+                height: 420,
+            },
+        };
+        this.layoutSections.update((list) =>
+            this._bringSectionsToFront([...list, section], [section.id])
+        );
     }
 
     /** True when the sheet contains a themed block, so preview/generate send the theme. */
@@ -5953,6 +6069,7 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
             )
         );
     }
+
 
     useVisitaLayout(): void {
         const sections = this.clonedTemplate()?.sections ?? [];
@@ -10562,13 +10679,11 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         this.consultActiveSequence.set(null);
         this.consultLive.set({});
         this._state.consultError.set(null);
+    }
 
-        const accepted = await this._confirmRunMode();
-        if (!this._alive || this.step() !== 'consult' || this._consultStop) return;
-        if (!accepted) {
-            await this.goBack();
-            return;
-        }
+    /** Start the lookups after the cost screen. */
+    async confirmAndRunConsult(): Promise<void> {
+        if (this.consultGate() !== 'idle' || this.isWorking() || this.step() !== 'consult') return;
 
         this.consultGate.set('running');
         this.isWorking.set(true);
@@ -10657,34 +10772,27 @@ export class VisitaGuideComponent implements OnInit, OnDestroy {
         }
     }
 
-    private _confirmRunMode(): Promise<boolean> {
-        const sync = this.executor() === 'browser';
-        return firstValueFrom(
-            this._confirm
-                .open({
-                    title: this._transloco.translate(
-                        sync ? 'createBatchConfig.runModeSyncWarningTitle' : 'createBatchConfig.runModeAsyncWarningTitle'
-                    ),
-                    message: this._transloco.translate(
-                        sync ? 'createBatchConfig.runModeSyncWarningBody' : 'createBatchConfig.runModeAsyncWarningBody'
-                    ),
-                    icon: {
-                        show: true,
-                        name: sync ? 'heroicons_outline:exclamation-triangle' : 'heroicons_outline:information-circle',
-                        color: sync ? 'warning' : 'info',
-                    },
-                    actions: {
-                        confirm: {
-                            show: true,
-                            label: this._transloco.translate('visitaGuide.executeQuery'),
-                            color: 'primary',
-                        },
-                        cancel: { show: true, label: this._transloco.translate('visitaGuide.back') },
-                    },
-                    dismissible: false,
-                })
-                .afterClosed()
-        ).then((result) => result === 'confirmed');
+    consultCostLabel(credits: number | null): string {
+        if (credits == null || !Number.isFinite(credits)) {
+            return this._transloco.translate('visitaGuide.consultCostUnknown');
+        }
+        const cost = credits.toLocaleString(undefined, { maximumFractionDigits: 4 });
+        return this._transloco.translate('visitaGuide.endpointInfoCredits', { cost });
+    }
+
+    private _featureWithPrice(feature: AppFeature): AppFeature {
+        const live = this.availableFeatures().find((item) => item._id === feature._id);
+        if (!live) return feature;
+        const current = this._featureCredits(feature);
+        const listed = this._featureCredits(live);
+        return current == null && listed != null ? live : feature;
+    }
+
+    private _featureCredits(feature: AppFeature | null | undefined): number | null {
+        if (!feature) return null;
+        const priced = feature as AppFeature & { price?: number; smartCheckPrice?: number };
+        const price = Number(priced.price ?? priced.smartCheckPrice);
+        return Number.isFinite(price) ? price : null;
     }
 
     async stopConsult(): Promise<void> {

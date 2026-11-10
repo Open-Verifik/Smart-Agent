@@ -1259,18 +1259,35 @@
                                                           ? mode() === 'batch'
                                                               ? 'visitaGuide.preparingBatch'
                                                               : 'visitaGuide.searching'
-                                                          : 'visitaGuide.consultReady'
+                                                          : 'visitaGuide.consultCostTitle'
                                                 )
                                             }}
                                         </h2>
-                                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                                            {{ t('visitaGuide.searchingHint') }}
-                                        </p>
+                                        @if (consultGate() === 'idle') {
+                                            <p class="mt-1 text-sm font-medium text-stone-800 dark:text-stone-100">
+                                                {{
+                                                    t('visitaGuide.consultCostMode', {
+                                                        mode: t(
+                                                            executor() === 'browser'
+                                                                ? 'createBatchConfig.runModeSync'
+                                                                : 'createBatchConfig.runModeAsync'
+                                                        )
+                                                    })
+                                                }}
+                                            </p>
+                                        }
+                                        @if (consultGate() !== 'idle') {
+                                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                                {{ t('visitaGuide.searchingHint') }}
+                                            </p>
+                                        }
                                     </div>
                                     <div class="shrink-0 text-right">
-                                        <p class="text-sm font-semibold text-stone-800 dark:text-stone-100">
-                                            {{ t('visitaGuide.consultOf', { done: consultProgress().done, total: consultProgress().total }) }}
-                                        </p>
+                                        @if (consultGate() !== 'idle') {
+                                            <p class="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                                {{ t('visitaGuide.consultOf', { done: consultProgress().done, total: consultProgress().total }) }}
+                                            </p>
+                                        }
                                         <span
                                             class="mt-2 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold"
                                             [ngClass]="
@@ -1283,18 +1300,55 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="mt-4 h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
-                                    <div
-                                        class="h-full rounded-full bg-sky-500 transition-all duration-300"
-                                        [style.width.%]="consultProgress().percent"
-                                    ></div>
-                                </div>
+                                @if (consultGate() !== 'idle') {
+                                    <div class="mt-4 h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-gray-800">
+                                        <div
+                                            class="h-full rounded-full bg-sky-500 transition-all duration-300"
+                                            [style.width.%]="consultProgress().percent"
+                                        ></div>
+                                    </div>
+                                }
                                 <p
                                     class="mt-3 text-sm"
                                     [ngClass]="executor() === 'browser' ? 'text-amber-800 dark:text-amber-200' : 'text-sky-800 dark:text-sky-200'"
                                 >
                                     {{ t(executor() === 'browser' ? 'createBatchConfig.runModeSyncWarningBody' : 'createBatchConfig.runModeAsyncWarningBody') }}
                                 </p>
+                                @if (consultGate() === 'idle') {
+                                    <div class="mt-5 overflow-hidden rounded-2xl border border-stone-200 dark:border-gray-800">
+                                        <p class="px-4 pt-4 text-sm font-medium text-stone-700 dark:text-stone-200">
+                                            {{ t('visitaGuide.consultCostIntro') }}
+                                        </p>
+                                        <ul class="mt-2 divide-y divide-stone-100 dark:divide-gray-800">
+                                            @for (item of consultCost().items; track item.sequence) {
+                                                <li class="flex items-center justify-between gap-3 px-4 py-3">
+                                                    <div class="min-w-0">
+                                                        <p class="truncate text-sm font-semibold text-stone-950 dark:text-white">{{ item.label }}</p>
+                                                        @if (item.code) {
+                                                            <p class="truncate text-[11px] text-stone-400">{{ item.code }}</p>
+                                                        }
+                                                    </div>
+                                                    <span class="shrink-0 text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                                        {{ consultCostLabel(item.credits) }}
+                                                    </span>
+                                                </li>
+                                            }
+                                        </ul>
+                                        @if (consultCost().complete) {
+                                            <div class="flex items-center justify-between border-t border-stone-200 px-4 py-3 dark:border-gray-800">
+                                                <span class="text-sm font-semibold text-stone-950 dark:text-white">{{ t('visitaGuide.consultCostTotal') }}</span>
+                                                <span class="text-base font-bold text-stone-950 dark:text-white">{{ consultCostLabel(consultCost().total) }}</span>
+                                            </div>
+                                        } @else {
+                                            <p class="border-t border-stone-200 px-4 py-3 text-xs text-stone-500 dark:border-gray-800">{{ t('visitaGuide.consultCostPartial') }}</p>
+                                        }
+                                        @if (mode() === 'batch' && consultCost().complete) {
+                                            <p class="px-4 pb-4 text-xs text-stone-500" [class.pt-1]="consultCost().complete">
+                                                {{ t('visitaGuide.consultCostPerRecord', { cost: consultCostLabel(consultCost().total) }) }}
+                                            </p>
+                                        }
+                                    </div>
+                                }
                                 <div class="mt-4 flex flex-wrap items-center gap-2">
                                     <button
                                         type="button"
@@ -1304,6 +1358,16 @@
                                         <mat-icon class="!h-4 !w-4 !text-[18px] !text-stone-700 dark:!text-stone-200">arrow_back</mat-icon>
                                         {{ t('visitaGuide.back') }}
                                     </button>
+                                    @if (consultGate() === 'idle') {
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-10 items-center rounded-full bg-stone-950 px-4 text-sm font-semibold text-white hover:bg-stone-800 disabled:opacity-50 dark:bg-white dark:text-gray-950"
+                                            [disabled]="!consultCost().items.length"
+                                            (click)="confirmAndRunConsult()"
+                                        >
+                                            {{ t('visitaGuide.executeQuery') }}
+                                        </button>
+                                    }
                                     @if (consultGate() === 'running') {
                                         <button
                                             type="button"
@@ -1315,11 +1379,11 @@
                                         </button>
                                     }
                                 </div>
-                                @if (!consultFlow().length) {
+                                @if (consultGate() !== 'idle' && !consultFlow().length) {
                                     <div class="flex justify-center py-10">
                                         <mat-spinner diameter="36"></mat-spinner>
                                     </div>
-                                } @else {
+                                } @else if (consultGate() !== 'idle') {
                                     <ol class="mt-6">
                                         @for (item of consultFlow(); track item.sequence; let i = $index, last = $last) {
                                             <li class="grid grid-cols-[2rem_minmax(0,1fr)] gap-3">
@@ -2079,10 +2143,20 @@
                                     {{ t('visitaGuide.layoutDataTitle') }}
                                 </p>
                                 <p class="text-[11px] text-stone-400">{{ t('visitaGuide.layoutEditorHint') }}</p>
-                                @if (designSource() === 'simulated') {
-                                    <p class="text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200">
-                                        {{ t('visitaGuide.simulatedBanner') }}
-                                    </p>
+                                @if (designSource() === 'simulated' && simulatedBannerOpen()) {
+                                    <div class="flex items-start gap-1 rounded-lg bg-emerald-50 px-1.5 py-1 dark:bg-emerald-950/40">
+                                        <p class="min-w-0 flex-1 text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200">
+                                            {{ t('visitaGuide.simulatedBanner') }}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-emerald-800 hover:bg-emerald-100 dark:text-emerald-200 dark:hover:bg-emerald-900"
+                                            [attr.aria-label]="t('visitaGuide.simulatedBannerClose')"
+                                            (click)="dismissSimulatedBanner()"
+                                        >
+                                            <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">close</mat-icon>
+                                        </button>
+                                    </div>
                                 }
                                 @for (card of layoutSourceCards(); track card.sequence) {
                                     <article

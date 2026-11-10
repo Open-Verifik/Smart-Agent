@@ -56,4 +56,18 @@ describe('resolveStepParams', () => {
         });
         expect(params).toEqual({ fullName: 'ANA PEREZ' });
     });
+
+    it('waits for the real response before filling a chained issue date', () => {
+        const step = { parameterDefaults: { date: '{{results.1.fechaExpedicion}}' } };
+        const dependencies = [{ field: 'date', required: true }];
+        expect(resolveStepParams({ step, dependencies, inputData: { documentNumber: '123' }, results: {} }).date).toBeUndefined();
+        expect(
+            resolveStepParams({
+                step,
+                dependencies,
+                inputData: { documentNumber: '123' },
+                results: { 1: { fecha_expedicion: '10/10/2020' } },
+            }).date
+        ).toBe('10/10/2020');
+    });
 });

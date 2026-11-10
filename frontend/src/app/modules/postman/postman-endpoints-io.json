@@ -18560,6 +18560,7 @@
               "documentNumber": "1234567890",
               "documentType": "CC",
               "expeditionDate": "2015-08-12",
+              "date": "12/08/2015",
               "expeditionPlace": {
                 "municipio": "Example Municipality",
                 "departamento": "Example Department"
