@@ -868,6 +868,16 @@
     }
 </ng-template>
 <ng-template #sectionBody let-section="section" let-measure="measure">
+    @if (isThemeSection(section)) {
+        <report-theme-block
+            [section]="section"
+            [theme]="themeId()"
+            [tokens]="themeTokens()"
+            [score]="themeScore()"
+            [format]="themeScoreFormat()"
+            [enabled]="themeScoreEnabled()"
+        />
+    }
     @if (section.type === 'header') {
         <div
             [class.mb-4]="!hasFreeLayout()"

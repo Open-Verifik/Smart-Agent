@@ -1,8 +1,21 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
-import { catchError, map, Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import type { ReportChartBreakdown, ReportChartKind, ReportChartPalette } from './report-chart.util';
+import { ensureVerificationSample } from './report-theme/report-theme.sample';
+import {
+    FALLBACK_SCORE_PROFILES,
+    parseScoreProfiles,
+    parseThemeStarters,
+    SCORE_PROFILES_PATH,
+    THEME_STARTERS_PATH,
+    verificationRequestFields,
+    type ScoreProfileOption,
+    type ThemeStarterPayload,
+    type VerificationRequestInput,
+} from './report-theme/report-score-api.adapter';
+import type { ReportThemeId, ReportThemeTokens, ScoreSettings, VerificationScoreModel } from './report-theme/report-theme.model';
 import type { ReportCustomFont, ReportFontWeight } from './report-fonts.util';
 import type { ReportValueRule } from './report-value-rules.util';
 
@@ -20,7 +33,13 @@ export type ReportSectionType =
     | 'badge'
     | 'keyValueGrid'
     | 'repeater'
-    | 'reportBlocks';
+    | 'reportBlocks'
+    | 'coverPage'
+    | 'scoreGauge'
+    | 'categoryBreakdown'
+    | 'checkTable'
+    | 'findings'
+    | 'sources';
 
 export const REPORT_SHAPE_KINDS = [
     'rectangle',
@@ -293,6 +312,8 @@ export interface ReportSection {
         variantRules?: (ReportSectionCondition & { variant: ReportStyleVariant })[];
     };
     condition?: ReportSectionCondition;
+    /** Theme blocks store an eyebrow and which columns stay visible. */
+    config?: Record<string, unknown>;
 }
 
 export interface BatchConfigurationRef {
@@ -328,6 +349,20 @@ export interface SmartReportTemplate {
 
     // Branding
     logo?: string;
+    /**
+     * One of premium_dark, light_cards, editorial, dashboard.
+     * Omitted on templates that are still built from free shapes.
+     */
+    /** PR 760 theme id. Omitted on templates that are still built from free shapes. */
+    reportTheme?: ReportThemeId;
+    themeTokens?: ReportThemeTokens;
+    /**
+     * `percent` (default) or `unit`. Mirrors `scoreSettings.format` on the wire
+     * as `scoreScale`. See `report-score-api.adapter.ts`.
+     */
+    scoreScale?: 'percent' | 'unit';
+    /** Builder toggle, profile and scale. Flattened to `score` / `scoreProfile` / `scoreScale` on preview and generate. */
+    scoreSettings?: ScoreSettings;
     primaryColor?: string;
     /** Library swatch only. Does not change report design. Default black. */
     identityColor?: string;
@@ -513,6 +548,10 @@ export const TEMPLATE_WRITE_KEYS = [
     'presetSteps',
     'batchConfiguration',
     'logo',
+    'reportTheme',
+    'themeTokens',
+    'scoreScale',
+    'scoreSettings',
     'primaryColor',
     'identityColor',
     'pageBackgroundColor',
@@ -877,6 +916,8 @@ export interface SampleReportData {
     consultedAt?: string;
     /** Frozen when the sheet first paints the generation date; reused in PDF and email. */
     generatedAt?: string;
+    /** Verification score block. Synthetic in the builder until a live run supplies one. */
+    verificationScore?: VerificationScoreModel;
     processedAt?: string;
     startedAt?: string;
     createdAt?: string;
@@ -887,6 +928,8 @@ export interface SampleReportData {
 })
 export class SmartReportService {
     templates = signal<SmartReportTemplate[]>([]);
+    private _themeStarters: Observable<ThemeStarterPayload[]> | null = null;
+    private _scoreProfiles: Observable<ScoreProfileOption[]> | null = null;
     reports = signal<SmartReport[]>([]);
     isLoading = signal(false);
 
@@ -1068,15 +1111,61 @@ export class SmartReportService {
         sampleData: SampleReportData,
         options?: { preview?: boolean }
     ): Observable<string> {
+        const scoreSettings = template.scoreSettings
+            ? { ...template.scoreSettings, format: template.scoreScale ?? template.scoreSettings.format }
+            : null;
+        // The builder stores `scoreSettings`. Preview sends `score`, `scoreProfile`
+        // and `scoreScale` (`percent` by default). See report-score-api.adapter.ts.
+        const clean = sanitizeTemplateForApi(template, 'create') as Record<string, unknown>;
+        delete clean['scoreSettings'];
         return this._httpClient
             .post<{
                 data: { html: string };
             }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, {
-                ...sanitizeTemplateForApi(template, 'create'),
-                sampleData,
+                ...clean,
+                ...verificationRequestFields({
+                    theme: template.reportTheme,
+                    themeTokens: template.themeTokens,
+                    scoreSettings,
+                }),
+                sampleData: ensureVerificationSample(sampleData, scoreSettings),
                 ...(options?.preview === false ? { preview: false } : {}),
             })
             .pipe(map((res) => res.data.html));
+    }
+
+    /**
+     * Spanish starters for the four report themes.
+     * `GET /v2/smart-report-templates/theme-starters` (PR 760).
+     * An empty list means the route is not deployed yet; the builder uses its local starter.
+     */
+    getThemeStarters(): Observable<ThemeStarterPayload[]> {
+        if (!this._themeStarters) {
+            this._themeStarters = this._httpClient.get<unknown>(`${environment.apiUrl}${THEME_STARTERS_PATH}`).pipe(
+                map((body) => parseThemeStarters(body)),
+                catchError(() => of([] as ThemeStarterPayload[])),
+                shareReplay(1)
+            );
+        }
+        return this._themeStarters;
+    }
+
+    /**
+     * Profiles for the score dropdown. Falls back to `cabify_driver` when
+     * `GET /v2/smart-report-templates/score-profiles` is missing or empty.
+     */
+    getScoreProfiles(): Observable<ScoreProfileOption[]> {
+        if (!this._scoreProfiles) {
+            this._scoreProfiles = this._httpClient.get<unknown>(`${environment.apiUrl}${SCORE_PROFILES_PATH}`).pipe(
+                map((body) => {
+                    const parsed = parseScoreProfiles(body);
+                    return parsed.length ? parsed : FALLBACK_SCORE_PROFILES;
+                }),
+                catchError(() => of(FALLBACK_SCORE_PROFILES)),
+                shareReplay(1)
+            );
+        }
+        return this._scoreProfiles;
     }
 
     /**
@@ -1099,7 +1188,7 @@ export class SmartReportService {
             language?: 'en' | 'es';
             sampleData: SampleReportData;
             printHtml?: string;
-        }
+        } & VerificationRequestInput
     ): Observable<{
         success: boolean;
         message: string;
@@ -1113,7 +1202,14 @@ export class SmartReportService {
             messageId?: string;
             error?: string;
             delivery?: ReportEmailDelivery;
-        }>(`${environment.apiUrl}/v2/smart-report-templates/${id}/send-sample`, options);
+        }>(`${environment.apiUrl}/v2/smart-report-templates/${id}/send-sample`, {
+            recipients: options.recipients,
+            subject: options.subject,
+            language: options.language,
+            printHtml: options.printHtml,
+            sampleData: ensureVerificationSample(options.sampleData, options.scoreSettings),
+            ...verificationRequestFields(options),
+        });
     }
 
     /**
@@ -1122,11 +1218,15 @@ export class SmartReportService {
      */
     downloadTemplateSample(
         id: string,
-        body: { sampleData: SampleReportData; printHtml?: string }
+        body: { sampleData: SampleReportData; printHtml?: string } & VerificationRequestInput
     ): Observable<Blob> {
         return this._httpClient.post(
             `${environment.apiUrl}/v2/smart-report-templates/${id}/download-sample`,
-            body,
+            {
+                printHtml: body.printHtml,
+                sampleData: ensureVerificationSample(body.sampleData, body.scoreSettings),
+                ...verificationRequestFields(body),
+            },
             { responseType: 'blob' }
         );
     }
@@ -1186,12 +1286,12 @@ export class SmartReportService {
 
     generateReport(
         id: string,
-        options?: { engine?: 'pdfkit' | 'puppeteer'; rowIndex?: number; printHtml?: string }
+        options?: { engine?: 'pdfkit' | 'puppeteer'; rowIndex?: number; printHtml?: string } & VerificationRequestInput
     ): Observable<{ data: SmartReport; pdf: { buffer: string; size: number } }> {
-        const body: { engine?: string; rowIndex?: number; printHtml?: string } = {};
-        if (options?.engine) body.engine = options.engine;
-        if (options?.rowIndex != null) body.rowIndex = options.rowIndex;
-        if (options?.printHtml) body.printHtml = options.printHtml;
+        const body: Record<string, unknown> = { ...verificationRequestFields(options ?? {}) };
+        if (options?.engine) body['engine'] = options.engine;
+        if (options?.rowIndex != null) body['rowIndex'] = options.rowIndex;
+        if (options?.printHtml) body['printHtml'] = options.printHtml;
         return this._httpClient.post<{
             data: SmartReport;
             pdf: { buffer: string; size: number };

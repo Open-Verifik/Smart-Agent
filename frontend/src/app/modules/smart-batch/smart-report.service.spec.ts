@@ -17,6 +17,10 @@ describe('smart-report.service', () => {
             expect(TEMPLATE_WRITE_KEYS).toContain('pageNumberDivider');
             expect(TEMPLATE_WRITE_KEYS).toContain('endpointDesign');
             expect(TEMPLATE_WRITE_KEYS).toContain('sections');
+            expect(TEMPLATE_WRITE_KEYS).toContain('reportTheme');
+            expect(TEMPLATE_WRITE_KEYS).toContain('scoreScale');
+            expect(TEMPLATE_WRITE_KEYS).toContain('themeTokens');
+            expect(TEMPLATE_WRITE_KEYS).toContain('scoreSettings');
             expect(TEMPLATE_WRITE_KEYS).toContain('name');
             expect(TEMPLATE_WRITE_KEYS).toContain('pageSize');
             expect(TEMPLATE_WRITE_KEYS).toContain('orientation');

@@ -1206,6 +1206,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 this._reportService.generateReport(report._id!, {
                     engine: this._pdfEngine(),
                     ...(rowIndex != null ? { rowIndex } : {}),
+                    theme: this.selectedTemplate()?.reportTheme,
+                    themeTokens: this.selectedTemplate()?.themeTokens,
+                    scoreSettings: this.selectedTemplate()?.scoreSettings,
                 })
             );
             this.report.set(result.data);
@@ -1223,6 +1226,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const blob = await firstValueFrom(
             this._reportService.downloadTemplateSample(templateId, {
                 sampleData: this._sampleDataForCurrentRow(),
+                theme: this.selectedTemplate()?.reportTheme,
+                themeTokens: this.selectedTemplate()?.themeTokens,
+                scoreSettings: this.selectedTemplate()?.scoreSettings,
             })
         );
         const pdfBlob = (await this._isPdfBlob(blob)) ? blob : await this._blobFromJsonBytes(blob);
