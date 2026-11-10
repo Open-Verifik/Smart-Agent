@@ -818,9 +818,15 @@ const collectArrayPaths = (
                                     @for (feature of trayItems(); track feature._id) {
                                             <div
                                                 cdkDrag
+                                                [cdkDragDisabled]="isAdded(feature)"
                                                 [cdkDragData]="trayDrag(feature)"
-                                                class="cursor-grab rounded-2xl border border-slate-200 bg-white px-3.5 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-900"
-                                                (dblclick)="attachToSelected(feature)"
+                                                class="rounded-2xl border px-3.5 py-3 shadow-sm"
+                                                [ngClass]="
+                                                    isAdded(feature)
+                                                        ? 'cursor-default border-dashed border-slate-300 bg-slate-50 dark:border-gray-600 dark:bg-gray-950'
+                                                        : 'cursor-grab border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-900'
+                                                "
+                                                (dblclick)="addFromLibrary(feature)"
                                                 (cdkDragStarted)="onTrayDragStart()"
                                                 (cdkDragEnded)="onTrayDragEnd()"
                                             >
@@ -851,6 +857,11 @@ const collectArrayPaths = (
                                                     </span>
                                                     <div class="min-w-0 flex-1">
                                                         <p class="text-[15px] font-medium leading-snug text-slate-900 dark:text-white">{{ name(feature) }}</p>
+                                                        @if (isAdded(feature)) {
+                                                            <p class="mt-1 inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:bg-gray-800 dark:text-slate-300">
+                                                                {{ 'visitaGuide.flowEndpointAdded' | transloco }}
+                                                            </p>
+                                                        }
                                                         <p class="mt-0.5 break-all font-mono text-[11px] leading-4 text-slate-400">{{ requestLabel(feature) }}</p>
                                                         @if (countryChoices().length > 1) {
                                                             <p class="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{{ feature.country }}</p>
@@ -864,8 +875,15 @@ const collectArrayPaths = (
                                                     <button type="button" class="text-slate-400 hover:text-sky-600" [matTooltip]="'visitaGuide.endpointInfoOpen' | transloco" (mousedown)="$event.stopPropagation()" (click)="openFeatureInfo(feature); $event.stopPropagation()">
                                                         <mat-icon>info</mat-icon>
                                                     </button>
-                                                    <button type="button" class="text-slate-400" (mousedown)="$event.stopPropagation()" (click)="attachToSelected(feature); $event.stopPropagation()">
-                                                        <mat-icon>add</mat-icon>
+                                                    <button
+                                                        type="button"
+                                                        class="text-slate-400 disabled:cursor-not-allowed disabled:text-emerald-600"
+                                                        [disabled]="isAdded(feature)"
+                                                        [attr.aria-label]="isAdded(feature) ? ('visitaGuide.flowEndpointAdded' | transloco) : ('visitaGuide.flowAddEndpoint' | transloco)"
+                                                        (mousedown)="$event.stopPropagation()"
+                                                        (click)="addFromLibrary(feature); $event.stopPropagation()"
+                                                    >
+                                                        <mat-icon>{{ isAdded(feature) ? 'check' : 'add' }}</mat-icon>
                                                     </button>
                                                 </div>
                                             </div>
@@ -1442,10 +1460,9 @@ export class EndpointChainBoardComponent {
     }
 
     readonly tray = computed(() => {
-        const used = new Set(usedFeatureIds(this.graph()));
         const selected = this.countryFilter();
         return this.features().filter((feature) => {
-            if (!feature._id || used.has(feature._id)) return false;
+            if (!feature._id) return false;
             if (selected === 'all') return true;
             return isFeatureForCountry(feature.country, selected);
         });
@@ -1469,6 +1486,8 @@ export class EndpointChainBoardComponent {
             items: this.tray()
                 .filter((feature) => featureGroup(feature) === group.id)
                 .sort((left, right) => {
+                    const byAdded = Number(this.isAdded(left)) - Number(this.isAdded(right));
+                    if (byAdded !== 0) return byAdded;
                     const byCountry = (left.country || '').localeCompare(right.country || '', 'es', {
                         sensitivity: 'base',
                     });
@@ -1682,9 +1701,7 @@ export class EndpointChainBoardComponent {
 
     openLibraryFromMenu(): void {
         this.canvasContextMenu.set(null);
-        this.libraryCentered.set(true);
-        this.libraryOpen.set(true);
-        this.configOpen.set(false);
+        this._revealLibrary();
     }
 
     onViewportPointerDown(event: PointerEvent): void {
@@ -1791,12 +1808,11 @@ export class EndpointChainBoardComponent {
     }
 
     toggleLibrary(): void {
-        const next = !this.libraryOpen();
-        this.libraryOpen.set(next);
-        if (next) {
-            this.libraryCentered.set(true);
-            this.configOpen.set(false);
+        if (this.libraryOpen()) {
+            this.libraryOpen.set(false);
+            return;
         }
+        this._revealLibrary();
     }
 
     openLibrary(): void {
@@ -1804,9 +1820,16 @@ export class EndpointChainBoardComponent {
             this.libraryOpen.set(false);
             return;
         }
+        this._revealLibrary();
+    }
+
+    /** Opening the catalog starts from a clean search. */
+    private _revealLibrary(): void {
+        const opening = !this.libraryOpen();
         this.libraryCentered.set(true);
         this.libraryOpen.set(true);
         this.configOpen.set(false);
+        if (opening) this.queryChange.emit('');
     }
 
     private _libraryOrigin(event: PointerEvent): { x: number; y: number } {
@@ -2471,6 +2494,16 @@ export class EndpointChainBoardComponent {
                 panelClass: 'endpoint-info-panel',
                 autoFocus: false,
             });
+    }
+
+    isAdded(feature: AppFeature): boolean {
+        const id = feature._id;
+        return Boolean(id && usedFeatureIds(this.graph()).includes(id));
+    }
+
+    addFromLibrary(feature: AppFeature): void {
+        if (this.isAdded(feature)) return;
+        this.attachToSelected(feature);
     }
 
     attachToSelected(feature: AppFeature): void {

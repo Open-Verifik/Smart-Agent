@@ -117,7 +117,7 @@ export class VisitaGuidePipelineService {
         iso: string,
         name: string,
         selectedFeatures: AppFeature[] = [],
-        executor: SmartBatchExecutor = 'queue',
+        executor: SmartBatchExecutor = 'browser',
         graph?: FlowGraph,
         existingConfigId?: string | null
     ): Promise<GuidePipelineResult> {
@@ -326,7 +326,7 @@ export class VisitaGuidePipelineService {
         selectedFeatures: AppFeature[],
         entities: GuideEntity[],
         graph?: FlowGraph,
-        executor: SmartBatchExecutor = 'queue'
+        executor: SmartBatchExecutor = 'browser'
     ): Promise<GuidePipelineResult> {
         if (!selectedFeatures.length) {
             const configuration = await this._updateConfiguration(result.configId, {

@@ -450,6 +450,7 @@
         "flowHideLibrary": "隐藏端点",
         "flowShowLibrary": "显示端点",
         "flowAddEndpoint": "添加查询来源",
+        "flowEndpointAdded": "已添加",
         "flowHideConfig": "隐藏设置",
         "flowShowConfig": "显示设置",
         "endpointInfoOpen": "详情",

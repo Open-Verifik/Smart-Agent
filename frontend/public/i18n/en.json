@@ -793,6 +793,7 @@
         "flowHideLibrary": "Hide endpoints",
         "flowShowLibrary": "Show endpoints",
         "flowAddEndpoint": "Add lookup sources",
+        "flowEndpointAdded": "Already added",
         "flowHideConfig": "Hide setup",
         "flowShowConfig": "Show setup",
         "endpointInfoOpen": "Details",
