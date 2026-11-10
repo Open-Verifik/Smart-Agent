@@ -21,6 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
@@ -48,7 +49,9 @@ import {
     layoutFlowGraph,
     moveFlowNode,
     nodeById,
+    planEndpointLink,
     portCenter,
+    restoreUnfedInputs,
     removeFlowEdge,
     removeFlowNode,
     sameFlowFeatureSet,
@@ -61,9 +64,10 @@ import {
     wireColorForIndex,
     applyQueryMode,
     nodeQueryInputs,
+    pruneInvalidEndpointWires,
     queryModeFor,
 } from '../endpoint-flow-graph.util';
-import { canFeed, canonicalChainField, ChainProfile, chainProfileForFeature } from '../endpoint-chain.util';
+import { canonicalChainField, ChainProfile, chainProfileForFeature, outputFeedingInput } from '../endpoint-chain.util';
 import { QueryMode, queryModesForFeature } from '../query-modes.util';
 import {
     canonicalParamFilterId,
@@ -724,8 +728,11 @@ const collectArrayPaths = (
                                     <input
                                         type="search"
                                         class="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-white"
-                                        [placeholder]="'visitaGuide.endpointsSearch' | transloco"
+                                        [attr.aria-label]="'visitaGuide.endpointsSearch' | transloco"
+                                        [placeholder]="searchPlaceholder()"
                                         [value]="query()"
+                                        (focus)="onSearchFocus()"
+                                        (blur)="onSearchBlur()"
                                         (input)="queryChange.emit($any($event.target).value)"
                                     />
                                 </label>
@@ -1058,6 +1065,33 @@ const collectArrayPaths = (
                             </div>
                         </aside>
                 </div>
+                <div class="pointer-events-none absolute bottom-[6.75rem] right-3 z-30">
+                    <div class="pointer-events-auto flex items-center gap-1 rounded-full border border-white/80 bg-white p-1 shadow-[0_12px_28px_rgba(37,99,175,0.16)] dark:border-gray-700 dark:bg-gray-900">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 text-[12px] font-medium text-slate-500 dark:text-slate-300">
+                            <span class="h-3 w-3 rounded-full border-2 border-sky-500 bg-white dark:bg-gray-900"></span>
+                            {{ 'visitaGuide.flowLegendInput' | transloco }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 pr-1 text-[12px] font-medium text-slate-500 dark:text-slate-300">
+                            <span class="h-3 w-3 rounded-full bg-sky-600"></span>
+                            {{ 'visitaGuide.flowLegendOutput' | transloco }}
+                        </span>
+                        <button
+                            type="button"
+                            class="inline-flex h-9 items-center gap-2 rounded-full bg-sky-600 px-3.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_rgba(2,132,199,0.35)] hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-40"
+                            [disabled]="!endpointNodes().length"
+                            [matTooltip]="'visitaGuide.flowAutoConnectHint' | transloco"
+                            (click)="connectAutomatically()"
+                        >
+                            <svg viewBox="0 0 24 24" class="h-4 w-4" aria-hidden="true">
+                                <circle cx="5.5" cy="7" r="2" fill="currentColor" />
+                                <circle cx="18.5" cy="7" r="2" fill="currentColor" />
+                                <circle cx="12" cy="17.5" r="2" fill="currentColor" />
+                                <path d="M7.1 8.3 10.6 15.6M16.9 8.3 13.4 15.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                            </svg>
+                            {{ 'visitaGuide.flowLegendAuto' | transloco }}
+                        </button>
+                    </div>
+                </div>
                 <div class="absolute bottom-3 left-3 right-3 z-30 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_12px_32px_rgba(37,99,175,0.14)] dark:border-gray-700 dark:bg-gray-900">
                     <div class="flex min-w-[12rem] items-center gap-3">
                         <span
@@ -1267,6 +1301,7 @@ const collectArrayPaths = (
 })
 export class EndpointChainBoardComponent {
     private _transloco = inject(TranslocoService);
+    private _snack = inject(MatSnackBar);
     private _dialog = inject(MatDialog);
     private readonly _activeLang = toSignal(this._transloco.langChanges$, {
         initialValue: this._transloco.getActiveLang(),
@@ -1303,6 +1338,74 @@ export class EndpointChainBoardComponent {
     selectedId = signal<string | null>(FLOW_START_ID);
     selectedWireId = signal<string | null>(null);
     libraryOpen = signal(false);
+    searchPlaceholder = signal('');
+    private _searchFocused = signal(false);
+    private readonly _searchTypeEffect = effect((onCleanup) => {
+        const playing = this.libraryOpen() && !this.query().trim() && !this._searchFocused();
+        this._activeLang();
+        if (!playing) {
+            untracked(() => this.searchPlaceholder.set(''));
+            return;
+        }
+        const phrases = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+            .map((index) => this._transloco.translate(`visitaGuide.flowSearchType${index}`))
+            .filter((phrase) => phrase && !phrase.startsWith('visitaGuide.flowSearchType'));
+        if (!phrases.length) return;
+        let phraseIndex = 0;
+        let length = 0;
+        let mode: 'type' | 'hold' | 'delete' | 'gap' = 'type';
+        let cursorOn = true;
+        let typeTimer: ReturnType<typeof setTimeout> | null = null;
+        let cursorTimer: ReturnType<typeof setInterval> | null = null;
+        const paint = (): void => {
+            const phrase = phrases[phraseIndex] ?? '';
+            const text = phrase.slice(0, length);
+            this.searchPlaceholder.set(`${text}${cursorOn ? '|' : '\u00A0'}`);
+        };
+        const step = (): void => {
+            const phrase = phrases[phraseIndex] ?? '';
+            if (mode === 'type') {
+                if (length < phrase.length) {
+                    length += 1;
+                    paint();
+                    typeTimer = setTimeout(step, 46);
+                    return;
+                }
+                mode = 'hold';
+                typeTimer = setTimeout(step, 1500);
+                return;
+            }
+            if (mode === 'hold') {
+                mode = 'delete';
+                typeTimer = setTimeout(step, 28);
+                return;
+            }
+            if (mode === 'delete') {
+                if (length > 0) {
+                    length -= 1;
+                    paint();
+                    typeTimer = setTimeout(step, 28);
+                    return;
+                }
+                mode = 'gap';
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeTimer = setTimeout(step, 260);
+                return;
+            }
+            mode = 'type';
+            typeTimer = setTimeout(step, 160);
+        };
+        paint();
+        cursorTimer = setInterval(() => {
+            cursorOn = !cursorOn;
+            paint();
+        }, 530);
+        typeTimer = setTimeout(step, 220);
+        onCleanup(() => {
+            if (typeTimer != null) clearTimeout(typeTimer);
+            if (cursorTimer != null) clearInterval(cursorTimer);
+        });
+    });
     canvasContextMenu = signal<{ x: number; y: number } | null>(null);
     flowCoachHidden = signal(false);
     flowCoachLeaving = signal(false);
@@ -1663,10 +1766,25 @@ export class EndpointChainBoardComponent {
         this.zoom.set(Math.min(1.6, Math.max(0.5, Math.round((this.zoom() + delta) * 100) / 100)));
     }
 
+    connectAutomatically(): void {
+        const endpoints = this.endpointNodes();
+        if (!endpoints.length) return;
+        this._hydrate(endpoints.map((node) => node.feature).filter((feature): feature is AppFeature => Boolean(feature)));
+        let graph = this.graph();
+        for (const node of endpoints) {
+            const current = nodeById(graph, node.id);
+            if (current) graph = this._wireInputsFromStart(graph, current);
+        }
+        this.graph.set(graph);
+        this._emit();
+    }
+
     autoLayout(): void {
         this.graph.set(
-            layoutFlowGraph(this.graph(), (node) =>
-                Math.max(this.inputPorts(node).length, this.outputPorts(node).length, 1)
+            layoutFlowGraph(
+                this.graph(),
+                (node) => Math.max(this.inputPorts(node).length, this.outputPorts(node).length, 1),
+                (node) => ({ width: this.nodeWidth(node), height: this._cardHeight(node) })
             )
         );
         this._emit();
@@ -1736,6 +1854,14 @@ export class EndpointChainBoardComponent {
     onLibraryDragEnd(): void {
         this._libraryDrag = null;
         this.libraryDragging.set(false);
+    }
+
+    onSearchFocus(): void {
+        this._searchFocused.set(true);
+    }
+
+    onSearchBlur(): void {
+        this._searchFocused.set(false);
     }
 
     toggleConfig(): void {
@@ -1994,6 +2120,7 @@ export class EndpointChainBoardComponent {
         const catalog = this.profiles()[node.id]?.outputs ?? [];
         const seeds = catalog.filter((field) => DEFAULT_CHAIN_PORTS.has(field));
         const shown = (seeds.length ? seeds : catalog).slice(0, 3);
+        if (catalog.includes('date') && !shown.includes('date')) shown.push('date');
         const arrays = catalog.filter(
             (field) => !shown.includes(field) && (this._arrayFromPayload(node.feature?._id, field) != null || /array/i.test(field))
         );
@@ -2371,10 +2498,15 @@ export class EndpointChainBoardComponent {
     removeEdge(id: string): void {
         const edge = this.graph().edges.find((item) => item.id === id);
         if (!edge || edge.to === FLOW_RESULT_ID) return;
-        this.graph.set({
+        let graph: FlowGraph = {
             ...this.graph(),
             edges: this.graph().edges.filter((item) => !(item.from === edge.from && item.to === edge.to)),
-        });
+        };
+        const target = nodeById(graph, edge.to);
+        if (target?.kind === 'endpoint' && edge.from !== FLOW_START_ID) {
+            graph = restoreUnfedInputs(graph, target.id, this._requiredInputs(graph, target));
+        }
+        this.graph.set(graph);
         this.selectedWireId.set(null);
         this._emit();
     }
@@ -2434,77 +2566,52 @@ export class EndpointChainBoardComponent {
         let graph = addEndpointNode(this.graph(), feature, x, y);
         const modes = queryModesForFeature(feature);
         if (modes.length > 1) graph = applyQueryMode(graph, feature._id, modes[0].id, modes);
-        let source = this._linkSource(graph, x, y, feature._id);
         const target = nodeById(graph, feature._id);
-        let wires = source && target ? this._compatibleWires(graph, source, target) : [];
-        if (source?.kind === 'endpoint' && target && !wires.length) {
-            const start = nodeById(graph, FLOW_START_ID);
-            const fromStart = start ? this._compatibleWires(graph, start, target) : [];
-            if (fromStart.length) {
-                source = start;
-                wires = fromStart;
-            }
-        }
-        if (source && target && !wires.length && this._mustReject(graph, target)) {
-            this.graph.set(graph);
-            this.selectNode(feature._id, false);
-            this._emit();
-            this._rejectLink(source, target);
-            return;
-        }
-        if (source && target && wires.length) {
-            graph = wires.reduce(
-                (next, wire) => connectPorts(next, wire.from, wire.fromPort, wire.to, wire.toPort),
-                graph
-            );
-        }
+        if (target) graph = this._wireInputsFromStart(graph, target);
         this.graph.set(graph);
         this.selectNode(feature._id, false);
         this._emit();
     }
 
-    private _linkSource(graph: FlowGraph, x: number, y: number, newId: string): FlowGraphNode | null {
-        const under = graph.nodes.find(
-            (node) => node.id !== newId && node.kind !== 'result' && node.kind !== 'merge' && this._pointInNode({ x, y }, node)
+    /** Each input of the endpoint comes from Datos de entrada, including fields the flow did not have yet. */
+    private _wireInputsFromStart(graph: FlowGraph, target: FlowGraphNode): FlowGraph {
+        if (target.kind !== 'endpoint' || !nodeById(graph, FLOW_START_ID)) return graph;
+        return this._requiredInputs(graph, target).reduce(
+            (next, port) => connectPorts(next, FLOW_START_ID, port, target.id, port),
+            graph
         );
-        if (under) return under;
-        const previous = [...graph.nodes].reverse().find((node) => node.id !== newId && node.kind === 'endpoint');
-        if (previous) return previous;
-        return nodeById(graph, FLOW_START_ID) ?? null;
     }
 
     private _connectCards(fromId: string, toId: string): void {
         const from = nodeById(this.graph(), fromId);
         const to = nodeById(this.graph(), toId);
         if (!from || !to || to.kind !== 'endpoint' || from.kind === 'result') return;
-        const wires = this._compatibleWires(this.graph(), from, to);
-        if (!wires.length) {
-            if (this._mustReject(this.graph(), to)) this._rejectLink(from, to);
+        const needed = this._requiredInputs(this.graph(), to);
+        const plan = planEndpointLink(
+            this.graph(),
+            from,
+            to,
+            needed,
+            this.profiles()[from.id],
+            this.profiles()[to.id]
+        );
+        if (from.kind === 'endpoint' && plan.status !== 'full') {
+            this._rejectChain(from, to, plan.status === 'cycle' ? 'cycle' : 'none', plan.pending);
             return;
         }
-        const graph = wires.reduce(
+        if (!plan.wires.length) {
+            if (this._mustReject(this.graph(), to)) this._rejectChain(from, to, 'none', needed);
+            return;
+        }
+        const graph = plan.wires.reduce(
             (next, wire) => connectPorts(next, wire.from, wire.fromPort, wire.to, wire.toPort),
             this.graph()
         );
         this.graph.set(graph);
         this._emit();
+        if (from.kind === 'endpoint') this._announceChain(plan.status, plan.pending);
     }
 
-    private _compatibleWires(graph: FlowGraph, from: FlowGraphNode, to: FlowGraphNode) {
-        if (to.kind !== 'endpoint' || (from.kind !== 'start' && from.kind !== 'endpoint')) return [];
-        const needed = this._requiredInputs(graph, to);
-        if (!needed.length) return [];
-        const shared = this._sharedInputs(graph, from, to, needed);
-        if (shared.length !== needed.length) return [];
-        return shared.map((field) => ({
-            from: from.id,
-            fromPort: field,
-            to: to.id,
-            toPort: field,
-        }));
-    }
-
-    /** Fields of the selected query option. A name lookup does not count document fields. */
     private _requiredInputs(graph: FlowGraph, node: FlowGraphNode): string[] {
         const plan = nodeQueryInputs(graph, node);
         if (plan) {
@@ -2512,43 +2619,6 @@ export class EndpointChainBoardComponent {
             return this._uniquePorts(fields);
         }
         return this.profiles()[node.id]?.inputs ?? [];
-    }
-
-    /**
-     * The first source can ask the user for every field. A later source can only
-     * use fields the flow already has, and only the ones of its selected option.
-     */
-    private _sharedInputs(graph: FlowGraph, from: FlowGraphNode, to: FlowGraphNode, needed: string[]): string[] {
-        if (from.kind === 'start') {
-            const available = this._knownFields(graph, to.id);
-            if (!available) return needed;
-            return needed.filter((field) => available.has(canonicalChainField(field)));
-        }
-        const sourceProfile = this.profiles()[from.id];
-        const targetProfile = this.profiles()[to.id];
-        const outputs = new Set((sourceProfile?.outputs ?? []).map((field) => canonicalChainField(field)));
-        const shared = needed.filter((field) => outputs.has(canonicalChainField(field)));
-        if (!shared.length || shared.length !== needed.length) return [];
-        if (sourceProfile && targetProfile && !canFeed({ ...sourceProfile, outputs: shared }, { ...targetProfile, inputs: shared })) {
-            return [];
-        }
-        return shared;
-    }
-
-    /** Null when this is the only source, so the user types its fields at the start. */
-    private _knownFields(graph: FlowGraph, nodeId: string): Set<string> | null {
-        const others = listEndpointNodes(graph).filter((node) => node.id !== nodeId);
-        if (!others.length) return null;
-        const without: FlowGraph = {
-            ...graph,
-            nodes: graph.nodes.filter((node) => node.id !== nodeId),
-            edges: graph.edges.filter((edge) => edge.from !== nodeId && edge.to !== nodeId),
-        };
-        const known = new Set(flowSeedFields(without, this.profiles()).map((field) => canonicalChainField(field)));
-        for (const node of others) {
-            for (const field of this.profiles()[node.id]?.outputs ?? []) known.add(canonicalChainField(field));
-        }
-        return known;
     }
 
     private _inputsSatisfied(graph: FlowGraph, node: FlowGraphNode): boolean {
@@ -2562,60 +2632,23 @@ export class EndpointChainBoardComponent {
         });
     }
 
-    private _edgeFeeds(graph: FlowGraph, nodeId: string, fromId: string, field: string): boolean {
-        const canonical = canonicalChainField(field);
-        if (fromId === FLOW_START_ID) {
-            const available = this._knownFields(graph, nodeId);
-            return available === null || available.has(canonical);
-        }
-        return (this.profiles()[fromId]?.outputs ?? []).some((item) => canonicalChainField(item) === canonical);
+    private _edgeFeeds(_graph: FlowGraph, _nodeId: string, fromId: string, field: string): boolean {
+        if (fromId === FLOW_START_ID) return true;
+        return outputFeedingInput(this.profiles()[fromId]?.outputs ?? [], field) != null;
     }
 
     private _rewire(graph: FlowGraph, nodeId: string): FlowGraph {
         const target = nodeById(graph, nodeId);
         if (!target || target.kind !== 'endpoint') return graph;
-        let next: FlowGraph = {
+        const next: FlowGraph = {
             ...graph,
             edges: graph.edges.filter((edge) => !(edge.to === nodeId && edge.toPort !== '*')),
         };
-        const linkedFrom = graph.edges.find(
-            (edge) => edge.to === nodeId && edge.toPort !== '*' && edge.from !== nodeId && edge.from !== FLOW_RESULT_ID
-        )?.from;
-        const linked = linkedFrom ? nodeById(next, linkedFrom) : null;
-        const previous =
-            linked && linked.kind === 'endpoint'
-                ? linked
-                : ([...next.nodes].reverse().find((node) => node.id !== nodeId && node.kind === 'endpoint') ?? null);
-        let source: FlowGraphNode | null = previous ?? nodeById(next, FLOW_START_ID);
-        let wires = source ? this._compatibleWires(next, source, target) : [];
-        if (source?.kind === 'endpoint' && !wires.length) {
-            const start = nodeById(next, FLOW_START_ID);
-            const fromStart = start ? this._compatibleWires(next, start, target) : [];
-            if (fromStart.length) {
-                source = start;
-                wires = fromStart;
-            }
-        }
-        if (!wires.length) return next;
-        return wires.reduce((current, wire) => connectPorts(current, wire.from, wire.fromPort, wire.to, wire.toPort), next);
+        return this._wireInputsFromStart(next, target);
     }
 
     private _mustReject(graph: FlowGraph, to: FlowGraphNode): boolean {
         return to.kind === 'endpoint' && this._requiredInputs(graph, to).length > 0;
-    }
-
-    private _rejectLink(from: FlowGraphNode, to: FlowGraphNode): void {
-        const source = from.kind === 'start' ? this._transloco.translate('visitaGuide.flowStartCardTitle') : from.feature ? this.name(from.feature) : from.id;
-        const target = to.feature ? this.name(to.feature) : to.id;
-        this._confirm.open({
-            title: this._transloco.translate('visitaGuide.flowLinkRejectedTitle'),
-            message: this._transloco.translate('visitaGuide.flowLinkRejectedBody', { source, target }),
-            icon: { show: true, name: 'heroicons_outline:exclamation-triangle', color: 'warning' },
-            actions: {
-                confirm: { show: true, label: this._transloco.translate('visitaGuide.flowLinkRejectedOk'), color: 'primary' },
-                cancel: { show: false, label: '' },
-            },
-        });
     }
 
     private _cardHeight(node: FlowGraphNode): number {
@@ -2681,6 +2714,64 @@ export class EndpointChainBoardComponent {
             changed = true;
         }
         if (changed) this.profiles.set(next);
+        this._dropStaleWires();
+    }
+
+    private _dropStaleWires(): void {
+        const pruned = pruneInvalidEndpointWires(this.graph(), this.profiles());
+        if (!pruned.dropped.length) return;
+        let graph = pruned.graph;
+        for (const edge of pruned.dropped) {
+            const target = nodeById(graph, edge.to);
+            if (target?.kind === 'endpoint') graph = restoreUnfedInputs(graph, target.id, this._requiredInputs(graph, target));
+        }
+        this.graph.set(graph);
+        this._emit();
+        const sample = pruned.dropped[0];
+        const source = nodeById(graph, sample.from);
+        const target = nodeById(graph, sample.to);
+        this._snack.open(
+            this._transloco.translate('visitaGuide.flowLinkStaleBody', {
+                source: source?.feature ? this.name(source.feature) : sample.from,
+                target: target?.feature ? this.name(target.feature) : sample.to,
+                field: this.fieldLabel(sample.field),
+            }),
+            undefined,
+            { duration: 5000 }
+        );
+    }
+
+    private _announceChain(status: 'full' | 'partial' | 'none' | 'cycle', pending: string[]): void {
+        const key = status === 'partial' ? 'visitaGuide.flowLinkPartialBody' : 'visitaGuide.flowLinkReadyBody';
+        this._snack.open(
+            this._transloco.translate(key, { fields: pending.map((field) => this.fieldLabel(field)).join(', ') }),
+            undefined,
+            { duration: 4500 }
+        );
+    }
+
+    private _rejectChain(
+        from: FlowGraphNode,
+        to: FlowGraphNode,
+        status: 'none' | 'cycle',
+        pending: string[]
+    ): void {
+        const source = from.kind === 'start' ? this._transloco.translate('visitaGuide.flowStartCardTitle') : from.feature ? this.name(from.feature) : from.id;
+        const target = to.feature ? this.name(to.feature) : to.id;
+        const key = status === 'cycle' ? 'visitaGuide.flowLinkCycleBody' : 'visitaGuide.flowLinkBlockedBody';
+        this._confirm.open({
+            title: this._transloco.translate('visitaGuide.flowLinkRejectedTitle'),
+            message: this._transloco.translate(key, {
+                source,
+                target,
+                fields: pending.map((item) => this.fieldLabel(item)).join(', '),
+            }),
+            icon: { show: true, name: 'heroicons_outline:exclamation-triangle', color: 'warning' },
+            actions: {
+                confirm: { show: true, label: this._transloco.translate('visitaGuide.flowLinkRejectedOk'), color: 'primary' },
+                cancel: { show: false, label: '' },
+            },
+        });
     }
 
     private _toWorld(event: PointerEvent): { x: number; y: number } {

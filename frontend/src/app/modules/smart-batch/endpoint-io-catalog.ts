@@ -4311,6 +4311,7 @@ export const ENDPOINT_IO_CATALOG: Record<string, EndpointIoCatalogEntry> = {
             "documentNumber",
             "documentType",
             "expeditionDate",
+            "date",
             "expeditionPlace",
             "municipio",
             "departamento",

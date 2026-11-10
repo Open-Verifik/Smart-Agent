@@ -162,7 +162,10 @@ export const chainProfileForFeature = (
     const entry = catalogEntryForCode(feature.code);
     return enrichChainProfile(feature, {
         inputs: uniqueCanonical([...inputKeysForFeature(feature), ...(entry?.inputs ?? [])]),
-        outputs: uniqueCanonical([...(entry?.outputs ?? []), ...outputKeysFromDocs(docs)]),
+        outputs: uniqueCanonical([
+            ...(entry?.outputs ?? []),
+            ...outputKeysFromDocs(docs ?? (feature as { docs?: unknown }).docs),
+        ]),
         inputEnums: mergeInputEnums(enumsFromDependencies(feature), enumsFromCatalog(entry)),
     });
 };
@@ -170,6 +173,21 @@ export const chainProfileForFeature = (
 export const sharedChainFields = (outputs: string[], inputs: string[]): string[] => {
     const available = new Set(outputs);
     return inputs.filter((field) => available.has(field));
+};
+
+/**
+ * Output that can fill one input.
+ * Same canonical field first (documentNumber / numero_documento).
+ * A lookup input named `date` is the document issue date, so fechaExpedicion can fill it.
+ * Different names without that correspondence do not match.
+ */
+export const outputFeedingInput = (outputs: string[], input: string): string | null => {
+    const want = canonicalChainField(input);
+    const available = [...new Set(outputs.map((field) => canonicalChainField(field)))];
+    if (available.includes(want)) return want;
+    if (want === 'date' && available.includes('fechaExpedicion')) return 'fechaExpedicion';
+    if (want === 'fechaExpedicion' && available.includes('date')) return 'date';
+    return null;
 };
 
 export const canFeed = (source: ChainProfile | undefined, target: ChainProfile | undefined): boolean => {

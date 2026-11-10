@@ -6,6 +6,7 @@ import {
     applyQueryMode,
     autoConnect,
     chainStepFeedTemplatesFromGraph,
+    compatibleInputWires,
     connectPorts,
     emptyFlowGraph,
     fieldsLikelyCompatible,
@@ -20,9 +21,13 @@ import {
     graphFromLinearChain,
     incomingEdge,
     layoutFlowGraph,
+    FLOW_COL_GAP,
     FLOW_ROW_GAP,
     outgoingEdges,
     parseFlowGraph,
+    planEndpointLink,
+    pruneInvalidEndpointWires,
+    restoreUnfedInputs,
     sameFlowLayout,
     FLOW_WIRE_COLORS,
     wireColorForIndex,
@@ -165,6 +170,36 @@ describe('endpoint-flow-graph', () => {
         expect(lookups[0].x).toBe(lookups[1].x);
     });
 
+    it('keeps a wide start card from covering the first lookup', () => {
+        let graph = addEndpointNode(emptyFlowGraph(), plate as never, 0, 0);
+        graph = addEndpointNode(graph, byVin as never, 20, 20);
+        const sizeOf = (node: (typeof graph.nodes)[number]) =>
+            node.kind === 'start'
+                ? { width: 420, height: 340 }
+                : node.kind === 'result'
+                  ? { width: 320, height: 180 }
+                  : { width: 288, height: 68 };
+        graph = layoutFlowGraph(graph, undefined, sizeOf);
+        const boxes = graph.nodes.map((node) => {
+            const size = sizeOf(node);
+            return { id: node.id, x: node.x, y: node.y, w: size.width, h: size.height };
+        });
+        for (let left = 0; left < boxes.length; left += 1) {
+            for (let right = left + 1; right < boxes.length; right += 1) {
+                const a = boxes[left];
+                const b = boxes[right];
+                const gapX = a.x + a.w <= b.x ? b.x - (a.x + a.w) : b.x + b.w <= a.x ? a.x - (b.x + b.w) : 0;
+                const gapY = a.y + a.h <= b.y ? b.y - (a.y + a.h) : b.y + b.h <= a.y ? a.y - (b.y + b.h) : 0;
+                const separated = gapX > 0 || gapY > 0;
+                expect(separated, `${a.id} covers ${b.id}`).toBe(true);
+                if (gapX > 0 && gapY === 0) expect(gapX).toBeGreaterThanOrEqual(FLOW_COL_GAP);
+                if (gapY > 0 && gapX === 0) expect(gapY).toBeGreaterThanOrEqual(FLOW_ROW_GAP);
+            }
+        }
+        const lookups = graph.nodes.filter((node) => node.kind === 'endpoint').sort((a, b) => a.y - b.y);
+        expect(lookups[1].y - lookups[0].y).toBe(68 + FLOW_ROW_GAP);
+    });
+
     it('gives each connection a different color until the palette runs out', () => {
         const seen = new Set<string>();
         for (let index = 0; index < FLOW_WIRE_COLORS.length; index += 1) {
@@ -245,5 +280,196 @@ describe('endpoint-flow-graph', () => {
 
         graph = connectPorts(graph, 'citizen', 'fullName', 'fbi', 'fullName');
         expect(flowSeedFields(graph, profiles)).toEqual(['documentType', 'documentNumber']);
+    });
+});
+
+describe('compatibleInputWires', () => {
+    const start = { id: FLOW_START_ID, kind: 'start' as const, x: 0, y: 0 };
+    const affiliations = { id: 'aff', kind: 'endpoint' as const, x: 0, y: 0 };
+    const needed = ['documentType', 'documentNumber', 'date'];
+    const affiliationsProfile = {
+        inputs: needed,
+        outputs: ['eps', 'documentType', 'documentNumber'],
+        inputEnums: { documentType: ['CC', 'CE', 'PA', 'PEP'] },
+    };
+
+    it('connects every typed field from input data, including date', () => {
+        const wires = compatibleInputWires(start, affiliations, needed, undefined, affiliationsProfile);
+        expect(wires.map((wire) => wire.toPort)).toEqual(needed);
+    });
+
+    it('connects the document fields a previous lookup returns and leaves date out', () => {
+        const seguridad = { id: 'seg', kind: 'endpoint' as const, x: 0, y: 0 };
+        const wires = compatibleInputWires(
+            seguridad,
+            affiliations,
+            needed,
+            {
+                inputs: ['documentType', 'documentNumber'],
+                outputs: ['documentType', 'documentNumber', 'fullName'],
+                inputEnums: { documentType: ['CC', 'CE', 'PA'] },
+            },
+            affiliationsProfile
+        );
+        expect(wires.map((wire) => wire.toPort)).toEqual(['documentType', 'documentNumber']);
+    });
+
+    it('skips a document type whose allowed values do not overlap', () => {
+        const nitLookup = { id: 'nit', kind: 'endpoint' as const, x: 0, y: 0 };
+        const wires = compatibleInputWires(
+            nitLookup,
+            affiliations,
+            needed,
+            {
+                inputs: ['documentType', 'documentNumber'],
+                outputs: ['documentType', 'documentNumber'],
+                inputEnums: { documentType: ['NIT'] },
+            },
+            affiliationsProfile
+        );
+        expect(wires.map((wire) => wire.toPort)).toEqual(['documentNumber']);
+    });
+
+    it('connects nothing when the previous lookup returns different fields', () => {
+        const plate = { id: 'plate', kind: 'endpoint' as const, x: 0, y: 0 };
+        const wires = compatibleInputWires(
+            plate,
+            affiliations,
+            needed,
+            { inputs: ['plate'], outputs: ['plate', 'vin'], inputEnums: {} },
+            affiliationsProfile
+        );
+        expect(wires).toEqual([]);
+    });
+});
+
+describe('endpoint chaining', () => {
+    const cedula = { id: 'cedula', kind: 'endpoint' as const, x: 0, y: 0 };
+    const health = { id: 'health', kind: 'endpoint' as const, x: 400, y: 0 };
+    const citizen = { id: 'citizen', kind: 'endpoint' as const, x: 0, y: 200 };
+    const cedulaProfile = {
+        inputs: ['documentNumber'],
+        outputs: ['documentNumber', 'documentType', 'fullName', 'fechaExpedicion'],
+        inputEnums: {},
+    };
+    const healthProfile = {
+        inputs: ['documentNumber', 'date'],
+        outputs: [],
+        inputEnums: {},
+    };
+
+    const graphWith = (...features: { _id: string; name: string }[]) =>
+        features.reduce((graph, feature) => addEndpointNode(graph, feature as never, 0, 0), emptyFlowGraph());
+
+    it('lets a full match feed document number and issue date without asking again', () => {
+        const graph = graphWith({ _id: 'cedula', name: 'Cédula' }, { _id: 'health', name: 'Afiliaciones' });
+        const plan = planEndpointLink(graph, cedula, health, ['documentNumber', 'date'], cedulaProfile, healthProfile);
+        expect(plan.status).toBe('full');
+        expect(plan.pending).toEqual([]);
+        expect(plan.wires).toEqual([
+            { from: 'cedula', fromPort: 'documentNumber', to: 'health', toPort: 'documentNumber' },
+            { from: 'cedula', fromPort: 'fechaExpedicion', to: 'health', toPort: 'date' },
+        ]);
+    });
+
+    it('refuses the connection when the source is missing any required field', () => {
+        const graph = graphWith({ _id: 'cedula', name: 'Cédula' }, { _id: 'health', name: 'Afiliaciones' });
+        const plan = planEndpointLink(
+            graph,
+            cedula,
+            health,
+            ['documentNumber', 'date'],
+            { ...cedulaProfile, outputs: ['documentNumber', 'fullName'] },
+            healthProfile
+        );
+        expect(plan.status).toBe('none');
+        expect(plan.wires).toEqual([]);
+        expect(plan.pending).toEqual(['date']);
+    });
+
+    it('rejects a lookup that returns nothing the next one can use', () => {
+        const graph = graphWith({ _id: 'cedula', name: 'Cédula' }, { _id: 'health', name: 'Afiliaciones' });
+        const link = { id: 'link', kind: 'endpoint' as const, x: 0, y: 0 };
+        const plan = planEndpointLink(
+            graph,
+            cedula,
+            link,
+            ['validationLink'],
+            cedulaProfile,
+            { inputs: ['validationLink'], outputs: [], inputEnums: {} }
+        );
+        expect(plan.status).toBe('none');
+        expect(plan.wires).toEqual([]);
+    });
+
+    it('still feeds an independent lookup only from input data', () => {
+        const graph = graphWith({ _id: 'citizen', name: 'Ciudadano' });
+        const start = graph.nodes.find((node) => node.kind === 'start')!;
+        const plan = planEndpointLink(
+            graph,
+            start,
+            citizen,
+            ['documentType', 'documentNumber'],
+            undefined,
+            { inputs: ['documentType', 'documentNumber'], outputs: [], inputEnums: {} }
+        );
+        expect(plan.status).toBe('full');
+        expect(plan.wires.every((wire) => wire.from === FLOW_START_ID)).toBe(true);
+    });
+
+    it('runs a dependent lookup after its source and leaves independent lookups free', () => {
+        let graph = graphWith(
+            { _id: 'cedula', name: 'Cédula' },
+            { _id: 'health', name: 'Afiliaciones' },
+            { _id: 'citizen', name: 'Ciudadano' }
+        );
+        graph = connectPorts(graph, 'cedula', 'documentNumber', 'health', 'documentNumber');
+        const order = flattenFlowGraph(graph).map((feature) => feature._id);
+        expect(order.indexOf('cedula')).toBeLessThan(order.indexOf('health'));
+        expect(order).toContain('citizen');
+        expect(chainStepFeedTemplatesFromGraph(graph, flattenFlowGraph(graph))[order.indexOf('health')]).toEqual({
+            documentNumber: '{{results.1.documentNumber}}',
+        });
+    });
+
+    it('asks for a field again after its feeding wire is removed', () => {
+        let graph = graphWith({ _id: 'cedula', name: 'Cédula' }, { _id: 'health', name: 'Afiliaciones' });
+        graph = connectPorts(graph, 'cedula', 'documentNumber', 'health', 'documentNumber');
+        graph = connectPorts(graph, FLOW_START_ID, 'date', 'health', 'date');
+        graph = {
+            ...graph,
+            edges: graph.edges.filter((edge) => !(edge.from === 'cedula' && edge.to === 'health')),
+        };
+        graph = restoreUnfedInputs(graph, 'health', ['documentNumber', 'date']);
+        expect(incomingEdge(graph, 'health', 'documentNumber')?.from).toBe(FLOW_START_ID);
+        expect(incomingEdge(graph, 'health', 'date')?.from).toBe(FLOW_START_ID);
+    });
+
+    it('drops a wire when the response sample no longer has the property', () => {
+        let graph = graphWith({ _id: 'cedula', name: 'Cédula' }, { _id: 'health', name: 'Afiliaciones' });
+        graph = connectPorts(graph, 'cedula', 'fechaExpedicion', 'health', 'date');
+        const pruned = pruneInvalidEndpointWires(graph, {
+            cedula: { ...cedulaProfile, outputs: ['documentNumber', 'fullName'] },
+            health: healthProfile,
+        });
+        expect(pruned.dropped).toEqual([{ from: 'cedula', to: 'health', field: 'date' }]);
+        expect(pruned.graph.edges.some((edge) => edge.to === 'health' && edge.toPort === 'date')).toBe(false);
+    });
+
+    it('rejects a cycle', () => {
+        let graph = graphWith({ _id: 'cedula', name: 'Cédula' }, { _id: 'health', name: 'Afiliaciones' });
+        graph = connectPorts(graph, 'cedula', 'documentNumber', 'health', 'documentNumber');
+        const plan = planEndpointLink(graph, health, cedula, ['documentNumber'], healthProfile, cedulaProfile);
+        expect(plan.status).toBe('cycle');
+        expect(plan.wires).toEqual([]);
+    });
+
+    it('keeps a mapped wire after the flow is saved and opened again', () => {
+        let graph = graphWith({ _id: 'cedula', name: 'Cédula' }, { _id: 'health', name: 'Afiliaciones' });
+        graph = connectPorts(graph, 'cedula', 'fechaExpedicion', 'health', 'date');
+        const restored = parseFlowGraph(JSON.parse(JSON.stringify(graph)));
+        const edge = restored?.edges.find((item) => item.to === 'health' && item.toPort === 'date');
+        expect(edge?.from).toBe('cedula');
+        expect(edge?.fromPort).toBe('fechaExpedicion');
     });
 });

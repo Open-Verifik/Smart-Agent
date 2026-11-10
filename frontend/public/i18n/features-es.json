@@ -534,7 +534,7 @@
         },
         "colombia_api_identity_lookup_premium": {
             "title": "Cédula nacional premium (CC)",
-            "description": "Verifica una cédula colombiana (CC) con un perfil completo: escribes solo el número, la plataforma obtiene la fecha de expedición y te devuelve el mismo registro rico que cédula extra. Usa más créditos que la consulta básica de cédula."
+            "description": "Verifica una cédula colombiana (CC) con un perfil completo: escribes solo el número y la respuesta incluye la fecha de expedición en date (DD/MM/AAAA, ejemplo 05/09/1989), además del registro rico de cédula extra. Usa más créditos que la consulta básica de cédula."
         },
         "colombia_api_identity_pep_foreigner_id": {
             "title": "PEP (Permiso Especial de Permanencia)",
