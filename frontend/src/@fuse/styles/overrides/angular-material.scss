@@ -1351,12 +1351,51 @@ textarea.mat-mdc-input-element {
 /*  @ Tooltip
 /* -------------------------------------------------------------------------- */
 
-.mat-mdc-tooltip .mdc-tooltip__surface {
-    background-color: var(--fuse-text-default) !important;
-    color: white;
+.mat-mdc-tooltip {
+    filter: drop-shadow(0 10px 22px rgba(15, 23, 42, 0.12)) drop-shadow(0 2px 6px rgba(15, 23, 42, 0.08));
+}
 
-    .dark & {
-        background-color: var(--fuse-text-secondary) !important;
-        color: var(--fuse-bg-default) !important;
-    }
+.mat-mdc-tooltip .mdc-tooltip__surface {
+    background-color: #fff !important;
+    color: #1f2937 !important;
+    border-radius: 16px !important;
+    padding: 12px 18px !important;
+    max-width: 280px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    letter-spacing: 0 !important;
+}
+
+.mat-mdc-tooltip::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    z-index: -1;
+}
+
+.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::after {
+    left: calc(50% - 7px);
+    bottom: -6px;
+    transform: rotate(45deg);
+}
+
+.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::after {
+    left: calc(50% - 7px);
+    top: -6px;
+    transform: rotate(45deg);
+}
+
+.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::after {
+    top: calc(50% - 7px);
+    right: -6px;
+    transform: rotate(45deg);
+}
+
+.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::after {
+    top: calc(50% - 7px);
+    left: -6px;
+    transform: rotate(45deg);
 }

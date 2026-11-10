@@ -35,7 +35,7 @@ export class BatchBrowserRunnerService {
         onError?: (error: unknown) => void,
         hooks?: {
             onStepStart?: (info: { step: BatchStep; rowIndex: number }) => void;
-            onStepComplete?: (info: { step: BatchStep; rowIndex: number; ok: boolean }) => void;
+            onStepComplete?: (info: { step: BatchStep; rowIndex: number; ok: boolean; message?: string }) => void;
         }
     ): Promise<void> {
         const batchId = batch._id;
@@ -125,7 +125,7 @@ export class BatchBrowserRunnerService {
         onBatch: (next: SmartBatch) => void,
         hooks?: {
             onStepStart?: (info: { step: BatchStep; rowIndex: number }) => void;
-            onStepComplete?: (info: { step: BatchStep; rowIndex: number; ok: boolean }) => void;
+            onStepComplete?: (info: { step: BatchStep; rowIndex: number; ok: boolean; message?: string }) => void;
         }
     ): Promise<SmartBatch> {
         const enabled = steps.filter((step) => step.enabled !== false).sort((a, b) => a.sequence - b.sequence);

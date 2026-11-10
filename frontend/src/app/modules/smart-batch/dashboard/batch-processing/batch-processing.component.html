@@ -202,6 +202,37 @@
                 </div>
             </div>
 
+            @if (isProcessing() || isStarting() || isResuming() || isPaused()) {
+                <div
+                    class="mt-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm"
+                    [ngClass]="
+                        isBrowserSync()
+                            ? 'border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100'
+                            : 'border-sky-200 bg-sky-50 text-sky-950 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100'
+                    "
+                >
+                    <mat-icon class="mt-0.5 shrink-0">{{ runModeIcon() }}</mat-icon>
+                    <div>
+                        <p class="font-semibold">
+                            {{
+                                (isBrowserSync()
+                                    ? 'createBatchConfig.runModeSyncWarningTitle'
+                                    : 'createBatchConfig.runModeAsyncWarningTitle'
+                                ) | transloco
+                            }}
+                        </p>
+                        <p class="mt-1">
+                            {{
+                                (isBrowserSync()
+                                    ? 'createBatchConfig.runModeSyncWarningBody'
+                                    : 'createBatchConfig.runModeAsyncWarningBody'
+                                ) | transloco
+                            }}
+                        </p>
+                    </div>
+                </div>
+            }
+
             <!-- Progress Bar -->
             @if (isProcessing() || isPaused()) {
                 <div class="mt-4">
