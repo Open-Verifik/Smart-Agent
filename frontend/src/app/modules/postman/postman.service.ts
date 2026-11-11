@@ -25,6 +25,11 @@ import {
     isCatalogTransportFailure,
 } from './postman-catalog.util';
 import {
+    canonicalPostmanCountryName,
+    countryNameToIso,
+    expandPostmanCountryQueryVariants,
+} from './postman-country.util';
+import {
     POSTMAN_INCLUDE_COST_KEY,
     ensurePostmanIncludeCostParam,
     removePostmanIncludeCostParam,
@@ -262,7 +267,10 @@ export class PostmanService {
 
         this._fetchFeatureDetail(code).subscribe((feature) => {
             if (!feature) return;
-            const country = feature.country || null;
+            let country = canonicalPostmanCountryName(feature.country) || feature.country || null;
+            if (!country || country.trim().toLowerCase() === 'undefined') {
+                country = this._inferCountryFromFeature(feature);
+            }
             if (country && this.selectedCountry() !== country) {
                 this.selectedCountry.set(country);
             }
@@ -312,7 +320,7 @@ export class PostmanService {
     }
 
     private _catalogListParams(countries: string[]): HttpParams {
-        return countries
+        return expandPostmanCountryQueryVariants(countries)
             .filter(Boolean)
             .reduce((params, country) => params.append('in_country', country), new HttpParams());
     }
@@ -592,12 +600,74 @@ export class PostmanService {
             .replace(/_+/g, '_');
     }
 
+    private _inferCountryFromFeature(feature: any): string {
+        const code = typeof feature?.code === 'string' ? feature.code.trim() : '';
+        const url = typeof feature?.url === 'string' ? feature.url.trim() : '';
+
+        // 1. Try from feature.code prefix (e.g. "be_api_pep" -> "be" -> "Belgium", "colombia_api_..." -> "Colombia")
+        if (code) {
+            const parts = code.split('_');
+            if (parts.length > 0) {
+                if (parts.length >= 2) {
+                    const compound = `${parts[0]} ${parts[1]}`.toLowerCase();
+                    const compoundIso = countryNameToIso(compound);
+                    if (compoundIso) {
+                        const canonical = canonicalPostmanCountryName(compoundIso);
+                        if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
+                    }
+                }
+                const first = parts[0].toLowerCase();
+                const iso = countryNameToIso(first);
+                if (iso) {
+                    const canonical = canonicalPostmanCountryName(iso);
+                    if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
+                }
+            }
+        }
+
+        // 2. Try from URL segment (e.g. "/v2/be/..." or "v2/be/..." -> "be" -> "Belgium")
+        if (url) {
+            const match = url.match(/(?:^|\/)v\d+\/([a-z]{2})(?:\/|$)/i);
+            if (match && match[1]) {
+                const iso = countryNameToIso(match[1]);
+                if (iso) {
+                    const canonical = canonicalPostmanCountryName(iso);
+                    if (canonical && canonical.toLowerCase() !== 'undefined') return canonical;
+                }
+            }
+        }
+
+        return DEFAULT_POSTMAN_COUNTRY;
+    }
+
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {
         const method = feature.group === 'apiRequest' ? 'GET' : feature.method || 'POST';
-        const rawDeps = resolveHumanAuthnDependencies(feature.code, feature.dependencies);
+        const rawCatalogDeps = feature.dependencies ?? feature.input?.dependencies ?? [];
+        const normalizedDeps = Array.isArray(rawCatalogDeps)
+            ? rawCatalogDeps
+            : typeof rawCatalogDeps === 'object' && rawCatalogDeps !== null
+                ? Object.entries(rawCatalogDeps).map(([field, meta]: [string, any]) => ({
+                      field,
+                      type: meta?.type || 'String',
+                      required: meta?.required ?? false,
+                      description: meta?.description || '',
+                      enum: meta?.enum,
+                      default: meta?.default,
+                      dependencyGroup: meta?.dependencyGroup,
+                      requiredWhen: meta?.requiredWhen,
+                      dateFormat: meta?.dateFormat,
+                  }))
+                : [];
+        const rawDeps = resolveHumanAuthnDependencies(feature.code, normalizedDeps);
         const dependencies = this._toPostmanDependencyMeta(rawDeps);
         const xorMeta = dependencies.length ? getPostmanXorGroupMetadata(dependencies) : null;
         const listParams = method === 'GET' || shouldListHumanAuthnParams(feature.code);
+
+        let resolvedCountry =
+            canonicalPostmanCountryName(feature.country) || feature.country;
+        if (!resolvedCountry || resolvedCountry.trim().toLowerCase() === 'undefined') {
+            resolvedCountry = this._inferCountryFromFeature(feature);
+        }
 
         const created: ApiEndpoint = {
             id: feature._id || feature.code,
@@ -607,7 +677,7 @@ export class PostmanService {
                 : {}),
             code: feature.code,
             category: this._mapCategory(feature.baseCategory || feature.group),
-            country: feature.country,
+            country: resolvedCountry,
             ...(Array.isArray(feature.checkListDomains) && feature.checkListDomains.length
                 ? { checkListDomains: feature.checkListDomains }
                 : {}),
@@ -649,7 +719,7 @@ export class PostmanService {
                 }
             }
         }
-        if (created.code && (!dependencies.length || !xorMeta)) {
+        if (created.code && (!created.dependencies?.length || !created.params?.length)) {
             const staticEndpoints =
                 (postmanEndpointsIo as any)?.endpoints ??
                 (Array.isArray(postmanEndpointsIo) ? postmanEndpointsIo : []);
@@ -658,15 +728,26 @@ export class PostmanService {
                 const staticRawDeps = staticEntry.input.dependencies;
                 const staticDeps = this._toPostmanDependencyMeta(staticRawDeps);
                 const staticXor = getPostmanXorGroupMetadata(staticDeps);
-                if (staticXor) {
-                    created.dependencies = staticDeps;
-                    if (listParams) {
-                        created.params = this._paramsFromDependencies(staticRawDeps, staticXor);
-                    }
+                created.dependencies = staticDeps;
+                if (listParams) {
+                    created.params = this._paramsFromDependencies(staticRawDeps, staticXor);
                 }
             }
         }
-        return applyMexicoLicenseTripleInputToEndpoint(mergeParamsFromDocs(created));
+        const withDocsParams = listParams ? mergeParamsFromDocs(created) : created;
+        if (!withDocsParams.dependencies?.length && withDocsParams.params?.length) {
+            withDocsParams.dependencies = withDocsParams.params.map((p) => ({
+                field: p.key,
+                type: p.type,
+                required: p.required,
+                enum: p.enum,
+                description: p.description,
+                dependencyGroup: p.dependencyGroup,
+                requiredWhen: p.requiredWhen,
+                dateFormat: p.dateFormat,
+            }));
+        }
+        return applyMexicoLicenseTripleInputToEndpoint(withDocsParams);
     }
 
     private _toPostmanDependencyMeta(rawDeps: any[]): PostmanDependencyMeta[] {

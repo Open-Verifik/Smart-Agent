@@ -1,992 +1,1924 @@
 {
-    "appFeatures": {
-        "feature_email_login": {
-            "title": "メールによるAPIキーアクセス",
-            "description": "API認証のためにクライアントのメールに送信されるワンタイムパスワード（OTP）をリクエストします。"
-        },
-        "colombia_special_api_identity_lookup": {
-            "title": "コロンビア - 個人市民情報",
-            "description": "個人市民情報へのアクセス のColombian nationals. このサービスは包括的な個人データを提供 含む detailed identity verification. 詳細についてはVerifikカスタマーサービスにお問い合わせください."
-        },
-        "colombia_api_identity_lookup": {
-            "title": "コロンビア - 国民ID検証",
-            "description": "書類番号（CC、CE、PPT、NIT、PEP）でコロンビアの身元を確認します。GET /v2/co/cedula。"
-        },
-        "colombia_special_api_police_identity_lookup": {
-            "title": "コロンビア — 警察記録照会",
-            "description": "GET または POST /v2/co/policia/consultar でコロンビアの警察記録を照会します。"
-        },
-        "world_api_dea": {
-            "title": "DEA 身元照会",
-            "description": "米国 DEA のウォッチリストとの照合サービス。"
-        },
-        "colombia_api_military_situation": {
-            "title": "コロンビア — 兵役状況",
-            "description": "コロンビア市民証（CC）で兵役（situación militar）を照会します。"
-        },
-        "colombia_api_rethus": {
-            "title": "医療専門医の検証",
-            "description": "GET /v2/co/cedula/rethus でコロンビアの RETHUS 医療専門家登録を照会します。"
-        },
-        "colombia_api_rues": {
-            "title": "Colombia - RUES Business Lookup (v2, legacy)",
-            "description": "検証 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 確認 business registration, legal status, and company information. 必要 document type and document number."
-        },
-        "colombia_api_dian": {
-            "title": "コロンビア — DIAN 税務確認",
-            "description": "コロンビア DIAN で NIT による企業の税務登録状態を確認します。GET /v2/co/company/dian。"
-        },
-        "peru_api_company_lookup": {
-            "title": "Peru - 事業登録検索",
-            "description": "Business verification service のPeru. 提供 company registration details, legal status, and business information."
-        },
-        "peru_api_driver_license_lookup": {
-            "title": "ペルー - 運転免許",
-            "description": "GET /v2/pe/driver-license により DNI でペルーの運転免許を照会します。公式記録で利用可能な場合、区分、状態、有効期限、制限、発行情報を返します。"
-        },
-        "colombia_api_judicial_process_details": {
-            "title": "コロンビア — 司法手続きの詳細",
-            "description": "手続き番号でコロンビアの特定事件の詳細（当事者・行為）を取得します（Rama Judicial）。"
-        },
-        "colombia_api_vehicle_soat": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-        },
-        "usa_api_vehicle": {
-            "title": "アメリカ合衆国 — 車両情報（ナンバー・州）",
-            "description": "一時的に利用不可 — VIN による米国車両照会を利用してください"
-        },
-        "world_api_onu": {
-            "title": "国連（ONU）身元照会",
-            "description": "個人または法人が国連の制裁リストに掲載されているかをシンプルかつ効率的に確認できる API です。文書タイプや文書番号などの識別情報を送信することで、国際制裁の対象であるかを迅速に判別できます。"
-        },
-        "feature_kyc_solution": {
-            "title": "KYC Solution",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "world_api_covid": {
-            "title": "グローバル - COVID Statistics",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_affiliations": {
-            "title": "コロンビア - 健康・社会保障",
-            "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
-        },
-        "colombia_api_contraloria_certificate": {
-            "title": "コロンビア — Contraloría 証明書",
-            "description": "本サービスでは、文書タイプと文書番号を入力するだけで、コロンビア会計検査院（Contraloría General de Colombia）が発行する善行証明書を検証できます。照会日と base64 エンコードされた PDF 証明書が返却されます。"
-        },
-        "peru_identity_lookup": {
-            "title": "ペルー - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "venezuela_api_identity_lookup": {
-            "title": "ベネズエラ — 国民身分証（CCVE）",
-            "description": "ベネズエラの国民 ID 照会。GET /v2/ve/cedula を介して文書番号で cédula（CCVE）保持者を検証し、KYC や不正防止に活用できます。"
-        },
-        "colombia_api_vehicle_complete": {
-            "title": "コロンビア — 車両情報（完全）",
-            "description": "取得 comprehensive vehicle information のColombian vehicles. Includes ownership details, specifications, legal status, and registration data."
-        },
-        "mexico_api_vehicle": {
-            "title": "メキシコ",
-            "description": "ナンバープレートでメキシコの車両情報を検証します。"
-        },
-        "feature_passwordless_solution": {
-            "title": "パスワードレス認証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "world_api_interpol": {
-            "title": "Interpol 身元照会",
-            "description": "個人または企業の犯罪関連背景情報を照会するための API エンドポイントです。文書タイプおよび文書番号を指定するとレスポンスが返却されます。レスポンスには文書タイプ、文書番号、名、姓、氏名、自然人および法人の名前構成要素が含まれます。"
-        },
-        "colombia_api_sena": {
-            "title": "コロンビア — SENA 証明書",
-            "description": "GET /v2/co/sena/certificados で SENA（Servicio Nacional de Aprendizaje）の研修・認定記録を照会します。"
-        },
-        "world_api_ofac": {
-            "title": "OFAC 身元照会",
-            "description": "OFAC 身元照会サービス。"
-        },
-        "colombia_api_registraduria_certificate": {
-            "title": "コロンビア — 選挙管理庁 身分証明書有効性証明（CC）",
-            "description": "CC番号と発行日で Registraduría の公式有効性証明書（PDF）を取得します。"
-        },
-        "colombia_api_identity_lookup_by_name": {
-            "title": "コロンビア — 氏名による市民検索（SCCRC）",
-            "description": "GET /v2/co/cedula/by-name（Registraduría SCCRC）で氏名・性別・生年月日によりコロンビアの出生民事登記記録を逆引きします。"
-        },
-        "colombia_api_registraduria_serial": {
-            "title": "コロンビア — シリアルによる民事登記検索（SCCRC）",
-            "description": "GET /v2/co/registraduria/serial（Registraduría SCCRC）でシリアル番号によりコロンビアの出生民事登記記録を特定します。"
-        },
-        "colombia_api_registraduria_matrimonio": {
-            "title": "コロンビア — 婚姻民事登記（SCCRC）",
-            "description": "GET /v2/co/registraduria/matrimonio（Registraduría SCCRC）で書類・氏名・シリアルによりコロンビアの婚姻民事登記記録を検索します。"
-        },
-        "colombia_api_delinquent_debtors": {
-            "title": "コロンビア - 延滞債務者(BDME)",
-            "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
-        },
-        "world_api_fbi": {
-            "title": "FBI 身元照会",
-            "description": "FBI 身元照会サービス。"
-        },
-        "mexico_identity_lookup": {
-            "title": "メキシコ — 国民身分証",
-            "description": "Verifik の KYC API を使用して、CURP によりメキシコ国民の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
-        },
-        "ecuador_api_identity_lookup": {
-            "title": "エクアドル — 国民身分証",
-            "description": "Verifik の KYC API でエクアドルの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
-        },
-        "colombia_api_driver": {
-            "title": "RUNT — 運転免許",
-            "description": "コロンビア RUNT で運転免許の状態・区分・有効期限などを証明書番号から照会します。"
-        },
-        "peru_api_vehicle": {
-            "title": "ペルー — 車両情報（ナンバープレート）",
-            "description": "ペルー車両情報サービスは、ナンバープレートに基づいて、ペルーで登録された車両に関する詳細情報を提供します。レスポンスには、メーカー、モデル、年式、エンジン番号、シャーシ製造番号、定員、用途種別などの主要情報が含まれます。"
-        },
-        "peru_api_vehicle_soat": {
-            "title": "ペルー — 車両保険（SOAT）",
-            "description": "本サービスは、ペルーにおける車両の保険ステータスに関する情報を提供します。保険会社名、契約開始日・終了日、車両のナンバープレート、契約番号、用途種別、車両クラス、契約ステータスなどの詳細を返します。"
-        },
-        "ecuador_api_vehicle": {
-            "title": "エクアドル — 車両検証",
-            "description": "ナンバープレートでエクアドル登録車両を照会します。"
-        },
-        "feature_data_api": {
-            "title": "データ API",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_min_trabajo": {
-            "title": "Colombia - 労働証明書検証",
-            "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
-        },
-        "colombia_api_registraduria_voting": {
-            "title": "コロンビア — 投票情報（Registraduría）",
-            "description": "Registraduría Nacional del Estado Civil からコロンビア市民の投票情報を取得します。"
-        },
-        "world_api_europol": {
-            "title": "Europol 身元照会",
-            "description": "Europol の犯罪記録データベースに対するリアルタイム照会サービス。文書タイプと文書番号、または氏名を指定することで、Europol のシステム内のエントリと一致するかを確認できます。"
-        },
-        "colombia_api_criminal_history": {
-            "title": "コロンビア — 懲戒記録（検察庁 / Procuraduría）",
-            "description": "コロンビア検察庁における懲戒記録（Disciplinary Records）の照会。"
-        },
-        "colombia_api_judicial_processes": {
-            "title": "コロンビア — 司法手続き",
-            "description": "CC または NIT でコロンビアの裁判手続き一覧を照会します（Rama Judicial）。"
-        },
-        "colombia_api_vehicle": {
-            "title": "RUNT — SOAT・RTM 検証",
-            "description": "ナンバーと身分証で SOAT（任意保険）と RTM（車検）の状態を照会します。"
-        },
-        "colombia_api_pico_placa": {
-            "title": "ボゴタ — ピコ・イ・プラカ",
-            "description": "コロンビア・ボゴタ登録車両のピコ・イ・プラカ（交通規制）情報を照会します。"
-        },
-        "feature_pdf_generator": {
-            "title": "PDF レポート生成",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "panama_api_identity_full_lookup": {
-            "title": "パナマ - 国民ID検証",
-            "description": "パナマのCCPA国民IDを検証：番号・氏名・生年月日を公的戸籍データと照合。KYCや本人確認に。"
-        },
-        "chile_api_identity_lookup": {
-            "title": "チリ — 国民身分証",
-            "description": "チリの国民 ID（RUN/RUT）を検証します。氏名や本人確認フィールドを公式戸籍ソースに照合し、KYC、オンボーディング、不正防止に活用できます。"
-        },
-        "costarica_api_identity_lookup": {
-            "title": "コスタリカ — 国民身分証（CCCR）",
-            "description": "GET /v2/cr/cedula を介し、documentType と documentNumber でコスタリカの国民 ID（CCCR cédula）を検証します。KYC や不正防止に活用できます。"
-        },
-        "costarica_api_voting_location": {
-            "title": "コスタリカ — 投票所",
-            "description": "CCCRでTSE Donde Votar公式選挙登録を照会します。投票所、junta、州、cantón、district、地図座標を返します。"
-        },
-        "ecuador_api_criminal_history": {
-            "title": "エクアドル - 犯罪歴",
-            "description": "エクアドル国民の犯罪・前科照会（GET /v2/ec/cedula/antecedentes）。提供項目はソースに依存。"
-        },
-        "chile_api_vehicle": {
-            "title": "チリ — 車両情報",
-            "description": "ナンバープレートでチリの車両を検証します。技術データ、罰金有無、可能であれば所有者の RUT を取得でき、フリート、保険、資産確認に最適です。"
-        },
-        "panama_api_identity_lookup": {
-            "title": "パナマ — 国民身分証",
-            "description": "パナマの CCPA 国民 ID（書類と氏名）を検証し、KYC や不正防止に活用できます。"
-        },
-        "panama_api_vehicle": {
-            "title": "パナマ - 車両検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "chile_api_business_lookup": {
-            "title": "チリ — 法人検証",
-            "description": "RUT を用いてチリの企業を照会します。法人名、業種、活動内容、認可された業務範囲を公式登記データから取得し、KYB やベンダーデューデリジェンスに活用できます。"
-        },
-        "spain_api_identity_lookup": {
-            "title": "スペイン — 国民身分証",
-            "description": "Verifik の KYC API でスペインの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
-        },
-        "ecuador_api_vehicle_fines": {
-            "title": "エクアドル — 車両罰金",
-            "description": "ナンバープレートでエクアドル車両の罰金・登録情報を照会します。"
-        },
-        "colombia_api_vehicle_complete_by_plate": {
-            "title": "RUNT — 車両（プレート＋身分証のみ）",
-            "description": "ナンバーと身分証のみで RUNT 車両情報を照会します。"
-        },
-        "colombia_api_vehicle_complete_by_vin": {
-            "title": "RUNT — VIN別車両",
-            "description": "コロンビア RUNT で VIN から車両の詳細履歴・技術情報を取得します。"
-        },
-        "peru_identity_extra_lookup": {
-            "title": "ペルー - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_lawyers": {
-            "title": "コロンビア — 弁護士照会",
-            "description": "CC・CE・NITでコロンビアの弁護士公開登録を照会します。"
-        },
-        "brasil_api_identity_lookup": {
-            "title": "ブラジル — 本人確認（CPF）",
-            "description": "Verifik の KYC API でブラジル国民の CPF を公式ソースと照合し、本人確認を数秒で完了します。"
-        },
-        "usa_api_driver_license_lookup": {
-            "title": "アメリカ合衆国 — フロリダ州運転免許",
-            "description": "GET /v2/usa/florida/driver-license。フロリダ州の運転免許番号で状態・制限などを照会します。"
-        },
-        "co_bogota_taxi_plate": {
-            "title": "ボゴタ — タクシー運転者（ナンバープレート）",
-            "description": "車両のナンバープレートで、ボゴタの登録タクシー運転者および運行カード情報を取得します。"
-        },
-        "co_bogota_taxi_driver_card": {
-            "title": "ボゴタのタクシー（管理カード）",
-            "description": "タクシー管理カード番号で、ボゴタに登録されたタクシー運転手と運行カードの情報を照会します。"
-        },
-        "india_api_epic_lookup": {
-            "title": "インド EPIC（Voter ID）— 氏名照会 | Verifik",
-            "description": "10文字のEPIC（Voter ID）でインド選挙管理委員会（ECI）由来の有権者名および関連フィールドをVerifik APIで取得します。"
-        },
-        "india_api_epic_voting_lookup": {
-            "title": "インド EPIC（Voter ID）— 投票所・投票場所 | Verifik",
-            "description": "インド EPIC（Voter ID）の議会区・部・投票所の詳細を、ECI 指向ソースと Verifik API で取得します。"
-        },
-        "usa_api_driver_license_lookup_kansas": {
-            "title": "アメリカ合衆国 — カンザス州運転免許",
-            "description": "GET /v2/usa/kansas/driver-license。免許番号・生年月日・氏名でカンザス州の運転免許を照会します。"
-        },
-        "consultar_procesos_judiciales": {
-            "title": "コロンビア - 司法手続き",
-            "description": "Check complete judicial history and active legal processes."
-        },
-        "credit_intent": {
-            "title": "クレジット購入意向",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "ip-lookup": {
-            "title": "🌐 IP ジオロケーション",
-            "description": "GET /v2/ip-lookup で IPv4/IPv6 アドレスをジオロケーションします。"
-        },
-        "colombia_api_judicial_records": {
-            "title": "コロンビア — 司法記録（裁判所事件）",
-            "description": "CC・都市・番号でコロンビアの裁判所事件（expediente）を照会します（Rama Judicial）。"
-        },
-        "communication_messaging_sms": {
-            "title": "SMS メッセージ",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "communication_colombia_messaging_whatsapp": {
-            "title": "コロンビア - WhatsApp Messaging",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "communication_global_messaging_whatsapp": {
-            "title": "グローバル - WhatsApp Messaging",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "communication_global_messaging_sms": {
-            "title": "グローバル - SMSメッセージ",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "communication_global_email_otp": {
-            "title": "メール OTP",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_liveness_3d": {
-            "title": "3D ライブネス検出",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_estimate_age_3d": {
-            "title": "3D 年齢推定",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_check_age_3d": {
-            "title": "3D 年齢確認",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_enrollment_3d": {
-            "title": "3D 生体登録",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_id_scan_only": {
-            "title": "身分証スキャン",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_liveness_2d": {
-            "title": "2D ライブネス検出",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_estimate_age_2d": {
-            "title": "2D 年齢推定",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "biometrics_check_age_2d": {
-            "title": "2D 年齢確認",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "credit_intent_kyc_passwordless": {
-            "title": "KYC パスワードレスのクレジット意向",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "brasil_api_company_lookup": {
-            "title": "ブラジル — 法人検証（CNPJ）",
-            "description": "Verifik の KYB API でブラジル企業を CNPJ により公式登記と照合し、数秒で検証します。"
-        },
-        "brasil_api_vehicle": {
-            "title": "ブラジル — 車両情報",
-            "description": "ブラジルのナンバープレート照会：登記スタイルの車両属性（メーカー、モデル、年式、VIN/シャーシ、該当時は FIPE コード）をフリート、保険、担保、マーケットプレイス向けに提供します。"
-        },
-        "argentina_api_identity_lookup": {
-            "title": "アルゼンチン — 国民身分証",
-            "description": "Verifik の KYC API でアルゼンチンの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
-        },
-        "argentina_api_identity_lookup_extra": {
-            "title": "アルゼンチン - アルゼンチン市民完全確認",
-            "description": "DNI を使用したアルゼンチン市民の完全な本人確認。より深い KYC 向けの拡張フィールドを含みます。"
-        },
-        "argentina_api_medical_professional": {
-            "title": "アルゼンチン - 医療専門家",
-            "description": "GET /v2/ar/cedula/medico-profesional と DNI（documentNumber）でアルゼンチンの登録医療専門家を照会します。SISA MSAL の免許、関連施設、登録データを返します。"
-        },
-        "ar_certificate_verify": {
-            "title": "アルゼンチン - 犯罪歴証明書",
-            "description": "GET /v2/ar/dnrec/antecedentes により、PDFに記載された申請コード（Solicitud）とセキュリティコード（Cod. Segur.）でアルゼンチンDNREC犯罪歴証明書を検証します。身分情報と公式証明書から抽出した犯罪歴声明を返します。"
-        },
-        "chile_api_transport_vehicle": {
-            "title": "チリ — 公共交通車両",
-            "description": "GET /v2/cl/transport-vehicle でチリ公共交通 RNT を照会します。"
-        },
-        "chile_api_vehicle_soap": {
-            "title": "チリ — 車両 SOAP",
-            "description": "ナンバープレートと保険証券番号でチリ車両 SOAP 証明書を照会します：ステータス、保険会社、所有者、有効期間、車両情報。"
-        },
-        "chile_api_vehicle_soap_plate": {
-            "title": "チリ — 車両 SOAP（ナンバーのみ）",
-            "description": "ナンバープレートのみでチリ車両 SOAP を照会します。ネストされた soap/vehicle オブジェクトとステータス、保険会社、所有者、有効期間を返します。"
-        },
-        "cl_certificate_verify": {
-            "title": "チリ - Registro Civil 証明書照合",
-            "description": "GET /v2/cl/registro-civil/certificado により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
-        },
-        "ecuador_api_company_lookup": {
-            "title": "エクアドル — 法人検証",
-            "description": "Verifik の KYB API を使用して RUC でエクアドル企業を検証します。"
-        },
-        "usa_api_ssn": {
-            "title": "アメリカ合衆国 — SSN（社会保障番号）検証",
-            "description": "GET /v2/usa/ssn で米国 SSN を照会。documentNumber に SSN を指定します。"
-        },
-        "colombia_api_dian_invoicer": {
-            "title": "コロンビア — DIAN 法定請求者（電子請求）",
-            "description": "コロンビア DIAN の法定請求者・電子請求登録を NIT で確認します。GET /v2/co/company/dian/invoicer。"
-        },
-        "api_colombia_contracts": {
-            "title": "コロンビア — 公共契約（Public Contracts）",
-            "description": "コロンビアの公共契約に関するバックグラウンド調査。"
-        },
-        "colombia_api_police_rnmc": {
-            "title": "コロンビア — 警察の是正措置遵守確認",
-            "description": "コロンビア RNMC で是正措置の遵守状況を照会します。"
-        },
-        "colombia_api_police_rnmc_premium": {
-            "title": "警察 RNMC プレミアム",
-            "description": "標準の RNMC 是正措置照会と同じ結果です。CC のみ。文書番号を送ると Verifik が発行日を解決します。1.20 クレジットです。"
-        },
-        "bolivia_api_identity_lookup": {
-            "title": "ボリビア — 国民身分証",
-            "description": "Verifik の KYC API でボリビアの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
-        },
-        "colombia_pep_lookup": {
-            "title": "コロンビア — PEP 検索（AML）",
-            "description": "CC / NIT で政治的露出者（PEP）を照会します（AML）。"
-        },
-        "api_autodata_manufacturers": {
-            "title": "車両メーカーデータベース",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "world_api_phone_lookup": {
-            "title": "🌐 グローバル — 電話番号照会",
-            "description": "GET または POST /v2/look-ups/phone で世界の電話番号を照会します。掲載されている名義人名と関連プロファイル項目を返します。"
-        },
-        "Mexico_api_ine_model_e": {
-            "title": "メキシコ - INE Model E",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "Mexico_api_ine_model_d": {
-            "title": "メキシコ - INE Model D",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "Mexico_api_ine_model_c": {
-            "title": "メキシコ - INE Model C",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "api_autodata_enginer": {
-            "title": "車両エンジンデータベース",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_rues_full": {
-            "title": "Colombia - RUES Complete (v2, legacy)",
-            "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
-        },
-        "api_autodata_enginer_code": {
-            "title": "車両エンジンコード照会",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "api_autodata_selection": {
-            "title": "車両選定データベース",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_sisconmp": {
-            "title": "SISCONMP — 研修・受講記録",
-            "description": "コロンビア SISCONMP に登録された運送・貨物関連の研修記録を照会します。"
-        },
-        "data_finance_incomestatement": {
-            "title": "財務 - 損益計算書",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "data_finance_balancesheet": {
-            "title": "財務 - 貸借対照表",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "data_finance_cashflow": {
-            "title": "財務 - キャッシュフロー",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "data_finance_stockprice": {
-            "title": "財務 - 株価",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "paraguay_api_identity_lookup": {
-            "title": "パラグアイ — 国民身分証",
-            "description": "Verifik の KYC API でパラグアイの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
-        },
-        "canada_api_driver_license_alberta": {
-            "title": "カナダ - 運転免許",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "canada_api_driver_license_ontario": {
-            "title": "オンタリオ — 運転免許",
-            "description": "オンタリオ（カナダ）の運転免許を文書番号で検証します。"
-        },
-        "canada_api_ontario_plate": {
-            "title": "カナダ — オンタリオ ナンバー有効期限",
-            "description": "GET /v2/ca/ontario/plate で plate と permitNumber を指定し、オンタリオのナンバーステッカー有効期限を照会します。"
-        },
-        "colombia_api_vehicle_complete_by_plate_simplified": {
-            "title": "RUNT — ナンバー別車両（簡易・別名）",
-            "description": "ナンバーと名義人証番号から RUNT 車両の要点情報を取得します。"
-        },
-        "canada_api_driver_license_quebec": {
-            "title": "ケベック — 運転免許",
-            "description": "ケベック州（カナダ）の運転免許を文書番号で検証します。"
-        },
-        "ocr_scan_pro": {
-            "title": "OCR 書類スキャン Pro",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "el_salvador_api_identity_lookup": {
-            "title": "エルサルバドル - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "canada_api_driver_license_british-columbia": {
-            "title": "カナダ — 運転免許検証",
-            "description": "Verifik の KYC API を使用してカナダの運転免許を検証します。公式ソースに直接接続し、運転免許データを数秒で確認できます。"
-        },
-        "ocr_scan_gpt": {
-            "title": "OCR文書スキャンGPT",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_identity_lookup_extra": {
-            "title": "コロンビア — 国民ID（拡張）",
-            "description": "CC 番号と発行日で拡張属性を照会します。"
-        },
-        "colombia_api_identity_lookup_premium": {
-            "title": "コロンビア — 国民身分証プレミアム(CC)",
-            "description": "コロンビア国民身分証（CC）を「本人像」で確認: 番号だけ入力。発行日はVerifikが裏で解決し、cédula extra相当の豊富な戻り値。基本の照会よりクレジット高め。"
-        },
-        "colombia_api_identity_pep_foreigner_id": {
-            "title": "コロンビア — PEP（特別滞在許可）",
-            "description": "Migración Colombia の PEP（Permiso Especial de Permanencia）を照会します。"
-        },
-        "ocr_scan_studio": {
-            "title": "OCR 書類スキャン Studio",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "canada_api_company": {
-            "title": "カナダ — 法人検証",
-            "description": "Verifik の KYB API を使用してカナダ法人を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "us_api_passport_entries": {
-            "title": "アメリカ — パスポート・米国入出国履歴",
-            "description": "GET /v2/passport/us/entries。氏名・生年月日・パスポート番号などで照会します。"
-        },
-        "mexico_api_company": {
-            "title": "メキシコ — 法人検証",
-            "description": "Verifik の KYB API を使用してメキシコ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "face_recognition_compare": {
-            "title": "顔照合",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "face_recognition_compare_live": {
-            "title": "Live Face Comparison",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "face_recognition_liveness": {
-            "title": "Face Liveness Detection",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "face_recognition_search_live_face": {
-            "title": "Live Face Search",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "face_recognition_verify": {
-            "title": "Face Verification",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "face_recognition_detect": {
-            "title": "顔検出",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "face_recognition_search_crops": {
-            "title": "Face Search (Crops)",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "face_recognition_search": {
-            "title": "Face Search",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_vehicle_valores_fasecolda_by_plate": {
-            "title": "Fasecolda — ナンバー別車両価格",
-            "description": "デュアルソース仕様照合と信頼度スコア内訳を備えたコロンビア Fasecolda ナンバー別車両価格 API"
-        },
-        "colombia_api_vehicle_valores_fasecolda_by_code": {
-            "title": "Fasecolda — コード別車両価格",
-            "description": "Fasecolda コードで車両価格・仕様情報を取得します。"
-        },
-        "usa_api_company": {
-            "title": "アメリカ — 法人（SEC EDGAR）",
-            "description": "SEC EDGAR を用いた米国企業の法人名検索・企業情報取得。POST /v2/usa/company。"
-        },
-        "colombia_api_runt_owners": {
-            "title": "RUNT — ナンバー別の車両所有者",
-            "description": "ナンバーのみでコロンビア車両と所有履歴を取得します。"
-        },
-        "colombia_api_vehicle_owners": {
-            "title": "コロンビア - 車両所有者履歴",
-            "description": "ナンバープレートでコロンビア車両の所有者を照会します。車両データと完全な所有履歴を返します。"
-        },
-        "chile_api_driver_license": {
-            "title": "チリ — 運転免許",
-            "description": "ライセンス番号でチリの運転免許を照会します。免許クラス、制限、管理日、RUT、住所などを公式自動車登録から取得し、フリート管理や労働力のコンプライアンス確認に活用できます。"
-        },
-        "colombia_api_lawyers_certificate": {
-            "title": "法曹資格証明（有効性）",
-            "description": "コロンビアの法曹の登録・証明の有効性を documentType（CC/CE）、documentNumber、quality で照会します。"
-        },
-        "argentina_api_vehicle": {
-            "title": "アルゼンチン — 車両情報",
-            "description": "ナンバープレートを用いてアルゼンチンの車両情報を照会します。"
-        },
-        "argentina_api_vehicle_v3": {
-            "title": "アルゼンチン — 車両 v3",
-            "description": "ナンバープレートでアルゼンチン車両の詳細（識別子、アクティブ保険の状態、技術シートデータなど）を取得します。"
-        },
-        "argentina_api_buenos_aires_traffic_infractions": {
-            "title": "ブエノスアイレス — 交通違反",
-            "description": "アルゼンチンのナンバープレートでブエノスアイレスの交通違反を照会します。"
-        },
-        "argentina_api_traffic_infractions": {
-            "title": "ブエノスアイレス — 交通違反",
-            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの交通違反を照会します。"
-        },
-        "argentina_api_buenos_aires_technical_inspection": {
-            "title": "ブエノスアイレス — 技術検査",
-            "description": "アルゼンチンのナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
-        },
-        "argentina_api_technical_inspection": {
-            "title": "ブエノスアイレス — 技術検査",
-            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
-        },
-        "argentina_api_rto": {
-            "title": "アルゼンチン — RTO",
-            "description": "ナンバープレートでアルゼンチンRTO検査記録を照会します。"
-        },
-        "argentina_api_company_lookup": {
-            "title": "アルゼンチン — 法人検証",
-            "description": "Verifik の KYB API を使用してアルゼンチン企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "bolivia_api_vehicle": {
-            "title": "ボリビア — 車両情報",
-            "description": "ナンバープレートを用いてボリビアの車両に関する情報を取得する車両検証サービス。"
-        },
-        "brasil_api_criminal_history": {
-            "title": "身元調査 (CPF)",
-            "description": "CPF を用いてブラジル個人のバックグラウンドチェックを実施します。"
-        },
-        "bolivia_api_business_lookup": {
-            "title": "ボリビア — 法人検証",
-            "description": "Verifik の KYB API を使用してボリビア企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "costa_rica_api_business_lookup": {
-            "title": "コスタリカ — 法人検証（NITE）",
-            "description": "GET /v2/cr/company を介して、documentType に NITE と documentNumber を指定し、登録およびコンプライアンスのためのコスタリカ KYB 企業照会を行います。"
-        },
-        "paraguay_api_business_lookup": {
-            "title": "パラグアイ — 法人検証",
-            "description": "Verifik の KYB API を使用してパラグアイ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-            "title": "Fasecolda — 保険請求・事故履歴",
-            "description": "Fasecolda 公式データでコロンビア車両の保険事故・請求履歴を照会します。"
-        },
-        "colombia_api_vehicle_tax": {
-            "title": "ボゴタ — 車両税",
-            "description": "ボゴタ登録車両の税負担・滞納状況を、所有者の証明とナンバーで照会します。"
-        },
-        "colombia_api_vehicle_accidentality_bogota": {
-            "title": "ボゴタ — 交通事故履歴",
-            "description": "ボゴタ登録車両の事故履歴（日付、様式番号、深刻度）をナンバーで照会します。"
-        },
-        "api_data_sheet_vehicle": {
-            "title": "車両データシート",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "api_data_sheet_vehicle_by-plate_br": {
-            "title": "ブラジル - 車両データシート（プレート）",
-            "description": "プレート別の拡張車両データシート（data-sheet-by-plate）。基本照会より詳細な技術項目。登記のカバレッジに依存。"
-        },
-        "face_recognition_search_active_user": {
-            "title": "Face Search (Active User)",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "matpis_appointments": {
-            "title": "MATPIS 予約",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "chile_api_taxpayer_lookup": {
-            "title": "チリ — 納税者（RUT）照会",
-            "description": "RUT でチリの納税者記録を照会します。税務関連ソースから構造化された氏名フィールドを取得し、KYB、請求書発行、ベンダー確認に活用できます。"
-        },
-        "chile_api_validate": {
-            "title": "チリ — 身分証明書の検証",
-            "description": "チリの RUN または RUT と文書のシリアル番号を、戸籍または税務の検証フローに対して照会します。物理的な ID チェック向けに有効性ステータスを返します。"
-        },
-        "colombia_api_simit_agreements": {
-            "title": "SIMIT — 分割払い合意",
-            "description": "SIMIT 交通違反に関する分割払い合意の照会サービス。"
-        },
-        "colombia_api_simit_suspensions": {
-            "title": "SIMIT — 免許停止",
-            "description": "コロンビア SIMIT で身分証により運転免許の停止・取消情報を照会します。"
-        },
-        "colombia_api_simit_subpoenas": {
-            "title": "SIMIT — 反則金（Comparendos）",
-            "description": "SIMIT 交通違反・反則金照会サービス。"
-        },
-        "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT - 違反切符詳細",
-            "description": "GET /v2/co/simit/comparendo で単一 comparendo の詳細を取得します。"
-        },
-        "colombia_api_simit_resolutions": {
-            "title": "SIMIT — 決議",
-            "description": "SIMIT 交通違反決議照会サービス。"
-        },
-        "colombia_api_simit_complete": {
-            "title": "SIMIT — 身分証明書による一般照会",
-            "description": "文書番号別の SIMIT 包括的データ照会サービス。"
-        },
-        "colombia_api_simit_plate": {
-            "title": "SIMIT — ナンバープレートによる一般照会",
-            "description": "ナンバープレート別の SIMIT 包括的データ照会サービス。"
-        },
-        "world_api_passport_entries": {
-            "title": "グローバル — パスポート・米国入出国",
-            "description": "パスポートと本人情報で米国入出国履歴を照会。GET /v2/passport/us/entries（us_api_passport_entries と同一 URL）。提供可否はアカウント次第。"
-        },
-        "validate-document": {
-            "title": "書類検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "costa_rica_api_vehicle": {
-            "title": "コスタリカ — 車両情報",
-            "description": "GET /v2/cr/vehicle で必要なナンバープレートを指定し、コスタリカの車両を照会します。利用可能な場合、所有者、仕様、違反、所有者履歴を返します。"
-        },
-        "costa_rica_api_traffic_infractions": {
-            "title": "コスタリカ — 交通違反",
-            "description": "GET /v2/cr/traffic-infractions でナンバープレートを指定し、コスタリカの交通違反（COSEVI）を照会します。利用可能な場合、罰金額と状態を返します。"
-        },
-        "paraguay_api_vehicle": {
-            "title": "パラグアイ — 車両情報",
-            "description": "ナンバープレートを用いてパラグアイの車両に関する包括的な情報を取得する車両検証サービス。"
-        },
-        "usa_api_vehicle_lookup_by_vin": {
-            "title": "アメリカ合衆国 — 車両（VIN）",
-            "description": "GET /v2/usa/vehicle-by-vin。17 桁の VIN で米国車両をデコードします。"
-        },
-        "colombia_api_identity_ce_foreigner_id": {
-            "title": "コロンビア — 外国人 CE（Cédula de Extranjería）",
-            "description": "Migración Colombia の CE を照会します。"
-        },
-        "colombia_api_vehicle_fines_bogota": {
-            "title": "ボゴタ — 車両反則金照会",
-            "description": "ボゴタ登録車両のナンバーで交通反則金・違反を照会します。"
-        },
-        "colombia_api_vehicle_fines_medellin": {
-            "title": "メデジン - 交通反則",
-            "description": "GET /v2/co/medellin/vehicle/fines でメデジン登録車両の地方交通反則と comparendo を照会します。"
-        },
-        "guatemala_api_identity_lookup": {
-            "title": "グアテマラ - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "honduras_api_identity_lookup": {
-            "title": "ホンジュラス - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "honduras_api_voting_location": {
-            "title": "投票所",
-            "description": "DNIHNでホンジュラス公式選挙登録（Donde Me Toca Votar）を照会。投票所、JRV、投票資格、居住地情報を返します。"
-        },
-        "republica_dominicana_api_citizen_lookup": {
-            "title": "ドミニカ共和国 - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "venezuela_foreigner_api": {
-            "title": "ベネズエラ — 外国人 ID（CEVE）",
-            "description": "ベネズエラの外国人 cédula（CEVE）を文書番号で検証します。GET /v2/ve/foreigner-id を介して、KYC とコンプライアンスに活用できます。"
-        },
-        "colombia_sisben_api_lookup": {
-            "title": "コロンビア — SISBEN スコア",
-            "description": "コロンビアの SISBEN グループ・スコア情報を照会します。"
-        },
-        "colombia_api_rui": {
-            "title": "コロンビア — RUI 分類",
-            "description": "DNP Ventanilla Social の Registro Universal de Ingresos（RUI）分類—所得グループ、RUI レベル、所在地を照会します。廃止された SISBEN 照会の後継です。"
-        },
-        "spain_api_vehicle_lookup": {
-            "title": "スペイン",
-            "description": "Verifik 経由でナンバープレート（matrícula）によりスペインの車両登録データを照会します。"
-        },
-        "spain_api_company_lookup": {
-            "title": "スペイン — 企業（CIF/NIF）",
-            "description": "Verifik の KYB API を使用してスペイン企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "panama_api_business_lookup": {
-            "title": "パナマ — 法人検証",
-            "description": "RUC でパナマの企業を照会し、法人名、ステータス、代表者、登記情報などを公式ソースから取得します。KYB やデューデリジェンスに活用できます。"
-        },
-        "uruguay_api_identity_lookup": {
-            "title": "ウルグアイ - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "peru_api_identity_ce_foreigner_id": {
-            "title": "ペルー — 外国人 ID",
-            "description": "ペルーに居住する外国人の身分証を検証する、外国人居住者向けの本人確認サービス。"
-        },
-        "colombia_api_rues_full_v3": {
-            "title": "コロンビア — RUES 企業フル照会 (v3)",
-            "description": "コロンビア RUES で NIT と登録区分から企業のフル情報を取得します。GET /v3/co/rues-complete。"
-        },
-        "colombia_api_rues_v3": {
-            "title": "コロンビア — RUES 企業照会 (v3)",
-            "description": "NIT と登録区分でコロンビア RUES の基本情報を照会します。GET /v3/co/rues。"
-        },
-        "peru_identity_lookup_v3": {
-            "title": "ペルー",
-            "description": "DNI v3 API を使用してペルー市民の本人確認を行います。"
-        },
-        "peru_identity_extra_lookup_v3": {
-            "title": "ペルー — DNI（拡張データ）",
-            "description": "Verifik の KYC API を使用して、ペルー市民の DNI（国民身分証明書）に関する拡張情報を取得します。公式の RENIEC データに直接接続し、数秒で本人確認を行います。"
-        },
-        "colombia_api_identity_ppt_foreigner_id": {
-            "title": "コロンビア — PPT（一時保護許可）",
-            "description": "Migración Colombia の PPT 状態を照会します。"
-        },
-        "colombia_api_min_trabajo_v3": {
-            "title": "コロンビア — 労働省証明書（v3）",
-            "description": "コロンビア労働省の証明書（高所作業 curso de alturas 等）を GET /v3/co/ministerio-de-trabajo/certificados で照会します。"
-        },
-        "peru_api_company_lookup_v3": {
-            "title": "ペルー — 法人検証",
-            "description": "Verifik の KYB API を使用してペルー企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "face_recognition_detect_face": {
-            "title": "顔検出",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "document-liveness": {
-            "title": "書類ライブネス検出",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
-        },
-        "colombia_api_inpec": {
-            "title": "コロンビア — INPEC（収容者照会）",
-            "description": "コロンビア国家刑務所・矯正機関（INPEC）の管理下で身柄拘束されている人の照会を行います。"
-        },
-        "colombia_sigep_by_name": {
-            "title": "コロンビア — SIGEP（氏名検索）",
-            "description": "フルネームでコロンビア SIGEP の公務員・契約者ディレクトリを検索します。"
-        },
-        "colombia_sigep_by_number": {
-            "title": "コロンビア — SIGEP（文書番号）",
-            "description": "CC または NIT でコロンビアの公務員・契約者情報を SIGEP から照会します。"
-        },
-        "colombia_inpec_lookup": {
-            "title": "コロンビア — INPEC（収容者照会）",
-            "description": "コロンビア国家刑務所・矯正機関（INPEC）の管理下で身柄拘束されている人の照会を行います。"
-        },
-        "zelf-proofs": {
-            "title": "HumanID を暗号化",
-            "description": "メタデータを暗号化して IPFS に保存する HumanID（検証可能な資格情報）を作成します"
-        },
-        "zelf-proof-liveness-active-user": {
-            "title": "HumanID（ライブネス・アクティブユーザー）",
-            "description": "復号時にライブネスを求める HumanID を作成します。requireLiveness が有効なときこのコードで課金され、HTTP パスは HumanID 暗号化と同じです。"
-        },
-        "zelf-proof-encrypt-qr": {
-            "title": "HumanID QR を暗号化",
-            "description": "HumanID を作成し QR 画像として返します"
-        },
-        "zelf-proof-decrypt": {
-            "title": "HumanID を復号化",
-            "description": "ライブの顔で HumanID を復号し、保存されたメタデータを取り出します"
-        },
-        "zelf-proof-preview": {
-            "title": "HumanID をプレビュー",
-            "description": "非公開メタデータを復号せずに HumanID の公開データをプレビューします"
-        },
-        "biometrics_api_create_person": {
-            "title": "生体認証 - 人物の作成（生体検知なし）",
-            "description": "身元管理のための新しい人物レコードを作成します。インデックス作成と将来の顔認証検索に使用されます。"
-        },
-        "biometrics_api_create_person_liveness": {
-            "title": "生体認証 - 生体検知付き人物의 작성",
-            "description": "統合された生体検知を使用して、新しい人物レコードを作成します。登録中にユーザーが物理的に存在することを保証します。"
-        },
-        "guatemala_api_identity_extra_lookup": {
-            "title": "グアテマラ - 身元追加検索",
-            "description": "追加のデータポイントを含む、グアテマラ市民向けの包括的な身元確認。"
-        },
-        "chile_api_vehicle_v3": {
-            "title": "チリ - 車両技術検査",
-            "description": "GET /v3/cl/vehicle でナンバープレートからチリ車両の技術検査ステータスと履歴を照会します。"
-        },
-        "bolivia_api_vehicle_soat": {
-            "title": "ボリビア - 車両 SOAT",
-            "description": "ボリビアでナンバープレートにより義務交通事故保険（SOAT）を照会します。補償の有効期間、車両分類、県（department）、算出ステータスを返します。"
-        },
-        "bolivia_api_voting_location": {
-            "title": "ボリビア - 投票所",
-            "description": "CIと生年月日でボリビア公式選挙登録（OEP Yo Participo）を照会します。投票所、テーブル、投票資格、居住地情報を返します。"
-        },
-        "ecuador_api_company_lookup_v3": {
-            "title": "エクアドル法人（RUCEC）",
-            "description": "Verifik の KYB API を使用してエクアドル企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
-        },
-        "colombia_api_identity_lookup_registraduria": {
-            "title": "コロンビア — Registraduría（SCCRC）市民照会",
-            "description": "GET /v2/co/cedula/registraduria（Registraduría SCCRC のみ）で文書番号によりコロンビア出生民事登録を照会します。"
-        },
-        "colombia_api_identity_lookup_procuraduria": {
-            "title": "コロンビア — Procuraduría による市民照会",
-            "description": "GET/POST /v2/co/procuraduria でコロンビアの書類を検証し氏名を抽出します（Procuraduría のみ、懲戒記録なし）。"
-        },
-        "mexico_api_ine_ocr": {
-            "title": "メキシコ — INE OCR",
-            "description": "OCR によりメキシコ INE の表面・裏面画像から個人・証明書フィールドを抽出します。"
-        },
-        "mexico_api_ine_validate": {
-            "title": "メキシコ — INE 検証",
-            "description": "CIC、OCR、または clave de elector を使い、メキシコ有権者証（INE）を選挙人名簿に対して検証します。"
-        },
-        "mexico_api_cedula_profesional": {
-            "title": "メキシコ — 専門免許",
-            "description": "CURP、免許番号、または氏名で、公式の専門免許登録からメキシコの専門免許を照会します。"
-        },
-        "mexico_api_health_worker": {
-            "title": "メキシコ — 医療従事者の免許",
-            "description": "対象者がメキシコの保健関連の専門免許を保有していることを確認します。非保健の免許のみの場合は 404 を返します。"
-        },
-        "mexico_api_siged_certificado": {
-            "title": "メキシコ — 学業証明書（folio）",
-            "description": "folio により、公式の学業証明書登録に対してメキシコの電子学業証明書を検証します。"
-        },
-        "colombia_api_copnia_license": {
-            "title": "コロンビア — 登録番号で COPNIA 免許を照会",
-            "description": "GET /v2/co/copnia/matricula で COPNIA 専門免許を登録番号（matrícula）から照会します。"
-        },
-        "colombia_api_copnia": {
-            "title": "コロンビア — 書類番号で COPNIA 専門免許を照会",
-            "description": "GET /v2/co/copnia で COPNIA（Consejo Profesional Nacional de Ingeniería）の専門免許を身分証明書から照会します。"
-        },
-        "colombia_api_vehicle_valuation_sibga": {
-            "title": "SIBGA - 車両の商業評価額",
-            "description": "コロンビアナンバーの運輸省（SIBGA）公式商業評価額。RUNTのデータを自動で対応付けます。"
-        },
-        "smart_enroll_pyg": {
-            "title": "Smart Enroll 無料",
-            "description": "Smart Enroll の無料プラン。月間の登録と書類スキャン枠を含みます。"
-        },
-        "smart_enroll_plus": {
-            "title": "Smart Enroll Plus",
-            "description": "Smart Enroll Plus プラン。月間上限が高く、ライブネスを含みます。"
-        },
-        "smart_enroll_business": {
-            "title": "Smart Enroll ビジネス",
-            "description": "Smart Enroll ビジネスプラン。月間上限が最も高くなります。"
-        },
-        "smart_access_pyg": {
-            "title": "Smart Access 無料",
-            "description": "Smart Access の無料プラン。月間のメールログイン枠を含みます。"
-        },
-        "smart_access_plus": {
-            "title": "Smart Access Plus",
-            "description": "Smart Access Plus プラン。月間上限が高くなります。"
-        },
-        "smart_access_business": {
-            "title": "Smart Access ビジネス",
-            "description": "Smart Access ビジネスプラン。月間上限が最も高くなります。"
-        },
-        "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "RUNT - ナンバープレートのみの車両記録",
-            "description": "所有者の書類種別・番号なしで、ナンバープレートのみによりコロンビア RUNT の車両を照会します。"
-        },
-        "colombia_api_driver_basic": {
-            "title": "RUNT — 運転免許 (Basic)",
-            "description": "/v3/co/runt/conductor で RUNT 運転免許を照会します。primerApellido 必須。Basic 料金。"
-        },
-        "chile_api_vehicle_stolen": {
-            "title": "チリ — 盗難車両",
-            "description": "チリ車両に有効な盗難・窃盗届出（encargo por robo o hurto）があるかを照会します。"
-        },
-        "chile_api_driver_license_block": {
-            "title": "チリ — 運転免許停止・失効登録簿",
-            "description": "RUNを指定してチリRegistro Civilの全国運転免許ブロック・停止登録簿を照会します。免許停止の有無、名義人氏名、ブロック詳細を確認し、フリート管理およびKYCコンプライアンスに役立ちます。"
-        }
+  "appFeatures": {
+    "Mexico_api_ine_model_c": {
+      "title": "メキシコ — Mexico - INE Model C",
+      "description": "メキシコ向けの公式検証および身元確認サービス：Validate a Mexican INE document, Model C. Provide the OCR/MRZ fields from the credential to verify authenticity against the INE registry."
+    },
+    "Mexico_api_ine_model_d": {
+      "title": "メキシコ — Mexico - INE Model D",
+      "description": "メキシコ向けの公式検証および身元確認サービス：Validate a Mexican INE document, Model D. Provide the OCR/MRZ fields from the credential to verify authenticity against the INE registry."
+    },
+    "Mexico_api_ine_model_e": {
+      "title": "メキシコ — Mexico - INE Model E",
+      "description": "メキシコ向けの公式検証および身元確認サービス：Validate a Mexican INE document, Model E. Provide the OCR/MRZ fields from the credential to verify authenticity against the INE registry."
+    },
+    "api_autodata_enginer": {
+      "title": "コロンビア — Vehicle Engine Database",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Vehicle engine reference dataset. Look up engine families and specifications used by other Autodata endpoints."
+    },
+    "api_autodata_enginer_code": {
+      "title": "コロンビア — Vehicle Engine Code Lookup",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Resolve a vehicle engine by its engineer/manufacturer code. Returns engine specs and compatibility data for parts and diagnostics workflows."
+    },
+    "api_autodata_manufacturers": {
+      "title": "コロンビア — Vehicle Manufacturers Database",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Vehicle manufacturers reference dataset. Returns the list of supported makes (and metadata) used to scope downstream Autodata vehicle queries."
+    },
+    "api_autodata_selection": {
+      "title": "車両選定データベース",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "api_colombia_contracts": {
+      "title": "コロンビア — 公共契約（Public Contracts）",
+      "description": "コロンビアの公共契約に関するバックグラウンド調査。"
+    },
+    "api_data_sheet_vehicle": {
+      "title": "アルゼンチン — Vehicle Data Sheet (deprecated)",
+      "description": "アルゼンチン向けの公式検証および身元確認サービス：Deprecated endpoint. Route /v2/vehicle/data-sheet is not implemented."
+    },
+    "api_data_sheet_vehicle_by-plate_br": {
+      "title": "ブラジル - 車両データシート（プレート）",
+      "description": "プレート別の拡張車両データシート（data-sheet-by-plate）。基本照会より詳細な技術項目。登記のカバレッジに依存。"
+    },
+    "ar_certificate_verify": {
+      "title": "アルゼンチン - 犯罪歴証明書",
+      "description": "GET /v2/ar/dnrec/antecedentes により、PDFに記載された申請コード（Solicitud）とセキュリティコード（Cod. Segur.）でアルゼンチンDNREC犯罪歴証明書を検証します。身分情報と公式証明書から抽出した犯罪歴声明を返します。"
+    },
+    "argentina_api_buenos_aires_technical_inspection": {
+      "title": "ブエノスアイレス — 技術検査",
+      "description": "アルゼンチンのナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
+    },
+    "argentina_api_buenos_aires_traffic_infractions": {
+      "title": "ブエノスアイレス — 交通違反",
+      "description": "アルゼンチンのナンバープレートでブエノスアイレスの交通違反を照会します。"
+    },
+    "argentina_api_company_lookup": {
+      "title": "アルゼンチン — 法人検証",
+      "description": "Verifik の KYB API を使用してアルゼンチン企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "argentina_api_health_worker": {
+      "title": "アルゼンチン — Argentina - Health Worker & Medical Professional Verification (REFEPS / SISA / SSS)",
+      "description": "アルゼンチン向けの公式検証および身元確認サービス：Verify Argentine physicians and healthcare professionals in real time by DNI, license number (Matrícula), or full name against the official Ministry of Health (MSAL SISA / REFEPS) and Superintendencia de Servicios de Salud (SSS) national registries."
+    },
+    "argentina_api_identity_lookup": {
+      "title": "アルゼンチン — 国民身分証",
+      "description": "Verifik の KYC API でアルゼンチンの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
+    },
+    "argentina_api_identity_lookup_extra": {
+      "title": "アルゼンチン - アルゼンチン市民完全確認",
+      "description": "DNI を使用したアルゼンチン市民の完全な本人確認。より深い KYC 向けの拡張フィールドを含みます。"
+    },
+    "argentina_api_medical_professional": {
+      "title": "アルゼンチン - 医療専門家",
+      "description": "GET /v2/ar/cedula/medico-profesional と DNI（documentNumber）でアルゼンチンの登録医療専門家を照会します。SISA MSAL の免許、関連施設、登録データを返します。"
+    },
+    "argentina_api_pep": {
+      "title": "アルゼンチン — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "アルゼンチンの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "argentina_api_rto": {
+      "title": "アルゼンチン — RTO",
+      "description": "ナンバープレートでアルゼンチンRTO検査記録を照会します。"
+    },
+    "argentina_api_technical_inspection": {
+      "title": "ブエノスアイレス — 技術検査",
+      "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
+    },
+    "argentina_api_traffic_infractions": {
+      "title": "ブエノスアイレス — 交通違反",
+      "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの交通違反を照会します。"
+    },
+    "argentina_api_vehicle": {
+      "title": "アルゼンチン — 車両情報",
+      "description": "ナンバープレートを用いてアルゼンチンの車両情報を照会します。"
+    },
+    "argentina_api_vehicle_v3": {
+      "title": "アルゼンチン — 車両 v3",
+      "description": "ナンバープレートでアルゼンチン車両の詳細（識別子、アクティブ保険の状態、技術シートデータなど）を取得します。"
+    },
+    "australia_api_identity_lookup": {
+      "title": "オーストラリア — 国民身元確認および個人事業主検証（KYC）",
+      "description": "オーストラリアの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "be_api_pep": {
+      "title": "ベルギー — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ベルギーの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "biometrics_api_create_person": {
+      "title": "生体認証 - 人物の作成（生体検知なし）",
+      "description": "身元管理のための新しい人物レコードを作成します。インデックス作成と将来の顔認証検索に使用されます。"
+    },
+    "biometrics_api_create_person_liveness": {
+      "title": "生体認証 - 生体検知付き人物의 작성",
+      "description": "統合された生体検知を使用して、新しい人物レコードを作成します。登録中にユーザーが物理的に存在することを保証します。"
+    },
+    "biometrics_check_age_2d": {
+      "title": "2D 年齢確認",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "biometrics_check_age_3d": {
+      "title": "3D 年齢確認",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "biometrics_enrollment_3d": {
+      "title": "3D 生体登録",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "biometrics_estimate_age_2d": {
+      "title": "2D 年齢推定",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "biometrics_estimate_age_3d": {
+      "title": "3D 年齢推定",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "biometrics_id_scan_only": {
+      "title": "生体認証 — 身分証スキャン専用（顔認証なし）",
+      "description": "顔写真の生体照合を必要とせず、OCR（光学文字認識）およびバーコード解析によって身元確認書類のデータとセキュリティ特徴を抽出・検証します。"
+    },
+    "biometrics_liveness_2d": {
+      "title": "2D ライブネス検出",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "biometrics_liveness_3d": {
+      "title": "3D ライブネス検出",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "bo_api_pep": {
+      "title": "ボリビア — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ボリビアの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "bolivia_api_business_lookup": {
+      "title": "ボリビア — 法人検証",
+      "description": "Verifik の KYB API を使用してボリビア企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "bolivia_api_identity_lookup": {
+      "title": "ボリビア — 国民身分証",
+      "description": "Verifik の KYC API でボリビアの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
+    },
+    "bolivia_api_vehicle": {
+      "title": "ボリビア — 車両情報",
+      "description": "ナンバープレートを用いてボリビアの車両に関する情報を取得する車両検証サービス。"
+    },
+    "bolivia_api_vehicle_soat": {
+      "title": "ボリビア - 車両 SOAT",
+      "description": "ボリビアでナンバープレートにより義務交通事故保険（SOAT）を照会します。補償の有効期間、車両分類、県（department）、算出ステータスを返します。"
+    },
+    "bolivia_api_voting_location": {
+      "title": "ボリビア - 投票所",
+      "description": "CIと生年月日でボリビア公式選挙登録（OEP Yo Participo）を照会します。投票所、テーブル、投票資格、居住地情報を返します。"
+    },
+    "brasil_api_company_lookup": {
+      "title": "ブラジル — 法人検証（CNPJ）",
+      "description": "Verifik の KYB API でブラジル企業を CNPJ により公式登記と照合し、数秒で検証します。"
+    },
+    "brasil_api_criminal_history": {
+      "title": "身元調査 (CPF)",
+      "description": "CPF を用いてブラジル個人のバックグラウンドチェックを実施します。"
+    },
+    "brasil_api_identity_lookup": {
+      "title": "ブラジル — 本人確認（CPF）",
+      "description": "Verifik の KYC API でブラジル国民の CPF を公式ソースと照合し、本人確認を数秒で完了します。"
+    },
+    "brasil_api_vehicle": {
+      "title": "ブラジル — 車両情報",
+      "description": "ブラジルのナンバープレート照会：登記スタイルの車両属性（メーカー、モデル、年式、VIN/シャーシ、該当時は FIPE コード）をフリート、保険、担保、マーケットプレイス向けに提供します。"
+    },
+    "brazil_api_medical_professional": {
+      "title": "ブラジル — Brazil - Medical Professional (CFM / CRM)",
+      "description": "ブラジル向けの公式検証および身元確認サービス：Validate and consult Brazilian medical professionals registered with the Federal Council of Medicine (CFM) and Regional Councils of Medicine (CRMs) by CRM registration number and State (UF) or by full name. Optionally validates CPF and Date of Birth against the CRM registration."
+    },
+    "brazil_api_pep": {
+      "title": "ブラジル — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ブラジルの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "by_api_pep": {
+      "title": "ベラルーシ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ベラルーシの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "ca_api_pep": {
+      "title": "カナダ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "カナダの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "canada_api_company": {
+      "title": "カナダ — 法人検証",
+      "description": "Verifik の KYB API を使用してカナダ法人を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "canada_api_driver_license_alberta": {
+      "title": "カナダ — Canada - Driver License",
+      "description": "カナダ向けの公式検証および身元確認サービス：Validate a Canadian (Alberta) driver license. Provide the license number and supporting fields; returns issuance, status, and identity metadata for KYC checks."
+    },
+    "canada_api_driver_license_british-columbia": {
+      "title": "カナダ — 運転免許検証",
+      "description": "Verifik の KYC API を使用してカナダの運転免許を検証します。公式ソースに直接接続し、運転免許データを数秒で確認できます。"
+    },
+    "canada_api_driver_license_ontario": {
+      "title": "オンタリオ — 運転免許",
+      "description": "オンタリオ（カナダ）の運転免許を文書番号で検証します。"
+    },
+    "canada_api_driver_license_quebec": {
+      "title": "ケベック — 運転免許",
+      "description": "ケベック州（カナダ）の運転免許を文書番号で検証します。"
+    },
+    "canada_api_ontario_plate": {
+      "title": "カナダ — オンタリオ ナンバー有効期限",
+      "description": "GET /v2/ca/ontario/plate で plate と permitNumber を指定し、オンタリオのナンバーステッカー有効期限を照会します。"
+    },
+    "chile_api_business_lookup": {
+      "title": "チリ — 法人検証",
+      "description": "RUT を用いてチリの企業を照会します。法人名、業種、活動内容、認可された業務範囲を公式登記データから取得し、KYB やベンダーデューデリジェンスに活用できます。"
+    },
+    "chile_api_driver_license": {
+      "title": "チリ — 運転免許",
+      "description": "ライセンス番号でチリの運転免許を照会します。免許クラス、制限、管理日、RUT、住所などを公式自動車登録から取得し、フリート管理や労働力のコンプライアンス確認に活用できます。"
+    },
+    "chile_api_driver_license_block": {
+      "title": "チリ — 運転免許停止・失効登録簿",
+      "description": "RUNを指定してチリRegistro Civilの全国運転免許ブロック・停止登録簿を照会します。免許停止の有無、名義人氏名、ブロック詳細を確認し、フリート管理およびKYCコンプライアンスに役立ちます。"
+    },
+    "chile_api_health_worker": {
+      "title": "チリ — Chile - Health Worker & Medical Provider Verification (RNPI / Prestadores de Salud)",
+      "description": "チリ向けの公式検証および身元確認サービス：Verify Chilean physicians, dentists, nurses, pharmacists, and registered health providers by RUT/RUN or full name against official Superintendencia de Salud (RNPI), Datos.gob.cl Prestadores de Salud, and public health registries."
+    },
+    "chile_api_identity_lookup": {
+      "title": "チリ — 国民身分証",
+      "description": "チリの国民 ID（RUN/RUT）を検証します。氏名や本人確認フィールドを公式戸籍ソースに照合し、KYC、オンボーディング、不正防止に活用できます。"
+    },
+    "chile_api_pep": {
+      "title": "チリ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "チリの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "chile_api_taxpayer_lookup": {
+      "title": "チリ — 納税者（RUT）照会",
+      "description": "RUT でチリの納税者記録を照会します。税務関連ソースから構造化された氏名フィールドを取得し、KYB、請求書発行、ベンダー確認に活用できます。"
+    },
+    "chile_api_transport_vehicle": {
+      "title": "チリ — 公共交通車両",
+      "description": "GET /v2/cl/transport-vehicle でチリ公共交通 RNT を照会します。"
+    },
+    "chile_api_validate": {
+      "title": "チリ — 身分証明書の検証",
+      "description": "チリの RUN または RUT と文書のシリアル番号を、戸籍または税務の検証フローに対して照会します。物理的な ID チェック向けに有効性ステータスを返します。"
+    },
+    "chile_api_vehicle": {
+      "title": "チリ — 車両情報",
+      "description": "ナンバープレートでチリの車両を検証します。技術データ、罰金有無、可能であれば所有者の RUT を取得でき、フリート、保険、資産確認に最適です。"
+    },
+    "chile_api_vehicle_soap": {
+      "title": "チリ — 車両 SOAP",
+      "description": "ナンバープレートと保険証券番号でチリ車両 SOAP 証明書を照会します：ステータス、保険会社、所有者、有効期間、車両情報。"
+    },
+    "chile_api_vehicle_soap_plate": {
+      "title": "チリ — 車両 SOAP（ナンバーのみ）",
+      "description": "ナンバープレートのみでチリ車両 SOAP を照会します。ネストされた soap/vehicle オブジェクトとステータス、保険会社、所有者、有効期間を返します。"
+    },
+    "chile_api_vehicle_stolen": {
+      "title": "チリ — 盗難車両",
+      "description": "チリ車両に有効な盗難・窃盗届出（encargo por robo o hurto）があるかを照会します。"
+    },
+    "chile_api_vehicle_v3": {
+      "title": "チリ - 車両技術検査",
+      "description": "GET /v3/cl/vehicle でナンバープレートからチリ車両の技術検査ステータスと履歴を照会します。"
+    },
+    "cl_certificate_verify": {
+      "title": "チリ - Registro Civil 証明書照合",
+      "description": "GET /v2/cl/registro-civil/certificado により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "ボゴタのタクシー（管理カード）",
+      "description": "タクシー管理カード番号で、ボゴタに登録されたタクシー運転手と運行カードの情報を照会します。"
+    },
+    "co_bogota_taxi_plate": {
+      "title": "ボゴタ — タクシー運転者（ナンバープレート）",
+      "description": "車両のナンバープレートで、ボゴタの登録タクシー運転者および運行カード情報を取得します。"
+    },
+    "colombia_api_adres": {
+      "title": "コロンビア — 健康保険加入状況照会（ADRES）",
+      "description": "ADRES を通じてコロンビアの総合社会保障健康保険システム（SGSSS）への加入状況および保険給付資格を照会・検証します。"
+    },
+    "colombia_api_adverse_media": {
+      "title": "コロンビア — Colombia - Adverse Media Screening via Google News RSS",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Screen adverse media, negative press, money laundering, and judicial risk mentions in news sources via Google RSS."
+    },
+    "colombia_api_affiliations": {
+      "title": "コロンビア - 健康・社会保障",
+      "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
+    },
+    "colombia_api_cedula_barcode": {
+      "title": "コロンビア — Colombia — Cédula PDF417 Barcode Verification",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Anti-fraud verification for Colombian cédula (CC): decodes the rear PDF417 barcode and cross-checks it against front card data to immediately detect altered, forged, or counterfeit identity documents."
+    },
+    "colombia_api_contraloria_certificate": {
+      "title": "コロンビア — Contraloría 証明書",
+      "description": "本サービスでは、文書タイプと文書番号を入力するだけで、コロンビア会計検査院（Contraloría General de Colombia）が発行する善行証明書を検証できます。照会日と base64 エンコードされた PDF 証明書が返却されます。"
+    },
+    "colombia_api_copnia": {
+      "title": "コロンビア — 書類番号で COPNIA 専門免許を照会",
+      "description": "GET /v2/co/copnia で COPNIA（Consejo Profesional Nacional de Ingeniería）の専門免許を身分証明書から照会します。"
+    },
+    "colombia_api_copnia_license": {
+      "title": "コロンビア — 登録番号で COPNIA 免許を照会",
+      "description": "GET /v2/co/copnia/matricula で COPNIA 専門免許を登録番号（matrícula）から照会します。"
+    },
+    "colombia_api_cpae": {
+      "title": "コロンビア — Colombia - Business Administration Professional License (CPAE)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Verify professional licenses (Matrícula Profesional) for Business Administrators in Colombia by Cédula de Ciudadanía (CC) or Cédula de Extranjería (CE) against the official Consejo Profesional de Administración de Empresas (CPAE)."
+    },
+    "colombia_api_cpiq": {
+      "title": "コロンビア — Colombia - Chemical Engineering Professional License (CPIQ)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Verify professional licenses (Matrícula Profesional), resolution numbers, and validity status for Chemical Engineers in Colombia by Cédula or License Number against the official Consejo Profesional de Ingeniería Química de Colombia (CPIQ)."
+    },
+    "colombia_api_criminal_history": {
+      "title": "コロンビア — Colombia - Disciplinary Records in Colombia (attorney's office)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Disciplinary records in Colombia attorney's office"
+    },
+    "colombia_api_delinquent_debtors": {
+      "title": "コロンビア - 延滞債務者(BDME)",
+      "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
+    },
+    "colombia_api_dian": {
+      "title": "コロンビア — DIAN 税務確認",
+      "description": "コロンビア DIAN で NIT による企業の税務登録状態を確認します。GET /v2/co/company/dian。"
+    },
+    "colombia_api_dian_invoicer": {
+      "title": "コロンビア — DIAN 法定請求者（電子請求）",
+      "description": "コロンビア DIAN の法定請求者・電子請求登録を NIT で確認します。GET /v2/co/company/dian/invoicer。"
+    },
+    "colombia_api_driver": {
+      "title": "RUNT — 運転免許",
+      "description": "コロンビア RUNT で運転免許の状態・区分・有効期限などを証明書番号から照会します。"
+    },
+    "colombia_api_driver_basic": {
+      "title": "RUNT — 運転免許 (Basic)",
+      "description": "/v3/co/runt/conductor で RUNT 運転免許を照会します。primerApellido 必須。Basic 料金。"
+    },
+    "colombia_api_electrical_mechanical_engineering": {
+      "title": "コロンビア — Colombia - Electrical & Mechanical Engineering Professional License (Consejo Profesional)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Verify professional licenses (Matrícula Profesional) and disciplinary sanction status for Electrical, Mechanical, and Related Engineers in Colombia by Cédula, License Number, or Full Name."
+    },
+    "colombia_api_identity_ce_foreigner_id": {
+      "title": "コロンビア — 外国人 CE（Cédula de Extranjería）",
+      "description": "Migración Colombia の CE を照会します。"
+    },
+    "colombia_api_identity_lookup": {
+      "title": "コロンビア - 国民ID検証",
+      "description": "書類番号（CC、CE、PPT、NIT、PEP）でコロンビアの身元を確認します。GET /v2/co/cedula。"
+    },
+    "colombia_api_identity_lookup_by_name": {
+      "title": "コロンビア — Colombia - Citizen Lookup by Name (SCCRC)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Search Colombian birth civil registry records by names, sex, and date of birth via the official national civil registry SCCRC"
+    },
+    "colombia_api_identity_lookup_extra": {
+      "title": "コロンビア — 国民ID（拡張）",
+      "description": "CC 番号と発行日で拡張属性を照会します。"
+    },
+    "colombia_api_identity_lookup_premium": {
+      "title": "コロンビア — 国民身分証プレミアム(CC)",
+      "description": "コロンビア国民身分証（CC）を「本人像」で確認: 番号だけ入力。発行日はVerifikが裏で解決し、cédula extra相当の豊富な戻り値。基本の照会よりクレジット高め。"
+    },
+    "colombia_api_identity_lookup_procuraduria": {
+      "title": "コロンビア — Colombia - Citizen Lookup via the official disciplinary oversight authority",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Validate a Colombian document and extract names from the official disciplinary oversight authority only (no disciplinary records)"
+    },
+    "colombia_api_identity_lookup_registraduria": {
+      "title": "コロンビア — Colombia - Citizen Lookup via the official national civil registry (SCCRC)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Lookup Colombian birth civil registry records by document number via the official national civil registry SCCRC only (skips the official disciplinary oversight authority and DIAN)"
+    },
+    "colombia_api_identity_lookup_vigencia": {
+      "title": "コロンビア — Colombia — National ID status (CC)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Check Colombian CC vigencia with the official national civil registry: exists, alive, or cancelled by death. GET/POST /v2/co/cedula/vigencia. No name sources."
+    },
+    "colombia_api_identity_pep_foreigner_id": {
+      "title": "コロンビア — PEP（特別滞在許可）",
+      "description": "Migración Colombia の PEP（Permiso Especial de Permanencia）を照会します。"
+    },
+    "colombia_api_identity_ppt_foreigner_id": {
+      "title": "コロンビア — PPT（一時保護許可）",
+      "description": "Migración Colombia の PPT 状態を照会します。"
+    },
+    "colombia_api_jcc_sanctions": {
+      "title": "コロンビア — Colombia - Junta Central de Contadores Disciplinary Sanctions",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Query disciplinary sanctions registered against accountants and audit firms in the official Junta Central de Contadores registry."
+    },
+    "colombia_api_judicial_process_details": {
+      "title": "コロンビア — 司法手続きの詳細",
+      "description": "手続き番号でコロンビアの特定事件の詳細（当事者・行為）を取得します（Rama Judicial）。"
+    },
+    "colombia_api_judicial_processes": {
+      "title": "コロンビア — 司法手続き",
+      "description": "CC または NIT でコロンビアの裁判手続き一覧を照会します（Rama Judicial）。"
+    },
+    "colombia_api_judicial_records": {
+      "title": "コロンビア — 司法記録（裁判所事件）",
+      "description": "CC・都市・番号でコロンビアの裁判所事件（expediente）を照会します（Rama Judicial）。"
+    },
+    "colombia_api_lawyers": {
+      "title": "コロンビア — 弁護士照会",
+      "description": "CC・CE・NITでコロンビアの弁護士公開登録を照会します。"
+    },
+    "colombia_api_lawyers_certificate": {
+      "title": "法曹資格証明（有効性）",
+      "description": "コロンビアの法曹の登録・証明の有効性を documentType（CC/CE）、documentNumber、quality で照会します。"
+    },
+    "colombia_api_military_situation": {
+      "title": "コロンビア — 兵役状況",
+      "description": "コロンビア市民証（CC）で兵役（situación militar）を照会します。"
+    },
+    "colombia_api_min_trabajo": {
+      "title": "Colombia - 労働証明書検証",
+      "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
+    },
+    "colombia_api_min_trabajo_v3": {
+      "title": "コロンビア — 労働省証明書（v3）",
+      "description": "コロンビア労働省の証明書（高所作業 curso de alturas 等）を GET /v3/co/ministerio-de-trabajo/certificados で照会します。"
+    },
+    "colombia_api_paco_sanctions": {
+      "title": "コロンビア — Colombia - PACO Anti-Corruption and Sanctions Registry",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Comprehensive background check querying contractor sanctions, SIRI disciplinary actions, fiscal liabilities, and SECOP contractual penalties via the official anti-corruption portal."
+    },
+    "colombia_api_pico_placa": {
+      "title": "ボゴタ — ピコ・イ・プラカ",
+      "description": "コロンビア・ボゴタ登録車両のピコ・イ・プラカ（交通規制）情報を照会します。"
+    },
+    "colombia_api_police_rnmc": {
+      "title": "コロンビア — 警察の是正措置遵守確認",
+      "description": "コロンビア RNMC で是正措置の遵守状況を照会します。"
+    },
+    "colombia_api_police_rnmc_premium": {
+      "title": "警察 RNMC プレミアム",
+      "description": "標準の RNMC 是正措置照会と同じ結果です。CC のみ。文書番号を送ると Verifik が発行日を解決します。1.20 クレジットです。"
+    },
+    "colombia_api_rama_jepms": {
+      "title": "コロンビア — Colombia - Rama Judicial JEPMS Execution of Sentences",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Consult execution of penalties and security measures (JEPMS) records and criminal sentence adjudications across 25 Colombian judicial districts."
+    },
+    "colombia_api_registraduria_certificate": {
+      "title": "コロンビア — Colombia — the official national civil registry ID validity certificate (CC)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Obtain the official the official national civil registry certificate of validity for a Colombian cédula (CC) using document number and issue date via GET /v2/co/the official national civil registry/certificado."
+    },
+    "colombia_api_registraduria_matrimonio": {
+      "title": "コロンビア — Colombia - Marriage Civil Registry (SCCRC)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Search Colombian marriage civil registry records by document, name, or serial via the official national civil registry SCCRC"
+    },
+    "colombia_api_registraduria_serial": {
+      "title": "コロンビア — Colombia - Civil Registry Lookup by Serial (SCCRC)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Lookup Colombian birth civil registry records by serial number via the official national civil registry SCCRC"
+    },
+    "colombia_api_registraduria_voting": {
+      "title": "コロンビア — Colombia - Retrieve Voting Information for Colombian Citizens",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Retrieve voting information for Colombian citizens"
+    },
+    "colombia_api_rethus": {
+      "title": "医療専門医の検証",
+      "description": "GET /v2/co/cedula/rethus でコロンビアの RETHUS 医療専門家登録を照会します。"
+    },
+    "colombia_api_rues": {
+      "title": "Colombia - RUES Business Lookup (v2, legacy)",
+      "description": "検証 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 確認 business registration, legal status, and company information. 必要 document type and document number."
+    },
+    "colombia_api_rues_full": {
+      "title": "Colombia - RUES Complete (v2, legacy)",
+      "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
+    },
+    "colombia_api_rues_full_v3": {
+      "title": "コロンビア — RUES 企業フル照会 (v3)",
+      "description": "コロンビア RUES で NIT と登録区分から企業のフル情報を取得します。GET /v3/co/rues-complete。"
+    },
+    "colombia_api_rues_v3": {
+      "title": "コロンビア — RUES 企業照会 (v3)",
+      "description": "NIT と登録区分でコロンビア RUES の基本情報を照会します。GET /v3/co/rues。"
+    },
+    "colombia_api_rui": {
+      "title": "コロンビア — Colombia - RUI Classification",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Query the Colombian Registro Universal de Ingresos (RUI) classification via Ventanilla Social / DNP using document type and document number."
+    },
+    "colombia_api_runt_owners": {
+      "title": "RUNT — ナンバー別の車両所有者",
+      "description": "ナンバーのみでコロンビア車両と所有履歴を取得します。"
+    },
+    "colombia_api_runt_vehicle_by_plate_only": {
+      "title": "RUNT - ナンバープレートのみの車両記録",
+      "description": "所有者の書類種別・番号なしで、ナンバープレートのみによりコロンビア RUNT の車両を照会します。"
+    },
+    "colombia_api_sena": {
+      "title": "コロンビア — SENA 証明書",
+      "description": "GET /v2/co/sena/certificados で SENA（Servicio Nacional de Aprendizaje）の研修・認定記録を照会します。"
+    },
+    "colombia_api_sicaac_cases": {
+      "title": "コロンビア — Colombia - SICAAC Pre-Litigation Conciliation Cases",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Verify pre-litigation civil, commercial, labor, and insolvency conciliation cases by document number, detecting legal disputes before court filing."
+    },
+    "colombia_api_sicaac_insolvency": {
+      "title": "コロンビア — Colombia - SICAAC Personal Insolvency Registry",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Verify personal insolvency proceedings (Ley de Insolvencia Persona Natural No Comerciante) by document number in the official registry."
+    },
+    "colombia_api_simit_agreements": {
+      "title": "コロンビア — Colombia - the official traffic infraction registry - Agreements",
+      "description": "コロンビア向けの公式検証および身元確認サービス：the official traffic infraction registry payment agreements for traffic violations service"
+    },
+    "colombia_api_simit_complete": {
+      "title": "コロンビア — Colombia - the official traffic infraction registry - General query by identification document",
+      "description": "コロンビア向けの公式検証および身元確認サービス：the official traffic infraction registry comprehensive data by document service"
+    },
+    "colombia_api_simit_plate": {
+      "title": "コロンビア — Colombia - the official traffic infraction registry - General query by plate number",
+      "description": "コロンビア向けの公式検証および身元確認サービス：the official traffic infraction registry comprehensive data by plate service"
+    },
+    "colombia_api_simit_resolutions": {
+      "title": "コロンビア — Colombia - the official traffic infraction registry - Resolutions",
+      "description": "コロンビア向けの公式検証および身元確認サービス：the official traffic infraction registry traffic violation resolutions service"
+    },
+    "colombia_api_simit_subpoenas": {
+      "title": "コロンビア — Colombia - the official traffic infraction registry - Fines",
+      "description": "コロンビア向けの公式検証および身元確認サービス：the official traffic infraction registry traffic citations and fines service"
+    },
+    "colombia_api_simit_subpoenas_details": {
+      "title": "コロンビア — Colombia - the official traffic infraction registry Subpoena Details",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+    },
+    "colombia_api_simit_suspensions": {
+      "title": "コロンビア — Colombia - the official traffic infraction registry - License suspensions",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Query driver license suspension or cancellation records in Colombia’s the official traffic infraction registry system by holder identification."
+    },
+    "colombia_api_sisconmp": {
+      "title": "SISCONMP — 研修・受講記録",
+      "description": "コロンビア SISCONMP に登録された運送・貨物関連の研修記録を照会します。"
+    },
+    "colombia_api_sst_license": {
+      "title": "コロンビア — Colombia - Occupational Safety & Health License and Technical Carné (SST)",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Verify Occupational Safety & Health (SST) licenses and technical radiation protection carnés issued by Colombian Departmental Health Secretariats via Open Data (Datos Abiertos Colombia)."
+    },
+    "colombia_api_vehicle": {
+      "title": "RUNT — SOAT・RTM 検証",
+      "description": "ナンバーと身分証で SOAT（任意保険）と RTM（車検）の状態を照会します。"
+    },
+    "colombia_api_vehicle_accidentality_bogota": {
+      "title": "ボゴタ — 交通事故履歴",
+      "description": "ボゴタ登録車両の事故履歴（日付、様式番号、深刻度）をナンバーで照会します。"
+    },
+    "colombia_api_vehicle_complete": {
+      "title": "コロンビア — 車両情報（完全）",
+      "description": "取得 comprehensive vehicle information のColombian vehicles. Includes ownership details, specifications, legal status, and registration data."
+    },
+    "colombia_api_vehicle_complete_by_plate": {
+      "title": "RUNT — 車両（プレート＋身分証のみ）",
+      "description": "ナンバーと身分証のみで RUNT 車両情報を照会します。"
+    },
+    "colombia_api_vehicle_complete_by_plate_simplified": {
+      "title": "RUNT — ナンバー別車両（簡易・別名）",
+      "description": "ナンバーと名義人証番号から RUNT 車両の要点情報を取得します。"
+    },
+    "colombia_api_vehicle_complete_by_vin": {
+      "title": "RUNT — VIN別車両",
+      "description": "コロンビア RUNT で VIN から車両の詳細履歴・技術情報を取得します。"
+    },
+    "colombia_api_vehicle_fines_bogota": {
+      "title": "ボゴタ — 車両反則金照会",
+      "description": "ボゴタ登録車両のナンバーで交通反則金・違反を照会します。"
+    },
+    "colombia_api_vehicle_fines_medellin": {
+      "title": "メデジン - 交通反則",
+      "description": "GET /v2/co/medellin/vehicle/fines でメデジン登録車両の地方交通反則と comparendo を照会します。"
+    },
+    "colombia_api_vehicle_owners": {
+      "title": "コロンビア - 車両所有者履歴",
+      "description": "ナンバープレートでコロンビア車両の所有者を照会します。車両データと完全な所有履歴を返します。"
+    },
+    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+      "title": "Fasecolda — 保険請求・事故履歴",
+      "description": "Fasecolda 公式データでコロンビア車両の保険事故・請求履歴を照会します。"
+    },
+    "colombia_api_vehicle_soat": {
+      "title": "Colombia - 車両確認",
+      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+    },
+    "colombia_api_vehicle_tax": {
+      "title": "ボゴタ — 車両税",
+      "description": "ボゴタ登録車両の税負担・滞納状況を、所有者の証明とナンバーで照会します。"
+    },
+    "colombia_api_vehicle_valores_fasecolda_by_code": {
+      "title": "Fasecolda — コード別車両価格",
+      "description": "Fasecolda コードで車両価格・仕様情報を取得します。"
+    },
+    "colombia_api_vehicle_valores_fasecolda_by_plate": {
+      "title": "Fasecolda — ナンバー別車両価格",
+      "description": "デュアルソース仕様照合と信頼度スコア内訳を備えたコロンビア Fasecolda ナンバー別車両価格 API"
+    },
+    "colombia_api_vehicle_valuation_sibga": {
+      "title": "SIBGA - 車両の商業評価額",
+      "description": "コロンビアナンバーの運輸省（SIBGA）公式商業評価額。RUNTのデータを自動で対応付けます。"
+    },
+    "colombia_inpec_lookup": {
+      "title": "コロンビア — INPEC（収容者照会）",
+      "description": "コロンビア国家刑務所・矯正機関（INPEC）の管理下で身柄拘束されている人の照会を行います。"
+    },
+    "colombia_pep_lookup": {
+      "title": "コロンビア — PEP 検索（AML）",
+      "description": "CC / NIT で政治的露出者（PEP）を照会します（AML）。"
+    },
+    "colombia_sigep_by_name": {
+      "title": "コロンビア — SIGEP（氏名検索）",
+      "description": "フルネームでコロンビア SIGEP の公務員・契約者ディレクトリを検索します。"
+    },
+    "colombia_sigep_by_number": {
+      "title": "コロンビア — SIGEP（文書番号）",
+      "description": "CC または NIT でコロンビアの公務員・契約者情報を SIGEP から照会します。"
+    },
+    "colombia_sisben_api_lookup": {
+      "title": "コロンビア — Colombia — the official social benefit classification registry score",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Verify the official social benefit classification registry (Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales) score and group classification for Colombian residents."
+    },
+    "colombia_special_api_identity_lookup": {
+      "title": "コロンビア - 個人市民情報",
+      "description": "個人市民情報へのアクセス のColombian nationals. このサービスは包括的な個人データを提供 含む detailed identity verification. 詳細についてはVerifikカスタマーサービスにお問い合わせください."
+    },
+    "colombia_special_api_police_identity_lookup": {
+      "title": "コロンビア — 警察記録照会",
+      "description": "GET または POST /v2/co/policia/consultar でコロンビアの警察記録を照会します。"
+    },
+    "communication_colombia_messaging_whatsapp": {
+      "title": "コロンビア — Colombia - WhatsApp Messaging",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Send WhatsApp messages from a Colombia-routed sender via Verifik's gateway. Provide recipient, template, and variables for transactional alerts, OTPs, and KYC notifications."
+    },
+    "communication_global_email_otp": {
+      "title": "グローバル — Email OTP",
+      "description": "グローバル向けの公式検証および身元確認サービス：Send a one-time passcode by email for user verification flows. Provide the recipient address and message parameters; the API delivers the OTP and returns send/delivery metadata for KYC and login confirmation."
+    },
+    "communication_global_messaging_sms": {
+      "title": "グローバル - SMSメッセージ",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "communication_global_messaging_whatsapp": {
+      "title": "グローバル — Global - WhatsApp Messaging",
+      "description": "グローバル向けの公式検証および身元確認サービス：Send WhatsApp messages globally through Verifik's gateway. Provide the recipient phone number, template, and variables; useful for OTP delivery, transactional alerts, and KYC notifications."
+    },
+    "communication_messaging_sms": {
+      "title": "グローバル — SMS Messaging",
+      "description": "グローバル向けの公式検証および身元確認サービス：Send SMS messages via Verifik's global gateway. Provide the destination phone number and message body; supports OTPs, transactional alerts, and notification flows with delivery metadata in the response."
+    },
+    "consultar_procesos_judiciales": {
+      "title": "コロンビア - 司法手続き",
+      "description": "Check complete judicial history and active legal processes."
+    },
+    "costa_rica_api_business_lookup": {
+      "title": "コスタリカ — 法人検証（NITE）",
+      "description": "GET /v2/cr/company を介して、documentType に NITE と documentNumber を指定し、登録およびコンプライアンスのためのコスタリカ KYB 企業照会を行います。"
+    },
+    "costa_rica_api_traffic_infractions": {
+      "title": "コスタリカ — 交通違反",
+      "description": "GET /v2/cr/traffic-infractions でナンバープレートを指定し、コスタリカの交通違反（COSEVI）を照会します。利用可能な場合、罰金額と状態を返します。"
+    },
+    "costa_rica_api_vehicle": {
+      "title": "コスタリカ — 車両情報",
+      "description": "GET /v2/cr/vehicle で必要なナンバープレートを指定し、コスタリカの車両を照会します。利用可能な場合、所有者、仕様、違反、所有者履歴を返します。"
+    },
+    "costarica_api_identity_lookup": {
+      "title": "コスタリカ — 国民身分証（CCCR）",
+      "description": "GET /v2/cr/cedula を介し、documentType と documentNumber でコスタリカの国民 ID（CCCR cédula）を検証します。KYC や不正防止に活用できます。"
+    },
+    "costarica_api_voting_location": {
+      "title": "コスタリカ — 投票所",
+      "description": "CCCRでTSE Donde Votar公式選挙登録を照会します。投票所、junta、州、cantón、district、地図座標を返します。"
+    },
+    "cr_api_pep": {
+      "title": "コスタリカ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "コスタリカの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "credit_intent": {
+      "title": "グローバル — Credit Purchase Intent",
+      "description": "グローバル向けの公式検証および身元確認サービス：Create a Verifik credit purchase intent for x402 settlement. Returns the intent id and pricing metadata used to confirm the on-chain payment for downstream API calls."
+    },
+    "credit_intent_kyc_passwordless": {
+      "title": "グローバル — KYC Passwordless Credit Intent",
+      "description": "グローバル向けの公式検証および身元確認サービス：Create a credit purchase intent for the Passwordless KYC flow. Returns the intent id and pricing metadata used to settle on-chain via x402 before launching the KYC session."
+    },
+    "cu_api_pep": {
+      "title": "キューバ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "キューバの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "czechia_api_identity_lookup": {
+      "title": "Czechia — 国民身元確認および個人事業主検証（KYC）",
+      "description": "Czechiaの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "data_finance_balancesheet": {
+      "title": "グローバル — Financial - Balance Sheet",
+      "description": "グローバル向けの公式検証および身元確認サービス：Public-company balance sheet data. Provide a ticker to retrieve assets, liabilities, and equity line items used in financial analysis."
+    },
+    "data_finance_cashflow": {
+      "title": "グローバル — Financial - Cash Flow",
+      "description": "グローバル向けの公式検証および身元確認サービス：Public-company cash flow statement data. Provide a ticker to retrieve operating, investing, and financing cash flow line items."
+    },
+    "data_finance_incomestatement": {
+      "title": "グローバル — Financial - Income Statement",
+      "description": "グローバル向けの公式検証および身元確認サービス：Public-company income statement data. Provide a ticker to retrieve revenue, expenses, and earnings line items for financial analysis."
+    },
+    "data_finance_stockprice": {
+      "title": "グローバル — Financial - Stock Price",
+      "description": "グローバル向けの公式検証および身元確認サービス：Stock price quotes for public companies. Provide a ticker to retrieve current and historical price data for analytics and dashboards."
+    },
+    "de_api_pep": {
+      "title": "ドイツ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ドイツの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "denmark_api_identity_lookup": {
+      "title": "デンマーク — 国民身元確認および個人事業主検証（KYC）",
+      "description": "デンマークの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "document-liveness": {
+      "title": "グローバル — Document Liveness Detection",
+      "description": "グローバル向けの公式検証および身元確認サービス：Check whether a captured ID image is a real document or a screen/print attack. Returns liveness scores and indicators to harden KYC document-capture flows."
+    },
+    "ec_api_pep": {
+      "title": "エクアドル — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "エクアドルの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "ecuador_api_company_lookup": {
+      "title": "エクアドル — 法人検証",
+      "description": "Verifik の KYB API を使用して RUC でエクアドル企業を検証します。"
+    },
+    "ecuador_api_company_lookup_v3": {
+      "title": "エクアドル法人（RUCEC）",
+      "description": "Verifik の KYB API を使用してエクアドル企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "ecuador_api_criminal_history": {
+      "title": "エクアドル - 犯罪歴",
+      "description": "エクアドル国民の犯罪・前科照会（GET /v2/ec/cedula/antecedentes）。提供項目はソースに依存。"
+    },
+    "ecuador_api_identity_lookup": {
+      "title": "エクアドル — 国民身分証",
+      "description": "Verifik の KYC API でエクアドルの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
+    },
+    "ecuador_api_vehicle": {
+      "title": "エクアドル — 車両検証",
+      "description": "ナンバープレートでエクアドル登録車両を照会します。"
+    },
+    "ecuador_api_vehicle_fines": {
+      "title": "エクアドル — 車両罰金",
+      "description": "ナンバープレートでエクアドル車両の罰金・登録情報を照会します。"
+    },
+    "ecuador_api_vehicle_v3": {
+      "title": "エクアドル — Ecuador - Vehicle Verification",
+      "description": "エクアドル向けの公式検証および身元確認サービス：Look up Ecuadorian vehicle registration details by license plate, including technical-sheet data when available."
+    },
+    "ecuador_api_voting_location": {
+      "title": "エクアドル — Ecuador - Voting Location",
+      "description": "エクアドル向けの公式検証および身元確認サービス：Ecuador voting location lookup for province, canton, parish, polling place code, and junta from the official CNE electoral registry."
+    },
+    "ee_api_pep": {
+      "title": "エストニア — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "エストニアの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "el_salvador_api_identity_lookup": {
+      "title": "エルサルバドル — 国民身元確認および個人事業主検証（KYC）",
+      "description": "エルサルバドルの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "es_api_pep": {
+      "title": "スペイン — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "スペインの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "estonia_api_identity_lookup": {
+      "title": "エストニア — 国民身元確認および個人事業主検証（KYC）",
+      "description": "エストニアの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "eu_api_vies_vat": {
+      "title": "欧州連合 — European Union - VIES VAT & Business Verification",
+      "description": "欧州連合向けの公式検証および身元確認サービス：Verify VAT registration and official business entity status across all 27 EU member states and Northern Ireland via the official European registry."
+    },
+    "face_recognition_collections": {
+      "title": "グローバル — Global - Create Face Collection",
+      "description": "グローバル向けの公式検証および身元確認サービス：Create a face recognition collection"
+    },
+    "face_recognition_compare": {
+      "title": "グローバル — Global - Face Comparison",
+      "description": "グローバル向けの公式検証および身元確認サービス：1:1 face comparison to verify identity"
+    },
+    "face_recognition_compare_live": {
+      "title": "グローバル — Global - Face Comparison (Live)",
+      "description": "グローバル向けの公式検証および身元確認サービス：1:1 comparison with live probe and liveness threshold"
+    },
+    "face_recognition_compare_with_liveness": {
+      "title": "グローバル — Global - Face Comparison With Liveness",
+      "description": "グローバル向けの公式検証および身元確認サービス：1:1 face compare followed by OpenCV liveness on the probe image (sequential)."
+    },
+    "face_recognition_detect": {
+      "title": "グローバル — Global - Face Detection",
+      "description": "グローバル向けの公式検証および身元確認サービス：Detect and extract faces from images"
+    },
+    "face_recognition_detect_face": {
+      "title": "グローバル — Face Detection",
+      "description": "グローバル向けの公式検証および身元確認サービス：Detect and validate the presence of a human face in an image. Useful as a pre-step for liveness or face-compare flows; returns face bounding boxes and quality signals."
+    },
+    "face_recognition_liveness": {
+      "title": "グローバル — Global - Liveness Detection",
+      "description": "グローバル向けの公式検証および身元確認サービス：Detect if a face is live or from a static image/video"
+    },
+    "face_recognition_liveness_score": {
+      "title": "グローバル — Global - Liveness Score (OpenCV)",
+      "description": "グローバル向けの公式検証および身元確認サービス：OpenCV-only liveness score (no Zelf arbitrage)"
+    },
+    "face_recognition_persons": {
+      "title": "グローバル — Global - Create Face Person",
+      "description": "グローバル向けの公式検証および身元確認サービス：Enroll a person into one or more face collections"
+    },
+    "face_recognition_persons_delete": {
+      "title": "グローバル — Global - Delete Face Person",
+      "description": "グローバル向けの公式検証および身元確認サービス：Delete an enrolled face person by id"
+    },
+    "face_recognition_persons_live": {
+      "title": "グローバル — Global - Create Face Person With Liveness",
+      "description": "グローバル向けの公式検証および身元確認サービス：Enroll a person with liveness into a collection"
+    },
+    "face_recognition_search": {
+      "title": "グローバル — Global - Face Search (1:N)",
+      "description": "グローバル向けの公式検証および身元確認サービス：Search for a face in a collection (1:N identification)"
+    },
+    "face_recognition_search_active_user": {
+      "title": "グローバル — Global - Face Search 1:N (Active User)",
+      "description": "グローバル向けの公式検証および身元確認サービス：1:N search variant without liveness, for active sessions"
+    },
+    "face_recognition_search_crops": {
+      "title": "グローバル — Global - Face Search 1:N (Crops)",
+      "description": "グローバル向けの公式検証および身元確認サービス：1:N search optimized for small face crops (e.g. max ~120×120)"
+    },
+    "face_recognition_search_live_face": {
+      "title": "グローバル — Global - Face Search 1:N (Live)",
+      "description": "グローバル向けの公式検証および身元確認サービス：1:N search with liveness on probe image"
+    },
+    "face_recognition_verify": {
+      "title": "グローバル — Global - Verify Face (1:1 vs enrolled person)",
+      "description": "グローバル向けの公式検証および身元確認サービス：Match probe face images against a specific enrolled person by ID"
+    },
+    "feature_data_api": {
+      "title": "データ API",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "feature_email_login": {
+      "title": "メールによるAPIキーアクセス",
+      "description": "API認証のためにクライアントのメールに送信されるワンタイムパスワード（OTP）をリクエストします。"
+    },
+    "feature_kyc_solution": {
+      "title": "グローバル — KYC Solution",
+      "description": "グローバル向けの公式検証および身元確認サービス：Bundled Verifik KYC solution: identity, document, biometrics, and watchlist checks orchestrated end-to-end. Used as the default reference for full KYC flows."
+    },
+    "feature_passwordless_solution": {
+      "title": "グローバル — Passwordless Authentication",
+      "description": "グローバル向けの公式検証および身元確認サービス：Passwordless authentication solution that pairs identity verification with biometric proof. Onboards users without passwords while keeping a verifiable audit trail."
+    },
+    "feature_pdf_generator": {
+      "title": "グローバル — PDF Report Generator",
+      "description": "グローバル向けの公式検証および身元確認サービス：Generate PDF reports from Verifik validations. Aggregates fetched records into a downloadable, audit-ready document for compliance teams."
+    },
+    "fi_api_pep": {
+      "title": "フィンランド — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "フィンランドの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "fr_api_pep": {
+      "title": "フランス — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "フランスの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "france_api_company_sirene": {
+      "title": "フランス — France - SIRENE / INSEE Enterprise Lookup",
+      "description": "フランス向けの公式検証および身元確認サービス：Lookup French companies by SIREN, SIRET or legal name in the official French registry, retrieving legal status, TVA number, registered officers, and financials."
+    },
+    "france_api_identity_lookup": {
+      "title": "フランス — 国民身元確認および個人事業主検証（KYC）",
+      "description": "フランスの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "gt_api_pep": {
+      "title": "グアテマラ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "グアテマラの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "guatemala_api_identity_extra_lookup": {
+      "title": "グアテマラ - 身元追加検索",
+      "description": "追加のデータポイントを含む、グアテマラ市民向けの包括的な身元確認。"
+    },
+    "guatemala_api_identity_lookup": {
+      "title": "グアテマラ — 国民身元確認および個人事業主検証（KYC）",
+      "description": "グアテマラの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "hn_api_pep": {
+      "title": "ホンジュラス — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ホンジュラスの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "honduras_api_identity_lookup": {
+      "title": "ホンジュラス — 国民身元確認および個人事業主検証（KYC）",
+      "description": "ホンジュラスの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "honduras_api_voting_location": {
+      "title": "投票所",
+      "description": "DNIHNでホンジュラス公式選挙登録（Donde Me Toca Votar）を照会。投票所、JRV、投票資格、居住地情報を返します。"
+    },
+    "india_api_epic_lookup": {
+      "title": "インド EPIC（Voter ID）— 氏名照会 | Verifik",
+      "description": "10文字のEPIC（Voter ID）でインド選挙管理委員会（ECI）由来の有権者名および関連フィールドをVerifik APIで取得します。"
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "インド EPIC（Voter ID）— 投票所・投票場所 | Verifik",
+      "description": "インド EPIC（Voter ID）の議会区・部・投票所の詳細を、ECI 指向ソースと Verifik API で取得します。"
+    },
+    "ip-lookup": {
+      "title": "🌐 IP ジオロケーション",
+      "description": "GET /v2/ip-lookup で IPv4/IPv6 アドレスをジオロケーションします。"
+    },
+    "is_api_pep": {
+      "title": "アイスランド — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "アイスランドの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "lt_api_pep": {
+      "title": "リトアニア — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "リトアニアの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "lv_api_pep": {
+      "title": "ラトビア — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ラトビアの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "matpis_appointments": {
+      "title": "MATPIS 予約",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "mexico_api_cedula_profesional": {
+      "title": "メキシコ — 専門免許",
+      "description": "CURP、免許番号、または氏名で、公式の専門免許登録からメキシコの専門免許を照会します。"
+    },
+    "mexico_api_company": {
+      "title": "メキシコ — 法人検証",
+      "description": "Verifik の KYB API を使用してメキシコ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "mexico_api_health_worker": {
+      "title": "メキシコ — 医療従事者の免許",
+      "description": "対象者がメキシコの保健関連の専門免許を保有していることを確認します。非保健の免許のみの場合は 404 を返します。"
+    },
+    "mexico_api_ine_ocr": {
+      "title": "メキシコ — INE OCR",
+      "description": "OCR によりメキシコ INE の表面・裏面画像から個人・証明書フィールドを抽出します。"
+    },
+    "mexico_api_ine_validate": {
+      "title": "メキシコ — INE 検証",
+      "description": "CIC、OCR、または clave de elector を使い、メキシコ有権者証（INE）を選挙人名簿に対して検証します。"
+    },
+    "mexico_api_issste_affiliation": {
+      "title": "メキシコ — Mexico - ISSSTE Social Security Affiliation",
+      "description": "メキシコ向けの公式検証および身元確認サービス：Verify Mexican public sector social security affiliation (ISSSTE) and official non-affiliation certificates by CURP, including labor status, official folio, certificate UUID, and digital seal."
+    },
+    "mexico_api_rfc_lookup": {
+      "title": "メキシコ — Mexico - RFC by CURP / RFC",
+      "description": "メキシコ向けの公式検証および身元確認サービス：Bidirectional lookup and SAT compliance validation between Mexican CURP and SAT RFC (Registro Federal de Contribuyentes)."
+    },
+    "mexico_api_siged_certificado": {
+      "title": "メキシコ — 学業証明書（folio）",
+      "description": "folio により、公式の学業証明書登録に対してメキシコの電子学業証明書を検証します。"
+    },
+    "mexico_api_vehicle": {
+      "title": "メキシコ",
+      "description": "ナンバープレートでメキシコの車両情報を検証します。"
+    },
+    "mexico_identity_lookup": {
+      "title": "メキシコ — 国民身分証",
+      "description": "Verifik の KYC API を使用して、CURP によりメキシコ国民の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
+    },
+    "mx_api_pep": {
+      "title": "メキシコ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "メキシコの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "ni_api_pep": {
+      "title": "ニカラグア — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ニカラグアの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "nl_api_pep": {
+      "title": "オランダ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "オランダの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "no_api_pep": {
+      "title": "ノルウェー — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ノルウェーの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "norway_api_identity_lookup": {
+      "title": "ノルウェー — 国民身元確認および個人事業主検証（KYC）",
+      "description": "ノルウェーの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "ocr_scan_gpt": {
+      "title": "グローバル — OCR Document Scan Prompt",
+      "description": "グローバル向けの公式検証および身元確認サービス：GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
+    },
+    "ocr_scan_pro": {
+      "title": "グローバル — OCR Document Scan Pro",
+      "description": "グローバル向けの公式検証および身元確認サービス：Production-grade OCR for ID documents. Submit an image (URL or Base64) and receive structured identity fields plus raw extracted text for downstream KYC and onboarding workflows."
+    },
+    "ocr_scan_studio": {
+      "title": "グローバル — OCR Document Scan Studio",
+      "description": "グローバル向けの公式検証および身元確認サービス：The Scan Studio offers a seamless and efficient solution for extracting critical information from scanned documents through state-of-the-art Optical Character Recognition (OCR) technology. To use this service, simply provide the document image in Base64-encoded format or a URL where the image is hosted, and let our system handle the rest."
+    },
+    "panama_api_business_lookup": {
+      "title": "パナマ — 法人検証",
+      "description": "RUC でパナマの企業を照会し、法人名、ステータス、代表者、登記情報などを公式ソースから取得します。KYB やデューデリジェンスに活用できます。"
+    },
+    "panama_api_health_worker": {
+      "title": "パナマ — Panama - Health Worker & Medical Professional Verification (MINSA / Consejo Técnico de Salud)",
+      "description": "パナマ向けの公式検証および身元確認サービス：Verify Panamanian physicians, specialists, dentists, nurses, pharmacists, and medical technologists by Cédula or full name against the official Ministry of Health (MINSA) personnel and health professional registries."
+    },
+    "panama_api_identity_full_lookup": {
+      "title": "パナマ - 国民ID検証",
+      "description": "パナマのCCPA国民IDを検証：番号・氏名・生年月日を公的戸籍データと照合。KYCや本人確認に。"
+    },
+    "panama_api_identity_lookup": {
+      "title": "パナマ — 国民身分証",
+      "description": "パナマの CCPA 国民 ID（書類と氏名）を検証し、KYC や不正防止に活用できます。"
+    },
+    "panama_api_jtia_license": {
+      "title": "パナマ — Panama - Engineering & Architecture License Verification (JTIA)",
+      "description": "パナマ向けの公式検証および身元確認サービス：Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+    },
+    "panama_api_pep": {
+      "title": "パナマ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "パナマの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "panama_api_vehicle": {
+      "title": "パナマ — Panama - Vehicle Verification",
+      "description": "パナマ向けの公式検証および身元確認サービス：Look up a Panamanian vehicle by license plate. Returns make, model, year, and registration metadata for compliance and underwriting checks."
+    },
+    "paraguay_api_business_lookup": {
+      "title": "パラグアイ — 法人検証",
+      "description": "Verifik の KYB API を使用してパラグアイ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "paraguay_api_identity_lookup": {
+      "title": "パラグアイ — 国民身分証",
+      "description": "Verifik の KYC API でパラグアイの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
+    },
+    "paraguay_api_vehicle": {
+      "title": "パラグアイ — 車両情報",
+      "description": "ナンバープレートを用いてパラグアイの車両に関する包括的な情報を取得する車両検証サービス。"
+    },
+    "peru_api_company_lookup": {
+      "title": "Peru - 事業登録検索",
+      "description": "Business verification service のPeru. 提供 company registration details, legal status, and business information."
+    },
+    "peru_api_company_lookup_v3": {
+      "title": "ペルー — 法人検証",
+      "description": "Verifik の KYB API を使用してペルー企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "peru_api_driver_license_lookup": {
+      "title": "ペルー - 運転免許",
+      "description": "GET /v2/pe/driver-license により DNI でペルーの運転免許を照会します。公式記録で利用可能な場合、区分、状態、有効期限、制限、発行情報を返します。"
+    },
+    "peru_api_identity_ce_foreigner_id": {
+      "title": "ペルー — 外国人 ID",
+      "description": "ペルーに居住する外国人の身分証を検証する、外国人居住者向けの本人確認サービス。"
+    },
+    "peru_api_pep": {
+      "title": "ペルー — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ペルーの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "peru_api_renacyt_education": {
+      "title": "ペルー — Peru - University Degrees (SUNEDU) & CONCYTEC RENACYT Academic Verification",
+      "description": "ペルー向けの公式検証および身元確認サービス：Verify Peruvian university degrees imported from SUNEDU (Bachiller, Licenciado, Maestro, Doctor), academic institutions, ORCID, and national researcher status by DNI, CE, Passport, or full name via CONCYTEC RENACYT."
+    },
+    "peru_api_vehicle": {
+      "title": "ペルー — 車両情報（ナンバープレート）",
+      "description": "ペルー車両情報サービスは、ナンバープレートに基づいて、ペルーで登録された車両に関する詳細情報を提供します。レスポンスには、メーカー、モデル、年式、エンジン番号、シャーシ製造番号、定員、用途種別などの主要情報が含まれます。"
+    },
+    "peru_api_vehicle_soat": {
+      "title": "ペルー — 車両保険（SOAT）",
+      "description": "本サービスは、ペルーにおける車両の保険ステータスに関する情報を提供します。保険会社名、契約開始日・終了日、車両のナンバープレート、契約番号、用途種別、車両クラス、契約ステータスなどの詳細を返します。"
+    },
+    "peru_api_vehicle_v3": {
+      "title": "ペルー — Peru - Vehicle Information",
+      "description": "ペルー向けの公式検証および身元確認サービス：Query Peruvian vehicle details by license plate, including identifiers and technical-sheet data when available."
+    },
+    "peru_identity_extra_lookup": {
+      "title": "ペルー — Peru - National ID Verification",
+      "description": "ペルー向けの公式検証および身元確認サービス：Extended Peruvian identity lookup with additional personal fields. Provide documentType DNIPE and documentNumber; returns enriched identity data when available."
+    },
+    "peru_identity_extra_lookup_v3": {
+      "title": "ペルー — DNI（拡張データ）",
+      "description": "Verifik の KYC API を使用して、ペルー市民の DNI（国民身分証明書）に関する拡張情報を取得します。公式の RENIEC データに直接接続し、数秒で本人確認を行います。"
+    },
+    "peru_identity_lookup": {
+      "title": "ペルー — Peru - National ID Verification",
+      "description": "ペルー向けの公式検証および身元確認サービス：Verify a Peruvian citizen by national ID (DNI). Provide documentType DNIPE and documentNumber; returns identity fields drawn from official records for KYC and onboarding flows."
+    },
+    "peru_identity_lookup_v3": {
+      "title": "ペルー",
+      "description": "DNI v3 API を使用してペルー市民の本人確認を行います。"
+    },
+    "pl_api_pep": {
+      "title": "ポーランド — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ポーランドの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "poland_api_identity_lookup": {
+      "title": "ポーランド — 国民身元確認および個人事業主検証（KYC）",
+      "description": "ポーランドの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "py_api_pep": {
+      "title": "パラグアイ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "パラグアイの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "republica_dominicana_api_citizen_lookup": {
+      "title": "República Dominicana — República Dominicana - Dominican Citizen",
+      "description": "República Dominicana向けの公式検証および身元確認サービス：Validate the identity of individuals in the Dominican Republic with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "romania_api_identity_lookup": {
+      "title": "ルーマニア — 国民身元確認および個人事業主検証（KYC）",
+      "description": "ルーマニアの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "se_api_pep": {
+      "title": "スウェーデン — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "スウェーデンの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "slovakia_api_identity_lookup": {
+      "title": "スロバキア — 国民身元確認および個人事業主検証（KYC）",
+      "description": "スロバキアの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "smart_access_business": {
+      "title": "Smart Access ビジネス",
+      "description": "Smart Access ビジネスプラン。月間上限が最も高くなります。"
+    },
+    "smart_access_plus": {
+      "title": "Smart Access Plus",
+      "description": "Smart Access Plus プラン。月間上限が高くなります。"
+    },
+    "smart_access_pyg": {
+      "title": "Smart Access 無料",
+      "description": "Smart Access の無料プラン。月間のメールログイン枠を含みます。"
+    },
+    "smart_enroll_background_check": {
+      "title": "グローバル — SmartEnroll Background Check",
+      "description": "グローバル向けの公式検証および身元確認サービス：SmartEnroll background-check overage billing unit. One charge per completed check regardless of FBI, DEA, ONU, Interpol, or OFAC selection. Not a public Data API."
+    },
+    "smart_enroll_business": {
+      "title": "Smart Enroll ビジネス",
+      "description": "Smart Enroll ビジネスプラン。月間上限が最も高くなります。"
+    },
+    "smart_enroll_identity_check": {
+      "title": "グローバル — SmartEnroll Identity Check",
+      "description": "グローバル向けの公式検証および身元確認サービス：SmartEnroll name-validation overage billing unit. Charged after the period free pack at the plan discount. Not a public Data API."
+    },
+    "smart_enroll_plus": {
+      "title": "Smart Enroll Plus",
+      "description": "Smart Enroll Plus プラン。月間上限が高く、ライブネスを含みます。"
+    },
+    "smart_enroll_pyg": {
+      "title": "Smart Enroll 無料",
+      "description": "Smart Enroll の無料プラン。月間の登録と書類スキャン枠を含みます。"
+    },
+    "spain_api_company_lookup": {
+      "title": "スペイン — 企業（CIF/NIF）",
+      "description": "Verifik の KYB API を使用してスペイン企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+    },
+    "spain_api_identity_lookup": {
+      "title": "スペイン — 国民身分証",
+      "description": "Verifik の KYC API でスペインの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
+    },
+    "spain_api_tax_id_validate": {
+      "title": "スペイン — Spain - NIF / NIE / CIF Tax ID Validator & Entity Lookup",
+      "description": "スペイン向けの公式検証および身元確認サービス：Algorithmic validation and official registry cross-check for Spanish tax identifiers (DNI/NIF, NIE, CIF), verifying control checksums, entity types, provinces, and official registry status."
+    },
+    "spain_api_vehicle_lookup": {
+      "title": "スペイン",
+      "description": "Verifik 経由でナンバープレート（matrícula）によりスペインの車両登録データを照会します。"
+    },
+    "sv_api_pep": {
+      "title": "エルサルバドル — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "エルサルバドルの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "uk_api_company_lookup": {
+      "title": "イギリス — United Kingdom - Company & Public Record Lookup",
+      "description": "イギリス向けの公式検証および身元確認サービス：Lookup UK companies by CRN company number or legal name via official corporate registry and public notice records, retrieving LEI, addresses, and statutory filings."
+    },
+    "uruguay_api_identity_lookup": {
+      "title": "ウルグアイ — 国民身元確認および個人事業主検証（KYC）",
+      "description": "ウルグアイの公式身元記録に基づき、身元確認書類の有効性、氏名、生年月日および法的ステータスを照会・検証します。"
+    },
+    "us_api_npi_identity_lookup": {
+      "title": "アメリカ合衆国 — United States — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "アメリカ合衆国向けの公式検証および身元確認サービス：Live official identity and sole-proprietor validation in United States. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "us_api_passport_entries": {
+      "title": "アメリカ — パスポート・米国入出国履歴",
+      "description": "GET /v2/passport/us/entries。氏名・生年月日・パスポート番号などで照会します。"
+    },
+    "usa_api_company": {
+      "title": "アメリカ — 法人（SEC EDGAR）",
+      "description": "SEC EDGAR を用いた米国企業の法人名検索・企業情報取得。POST /v2/usa/company。"
+    },
+    "usa_api_driver_license_barcode": {
+      "title": "アメリカ合衆国 — USA & Canada - Driver's License PDF417 Barcode Decoder",
+      "description": "アメリカ合衆国向けの公式検証および身元確認サービス：Decodes and parses standard ANSI/AAMVA PDF417 barcodes from U.S. and Canadian driver licenses and state identification cards across 60+ issuing jurisdictions, extracting structured personal and biometric attributes, verifying REAL ID compliance, and computing security indicators."
+    },
+    "usa_api_driver_license_crosscheck": {
+      "title": "アメリカ合衆国 — USA & Canada - Driver's License Front-to-Back Cross-Check",
+      "description": "アメリカ合衆国向けの公式検証および身元確認サービス：Performs anti-counterfeit cross-check validation between front-side OCR data (or extracted card parameters) and decoded back-side AAMVA PDF417 barcode elements, detecting tampering, mismatching identifiers, and counterfeit credentials."
+    },
+    "usa_api_driver_license_lookup": {
+      "title": "アメリカ合衆国 — フロリダ州運転免許",
+      "description": "GET /v2/usa/florida/driver-license。フロリダ州の運転免許番号で状態・制限などを照会します。"
+    },
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "アメリカ合衆国 — カンザス州運転免許",
+      "description": "GET /v2/usa/kansas/driver-license。免許番号・生年月日・氏名でカンザス州の運転免許を照会します。"
+    },
+    "usa_api_ssn": {
+      "title": "アメリカ合衆国 — SSN（社会保障番号）検証",
+      "description": "GET /v2/usa/ssn で米国 SSN を照会。documentNumber に SSN を指定します。"
+    },
+    "usa_api_vehicle": {
+      "title": "アメリカ合衆国 — 車両情報（ナンバー・州）",
+      "description": "一時的に利用不可 — VIN による米国車両照会を利用してください"
+    },
+    "usa_api_vehicle_lookup_by_vin": {
+      "title": "アメリカ合衆国 — 車両（VIN）",
+      "description": "GET /v2/usa/vehicle-by-vin。17 桁の VIN で米国車両をデコードします。"
+    },
+    "usa_api_vehicle_recalls": {
+      "title": "アメリカ合衆国 — USA - Vehicle Safety Recalls & Extended VIN Lookup",
+      "description": "アメリカ合衆国向けの公式検証および身元確認サービス：Retrieves official U.S. vehicle safety recalls, defect investigations, campaign numbers, consequences, and manufacturer remedy programs using a 17-character VIN or Make/Model/ModelYear criteria from the official national vehicle safety administration."
+    },
+    "uy_api_pep": {
+      "title": "ウルグアイ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ウルグアイの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "validate-document": {
+      "title": "コロンビア — validate-document",
+      "description": "コロンビア向けの公式検証および身元確認サービス：Validate a captured Colombian identity document image. Returns document liveness and authenticity signals to harden KYC document-capture flows."
+    },
+    "ve_api_pep": {
+      "title": "ベネズエラ — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "ベネズエラの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "venezuela_api_identity_lookup": {
+      "title": "ベネズエラ — 国民身分証（CCVE）",
+      "description": "ベネズエラの国民 ID 照会。GET /v2/ve/cedula を介して文書番号で cédula（CCVE）保持者を検証し、KYC や不正防止に活用できます。"
+    },
+    "venezuela_foreigner_api": {
+      "title": "ベネズエラ — 外国人 ID（CEVE）",
+      "description": "ベネズエラの外国人 cédula（CEVE）を文書番号で検証します。GET /v2/ve/foreigner-id を介して、KYC とコンプライアンスに活用できます。"
+    },
+    "world_api_anti_kleptocracy_visa": {
+      "title": "ウォッチリスト — Anti-Kleptocracy and Human Rights Visa Restrictions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Anti-Kleptocracy and Human Rights Visa Restrictionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_argentina_repet": {
+      "title": "ウォッチリスト — Argentina RePET Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Argentina RePET Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_australia_sanctions": {
+      "title": "ウォッチリスト — Australian Sanctions Consolidated List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Australian Sanctions Consolidated Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_austria_sanctions": {
+      "title": "ウォッチリスト — Austrian National Bank – Terrorism Financing Restrictions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Austrian National Bank – Terrorism Financing Restrictionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_azerbaijan_fms_sanctions": {
+      "title": "ウォッチリスト — Azerbaijan Domestic List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Azerbaijan Domestic Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_belgium_sanctions": {
+      "title": "ウォッチリスト — Belgian Financial Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Belgian Financial Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_bis_antiboycott_requesters": {
+      "title": "ウォッチリスト — US Office of Antiboycott Compliance Requester List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US Office of Antiboycott Compliance Requester Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_bka_wanted": {
+      "title": "ウォッチリスト — Germany BKA Wanted Fugitives",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Germany BKA Wanted Fugitivesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_br_bcb_disqualified": {
+      "title": "ウォッチリスト — Brazil Register of Persons Disqualified from Senior Roles",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Brazil Register of Persons Disqualified from Senior Rolesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_br_tcu_disqualified": {
+      "title": "ウォッチリスト — Brazil List of Individuals Disqualified from Public Service",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Brazil List of Individuals Disqualified from Public Serviceの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_bulgaria_sanctions": {
+      "title": "ウォッチリスト — Bulgarian Persons of Interest",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Bulgarian Persons of Interestの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_canada_autonomous_sanctions": {
+      "title": "ウォッチリスト — Canadian Consolidated Autonomous Sanctions List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Canadian Consolidated Autonomous Sanctions Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_canada_facfoa": {
+      "title": "ウォッチリスト — Canadian Freezing Assets of Corrupt Foreign Officials Act",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Canadian Freezing Assets of Corrupt Foreign Officials Actの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_canada_nro": {
+      "title": "ウォッチリスト — Canadian Named Research Organizations",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Canadian Named Research Organizationsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_canada_terrorist_entities": {
+      "title": "ウォッチリスト — Canadian Listed Terrorist Entities",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Canadian Listed Terrorist Entitiesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_cbp_wro": {
+      "title": "ウォッチリスト — CBP Withhold Release Orders and Findings",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、CBP Withhold Release Orders and Findingsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_china_sanctions": {
+      "title": "ウォッチリスト — China Sanctions Research",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、China Sanctions Researchの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_cia_world_leaders": {
+      "title": "グローバル — Global - CIA World Leaders",
+      "description": "グローバル向けの公式検証および身元確認サービス：Screen foreign heads of state, cabinet ministers, and government leaders worldwide via the official directory of chiefs of state and cabinet members."
+    },
+    "world_api_covid": {
+      "title": "グローバル — Global - COVID Statistics",
+      "description": "グローバル向けの公式検証および身元確認サービス：Look up COVID-19 statistics by country and date. Returns aggregated cases, deaths, and recovery counters for analytics and dashboards."
+    },
+    "world_api_crypto_fbi_lazarus": {
+      "title": "ウォッチリスト — US FBI Lazarus Group Crypto Wallets",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US FBI Lazarus Group Crypto Walletsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_crypto_ransomwhere": {
+      "title": "ウォッチリスト — ransomwhe.re – Ransomware Addresses",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、ransomwhe.re – Ransomware Addressesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_csl": {
+      "title": "ウォッチリスト — USA",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、USAの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_cuba_restricted": {
+      "title": "ウォッチリスト — State Department Cuba Sanctions (Cuba Restricted List)",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、State Department Cuba Sanctions (Cuba Restricted List)の公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_czech_sanctions": {
+      "title": "ウォッチリスト — Czech Republic National Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Czech Republic National Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ddtc_aeca_debarments": {
+      "title": "ウォッチリスト — US DDTC AECA Debarments",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US DDTC AECA Debarmentsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ddtc_penalties": {
+      "title": "ウォッチリスト — US DDTC Penalties & Oversight Agreements",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US DDTC Penalties & Oversight Agreementsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_dea": {
+      "title": "DEA 身元照会",
+      "description": "米国 DEA のウォッチリストとの照合サービス。"
+    },
+    "world_api_dod_chinese_military_companies": {
+      "title": "ウォッチリスト — US DoD Chinese Military Companies",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US DoD Chinese Military Companiesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_dss_most_wanted": {
+      "title": "ウォッチリスト — USA",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、USAの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_education_score": {
+      "title": "グローバル — LATAM - Unified Education & Professional License Score",
+      "description": "グローバル向けの公式検証および身元確認サービス：Compute a normalized 0-100 Education & Professional Score for an individual across Colombia (CO), Peru (PE), Panama (PA), Mexico (MX), and Chile (CL) by aggregating university degrees, technical certifications, professional licenses (Matrícula / Idoneidad / Cédula Profesional), and disciplinary sanction checks."
+    },
+    "world_api_egypt_terrorists": {
+      "title": "ウォッチリスト — Egypt Domestic Terrorist List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Egypt Domestic Terrorist Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_esma_sanctions": {
+      "title": "ウォッチリスト — EU ESMA Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、EU ESMA Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_esma_suspensions": {
+      "title": "ウォッチリスト — EU ESMA Suspensions and Removals",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、EU ESMA Suspensions and Removalsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_estonia_sanctions": {
+      "title": "ウォッチリスト — Estonia International Sanctions Act List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Estonia International Sanctions Act Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_eu_council_sanctions": {
+      "title": "ウォッチリスト — EU Council Official Journal Sanctioned Entities",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、EU Council Official Journal Sanctioned Entitiesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_eu_fsf": {
+      "title": "ウォッチリスト — Consolidated Financial Sanctions (EU FSF)",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Consolidated Financial Sanctions (EU FSF)の公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_eu_sanctions_map": {
+      "title": "ウォッチリスト — EU Sanctions Map",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、EU Sanctions Mapの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_eu_terrorists": {
+      "title": "ウォッチリスト — Common Position Terrorists List (CP931)",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Common Position Terrorists List (CP931)の公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_eu_travel_bans": {
+      "title": "ウォッチリスト — EU Consolidated Travel Bans",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、EU Consolidated Travel Bansの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_europol": {
+      "title": "Europol 身元照会",
+      "description": "Europol の犯罪記録データベースに対するリアルタイム照会サービス。文書タイプと文書番号、または氏名を指定することで、Europol のシステム内のエントリと一致するかを確認できます。"
+    },
+    "world_api_fbi": {
+      "title": "FBI 身元照会",
+      "description": "FBI 身元照会サービス。"
+    },
+    "world_api_fcc_covered_list": {
+      "title": "ウォッチリスト — US FCC Covered List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US FCC Covered Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_fdic_failed_banks": {
+      "title": "ウォッチリスト — US FDIC Failed Banks",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US FDIC Failed Banksの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_fed_reserve_actions": {
+      "title": "ウォッチリスト — US Federal Reserve Enforcement Actions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US Federal Reserve Enforcement Actionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_fincen_special_measures": {
+      "title": "ウォッチリスト — FinCEN 311 and 9714 Special Measures",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、FinCEN 311 and 9714 Special Measuresの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_finra_actions": {
+      "title": "ウォッチリスト — US FINRA Enforcement Actions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US FINRA Enforcement Actionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_france_amf_blacklist": {
+      "title": "ウォッチリスト — France AMF Illegal Financial Services List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、France AMF Illegal Financial Services Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_france_amf_sanctions": {
+      "title": "ウォッチリスト — France AMF Regulatory Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、France AMF Regulatory Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_france_gels_avoirs": {
+      "title": "ウォッチリスト — French National Asset Freezing System",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、French National Asset Freezing Systemの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_georgia_otkhozoria_tatunashvili": {
+      "title": "ウォッチリスト — Georgian Otkhozoria–Tatunashvili List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Georgian Otkhozoria–Tatunashvili Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_gleif_lei": {
+      "title": "グローバル — Global - LEI Corporate Registry & Hierarchy Lookup",
+      "description": "グローバル向けの公式検証および身元確認サービス：Lookup corporate entities globally by 20-character ISO 17442 Legal Entity Identifier (LEI), national registration number, or legal name via the official international LEI registry."
+    },
+    "world_api_guernsey_gfsc_prohibitions": {
+      "title": "ウォッチリスト — Guernsey FSC Prohibitions and Disqualified Directors",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Guernsey FSC Prohibitions and Disqualified Directorsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_health_exclusions": {
+      "title": "グローバル — U.S. Health Exclusions (HHS OIG LEIE)",
+      "description": "グローバル向けの公式検証および身元確認サービス：Verify healthcare providers and entities against the official U.S. Department of Health and Human Services List of Excluded Individuals/Entities (LEIE)."
+    },
+    "world_api_iadb": {
+      "title": "グローバル — Inter-American Development Bank (IADB) - Sanctioned Firms & Individuals",
+      "description": "グローバル向けの公式検証および身元確認サービス：Screen firms and individuals sanctioned by the Inter-American Development Bank (IDB / BID) Group for engaging in prohibited practices."
+    },
+    "world_api_ice_most_wanted": {
+      "title": "ウォッチリスト — US ICE Most Wanted Fugitives",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US ICE Most Wanted Fugitivesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_india_mha_banned": {
+      "title": "ウォッチリスト — Indian Ministry of Home Affairs Banned Organizations",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Indian Ministry of Home Affairs Banned Organizationsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_india_nse_debarred": {
+      "title": "ウォッチリスト — India NSE Debarred Entities",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、India NSE Debarred Entitiesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_indonesia_dttot": {
+      "title": "ウォッチリスト — Indonesian List of Suspected Terrorists (DTTOT)",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Indonesian List of Suspected Terrorists (DTTOT)の公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_interpol": {
+      "title": "Interpol 身元照会",
+      "description": "個人または企業の犯罪関連背景情報を照会するための API エンドポイントです。文書タイプおよび文書番号を指定するとレスポンスが返却されます。レスポンスには文書タイプ、文書番号、名、姓、氏名、自然人および法人の名前構成要素が含まれます。"
+    },
+    "world_api_iran_mfa_sanctions": {
+      "title": "ウォッチリスト — Iran Sanctions List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Iran Sanctions Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ireland_unlawful_organisations": {
+      "title": "ウォッチリスト — Ireland Unlawful Organisation (Suppression) Orders",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Ireland Unlawful Organisation (Suppression) Ordersの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_isle_of_man_disqualified": {
+      "title": "ウォッチリスト — Isle of Man FSA Disqualified Directors",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Isle of Man FSA Disqualified Directorsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_israel_crypto_seizures": {
+      "title": "ウォッチリスト — Israel Sanctioned Crypto Wallets List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Israel Sanctioned Crypto Wallets Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_israel_mod_terrorists": {
+      "title": "ウォッチリスト — Israel Terrorist Organizations and Unauthorized Associations",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Israel Terrorist Organizations and Unauthorized Associationsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_israel_nbctf_wmd": {
+      "title": "ウォッチリスト — Israel – WMD Distribution and Financing Designations",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Israel – WMD Distribution and Financing Designationsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_japan_meti_end_user": {
+      "title": "ウォッチリスト — Japan METI End User List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Japan METI End User Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_japan_mof_sanctions": {
+      "title": "ウォッチリスト — Japan Economic Sanctions and List of Eligible People",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Japan Economic Sanctions and List of Eligible Peopleの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_kazakhstan_afm_sanctions": {
+      "title": "ウォッチリスト — Kazakh Terrorist and Terror Financing Lists",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Kazakh Terrorist and Terror Financing Listsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_kyrgyzstan_sfis_sanctions": {
+      "title": "ウォッチリスト — Kyrgyz National List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Kyrgyz National Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_latvia_fiu_sanctions": {
+      "title": "ウォッチリスト — Latvia FIU Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Latvia FIU Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_latvia_magnitsky": {
+      "title": "ウォッチリスト — Latvia's Magnitsky Law Sanctions List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Latvia's Magnitsky Law Sanctions Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_lithuania_lb_blacklist": {
+      "title": "ウォッチリスト — Lithuania Illegal Financial Services",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Lithuania Illegal Financial Servicesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_lithuania_lpt_blocklist": {
+      "title": "ウォッチリスト — Lithuania Illegal Gambling Operators",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Lithuania Illegal Gambling Operatorsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_lithuania_magnitsky": {
+      "title": "ウォッチリスト — Lithuania Designated Persons – Magnitsky Amendments",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Lithuania Designated Persons – Magnitsky Amendmentsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_lithuania_sanctions": {
+      "title": "ウォッチリスト — Lithuanian International Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Lithuanian International Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_luxembourg_cssf_sanctions": {
+      "title": "ウォッチリスト — Luxembourg Administrative Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Luxembourg Administrative Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_malaysia_bnm_fca": {
+      "title": "ウォッチリスト — Malaysia Financial Consumer Alert List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Malaysia Financial Consumer Alert Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_malaysia_moha_sanctions": {
+      "title": "ウォッチリスト — Malaysia MOHA Sanctions List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Malaysia MOHA Sanctions Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_malaysia_sc_aob": {
+      "title": "ウォッチリスト — Malaysia Securities Commission AOB Enforcements",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Malaysia Securities Commission AOB Enforcementsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_malaysia_sc_investor_alert": {
+      "title": "ウォッチリスト — Malaysia Securities Commission Investor Alert List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Malaysia Securities Commission Investor Alert Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_moldova_sanctions": {
+      "title": "ウォッチリスト — Moldovan Sanctions – Terrorism and WMD",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Moldovan Sanctions – Terrorism and WMDの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_monaco_gel_fonds": {
+      "title": "ウォッチリスト — Monaco National Fund Freezing List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Monaco National Fund Freezing Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_nca_most_wanted": {
+      "title": "ウォッチリスト — UK NCA Most Wanted",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、UK NCA Most Wantedの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_nepal_fiu_sanctions": {
+      "title": "ウォッチリスト — Nepal Prohibited Persons or Groups",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Nepal Prohibited Persons or Groupsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_netherlands_terrorist_sanctions": {
+      "title": "ウォッチリスト — Netherlands National Sanctionlist Terrorism",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Netherlands National Sanctionlist Terrorismの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_new_zealand_russia_sanctions": {
+      "title": "ウォッチリスト — New Zealand Russia Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、New Zealand Russia Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_new_zealand_terrorists": {
+      "title": "ウォッチリスト — New Zealand Designated Terrorist Entities",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、New Zealand Designated Terrorist Entitiesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_nigeria_sanctions": {
+      "title": "ウォッチリスト — Nigeria Sanctions List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Nigeria Sanctions Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_norges_bank_exclusions": {
+      "title": "ウォッチリスト — Norges Bank Investment Management – Observation and Exclusion",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Norges Bank Investment Management – Observation and Exclusionの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_occ_actions": {
+      "title": "ウォッチリスト — US OCC Enforcement Actions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US OCC Enforcement Actionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ofac": {
+      "title": "OFAC 身元照会",
+      "description": "OFAC 身元照会サービス。"
+    },
+    "world_api_offshore_leaks": {
+      "title": "グローバル — Global - Offshore Leaks Database (ICIJ)",
+      "description": "グローバル向けの公式検証および身元確認サービス：Search corporate service providers, shell companies, and officers in offshore tax havens across Panama Papers, Paradise Papers, Pandora Papers, and Bahamas Leaks."
+    },
+    "world_api_ofsi": {
+      "title": "ウォッチリスト — OFSI Consolidated Sanctions & FCDO List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、OFSI Consolidated Sanctions & FCDO Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ofsi_investment_bans": {
+      "title": "ウォッチリスト — UK HMT/OFSI Investment Bans",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、UK HMT/OFSI Investment Bansの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ohchr_settlements": {
+      "title": "ウォッチリスト — OHCHR – Companies Linked to Illegal Settlement in the West Bank",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、OHCHR – Companies Linked to Illegal Settlement in the West Bankの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_onu": {
+      "title": "国連（ONU）身元照会",
+      "description": "個人または法人が国連の制裁リストに掲載されているかをシンプルかつ効率的に確認できる API です。文書タイプや文書番号などの識別情報を送信することで、国際制裁の対象であるかを迅速に判別できます。"
+    },
+    "world_api_pakistan_nacta_proscribed": {
+      "title": "ウォッチリスト — Pakistan NACTA Proscribed Persons",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Pakistan NACTA Proscribed Personsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_palestine_pma_freezing": {
+      "title": "ウォッチリスト — Palestine Monetary Authority Local Freezing List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Palestine Monetary Authority Local Freezing Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_passport_entries": {
+      "title": "グローバル — パスポート・米国入出国",
+      "description": "パスポートと本人情報で米国入出国履歴を照会。GET /v2/passport/us/entries（us_api_passport_entries と同一 URL）。提供可否はアカウント次第。"
+    },
+    "world_api_pep": {
+      "title": "グローバル — 政治的に影響力のある人物（PEP）スクリーニング",
+      "description": "グローバルの公式 PEP（政治的に影響力のある人物）登録簿に対して個人を照合し、FATF 勧告 12 および国内 AML 法令に基づき公職者やその近親者を特定します。"
+    },
+    "world_api_philippines_procor_wanted": {
+      "title": "ウォッチリスト — Philippines Top Most Wanted – Cordillera Region",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Philippines Top Most Wanted – Cordillera Regionの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_philippines_sec_advisories": {
+      "title": "ウォッチリスト — Philippines SEC Advisories",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Philippines SEC Advisoriesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_phone_lookup": {
+      "title": "🌐 グローバル — 電話番号照会",
+      "description": "GET または POST /v2/look-ups/phone で世界の電話番号を照会します。掲載されている名義人名と関連プロファイル項目を返します。"
+    },
+    "world_api_poland_giif_sanctions": {
+      "title": "ウォッチリスト — Polish Sanctions – Money Laundering and Terror Financing",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Polish Sanctions – Money Laundering and Terror Financingの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_poland_mswia_sanctions": {
+      "title": "ウォッチリスト — Polish List of Persons and Entities Subject to Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Polish List of Persons and Entities Subject to Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_politie_opsporingslijst": {
+      "title": "ウォッチリスト — Netherlands Police Nationale Opsporingslijst",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Netherlands Police Nationale Opsporingslijstの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_qatar_natc_sanctions": {
+      "title": "ウォッチリスト — Qatar Unified Record of Sanctioned Persons and Entities",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Qatar Unified Record of Sanctioned Persons and Entitiesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_romania_terrorists": {
+      "title": "ウォッチリスト — Romania Gov. Decision 1.272/2005 – Suspected Terrorists",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Romania Gov. Decision 1.272/2005 – Suspected Terroristsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_sam_exclusions": {
+      "title": "ウォッチリスト — US SAM Procurement Exclusions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US SAM Procurement Exclusionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_sam_special_exclusions": {
+      "title": "ウォッチリスト — US Special Legislative Exclusions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US Special Legislative Exclusionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_sec": {
+      "title": "ウォッチリスト — U.S. SEC Sanctions & Enforcement",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、U.S. SEC Sanctions & Enforcementの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_secret_service": {
+      "title": "ウォッチリスト — US Secret Service Most Wanted",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US Secret Service Most Wantedの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_serbia_apml_sanctions": {
+      "title": "ウォッチリスト — Serbian Domestic List of Designated Persons",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Serbian Domestic List of Designated Personsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_singapore_mas_sanctions": {
+      "title": "ウォッチリスト — Singapore Targeted Financial Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Singapore Targeted Financial Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_south_africa_fic_tfs": {
+      "title": "ウォッチリスト — South Africa Targeted Financial Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、South Africa Targeted Financial Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_south_africa_wanted": {
+      "title": "ウォッチリスト — South Africa Wanted Persons",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、South Africa Wanted Personsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_spain_police_wanted": {
+      "title": "ウォッチリスト — Spain National Police Most Wanted List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Spain National Police Most Wanted Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_switzerland_finma_rulings": {
+      "title": "ウォッチリスト — Swiss FINMA Final Rulings",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Swiss FINMA Final Rulingsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_switzerland_finma_warning": {
+      "title": "ウォッチリスト — Swiss FINMA Warning List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Swiss FINMA Warning Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_switzerland_seco_sanctions": {
+      "title": "ウォッチリスト — Swiss SECO Sanctions/Embargoes",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Swiss SECO Sanctions/Embargoesの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_thailand_amlo_sanctions": {
+      "title": "ウォッチリスト — Thailand Designated Persons List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Thailand Designated Persons Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_turkey_masak_sanctions": {
+      "title": "ウォッチリスト — Türkiye Asset Freezing Sanctions List (MASAK)",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Türkiye Asset Freezing Sanctions List (MASAK)の公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_turkey_terror_wanted": {
+      "title": "ウォッチリスト — Türkiye Ministry of Interior Terrorist Wanted List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Türkiye Ministry of Interior Terrorist Wanted Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_uae_local_terrorists": {
+      "title": "ウォッチリスト — United Arab Emirates Local Terrorist List",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、United Arab Emirates Local Terrorist Listの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_uk_disqualified_directors": {
+      "title": "ウォッチリスト — UK Companies House Disqualified Directors",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、UK Companies House Disqualified Directorsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_uk_proscribed_terrorists": {
+      "title": "ウォッチリスト — UK Proscribed Terrorist Groups or Organizations",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、UK Proscribed Terrorist Groups or Organizationsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ukraine_nsdc_sanctions": {
+      "title": "ウォッチリスト — Ukraine NSDC State Register of Sanctions",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Ukraine NSDC State Register of Sanctionsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_ukraine_sfms_blacklist": {
+      "title": "ウォッチリスト — Ukraine SFMS Blacklist",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Ukraine SFMS Blacklistの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_us_terrorists": {
+      "title": "ウォッチリスト — US Terrorist Watchlist",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、US Terrorist Watchlistの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "world_api_world_bank": {
+      "title": "ウォッチリスト — Debarred Firms & Individuals",
+      "description": "国際制裁コンプライアンスおよびリスク管理のため、Debarred Firms & Individualsの公式監視・制裁名簿に対して個人および事業体を照合・審査します。"
+    },
+    "zelf-proof-decrypt": {
+      "title": "HumanID を復号化",
+      "description": "ライブの顔で HumanID を復号し、保存されたメタデータを取り出します"
+    },
+    "zelf-proof-encrypt-qr": {
+      "title": "HumanID QR を暗号化",
+      "description": "HumanID を作成し QR 画像として返します"
+    },
+    "zelf-proof-liveness-active-user": {
+      "title": "HumanID（ライブネス・アクティブユーザー）",
+      "description": "復号時にライブネスを求める HumanID を作成します。requireLiveness が有効なときこのコードで課金され、HTTP パスは HumanID 暗号化と同じです。"
+    },
+    "zelf-proof-preview": {
+      "title": "HumanID をプレビュー",
+      "description": "非公開メタデータを復号せずに HumanID の公開データをプレビューします"
+    },
+    "zelf-proofs": {
+      "title": "HumanID を暗号化",
+      "description": "メタデータを暗号化して IPFS に保存する HumanID（検証可能な資格情報）を作成します"
+    },
+    "australia_api_company_lookup": {
+      "title": "オーストラリア — 法人および企業登記照会（KYB）",
+      "description": "オーストラリアの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "belgium_api_company_lookup": {
+      "title": "ベルギー — 法人および企業登記照会（KYB）",
+      "description": "ベルギーの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "czechia_api_company_lookup": {
+      "title": "Czechia — 法人および企業登記照会（KYB）",
+      "description": "Czechiaの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "denmark_api_company_lookup": {
+      "title": "デンマーク — 法人および企業登記照会（KYB）",
+      "description": "デンマークの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "estonia_api_company_lookup": {
+      "title": "エストニア — 法人および企業登記照会（KYB）",
+      "description": "エストニアの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "finland_api_company_lookup": {
+      "title": "フィンランド — 法人および企業登記照会（KYB）",
+      "description": "フィンランドの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "israel_api_company_lookup": {
+      "title": "イスラエル — 法人および企業登記照会（KYB）",
+      "description": "イスラエルの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "japan_api_company_lookup": {
+      "title": "日本 — 法人および企業登記照会（KYB）",
+      "description": "日本の公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "latvia_api_company_lookup": {
+      "title": "ラトビア — 法人および企業登記照会（KYB）",
+      "description": "ラトビアの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "new_zealand_api_company_lookup": {
+      "title": "ニュージーランド — 法人および企業登記照会（KYB）",
+      "description": "ニュージーランドの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "norway_api_company_lookup": {
+      "title": "ノルウェー — 法人および企業登記照会（KYB）",
+      "description": "ノルウェーの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "poland_api_company_lookup": {
+      "title": "ポーランド — 法人および企業登記照会（KYB）",
+      "description": "ポーランドの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "portugal_api_company_lookup": {
+      "title": "ポルトガル — 法人および企業登記照会（KYB）",
+      "description": "ポルトガルの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "puerto_rico_api_company_lookup": {
+      "title": "プエルトリコ — 法人および企業登記照会（KYB）",
+      "description": "プエルトリコの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "republica_dominicana_api_company_lookup": {
+      "title": "ドミニカ共和国 — 法人および企業登記照会（KYB）",
+      "description": "ドミニカ共和国の公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "romania_api_company_lookup": {
+      "title": "ルーマニア — 法人および企業登記照会（KYB）",
+      "description": "ルーマニアの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "singapore_api_company_lookup": {
+      "title": "シンガポール — 法人および企業登記照会（KYB）",
+      "description": "シンガポールの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "slovakia_api_company_lookup": {
+      "title": "スロバキア — 法人および企業登記照会（KYB）",
+      "description": "スロバキアの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "switzerland_api_company_lookup": {
+      "title": "スイス — 法人および企業登記照会（KYB）",
+      "description": "スイスの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "taiwan_api_company_lookup": {
+      "title": "台湾 — 法人および企業登記照会（KYB）",
+      "description": "台湾の公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "trinidad_and_tobago_api_company_lookup": {
+      "title": "トリニダード・トバゴ — 法人および企業登記照会（KYB）",
+      "description": "トリニダード・トバゴの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "uruguay_api_company_lookup": {
+      "title": "ウルグアイ — 法人および企業登記照会（KYB）",
+      "description": "ウルグアイの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "venezuela_api_company_lookup": {
+      "title": "ベネズエラ — 法人および企業登記照会（KYB）",
+      "description": "ベネズエラの公式企業登記簿を通じて、法人の設立登記、法的地位、登録住所および代表者情報を照会・検証します。"
+    },
+    "colombia_api_dian_proveedores_ficticios": {
+      "title": "Colombia — Fictitious or Insolvent Suppliers Lookup",
+      "description": "Verify Colombian taxpayers against the official national tax registry list of fictitious or insolvent suppliers."
+    },
+    "colombia_api_supersociedades_siis": {
+      "title": "Colombia — Integrated Corporate Information System (SIIS)",
+      "description": "Query corporate status, filings, and financial oversight details from the official corporate supervision authority."
+    },
+    "colombia_api_superfinanciera_concordatos": {
+      "title": "Colombia — Financial Insolvency & Liquidation Records",
+      "description": "Query insolvency, bankruptcy, and restructuring proceedings from the official financial regulatory authority."
+    },
+    "colombia_api_supersolidaria_sanciones": {
+      "title": "Colombia — Solidarity Sector Sanctioned Entities & Persons",
+      "description": "Query disciplinary sanctions and disqualifications against cooperatives and officials from the official solidarity economy registry."
+    },
+    "colombia_api_pep_candidatos": {
+      "title": "Colombia — PEP Electoral Candidates",
+      "description": "Screen individuals registered as official candidates in popular elections via the official electoral transparency registry."
+    },
+    "colombia_api_pep_partidos_politicos": {
+      "title": "Colombia — PEP Political Party Officials",
+      "description": "Identify registered political party directors, legal representatives, and key officials from the official electoral authority."
+    },
+    "colombia_api_pep_estructura_gobierno": {
+      "title": "Colombia — PEP Government Structure & Public Officials",
+      "description": "Screen senior public servants, heads of agency, and officials holding high public office across the national government."
+    },
+    "colombia_api_pep_cuerpo_diplomatico": {
+      "title": "Colombia — PEP Diplomatic Corps Accredited in Colombia",
+      "description": "Screen ambassadors, consuls, and accredited foreign diplomatic personnel in Colombia from the official diplomatic registry."
+    },
+    "colombia_api_pep_misiones_exterior": {
+      "title": "Colombia — PEP Foreign Missions & Consulates",
+      "description": "Screen Colombian ambassadors, consul generals, and diplomatic mission staff posted abroad via official records."
     }
+  }
 }

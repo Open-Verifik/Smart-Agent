@@ -1,0 +1,418 @@
+<ng-container *transloco="let t">
+<div class="flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/40">
+    <!-- Header with Device & Screen Bar -->
+    <div class="flex items-center justify-between border-b border-stone-200 bg-stone-100/70 px-4 py-2.5 dark:border-gray-800 dark:bg-gray-800/60">
+        <div class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+            <span class="ml-2 text-xs font-medium text-stone-500">{{ t('smartBusiness.setup.preview.headerTitle', { style: styleId.toUpperCase() }) }}</span>
+        </div>
+
+        <!-- Screen Toggle Chips -->
+        <div class="flex items-center gap-1">
+            <button
+                type="button"
+                (click)="setScreen('company')"
+                class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
+                [class.bg-white]="activeScreen === 'company'"
+                [class.shadow-xs]="activeScreen === 'company'"
+                [class.text-stone-900]="activeScreen === 'company'"
+                [class.text-stone-500]="activeScreen !== 'company'"
+            >
+                {{ t('smartBusiness.setup.preview.tab1Company') }}
+            </button>
+            <button
+                type="button"
+                (click)="setScreen('documents')"
+                class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
+                [class.bg-white]="activeScreen === 'documents'"
+                [class.shadow-xs]="activeScreen === 'documents'"
+                [class.text-stone-900]="activeScreen === 'documents'"
+                [class.text-stone-500]="activeScreen !== 'documents'"
+            >
+                {{ t('smartBusiness.setup.preview.tab2Docs') }}
+            </button>
+            <button
+                type="button"
+                (click)="setScreen('reps')"
+                class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
+                [class.bg-white]="activeScreen === 'reps'"
+                [class.shadow-xs]="activeScreen === 'reps'"
+                [class.text-stone-900]="activeScreen === 'reps'"
+                [class.text-stone-500]="activeScreen !== 'reps'"
+            >
+                {{ t('smartBusiness.setup.preview.tab3Reps') }}
+            </button>
+            <button
+                type="button"
+                (click)="setScreen('review')"
+                class="rounded-lg px-2 py-0.5 text-[11px] font-medium transition-colors"
+                [class.bg-white]="activeScreen === 'review'"
+                [class.shadow-xs]="activeScreen === 'review'"
+                [class.text-stone-900]="activeScreen === 'review'"
+                [class.text-stone-500]="activeScreen !== 'review'"
+            >
+                {{ t('smartBusiness.setup.preview.tab4Status') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Verified Shell Frame -->
+    <div
+        class="flex min-h-[560px] flex-col p-6 transition-colors duration-200"
+        [style.background-color]="effectivePageBg"
+    >
+        <!-- Mock Verification Card inside viewport -->
+        <div
+            class="mx-auto flex w-full max-w-md flex-col justify-between p-6 transition-all duration-200"
+            [style.background-color]="effectiveCardBg"
+            [style.color]="effectiveTextColor"
+            [style.border-radius]="activeStyle.cardRadius || '24px'"
+            [style.border]="activeStyle.cardBorder || 'none'"
+            [style.box-shadow]="activeStyle.cardShadow || 'none'"
+        >
+            <div>
+                <!-- Company Header & Logo -->
+                <div class="mb-4 flex items-center justify-between gap-2 pb-3" [style.border-bottom]="activeStyle.dividerBorder || '1px solid #f0f0f0'">
+                    <div class="flex min-w-0 flex-1 items-center gap-2.5">
+                        @if (branding?.logo) {
+                            <img
+                                [src]="branding?.logo"
+                                [alt]="companyName"
+                                class="h-7 w-auto max-w-[80px] shrink-0 rounded-md object-contain object-left"
+                            />
+                        } @else {
+                            <div
+                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+                                [style.background-color]="effectiveButtonBg"
+                                [style.color]="effectiveButtonText"
+                            >
+                                {{ companyName.slice(0, 1) }}
+                            </div>
+                        }
+                        <span class="min-w-0 truncate text-xs font-bold tracking-tight" [style.color]="effectiveTitleColor">
+                            {{ companyName }}
+                        </span>
+                    </div>
+                    <span
+                        class="shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-medium"
+                        [style.background-color]="activeStyle.badgeBg || '#f3f4f6'"
+                        [style.color]="activeStyle.badgeText || '#4b5563'"
+                        [style.border]="activeStyle.id === 'f' ? '1px solid #000000' : 'none'"
+                    >
+                        KYB Verifik
+                    </span>
+                </div>
+
+                <!-- Screen 1: Company Intake -->
+                @if (activeScreen === 'company') {
+                    <div>
+                        <span
+                            class="block text-[11px] font-semibold uppercase tracking-wider"
+                            [style.color]="activeStyle.mutedText || '#9ca3af'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.step1Of4') }}
+                        </span>
+                        <h3
+                            class="mt-1 text-lg font-bold"
+                            [style.font-family]="activeStyle.fontFamily"
+                            [style.font-weight]="activeStyle.fontWeight"
+                            [style.text-transform]="activeStyle.headlineTransform || 'none'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                            [style.color]="effectiveTitleColor"
+                        >
+                            {{ t('smartBusiness.setup.preview.companyTitle') }}
+                        </h3>
+                        <p
+                            class="mt-1 text-xs"
+                            [style.color]="effectiveTextColor"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.companySubtitle') }}
+                        </p>
+
+                        <div class="mt-4 flex flex-col gap-2.5 text-xs">
+                            <div
+                                class="p-2.5 transition-colors"
+                                [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                                [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                                [style.border-radius]="activeStyle.inputRadius || '10px'"
+                            >
+                                <span class="block text-[10px]" [style.color]="activeStyle.mutedText || '#9ca3af'">
+                                    {{ t('smartBusiness.setup.preview.legalNameLabel') }}
+                                </span>
+                                <p class="font-medium" [style.color]="activeStyle.inputText || effectiveTitleColor">
+                                    Andina Logistics S.A.S.
+                                </p>
+                            </div>
+                            <div class="flex gap-2">
+                                <div
+                                    class="flex-1 p-2.5 transition-colors"
+                                    [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                                    [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                                    [style.border-radius]="activeStyle.inputRadius || '10px'"
+                                >
+                                    <span class="block text-[10px]" [style.color]="activeStyle.mutedText || '#9ca3af'">
+                                        {{ t('smartBusiness.setup.preview.taxIdLabel') }}
+                                    </span>
+                                    <p class="font-medium" [style.color]="activeStyle.inputText || effectiveTitleColor">
+                                        901.458.921
+                                    </p>
+                                </div>
+                                <div
+                                    class="w-16 p-2.5 transition-colors"
+                                    [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                                    [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                                    [style.border-radius]="activeStyle.inputRadius || '10px'"
+                                >
+                                    <span class="block text-[10px]" [style.color]="activeStyle.mutedText || '#9ca3af'">
+                                        {{ t('smartBusiness.setup.preview.dvLabel') }}
+                                    </span>
+                                    <p class="font-medium" [style.color]="activeStyle.inputText || effectiveTitleColor">
+                                        3
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="p-2.5 transition-colors"
+                                [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                                [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                                [style.border-radius]="activeStyle.inputRadius || '10px'"
+                            >
+                                <span class="block text-[10px]" [style.color]="activeStyle.mutedText || '#9ca3af'">
+                                    {{ t('smartBusiness.setup.preview.corporateEmailLabel') }}
+                                </span>
+                                <p class="font-medium" [style.color]="activeStyle.inputText || effectiveTitleColor">
+                                    operaciones&#64;andinaexpress.co
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Screen 2: Corporate Documents -->
+                @if (activeScreen === 'documents') {
+                    <div>
+                        <span
+                            class="block text-[11px] font-semibold uppercase tracking-wider"
+                            [style.color]="activeStyle.mutedText || '#9ca3af'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.step2Of4') }}
+                        </span>
+                        <h3
+                            class="mt-1 text-lg font-bold"
+                            [style.font-family]="activeStyle.fontFamily"
+                            [style.font-weight]="activeStyle.fontWeight"
+                            [style.text-transform]="activeStyle.headlineTransform || 'none'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                            [style.color]="effectiveTitleColor"
+                        >
+                            {{ t('smartBusiness.setup.preview.docsTitle') }}
+                        </h3>
+                        <p
+                            class="mt-1 text-xs"
+                            [style.color]="effectiveTextColor"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.docsSubtitle') }}
+                        </p>
+
+                        @if (configuredCountries.length > 0) {
+                            <div class="mt-3 flex flex-wrap items-center gap-1.5">
+                                @for (country of configuredCountries; track country; let i = $index) {
+                                    <span
+                                        class="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                        [style.background-color]="i === 0 ? effectiveButtonBg : (activeStyle.badgeBg || '#f3f4f6')"
+                                        [style.color]="i === 0 ? effectiveButtonText : (activeStyle.badgeText || '#4b5563')"
+                                    >
+                                        {{ country }}
+                                    </span>
+                                }
+                            </div>
+                        }
+
+                        <div class="mt-3 flex flex-col gap-2">
+                            @for (slot of previewDocumentSlots; track slot.category) {
+                                <div
+                                    class="flex items-center justify-between p-2.5 transition-colors"
+                                    [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                                    [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                                    [style.border-radius]="activeStyle.inputRadius || '12px'"
+                                >
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <mat-icon class="icon-size-4 shrink-0" [style.color]="activeStyle.id === 'd' ? '#60a5fa' : '#059669'">check_circle</mat-icon>
+                                        <div class="text-xs min-w-0">
+                                            <p class="font-medium truncate" [style.color]="activeStyle.inputText || effectiveTitleColor">
+                                                {{ t(slot.labelKey) }}
+                                            </p>
+                                            <p class="text-[10px]" [style.color]="activeStyle.mutedText || '#9ca3af'">
+                                                {{ t('smartEnrollProjects.setup.documents.types.summaryDocs', { count: slot.templateCount }) }} • {{ t('smartBusiness.setup.preview.ocrMatch') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span
+                                        class="shrink-0 px-1.5 py-0.5 text-[10px] font-bold"
+                                        [style.border-radius]="activeStyle.buttonRadius === '999px' ? '999px' : '6px'"
+                                        [style.background-color]="activeStyle.badgeBg || '#e8ebe6'"
+                                        [style.color]="activeStyle.badgeText || '#163300'"
+                                        [style.border]="activeStyle.id === 'f' ? '1px solid #000000' : 'none'"
+                                    >
+                                        {{ slot.required ? t('smartBusiness.setup.docs.mandatory') : t('smartBusiness.setup.docs.optional') }}
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Screen 3: Legal Representatives / UBOs -->
+                @if (activeScreen === 'reps') {
+                    <div>
+                        <span
+                            class="block text-[11px] font-semibold uppercase tracking-wider"
+                            [style.color]="activeStyle.mutedText || '#9ca3af'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.step3Of4') }}
+                        </span>
+                        <h3
+                            class="mt-1 text-lg font-bold"
+                            [style.font-family]="activeStyle.fontFamily"
+                            [style.font-weight]="activeStyle.fontWeight"
+                            [style.text-transform]="activeStyle.headlineTransform || 'none'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                            [style.color]="effectiveTitleColor"
+                        >
+                            {{ t('smartBusiness.setup.preview.repsTitle') }}
+                        </h3>
+                        <p
+                            class="mt-1 text-xs"
+                            [style.color]="effectiveTextColor"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.repsSubtitle') }}
+                        </p>
+
+                        <div class="mt-4 flex flex-col gap-2 text-xs">
+                            <div
+                                class="flex items-center justify-between p-2.5 transition-colors"
+                                [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                                [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                                [style.border-radius]="activeStyle.inputRadius || '12px'"
+                            >
+                                <div>
+                                    <p class="font-medium" [style.color]="activeStyle.inputText || effectiveTitleColor">Carlos Eduardo Mendoza</p>
+                                    <p class="text-[10px]" [style.color]="activeStyle.mutedText || '#9ca3af'">{{ t('smartBusiness.setup.preview.repRoleSample') }}</p>
+                                </div>
+                                <span
+                                    class="px-2 py-0.5 text-[10px] font-semibold"
+                                    [style.border-radius]="activeStyle.buttonRadius === '999px' ? '999px' : '9999px'"
+                                    [style.background-color]="activeStyle.badgeBg || '#e8ebe6'"
+                                    [style.color]="activeStyle.badgeText || '#163300'"
+                                    [style.border]="activeStyle.id === 'f' ? '1px solid #000000' : 'none'"
+                                >
+                                    {{ t('smartBusiness.setup.preview.verifiedBadge') }}
+                                </span>
+                            </div>
+
+                            <div
+                                class="flex items-center justify-between p-2.5 transition-colors"
+                                [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                                [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                                [style.border-radius]="activeStyle.inputRadius || '12px'"
+                            >
+                                <div>
+                                    <p class="font-medium" [style.color]="activeStyle.inputText || effectiveTitleColor">Laura Viviana Gómez</p>
+                                    <p class="text-[10px]" [style.color]="activeStyle.mutedText || '#9ca3af'">{{ t('smartBusiness.setup.preview.uboRoleSample') }}</p>
+                                </div>
+                                <span
+                                    class="px-2 py-0.5 text-[10px] font-semibold"
+                                    [style.border-radius]="activeStyle.buttonRadius === '999px' ? '999px' : '9999px'"
+                                    [style.background-color]="activeStyle.id === 'd' ? '#001533' : '#eff6ff'"
+                                    [style.color]="activeStyle.id === 'd' ? '#60a5fa' : '#1d4ed8'"
+                                    [style.border]="activeStyle.id === 'f' ? '1px solid #000000' : 'none'"
+                                >
+                                    {{ t('smartBusiness.setup.preview.linkSentBadge') }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Screen 4: Review / Attestation -->
+                @if (activeScreen === 'review') {
+                    <div>
+                        <span
+                            class="block text-[11px] font-semibold uppercase tracking-wider"
+                            [style.color]="activeStyle.mutedText || '#9ca3af'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.step4Of4') }}
+                        </span>
+                        <h3
+                            class="mt-1 text-lg font-bold"
+                            [style.font-family]="activeStyle.fontFamily"
+                            [style.font-weight]="activeStyle.fontWeight"
+                            [style.text-transform]="activeStyle.headlineTransform || 'none'"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                            [style.color]="effectiveTitleColor"
+                        >
+                            {{ t('smartBusiness.setup.preview.reviewTitle') }}
+                        </h3>
+                        <p
+                            class="mt-1 text-xs"
+                            [style.color]="effectiveTextColor"
+                            [style.text-align]="activeStyle.headlineAlign || 'left'"
+                        >
+                            {{ t('smartBusiness.setup.preview.reviewSubtitle') }}
+                        </p>
+
+                        <div
+                            class="mt-4 p-3 text-xs transition-colors"
+                            [style.background-color]="activeStyle.inputBg || '#ffffff'"
+                            [style.border]="activeStyle.inputBorder || '1px solid #e5e7eb'"
+                            [style.border-radius]="activeStyle.inputRadius || '12px'"
+                        >
+                            <div class="flex items-center justify-between">
+                                <span [style.color]="activeStyle.subtleText || '#6b7280'">{{ t('smartBusiness.setup.preview.officialRegistryLabel') }}</span>
+                                <span class="font-semibold" [style.color]="activeStyle.id === 'd' ? '#34d399' : '#059669'">{{ t('smartBusiness.setup.preview.activeInGoodStanding') }}</span>
+                            </div>
+                            <div class="mt-1.5 flex items-center justify-between">
+                                <span [style.color]="activeStyle.subtleText || '#6b7280'">{{ t('smartBusiness.setup.preview.amlScreeningLabel') }}</span>
+                                <span class="font-semibold" [style.color]="activeStyle.id === 'd' ? '#34d399' : '#059669'">{{ t('smartBusiness.setup.preview.zeroMatches') }}</span>
+                            </div>
+                            <div class="mt-1.5 flex items-center justify-between">
+                                <span [style.color]="activeStyle.subtleText || '#6b7280'">{{ t('smartBusiness.setup.preview.riskAssessmentLabel') }}</span>
+                                <span class="font-semibold" [style.color]="activeStyle.id === 'd' ? '#34d399' : '#059669'">{{ t('smartBusiness.setup.preview.lowRisk') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Action Button mimicking the active style preset -->
+            <div class="mt-6">
+                <button
+                    type="button"
+                    class="w-full py-2.5 text-center text-xs font-bold transition-transform active:scale-95"
+                    [style.background-color]="effectiveButtonBg"
+                    [style.color]="effectiveButtonText"
+                    [style.border-radius]="activeStyle.buttonRadius"
+                    [style.border]="activeStyle.buttonBorder"
+                    [style.box-shadow]="activeStyle.buttonShadow || 'none'"
+                    [style.font-family]="activeStyle.fontFamily"
+                >
+                    @if (activeScreen === 'review') {
+                        {{ t('smartBusiness.setup.preview.finishAndSubmitBtn') }}
+                    } @else {
+                        {{ t('smartBusiness.setup.preview.continueBtn') }}
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</ng-container>

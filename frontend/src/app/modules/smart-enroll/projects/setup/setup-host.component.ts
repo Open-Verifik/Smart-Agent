@@ -51,7 +51,6 @@ import { SetupBasicSetupComponent } from './steps/basic-setup/basic-setup.compon
 import { SetupDocumentsComponent } from './steps/documents/documents.component';
 import { SetupIntegrationsComponent } from './steps/integrations/integrations.component';
 import { SetupLivenessComponent } from './steps/liveness/liveness.component';
-import { SetupRepresentativesComponent } from './steps/representatives/representatives.component';
 import { SetupSignUpFormComponent } from './steps/sign-up-form/sign-up-form.component';
 import { SetupStepStubComponent } from './steps/setup-step-stub.component';
 import { SetupUserInterfaceComponent } from './steps/user-interface/user-interface.component';
@@ -116,7 +115,6 @@ const V3_SIGNUP_FORM_KEYS_BUSINESS = [
         SetupSignUpFormComponent,
         SetupDocumentsComponent,
         SetupLivenessComponent,
-        SetupRepresentativesComponent,
         SetupIntegrationsComponent,
         SetupUserInterfaceComponent,
         SmartEnrollPreviewComponent,
@@ -176,7 +174,6 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     }
 
     get steps(): string[] {
-        if (this.form?.get('target')?.value === 'business') return this._setup.businessSteps;
         return this._setup.personalSteps;
     }
 
@@ -235,19 +232,12 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         this._updateFormValidationKeys(project?.target || 'personal');
         this._initFormChangeSubscriptions();
 
-        const targetValue = this.form.get('target')?.value;
-        const currentBusinessVerificationStepValue = this.form.get('projectFlow.steps.businessVerification')?.value;
         const currentDocumentStepValue = this.form.get('projectFlow.steps.document')?.value;
         const currentLivenessStepValue = this.form.get('projectFlow.steps.liveness')?.value;
         const currentIntegrationsSourceValue = this.form.get('projectFlow.integrations.source')?.value;
-        const currentLegalRepresentativeStepValue = this.form.get('projectFlow.steps.legalRepresentative')?.value;
 
-        const documentBusinessStepValue = targetValue === 'business' ? currentBusinessVerificationStepValue : currentDocumentStepValue;
-
-        this._toggleBusinessControls(currentBusinessVerificationStepValue);
-        this._toggleDocumentControls(documentBusinessStepValue);
+        this._toggleDocumentControls(currentDocumentStepValue);
         this._toggleIntegrationsControls(currentIntegrationsSourceValue);
-        this._toggleLegalRepresentativeControls(currentLegalRepresentativeStepValue);
         this._toggleLivenessControls(currentLivenessStepValue);
 
         if (this.form.get('version')?.value !== 3 || this.form.get('projectFlow.version')?.value !== 3) {
@@ -391,7 +381,13 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     private _savedFlowOrder = '';
 
     private _initProjectFlowForm(target: string, currentData: any): FormGroup {
-        this._savedEnrollmentClient = currentData?.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : '';
+        const isNewPersonal = !currentData?._id && target !== 'business';
+        const initialVerifyStyle =
+            savedVerifyStyle(currentData?.onboardingSettings?.verifyStyle || currentData?.verifyStyle) ||
+            (isNewPersonal ? 'a' : '');
+        const initialEnrollmentClient =
+            currentData?.onboardingSettings?.enrollmentClient === 'v2' || Boolean(initialVerifyStyle) ? 'v2' : '';
+        this._savedEnrollmentClient = initialEnrollmentClient;
         this._savedFlowOrder = currentData?.onboardingSettings?.flowOrder === 'consent_first' ? 'consent_first' : '';
         const rawBizStyle = currentData?.signUpForm?.businessBasicInfoStyle;
         const businessBasicInfoStyleNormalized: 'name' | 'name_number' =
@@ -408,8 +404,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             type: ['onboarding', [Validators.required]],
             version: [currentData?.version ?? 3, [Validators.required]],
             onboardingSettings: this._formBuilder.group({
-                enrollmentClient: [currentData?.onboardingSettings?.enrollmentClient === 'v2' ? 'v2' : ''],
-                verifyStyle: [savedVerifyStyle(currentData?.onboardingSettings?.verifyStyle)],
+                enrollmentClient: [initialEnrollmentClient],
+                verifyStyle: [initialVerifyStyle],
                 flowOrder: [currentData?.onboardingSettings?.flowOrder === 'consent_first' ? 'consent_first' : ''],
             }),
             business: this._formBuilder.group(
@@ -556,15 +552,14 @@ export class SetupHostComponent implements OnInit, OnDestroy {
 
         const style = savedVerifyStyle(projectFlowData.onboardingSettings?.verifyStyle);
         const selected = projectFlowData.onboardingSettings?.enrollmentClient === 'v2' || Boolean(style) ? 'v2' : '';
-        const blockers = enrollmentBlockers(projectFlowData);
         const rest = { ...projectFlowData };
 
         delete rest.onboardingSettings;
 
         const settings: Record<string, string> = {};
 
-        if (selected === 'v2' && !blockers.length) settings.enrollmentClient = 'v2';
-        else if ((selected === 'v2' && blockers.length) || this._savedEnrollmentClient === 'v2') settings.enrollmentClient = 'legacy';
+        if (selected === 'v2') settings.enrollmentClient = 'v2';
+        else if (this._savedEnrollmentClient === 'v2') settings.enrollmentClient = 'legacy';
         if (style) settings.verifyStyle = style;
         if (projectFlowData.onboardingSettings?.flowOrder === 'consent_first') settings.flowOrder = 'consent_first';
         else if (projectFlowData.onboardingSettings?.flowOrder === '' && this._savedFlowOrder === 'consent_first') settings.flowOrder = 'contact_first';
@@ -604,34 +599,25 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         }
 
         if (this.stepIndex === 1) {
-            const target = (data.target || projectFlowData?.target || 'personal') as string;
-            const signUpFormV3 = this._pickV3SignUpFormPayload(signUpForm, target);
+            const signUpFormV3 = this._pickV3SignUpFormPayload(signUpForm, 'personal');
             formData.projectFlow = { ...restProjectFlow, signUpForm: signUpFormV3 };
         } else if (this.stepIndex === 2) {
             formData.projectFlow = { ...restProjectFlow, steps };
-            if (data.projectFlow.target === 'business') {
-                formData.projectFlow.business = !steps.businessVerification ? {} : business;
-            } else {
-                formData.projectFlow.documents = steps.document === 'skip' ? {} : documents;
-            }
+            formData.projectFlow.documents = steps.document === 'skip' ? {} : documents;
         } else if (this.stepIndex === 3) {
             formData.projectFlow = { ...restProjectFlow, steps };
-            if (data.projectFlow.target === 'business') {
-                formData.projectFlow.representatives = steps.legalRepresentative === 'skip' ? undefined : representatives;
-            } else {
-                const livenessFormGroup = this.form.get('projectFlow.liveness') as FormGroup;
-                const livenessRawValue = livenessFormGroup?.getRawValue ? livenessFormGroup.getRawValue() : liveness;
+            const livenessFormGroup = this.form.get('projectFlow.liveness') as FormGroup;
+            const livenessRawValue = livenessFormGroup?.getRawValue ? livenessFormGroup.getRawValue() : liveness;
 
-                if (steps.liveness === 'skip') {
-                    formData.projectFlow.liveness = {
-                        kycType: 'traditional',
-                    };
-                } else {
-                    formData.projectFlow.liveness = {
-                        ...livenessRawValue,
-                        kycType: 'traditional',
-                    };
-                }
+            if (steps.liveness === 'skip') {
+                formData.projectFlow.liveness = {
+                    kycType: 'traditional',
+                };
+            } else {
+                formData.projectFlow.liveness = {
+                    ...livenessRawValue,
+                    kycType: 'traditional',
+                };
             }
         } else if (this.stepIndex === 4) {
             formData.projectFlow = { ...restProjectFlow, integrations };
@@ -903,10 +889,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         }
     }
 
-    private _updateFormValidationKeys(target: string): void {
-        if (target === 'business') this.formKeys = this._setup.businessTargetFormKeys;
-        else if (target === 'personal') this.formKeys = this._setup.personalTargetFormKeys;
-        else this.formKeys = this._setup.defaultFormKeys;
+    private _updateFormValidationKeys(_target?: string): void {
+        this.formKeys = this._setup.personalTargetFormKeys;
     }
 
     // ---------------------------------------------------------------------------
@@ -983,13 +967,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         if (!this.isFormValidForStep(this.stepIndex)) return;
 
         if (this.stepIndex === 2) {
-            const target = this.form.get('target')?.value;
-            const documentStepValue =
-                target === 'business'
-                    ? this.form.get('projectFlow.steps.businessVerification')?.value
-                    : this.form.get('projectFlow.steps.document')?.value;
-
-            const isDocumentSkipped = target === 'business' ? !documentStepValue : documentStepValue === 'skip';
+            const documentStepValue = this.form.get('projectFlow.steps.document')?.value;
+            const isDocumentSkipped = documentStepValue === 'skip';
             if (isDocumentSkipped) {
                 this._showDocumentVerificationConfirmationBeforeNext();
                 return;
@@ -1043,8 +1022,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                 : (environment as any).sandBoxKYCBaseUrl || (environment as any).kycBaseUrl || `${origin}`;
         const rawFlow = this.form.get('projectFlow')?.getRawValue?.() || this.form.get('projectFlow')?.value;
         const client = readEnrollmentClient(rawFlow);
-        const blocked = enrollmentBlockers(rawFlow);
-        const segment = blocked.length ? 'sign-up' : enrollmentSegment(client);
+        const segment = enrollmentSegment(client);
         const url = `${baseUrl}/${segment}/${this.projectId}`;
         window.open(url, '_blank');
     }
@@ -1097,8 +1075,8 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     }
 
     /** Allow the host template to read the current target without poking the form group. */
-    get currentTarget(): 'personal' | 'business' {
-        return (this.form?.get('target')?.value as 'personal' | 'business') || 'personal';
+    get currentTarget(): 'personal' {
+        return 'personal';
     }
 
     /** FormGroup for the sign-up form step (mirrors the sub-tree the child expects). */
@@ -1106,15 +1084,14 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return this.form.get('projectFlow.signUpForm') as FormGroup;
     }
 
-    /** FormGroup for the documents step (personal target → documents, business → business). */
+    /** FormGroup for the documents step (personal target → documents). */
     documentsFormGroup(): FormGroup {
-        const path = this.currentTarget === 'business' ? 'projectFlow.business' : 'projectFlow.documents';
-        return this.form.get(path) as FormGroup;
+        return this.form.get('projectFlow.documents') as FormGroup;
     }
 
     /** Step control name passed to the documents step. */
-    documentsStepFormControlName(): 'document' | 'businessVerification' {
-        return this.currentTarget === 'business' ? 'businessVerification' : 'document';
+    documentsStepFormControlName(): 'document' {
+        return 'document';
     }
 
     /** FormGroup for the liveness step (only used by personal target on step 3). */
@@ -1129,10 +1106,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
 
     /** Preview views to render for the current step (empty array hides the pane). */
     previewViews(): PreviewView[] {
-        const map = this.currentTarget === 'business'
-            ? this._setup.businessPreviewViews
-            : this._setup.personalPreviewViews;
-        return map[this.stepIndex] ?? [];
+        return this._setup.personalPreviewViews[this.stepIndex] ?? [];
     }
 
     private _showDocumentVerificationConfirmationBeforeNext(): void {

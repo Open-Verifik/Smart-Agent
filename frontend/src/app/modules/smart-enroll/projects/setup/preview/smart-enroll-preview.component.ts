@@ -152,6 +152,7 @@ export class SmartEnrollPreviewComponent implements OnInit, OnChanges, OnDestroy
     get showVerifyPreview(): boolean {
         if (this.previewVariant === 'legacy') return false;
         if (this.previewVariant === 'verify') return true;
+        if (this.formType === 'personal') return true;
         return this.activeVerifyStyle !== null;
     }
 

@@ -61,14 +61,16 @@ const ONBOARDING_TYPE = 'onboarding';
 const CLIENT_LIST_PARAMS: Record<string, string | string[]> = {
     with: ['projectFlows'],
     sort: '-updatedAt',
+    wherenot_target: 'business',
     populates: ['projectMembers', 'projectMembers.staff', 'client'],
-    select: '_id name client projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
+    select: '_id name target client projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
 };
 
 const STAFF_LIST_PARAMS: Record<string, string | string[]> = {
     with: ['projectFlows'],
+    wherenot_target: 'business',
     populates: ['projectMembers', 'projectMembers.staff'],
-    select: '_id name client projectFlows branding projectMembers demoMode demoOTP currentStep lastStep status updatedAt createdAt',
+    select: '_id name target client projectFlows branding projectMembers demoMode demoOTP version currentStep lastStep status updatedAt createdAt',
 };
 
 @Injectable({ providedIn: 'root' })

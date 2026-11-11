@@ -59,6 +59,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
     norway: '🇳🇴', denmark: '🇩🇰', finland: '🇫🇮', ireland: '🇮🇪',
     philippines: '🇵🇭', thailand: '🇹🇭', indonesia: '🇮🇩', malaysia: '🇲🇾',
     singapore: '🇸🇬', vietnam: '🇻🇳', taiwan: '🇹🇼', 'hong kong': '🇭🇰',
+    world: '🌐',
 };
 
 @Component({
@@ -153,6 +154,18 @@ export class ScanToolComponent implements OnInit, OnDestroy {
 
     private readonly _flowStepOrder: ScanToolStep[] = ['select', 'preview', 'upload', 'results'];
 
+    get isBusinessMode(): boolean {
+        return this._router.url.startsWith('/smart-business');
+    }
+
+    get scanTarget(): 'business' | 'personal' {
+        return this.isBusinessMode ? 'business' : 'personal';
+    }
+
+    get basePath(): string {
+        return this.isBusinessMode ? '/smart-business/smart-scan' : '/smart-enroll/smart-scan';
+    }
+
     ngOnInit() {
         this._scanService.resetScanState();
         this._scanService.documentTypes.set([]);
@@ -162,13 +175,20 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         this.bindStepToUrl();
         if (this.requestedValidationId) this.loadRequestedValidation(this.requestedValidationId);
         this.loadRecentTypes();
-        this._countriesSub = this._scanService.getDocumentTypeCountries().subscribe({
+        this._countriesSub = this._scanService.getDocumentTypeCountries(this.scanTarget).subscribe({
             next: (countries) => {
                 this.countries = countries;
                 const match = countries.find(
                     (country) => country.toLowerCase() === requestedCountry.toLowerCase()
                 );
-                if (match) this.toggleCountry(match);
+                if (match) {
+                    this.toggleCountry(match);
+                } else if (this.isBusinessMode && countries.length > 0) {
+                    const defaultKybCountry =
+                        countries.find((c) => c.toLowerCase() === 'colombia') || countries[0];
+                    this.toggleCountry(defaultKybCountry);
+                    this.countryPickerOpen = true;
+                }
                 this._cdr.markForCheck();
             },
             error: () => {
@@ -243,14 +263,14 @@ export class ScanToolComponent implements OnInit, OnDestroy {
 
     useMyFields(documentType: DocumentType, event?: Event) {
         event?.stopPropagation();
-        this._router.navigate(['/smart-enroll/smart-scan/document-type/new'], {
+        this._router.navigate([`${this.basePath}/document-type/new`], {
             queryParams: { fork: documentType._id },
         });
     }
 
     private loadRecentTypes() {
         this.recentLoading = true;
-        this._scanService.getRecentDocumentTypes().subscribe({
+        this._scanService.getRecentDocumentTypes(this.scanTarget).subscribe({
             next: (rows) => {
                 this.recentTypes = rows;
                 this.recentLoading = false;
@@ -360,7 +380,9 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         this._scanService.documentTypes.set([]);
         this._cdr.markForCheck();
 
-        this._documentTypesSub = this._scanService.getDocumentTypes(country, this.showMine).subscribe({
+        this._documentTypesSub = this._scanService
+            .getDocumentTypes(country, this.showMine, this.scanTarget)
+            .subscribe({
             next: () => {
                 const types = this._scanService.documentTypes();
                 this.categories = [...new Set(types.map((t) => t.category).filter(Boolean))].sort();
@@ -435,7 +457,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
 
     editDocumentType(documentType: DocumentType, event?: Event) {
         event?.stopPropagation();
-        this._router.navigate(['/smart-enroll/smart-scan/document-type', documentType._id]);
+        this._router.navigate([`${this.basePath}/document-type`, documentType._id]);
     }
 
     editContextDocumentType() {
@@ -594,7 +616,7 @@ export class ScanToolComponent implements OnInit, OnDestroy {
         const documentType = this.selectedDocType();
         if (!documentType) return;
         if (documentType.client) {
-            this._router.navigate(['/smart-enroll/smart-scan/document-type', documentType._id], {
+            this._router.navigate([`${this.basePath}/document-type`, documentType._id], {
                 queryParams: { step: 'smartCheck' },
             });
             return;
@@ -746,11 +768,11 @@ export class ScanToolComponent implements OnInit, OnDestroy {
             this._location.back();
             return;
         }
-        this._router.navigate(['/smart-enroll/smart-scan/list']);
+        this._router.navigate([`${this.basePath}/list`]);
     }
 
     goToList() {
-        this._router.navigate(['/smart-enroll/smart-scan/list']);
+        this._router.navigate([`${this.basePath}/list`]);
     }
 
     getExtractionFields(): Array<{ key: string; value: unknown }> {

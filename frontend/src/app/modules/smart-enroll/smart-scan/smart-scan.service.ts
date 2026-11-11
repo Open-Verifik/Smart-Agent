@@ -23,7 +23,23 @@ import type {
 const SCAN_METHODS = ['SCAN_AGENT', 'SCAN_STUDIO', 'SCAN_PROMPT'];
 
 const SCAN_LIST_COLUMNS =
-    '_id url backUrl documentType documentNumber status validationMethod country createdAt OCRExtraction retention';
+    '_id url backUrl documentType documentNumber documentCategory status validationMethod country createdAt OCRExtraction retention';
+
+export const PERSONAL_SCAN_CATEGORIES = [
+    'government_id',
+    'passport',
+    'license',
+    'criminal',
+] as const;
+
+export const BUSINESS_SCAN_CATEGORIES = [
+    'business_document',
+    'tax_document',
+    'bank_document',
+    'proof_of_address',
+] as const;
+
+export type ScanTargetMode = 'personal' | 'business';
 
 @Injectable({
     providedIn: 'root',
@@ -55,6 +71,10 @@ export class SmartScanService {
         return token ? { Authorization: `Bearer ${token}` } : {};
     }
 
+    categoriesForTarget(target: ScanTargetMode = 'personal'): readonly string[] {
+        return target === 'business' ? BUSINESS_SCAN_CATEGORIES : PERSONAL_SCAN_CATEGORIES;
+    }
+
     getScans(
         page: number = 1,
         limit: number = 10,
@@ -65,16 +85,19 @@ export class SmartScanService {
             status?: string;
             documentCategory?: string;
             nationality?: string;
-        }
+        },
+        target: ScanTargetMode = 'personal'
     ) {
         this.loading.set(true);
         this.error.set(null);
 
+        const allowedCategories = this.categoriesForTarget(target);
         const params: Record<string, string | string[]> = {
             page: page.toString(),
             limit: limit.toString(),
             sort: '-createdAt',
             in_validationMethod: SCAN_METHODS,
+            in_documentCategory: [...allowedCategories],
             columns: SCAN_LIST_COLUMNS,
             lean: 'true',
         };
@@ -96,9 +119,15 @@ export class SmartScanService {
             })
             .pipe(
                 tap((response) => {
-                    const data = Array.isArray(response.data) ? response.data : [response.data];
+                    const raw = Array.isArray(response.data) ? response.data : [response.data];
+                    const data = raw.filter(
+                        (item) =>
+                            item &&
+                            (!item.documentCategory ||
+                                allowedCategories.includes(item.documentCategory))
+                    );
                     this.scans.set(data);
-                    this.total.set(response.total ?? 0);
+                    this.total.set(response.total ?? data.length);
                 }),
                 catchError((err) => {
                     console.error('Error fetching scans:', err);
@@ -109,13 +138,21 @@ export class SmartScanService {
             );
     }
 
-    getRecentDocumentTypes() {
+    getRecentDocumentTypes(target: ScanTargetMode = 'personal') {
+        const allowedCategories = this.categoriesForTarget(target);
         return this._httpClient
             .get<{ data: RecentDocumentType[] }>(`${this.apiUrl}/v2/document-validations/recent-document-types`, {
                 headers: this.authHeaders,
             })
             .pipe(
-                map((response) => (Array.isArray(response.data) ? response.data : [])),
+                map((response) => {
+                    const rows = Array.isArray(response.data) ? response.data : [];
+                    return rows.filter(
+                        (r) =>
+                            r?.documentType?.category &&
+                            allowedCategories.includes(r.documentType.category)
+                    );
+                }),
                 catchError((err) => {
                     console.error('Error fetching recent document types:', err);
                     return of([] as RecentDocumentType[]);
@@ -161,20 +198,30 @@ export class SmartScanService {
     /**
      * Active document-type countries only. Does not store records, so preview images stay unloaded.
      */
-    getDocumentTypeCountries() {
-        const params: Record<string, string> = {
+    getDocumentTypeCountries(target: ScanTargetMode = 'personal') {
+        const allowedCategories = this.categoriesForTarget(target);
+        const params: Record<string, string | string[]> = {
             where_status: 'active',
-            columns: 'country',
+            in_category: [...allowedCategories],
+            columns: 'country category',
             limit: '500',
         };
 
         return this._httpClient
-            .get<{ data: Array<{ country?: string }> }>(`${this.apiUrl}/v2/document-types`, {
-                params,
-                headers: this.authHeaders,
-            })
+            .get<{ data: Array<{ country?: string; category?: string }> }>(
+                `${this.apiUrl}/v2/document-types`,
+                {
+                    params,
+                    headers: this.authHeaders,
+                }
+            )
             .pipe(
-                map((response) => this.uniqueCountries(response.data)),
+                map((response) => {
+                    const rows = (Array.isArray(response.data) ? response.data : []).filter(
+                        (r) => !r.category || allowedCategories.includes(r.category)
+                    );
+                    return this.uniqueCountries(rows);
+                }),
                 catchError((err) => {
                     console.error('Error fetching document type countries:', err);
                     return throwError(() => err);
@@ -185,15 +232,21 @@ export class SmartScanService {
     /**
      * Full document types for one country, including preview images.
      */
-    getDocumentTypes(country: string, mine = false) {
+    getDocumentTypes(
+        country: string,
+        mine = false,
+        target: ScanTargetMode = 'personal'
+    ) {
         if (!country?.trim()) {
             this.documentTypes.set([]);
             return of([] as DocumentType[]);
         }
 
-        const params: Record<string, string> = {
+        const allowedCategories = this.categoriesForTarget(target);
+        const params: Record<string, string | string[]> = {
             where_status: 'active',
             where_country: country,
+            in_category: [...allowedCategories],
             limit: '200',
         };
         if (mine) params['where_mine'] = 'true';
@@ -204,7 +257,12 @@ export class SmartScanService {
                 headers: this.authHeaders,
             })
             .pipe(
-                map((response) => (Array.isArray(response.data) ? response.data : [])),
+                map((response) => {
+                    const rows = Array.isArray(response.data) ? response.data : [];
+                    return rows.filter(
+                        (dt) => dt?.category && allowedCategories.includes(dt.category)
+                    );
+                }),
                 tap((data) => this.documentTypes.set(data)),
                 catchError((err) => {
                     console.error('Error fetching document types:', err);
@@ -213,10 +271,61 @@ export class SmartScanService {
             );
     }
 
+    /**
+     * Catalog query for the dedicated Document Templates screen (/smart-business/document-templates & /smart-enroll/document-templates).
+     * Loads all active templates for the target domain (KYB or KYC) across all countries or a selected country/category.
+     */
+    getDocumentTemplatesCatalog(options: {
+        target: ScanTargetMode;
+        country?: string;
+        category?: string;
+        mine?: boolean;
+    }) {
+        const allowedCategories = this.categoriesForTarget(options.target);
+        const params: Record<string, string | string[]> = {
+            where_status: 'active',
+            in_category: [...allowedCategories],
+            limit: '500',
+            sort: 'country name',
+        };
+        if (options.country?.trim()) {
+            params['where_country'] = options.country.trim();
+        }
+        if (options.category?.trim() && allowedCategories.includes(options.category.trim())) {
+            params['where_category'] = options.category.trim();
+        }
+        if (options.mine) {
+            params['where_mine'] = 'true';
+        }
+
+        return this._httpClient
+            .get<{ data: DocumentType[] }>(`${this.apiUrl}/v2/document-types`, {
+                params: this.withFeaturePopulate(params),
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((response) => {
+                    const rows = Array.isArray(response.data) ? response.data : [];
+                    return rows.filter(
+                        (dt) => dt?.category && allowedCategories.includes(dt.category)
+                    );
+                }),
+                catchError((err) => {
+                    console.error('Error fetching document templates catalog:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
     private uniqueCountries(data: Array<{ country?: string }> | undefined): string[] {
         const rows = Array.isArray(data) ? data : [];
         const names = rows
-            .map((row) => row.country?.trim())
+            .map((row) =>
+                row.country
+                    ?.trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, '_')
+            )
             .filter((country): country is string => Boolean(country));
         return [...new Set(names)].sort();
     }
@@ -300,7 +409,9 @@ export class SmartScanService {
     /**
      * Includes the linked government endpoint name and URL on each document type.
      */
-    private withFeaturePopulate(params: Record<string, string>): Record<string, string> {
+    private withFeaturePopulate(
+        params: Record<string, string | string[]>
+    ): Record<string, string | string[]> {
         return {
             ...params,
             'populates[]': 'appFeature',

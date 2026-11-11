@@ -1,5 +1,13 @@
-import { Injectable } from "@angular/core";
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
+import { Injectable } from '@angular/core';
+import {
+    AbstractControl,
+    FormArray,
+    FormBuilder,
+    FormGroup,
+    ValidationErrors,
+    ValidatorFn,
+    Validators,
+} from '@angular/forms';
 
 import {
     BusinessDocumentConfiguration,
@@ -21,7 +29,7 @@ export class SetupFormFactory {
         additionalFields: (): ValidatorFn => {
             return (control: AbstractControl): ValidationErrors | null => {
                 const allowAdditionalFields = control.value;
-                const additionalFields = control?.parent?.get("additionalFields")?.value;
+                const additionalFields = control?.parent?.get('additionalFields')?.value;
 
                 if (allowAdditionalFields && (!additionalFields || additionalFields.length === 0)) {
                     return { additionalFieldsRequired: true };
@@ -33,9 +41,9 @@ export class SetupFormFactory {
 
         documentsScreening: (): ValidatorFn => {
             return (group: AbstractControl): ValidationErrors | null => {
-                const screening = group.get("screening")?.value;
-                const criminalHistoryVerification = group.get("criminalHistoryVerification")?.value;
-                const informationVerification = group.get("informationVerification")?.value;
+                const screening = group.get('screening')?.value;
+                const criminalHistoryVerification = group.get('criminalHistoryVerification')?.value;
+                const informationVerification = group.get('informationVerification')?.value;
 
                 if (screening && !criminalHistoryVerification && !informationVerification) {
                     return { screeningRequiresVerification: true };
@@ -50,15 +58,23 @@ export class SetupFormFactory {
                 const documentTypesArray = control as FormArray;
                 const errors: ValidationErrors = {};
 
-                if (!documentTypesArray || documentTypesArray.length === 0) errors.atLeastOneDocumentVerificationTypeRequired = true;
+                if (!documentTypesArray || documentTypesArray.length === 0)
+                    errors.atLeastOneDocumentVerificationTypeRequired = true;
 
                 if (documentTypesArray && documentTypesArray.length > 0) {
-                    const countries = documentTypesArray.controls.map((typeControl) => typeControl.get("country")?.value).filter(Boolean);
+                    const countries = documentTypesArray.controls
+                        .map((typeControl) => typeControl.get('country')?.value)
+                        .filter(Boolean);
                     const uniqueCountries = new Set(countries);
 
-                    if (countries.length !== uniqueCountries.size) errors.duplicateCountriesNotAllowed = true;
+                    if (countries.length !== uniqueCountries.size)
+                        errors.duplicateCountriesNotAllowed = true;
 
-                    if (documentTypesArray.controls.some((typeControl) => !typeControl.get("country")?.value)) {
+                    if (
+                        documentTypesArray.controls.some(
+                            (typeControl) => !typeControl.get('country')?.value
+                        )
+                    ) {
                         errors.emptyCountryValuesNotAllowed = true;
                     }
 
@@ -76,10 +92,14 @@ export class SetupFormFactory {
                 if (!control) return null;
 
                 const documentStep = control?.value;
-                const verificationMethodsControl = control?.root?.get("projectFlow.documents.verificationMethods");
-                const attemptLimitControl = control?.root?.get("projectFlow.documents.attemptLimit");
+                const verificationMethodsControl = control?.root?.get(
+                    'projectFlow.documents.verificationMethods'
+                );
+                const attemptLimitControl = control?.root?.get(
+                    'projectFlow.documents.attemptLimit'
+                );
 
-                if (!documentStep || documentStep === "skip") {
+                if (!documentStep || documentStep === 'skip') {
                     verificationMethodsControl?.setValidators([]);
                     verificationMethodsControl?.updateValueAndValidity({ onlySelf: true });
 
@@ -101,8 +121,8 @@ export class SetupFormFactory {
 
         atLeastOneContactMethod: (): ValidatorFn => {
             return (group: AbstractControl): ValidationErrors | null => {
-                const email = group.get("email")?.value;
-                const phone = group.get("phone")?.value;
+                const email = group.get('email')?.value;
+                const phone = group.get('phone')?.value;
 
                 if (!email && !phone) {
                     return { atLeastOneContactMethodRequired: true };
@@ -112,10 +132,11 @@ export class SetupFormFactory {
             };
         },
 
-        promptTemplate: (target: "business" | "personal" = "personal"): ValidatorFn => {
+        promptTemplate: (target: 'business' | 'personal' = 'personal'): ValidatorFn => {
             return (control: AbstractControl): ValidationErrors | null => {
-                if (target === "business") {
-                    return (control: AbstractControl): ValidationErrors | null => (!control.value ? { promptTemplateRequired: true } : null);
+                if (target === 'business') {
+                    return (control: AbstractControl): ValidationErrors | null =>
+                        !control.value ? { promptTemplateRequired: true } : null;
                 }
 
                 return !control.value ? { promptTemplateRequired: true } : null;
@@ -127,17 +148,27 @@ export class SetupFormFactory {
                 const documentTemplatesArray = control as FormArray;
                 const errors: ValidationErrors = {};
 
-                if (!documentTemplatesArray || !documentTemplatesArray.length) return { atLeastOnePromptTemplateRequired: true };
+                if (!documentTemplatesArray || !documentTemplatesArray.length)
+                    return { atLeastOnePromptTemplateRequired: true };
 
-                const nonEmptyTemplates = documentTemplatesArray.controls.filter((templateControl) => templateControl.get("promptTemplate")?.value);
+                const nonEmptyTemplates = documentTemplatesArray.controls.filter(
+                    (templateControl) => templateControl.get('promptTemplate')?.value
+                );
 
-                if (nonEmptyTemplates.length === 0) return { atLeastOnePromptTemplateRequired: true };
+                if (nonEmptyTemplates.length === 0)
+                    return { atLeastOnePromptTemplateRequired: true };
 
-                const uniquePromptTemplateIds = new Set(nonEmptyTemplates.map((templateControl) => templateControl.get("promptTemplate")?.value));
+                const uniquePromptTemplateIds = new Set(
+                    nonEmptyTemplates.map(
+                        (templateControl) => templateControl.get('promptTemplate')?.value
+                    )
+                );
 
-                if (uniquePromptTemplateIds.size !== nonEmptyTemplates.length) errors.allPromptTemplatesMustBeUnique = true;
+                if (uniquePromptTemplateIds.size !== nonEmptyTemplates.length)
+                    errors.allPromptTemplatesMustBeUnique = true;
 
-                if (nonEmptyTemplates.some((templateControl) => templateControl.invalid)) errors.allPromptTemplatesMustBeSelected = true;
+                if (nonEmptyTemplates.some((templateControl) => templateControl.invalid))
+                    errors.allPromptTemplatesMustBeSelected = true;
 
                 return Object.keys(errors).length ? errors : null;
             };
@@ -150,13 +181,17 @@ export class SetupFormFactory {
                 if (!isActive) return null;
 
                 const configurationGroup = control.parent;
-                const documentTemplatesArray = configurationGroup?.get("documentTemplates") as FormArray;
+                const documentTemplatesArray = configurationGroup?.get(
+                    'documentTemplates'
+                ) as FormArray;
 
                 if (!documentTemplatesArray || documentTemplatesArray.length === 0) {
                     return { activeConfigurationRequiresValidDocumentTemplates: true };
                 }
 
-                const nonEmptyTemplates = documentTemplatesArray.controls.filter((templateControl) => templateControl.get("promptTemplate")?.value);
+                const nonEmptyTemplates = documentTemplatesArray.controls.filter(
+                    (templateControl) => templateControl.get('promptTemplate')?.value
+                );
 
                 if (nonEmptyTemplates.length === 0) {
                     return { activeConfigurationRequiresValidDocumentTemplates: true };
@@ -175,21 +210,23 @@ export class SetupFormFactory {
                 const configurationsArray = control as FormArray;
                 const errors: ValidationErrors = {};
 
-                if (!configurationsArray || !configurationsArray.length) errors.configurationsRequired = true;
+                if (!configurationsArray || !configurationsArray.length)
+                    errors.configurationsRequired = true;
 
                 if (configurationsArray?.length) {
                     const activeConfigurations = configurationsArray.controls.filter(
-                        (configurationControl) => configurationControl.get("active")?.value === true
+                        (configurationControl) => configurationControl.get('active')?.value === true
                     );
 
-                    if (!activeConfigurations.length) errors.atLeastOneActiveConfigurationRequired = true;
+                    if (!activeConfigurations.length)
+                        errors.atLeastOneActiveConfigurationRequired = true;
 
                     if (
                         activeConfigurations.some(
                             (configurationControl) =>
                                 configurationControl.invalid ||
-                                configurationControl.get("documentTemplates")?.invalid ||
-                                configurationControl.get("active")?.invalid
+                                configurationControl.get('documentTemplates')?.invalid ||
+                                configurationControl.get('active')?.invalid
                         )
                     ) {
                         errors.allConfigurationsMustBeValid = true;
@@ -203,8 +240,10 @@ export class SetupFormFactory {
         documentVerificationType: (): ValidatorFn => {
             return (control: AbstractControl): ValidationErrors | null => {
                 const documentVerificationTypeGroup = control;
-                const country = documentVerificationTypeGroup.get("country")?.value;
-                const configurations = documentVerificationTypeGroup.get("configurations") as FormArray;
+                const country = documentVerificationTypeGroup.get('country')?.value;
+                const configurations = documentVerificationTypeGroup.get(
+                    'configurations'
+                ) as FormArray;
 
                 const errors: ValidationErrors = {};
 
@@ -223,8 +262,10 @@ export class SetupFormFactory {
         documentTemplatesArray?.setValidators([SetupFormFactory.validators.documentTemplates()]);
 
         documentTemplatesArray?.controls.forEach((documentTemplate) => {
-            documentTemplate.get("promptTemplate")?.setValidators([SetupFormFactory.validators.promptTemplate()]);
-            documentTemplate.get("promptTemplate")?.updateValueAndValidity();
+            documentTemplate
+                .get('promptTemplate')
+                ?.setValidators([SetupFormFactory.validators.promptTemplate()]);
+            documentTemplate.get('promptTemplate')?.updateValueAndValidity();
             documentTemplate.updateValueAndValidity();
         });
     }
@@ -236,8 +277,8 @@ export class SetupFormFactory {
         documentTemplatesArray?.setValidators([]);
 
         documentTemplatesArray?.controls.forEach((documentTemplate) => {
-            documentTemplate.get("promptTemplate")?.setValidators([]);
-            documentTemplate.get("promptTemplate")?.updateValueAndValidity();
+            documentTemplate.get('promptTemplate')?.setValidators([]);
+            documentTemplate.get('promptTemplate')?.updateValueAndValidity();
             documentTemplate.updateValueAndValidity();
         });
     }
@@ -245,12 +286,17 @@ export class SetupFormFactory {
     /**
      * Adds default document types to an existing form array
      */
-    addDocumentTypesWithDefaults(documentTypes?: FormArray, target: "business" | "personal" = "personal"): void {
+    addDocumentTypesWithDefaults(
+        documentTypes?: FormArray,
+        target: 'business' | 'personal' = 'personal'
+    ): void {
         const defaultConfigurationsArray =
-            target === "business" ? this.createDefaultBusinessConfigurations() : this.createDefaultPersonalConfigurations();
+            target === 'business'
+                ? this.createDefaultBusinessConfigurations()
+                : this.createDefaultPersonalConfigurations();
 
         const defaultDocumentType = this._formBuilder.group({
-            country: ["", [Validators.required]],
+            country: ['', [Validators.required]],
             configurations: defaultConfigurationsArray,
         });
 
@@ -260,18 +306,32 @@ export class SetupFormFactory {
     /**
      * Creates a document template FormGroup
      */
-    createDocumentTemplateFormGroup(documentTemplate?: ProjectDocumentTemplate, target: "business" | "personal" = "personal"): FormGroup {
+    createDocumentTemplateFormGroup(
+        documentTemplate?: ProjectDocumentTemplate,
+        target: 'business' | 'personal' = 'personal'
+    ): FormGroup {
+        const rawPt = documentTemplate?.promptTemplate;
+        const ptId =
+            rawPt && typeof rawPt === 'object'
+                ? (rawPt as { _id?: string })._id || null
+                : rawPt || null;
         return this._formBuilder.group({
-            promptTemplate: [documentTemplate?.promptTemplate || null, [SetupFormFactory.validators.promptTemplate(target)]],
-            required: [documentTemplate?.required || "optional", [Validators.required]],
+            promptTemplate: [ptId, [SetupFormFactory.validators.promptTemplate(target)]],
+            required: [documentTemplate?.required || 'optional', [Validators.required]],
         });
     }
 
     /**
      * Creates a document templates FormArray
      */
-    createDocumentTemplatesFormArray(documentTemplates?: ProjectDocumentTemplate[], target: "business" | "personal" = "personal"): FormArray {
-        const templates = documentTemplates?.map((template) => this.createDocumentTemplateFormGroup(template, target)) || [];
+    createDocumentTemplatesFormArray(
+        documentTemplates?: ProjectDocumentTemplate[],
+        target: 'business' | 'personal' = 'personal'
+    ): FormArray {
+        const templates =
+            documentTemplates?.map((template) =>
+                this.createDocumentTemplateFormGroup(template, target)
+            ) || [];
         const formArray = this._formBuilder.array(templates, [Validators.required]);
 
         formArray.setValidators([SetupFormFactory.validators.documentTemplates()]);
@@ -284,9 +344,12 @@ export class SetupFormFactory {
      */
     createConfigurationFormGroup(
         config?: Partial<PersonalDocumentConfiguration | BusinessDocumentConfiguration>,
-        target: "business" | "personal" = "personal"
+        target: 'business' | 'personal' = 'personal'
     ): FormGroup {
-        const documentTemplatesArray = this.createDocumentTemplatesFormArray(config?.documentTemplates, target);
+        const documentTemplatesArray = this.createDocumentTemplatesFormArray(
+            config?.documentTemplates,
+            target
+        );
 
         return this._formBuilder.group({
             active: [config?.active ?? false, [SetupFormFactory.validators.configurationActive()]],
@@ -300,9 +363,32 @@ export class SetupFormFactory {
      */
     createConfigurationsFormArray(
         configurations?: Partial<PersonalDocumentConfiguration | BusinessDocumentConfiguration>[],
-        target: "business" | "personal" = "personal"
+        target: 'business' | 'personal' = 'personal'
     ): FormArray {
-        const configs = configurations?.map((config) => this.createConfigurationFormGroup(config, target)) || [];
+        const expectedCategories =
+            target === 'business'
+                ? ([
+                      'business_document',
+                      'tax_document',
+                      'bank_document',
+                      'proof_of_address',
+                  ] as const)
+                : (['government_id', 'license', 'passport'] as const);
+
+        const existingList = configurations ? [...configurations] : [];
+        for (const cat of expectedCategories) {
+            if (!existingList.some((c) => c?.documentCategory === cat)) {
+                existingList.push({
+                    documentCategory: cat as any,
+                    active: false,
+                    documentTemplates: [],
+                });
+            }
+        }
+
+        const configs = existingList.map((config) =>
+            this.createConfigurationFormGroup(config, target)
+        );
         const formArray = this._formBuilder.array(configs);
 
         formArray.setValidators([SetupFormFactory.validators.configurations()]);
@@ -315,12 +401,15 @@ export class SetupFormFactory {
      */
     createDocumentTypeFormGroup(
         documentType?: Partial<PersonalDocumentType | BusinessDocumentType>,
-        target: "business" | "personal" = "personal"
+        target: 'business' | 'personal' = 'personal'
     ): FormGroup {
-        const configurationsArray = this.createConfigurationsFormArray(documentType?.configurations, target);
+        const configurationsArray = this.createConfigurationsFormArray(
+            documentType?.configurations,
+            target
+        );
 
         const formGroup = this._formBuilder.group({
-            country: [documentType?.country || "", [Validators.required]],
+            country: [documentType?.country || '', [Validators.required]],
             configurations: configurationsArray,
         });
 
@@ -334,9 +423,11 @@ export class SetupFormFactory {
      */
     createDocumentTypesFormArray(
         documentTypes?: Partial<PersonalDocumentType | BusinessDocumentType>[],
-        target: "business" | "personal" = "personal"
+        target: 'business' | 'personal' = 'personal'
     ): FormArray {
-        const types = documentTypes?.map((docType) => this.createDocumentTypeFormGroup(docType, target)) || [];
+        const types =
+            documentTypes?.map((docType) => this.createDocumentTypeFormGroup(docType, target)) ||
+            [];
         const formArray = this._formBuilder.array(types);
 
         formArray.setValidators([SetupFormFactory.validators.documentVerificationTypes()]);
@@ -351,14 +442,31 @@ export class SetupFormFactory {
         const configurationsArray = this._formBuilder.array<FormGroup>([]);
 
         const defaultConfigs = [
-            { documentCategory: "government_id", active: false, documentTemplates: [{ promptTemplate: null }] },
-            { documentCategory: "license", active: false, documentTemplates: [{ promptTemplate: null }] },
-            { documentCategory: "passport", active: false, documentTemplates: [{ promptTemplate: null }] },
+            {
+                documentCategory: 'government_id',
+                active: false,
+                documentTemplates: [{ promptTemplate: null }],
+            },
+            {
+                documentCategory: 'license',
+                active: false,
+                documentTemplates: [{ promptTemplate: null }],
+            },
+            {
+                documentCategory: 'passport',
+                active: false,
+                documentTemplates: [{ promptTemplate: null }],
+            },
         ] as Partial<PersonalDocumentConfiguration>[];
 
         defaultConfigs.forEach((config) => {
-            const documentTemplatesArray = this.createDocumentTemplatesFormArray(config?.documentTemplates);
-            const configurationFormGroup = this.createDefaultConfigurationFormGroup(config, documentTemplatesArray);
+            const documentTemplatesArray = this.createDocumentTemplatesFormArray(
+                config?.documentTemplates
+            );
+            const configurationFormGroup = this.createDefaultConfigurationFormGroup(
+                config,
+                documentTemplatesArray
+            );
 
             configurationsArray.push(configurationFormGroup);
         });
@@ -375,15 +483,37 @@ export class SetupFormFactory {
         const configurationsArray = this._formBuilder.array<FormGroup>([]);
 
         const defaultConfigs = [
-            { documentCategory: "business_document", active: false, documentTemplates: [{ promptTemplate: null, required: "optional" }] },
-            { documentCategory: "proof_of_address", active: false, documentTemplates: [{ promptTemplate: null, required: "optional" }] },
-            { documentCategory: "tax_document", active: false, documentTemplates: [{ promptTemplate: null, required: "optional" }] },
+            {
+                documentCategory: 'business_document',
+                active: false,
+                documentTemplates: [{ promptTemplate: null, required: 'mandatory' }],
+            },
+            {
+                documentCategory: 'tax_document',
+                active: false,
+                documentTemplates: [{ promptTemplate: null, required: 'mandatory' }],
+            },
+            {
+                documentCategory: 'bank_document',
+                active: false,
+                documentTemplates: [{ promptTemplate: null, required: 'optional' }],
+            },
+            {
+                documentCategory: 'proof_of_address',
+                active: false,
+                documentTemplates: [{ promptTemplate: null, required: 'optional' }],
+            },
         ] as Partial<BusinessDocumentConfiguration>[];
 
         defaultConfigs.forEach((config) => {
-            const documentTemplatesArray = this.createDocumentTemplatesFormArray(config?.documentTemplates);
+            const documentTemplatesArray = this.createDocumentTemplatesFormArray(
+                config?.documentTemplates
+            );
 
-            const configurationFormGroup = this.createDefaultConfigurationFormGroup(config, documentTemplatesArray);
+            const configurationFormGroup = this.createDefaultConfigurationFormGroup(
+                config,
+                documentTemplatesArray
+            );
 
             configurationsArray.push(configurationFormGroup);
         });
@@ -407,7 +537,10 @@ export class SetupFormFactory {
     /**
      * Creates an empty document types form array
      */
-    createDocumentTypesWithDefaults(documentTypes: any[], target: "business" | "personal"): FormArray {
+    createDocumentTypesWithDefaults(
+        documentTypes: any[],
+        target: 'business' | 'personal'
+    ): FormArray {
         if (!documentTypes || !documentTypes.length) {
             const formArray = this._formBuilder.array<FormGroup>([]);
 
@@ -423,11 +556,18 @@ export class SetupFormFactory {
      * Sets up all validators for a document verification type control
      * This method centralizes the validator setup logic used by both components
      */
-    setupDocumentVerificationTypeValidators(documentVerificationTypeControl: FormGroup, target: "personal" | "business" = "personal"): void {
+    setupDocumentVerificationTypeValidators(
+        documentVerificationTypeControl: FormGroup,
+        target: 'personal' | 'business' = 'personal'
+    ): void {
         // Add the document verification type validator
-        documentVerificationTypeControl.setValidators([SetupFormFactory.validators.documentVerificationType()]);
+        documentVerificationTypeControl.setValidators([
+            SetupFormFactory.validators.documentVerificationType(),
+        ]);
 
-        const configurationsArray = documentVerificationTypeControl.get("configurations") as FormArray;
+        const configurationsArray = documentVerificationTypeControl.get(
+            'configurations'
+        ) as FormArray;
 
         if (!configurationsArray) return;
 
@@ -436,16 +576,18 @@ export class SetupFormFactory {
 
         configurationsArray.controls.forEach((configuration, index) => {
             // Set default document categories for personal target
-            if (target === "personal") {
-                if (index === 0) configuration.get("documentCategory")?.setValue("license");
-                if (index === 1) configuration.get("documentCategory")?.setValue("passport");
-                if (index === 2) configuration.get("documentCategory")?.setValue("government_id");
+            if (target === 'personal') {
+                if (index === 0) configuration.get('documentCategory')?.setValue('license');
+                if (index === 1) configuration.get('documentCategory')?.setValue('passport');
+                if (index === 2) configuration.get('documentCategory')?.setValue('government_id');
             }
 
             // Add configuration active validator
-            configuration.get("active")?.setValidators([SetupFormFactory.validators.configurationActive()]);
+            configuration
+                .get('active')
+                ?.setValidators([SetupFormFactory.validators.configurationActive()]);
 
-            const documentTemplates = configuration.get("documentTemplates") as FormArray;
+            const documentTemplates = configuration.get('documentTemplates') as FormArray;
 
             if (!documentTemplates) return;
 
@@ -462,8 +604,8 @@ export class SetupFormFactory {
      * This method can be called individually or as part of the full document types array update
      */
     updateConfigurationControlValidation(configurationControl: FormGroup): void {
-        const isActive = configurationControl.get("active")?.value;
-        const documentTemplatesArray = configurationControl.get("documentTemplates") as FormArray;
+        const isActive = configurationControl.get('active')?.value;
+        const documentTemplatesArray = configurationControl.get('documentTemplates') as FormArray;
 
         if (isActive) {
             this._setupDocumentTemplatesValidation(documentTemplatesArray);
@@ -481,7 +623,7 @@ export class SetupFormFactory {
      */
     updateValidatorsForActiveState(documentTypesArray: FormArray): void {
         documentTypesArray.controls.forEach((documentTypeControl) => {
-            const configurationsArray = documentTypeControl.get("configurations") as FormArray;
+            const configurationsArray = documentTypeControl.get('configurations') as FormArray;
 
             if (!configurationsArray) return;
 

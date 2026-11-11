@@ -1,0 +1,192 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <div class="hero-icon">
+                    <mat-icon svgIcon="heroicons_outline:building-office-2"></mat-icon>
+                </div>
+                <div>
+                    <h1 class="title">{{ t('smartBusiness.list.title') }}</h1>
+                    <p class="subtitle">{{ t('smartBusiness.list.subtitle') }}</p>
+                </div>
+            </header>
+
+            <div class="crumb">
+                <a routerLink="/chat" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.smart_business') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('smartBusiness.list.title') }}</span>
+            </div>
+
+            <div class="workspace">
+                <div class="workspace__main">
+                    @if (loading()) {
+                        <div class="state-loading">
+                            <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                        </div>
+                    } @else if (error()) {
+                        <div class="banner-error">{{ error()! | transloco }}</div>
+                    } @else if (projects().length === 0) {
+                        <div class="empty-hero-card">
+                            <div class="empty-hero-icon">
+                                <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                            </div>
+                            <h2 class="empty-hero-title">{{ t('smartBusiness.list.emptyTitle') }}</h2>
+                            <p class="empty-hero-text">{{ t('smartBusiness.list.emptySubtitle') }}</p>
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                class="empty-hero-cta"
+                                (click)="createProject()"
+                            >
+                                <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                                {{ t('smartBusiness.list.createFirstBtn') }}
+                            </button>
+                        </div>
+                    } @else {
+                        <div class="grid">
+                            <button
+                                type="button"
+                                class="card card-create"
+                                (click)="createProject()"
+                                [attr.aria-label]="t('smartBusiness.list.newProjectBtn')"
+                            >
+                                <div class="card-create-icon">
+                                    <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                                </div>
+                                <div class="card-create-copy">
+                                    <h2 class="card-create-title">{{ t('smartBusiness.list.newProjectTitle') }}</h2>
+                                    <p class="card-create-text">{{ t('smartBusiness.list.newProjectSubtitle') }}</p>
+                                </div>
+                                <span class="card-create-cta">
+                                    {{ t('smartBusiness.list.newProjectBtn') }}
+                                    <span aria-hidden="true">›</span>
+                                </span>
+                            </button>
+
+                            @for (project of projects(); track project._id) {
+                                <article class="card" (click)="openProjectOrResume(project, $event)">
+                                    <div class="card-top">
+                                        <div class="card-brand">
+                                            @if (project.branding?.logo) {
+                                                <img class="logo" [src]="project.branding!.logo" alt="" />
+                                            } @else {
+                                                <div class="logo-fallback">
+                                                    <mat-icon svgIcon="heroicons_outline:building-office-2"></mat-icon>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="card-heading">
+                                            <h2 class="card-title">{{ project.name || project._id }}</h2>
+                                            <div class="status-row">
+                                                <span
+                                                    class="pill"
+                                                    [class.pill-on]="project.status === 'active'"
+                                                    [class.pill-off]="project.status !== 'active'"
+                                                >
+                                                    <span class="pill-dot"></span>
+                                                    {{
+                                                        project.status === 'active'
+                                                            ? t('smartBusiness.common.active')
+                                                            : t('smartBusiness.common.draft')
+                                                    }}
+                                                </span>
+                                                <span class="version-badge version-badge-v2" [attr.title]="getStyleName(project) || 'KYB'">
+                                                    <span class="version-badge-tag">KYB</span>
+                                                    <span class="version-badge-sep">·</span>
+                                                    <span class="version-badge-style">{{ getStyleName(project) }}</span>
+                                                </span>
+                                                <mat-slide-toggle
+                                                    color="primary"
+                                                    [checked]="project.status === 'active'"
+                                                    (click)="$event.stopPropagation()"
+                                                    (change)="onStatusToggle($event, project)"
+                                                ></mat-slide-toggle>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            mat-icon-button
+                                            class="menu-btn"
+                                            [matMenuTriggerFor]="projectMenu"
+                                            (click)="$event.stopPropagation()"
+                                            [attr.aria-label]="t('smartBusiness.list.moreActions')"
+                                        >
+                                            <mat-icon svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+                                        </button>
+                                        <mat-menu #projectMenu="matMenu">
+                                            <button mat-menu-item type="button" (click)="openLiveVerification(project, $event)">
+                                                <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                                <span>{{ t('smartBusiness.list.openLiveVerification') }}</span>
+                                            </button>
+                                            <button mat-menu-item type="button" (click)="copyLiveUrl(project, $event)">
+                                                <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:link"></mat-icon>
+                                                <span>{{ t('smartBusiness.detail.copyLink') }}</span>
+                                            </button>
+                                            <button mat-menu-item type="button" (click)="openProject(project, $event)">
+                                                <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:pencil-square"></mat-icon>
+                                                <span>{{ t('smartBusiness.list.edit') }}</span>
+                                            </button>
+                                            <button mat-menu-item type="button" (click)="openRecords(project, $event)">
+                                                <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:folder-open"></mat-icon>
+                                                <span>{{ t('smartBusiness.common.viewRecords') }}</span>
+                                            </button>
+                                        </mat-menu>
+                                    </div>
+
+                                    <div class="rows" (click)="$event.stopPropagation()">
+                                        <button type="button" class="row" (click)="openSetup(project, 1, $event)">
+                                            <mat-icon class="row-ic" svgIcon="heroicons_outline:building-office"></mat-icon>
+                                            <span class="row-label">{{ t('smartBusiness.list.companyIntake') }}</span>
+                                            <span class="row-chev" aria-hidden="true">›</span>
+                                        </button>
+                                        <button type="button" class="row" (click)="openSetup(project, 2, $event)">
+                                            <mat-icon class="row-ic" svgIcon="heroicons_outline:document-duplicate"></mat-icon>
+                                            <span class="row-label">{{ t('smartBusiness.list.corporateDocs') }}</span>
+                                            <span class="row-chev" aria-hidden="true">›</span>
+                                        </button>
+                                        <button type="button" class="row" (click)="openSetup(project, 3, $event)">
+                                            <mat-icon class="row-ic" svgIcon="heroicons_outline:user-group"></mat-icon>
+                                            <span class="row-label">{{ t('smartBusiness.list.representativesPolicy') }}</span>
+                                            <span class="row-chev" aria-hidden="true">›</span>
+                                        </button>
+                                        <button type="button" class="row row-last" (click)="openSection(project, 'api', $event)">
+                                            <mat-icon class="row-ic" svgIcon="heroicons_outline:code-bracket"></mat-icon>
+                                            <span class="row-label">{{ t('smartBusiness.list.integrations') }}</span>
+                                            <span class="row-chev" aria-hidden="true">›</span>
+                                        </button>
+                                    </div>
+
+                                    @if (project.updatedAt) {
+                                        <div class="meta">{{ t('smartBusiness.common.updated') }}: {{ formatUpdated(project.updatedAt) }}</div>
+                                    }
+
+                                    <div class="card-actions" (click)="$event.stopPropagation()">
+                                        <button
+                                            type="button"
+                                            class="btn-live"
+                                            (click)="openLiveVerification(project, $event)"
+                                        >
+                                            <mat-icon class="btn-live-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                            {{ t('smartBusiness.list.openLiveVerification') }}
+                                        </button>
+                                        <div class="card-actions-row">
+                                            <button type="button" class="btn-primary" (click)="openProject(project, $event)">
+                                                {{ t('smartBusiness.list.details') }}
+                                            </button>
+                                            <button type="button" class="btn-secondary" (click)="openRecords(project, $event)">
+                                                {{ t('smartBusiness.list.dossiersBtn') }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
