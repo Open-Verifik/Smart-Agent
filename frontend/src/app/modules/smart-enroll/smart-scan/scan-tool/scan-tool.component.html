@@ -474,7 +474,7 @@
                             }
                             <a
                                 class="doc-type-card flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed border-stone-300 bg-stone-50/70 p-6 text-center transition hover:border-stone-400 dark:border-gray-600 dark:bg-gray-950/40"
-                                [routerLink]="['/smart-enroll/smart-scan/document-type/new']"
+                                [routerLink]="[basePath + '/document-type/new']"
                                 [queryParams]="{ country: selectedCountry }"
                             >
                                 <mat-icon class="icon-size-10 mb-3 text-stone-400">add</mat-icon>
@@ -499,7 +499,7 @@
                             </p>
                             <a
                                 class="mt-4 text-sm font-semibold text-stone-900 underline dark:text-stone-100"
-                                [routerLink]="['/smart-enroll/smart-scan/document-type/new']"
+                                [routerLink]="[basePath + '/document-type/new']"
                                 [queryParams]="{ country: selectedCountry }"
                             >
                                 {{ 'smartScan.addDocumentType' | transloco }}

@@ -1,0 +1,200 @@
+<ng-container *transloco="let t">
+    <div [formGroup]="docsGroup" class="flex flex-col gap-6">
+        <!-- Step Header Banner -->
+        <div
+            class="rounded-2xl border border-stone-200/90 bg-stone-900 p-6 text-white dark:border-gray-800"
+        >
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-emerald-400"
+                >
+                    <mat-icon
+                        class="icon-size-5"
+                        svgIcon="heroicons_outline:document-duplicate"
+                    ></mat-icon>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold">
+                        {{ t('smartBusiness.setup.docs.bannerTitle') }}
+                    </h3>
+                    <p class="mt-1 text-xs text-stone-300">
+                        {{ t('smartBusiness.setup.docs.bannerSubtitle') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Official Registry Checks Card -->
+        <section
+            class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40"
+        >
+            <header class="mb-4">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
+                    >
+                        <mat-icon
+                            class="icon-size-4"
+                            svgIcon="heroicons_outline:check-badge"
+                        ></mat-icon>
+                    </div>
+                    <div>
+                        <h2
+                            class="text-base font-semibold tracking-tight text-stone-900 dark:text-white"
+                        >
+                            {{ t('smartBusiness.setup.docs.officialChecksTitle') }}
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartBusiness.setup.docs.officialChecksSubtitle') }}
+                        </p>
+                    </div>
+                </div>
+            </header>
+
+            <div
+                [formGroup]="officialRegistryChecksGroup"
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            >
+                <!-- Tax Registry -->
+                <div
+                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
+                >
+                    <div>
+                        <span class="font-medium text-stone-900 dark:text-white">{{
+                            t('smartBusiness.setup.docs.colombiaTaxTitle')
+                        }}</span>
+                        <p class="text-xs text-stone-500">
+                            {{ t('smartBusiness.setup.docs.colombiaTaxDesc') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle formControlName="dian"></mat-slide-toggle>
+                </div>
+
+                <!-- Mercantile Registry -->
+                <div
+                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
+                >
+                    <div>
+                        <span class="font-medium text-stone-900 dark:text-white">{{
+                            t('smartBusiness.setup.docs.colombiaMercantileTitle')
+                        }}</span>
+                        <p class="text-xs text-stone-500">
+                            {{ t('smartBusiness.setup.docs.colombiaMercantileDesc') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle formControlName="rues"></mat-slide-toggle>
+                </div>
+
+                <!-- Fiscal Registry -->
+                <div
+                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
+                >
+                    <div>
+                        <span class="font-medium text-stone-900 dark:text-white">{{
+                            t('smartBusiness.setup.docs.mexicoTaxTitle')
+                        }}</span>
+                        <p class="text-xs text-stone-500">
+                            {{ t('smartBusiness.setup.docs.mexicoTaxDesc') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle formControlName="sat"></mat-slide-toggle>
+                </div>
+
+                <!-- OFAC / PEPs / Sanctions Screening -->
+                <div
+                    class="flex items-start justify-between rounded-xl border border-stone-200/80 p-4 dark:border-gray-800"
+                >
+                    <div>
+                        <span class="font-medium text-stone-900 dark:text-white">{{
+                            t('smartBusiness.setup.docs.sanctionsTitle')
+                        }}</span>
+                        <p class="text-xs text-stone-500">
+                            {{ t('smartBusiness.setup.docs.sanctionsDesc') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle formControlName="sanctionsList"></mat-slide-toggle>
+                </div>
+            </div>
+        </section>
+
+        <!-- Required Corporate Documents (Multi-Country DocumentType + GPTPromptTemplate Selector) -->
+        <section
+            class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/40"
+        >
+            <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <h2
+                        class="text-base font-semibold tracking-tight text-stone-900 dark:text-white"
+                    >
+                        {{ t('smartBusiness.setup.docs.requiredDocsTitle') }}
+                    </h2>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartBusiness.setup.docs.requiredDocsSubtitle') }}
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span
+                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+                    >
+                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px] !leading-none"
+                            >auto_awesome</mat-icon
+                        >
+                        {{ t('smartBusiness.setup.docs.smartOcrActive') }}
+                    </span>
+                    <a
+                        routerLink="/smart-business/document-templates"
+                        class="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1 text-[11px] font-semibold text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200 dark:hover:bg-gray-700"
+                    >
+                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px] !leading-none">add_circle_outline</mat-icon>
+                        {{ t('smartBusiness.setup.docs.manageTemplatesBtn') }}
+                    </a>
+                </div>
+            </header>
+
+            @if (businessDocumentTypes) {
+                <document-verification-type-list
+                    [form]="form"
+                    [documentTypes]="businessDocumentTypes"
+                    [target]="'business'"
+                ></document-verification-type-list>
+            }
+
+            <!-- Upload Parameters -->
+            <div
+                class="mt-6 grid grid-cols-1 gap-4 border-t border-stone-100 pt-6 sm:grid-cols-2 dark:border-gray-800"
+            >
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ t('smartBusiness.setup.docs.attemptLimitLabel') }}</mat-label>
+                    <mat-select formControlName="attemptLimit">
+                        <mat-option [value]="1">{{
+                            t('smartBusiness.setup.docs.attempt1')
+                        }}</mat-option>
+                        <mat-option [value]="2">{{
+                            t('smartBusiness.setup.docs.attempt2')
+                        }}</mat-option>
+                        <mat-option [value]="3">{{
+                            t('smartBusiness.setup.docs.attempt3Recommended')
+                        }}</mat-option>
+                        <mat-option [value]="5">{{
+                            t('smartBusiness.setup.docs.attempt5')
+                        }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <div
+                    class="flex items-center justify-between rounded-xl border border-stone-200 p-4 dark:border-gray-800"
+                >
+                    <div>
+                        <span class="text-sm font-medium text-stone-900 dark:text-white">{{
+                            t('smartBusiness.setup.docs.generalScreeningTitle')
+                        }}</span>
+                        <p class="text-xs text-stone-500">
+                            {{ t('smartBusiness.setup.docs.generalScreeningDesc') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle formControlName="screening"></mat-slide-toggle>
+                </div>
+            </div>
+        </section>
+    </div>
+</ng-container>

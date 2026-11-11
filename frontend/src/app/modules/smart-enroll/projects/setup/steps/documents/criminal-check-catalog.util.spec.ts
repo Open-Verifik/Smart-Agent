@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
     buildCountryCheckSections,
     criminalCheckDocs,
@@ -58,8 +59,9 @@ describe('criminal check catalog', () => {
     });
 
     it('maps every catalog code to English and Spanish documentation', () => {
-        expect(Object.keys(criminalCheckDocs).length).toBe(30);
+        expect(Object.keys(criminalCheckDocs).length).toBe(31);
         expect(Object.keys(criminalCheckDocs).sort()).toEqual([
+            'brazil_api_pep',
             'colombia_api_adverse_media',
             'colombia_api_identity_lookup_procuraduria',
             'colombia_api_inpec',
@@ -71,7 +73,6 @@ describe('criminal check catalog', () => {
             'colombia_api_sicaac_insolvency',
             'colombia_special_api_police_identity_lookup',
             'peru_api_pep',
-            'brazil_api_pep',
             'world_api_cia_world_leaders',
             'world_api_csl',
             'world_api_dea',

@@ -112,7 +112,6 @@
                                 <setup-sign-up-form
                                     [form]="form"
                                     [formGroup]="signUpFormGroup()"
-                                    [formType]="currentTarget"
                                     [loading]="loading()"
                                     [saving]="saving()"
                                 ></setup-sign-up-form>
@@ -127,20 +126,12 @@
                                 ></setup-documents>
                             }
                             @case (3) {
-                                @if (currentTarget === 'business') {
-                                    <setup-representatives
-                                        [form]="form"
-                                        [loading]="loading()"
-                                        [saving]="saving()"
-                                    ></setup-representatives>
-                                } @else {
-                                    <setup-liveness
-                                        [form]="form"
-                                        [formGroup]="livenessFormGroup()"
-                                        [loading]="loading()"
-                                        [saving]="saving()"
-                                    ></setup-liveness>
-                                }
+                                <setup-liveness
+                                    [form]="form"
+                                    [formGroup]="livenessFormGroup()"
+                                    [loading]="loading()"
+                                    [saving]="saving()"
+                                ></setup-liveness>
                             }
                             @case (4) {
                                 <setup-integrations

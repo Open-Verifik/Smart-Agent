@@ -182,6 +182,58 @@
                         </div>
                     }
 
+                    @if (hasAdditionalField('gender')) {
+                        <label>
+                            {{ t('smartEnrollProjects.setup.signUp.additionalFields.gender') }}
+                            <select disabled>
+                                <option value="F">F</option>
+                            </select>
+                        </label>
+                    }
+
+                    @if (hasAdditionalField('dateOfBirth') || hasAdditionalField('age')) {
+                        <div class="field-grid">
+                            @if (hasAdditionalField('dateOfBirth')) {
+                                <label>
+                                    {{ t('smartEnrollProjects.setup.signUp.additionalFields.dateOfBirth') }}
+                                    <input type="text" value="1994-05-12" readonly />
+                                </label>
+                            }
+                            @if (hasAdditionalField('age')) {
+                                <label>
+                                    {{ t('smartEnrollProjects.setup.signUp.additionalFields.age') }}
+                                    <input type="number" value="30" readonly />
+                                </label>
+                            }
+                        </div>
+                    }
+
+                    @if (hasAdditionalField('address')) {
+                        <label>
+                            {{ t('smartEnrollProjects.setup.signUp.additionalFields.address') }}
+                            <input type="text" value="Cra. 15 #88-64, Bogotá" readonly />
+                        </label>
+                    }
+
+                    @if (hasAdditionalField('postalCode') || hasAdditionalField('country')) {
+                        <div class="field-grid">
+                            @if (hasAdditionalField('postalCode')) {
+                                <label>
+                                    {{ t('smartEnrollProjects.setup.signUp.additionalFields.postalCode') }}
+                                    <input type="text" value="110221" readonly />
+                                </label>
+                            }
+                            @if (hasAdditionalField('country')) {
+                                <label>
+                                    {{ t('smartEnrollProjects.setup.signUp.additionalFields.country') }}
+                                    <select disabled>
+                                        <option>Colombia</option>
+                                    </select>
+                                </label>
+                            }
+                        </div>
+                    }
+
                     @if (showAgreements) {
                         <label class="check">
                             <input type="checkbox" checked readonly />

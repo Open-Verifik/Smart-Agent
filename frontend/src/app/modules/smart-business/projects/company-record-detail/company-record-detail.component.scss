@@ -1,0 +1,247 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+/* Shared editorial surface system from SmartEnroll ProjectRecordDetailComponent */
+.record-detail-panel {
+    @apply overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/50;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.record-detail-panel__header {
+    @apply flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 px-5 py-4 dark:border-gray-800 md:px-6 md:py-5;
+}
+
+.record-detail-meta {
+    @apply flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/50;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.record-detail-code {
+    @apply inline-flex items-center rounded-lg bg-stone-100 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-stone-700 dark:bg-gray-800 dark:text-stone-300;
+}
+
+.record-stepper-btn {
+    @apply flex w-full items-start gap-3 rounded-2xl border border-transparent px-3 py-2.5 text-left transition-colors;
+}
+
+.record-stepper-btn:hover {
+    @apply border-stone-200/80 bg-stone-50/90 dark:border-gray-700 dark:bg-gray-800/50;
+}
+
+.record-stepper-btn--active {
+    @apply border-stone-300 bg-stone-100/90 dark:border-gray-600 dark:bg-gray-800/80;
+}
+
+.record-stepper-icon--ok {
+    @apply text-emerald-600 dark:text-emerald-400;
+}
+
+.record-stepper-icon--error {
+    @apply text-red-600 dark:text-red-400;
+}
+
+.record-stepper-icon--warn {
+    @apply text-amber-600 dark:text-amber-400;
+}
+
+.record-stepper-icon--info {
+    @apply text-sky-600 dark:text-sky-400;
+}
+
+.record-stepper-icon--pending {
+    @apply text-stone-400 dark:text-stone-500;
+}
+
+.verdict-card {
+    @apply rounded-2xl border p-6 md:p-8;
+}
+
+.verdict-card--neutral {
+    @apply border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+.verdict-card--error {
+    @apply border-red-200/80 bg-white dark:border-red-900/40 dark:bg-gray-900/40;
+}
+
+.verdict-icon-badge {
+    @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-full;
+}
+
+.verdict-icon-badge mat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+    line-height: 28px;
+}
+
+.verdict-icon-badge--ok {
+    @apply bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400;
+}
+
+.verdict-icon-badge--warn {
+    @apply bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400;
+}
+
+.verdict-icon-badge--error {
+    @apply bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400;
+}
+
+.verdict-icon-badge--pending {
+    @apply bg-stone-100 text-stone-400 dark:bg-gray-800 dark:text-stone-500;
+}
+
+.verdict-reasons {
+    @apply w-full max-w-lg space-y-1.5 pl-0 text-left text-sm text-stone-600 dark:text-stone-400;
+    list-style: none;
+}
+
+.verdict-reasons li {
+    @apply relative pl-4;
+}
+
+.verdict-reasons li::before {
+    content: '';
+    @apply absolute left-0 top-[0.55em] h-1.5 w-1.5 rounded-full bg-stone-400 dark:bg-stone-500;
+}
+
+.triage-btn {
+    @apply flex flex-1 items-center justify-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold transition-colors dark:bg-gray-900;
+}
+
+.triage-btn:focus-visible {
+    @apply outline-none ring-2 ring-offset-1 dark:ring-offset-gray-950;
+}
+
+.triage-btn--ok {
+    @apply border-stone-200 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50/80 dark:border-gray-700 dark:text-emerald-400 dark:hover:border-emerald-900/60 dark:hover:bg-emerald-950/20;
+}
+
+.triage-btn--warn {
+    @apply border-stone-200 text-amber-700 hover:border-amber-200 hover:bg-amber-50/80 dark:border-gray-700 dark:text-amber-400 dark:hover:border-amber-900/60 dark:hover:bg-amber-950/20;
+}
+
+.triage-btn--error {
+    @apply border-stone-200 text-red-700 hover:border-red-200 hover:bg-red-50/80 dark:border-gray-700 dark:text-red-400 dark:hover:border-red-900/60 dark:hover:bg-red-950/20;
+}
+
+.dev-view {
+    @apply flex flex-col gap-6;
+}
+
+.dev-view__header {
+    @apply flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/50;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.dev-view__title-block {
+    @apply min-w-0 flex-1;
+}
+
+.dev-view__card {
+    @apply overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/50;
+}
+
+.dev-view__card-header {
+    @apply flex items-center justify-between gap-3 border-b border-stone-100 px-5 py-3 dark:border-gray-800;
+}
+
+.dev-view__card-title {
+    @apply min-w-0 flex-1 font-mono text-sm font-semibold tracking-tight text-stone-800 dark:text-stone-100;
+}
+
+.dev-view__card-actions {
+    @apply flex shrink-0 items-center gap-0.5;
+}
+
+.dev-view__copy {
+    @apply h-8 w-8 text-stone-500 dark:text-stone-300;
+}
+
+.dev-json {
+    @apply m-0 max-h-[420px] overflow-auto bg-stone-950 p-4 font-mono text-xs leading-relaxed text-stone-100 dark:bg-black/60;
+    white-space: pre;
+    word-break: normal;
+}
+
+/* Single-line overflow preserving file extension */
+.file-row {
+    display: flex;
+    align-items: baseline;
+    min-width: 0;
+}
+
+.file-stem {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-ext {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Same-document shared element transitions (modern-web-guidance) */
+.rep-shared-avatar {
+    view-transition-name: rep-avatar;
+}
+
+.rep-shared-title {
+    view-transition-name: rep-title;
+    width: fit-content;
+}
+
+/* Entry animation using @starting-style on compositor properties (opacity + translate) */
+.kyc-subview-stage,
+.company-dossier-stage {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+        opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        translate 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+    @media (prefers-reduced-motion: reduce) {
+        translate: none;
+        transition-duration: 0.1s;
+    }
+}
+
+@starting-style {
+    .kyc-subview-stage {
+        opacity: 0;
+        translate: 18px 0;
+
+        @media (prefers-reduced-motion: reduce) {
+            translate: none;
+        }
+    }
+
+    .company-dossier-stage {
+        opacity: 0;
+        translate: -14px 0;
+
+        @media (prefers-reduced-motion: reduce) {
+            translate: none;
+        }
+    }
+}
+
+/* Native <dialog> modal rules (modern-web-guidance) */
+dialog.kyc-modal-dialog {
+    margin: auto;
+    padding: 0;
+}
+
+dialog.kyc-modal-dialog:modal {
+    overscroll-behavior: contain;
+}
+
+dialog.kyc-modal-dialog::backdrop {
+    background: rgb(15 23 42 / 0.55);
+    backdrop-filter: blur(3px);
+    overflow: hidden;
+    overscroll-behavior: contain;
+}

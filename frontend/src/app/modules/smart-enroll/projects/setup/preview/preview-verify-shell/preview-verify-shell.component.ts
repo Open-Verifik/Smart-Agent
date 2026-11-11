@@ -259,6 +259,16 @@ export class PreviewVerifyShellComponent implements OnInit, OnChanges, OnDestroy
         return (this.form?.get('projectFlow.signUpForm') as FormGroup) || null;
     }
 
+    get additionalFields(): string[] {
+        const allow = Boolean(this.signUpGroup?.get('allowAdditionalFields')?.value);
+        const list = this.signUpGroup?.get('additionalFields')?.value;
+        return allow && Array.isArray(list) ? list : [];
+    }
+
+    hasAdditionalField(field: string): boolean {
+        return this.additionalFields.includes(field);
+    }
+
     get showFullNameSeparate(): boolean {
         const enabled = this.signUpGroup?.get('fullName')?.value !== false;
         const style = this.signUpGroup?.get('fullNameStyle')?.value || 'separate';

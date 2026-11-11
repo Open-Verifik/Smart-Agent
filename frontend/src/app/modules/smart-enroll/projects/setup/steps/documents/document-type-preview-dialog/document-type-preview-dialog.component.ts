@@ -5,10 +5,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 
+import { DocumentTemplateFieldLite } from '../../../setup.service';
+
 export interface DocumentTypePreviewData {
     name: string;
     code?: string;
     country?: string;
+    category?: string;
+    description?: string;
+    fields?: DocumentTemplateFieldLite[];
     frontImage?: string;
     backImage?: string;
 }

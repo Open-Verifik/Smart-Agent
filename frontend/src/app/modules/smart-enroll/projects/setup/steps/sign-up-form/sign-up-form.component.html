@@ -1,35 +1,8 @@
 <ng-container *transloco="let t">
     <form [formGroup]="form" *ngIf="isFormReady" class="flex w-full flex-col gap-6">
         <!-- Target picker (top-level only, hidden inside representatives sub-form) -->
-        @if (!subForm) {
-            <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-            >
-                <header class="mb-4">
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.signupForm.target.title') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.signupForm.target.subtitle') }}
-                    </p>
-                </header>
-                <mat-button-toggle-group
-                    formControlName="target"
-                    class="!rounded-xl"
-                    [hideSingleSelectionIndicator]="true"
-                >
-                    <mat-button-toggle value="personal">
-                        {{ t('smartEnrollProjects.setup.signupForm.target.personal') }}
-                    </mat-button-toggle>
-                    <mat-button-toggle value="business" disabled>
-                        {{ t('smartEnrollProjects.setup.signupForm.target.business') }}
-                    </mat-button-toggle>
-                </mat-button-toggle-group>
-            </section>
-        }
-
-        <ng-container *ngIf="formType" [formGroup]="formGroup">
-            <!-- 1. Full name (personal) / Business basic info (business) -->
+        <ng-container [formGroup]="formGroup">
+            <!-- 1. Full name -->
             <section
                 class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
                 [class.border-stone-200]="!formGroup?.get('fullName')?.errors"
@@ -40,42 +13,21 @@
             >
                 <header class="mb-4">
                     <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{
-                            formType === 'business'
-                                ? t('smartEnrollProjects.setup.signupForm.business.title')
-                                : t('smartEnrollProjects.setup.signupForm.fullName.title')
-                        }}
+                        {{ t('smartEnrollProjects.setup.signupForm.fullName.title') }}
                     </h2>
                     <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{
-                            formType === 'business'
-                                ? t('smartEnrollProjects.setup.signupForm.business.subtitle')
-                                : t('smartEnrollProjects.setup.signupForm.fullName.subtitle')
-                        }}
+                        {{ t('smartEnrollProjects.setup.signupForm.fullName.subtitle') }}
                     </p>
                 </header>
 
-                @if (formType === 'personal') {
-                    <mat-radio-group formControlName="fullNameStyle" class="flex flex-wrap gap-4">
-                        <mat-radio-button value="separate">
-                            {{ t('smartEnrollProjects.setup.signupForm.fullName.separate') }}
-                        </mat-radio-button>
-                        <mat-radio-button value="together">
-                            {{ t('smartEnrollProjects.setup.signupForm.fullName.together') }}
-                        </mat-radio-button>
-                    </mat-radio-group>
-                }
-
-                @if (formType === 'business' && formGroup?.get('businessBasicInfo')?.value) {
-                    <mat-radio-group formControlName="businessBasicInfoStyle" class="flex flex-wrap gap-4">
-                        <mat-radio-button value="name_number">
-                            {{ t('smartEnrollProjects.setup.signupForm.business.nameNumber') }}
-                        </mat-radio-button>
-                        <mat-radio-button value="name">
-                            {{ t('smartEnrollProjects.setup.signupForm.business.nameOnly') }}
-                        </mat-radio-button>
-                    </mat-radio-group>
-                }
+                <mat-radio-group formControlName="fullNameStyle" class="flex flex-wrap gap-4">
+                    <mat-radio-button value="separate">
+                        {{ t('smartEnrollProjects.setup.signupForm.fullName.separate') }}
+                    </mat-radio-button>
+                    <mat-radio-button value="together">
+                        {{ t('smartEnrollProjects.setup.signupForm.fullName.together') }}
+                    </mat-radio-button>
+                </mat-radio-group>
             </section>
 
             <!-- 2. Phone -->
@@ -90,11 +42,7 @@
                 <header class="mb-4 flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                            {{
-                                formType === 'business'
-                                    ? t('smartEnrollProjects.setup.signupForm.phone.businessTitle')
-                                    : t('smartEnrollProjects.setup.signupForm.phone.title')
-                            }}
+                            {{ t('smartEnrollProjects.setup.signupForm.phone.title') }}
                         </h2>
                         <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
                             {{ t('smartEnrollProjects.setup.signupForm.phone.subtitle') }}
@@ -274,26 +222,7 @@
                 </section>
             }
 
-            <!-- 5. Business address (business only) -->
-            @if (formType === 'business') {
-                <section
-                    class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-                    [class.opacity-50]="isNotRequired"
-                    [class.pointer-events-none]="isNotRequired"
-                >
-                    <header class="flex items-start justify-between gap-4">
-                        <div>
-                            <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                                {{ t('smartEnrollProjects.setup.signupForm.business.addressTitle') }}
-                            </h2>
-                            <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                                {{ t('smartEnrollProjects.setup.signupForm.business.addressSubtitle') }}
-                            </p>
-                        </div>
-                        <mat-slide-toggle formControlName="address"></mat-slide-toggle>
-                    </header>
-                </section>
-            }
+
 
             <!-- 6. Terms & conditions -->
             <section

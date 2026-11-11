@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   EventEmitter,
   inject,
   Input,
@@ -8,6 +9,7 @@ import {
   signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -23,6 +25,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { filter } from 'rxjs';
 import { PostmanService } from '../postman.service';
 import { endpointMatchesCountryFilter } from '../postman-catalog.util';
+import { formatPostmanCountryDisplayName } from '../postman-country.util';
 import {
   ApiEndpoint,
   PostmanFolderDto,
@@ -114,8 +117,19 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
       <div
         class="h-14 flex items-center justify-between px-2 border-b dark:border-slate-800 flex-shrink-0 gap-1"
       >
-        <div class="font-bold text-slate-800 dark:text-slate-100 truncate pl-2" *ngIf="!collapsed">
-          {{ 'postman.sidebar.title' | transloco }}
+        <div
+          class="flex items-center gap-1.5 min-w-0 truncate pl-2"
+          *ngIf="!collapsed"
+        >
+          <span class="font-bold text-slate-800 dark:text-slate-100 truncate">
+            {{ 'postman.sidebar.title' | transloco }}
+          </span>
+          <span
+            *ngIf="filteredEndpoints().length"
+            class="inline-flex items-center justify-center rounded-full bg-slate-200/80 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-slate-600 dark:text-slate-300 flex-shrink-0"
+          >
+            {{ filteredEndpoints().length }}
+          </span>
         </div>
         <div class="flex items-center gap-0" *ngIf="!collapsed && postman.useLayoutSidebar()">
           <button
@@ -124,6 +138,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
             class="text-slate-500"
             [matMenuTriggerFor]="layoutMenu"
             [matTooltip]="'postman.sidebar.layoutActions' | transloco"
+            [attr.aria-label]="'postman.sidebar.layoutActions' | transloco"
           >
             <mat-icon class="!w-5 !h-5 !text-[20px]">folder_special</mat-icon>
           </button>
@@ -135,8 +150,11 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
           </mat-menu>
         </div>
         <button
+          type="button"
           mat-icon-button
           (click)="toggleCollapsed.emit()"
+          [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+          [attr.aria-expanded]="!collapsed"
           class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 ml-auto"
         >
           <mat-icon>{{ collapsed ? 'menu_open' : 'chevron_left' }}</mat-icon>
@@ -158,9 +176,9 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
       </div>
 
       <div class="flex-shrink-0 p-2 border-b dark:border-slate-800" *ngIf="!collapsed">
-        <div class="relative">
+        <div class="relative flex items-center">
           <mat-icon
-            class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 !w-4 !h-4 !text-[16px]"
+            class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 !w-4 !h-4 !text-[16px]"
           >
             search
           </mat-icon>
@@ -169,8 +187,18 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
             [placeholder]="'postman.sidebar.search' | transloco"
-            class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-md py-1.5 pl-8 pr-3 text-xs text-slate-700 dark:text-slate-300 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-400"
+            [attr.aria-label]="'postman.sidebar.search' | transloco"
+            class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-md py-1.5 pl-8 pr-7 text-xs text-slate-700 dark:text-slate-300 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-400"
           />
+          <button
+            *ngIf="searchQuery()"
+            type="button"
+            (click)="searchQuery.set('')"
+            aria-label="Clear search"
+            class="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+          >
+            <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">close</mat-icon>
+          </button>
         </div>
       </div>
 
@@ -287,19 +315,26 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
               {{ 'postman.sidebar.library' | transloco }}
             </div>
             <div *ngFor="let category of libraryCategories(); trackBy: trackByCategory">
-              <div
+              <button
                 *ngIf="!collapsed"
+                type="button"
                 (click)="toggleCategory(category.name)"
-                class="text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header"
+                [attr.aria-expanded]="!collapsedCategories().has(category.name)"
+                class="w-full text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
-                <span>{{ categoryDisplayTitle(category.name) }}</span>
-                <mat-icon
-                  class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
-                  [class.rotate-180]="collapsedCategories().has(category.name)"
-                >
-                  expand_more
-                </mat-icon>
-              </div>
+                <span class="truncate">{{ categoryDisplayTitle(category.name) }}</span>
+                <span class="flex items-center gap-1 flex-shrink-0 ml-2">
+                  <span class="text-[10px] font-medium tabular-nums text-slate-400">
+                    {{ category.endpoints.length }}
+                  </span>
+                  <mat-icon
+                    class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
+                    [class.rotate-180]="collapsedCategories().has(category.name)"
+                  >
+                    expand_more
+                  </mat-icon>
+                </span>
+              </button>
               <div
                 class="space-y-1"
                 [class.hidden]="
@@ -363,19 +398,26 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
         <!-- Category mode (no saved layout) -->
         <ng-container *ngIf="!postman.useLayoutSidebar()">
           <div *ngFor="let category of categories(); trackBy: trackByCategory">
-            <div
+            <button
               *ngIf="!collapsed"
+              type="button"
               (click)="toggleCategory(category.name)"
-              class="text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header"
+              [attr.aria-expanded]="!collapsedCategories().has(category.name)"
+              class="w-full text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-              <span>{{ categoryDisplayTitle(category.name) }}</span>
-              <mat-icon
-                class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
-                [class.rotate-180]="collapsedCategories().has(category.name)"
-              >
-                expand_more
-              </mat-icon>
-            </div>
+              <span class="truncate">{{ categoryDisplayTitle(category.name) }}</span>
+              <span class="flex items-center gap-1 flex-shrink-0 ml-2">
+                <span class="text-[10px] font-medium tabular-nums text-slate-400">
+                  {{ category.endpoints.length }}
+                </span>
+                <mat-icon
+                  class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
+                  [class.rotate-180]="collapsedCategories().has(category.name)"
+                >
+                  expand_more
+                </mat-icon>
+              </span>
+            </button>
             <div *ngIf="collapsed" class="h-px bg-slate-200 dark:bg-slate-700 mx-2 my-2"></div>
 
             <div
@@ -433,7 +475,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
         <div *ngIf="isEmptySidebar()" class="p-4 text-center text-slate-500 text-sm">
           <span *ngIf="searchQuery()">{{ 'postman.sidebar.noResults' | transloco }}</span>
           <span *ngIf="!searchQuery() && selectedCountry()">
-            {{ 'postman.sidebar.noCountry' | transloco: { country: selectedCountry()! } }}
+            {{ 'postman.sidebar.noCountry' | transloco: { country: formattedSelectedCountry() } }}
           </span>
         </div>
       </div>
@@ -478,12 +520,30 @@ export class SidebarComponent {
   postman = inject(PostmanService);
   private _dialog = inject(MatDialog);
   private _transloco = inject(TranslocoService);
+  private _activeLang = toSignal(this._transloco.langChanges$, {
+    initialValue: this._transloco.getActiveLang(),
+  });
 
   searchQuery = signal('');
   selectedEndpoint = this.postman.selectedEndpoint;
   collapsedCategories = signal<Set<string>>(new Set());
   collapsedFolderIds = signal<Set<string>>(new Set());
   selectedCountry = this.postman.selectedCountry;
+
+  formattedSelectedCountry = computed(() => {
+    const country = this.selectedCountry();
+    if (!country) {
+      return '';
+    }
+    return formatPostmanCountryDisplayName(country, this._activeLang());
+  });
+
+  constructor() {
+    effect(() => {
+      this.selectedCountry();
+      this.collapsedCategories.set(new Set());
+    });
+  }
 
   folderMenuOptions = computed(() => this.postman.flattenFoldersForMenu());
 
@@ -591,7 +651,19 @@ export class SidebarComponent {
   });
 
   libraryCategories = computed(() => {
-    const filtered = this.filteredEndpoints().filter((ep) => !ep.postmanFolderId);
+    const validFolderIds = new Set<string>(
+      this.postman
+        .layoutFolders()
+        .filter((folder) => !folder.isSystem)
+        .map((folder) => folder._id),
+    );
+    const pinnedId = this.postman.pinnedFolderId();
+    if (pinnedId) {
+      validFolderIds.add(pinnedId);
+    }
+    const filtered = this.filteredEndpoints().filter(
+      (ep) => !ep.postmanFolderId || !validFolderIds.has(ep.postmanFolderId),
+    );
     const groups = filtered.reduce(
       (acc, endpoint) => {
         const category = endpoint.category || 'OTHER';
@@ -656,13 +728,10 @@ export class SidebarComponent {
   });
 
   isEmptySidebar(): boolean {
-    if (this.postman.useLayoutSidebar()) {
-      if (this.collapsed) {
-        return this.flatLayoutEndpoints().length === 0;
-      }
-      return this.layoutTreeRoots().length === 0 && this.libraryCategories().length === 0;
+    if (this.postman.layoutLoading()) {
+      return false;
     }
-    return this.categories().length === 0;
+    return this.filteredEndpoints().length === 0;
   }
 
   toggleCategory(categoryName: string) {

@@ -1,1056 +1,1924 @@
 {
-    "appFeatures": {
-        "feature_email_login": {
-            "title": "API Key Access via Email",
-            "description": "Request a one-time password (OTP) sent to the client's email for API authentication."
-        },
-        "colombia_special_api_identity_lookup": {
-            "title": "Colombia - Private Citizen Information",
-            "description": "Access private citizen information for Colombian nationals. This service provides comprehensive personal data including detailed identity verification. Contact Verifik customer service for more details."
-        },
-        "colombia_api_identity_lookup": {
-            "title": "Colombian Citizen",
-            "description": "Validate Colombian identity by document number (CC, CE, PPT, NIT, or PEP) via GET /v2/co/cedula."
-        },
-        "colombia_api_cedula_barcode": {
-            "title": "Cédula barcode (PDF417)",
-            "description": "Decode and optionally cross-check the PDF417 barcode on the back of a Colombian cédula from a rear image via POST /v2/co/cedula/barcode."
-        },
-        "colombia_special_api_police_identity_lookup": {
-            "title": "Colombian Police Record Check",
-            "description": "Colombian police record check service"
-        },
-        "world_api_dea": {
-            "title": "DEA Background Check",
-            "description": "DEA background check service"
-        },
-        "colombia_api_military_situation": {
-            "title": "Military service status",
-            "description": "Query Colombian military service (situación militar) using a Cédula de Ciudadanía (CC). Returns status and related details from official sources."
-        },
-        "colombia_api_rethus": {
-            "title": "RETHUS (health professionals registry)",
-            "description": "Query the Colombian RETHUS registry for health-sector talent data via GET /v2/co/cedula/rethus."
-        },
-        "colombia_api_rues": {
-            "title": "RUES business lookup (v2, legacy)",
-            "description": "Basic Colombian business registry lookup in RUES by NIT via GET /v2/co/rues."
-        },
-        "colombia_api_dian": {
-            "title": "Colombia DIAN Verification",
-            "description": "Validate Colombian companies' DIAN status with Verifik's KYB API. Connect with official sources and verify tax authority data in seconds."
-        },
-        "peru_api_company_lookup": {
-            "title": "Peru - Business Registration Lookup",
-            "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
-        },
-        "peru_api_driver_license_lookup": {
-            "title": "Driver License",
-            "description": "Look up Peruvian driver licenses by DNI via GET /v2/pe/driver-license. Returns category, status, expiration, restrictions, and issuance details when available from official records."
-        },
-        "colombia_api_judicial_process_details": {
-            "title": "Retrieve Details of a Legal Process by Number",
-            "description": "Get comprehensive information about a specific legal process in Colombia using its process number (Rama Judicial)."
-        },
-        "colombia_api_vehicle_soat": {
-            "title": "Colombia - Vehicle SOAT Status",
-            "description": "Verify the active SOAT (Compulsory Traffic Accident Insurance) policies and details for a given vehicle plate."
-        },
-        "usa_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "US vehicle validation service for retrieving vehicle information using license plate and state"
-        },
-        "world_api_onu": {
-            "title": "UN Background Check",
-            "description": "This API provides a simple and efficient way to verify whether a person or entity is listed on the United Nations sanctions list. By submitting identifying information such as document type and document number, users can quickly determine if an individual or organization is subject to international sanctions."
-        },
-        "feature_kyc_solution": {
-            "title": "Projects",
-            "description": "Projects are the foundation of your Verifik system - they contain all the essential information about your company"
-        },
-        "world_api_covid": {
-            "title": "Global - COVID Statistics",
-            "description": "Provides reliable verification and validation services."
-        },
-        "colombia_api_affiliations": {
-            "title": "Health & social security affiliations",
-            "description": "Query Colombian EPS, ARL, pension (AP), compensation funds, and severance (cesantías) via GET /v2/co/afiliaciones."
-        },
-        "colombia_api_contraloria_certificate": {
-            "title": "Contraloría Certificate",
-            "description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF."
-        },
-        "peru_identity_lookup": {
-            "title": "Peru - National ID Verification",
-            "description": "Provides reliable verification and validation services."
-        },
-        "venezuela_api_identity_lookup": {
-            "title": "Venezuelan Citizen (CCVE)",
-            "description": "National identity lookup for Venezuela—verify cédula (CCVE) holders by document number via GET /v2/ve/cedula for KYC and fraud prevention."
-        },
-        "colombia_api_vehicle_complete": {
-            "title": "Colombia - Complete Vehicle Information",
-            "description": "Get comprehensive vehicle information for Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
-        },
-        "mexico_api_vehicle": {
-            "title": "Mexico Vehicle by Plate",
-            "description": "Verify Mexican vehicle information using a license plate."
-        },
-        "feature_passwordless_solution": {
-            "title": "Passwordless Authentication",
-            "description": "Provides reliable verification and validation services."
-        },
-        "world_api_interpol": {
-            "title": "Interpol Background Check",
-            "description": "This API endpoint allows you to search the criminal background of an individual or a company. To receive a successful response, it is necessary to provide the document type and document number. The response returns details such as document type, document number, first name, last name, full name, and name components for both natural and legal persons."
-        },
-        "colombia_api_sena": {
-            "title": "SENA Certificates",
-            "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records via GET /v2/co/sena/certificados."
-        },
-        "world_api_ofac": {
-            "title": "OFAC Background Check",
-            "description": "OFAC background check service"
-        },
-        "colombia_api_registraduria_certificate": {
-            "title": "Registraduría ID validity certificate (CC)",
-            "description": "Obtain the official Registraduría certificate of validity for a Colombian cédula (CC) using document number and issue date via GET /v2/co/registraduria/certificado."
-        },
-        "colombia_api_identity_lookup_by_name": {
-            "title": "Citizen lookup by name (SCCRC)",
-            "description": "Reverse-lookup Colombian birth civil registry records by names, sex, and date of birth via GET /v2/co/cedula/by-name (Registraduría SCCRC)."
-        },
-        "colombia_api_registraduria_serial": {
-            "title": "Civil registry lookup by serial (SCCRC)",
-            "description": "Locate a Colombian birth civil registry record by serial number via GET /v2/co/registraduria/serial (Registraduría SCCRC)."
-        },
-        "colombia_api_registraduria_matrimonio": {
-            "title": "Marriage civil registry (SCCRC)",
-            "description": "Search Colombian marriage civil registry records by document, name, or serial via GET /v2/co/registraduria/matrimonio (Registraduría SCCRC)."
-        },
-        "colombia_api_delinquent_debtors": {
-            "title": "Delinquent debtors (BDME)",
-            "description": "Query Colombia’s BDME (Base de Datos de Morosos) delinquent debtors registry via GET /v2/co/deudoresmorosos."
-        },
-        "world_api_fbi": {
-            "title": "FBI Background Check",
-            "description": "FBI background check service"
-        },
-        "mexico_identity_lookup": {
-            "title": "CURP",
-            "description": "Validate the identity of individuals in Mexico using CURP with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "mexico_api_rfc_lookup": {
-            "title": "RFC by CURP / RFC",
-            "description": "Bidirectional lookup and SAT compliance validation between Mexican CURP and SAT RFC (Registro Federal de Contribuyentes)."
-        },
-        "ecuador_api_identity_lookup": {
-            "title": "Ecuadorian Citizen",
-            "description": "Validate the identity of individuals in Ecuador with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "colombia_api_driver": {
-            "title": "RUNT - Driver's License (Premium)",
-            "description": "Verify driver''s licenses in Colombia using the document number with the Verifik API. Omit primerApellido to pay Premium (name lookup included) or send it to pay the Basic rate."
-        },
-        "peru_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "The Peruvian Vehicle Information service provides detailed data about registered vehicles in Peru based on their license plate number. The response includes key details such as the vehicle''s make, model, year, engine and chassis serial numbers, seating capacity, and usage type."
-        },
-        "peru_api_vehicle_soat": {
-            "title": "Vehicle Insurance",
-            "description": "This service provides information on the insurance status of a vehicle in Peru. It returns details including the insurance company name, policy start and end dates, vehicle plate number, policy number, usage type, vehicle class, and policy status."
-        },
-        "ecuador_api_vehicle": {
-            "title": "Vehicle Verification",
-            "description": "Look up Ecuadorian vehicle registration details by license plate"
-        },
-        "feature_data_api": {
-            "title": "Data API",
-            "description": "Provides reliable verification and validation services."
-        },
-        "colombia_api_min_trabajo": {
-            "title": "Colombia - Labor Certificates Verification",
-            "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
-        },
-        "colombia_api_registraduria_voting": {
-            "title": "Retrieve Voting Information for Colombian Citizens",
-            "description": "Retrieve voting information for Colombian citizens"
-        },
-        "world_api_europol": {
-            "title": "Europol Background Check",
-            "description": "The Europol background check service allows developers to perform real-time checks against Europol''s criminal records database. By providing a person''s document type and document number, or full name, users can verify whether the information matches any entry in Europol''s system."
-        },
-        "colombia_api_criminal_history": {
-            "title": "Disciplinary Records in Colombia (attorney's office)",
-            "description": "Disciplinary records in Colombia attorney's office"
-        },
-        "colombia_api_judicial_processes": {
-            "title": "Judicial processes",
-            "description": "List judicial processes linked to a Colombian person or company (CC or NIT) via Rama Judicial."
-        },
-        "colombia_api_vehicle": {
-            "title": "SOAT and RTM Validation in RUNT",
-            "description": "Verify the status of mandatory insurance (SOAT) and technical review (RTM) for vehicles in Colombia. Real-time API for traffic compliance."
-        },
-        "colombia_api_pico_placa": {
-            "title": "Pico y Placa",
-            "description": "Bogotá peak and plate restriction service"
-        },
-        "feature_pdf_generator": {
-            "title": "PDF Report Generator",
-            "description": "Provides reliable verification and validation services."
-        },
-        "panama_api_identity_full_lookup": {
-            "title": "Panama - National ID Verification",
-            "description": "Verify Panamanian CCPA national ID: match document number with full name and date of birth against official civil-registry data for KYC and onboarding."
-        },
-        "chile_api_identity_lookup": {
-            "title": "Chilean Citizen",
-            "description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention."
-        },
-        "costarica_api_identity_lookup": {
-            "title": "Costa Rican Citizen (CCCR)",
-            "description": "National ID (CCCR cédula) verification for Costa Rica via GET /v2/cr/cedula with documentType and documentNumber for KYC and fraud prevention."
-        },
-        "costarica_api_voting_location": {
-            "title": "Voting Location",
-            "description": "Query official Costa Rican TSE Donde Votar registry by CCCR. Returns polling place, junta, province, canton, district, and map coordinates."
-        },
-        "ecuador_api_criminal_history": {
-            "title": "Ecuador - Criminal History",
-            "description": "Provides reliable verification and validation services."
-        },
-        "chile_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "Chilean vehicle information service"
-        },
-        "panama_api_identity_lookup": {
-            "title": "Panamanian Citizen",
-            "description": "Verify Panamanian CCPA national ID data (document, name, date of birth) against official civil-registry sources for KYC and fraud prevention."
-        },
-        "panama_api_vehicle": {
-            "title": "Panama - Vehicle Verification",
-            "description": "Provides reliable verification and validation services."
-        },
-        "chile_api_business_lookup": {
-            "title": "Business Validation",
-            "description": "Look up Chilean companies by RUT: legal name, business category, activity, and authorized service lines from official registry data for KYB and vendor due diligence."
-        },
-        "spain_api_identity_lookup": {
-            "title": "Spanish Citizen",
-            "description": "Validate the identity of individuals in Spain with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "ecuador_api_vehicle_fines": {
-            "title": "Vehicle Fines",
-            "description": "Ecuadorian vehicle validation service for retrieving vehicle fines and registration information by license plate"
-        },
-        "colombia_api_vehicle_complete_by_plate": {
-            "title": "Vehicle Records by Plate",
-            "description": "Validate vehicles in Colombia using their license plate number. Returns official vehicle data in seconds."
-        },
-        "colombia_api_vehicle_complete_by_vin": {
-            "title": "Vehicle Records by VIN",
-            "description": "Query vehicle information in Colombia using the VIN (Vehicle Identification Number). Returns complete official registration data."
-        },
-        "peru_identity_extra_lookup": {
-            "title": "Peru - National ID Verification",
-            "description": "Provides reliable verification and validation services."
-        },
-        "colombia_api_lawyers": {
-            "title": "Lawyer lookup",
-            "description": "Look up Colombian lawyers by document type and number (CC, CE, or NIT) via RAMA public registry data."
-        },
-        "brasil_api_identity_lookup": {
-            "title": "Brazilian Citizen",
-            "description": "Validate the identity of individuals in Brazil with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "usa_api_driver_license_lookup": {
-            "title": "Florida Driver License",
-            "description": "Florida driver license validation service"
-        },
-        "co_bogota_taxi_plate": {
-            "title": "Bogotá Taxi Driver Information by Plate",
-            "description": "Retrieve taxi driver and operation card information in Bogotá by vehicle plate."
-        },
-        "co_bogota_taxi_driver_card": {
-            "title": "Bogotá taxi by control card",
-            "description": "Look up registered Bogotá taxi driver and operation card data using the taxi control card number."
-        },
-        "india_api_epic_lookup": {
-            "title": "Person & Name Lookup | Verifik",
-            "description": "Retrieve voter name and related fields from the Electoral Commission of India (ECI) using a 10-character EPIC (Voter ID) via Verifik's API."
-        },
-        "india_api_epic_voting_lookup": {
-            "title": "Polling & voting location | Verifik",
-            "description": "Retrieve assembly, part, and polling-place details for an Indian EPIC (Voter ID) from ECI-oriented sources via Verifik''s API."
-        },
-        "usa_api_driver_license_lookup_kansas": {
-            "title": "Kansas Driver License",
-            "description": "Kansas driver license verification service"
-        },
-        "consultar_procesos_judiciales": {
-            "title": "Colombia - Judicial Processes",
-            "description": "Check complete judicial history and active legal processes."
-        },
-        "credit_intent": {
-            "title": "Credit Purchase Intent",
-            "description": "Provides reliable verification and validation services."
-        },
-        "ip-lookup": {
-            "title": "🌐 IP Geolocation Lookup",
-            "description": "Geolocate an IPv4 or IPv6 address via GET /v2/ip-lookup. Returns country, region, city, ISP/ASN, and coordinates."
-        },
-        "colombia_api_judicial_records": {
-            "title": "Judicial records (court files / expedientes)",
-            "description": "Query Colombian judicial court files (expedientes) by CC, city, and document number via Rama Judicial."
-        },
-        "communication_messaging_sms": {
-            "title": "SMS Messaging",
-            "description": "Provides reliable verification and validation services."
-        },
-        "communication_colombia_messaging_whatsapp": {
-            "title": "Colombia - WhatsApp Messaging",
-            "description": "Provides reliable verification and validation services."
-        },
-        "communication_global_messaging_whatsapp": {
-            "title": "Global - WhatsApp Messaging",
-            "description": "Provides reliable verification and validation services."
-        },
-        "communication_global_messaging_sms": {
-            "title": "Global - SMS Messaging",
-            "description": "Provides reliable verification and validation services."
-        },
-        "communication_global_email_otp": {
-            "title": "Email OTP",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_liveness_3d": {
-            "title": "3D Liveness Detection",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_estimate_age_3d": {
-            "title": "3D Age Estimation",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_check_age_3d": {
-            "title": "3D Age Verification",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_enrollment_3d": {
-            "title": "3D Biometric Enrollment",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_id_scan_only": {
-            "title": "ID Document Scan",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_liveness_2d": {
-            "title": "2D Liveness Detection",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_estimate_age_2d": {
-            "title": "2D Age Estimation",
-            "description": "Provides reliable verification and validation services."
-        },
-        "biometrics_check_age_2d": {
-            "title": "2D Age Verification",
-            "description": "Provides reliable verification and validation services."
-        },
-        "credit_intent_kyc_passwordless": {
-            "title": "KYC Passwordless Credit Intent",
-            "description": "Provides reliable verification and validation services."
-        },
-        "brasil_api_company_lookup": {
-            "title": "Business Verification (CNPJ)",
-            "description": "Validate Brazilian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
-        },
-        "brasil_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "Brazilian plate lookup: registry-style vehicle attributes (make, model, years, VIN/chassis, FIPE codes when available) for fleet, insurance, collateral, and marketplace checks."
-        },
-        "argentina_api_identity_lookup": {
-            "title": "Argentine Citizen",
-            "description": "Validate the identity of individuals in Argentina with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "argentina_api_identity_lookup_extra": {
-            "title": "Argentina - Complete Argentine Citizen",
-            "description": "Complete Argentine citizen verification with DNI, including extended identity fields for deeper KYC and onboarding."
-        },
-        "argentina_api_medical_professional": {
-            "title": "Argentina - Medical Professional",
-            "description": "Query medical professionals registered in Argentina via GET /v2/ar/cedula/medico-profesional using DNI (documentNumber). Returns SISA MSAL registration, matriculas, linked establishments, and signed response data."
-        },
-        "ar_certificate_verify": {
-            "title": "Criminal Record Certificate",
-            "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF. Returns identity fields, the criminal-record statement, and the certificate as base64-encoded PDF."
-        },
-        "chile_api_transport_vehicle": {
-            "title": "Vehicle in the transport register (D80)",
-            "description": "Confirm a Chilean taxi or D80 vehicle by plate in the Ministry of Transport (MTT) register. Returns serviceType, vehicleStatus, and service expiry from the transport vehicle endpoint."
-        },
-        "chile_api_vehicle_soap": {
-            "title": "Vehicle SOAP",
-            "description": "Query Chile vehicular SOAP certificate by license plate and policy number: status, insurer, owner, validity dates, and vehicle details."
-        },
-        "chile_api_vehicle_soap_plate": {
-            "title": "Vehicle SOAP (by plate)",
-            "description": "Query Chile vehicular SOAP by license plate only. Returns nested soap and vehicle objects with coverage status, insurer, owner, validity dates, and vehicle details."
-        },
-        "cl_certificate_verify": {
-            "title": "Civil Registry Certificate Verification",
-            "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Código Verificador). Returns certificate PDF metadata and conviction-register details when available."
-        },
-        "ecuador_api_company_lookup": {
-            "title": "Ecuadorian Business Verification",
-            "description": "Validate Ecuadorian companies by RUC with Verifik's KYB API."
-        },
-        "usa_api_ssn": {
-            "title": "United States SSN Verification",
-            "description": "Validate Social Security Numbers in the United States with Verifik's KYC API. Connect with official sources and verify SSN data in seconds."
-        },
-        "colombia_api_dian_invoicer": {
-            "title": "Colombia Legal Invoicer Verification",
-            "description": "Validate legal invoicer registration in DIAN for Colombian companies with Verifik's KYB API."
-        },
-        "api_colombia_contracts": {
-            "title": "Public Contracts",
-            "description": "Colombian public contracts background check"
-        },
-        "colombia_api_police_rnmc": {
-            "title": "Verify Police Compliance with Corrective Measures",
-            "description": "Verify police compliance with corrective measures in Colombia"
-        },
-        "colombia_api_police_rnmc_premium": {
-            "title": "Police RNMC premium",
-            "description": "Same Policía RNMC corrective-measures result as the standard lookup, for CC only. Send the document number; Verifik resolves the issue date. Costs 1.20 credits."
-        },
-        "bolivia_api_identity_lookup": {
-            "title": "Bolivian Citizen",
-            "description": "Validate the identity of individuals in Bolivia with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "colombia_pep_lookup": {
-            "title": "Politically exposed persons (PEP) lookup",
-            "description": "AML PEP screening for Colombian natural persons (CC) and businesses (NIT) via GET /v2/co/politically-exposed-persons."
-        },
-        "api_autodata_manufacturers": {
-            "title": "Vehicle Manufacturers Database",
-            "description": "Provides reliable verification and validation services."
-        },
-        "world_api_phone_lookup": {
-            "title": "Phone Lookup",
-            "description": "Look up a phone number worldwide via GET or POST /v2/look-ups/phone. Returns the listed owner name and related profile fields when available."
-        },
-        "Mexico_api_ine_model_e": {
-            "title": "Mexico - INE Model E",
-            "description": "Provides reliable verification and validation services."
-        },
-        "Mexico_api_ine_model_d": {
-            "title": "Mexico - INE Model D",
-            "description": "Provides reliable verification and validation services."
-        },
-        "Mexico_api_ine_model_c": {
-            "title": "Mexico - INE Model C",
-            "description": "Provides reliable verification and validation services."
-        },
-        "api_autodata_enginer": {
-            "title": "Vehicle Engine Database",
-            "description": "Provides reliable verification and validation services."
-        },
-        "colombia_api_rues_full": {
-            "title": "RUES complete lookup (v2, legacy)",
-            "description": "Complete Colombian business information from RUES by NIT via GET /v2/co/rues/complete."
-        },
-        "api_autodata_enginer_code": {
-            "title": "Vehicle Engine Code Lookup",
-            "description": "Provides reliable verification and validation services."
-        },
-        "api_autodata_selection": {
-            "title": "Vehicle Selection Database",
-            "description": "Provides reliable verification and validation services."
-        },
-        "colombia_api_sisconmp": {
-            "title": "SISCONMP Training Records",
-            "description": "SISCONMP training records service"
-        },
-        "data_finance_incomestatement": {
-            "title": "Financial - Income Statement",
-            "description": "Provides reliable verification and validation services."
-        },
-        "data_finance_balancesheet": {
-            "title": "Financial - Balance Sheet",
-            "description": "Provides reliable verification and validation services."
-        },
-        "data_finance_cashflow": {
-            "title": "Financial - Cash Flow",
-            "description": "Provides reliable verification and validation services."
-        },
-        "data_finance_stockprice": {
-            "title": "Financial - Stock Price",
-            "description": "Provides reliable verification and validation services."
-        },
-        "paraguay_api_identity_lookup": {
-            "title": "Paraguayan Citizen",
-            "description": "Validate the identity of individuals in Paraguay with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "canada_api_driver_license_alberta": {
-            "title": "Canada - Driver License",
-            "description": "Provides reliable verification and validation services."
-        },
-        "canada_api_driver_license_ontario": {
-            "title": "Ontario Driver License",
-            "description": "Ontario driver license verification service"
-        },
-        "canada_api_ontario_plate": {
-            "title": "Ontario Plate Expiry",
-            "description": "Ontario plate sticker expiry check by plate number and permit number"
-        },
-        "colombia_api_vehicle_complete_by_plate_simplified": {
-            "title": "Simplified Vehicle Records by Plate in RUNT",
-            "description": "Retrieve essential vehicle details in Colombia using the license plate. Fast lookup for basic vehicle verification."
-        },
-        "canada_api_driver_license_quebec": {
-            "title": "Quebec Driver License",
-            "description": "Verify Quebec (Canada) driver licenses by document number via Verifik's API."
-        },
-        "ocr_scan_pro": {
-            "title": "OCR Document Scan Pro",
-            "description": "Provides reliable verification and validation services."
-        },
-        "el_salvador_api_identity_lookup": {
-            "title": "Salvadoran Citizen",
-            "description": "Validate the identity of individuals in El Salvador with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "canada_api_driver_license_british-columbia": {
-            "title": "Canadian Driver License Validation",
-            "description": "Validate Canadian driver licenses with Verifik's KYC API. Connect with official sources and verify driver license data in seconds."
-        },
-        "ocr_scan_gpt": {
-            "title": "OCR Document Scan GPT",
-            "description": "Provides reliable verification and validation services."
-        },
-        "colombia_api_identity_lookup_extra": {
-            "title": "National ID with extra data (CC)",
-            "description": "Verify Colombian Cédula de Ciudadanía with extended official fields via GET /v2/co/cedula/extra."
-        },
-        "colombia_api_identity_lookup_premium": {
-            "title": "National ID premium lookup (CC)",
-            "description": "Verify a Colombian national ID (CC) with a full profile: you type only the number, Verifik finds the issue date for you, and you get the same rich identity record as cédula extra. Uses more credits than the basic cédula check."
-        },
-        "colombia_api_identity_pep_foreigner_id": {
-            "title": "PEP (Special Stay Permit)",
-            "description": "Verify Permiso Especial de Permanencia (PEP) status with Migración Colombia via GET /v2/co/foreigner-id/pep."
-        },
-        "ocr_scan_studio": {
-            "title": "OCR Document Scan Studio",
-            "description": "Provides reliable verification and validation services."
-        },
-        "canada_api_company": {
-            "title": "Canadian Business Verification",
-            "description": "Validate Canadian companies by business name and province with Verifik's KYB API."
-        },
-        "us_api_passport_entries": {
-            "title": "Passport & U.S. entries",
-            "description": "Query passport-related U.S. entry and exit information using traveler and passport fields"
-        },
-        "mexico_api_company": {
-            "title": "Mexican Business Verification",
-            "description": "Validate Mexican companies using FME with Verifik's KYB API."
-        },
-        "face_recognition_compare": {
-            "title": "Face Comparison",
-            "description": "1:1 face comparison to verify identity"
-        },
-        "face_recognition_compare_live": {
-            "title": "Face Comparison (Live)",
-            "description": "1:1 comparison with live probe and liveness threshold"
-        },
-        "face_recognition_liveness": {
-            "title": "Liveness Detection",
-            "description": "Detect if a face is live or from a static image/video"
-        },
-        "face_recognition_search_live_face": {
-            "title": "Face Search 1:N (Live)",
-            "description": "1:N search with liveness on probe image"
-        },
-        "face_recognition_verify": {
-            "title": "Verify Face (1:1 vs enrolled person)",
-            "description": "Match probe face images against a specific enrolled person by ID"
-        },
-        "face_recognition_detect": {
-            "title": "Face Detection",
-            "description": "Detect and extract faces from images"
-        },
-        "face_recognition_search_crops": {
-            "title": "Face Search 1:N (Crops)",
-            "description": "1:N search optimized for small face crops (e.g. max ~120×120)"
-        },
-        "face_recognition_search": {
-            "title": "Face Search (1:N)",
-            "description": "Search for a face in a collection (1:N identification)"
-        },
-        "colombia_api_vehicle_valores_fasecolda_by_plate": {
-            "title": "Vehicle Values by Plate",
-            "description": "Get Fasecolda vehicle values and information by license plate with Verifik's API. Access comprehensive vehicle data for Colombia."
-        },
-        "colombia_api_vehicle_valores_fasecolda_by_code": {
-            "title": "Vehicle Values by Code",
-            "description": "Get Fasecolda vehicle values and information by code with Verifik's API. Access comprehensive vehicle data for Colombia."
-        },
-        "usa_api_company": {
-            "title": "United States Business Verification",
-            "description": "Validate US companies by business name with Verifik's KYB API."
-        },
-        "colombia_api_runt_owners": {
-            "title": "RUNT - Vehicle owners by plate",
-            "description": "Retrieve a Colombian vehicle and its ownership records using only the license plate."
-        },
-        "colombia_api_vehicle_owners": {
-            "title": "Colombia - Vehicle Owner History",
-            "description": "Query Colombian vehicle owners by license plate. Returns vehicle data and the complete ownership history."
-        },
-        "chile_api_driver_license": {
-            "title": "Driver License",
-            "description": "Look up a Chilean driver license by license number: class, restrictions, control dates, RUT, and address from official motor-vehicle records for fleet and workforce compliance."
-        },
-        "colombia_api_lawyers_certificate": {
-            "title": "Certificate of Validity for Legal Professionals",
-            "description": "Verify the current status and validity of legal professionals in Colombia"
-        },
-        "argentina_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "Verify Argentine vehicle information using license plate"
-        },
-        "argentina_api_vehicle_v3": {
-            "title": "Vehicle v3",
-            "description": "Retrieve Argentine vehicle details by license plate, including vehicle identifiers, policy status, and technical-sheet data when available."
-        },
-        "argentina_api_buenos_aires_traffic_infractions": {
-            "title": "Buenos Aires Traffic Infractions",
-            "description": "Check Buenos Aires traffic infractions by Argentine vehicle license plate."
-        },
-        "argentina_api_traffic_infractions": {
-            "title": "Buenos Aires Traffic Infractions",
-            "description": "Check Buenos Aires traffic infractions by Argentine vehicle license plate."
-        },
-        "argentina_api_buenos_aires_technical_inspection": {
-            "title": "Endpoint URL → Doc page (Reference)",
-            "description": "Deterministic mapping from each Verifik API endpoint path to its canonical documentation page, grouped by country and topic."
-        },
-        "argentina_api_technical_inspection": {
-            "title": "Buenos Aires Technical Inspection",
-            "description": "Check Buenos Aires vehicle technical inspection history by Argentine license plate."
-        },
-        "argentina_api_rto": {
-            "title": "Argentina RTO",
-            "description": "Check Argentine RTO inspection records by vehicle license plate."
-        },
-        "argentina_api_company_lookup": {
-            "title": "Argentine Business Verification",
-            "description": "Validate Argentine companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
-        },
-        "bolivia_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "Bolivian vehicle validation service for retrieving vehicle information by license plate"
-        },
-        "brasil_api_criminal_history": {
-            "title": "Background Check (CPF)",
-            "description": "Conduct background checks on Brazilian individuals using CPF"
-        },
-        "bolivia_api_business_lookup": {
-            "title": "Bolivian Business Verification",
-            "description": "Validate Bolivian companies by NIT with Verifik's KYB API."
-        },
-        "costa_rica_api_business_lookup": {
-            "title": "Costa Rican Business Verification (NITE)",
-            "description": "KYB company lookup for Costa Rica via GET /v2/cr/company with documentType NITE and documentNumber for registration and compliance."
-        },
-        "paraguay_api_business_lookup": {
-            "title": "Paraguayan Business Verification",
-            "description": "Validate Paraguayan companies by RUC with Verifik's KYB API."
-        },
-        "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-            "title": "Claims Verification",
-            "description": "Fasecolda insurance claims history verification service. Check vehicle insurance claim history in Colombia with Verifik's API."
-        },
-        "colombia_api_vehicle_tax": {
-            "title": "Taxes in Bogotá",
-            "description": "Bogotá vehicle tax service"
-        },
-        "colombia_api_vehicle_accidentality_bogota": {
-            "title": "Vehicle Accidentality",
-            "description": "Bogotá vehicle accident history service"
-        },
-        "api_data_sheet_vehicle": {
-            "title": "Vehicle Data Sheet",
-            "description": "Provides reliable verification and validation services."
-        },
-        "api_data_sheet_vehicle_by-plate_br": {
-            "title": "Brazil - Vehicle Data Sheet (by Plate)",
-            "description": "Extended Brazilian vehicle technical data sheet by plate (data-sheet-by-plate): richer vehicle specification fields than the basic plate lookup, subject to registry coverage."
-        },
-        "face_recognition_search_active_user": {
-            "title": "Face Search 1:N (Active User)",
-            "description": "1:N search variant without liveness, for active sessions"
-        },
-        "matpis_appointments": {
-            "title": "MATPIS Appointments",
-            "description": "Provides reliable verification and validation services."
-        },
-        "chile_api_taxpayer_lookup": {
-            "title": "Taxpayer (RUT) lookup",
-            "description": "Query Chilean taxpayer records by RUT: structured name fields from tax-oriented sources for KYB, invoicing, and vendor checks."
-        },
-        "chile_api_validate": {
-            "title": "Identity document validation",
-            "description": "Validate a Chilean RUN or RUT together with the document serial against civil or tax validation flows; returns a vigency-style status for physical ID checks."
-        },
-        "colombia_api_simit_agreements": {
-            "title": "SIMIT - Agreements",
-            "description": "SIMIT payment agreements for traffic violations service"
-        },
-        "colombia_api_simit_suspensions": {
-            "title": "SIMIT - License suspensions",
-            "description": "Query driver license suspension or cancellation records in Colombia’s SIMIT system by holder identification."
-        },
-        "colombia_api_simit_subpoenas": {
-            "title": "SIMIT - Fines",
-            "description": "SIMIT traffic citations and fines service"
-        },
-        "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT - Subpoena Details",
-            "description": "Get detailed information for a specific SIMIT traffic subpoena (comparendo) via GET /v2/co/simit/comparendo."
-        },
-        "colombia_api_simit_resolutions": {
-            "title": "SIMIT - Resolutions",
-            "description": "SIMIT traffic violation resolutions service"
-        },
-        "colombia_api_simit_complete": {
-            "title": "SIMIT - General query by identification document",
-            "description": "SIMIT comprehensive data by document service"
-        },
-        "colombia_api_simit_plate": {
-            "title": "SIMIT - General query by plate number",
-            "description": "SIMIT comprehensive data by plate service"
-        },
-        "world_api_passport_entries": {
-            "title": "world api passport entries",
-            "description": "Provides reliable verification and validation services."
-        },
-        "validate-document": {
-            "title": "validate-document",
-            "description": "Provides reliable verification and validation services."
-        },
-        "costa_rica_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "Costa Rican vehicle lookup by license plate via GET /v2/cr/vehicle with required plate; returns owner, specs, infractions, and owner history when available."
-        },
-        "costa_rica_api_traffic_infractions": {
-            "title": "Traffic Infractions",
-            "description": "Costa Rica traffic infractions lookup by license plate via GET /v2/cr/traffic-infractions; returns COSEVI tickets, fine amounts, and status when available."
-        },
-        "paraguay_api_vehicle": {
-            "title": "Vehicle Information",
-            "description": "Paraguayan vehicle validation service for retrieving comprehensive vehicle information by license plate"
-        },
-        "usa_api_vehicle_lookup_by_vin": {
-            "title": "Vehicle by VIN",
-            "description": "US vehicle validation by 17-character VIN (NHTSA decode)"
-        },
-        "colombia_api_identity_ce_foreigner_id": {
-            "title": "CE (Cédula de Extranjería)",
-            "description": "Verify Cédula de Extranjería (CE) status with Migración Colombia via GET /v2/co/foreigner-id/ce."
-        },
-        "colombia_api_vehicle_fines_bogota": {
-            "title": "Vehicle Fines Check",
-            "description": "Bogotá vehicle fines service"
-        },
-        "colombia_api_vehicle_fines_medellin": {
-            "title": "Medellín - Transit Fines",
-            "description": "Query local traffic fines and subpoenas for vehicles registered in Medellín via GET /v2/co/medellin/vehicle/fines."
-        },
-        "guatemala_api_identity_lookup": {
-            "title": "Guatemalan Citizen",
-            "description": "Validate the identity of individuals in Guatemala with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "honduras_api_identity_lookup": {
-            "title": "Honduran Citizen",
-            "description": "Validate the identity of individuals in Honduras with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "honduras_api_voting_location": {
-            "title": "Voting Location",
-            "description": "Query official Honduran electoral registry (Donde Me Toca Votar) by DNIHN. Returns polling place, JRV, voting eligibility, and residence details."
-        },
-        "republica_dominicana_api_citizen_lookup": {
-            "title": "Dominican Citizen",
-            "description": "Validate the identity of individuals in the Dominican Republic with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "venezuela_foreigner_api": {
-            "title": "Foreigner ID (CEVE)",
-            "description": "Foreigner cédula (CEVE) verification in Venezuela—lookup by document number via GET /v2/ve/foreigner-id for KYC and compliance."
-        },
-        "colombia_sisben_api_lookup": {
-            "title": "SISBEN score",
-            "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales) score and group classification for Colombian residents."
-        },
-        "colombia_api_rui": {
-            "title": "RUI Classification",
-            "description": "Query DNP Ventanilla Social Registro Universal de Ingresos (RUI) classification—income group, RUI level, and location. Replaces the retired SISBEN lookup."
-        },
-        "spain_api_vehicle_lookup": {
-            "title": "Spain",
-            "description": "Query Spanish vehicle registration data by license plate (matrícula) via Verifik."
-        },
-        "spain_api_company_lookup": {
-            "title": "Spanish Business Verification",
-            "description": "Validate Spanish companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
-        },
-        "panama_api_business_lookup": {
-            "title": "Panamanian Business Verification",
-            "description": "Look up Panamanian companies by RUC—legal name, status, representatives, and registry fields from official sources for KYB and due diligence."
-        },
-        "uruguay_api_identity_lookup": {
-            "title": "Uruguayan Citizen",
-            "description": "Validate the identity of individuals in Uruguay with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
-        },
-        "peru_api_identity_ce_foreigner_id": {
-            "title": "Foreigner ID",
-            "description": "Peruvian foreigner resident ID validation service for verifying foreigner identity documents"
-        },
-        "colombia_api_rues_full_v3": {
-            "title": "RUES Complete Business Validation (v3)",
-            "description": "Retrieve complete Colombian business information from RUES with Verifik's KYB API. Connect with official sources and verify comprehensive business data."
-        },
-        "colombia_api_rues_v3": {
-            "title": "RUES business lookup (v3)",
-            "description": "Query Colombia’s RUES registry by NIT with category-specific basic data via GET /v3/co/rues."
-        },
-        "peru_identity_lookup_v3": {
-            "title": "Peruvian Citizen v3",
-            "description": "Verify Peruvian citizen identities using DNI with the v3 API."
-        },
-        "peru_identity_extra_lookup_v3": {
-            "title": "Full ID",
-            "description": "Extended Peruvian citizen identity verification with comprehensive DNI details using Verifik's KYC API. Connect with official sources and verify detailed identity data in seconds."
-        },
-        "colombia_api_identity_ppt_foreigner_id": {
-            "title": "PPT (Temporary Protection Permit)",
-            "description": "Verify Permiso de Protección Temporal (PPT) status with Migración Colombia via GET /v2/co/foreigner-id/ppt."
-        },
-        "colombia_api_min_trabajo_v3": {
-            "title": "Ministry of Labor certificates (v3)",
-            "description": "Labor and height-safety (“curso de alturas”) certificate data from Colombia’s Ministry of Labor via GET /v3/co/ministerio-de-trabajo/certificados."
-        },
-        "peru_api_company_lookup_v3": {
-            "title": "Peruvian Business Verification",
-            "description": "Validate Peruvian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
-        },
-        "peru_api_pep": {
-            "title": "Peruvian Politically Exposed Persons (PEP) Screening",
-            "description": "Screen Peruvian citizens (DNI/CE) and full names against the SBS Resolution 2660-2015 / 4349-2016 / 02868-2025 PEP registry with a 2-year former-PEP look-back via GET /v2/pe/politically-exposed-persons."
-        },
-        "brazil_api_pep": {
-            "title": "Brazilian Politically Exposed Persons (PEP) Screening",
-            "description": "Screen Brazilian CPF numbers and full names against the official PEP registry under COAF Resolution 40/2021 with a 5-year grace period lookback via GET /v2/br/politically-exposed-persons."
-        },
-        "brazil_api_medical_professional": {
-            "title": "Brazil — Medical Professional Verification (CRM / CFM)",
-            "description": "Verify Brazilian physicians by CRM license number and state (UF) or full name, including registration status, inscription type, medical specialties (RQE), and optional CPF + Date of Birth identity match via GET /v2/br/medical-professional."
-        },
-        "panama_api_health_worker": {
-            "title": "Panama — Health Worker & Medical Professional Verification (MINSA)",
-            "description": "Verify Panamanian physicians, specialists, dentists, nurses, pharmacists, and medical technologists by Cédula or full name against official Ministry of Health (MINSA) personnel registries via GET /v2/pa/health-worker."
-        },
-        "panama_api_pep": {
-            "title": "Panama — Politically Exposed Persons (PEP) Screening (Ley 23 / SBP 10-2015)",
-            "description": "Screen Panamanian citizens (Cédula) and full names against official PEP registries under Ley N° 23 de 2015 and SBP 10-2015 with 2-year lookback via GET /v2/pa/politically-exposed-persons."
-        },
-        "chile_api_health_worker": {
-            "title": "Chile — Health Worker & Medical Professional Verification (SIS / RNPI)",
-            "description": "Verify Chilean physicians, surgeons, dentists, nurses, and medical specialists by RUT or full name against the National Registry of Individual Health Providers (RNPI) via GET /v2/cl/health-worker."
-        },
-        "chile_api_pep": {
-            "title": "Chile — Politically Exposed Persons (PEP) Screening (Ley 19.913 / UAF)",
-            "description": "Screen Chilean citizens (RUT) and full names against official PEP registries under Ley N° 19.913 and Circular UAF N° 49/2012 with 2-year lookback via GET /v2/cl/politically-exposed-persons."
-        },
-        "argentina_api_health_worker": {
-            "title": "Argentina — Health Worker & Medical Professional Verification (SISA / REFEPS)",
-            "description": "Validate Argentine physicians, dentists, psychologists, and health professionals across national and provincial jurisdictions via REFEPS / SISA via GET /v2/ar/health-worker."
-        },
-        "argentina_api_pep": {
-            "title": "Argentina — Politically Exposed Persons (PEP) Screening (UIF Res. 35/2023)",
-            "description": "Screen Argentine citizens (DNI/CUIT) and full names against official PEP registries under UIF Resolution 35/2023 with 2-year lookback via GET /v2/ar/politically-exposed-persons."
-        },
-        "face_recognition_detect_face": {
-            "title": "Face Detection",
-            "description": "Provides reliable verification and validation services."
-        },
-        "document-liveness": {
-            "title": "Document Liveness Detection",
-            "description": "Provides reliable verification and validation services."
-        },
-        "colombia_api_inpec": {
-            "title": "INPEC Prison Records Check",
-            "description": "Query the population deprived of liberty under the custody of INPEC (Colombian National Penitentiary and Prison Institute)"
-        },
-        "colombia_sigep_by_name": {
-            "title": "SIGEP lookup by full name",
-            "description": "Search Colombian public officials and government contractors by full name in the SIGEP directory."
-        },
-        "colombia_sigep_by_number": {
-            "title": "SIGEP lookup by document",
-            "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT) via SIGEP."
-        },
-        "colombia_inpec_lookup": {
-            "title": "INPEC Prison Records Check",
-            "description": "Query the population deprived of liberty under the custody of INPEC (Colombian National Penitentiary and Prison Institute)"
-        },
-        "zelf-proofs": {
-            "title": "Encrypt HumanID",
-            "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
-        },
-        "zelf-proof-liveness-active-user": {
-            "title": "Encrypt HumanID",
-            "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
-        },
-        "zelf-proof-encrypt-qr": {
-            "title": "Encrypt HumanID QR Code",
-            "description": "Create a HumanID and encapsulate it in a QR code"
-        },
-        "zelf-proof-decrypt": {
-            "title": "Decrypt HumanID",
-            "description": "Decrypt a HumanID using a live face to recover the stored metadata"
-        },
-        "zelf-proof-preview": {
-            "title": "Preview HumanID",
-            "description": "Preview public data from a HumanID without decrypting private metadata"
-        },
-        "biometrics_api_create_person": {
-            "title": "Biometrics - Create Person (no liveness)",
-            "description": "Create a new person record for identity management. Used for indexing and future face recognition search."
-        },
-        "biometrics_api_create_person_liveness": {
-            "title": "Biometrics - Create Person with Liveness Detection",
-            "description": "Create a new person record with integrated liveness detection. Ensures the user is physically present during enrollment."
-        },
-        "guatemala_api_identity_extra_lookup": {
-            "title": "Guatemala Extra",
-            "description": "Validate the identity of individuals in Guatemala with additional details such as birth date and gender."
-        },
-        "chile_api_vehicle_v3": {
-            "title": "Vehicle Technical Review",
-            "description": "Query Chile vehicle technical review status and inspection history by license plate via GET /v3/cl/vehicle."
-        },
-        "bolivia_api_vehicle_soat": {
-            "title": "Vehicle SOAT",
-            "description": "Query mandatory vehicle accident insurance (SOAT) in Bolivia by license plate. Returns coverage validity, vehicle classification, department, and computed status."
-        },
-        "bolivia_api_voting_location": {
-            "title": "Voting Location",
-            "description": "Query official Bolivian electoral registry (OEP Yo Participo) by CI and date of birth. Returns polling place, table, voting eligibility, and residence details."
-        },
-        "ecuador_api_company_lookup_v3": {
-            "title": "Ecuadorian Business Verification",
-            "description": "Validate Ecuadorian companies with Verifik's KYB API. Connect with official sources and verify comprehensive business data in seconds."
-        },
-        "colombia_api_identity_lookup_registraduria": {
-            "title": "Citizen lookup via Registraduría (SCCRC)",
-            "description": "Look up a Colombian birth civil registry record by document number via GET /v2/co/cedula/registraduria (Registraduría SCCRC only)."
-        },
-        "colombia_api_identity_lookup_procuraduria": {
-            "title": "Citizen lookup via Procuraduría",
-            "description": "Name-only identity lookup against Procuraduría (CC, CE, PPT, NIT, or PEP) via GET /v2/co/procuraduria. Does not return disciplinary records."
-        },
-        "mexico_api_ine_ocr": {
-            "title": "INE OCR",
-            "description": "Extract data from a Mexican INE card image and validate electoral registry status in one request."
-        },
-        "mexico_api_ine_validate": {
-            "title": "INE Validation",
-            "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector."
-        },
-        "mexico_api_cedula_profesional": {
-            "title": "Professional License",
-            "description": "Look up a Mexican professional license by CURP, license number, or name in the official professional registry."
-        },
-        "mexico_api_health_worker": {
-            "title": "Health Worker License",
-            "description": "Confirm that a person holds a Mexican health-related professional license. A person with only non-health licenses returns 404."
-        },
-        "mexico_api_siged_certificado": {
-            "title": "Education Certificate (folio)",
-            "description": "Validate a Mexican electronic education certificate by folio against the official education-certificate registry."
-        },
-        "colombia_api_copnia_license": {
-            "title": "COPNIA professional license by matrícula",
-            "description": "Query a single COPNIA professional license by registration number via GET /v2/co/copnia/matricula."
-        },
-        "colombia_api_copnia": {
-            "title": "COPNIA professional licenses by document",
-            "description": "Query COPNIA (Consejo Profesional Nacional de Ingeniería) professional licenses by Colombian ID via GET /v2/co/copnia."
-        },
-        "colombia_api_vehicle_valuation_sibga": {
-            "title": "SIBGA - Vehicle Commercial Valuation",
-            "description": "Official commercial vehicle valuation for a Colombian license plate, derived from national vehicle registration data."
-        },
-        "smart_enroll_pyg": {
-            "title": "Smart Enroll Free",
-            "description": "Free Smart Enroll plan, with a monthly allowance of enrollments and document scans."
-        },
-        "smart_enroll_plus": {
-            "title": "Smart Enroll Plus",
-            "description": "Smart Enroll Plus plan, with higher monthly limits and liveness."
-        },
-        "smart_enroll_business": {
-            "title": "Smart Enroll Business",
-            "description": "Smart Enroll Business plan, with the highest monthly limits."
-        },
-        "smart_access_pyg": {
-            "title": "Smart Access Free",
-            "description": "Free Smart Access plan, with a monthly allowance of email logins."
-        },
-        "smart_access_plus": {
-            "title": "Smart Access Plus",
-            "description": "Smart Access Plus plan, with higher monthly limits."
-        },
-        "smart_access_business": {
-            "title": "Smart Access Business",
-            "description": "Smart Access Business plan, with the highest monthly limits."
-        },
-        "colombia_api_runt_vehicle_by_plate_only": {
-            "title": "RUNT - Vehicle Records by Plate Only",
-            "description": "Query a Colombian RUNT vehicle using only the license plate, without the owner's document type or number."
-        },
-        "colombia_api_driver_basic": {
-            "title": "RUNT - Driver's License (Basic)",
-            "description": "Verify Colombian driver licenses via RUNT on /v3/co/runt/conductor. primerApellido is required. Billed at the Basic conductor rate."
-        },
-        "chile_api_vehicle_stolen": {
-            "title": "Stolen Vehicle",
-            "description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto)."
-        },
-        "face_recognition_persons_live": {
-            "title": "Create a Person with Liveness",
-            "description": "Enroll a person with liveness verification, face search for duplicates, and optional merge into an existing match."
-        },
-        "face_recognition_persons": {
-            "title": "Persons",
-            "description": "Manage person records and biometric data in your verification system"
-        },
-        "face_recognition_collections": {
-            "title": "List All Collections",
-            "description": "Fetch all collections generated by a specific client. The only parameter required is to send the access token. With this, Verifik will identify the collections generated by this user."
-        },
-        "colombia_api_adres": {
-            "title": "ADRES (BDUA affiliation)",
-            "description": "Query Colombian ADRES / BDUA health affiliation status via GET /v2/co/adres."
-        },
-        "chile_api_driver_license_block": {
-            "title": "Driver License Block Register",
-            "description": "Query the Chile Registro Civil nationwide driver-license block register by RUN: check if a driver license is blocked, holder name, and block details for fleet and KYC compliance."
-        },
-        "face_recognition_liveness_score": {
-            "title": "Liveness Score",
-            "description": "Liveness score for a single face image (stable public API)"
-        }
+  "appFeatures": {
+    "Mexico_api_ine_model_c": {
+      "title": "Mexico - INE Model C",
+      "description": "Validate a Mexican INE document, Model C. Provide the OCR/MRZ fields from the credential to verify authenticity against the INE registry."
+    },
+    "Mexico_api_ine_model_d": {
+      "title": "Mexico - INE Model D",
+      "description": "Validate a Mexican INE document, Model D. Provide the OCR/MRZ fields from the credential to verify authenticity against the INE registry."
+    },
+    "Mexico_api_ine_model_e": {
+      "title": "Mexico - INE Model E",
+      "description": "Validate a Mexican INE document, Model E. Provide the OCR/MRZ fields from the credential to verify authenticity against the INE registry."
+    },
+    "api_autodata_enginer": {
+      "title": "Vehicle Engine Database",
+      "description": "Vehicle engine reference dataset. Look up engine families and specifications used by other Autodata endpoints."
+    },
+    "api_autodata_enginer_code": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "Resolve a vehicle engine by its engineer/manufacturer code. Returns engine specs and compatibility data for parts and diagnostics workflows."
+    },
+    "api_autodata_manufacturers": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "Vehicle manufacturers reference dataset. Returns the list of supported makes (and metadata) used to scope downstream Autodata vehicle queries."
+    },
+    "api_autodata_selection": {
+      "title": "Vehicle Selection Database",
+      "description": "Provides reliable verification and validation services."
+    },
+    "api_colombia_contracts": {
+      "title": "Colombia - Public Contracts",
+      "description": "Colombian public contracts background check"
+    },
+    "api_data_sheet_vehicle": {
+      "title": "Vehicle Data Sheet (deprecated)",
+      "description": "Deprecated endpoint. Route /v2/vehicle/data-sheet is not implemented."
+    },
+    "api_data_sheet_vehicle_by-plate_br": {
+      "title": " - Vehicle Verification",
+      "description": "Brazilian vehicle data sheet by license plate. Provide the plate to retrieve registration metadata, technical fields, and history for fleet and underwriting workflows."
+    },
+    "ar_certificate_verify": {
+      "title": "Argentina - Criminal Record Certificate",
+      "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF. Returns identity fields and the criminal-record statement extracted from the official certificate."
+    },
+    "argentina_api_buenos_aires_technical_inspection": {
+      "title": "Argentina - Buenos Aires Technical Inspection",
+      "description": "Check Buenos Aires vehicle technical inspection history by license plate."
+    },
+    "argentina_api_buenos_aires_traffic_infractions": {
+      "title": "Argentina - Buenos Aires Traffic Infractions",
+      "description": "Check Buenos Aires traffic infractions by vehicle license plate."
+    },
+    "argentina_api_company_lookup": {
+      "title": "Argentina - Argentine Business Verification",
+      "description": "Validate Argentine companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "argentina_api_health_worker": {
+      "title": "Argentina - Health Worker & Medical Professional Verification (REFEPS / SISA / SSS)",
+      "description": "Verify Argentine physicians and healthcare professionals in real time by DNI, license number (Matrícula), or full name against the official Ministry of Health (MSAL SISA / REFEPS) and Superintendencia de Servicios de Salud (SSS) national registries."
+    },
+    "argentina_api_identity_lookup": {
+      "title": "Argentina - Argentine Citizen",
+      "description": "Validate the identity of individuals in Argentina with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "argentina_api_identity_lookup_extra": {
+      "title": "Argentina - Complete Argentine Citizen",
+      "description": "Complete Argentine citizen verification with DNI, including extended identity fields for deeper KYC and onboarding."
+    },
+    "argentina_api_medical_professional": {
+      "title": "Argentina - Medical Professional",
+      "description": "Query medical professionals registered in Argentina using only the national ID document number (DNI). Returns professional registration and licensing data when available."
+    },
+    "argentina_api_pep": {
+      "title": "Argentina - Politically Exposed Persons (PEP) Screening",
+      "description": "Screen Argentine citizens (DNI, CUIT, CUIL) and full names against the official UIF Resolución N° 35/2023 and Oficina Anticorrupción (OA) Sworn Declarations (Ley N° 25.188 / N° 26.857) PEP registries with 2-year post-mandate look-back."
+    },
+    "argentina_api_rto": {
+      "title": "Argentina - RTO",
+      "description": "Check Argentine RTO inspection records by vehicle license plate."
+    },
+    "argentina_api_technical_inspection": {
+      "title": "Buenos Aires Technical Inspection",
+      "description": "Check Buenos Aires vehicle technical inspection history by Argentine license plate."
+    },
+    "argentina_api_traffic_infractions": {
+      "title": "Buenos Aires Traffic Infractions",
+      "description": "Check Buenos Aires traffic infractions by Argentine vehicle license plate."
+    },
+    "argentina_api_vehicle": {
+      "title": "Argentina - Argentina",
+      "description": "Verify Argentine vehicle information using license plate"
+    },
+    "argentina_api_vehicle_v3": {
+      "title": "Argentina - Vehicle v3",
+      "description": "Retrieve Argentine vehicle details by license plate, including vehicle identifiers, policy status, and technical-sheet data when available."
+    },
+    "australia_api_identity_lookup": {
+      "title": "Australia — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Australia. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "be_api_pep": {
+      "title": "Belgium — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Belgium pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "biometrics_api_create_person": {
+      "title": "Biometrics - Create Person (no liveness)",
+      "description": "Create a new person record for identity management. Used for indexing and future face recognition search."
+    },
+    "biometrics_api_create_person_liveness": {
+      "title": "Biometrics - Create Person with Liveness Detection",
+      "description": "Create a new person record with integrated liveness detection. Ensures the user is physically present during enrollment."
+    },
+    "biometrics_check_age_2d": {
+      "title": "2D Age Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "biometrics_check_age_3d": {
+      "title": "3D Age Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "biometrics_enrollment_3d": {
+      "title": "3D Biometric Enrollment",
+      "description": "Provides reliable verification and validation services."
+    },
+    "biometrics_estimate_age_2d": {
+      "title": "2D Age Estimation",
+      "description": "Provides reliable verification and validation services."
+    },
+    "biometrics_estimate_age_3d": {
+      "title": "3D Age Estimation",
+      "description": "Provides reliable verification and validation services."
+    },
+    "biometrics_id_scan_only": {
+      "title": "Biometrics - ID Document Scan Only",
+      "description": "Extract and validate identification document data and security features via document optical character recognition (OCR) and barcode analysis without requiring biometric face matching."
+    },
+    "biometrics_liveness_2d": {
+      "title": "2D Liveness Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "biometrics_liveness_3d": {
+      "title": "3D Liveness Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "bo_api_pep": {
+      "title": "Bolivia — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Bolivia pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "bolivia_api_business_lookup": {
+      "title": "Bolivia - Bolivian Business Verification",
+      "description": "Validate Bolivian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "bolivia_api_identity_lookup": {
+      "title": "Bolivia - Bolivian Citizen",
+      "description": "Validate the identity of individuals in Bolivia with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "bolivia_api_vehicle": {
+      "title": "Bolivia - Vehicle Information",
+      "description": "Bolivian vehicle validation service for retrieving vehicle information by license plate"
+    },
+    "bolivia_api_vehicle_soat": {
+      "title": "Bolivia - Vehicle SOAT",
+      "description": "Bolivian vehicle SOAT lookup service for retrieving mandatory insurance information by license plate."
+    },
+    "bolivia_api_voting_location": {
+      "title": "Bolivia - Voting Location",
+      "description": "Bolivian voting location lookup service for retrieving polling place, table, voting status, and residence details from the official OEP Yo Participo registry."
+    },
+    "brasil_api_company_lookup": {
+      "title": "Brazil - Business Verification (CNPJ)",
+      "description": "Validate Brazilian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "brasil_api_criminal_history": {
+      "title": "Brazil - Background Check (CPF)",
+      "description": "Conduct background checks on Brazilian individuals using CPF"
+    },
+    "brasil_api_identity_lookup": {
+      "title": "Brazil - Brazilian Citizen",
+      "description": "Validate the identity of individuals in Brazil with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "brasil_api_vehicle": {
+      "title": "Brazil - Vehicle Information",
+      "description": "Brazilian plate lookup: registry-style vehicle attributes (make, model, years, VIN/chassis, FIPE codes when available) for fleet, insurance, collateral, and marketplace checks."
+    },
+    "brazil_api_medical_professional": {
+      "title": "Brazil - Medical Professional (CFM / CRM)",
+      "description": "Validate and consult Brazilian medical professionals registered with the Federal Council of Medicine (CFM) and Regional Councils of Medicine (CRMs) by CRM registration number and State (UF) or by full name. Optionally validates CPF and Date of Birth against the CRM registration."
+    },
+    "brazil_api_pep": {
+      "title": "Brazil - Politically Exposed Persons (PEP) Screening",
+      "description": "Screen Brazilian citizens (CPF) and full names against the official COAF Resolução 40/2021 and CGU PEP registry with 5-year post-mandate grace period look-back."
+    },
+    "by_api_pep": {
+      "title": "Belarus — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Belarus pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "ca_api_pep": {
+      "title": "Canada — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Canada pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "canada_api_company": {
+      "title": "Canada - Canadian Business Verification",
+      "description": "Validate Canadian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "canada_api_driver_license_alberta": {
+      "title": "Canada - Driver License",
+      "description": "Validate a Canadian (Alberta) driver license. Provide the license number and supporting fields; returns issuance, status, and identity metadata for KYC checks."
+    },
+    "canada_api_driver_license_british-columbia": {
+      "title": "Canada - British Columbia Driver License",
+      "description": "Discontinued. British Columbia driver license verification is no longer offered because ICBC removed the public lookup."
+    },
+    "canada_api_driver_license_ontario": {
+      "title": "Canada - Ontario Driver License",
+      "description": "Ontario driver license verification service"
+    },
+    "canada_api_driver_license_quebec": {
+      "title": "Canada - Quebec Driver License",
+      "description": "Verify Quebec (Canada) driver licenses by document number via Verifik's API."
+    },
+    "canada_api_ontario_plate": {
+      "title": "Canada - Ontario Plate Expiry",
+      "description": "Ontario plate sticker expiry check by plate number and permit number"
+    },
+    "chile_api_business_lookup": {
+      "title": "Chile - Business Validation",
+      "description": "Look up Chilean companies by RUT: legal name, business category, activity, and authorized service lines from official registry data for KYB and vendor due diligence."
+    },
+    "chile_api_driver_license": {
+      "title": "Chile - Driver License",
+      "description": "Look up a Chilean driver license by license number: class, restrictions, control dates, RUT, and address from official motor-vehicle records for fleet and workforce compliance."
+    },
+    "chile_api_driver_license_block": {
+      "title": "Chile - Driver License Block Register",
+      "description": "Query the Chile Registro Civil nationwide driver-license block register by RUN. Returns whether the license is blocked, holder name when available, and block metadata (date, type, reason) when a block exists."
+    },
+    "chile_api_health_worker": {
+      "title": "Chile - Health Worker & Medical Provider Verification (RNPI / Prestadores de Salud)",
+      "description": "Verify Chilean physicians, dentists, nurses, pharmacists, and registered health providers by RUT/RUN or full name against official Superintendencia de Salud (RNPI), Datos.gob.cl Prestadores de Salud, and public health registries."
+    },
+    "chile_api_identity_lookup": {
+      "title": "Chile - Chilean Citizen",
+      "description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention."
+    },
+    "chile_api_pep": {
+      "title": "Chile - Politically Exposed Persons (PEP) Screening",
+      "description": "Screen Chilean citizens (RUT/RUN) and full names against the official UAF Circular N° 49/2012, Ley N° 20.880 (InfoProbidad / Contraloría General de la República), and National Congress PEP registries with 1-year post-mandate look-back."
+    },
+    "chile_api_taxpayer_lookup": {
+      "title": "Chile — Taxpayer (RUT) lookup",
+      "description": "Query Chilean taxpayer records by RUT: structured name fields from tax-oriented sources for KYB, invoicing, and vendor checks."
+    },
+    "chile_api_transport_vehicle": {
+      "title": "Chile - Public Transport Vehicle",
+      "description": "Query Chile public transport vehicle registration (RNT) by license plate: service type, capacity, brand/model, certificate dates, and operator status."
+    },
+    "chile_api_validate": {
+      "title": "Chile — Identity document validation",
+      "description": "Validate a Chilean RUN or RUT together with the document serial against civil or tax validation flows; returns a vigency-style status for physical ID checks."
+    },
+    "chile_api_vehicle": {
+      "title": "Chile - Vehicle Information",
+      "description": "Chilean vehicle information service"
+    },
+    "chile_api_vehicle_soap": {
+      "title": "Chile - Vehicle SOAP",
+      "description": "Query Chile vehicular SOAP (Seguro Obligatorio de Accidentes Personales) certificate by license plate and policy number."
+    },
+    "chile_api_vehicle_soap_plate": {
+      "title": "Chile - Vehicle SOAP (by plate)",
+      "description": "Query Chile vehicular SOAP certificate by license plate only. Returns nested soap and vehicle objects with coverage status, insurer, owner, and validity dates."
+    },
+    "chile_api_vehicle_stolen": {
+      "title": "Chile - Stolen Vehicle",
+      "description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto)."
+    },
+    "chile_api_vehicle_v3": {
+      "title": "Chile - Vehicle Technical Review",
+      "description": "Query Chile vehicle technical review status and inspection history by license plate."
+    },
+    "cl_certificate_verify": {
+      "title": "Chile - Civil Registry Certificate",
+      "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Codigo Verificador). Returns certificate PDF metadata and conviction-register details when available."
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "Colombia - Bogotá Taxi Driver by Card",
+      "description": "Taxi driver verification in Bogotá by driver card/license number. Retrieves driver-related data associated with the provided card."
+    },
+    "co_bogota_taxi_plate": {
+      "title": "Colombia - Bogotá Taxi Driver Information by Plate",
+      "description": "Retrieve taxi driver and operation card information in Bogotá by vehicle plate."
+    },
+    "colombia_api_adres": {
+      "title": "Colombia — ADRES affiliation",
+      "description": "Query Colombian ADRES (Administradora de los Recursos del Sistema General de Seguridad Social en Salud) / BDUA affiliation status by document type and number via GET /v2/co/adres."
+    },
+    "colombia_api_adverse_media": {
+      "title": "Colombia - Adverse Media Screening via Google News RSS",
+      "description": "Screen adverse media, negative press, money laundering, and judicial risk mentions in news sources via Google RSS."
+    },
+    "colombia_api_affiliations": {
+      "title": "Colombia — Health & social security affiliations",
+      "description": "Query Colombian EPS, ARL, pension (AP), compensation funds, and severance (cesantías) via GET /v2/co/afiliaciones."
+    },
+    "colombia_api_cedula_barcode": {
+      "title": "Colombia — Cédula PDF417 Barcode Verification",
+      "description": "Anti-fraud verification for Colombian cédula (CC): decodes the rear PDF417 barcode and cross-checks it against front card data to immediately detect altered, forged, or counterfeit identity documents."
+    },
+    "colombia_api_contraloria_certificate": {
+      "title": "Colombia - Contraloría Certificate",
+      "description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF."
+    },
+    "colombia_api_copnia": {
+      "title": "COPNIA",
+      "description": "Query COPNIA (Consejo Profesional Nacional de Ingeniería) professional licenses by Colombian ID."
+    },
+    "colombia_api_copnia_license": {
+      "title": "COPNIA LICENSE",
+      "description": "Query a COPNIA professional license by registration number (matrícula)."
+    },
+    "colombia_api_cpae": {
+      "title": "Colombia - Business Administration Professional License (CPAE)",
+      "description": "Verify professional licenses (Matrícula Profesional) for Business Administrators in Colombia by Cédula de Ciudadanía (CC) or Cédula de Extranjería (CE) against the official Consejo Profesional de Administración de Empresas (CPAE)."
+    },
+    "colombia_api_cpiq": {
+      "title": "Colombia - Chemical Engineering Professional License (CPIQ)",
+      "description": "Verify professional licenses (Matrícula Profesional), resolution numbers, and validity status for Chemical Engineers in Colombia by Cédula or License Number against the official Consejo Profesional de Ingeniería Química de Colombia (CPIQ)."
+    },
+    "colombia_api_criminal_history": {
+      "title": "Colombia - Disciplinary Records in Colombia (attorney's office)",
+      "description": "Disciplinary records in Colombia attorney's office"
+    },
+    "colombia_api_delinquent_debtors": {
+      "title": "Colombia — Delinquent debtors (BDME)",
+      "description": "Query Colombia’s BDME (Base de Datos de Morosos) delinquent debtors registry via GET /v2/co/deudoresmorosos."
+    },
+    "colombia_api_dian": {
+      "title": "Colombia - Colombia DIAN Verification",
+      "description": "Validate Colombian companies' DIAN status with Verifik's KYB API. Connect with official sources and verify tax authority data in seconds."
+    },
+    "colombia_api_dian_invoicer": {
+      "title": "Colombia - Colombia Legal Invoicer Verification",
+      "description": "Validate legal invoicer registration in DIAN for Colombian companies with Verifik's KYB API."
+    },
+    "colombia_api_driver": {
+      "title": "Colombia - RUNT - Driver's License (Premium)",
+      "description": "Verify driver''s licenses in Colombia using the document number with the Verifik API. Access official RUNT data, including license status, categories, and expiration dates."
+    },
+    "colombia_api_driver_basic": {
+      "title": "Colombia - RUNT - Driver's License (Basic)",
+      "description": "Verify driver's licenses in Colombia using the document number and first last name with the Verifik API."
+    },
+    "colombia_api_electrical_mechanical_engineering": {
+      "title": "Colombia - Electrical & Mechanical Engineering Professional License (Consejo Profesional)",
+      "description": "Verify professional licenses (Matrícula Profesional) and disciplinary sanction status for Electrical, Mechanical, and Related Engineers in Colombia by Cédula, License Number, or Full Name."
+    },
+    "colombia_api_identity_ce_foreigner_id": {
+      "title": "Colombia — CE (Cédula de Extranjería)",
+      "description": "Verify Cédula de Extranjería (CE) status with Migración Colombia via GET /v2/co/foreigner-id/ce."
+    },
+    "colombia_api_identity_lookup": {
+      "title": "Colombia - Colombian Citizen",
+      "description": "Validate the identity of individuals in Colombia with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "colombia_api_identity_lookup_by_name": {
+      "title": "Colombia - Citizen Lookup by Name (SCCRC)",
+      "description": "Search Colombian birth civil registry records by names, sex, and date of birth via the official national civil registry SCCRC"
+    },
+    "colombia_api_identity_lookup_extra": {
+      "title": "Colombia — National ID with extra data (CC)",
+      "description": "Verify Colombian Cédula de Ciudadanía with extended official fields via GET /v2/co/cedula/extra."
+    },
+    "colombia_api_identity_lookup_premium": {
+      "title": "Colombia — National ID premium lookup (CC)",
+      "description": "Verify a Colombian national ID (CC) with a full profile: you type only the number, Verifik finds the issue date for you, and you get the same rich identity record as cédula extra. Uses more credits than the basic cédula check."
+    },
+    "colombia_api_identity_lookup_procuraduria": {
+      "title": "Colombia - Citizen Lookup via the official disciplinary oversight authority",
+      "description": "Validate a Colombian document and extract names from the official disciplinary oversight authority only (no disciplinary records)"
+    },
+    "colombia_api_identity_lookup_registraduria": {
+      "title": "Colombia - Citizen Lookup via the official national civil registry (SCCRC)",
+      "description": "Lookup Colombian birth civil registry records by document number via the official national civil registry SCCRC only (skips the official disciplinary oversight authority and DIAN)"
+    },
+    "colombia_api_identity_lookup_vigencia": {
+      "title": "Colombia — National ID status (CC)",
+      "description": "Check Colombian CC vigencia with the official national civil registry: exists, alive, or cancelled by death. GET/POST /v2/co/cedula/vigencia. No name sources."
+    },
+    "colombia_api_identity_pep_foreigner_id": {
+      "title": "Colombia — PEP (Special Stay Permit)",
+      "description": "Verify Permiso Especial de Permanencia (PEP) status with Migración Colombia via GET /v2/co/foreigner-id/pep."
+    },
+    "colombia_api_identity_ppt_foreigner_id": {
+      "title": "Colombia — PPT (Temporary Protection Permit)",
+      "description": "Verify Permiso de Protección Temporal (PPT) status with Migración Colombia via GET /v2/co/foreigner-id/ppt."
+    },
+    "colombia_api_jcc_sanctions": {
+      "title": "Colombia - Junta Central de Contadores Disciplinary Sanctions",
+      "description": "Query disciplinary sanctions registered against accountants and audit firms in the official Junta Central de Contadores registry."
+    },
+    "colombia_api_judicial_process_details": {
+      "title": "Colombia - Retrieve Details of a Legal Process by Number",
+      "description": "Get comprehensive information about a specific legal process in Colombia using its process number (Rama Judicial)."
+    },
+    "colombia_api_judicial_processes": {
+      "title": "Colombia — Judicial processes",
+      "description": "List judicial processes linked to a Colombian person or company (CC or NIT) via Rama Judicial."
+    },
+    "colombia_api_judicial_records": {
+      "title": "Colombia — Judicial records (court files / expedientes)",
+      "description": "Query Colombian judicial court files (expedientes) by CC, city, and document number via Rama Judicial."
+    },
+    "colombia_api_lawyers": {
+      "title": "Colombia — Lawyer lookup",
+      "description": "Look up Colombian lawyers by document type and number (CC, CE, or NIT) via RAMA public registry data."
+    },
+    "colombia_api_lawyers_certificate": {
+      "title": "Colombia - Certificate of Validity for Legal Professionals",
+      "description": "Verify the current status and validity of legal professionals in Colombia"
+    },
+    "colombia_api_military_situation": {
+      "title": "Colombia — Military service status",
+      "description": "Query Colombian military service (situación militar) using a Cédula de Ciudadanía (CC). Returns status and related details from official sources."
+    },
+    "colombia_api_min_trabajo": {
+      "title": "Colombia - Labor Certificates Verification",
+      "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
+    },
+    "colombia_api_min_trabajo_v3": {
+      "title": "Colombia — Ministry of Labor certificates (v3)",
+      "description": "Labor and height-safety (“curso de alturas”) certificate data from Colombia’s Ministry of Labor via GET /v3/co/ministerio-de-trabajo/certificados."
+    },
+    "colombia_api_paco_sanctions": {
+      "title": "Colombia - PACO Anti-Corruption and Sanctions Registry",
+      "description": "Comprehensive background check querying contractor sanctions, SIRI disciplinary actions, fiscal liabilities, and SECOP contractual penalties via the official anti-corruption portal."
+    },
+    "colombia_api_pico_placa": {
+      "title": "Colombia - Pico y Placa",
+      "description": "Bogotá peak and plate restriction service"
+    },
+    "colombia_api_police_rnmc": {
+      "title": "Colombia - Verify Police Compliance with Corrective Measures",
+      "description": "Verify police compliance with corrective measures in Colombia"
+    },
+    "colombia_api_police_rnmc_premium": {
+      "title": "Colombia - Police RNMC premium (CC)",
+      "description": "Same Policía RNMC corrective-measures result as the standard lookup, for CC only. Send the document number; Verifik resolves the issue date. Costs 1.20 credits."
+    },
+    "colombia_api_rama_jepms": {
+      "title": "Colombia - Rama Judicial JEPMS Execution of Sentences",
+      "description": "Consult execution of penalties and security measures (JEPMS) records and criminal sentence adjudications across 25 Colombian judicial districts."
+    },
+    "colombia_api_registraduria_certificate": {
+      "title": "Colombia — the official national civil registry ID validity certificate (CC)",
+      "description": "Obtain the official the official national civil registry certificate of validity for a Colombian cédula (CC) using document number and issue date via GET /v2/co/the official national civil registry/certificado."
+    },
+    "colombia_api_registraduria_matrimonio": {
+      "title": "Colombia - Marriage Civil Registry (SCCRC)",
+      "description": "Search Colombian marriage civil registry records by document, name, or serial via the official national civil registry SCCRC"
+    },
+    "colombia_api_registraduria_serial": {
+      "title": "Colombia - Civil Registry Lookup by Serial (SCCRC)",
+      "description": "Lookup Colombian birth civil registry records by serial number via the official national civil registry SCCRC"
+    },
+    "colombia_api_registraduria_voting": {
+      "title": "Colombia - Retrieve Voting Information for Colombian Citizens",
+      "description": "Retrieve voting information for Colombian citizens"
+    },
+    "colombia_api_rethus": {
+      "title": "Professional Healthcare Physicians Verification",
+      "description": "Query the Colombian RETHUS registry for health-sector professionals via GET /v2/co/cedula/rethus."
+    },
+    "colombia_api_rues": {
+      "title": "Colombia — RUES business lookup (v2, legacy)",
+      "description": "Basic Colombian business registry lookup in RUES by NIT via GET /v2/co/rues."
+    },
+    "colombia_api_rues_full": {
+      "title": "Colombia — RUES complete lookup (v2, legacy)",
+      "description": "Complete Colombian business information from RUES by NIT via GET /v2/co/rues/complete."
+    },
+    "colombia_api_rues_full_v3": {
+      "title": "Colombia - RUES Complete Business Validation (v3)",
+      "description": "Retrieve complete Colombian business information from RUES with Verifik's KYB API. Connect with official sources and verify comprehensive business data."
+    },
+    "colombia_api_rues_v3": {
+      "title": "Colombia — RUES business lookup (v3)",
+      "description": "Query Colombia’s RUES registry by NIT with category-specific basic data via GET /v3/co/rues."
+    },
+    "colombia_api_rui": {
+      "title": "Colombia - RUI Classification",
+      "description": "Query the Colombian Registro Universal de Ingresos (RUI) classification via Ventanilla Social / DNP using document type and document number."
+    },
+    "colombia_api_runt_owners": {
+      "title": "Colombia - Vehicle Owners",
+      "description": "Query Colombian vehicle owners by license plate. Returns vehicle data and the complete ownership history. Alias: GET /v2/co/runt/vehiculo/owners."
+    },
+    "colombia_api_runt_vehicle_by_plate_only": {
+      "title": "Colombia - Vehicle Records by Plate Only",
+      "description": "Query a Colombian RUNT vehicle using only the plate, without the owner's document type or number."
+    },
+    "colombia_api_sena": {
+      "title": "Colombia - SENA Certificates",
+      "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+    },
+    "colombia_api_sicaac_cases": {
+      "title": "Colombia - SICAAC Pre-Litigation Conciliation Cases",
+      "description": "Verify pre-litigation civil, commercial, labor, and insolvency conciliation cases by document number, detecting legal disputes before court filing."
+    },
+    "colombia_api_sicaac_insolvency": {
+      "title": "Colombia - SICAAC Personal Insolvency Registry",
+      "description": "Verify personal insolvency proceedings (Ley de Insolvencia Persona Natural No Comerciante) by document number in the official registry."
+    },
+    "colombia_api_simit_agreements": {
+      "title": "Colombia - the official traffic infraction registry - Agreements",
+      "description": "the official traffic infraction registry payment agreements for traffic violations service"
+    },
+    "colombia_api_simit_complete": {
+      "title": "Colombia - the official traffic infraction registry - General query by identification document",
+      "description": "the official traffic infraction registry comprehensive data by document service"
+    },
+    "colombia_api_simit_plate": {
+      "title": "Colombia - the official traffic infraction registry - General query by plate number",
+      "description": "the official traffic infraction registry comprehensive data by plate service"
+    },
+    "colombia_api_simit_resolutions": {
+      "title": "Colombia - the official traffic infraction registry - Resolutions",
+      "description": "the official traffic infraction registry traffic violation resolutions service"
+    },
+    "colombia_api_simit_subpoenas": {
+      "title": "Colombia - the official traffic infraction registry - Fines",
+      "description": "the official traffic infraction registry traffic citations and fines service"
+    },
+    "colombia_api_simit_subpoenas_details": {
+      "title": "Colombia - the official traffic infraction registry Subpoena Details",
+      "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+    },
+    "colombia_api_simit_suspensions": {
+      "title": "Colombia - the official traffic infraction registry - License suspensions",
+      "description": "Query driver license suspension or cancellation records in Colombia’s the official traffic infraction registry system by holder identification."
+    },
+    "colombia_api_sisconmp": {
+      "title": "Colombia - SISCONMP Training Records",
+      "description": "SISCONMP training records service"
+    },
+    "colombia_api_sst_license": {
+      "title": "Colombia - Occupational Safety & Health License and Technical Carné (SST)",
+      "description": "Verify Occupational Safety & Health (SST) licenses and technical radiation protection carnés issued by Colombian Departmental Health Secretariats via Open Data (Datos Abiertos Colombia)."
+    },
+    "colombia_api_vehicle": {
+      "title": "Colombia - SOAT and RTM Validation in RUNT",
+      "description": "Verify the status of mandatory insurance (SOAT) and technical review (RTM) for vehicles in Colombia. Real-time API for traffic compliance."
+    },
+    "colombia_api_vehicle_accidentality_bogota": {
+      "title": "Colombia - Vehicle Accidentality",
+      "description": "Bogotá vehicle accident history service"
+    },
+    "colombia_api_vehicle_complete": {
+      "title": "Colombia - Complete Vehicle Information",
+      "description": "Get comprehensive vehicle information for Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
+    },
+    "colombia_api_vehicle_complete_by_plate": {
+      "title": "Colombia - Vehicle Records by Plate",
+      "description": "Validate vehicles in Colombia using their license plate number with the Verifik API. Connect to the RUNT and obtain official data in seconds."
+    },
+    "colombia_api_vehicle_complete_by_plate_simplified": {
+      "title": "Colombia - Simplified Vehicle Records by Plate in RUNT",
+      "description": "Retrieve essential vehicle details from RUNT Colombia using the license plate. Fast and efficient API for basic vehicle verification."
+    },
+    "colombia_api_vehicle_complete_by_vin": {
+      "title": "Colombia - Vehicle Records by VIN",
+      "description": "Query vehicle information in Colombia using the VIN (Vehicle Identification Number). Connect to the RUNT and obtain complete official data."
+    },
+    "colombia_api_vehicle_fines_bogota": {
+      "title": "Colombia - Vehicle Fines Check",
+      "description": "Bogotá vehicle fines service"
+    },
+    "colombia_api_vehicle_fines_medellin": {
+      "title": "Colombia - Medellin Transit Fines",
+      "description": "Verify outstanding local traffic penalties and fines restricted to the city of Medellin."
+    },
+    "colombia_api_vehicle_owners": {
+      "title": "Colombia - Vehicle Owner History",
+      "description": "Query Colombian vehicle owners by license plate. Returns vehicle data and the complete ownership history."
+    },
+    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+      "title": "Colombia - Claims Verification",
+      "description": "Fasecolda insurance claims history verification service. Check vehicle insurance claim history in Colombia with Verifik's API."
+    },
+    "colombia_api_vehicle_soat": {
+      "title": "Colombia - Vehicle SOAT Status",
+      "description": "Verify the active SOAT (Compulsory Traffic Accident Insurance) policies and details for a given vehicle plate."
+    },
+    "colombia_api_vehicle_tax": {
+      "title": "Colombia - Taxes in Bogotá",
+      "description": "Bogotá vehicle tax service"
+    },
+    "colombia_api_vehicle_valores_fasecolda_by_code": {
+      "title": "Colombia - Vehicle Values by Code",
+      "description": "Get Fasecolda vehicle values and information by code with Verifik's API. Access comprehensive vehicle data for Colombia."
+    },
+    "colombia_api_vehicle_valores_fasecolda_by_plate": {
+      "title": "Colombia - Vehicle Values by Plate",
+      "description": "Get Fasecolda vehicle values and information by license plate with Verifik's API. Access comprehensive vehicle data for Colombia."
+    },
+    "colombia_api_vehicle_valuation_sibga": {
+      "title": "Colombia - Vehicle Commercial Valuation (SIBGA)",
+      "description": "Official Ministerio de Transporte (SIBGA) commercial value for a Colombian vehicle plate, mapped automatically from RUNT."
+    },
+    "colombia_inpec_lookup": {
+      "title": "Colombia - INPEC Prison Records Check",
+      "description": "Query the population deprived of liberty under the custody of INPEC (Colombian National Penitentiary and Prison Institute)"
+    },
+    "colombia_pep_lookup": {
+      "title": "Colombia — Politically exposed persons (PEP) lookup",
+      "description": "AML PEP screening for Colombian natural persons (CC) and businesses (NIT) via GET /v2/co/politically-exposed-persons."
+    },
+    "colombia_sigep_by_name": {
+      "title": "Colombia — SIGEP lookup by full name",
+      "description": "Search Colombian public officials and government contractors by full name in the SIGEP directory."
+    },
+    "colombia_sigep_by_number": {
+      "title": "Colombia — SIGEP lookup by document",
+      "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT) via SIGEP."
+    },
+    "colombia_sisben_api_lookup": {
+      "title": "Colombia — the official social benefit classification registry score",
+      "description": "Verify the official social benefit classification registry (Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales) score and group classification for Colombian residents."
+    },
+    "colombia_special_api_identity_lookup": {
+      "title": "Colombia - Private Citizen Information",
+      "description": "Access private citizen information for Colombian nationals. This service provides comprehensive personal data including detailed identity verification. Contact Verifik customer service for more details."
+    },
+    "colombia_special_api_police_identity_lookup": {
+      "title": "Colombia - Colombian Police Record Check",
+      "description": "Colombian police record check service"
+    },
+    "communication_colombia_messaging_whatsapp": {
+      "title": "Colombia - WhatsApp Messaging",
+      "description": "Send WhatsApp messages from a Colombia-routed sender via Verifik's gateway. Provide recipient, template, and variables for transactional alerts, OTPs, and KYC notifications."
+    },
+    "communication_global_email_otp": {
+      "title": "Email OTP",
+      "description": "Send a one-time passcode by email for user verification flows. Provide the recipient address and message parameters; the API delivers the OTP and returns send/delivery metadata for KYC and login confirmation."
+    },
+    "communication_global_messaging_sms": {
+      "title": "Global - SMS Messaging",
+      "description": "Provides reliable verification and validation services."
+    },
+    "communication_global_messaging_whatsapp": {
+      "title": "Global - WhatsApp Messaging",
+      "description": "Send WhatsApp messages globally through Verifik's gateway. Provide the recipient phone number, template, and variables; useful for OTP delivery, transactional alerts, and KYC notifications."
+    },
+    "communication_messaging_sms": {
+      "title": "SMS Messaging",
+      "description": "Send SMS messages via Verifik's global gateway. Provide the destination phone number and message body; supports OTPs, transactional alerts, and notification flows with delivery metadata in the response."
+    },
+    "consultar_procesos_judiciales": {
+      "title": "Colombia - Judicial Processes",
+      "description": "Check complete judicial history and active legal processes."
+    },
+    "costa_rica_api_business_lookup": {
+      "title": "Costa Rica - Costa Rican Business Verification (NITE)",
+      "description": "KYB company lookup for Costa Rica via GET /v2/cr/company with documentType NITE and documentNumber for registration and compliance."
+    },
+    "costa_rica_api_traffic_infractions": {
+      "title": "Costa Rica - Traffic Infractions",
+      "description": "Costa Rican traffic infractions lookup service for retrieving tickets and judicial case details by vehicle license plate."
+    },
+    "costa_rica_api_vehicle": {
+      "title": "Costa Rica - Vehicle Information",
+      "description": "Costa Rican vehicle lookup by license plate via GET /v2/cr/vehicle with required plate; returns owner, specs, infractions, and owner history when available."
+    },
+    "costarica_api_identity_lookup": {
+      "title": "Costa Rica - Costa Rican Citizen (CCCR)",
+      "description": "National ID (CCCR cédula) verification for Costa Rica via GET /v2/cr/cedula with documentType and documentNumber for KYC and fraud prevention."
+    },
+    "costarica_api_voting_location": {
+      "title": "Costa Rica - Voting Location",
+      "description": "Costa Rican voting location lookup service for retrieving polling place, junta, and residence details from the official TSE Donde Votar registry."
+    },
+    "cr_api_pep": {
+      "title": "Costa Rica — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Costa Rica pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "credit_intent": {
+      "title": "Credit Purchase Intent",
+      "description": "Create a Verifik credit purchase intent for x402 settlement. Returns the intent id and pricing metadata used to confirm the on-chain payment for downstream API calls."
+    },
+    "credit_intent_kyc_passwordless": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "Create a credit purchase intent for the Passwordless KYC flow. Returns the intent id and pricing metadata used to settle on-chain via x402 before launching the KYC session."
+    },
+    "cu_api_pep": {
+      "title": "Cuba — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Cuba pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "czechia_api_identity_lookup": {
+      "title": "Czechia — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Czechia. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "data_finance_balancesheet": {
+      "title": "Financial - Balance Sheet",
+      "description": "Public-company balance sheet data. Provide a ticker to retrieve assets, liabilities, and equity line items used in financial analysis."
+    },
+    "data_finance_cashflow": {
+      "title": "Financial - Cash Flow",
+      "description": "Public-company cash flow statement data. Provide a ticker to retrieve operating, investing, and financing cash flow line items."
+    },
+    "data_finance_incomestatement": {
+      "title": "Financial - Income Statement",
+      "description": "Public-company income statement data. Provide a ticker to retrieve revenue, expenses, and earnings line items for financial analysis."
+    },
+    "data_finance_stockprice": {
+      "title": "Financial - Stock Price",
+      "description": "Stock price quotes for public companies. Provide a ticker to retrieve current and historical price data for analytics and dashboards."
+    },
+    "de_api_pep": {
+      "title": "Germany — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Germany pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "denmark_api_identity_lookup": {
+      "title": "Denmark — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Denmark. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "document-liveness": {
+      "title": "Document Liveness Detection",
+      "description": "Check whether a captured ID image is a real document or a screen/print attack. Returns liveness scores and indicators to harden KYC document-capture flows."
+    },
+    "ec_api_pep": {
+      "title": "Ecuador — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Ecuador pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "ecuador_api_company_lookup": {
+      "title": "Ecuador - Ecuadorian Business Verification",
+      "description": "Validate Ecuadorian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "ecuador_api_company_lookup_v3": {
+      "title": "Ecuador - Ecuadorian Business Verification (v3)",
+      "description": "Validate Ecuadorian companies with Verifik's KYB API (v3). Connect with official sources and verify comprehensive business data in seconds."
+    },
+    "ecuador_api_criminal_history": {
+      "title": "Ecuador - Criminal History",
+      "description": "Ecuador criminal history lookup. Provide the citizen's document number to verify pending records and judicial background for compliance and hiring workflows."
+    },
+    "ecuador_api_identity_lookup": {
+      "title": "Ecuador - Ecuadorian Citizen",
+      "description": "Validate the identity of individuals in Ecuador with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "ecuador_api_vehicle": {
+      "title": "Ecuador - Vehicle Verification",
+      "description": "Look up Ecuadorian vehicle registration details by license plate"
+    },
+    "ecuador_api_vehicle_fines": {
+      "title": "Ecuador - Vehicle Fines",
+      "description": "Ecuadorian vehicle validation service for retrieving vehicle fines and registration information by license plate"
+    },
+    "ecuador_api_vehicle_v3": {
+      "title": "Ecuador - Vehicle Verification",
+      "description": "Look up Ecuadorian vehicle registration details by license plate, including technical-sheet data when available."
+    },
+    "ecuador_api_voting_location": {
+      "title": "Ecuador - Voting Location",
+      "description": "Ecuador voting location lookup for province, canton, parish, polling place code, and junta from the official CNE electoral registry."
+    },
+    "ee_api_pep": {
+      "title": "Estonia — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Estonia pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "el_salvador_api_identity_lookup": {
+      "title": "El Salvador - Salvadoran Citizen",
+      "description": "Validate the identity of individuals in El Salvador with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "es_api_pep": {
+      "title": "Spain — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Spain pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "estonia_api_identity_lookup": {
+      "title": "Estonia — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Estonia. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "eu_api_vies_vat": {
+      "title": "European Union - VIES VAT & Business Verification",
+      "description": "Verify VAT registration and official business entity status across all 27 EU member states and Northern Ireland via the official European registry."
+    },
+    "face_recognition_collections": {
+      "title": "Global - Create Face Collection",
+      "description": "Create a face recognition collection"
+    },
+    "face_recognition_compare": {
+      "title": "Global - Face Comparison",
+      "description": "1:1 face comparison to verify identity"
+    },
+    "face_recognition_compare_live": {
+      "title": "Global - Face Comparison (Live)",
+      "description": "1:1 comparison with live probe and liveness threshold"
+    },
+    "face_recognition_compare_with_liveness": {
+      "title": "Global - Face Comparison With Liveness",
+      "description": "1:1 face compare followed by OpenCV liveness on the probe image (sequential)."
+    },
+    "face_recognition_detect": {
+      "title": "Global - Face Detection",
+      "description": "Detect and extract faces from images"
+    },
+    "face_recognition_detect_face": {
+      "title": "Face Detection",
+      "description": "Detect and validate the presence of a human face in an image. Useful as a pre-step for liveness or face-compare flows; returns face bounding boxes and quality signals."
+    },
+    "face_recognition_liveness": {
+      "title": "Global - Liveness Detection",
+      "description": "Detect if a face is live or from a static image/video"
+    },
+    "face_recognition_liveness_score": {
+      "title": "Global - Liveness Score (OpenCV)",
+      "description": "OpenCV-only liveness score (no Zelf arbitrage)"
+    },
+    "face_recognition_persons": {
+      "title": "Global - Create Face Person",
+      "description": "Enroll a person into one or more face collections"
+    },
+    "face_recognition_persons_delete": {
+      "title": "Global - Delete Face Person",
+      "description": "Delete an enrolled face person by id"
+    },
+    "face_recognition_persons_live": {
+      "title": "Global - Create Face Person With Liveness",
+      "description": "Enroll a person with liveness into a collection"
+    },
+    "face_recognition_search": {
+      "title": "Global - Face Search (1:N)",
+      "description": "Search for a face in a collection (1:N identification)"
+    },
+    "face_recognition_search_active_user": {
+      "title": "Global - Face Search 1:N (Active User)",
+      "description": "1:N search variant without liveness, for active sessions"
+    },
+    "face_recognition_search_crops": {
+      "title": "Global - Face Search 1:N (Crops)",
+      "description": "1:N search optimized for small face crops (e.g. max ~120×120)"
+    },
+    "face_recognition_search_live_face": {
+      "title": "Global - Face Search 1:N (Live)",
+      "description": "1:N search with liveness on probe image"
+    },
+    "face_recognition_verify": {
+      "title": "Global - Verify Face (1:1 vs enrolled person)",
+      "description": "Match probe face images against a specific enrolled person by ID"
+    },
+    "feature_data_api": {
+      "title": "Data API",
+      "description": "Provides reliable verification and validation services."
+    },
+    "feature_email_login": {
+      "title": "API Key Access via Email",
+      "description": "Request a one-time password (OTP) sent to the client's email for API authentication."
+    },
+    "feature_kyc_solution": {
+      "title": "KYC Solution",
+      "description": "Bundled Verifik KYC solution: identity, document, biometrics, and watchlist checks orchestrated end-to-end. Used as the default reference for full KYC flows."
+    },
+    "feature_passwordless_solution": {
+      "title": "Passwordless Authentication",
+      "description": "Passwordless authentication solution that pairs identity verification with biometric proof. Onboards users without passwords while keeping a verifiable audit trail."
+    },
+    "feature_pdf_generator": {
+      "title": "PDF Report Generator",
+      "description": "Generate PDF reports from Verifik validations. Aggregates fetched records into a downloadable, audit-ready document for compliance teams."
+    },
+    "fi_api_pep": {
+      "title": "Finland — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Finland pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "fr_api_pep": {
+      "title": "France — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in France pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "france_api_company_sirene": {
+      "title": "France - SIRENE / INSEE Enterprise Lookup",
+      "description": "Lookup French companies by SIREN, SIRET or legal name in the official French registry, retrieving legal status, TVA number, registered officers, and financials."
+    },
+    "france_api_identity_lookup": {
+      "title": "France — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in France. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "gt_api_pep": {
+      "title": "Guatemala — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Guatemala pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "guatemala_api_identity_extra_lookup": {
+      "title": "Guatemala - Guatemala Extra",
+      "description": "Validate the identity of individuals in Guatemala with additional details such as birth date and gender."
+    },
+    "guatemala_api_identity_lookup": {
+      "title": "Guatemala - Guatemalan Citizen",
+      "description": "Validate the identity of individuals in Guatemala with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "hn_api_pep": {
+      "title": "Honduras — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Honduras pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "honduras_api_identity_lookup": {
+      "title": "Honduras - Honduran Citizen",
+      "description": "Validate the identity of individuals in Honduras with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "honduras_api_voting_location": {
+      "title": "Honduras - Voting Location",
+      "description": "Honduran voting location lookup service for retrieving polling place, JRV, and residence details from the electoral consultation registry."
+    },
+    "india_api_epic_lookup": {
+      "title": "India - India EPIC (Voter ID) — Person & Name Lookup | Verifik",
+      "description": "Retrieve voter name and related fields from the Electoral Commission of India (ECI) using a 10-character EPIC (Voter ID) via Verifik's API."
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "India - India EPIC (Voter ID) — Polling & voting location | Verifik",
+      "description": "Retrieve assembly, part, and polling-place details for an Indian EPIC (Voter ID) from ECI-oriented sources via Verifik''s API."
+    },
+    "ip-lookup": {
+      "title": "IP Geolocation Lookup",
+      "description": "Geolocate an IPv4 or IPv6 address. Returns country, region, city, ISP/ASN, and risk hints for fraud screening and access-control checks."
+    },
+    "is_api_pep": {
+      "title": "Iceland — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Iceland pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "lt_api_pep": {
+      "title": "Lithuania — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Lithuania pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "lv_api_pep": {
+      "title": "Latvia — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Latvia pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "matpis_appointments": {
+      "title": "MATPIS Appointments",
+      "description": "Provides reliable verification and validation services."
+    },
+    "mexico_api_cedula_profesional": {
+      "title": "Mexico - Professional License",
+      "description": "Look up a Mexican professional license in the Registro Nacional de Profesionistas by CURP, license number, or name. CURP tries a direct registry match first, then resolves the name internally when needed."
+    },
+    "mexico_api_company": {
+      "title": "Mexico - Mexican Business Verification",
+      "description": "Validate Mexican companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "mexico_api_health_worker": {
+      "title": "Mexico - Health Worker License",
+      "description": "Validate that a person holds a Mexican health-related professional license (medicine, nursing, dentistry, pharmacy, nutrition, clinical psychology). Veterinary licenses are excluded. Same CURP / cédula / name inputs as the general license endpoint."
+    },
+    "mexico_api_ine_ocr": {
+      "title": "Mexico - INE OCR",
+      "description": "Extract INE fields with Verifik Gemini OCR, then validate electoral status via Nexcar numbers in one request."
+    },
+    "mexico_api_ine_validate": {
+      "title": "Mexico - INE Validation",
+      "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector identifiers."
+    },
+    "mexico_api_issste_affiliation": {
+      "title": "Mexico - ISSSTE Social Security Affiliation",
+      "description": "Verify Mexican public sector social security affiliation (ISSSTE) and official non-affiliation certificates by CURP, including labor status, official folio, certificate UUID, and digital seal."
+    },
+    "mexico_api_rfc_lookup": {
+      "title": "Mexico - RFC by CURP / RFC",
+      "description": "Bidirectional lookup and SAT compliance validation between Mexican CURP and SAT RFC (Registro Federal de Contribuyentes)."
+    },
+    "mexico_api_siged_certificado": {
+      "title": "Mexico - Education Certificate (folio)",
+      "description": "Validate a Mexican electronic education certificate by folio against the official education-certificate registry. Optionally send fullName or CURP to confirm the certificate belongs to the person; a mismatch returns 409 name_mismatch. When both are sent, CURP wins."
+    },
+    "mexico_api_vehicle": {
+      "title": "Mexico - Mexico",
+      "description": "Verify Mexican vehicle information using license plate"
+    },
+    "mexico_identity_lookup": {
+      "title": "Mexico - Mexican Citizen",
+      "description": "Validate the identity of individuals in Mexico using CURP with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "mx_api_pep": {
+      "title": "Mexico — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Mexico pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "ni_api_pep": {
+      "title": "Nicaragua — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Nicaragua pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "nl_api_pep": {
+      "title": "Netherlands — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Netherlands pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "no_api_pep": {
+      "title": "Norway — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Norway pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "norway_api_identity_lookup": {
+      "title": "Norway — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Norway. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "ocr_scan_gpt": {
+      "title": "OCR Document Scan Prompt",
+      "description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (i.e. names, document numbers, dates) plus the raw extracted text for downstream KYC workflows."
+    },
+    "ocr_scan_pro": {
+      "title": "OCR Document Scan Pro",
+      "description": "Production-grade OCR for ID documents. Submit an image (URL or Base64) and receive structured identity fields plus raw extracted text for downstream KYC and onboarding workflows."
+    },
+    "ocr_scan_studio": {
+      "title": "OCR Document Scan Studio",
+      "description": "The Scan Studio offers a seamless and efficient solution for extracting critical information from scanned documents through state-of-the-art Optical Character Recognition (OCR) technology. To use this service, simply provide the document image in Base64-encoded format or a URL where the image is hosted, and let our system handle the rest."
+    },
+    "panama_api_business_lookup": {
+      "title": "Panama - Panamanian Business Verification",
+      "description": "Look up Panamanian companies by RUC—legal name, status, representatives, and registry fields from official sources for KYB and due diligence."
+    },
+    "panama_api_health_worker": {
+      "title": "Panama - Health Worker & Medical Professional Verification (MINSA / Consejo Técnico de Salud)",
+      "description": "Verify Panamanian physicians, specialists, dentists, nurses, pharmacists, and medical technologists by Cédula or full name against the official Ministry of Health (MINSA) personnel and health professional registries."
+    },
+    "panama_api_identity_full_lookup": {
+      "title": "Panama - National ID Verification",
+      "description": "Extended Panamanian identity verification. Provide the cédula to retrieve full identity fields including names, dates, and registry metadata for KYC."
+    },
+    "panama_api_identity_lookup": {
+      "title": "Panama - Panamanian Citizen",
+      "description": "Verify Panamanian CCPA national ID data (document and name) against official civil-registry sources for KYC and fraud prevention."
+    },
+    "panama_api_jtia_license": {
+      "title": "Panama - Engineering & Architecture License Verification (JTIA)",
+      "description": "Verify licensed engineers, architects, engineering technicians, and certified electricians in Panama by Cédula, Idoneidad number, or full name against the official Junta Técnica de Ingeniería y Arquitectura (JTIA) registry."
+    },
+    "panama_api_pep": {
+      "title": "Panama - Politically Exposed Persons (PEP) Screening",
+      "description": "Screen Panamanian citizens (Cédula / CCPA) and full names against official Ley N° 23 de 2015, Acuerdo SBP N° 10-2015, National Assembly Deputies, and Executive High-Ranking Officials PEP registries with 2-year post-mandate look-back."
+    },
+    "panama_api_vehicle": {
+      "title": "Panama - Vehicle Verification",
+      "description": "Look up a Panamanian vehicle by license plate. Returns make, model, year, and registration metadata for compliance and underwriting checks."
+    },
+    "paraguay_api_business_lookup": {
+      "title": "Paraguay - Paraguayan Business Verification",
+      "description": "Validate Paraguayan companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "paraguay_api_identity_lookup": {
+      "title": "Paraguay - Paraguayan Citizen",
+      "description": "Validate the identity of individuals in Paraguay with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "paraguay_api_vehicle": {
+      "title": "Paraguay - Vehicle Information",
+      "description": "Paraguayan vehicle validation service for retrieving comprehensive vehicle information by license plate"
+    },
+    "peru_api_company_lookup": {
+      "title": "Peru - Business Registration Lookup",
+      "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
+    },
+    "peru_api_company_lookup_v3": {
+      "title": "Peru - Peruvian Business Verification",
+      "description": "Validate Peruvian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "peru_api_driver_license_lookup": {
+      "title": "Peru - Driver License",
+      "description": "Look up Peruvian driver licenses by DNI. Returns license category, status, expiration, restrictions, issuance center, and related procedures when available from official records."
+    },
+    "peru_api_identity_ce_foreigner_id": {
+      "title": "Peru - Foreigner ID",
+      "description": "Peruvian foreigner resident ID validation service for verifying foreigner identity documents"
+    },
+    "peru_api_pep": {
+      "title": "Peru - Politically Exposed Persons (PEP) Screening",
+      "description": "Screen Peruvian citizens (DNI), foreign residents (CE), and full names against the SBS Resolution 2660-2015 / 4349-2016 / 02868-2025 PEP registry with 2-year former-PEP look-back."
+    },
+    "peru_api_renacyt_education": {
+      "title": "Peru - University Degrees (SUNEDU) & CONCYTEC RENACYT Academic Verification",
+      "description": "Verify Peruvian university degrees imported from SUNEDU (Bachiller, Licenciado, Maestro, Doctor), academic institutions, ORCID, and national researcher status by DNI, CE, Passport, or full name via CONCYTEC RENACYT."
+    },
+    "peru_api_vehicle": {
+      "title": "Peru - Vehicle Information",
+      "description": "The Peruvian Vehicle Information service provides detailed data about registered vehicles in Peru based on their license plate number. The response includes key details such as the vehicle''s make, model, year, engine and chassis serial numbers, seating capacity, and usage type."
+    },
+    "peru_api_vehicle_soat": {
+      "title": "Peru - Vehicle Insurance",
+      "description": "This service provides information on the insurance status of a vehicle in Peru. It returns details including the insurance company name, policy start and end dates, vehicle plate number, policy number, usage type, vehicle class, and policy status."
+    },
+    "peru_api_vehicle_v3": {
+      "title": "Peru - Vehicle Information",
+      "description": "Query Peruvian vehicle details by license plate, including identifiers and technical-sheet data when available."
+    },
+    "peru_identity_extra_lookup": {
+      "title": "Peru - National ID Verification",
+      "description": "Extended Peruvian identity lookup with additional personal fields. Provide documentType DNIPE and documentNumber; returns enriched identity data when available."
+    },
+    "peru_identity_extra_lookup_v3": {
+      "title": "Peru - Full ID",
+      "description": "Extended Peruvian citizen identity verification with comprehensive DNI details using Verifik's KYC API. Connect with official sources and verify detailed identity data in seconds."
+    },
+    "peru_identity_lookup": {
+      "title": "Peru - National ID Verification",
+      "description": "Verify a Peruvian citizen by national ID (DNI). Provide documentType DNIPE and documentNumber; returns identity fields drawn from official records for KYC and onboarding flows."
+    },
+    "peru_identity_lookup_v3": {
+      "title": "Peru - Peru",
+      "description": "Verify identities of Peruvian citizens using DNI v3 API"
+    },
+    "pl_api_pep": {
+      "title": "Poland — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Poland pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "poland_api_identity_lookup": {
+      "title": "Poland — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Poland. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "py_api_pep": {
+      "title": "Paraguay — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Paraguay pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "republica_dominicana_api_citizen_lookup": {
+      "title": "República Dominicana - Dominican Citizen",
+      "description": "Validate the identity of individuals in the Dominican Republic with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "romania_api_identity_lookup": {
+      "title": "Romania — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Romania. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "se_api_pep": {
+      "title": "Sweden — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Sweden pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "slovakia_api_identity_lookup": {
+      "title": "Slovakia — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in Slovakia. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "smart_access_business": {
+      "title": "Smart Access Business",
+      "description": "Smart Access Business plan, with the highest monthly limits."
+    },
+    "smart_access_plus": {
+      "title": "Smart Access Plus",
+      "description": "Smart Access Plus plan, with higher monthly limits."
+    },
+    "smart_access_pyg": {
+      "title": "Smart Access Free",
+      "description": "Free Smart Access plan, with a monthly allowance of email logins."
+    },
+    "smart_enroll_background_check": {
+      "title": "SmartEnroll Background Check",
+      "description": "SmartEnroll background-check overage billing unit. One charge per completed check regardless of FBI, DEA, ONU, Interpol, or OFAC selection. Not a public Data API."
+    },
+    "smart_enroll_business": {
+      "title": "Smart Enroll Business",
+      "description": "Smart Enroll Business plan, with the highest monthly limits."
+    },
+    "smart_enroll_identity_check": {
+      "title": "SmartEnroll Identity Check",
+      "description": "SmartEnroll name-validation overage billing unit. Charged after the period free pack at the plan discount. Not a public Data API."
+    },
+    "smart_enroll_plus": {
+      "title": "Smart Enroll Plus",
+      "description": "Smart Enroll Plus plan, with higher monthly limits and liveness."
+    },
+    "smart_enroll_pyg": {
+      "title": "Smart Enroll Free",
+      "description": "Free Smart Enroll plan, with a monthly allowance of enrollments and document scans."
+    },
+    "spain_api_company_lookup": {
+      "title": "Spain - Spanish Business Verification",
+      "description": "Validate Spanish companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "spain_api_identity_lookup": {
+      "title": "Spain - Spanish Citizen",
+      "description": "Validate the identity of individuals in Spain with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "spain_api_tax_id_validate": {
+      "title": "Spain - NIF / NIE / CIF Tax ID Validator & Entity Lookup",
+      "description": "Algorithmic validation and official registry cross-check for Spanish tax identifiers (DNI/NIF, NIE, CIF), verifying control checksums, entity types, provinces, and official registry status."
+    },
+    "spain_api_vehicle_lookup": {
+      "title": "Spain - Spain",
+      "description": "Query Spanish vehicle registration data by license plate (matrícula) via Verifik."
+    },
+    "sv_api_pep": {
+      "title": "El Salvador — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in El Salvador pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "uk_api_company_lookup": {
+      "title": "United Kingdom - Company & Public Record Lookup",
+      "description": "Lookup UK companies by CRN company number or legal name via official corporate registry and public notice records, retrieving LEI, addresses, and statutory filings."
+    },
+    "uruguay_api_identity_lookup": {
+      "title": "Uruguay - Uruguayan Citizen",
+      "description": "Validate the identity of individuals in Uruguay with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "us_api_npi_identity_lookup": {
+      "title": "United States — Citizen Identity & Sole Proprietor Verification (KYC)",
+      "description": "Live official identity and sole-proprietor validation in United States. Verifies legal citizen/individual name, registration status, and official identity attributes."
+    },
+    "us_api_passport_entries": {
+      "title": "United States - Passport & U.S. entries",
+      "description": "Query passport-related U.S. entry and exit information using traveler and passport fields"
+    },
+    "usa_api_company": {
+      "title": "United States - United States Business Verification",
+      "description": "Validate US companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
+    },
+    "usa_api_driver_license_barcode": {
+      "title": "USA & Canada - Driver's License PDF417 Barcode Decoder",
+      "description": "Decodes and parses standard ANSI/AAMVA PDF417 barcodes from U.S. and Canadian driver licenses and state identification cards across 60+ issuing jurisdictions, extracting structured personal and biometric attributes, verifying REAL ID compliance, and computing security indicators."
+    },
+    "usa_api_driver_license_crosscheck": {
+      "title": "USA & Canada - Driver's License Front-to-Back Cross-Check",
+      "description": "Performs anti-counterfeit cross-check validation between front-side OCR data (or extracted card parameters) and decoded back-side AAMVA PDF417 barcode elements, detecting tampering, mismatching identifiers, and counterfeit credentials."
+    },
+    "usa_api_driver_license_lookup": {
+      "title": "United States - Florida Driver License",
+      "description": "Florida driver license validation service"
+    },
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "United States - Kansas Driver License",
+      "description": "Kansas driver license verification service"
+    },
+    "usa_api_ssn": {
+      "title": "United States - United States SSN Verification",
+      "description": "Validate Social Security Numbers in the United States with Verifik's KYC API. Connect with official sources and verify SSN data in seconds."
+    },
+    "usa_api_vehicle": {
+      "title": "United States - Vehicle Information",
+      "description": "Temporarily unavailable. U.S. vehicle lookup by license plate and state is disabled. Use VIN lookup instead: GET /v2/usa/vehicle-by-vin (usa_api_vehicle_lookup_by_vin)."
+    },
+    "usa_api_vehicle_lookup_by_vin": {
+      "title": "United States - Vehicle by VIN",
+      "description": "US vehicle validation by 17-character VIN (NHTSA decode)"
+    },
+    "usa_api_vehicle_recalls": {
+      "title": "USA - Vehicle Safety Recalls & Extended VIN Lookup",
+      "description": "Retrieves official U.S. vehicle safety recalls, defect investigations, campaign numbers, consequences, and manufacturer remedy programs using a 17-character VIN or Make/Model/ModelYear criteria from the official national vehicle safety administration."
+    },
+    "uy_api_pep": {
+      "title": "Uruguay — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Uruguay pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "validate-document": {
+      "title": "validate-document",
+      "description": "Validate a captured Colombian identity document image. Returns document liveness and authenticity signals to harden KYC document-capture flows."
+    },
+    "ve_api_pep": {
+      "title": "Venezuela — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Venezuela pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "venezuela_api_identity_lookup": {
+      "title": "Venezuela - Venezuelan Citizen (CCVE)",
+      "description": "National identity lookup for Venezuela—verify cédula (CCVE) holders by document number via GET /v2/ve/cedula for KYC and fraud prevention."
+    },
+    "venezuela_foreigner_api": {
+      "title": "Venezuela - Foreigner ID (CEVE)",
+      "description": "Foreigner cédula (CEVE) verification in Venezuela—lookup by document number via GET /v2/ve/foreigner-id for KYC and compliance."
+    },
+    "world_api_anti_kleptocracy_visa": {
+      "title": "Watchlist — Anti-Kleptocracy and Human Rights Visa Restrictions",
+      "description": "Screen entities and individuals against Anti-Kleptocracy and Human Rights Visa Restrictions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_argentina_repet": {
+      "title": "Watchlist — Argentina RePET Sanctions",
+      "description": "Screen entities and individuals against Argentina RePET Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_australia_sanctions": {
+      "title": "Watchlist — Australian Sanctions Consolidated List",
+      "description": "Screen entities and individuals against Australian Sanctions Consolidated List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_austria_sanctions": {
+      "title": "Watchlist — Austrian National Bank – Terrorism Financing Restrictions",
+      "description": "Screen entities and individuals against Austrian National Bank – Terrorism Financing Restrictions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_azerbaijan_fms_sanctions": {
+      "title": "Watchlist — Azerbaijan Domestic List",
+      "description": "Screen entities and individuals against Azerbaijan Domestic List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_belgium_sanctions": {
+      "title": "Watchlist — Belgian Financial Sanctions",
+      "description": "Screen entities and individuals against Belgian Financial Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_bis_antiboycott_requesters": {
+      "title": "Watchlist — US Office of Antiboycott Compliance Requester List",
+      "description": "Screen entities and individuals against US Office of Antiboycott Compliance Requester List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_bka_wanted": {
+      "title": "Watchlist — Germany BKA Wanted Fugitives",
+      "description": "Screen entities and individuals against Germany BKA Wanted Fugitives for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_br_bcb_disqualified": {
+      "title": "Watchlist — Brazil Register of Persons Disqualified from Senior Roles",
+      "description": "Screen entities and individuals against Brazil Register of Persons Disqualified from Senior Roles for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_br_tcu_disqualified": {
+      "title": "Watchlist — Brazil List of Individuals Disqualified from Public Service",
+      "description": "Screen entities and individuals against Brazil List of Individuals Disqualified from Public Service for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_bulgaria_sanctions": {
+      "title": "Watchlist — Bulgarian Persons of Interest",
+      "description": "Screen entities and individuals against Bulgarian Persons of Interest for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_canada_autonomous_sanctions": {
+      "title": "Watchlist — Canadian Consolidated Autonomous Sanctions List",
+      "description": "Screen entities and individuals against Canadian Consolidated Autonomous Sanctions List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_canada_facfoa": {
+      "title": "Watchlist — Canadian Freezing Assets of Corrupt Foreign Officials Act",
+      "description": "Screen entities and individuals against Canadian Freezing Assets of Corrupt Foreign Officials Act for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_canada_nro": {
+      "title": "Watchlist — Canadian Named Research Organizations",
+      "description": "Screen entities and individuals against Canadian Named Research Organizations for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_canada_terrorist_entities": {
+      "title": "Watchlist — Canadian Listed Terrorist Entities",
+      "description": "Screen entities and individuals against Canadian Listed Terrorist Entities for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_cbp_wro": {
+      "title": "Watchlist — CBP Withhold Release Orders and Findings",
+      "description": "Screen entities and individuals against CBP Withhold Release Orders and Findings for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_china_sanctions": {
+      "title": "Watchlist — China Sanctions Research",
+      "description": "Screen entities and individuals against China Sanctions Research for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_cia_world_leaders": {
+      "title": "Global - CIA World Leaders",
+      "description": "Screen foreign heads of state, cabinet ministers, and government leaders worldwide via the official directory of chiefs of state and cabinet members."
+    },
+    "world_api_covid": {
+      "title": "Global - COVID Statistics",
+      "description": "Look up COVID-19 statistics by country and date. Returns aggregated cases, deaths, and recovery counters for analytics and dashboards."
+    },
+    "world_api_crypto_fbi_lazarus": {
+      "title": "Watchlist — US FBI Lazarus Group Crypto Wallets",
+      "description": "Screen entities and individuals against US FBI Lazarus Group Crypto Wallets for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_crypto_ransomwhere": {
+      "title": "Watchlist — ransomwhe.re – Ransomware Addresses",
+      "description": "Screen entities and individuals against ransomwhe.re – Ransomware Addresses for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_csl": {
+      "title": "Consolidated Screening List (CSL) - USA",
+      "description": "Screen individuals and entities against the official United States Consolidated Screening List (CSL) including OFAC, BIS, and State Department restrictions."
+    },
+    "world_api_cuba_restricted": {
+      "title": "Watchlist — State Department Cuba Sanctions (Cuba Restricted List)",
+      "description": "Screen entities and individuals against State Department Cuba Sanctions (Cuba Restricted List) for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_czech_sanctions": {
+      "title": "Watchlist — Czech Republic National Sanctions",
+      "description": "Screen entities and individuals against Czech Republic National Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_ddtc_aeca_debarments": {
+      "title": "Watchlist — US DDTC AECA Debarments",
+      "description": "Screen entities and individuals against US DDTC AECA Debarments for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_ddtc_penalties": {
+      "title": "Watchlist — US DDTC Penalties & Oversight Agreements",
+      "description": "Screen entities and individuals against US DDTC Penalties & Oversight Agreements for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_dea": {
+      "title": "Global - DEA Background Check",
+      "description": "DEA background check service"
+    },
+    "world_api_dod_chinese_military_companies": {
+      "title": "Watchlist — US DoD Chinese Military Companies",
+      "description": "Screen entities and individuals against US DoD Chinese Military Companies for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_dss_most_wanted": {
+      "title": "DSS Most Wanted - USA",
+      "description": "Verify fugitive and rewards status against the official U.S. Diplomatic Security Service (DSS) and Rewards for Justice program."
+    },
+    "world_api_education_score": {
+      "title": "LATAM - Unified Education & Professional License Score",
+      "description": "Compute a normalized 0-100 Education & Professional Score for an individual across Colombia (CO), Peru (PE), Panama (PA), Mexico (MX), and Chile (CL) by aggregating university degrees, technical certifications, professional licenses (Matrícula / Idoneidad / Cédula Profesional), and disciplinary sanction checks."
+    },
+    "world_api_egypt_terrorists": {
+      "title": "Watchlist — Egypt Domestic Terrorist List",
+      "description": "Screen entities and individuals against Egypt Domestic Terrorist List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_esma_sanctions": {
+      "title": "Watchlist — EU ESMA Sanctions",
+      "description": "Screen entities and individuals against EU ESMA Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_esma_suspensions": {
+      "title": "Watchlist — EU ESMA Suspensions and Removals",
+      "description": "Screen entities and individuals against EU ESMA Suspensions and Removals for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_estonia_sanctions": {
+      "title": "Watchlist — Estonia International Sanctions Act List",
+      "description": "Screen entities and individuals against Estonia International Sanctions Act List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_eu_council_sanctions": {
+      "title": "Watchlist — EU Council Official Journal Sanctioned Entities",
+      "description": "Screen entities and individuals against EU Council Official Journal Sanctioned Entities for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_eu_fsf": {
+      "title": "European Union - Consolidated Financial Sanctions (EU FSF)",
+      "description": "Screen against all targets reported in the European Union Consolidated Financial Sanctions Database (EU FSF) across all EU restrictive regimes."
+    },
+    "world_api_eu_sanctions_map": {
+      "title": "Watchlist — EU Sanctions Map",
+      "description": "Screen entities and individuals against EU Sanctions Map for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_eu_terrorists": {
+      "title": "European Union - Common Position Terrorists List (CP931)",
+      "description": "Screen individuals and entities subject to European Union specific restrictive measures against persons and entities involved in terrorist acts (Council Common Position 2001/931/CFSP)."
+    },
+    "world_api_eu_travel_bans": {
+      "title": "Watchlist — EU Consolidated Travel Bans",
+      "description": "Screen entities and individuals against EU Consolidated Travel Bans for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_europol": {
+      "title": "Global - Europol Background Check",
+      "description": "The Europol background check service allows developers to perform real-time checks against Europol''s criminal records database. By providing a person''s document type and document number, or full name, users can verify whether the information matches any entry in Europol''s system."
+    },
+    "world_api_fbi": {
+      "title": "Global - FBI Background Check",
+      "description": "FBI background check service"
+    },
+    "world_api_fcc_covered_list": {
+      "title": "Watchlist — US FCC Covered List",
+      "description": "Screen entities and individuals against US FCC Covered List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_fdic_failed_banks": {
+      "title": "Watchlist — US FDIC Failed Banks",
+      "description": "Screen entities and individuals against US FDIC Failed Banks for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_fed_reserve_actions": {
+      "title": "Watchlist — US Federal Reserve Enforcement Actions",
+      "description": "Screen entities and individuals against US Federal Reserve Enforcement Actions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_fincen_special_measures": {
+      "title": "Watchlist — FinCEN 311 and 9714 Special Measures",
+      "description": "Screen entities and individuals against FinCEN 311 and 9714 Special Measures for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_finra_actions": {
+      "title": "Watchlist — US FINRA Enforcement Actions",
+      "description": "Screen entities and individuals against US FINRA Enforcement Actions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_france_amf_blacklist": {
+      "title": "Watchlist — France AMF Illegal Financial Services List",
+      "description": "Screen entities and individuals against France AMF Illegal Financial Services List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_france_amf_sanctions": {
+      "title": "Watchlist — France AMF Regulatory Sanctions",
+      "description": "Screen entities and individuals against France AMF Regulatory Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_france_gels_avoirs": {
+      "title": "Watchlist — French National Asset Freezing System",
+      "description": "Screen entities and individuals against French National Asset Freezing System for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_georgia_otkhozoria_tatunashvili": {
+      "title": "Watchlist — Georgian Otkhozoria–Tatunashvili List",
+      "description": "Screen entities and individuals against Georgian Otkhozoria–Tatunashvili List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_gleif_lei": {
+      "title": "Global - LEI Corporate Registry & Hierarchy Lookup",
+      "description": "Lookup corporate entities globally by 20-character ISO 17442 Legal Entity Identifier (LEI), national registration number, or legal name via the official international LEI registry."
+    },
+    "world_api_guernsey_gfsc_prohibitions": {
+      "title": "Watchlist — Guernsey FSC Prohibitions and Disqualified Directors",
+      "description": "Screen entities and individuals against Guernsey FSC Prohibitions and Disqualified Directors for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_health_exclusions": {
+      "title": "U.S. Health Exclusions (HHS OIG LEIE)",
+      "description": "Verify healthcare providers and entities against the official U.S. Department of Health and Human Services List of Excluded Individuals/Entities (LEIE)."
+    },
+    "world_api_iadb": {
+      "title": "Inter-American Development Bank (IADB) - Sanctioned Firms & Individuals",
+      "description": "Screen firms and individuals sanctioned by the Inter-American Development Bank (IDB / BID) Group for engaging in prohibited practices."
+    },
+    "world_api_ice_most_wanted": {
+      "title": "Watchlist — US ICE Most Wanted Fugitives",
+      "description": "Screen entities and individuals against US ICE Most Wanted Fugitives for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_india_mha_banned": {
+      "title": "Watchlist — Indian Ministry of Home Affairs Banned Organizations",
+      "description": "Screen entities and individuals against Indian Ministry of Home Affairs Banned Organizations for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_india_nse_debarred": {
+      "title": "Watchlist — India NSE Debarred Entities",
+      "description": "Screen entities and individuals against India NSE Debarred Entities for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_indonesia_dttot": {
+      "title": "Watchlist — Indonesian List of Suspected Terrorists (DTTOT)",
+      "description": "Screen entities and individuals against Indonesian List of Suspected Terrorists (DTTOT) for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_interpol": {
+      "title": "Global - Interpol Background Check",
+      "description": "This API endpoint allows you to search the criminal background of an individual or a company. To receive a successful response, it is necessary to provide the document type and document number. The response returns details such as document type, document number, first name, last name, full name, and name components for both natural and legal persons."
+    },
+    "world_api_iran_mfa_sanctions": {
+      "title": "Watchlist — Iran Sanctions List",
+      "description": "Screen entities and individuals against Iran Sanctions List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_ireland_unlawful_organisations": {
+      "title": "Watchlist — Ireland Unlawful Organisation (Suppression) Orders",
+      "description": "Screen entities and individuals against Ireland Unlawful Organisation (Suppression) Orders for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_isle_of_man_disqualified": {
+      "title": "Watchlist — Isle of Man FSA Disqualified Directors",
+      "description": "Screen entities and individuals against Isle of Man FSA Disqualified Directors for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_israel_crypto_seizures": {
+      "title": "Watchlist — Israel Sanctioned Crypto Wallets List",
+      "description": "Screen entities and individuals against Israel Sanctioned Crypto Wallets List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_israel_mod_terrorists": {
+      "title": "Watchlist — Israel Terrorist Organizations and Unauthorized Associations",
+      "description": "Screen entities and individuals against Israel Terrorist Organizations and Unauthorized Associations for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_israel_nbctf_wmd": {
+      "title": "Watchlist — Israel – WMD Distribution and Financing Designations",
+      "description": "Screen entities and individuals against Israel – WMD Distribution and Financing Designations for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_japan_meti_end_user": {
+      "title": "Watchlist — Japan METI End User List",
+      "description": "Screen entities and individuals against Japan METI End User List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_japan_mof_sanctions": {
+      "title": "Watchlist — Japan Economic Sanctions and List of Eligible People",
+      "description": "Screen entities and individuals against Japan Economic Sanctions and List of Eligible People for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_kazakhstan_afm_sanctions": {
+      "title": "Watchlist — Kazakh Terrorist and Terror Financing Lists",
+      "description": "Screen entities and individuals against Kazakh Terrorist and Terror Financing Lists for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_kyrgyzstan_sfis_sanctions": {
+      "title": "Watchlist — Kyrgyz National List",
+      "description": "Screen entities and individuals against Kyrgyz National List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_latvia_fiu_sanctions": {
+      "title": "Watchlist — Latvia FIU Sanctions",
+      "description": "Screen entities and individuals against Latvia FIU Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_latvia_magnitsky": {
+      "title": "Watchlist — Latvia's Magnitsky Law Sanctions List",
+      "description": "Screen entities and individuals against Latvia's Magnitsky Law Sanctions List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_lithuania_lb_blacklist": {
+      "title": "Watchlist — Lithuania Illegal Financial Services",
+      "description": "Screen entities and individuals against Lithuania Illegal Financial Services for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_lithuania_lpt_blocklist": {
+      "title": "Watchlist — Lithuania Illegal Gambling Operators",
+      "description": "Screen entities and individuals against Lithuania Illegal Gambling Operators for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_lithuania_magnitsky": {
+      "title": "Watchlist — Lithuania Designated Persons – Magnitsky Amendments",
+      "description": "Screen entities and individuals against Lithuania Designated Persons – Magnitsky Amendments for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_lithuania_sanctions": {
+      "title": "Watchlist — Lithuanian International Sanctions",
+      "description": "Screen entities and individuals against Lithuanian International Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_luxembourg_cssf_sanctions": {
+      "title": "Watchlist — Luxembourg Administrative Sanctions",
+      "description": "Screen entities and individuals against Luxembourg Administrative Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_malaysia_bnm_fca": {
+      "title": "Watchlist — Malaysia Financial Consumer Alert List",
+      "description": "Screen entities and individuals against Malaysia Financial Consumer Alert List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_malaysia_moha_sanctions": {
+      "title": "Watchlist — Malaysia MOHA Sanctions List",
+      "description": "Screen entities and individuals against Malaysia MOHA Sanctions List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_malaysia_sc_aob": {
+      "title": "Watchlist — Malaysia Securities Commission AOB Enforcements",
+      "description": "Screen entities and individuals against Malaysia Securities Commission AOB Enforcements for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_malaysia_sc_investor_alert": {
+      "title": "Watchlist — Malaysia Securities Commission Investor Alert List",
+      "description": "Screen entities and individuals against Malaysia Securities Commission Investor Alert List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_moldova_sanctions": {
+      "title": "Watchlist — Moldovan Sanctions – Terrorism and WMD",
+      "description": "Screen entities and individuals against Moldovan Sanctions – Terrorism and WMD for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_monaco_gel_fonds": {
+      "title": "Watchlist — Monaco National Fund Freezing List",
+      "description": "Screen entities and individuals against Monaco National Fund Freezing List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_nca_most_wanted": {
+      "title": "Watchlist — UK NCA Most Wanted",
+      "description": "Screen entities and individuals against UK NCA Most Wanted for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_nepal_fiu_sanctions": {
+      "title": "Watchlist — Nepal Prohibited Persons or Groups",
+      "description": "Screen entities and individuals against Nepal Prohibited Persons or Groups for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_netherlands_terrorist_sanctions": {
+      "title": "Watchlist — Netherlands National Sanctionlist Terrorism",
+      "description": "Screen entities and individuals against Netherlands National Sanctionlist Terrorism for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_new_zealand_russia_sanctions": {
+      "title": "Watchlist — New Zealand Russia Sanctions",
+      "description": "Screen entities and individuals against New Zealand Russia Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_new_zealand_terrorists": {
+      "title": "Watchlist — New Zealand Designated Terrorist Entities",
+      "description": "Screen entities and individuals against New Zealand Designated Terrorist Entities for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_nigeria_sanctions": {
+      "title": "Watchlist — Nigeria Sanctions List",
+      "description": "Screen entities and individuals against Nigeria Sanctions List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_norges_bank_exclusions": {
+      "title": "Watchlist — Norges Bank Investment Management – Observation and Exclusion",
+      "description": "Screen entities and individuals against Norges Bank Investment Management – Observation and Exclusion for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_occ_actions": {
+      "title": "Watchlist — US OCC Enforcement Actions",
+      "description": "Screen entities and individuals against US OCC Enforcement Actions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_ofac": {
+      "title": "Global - OFAC Background Check",
+      "description": "OFAC background check service"
+    },
+    "world_api_offshore_leaks": {
+      "title": "Global - Offshore Leaks Database (ICIJ)",
+      "description": "Search corporate service providers, shell companies, and officers in offshore tax havens across Panama Papers, Paradise Papers, Pandora Papers, and Bahamas Leaks."
+    },
+    "world_api_ofsi": {
+      "title": "United Kingdom - OFSI Consolidated Sanctions & FCDO List",
+      "description": "Verify targets subject to financial sanctions under the UK Sanctions and Anti-Money Laundering Act (SAMLA 2018) via OFSI and FCDO consolidated lists."
+    },
+    "world_api_ofsi_investment_bans": {
+      "title": "Watchlist — UK HMT/OFSI Investment Bans",
+      "description": "Screen entities and individuals against UK HMT/OFSI Investment Bans for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_ohchr_settlements": {
+      "title": "Watchlist — OHCHR – Companies Linked to Illegal Settlement in the West Bank",
+      "description": "Screen entities and individuals against OHCHR – Companies Linked to Illegal Settlement in the West Bank for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_onu": {
+      "title": "Global - ONU Background Check",
+      "description": "This API provides a simple and efficient way to verify whether a person or entity is listed on the United Nations sanctions list. By submitting identifying information such as document type and document number, users can quickly determine if an individual or organization is subject to international sanctions."
+    },
+    "world_api_pakistan_nacta_proscribed": {
+      "title": "Watchlist — Pakistan NACTA Proscribed Persons",
+      "description": "Screen entities and individuals against Pakistan NACTA Proscribed Persons for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_palestine_pma_freezing": {
+      "title": "Watchlist — Palestine Monetary Authority Local Freezing List",
+      "description": "Screen entities and individuals against Palestine Monetary Authority Local Freezing List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_passport_entries": {
+      "title": "world api passport entries",
+      "description": "Provides reliable verification and validation services."
+    },
+    "world_api_pep": {
+      "title": "Global — Politically Exposed Persons (PEP) Screening",
+      "description": "Screen individuals and entities against official politically exposed persons (PEP) registers in Global pursuant to FATF Recommendation 12 and national AML legislation with 5-year lookback support."
+    },
+    "world_api_philippines_procor_wanted": {
+      "title": "Watchlist — Philippines Top Most Wanted – Cordillera Region",
+      "description": "Screen entities and individuals against Philippines Top Most Wanted – Cordillera Region for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_philippines_sec_advisories": {
+      "title": "Watchlist — Philippines SEC Advisories",
+      "description": "Screen entities and individuals against Philippines SEC Advisories for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_phone_lookup": {
+      "title": "Global - Phone Lookup",
+      "description": "Look up a phone number worldwide. Returns the listed owner name and related profile fields when available."
+    },
+    "world_api_poland_giif_sanctions": {
+      "title": "Watchlist — Polish Sanctions – Money Laundering and Terror Financing",
+      "description": "Screen entities and individuals against Polish Sanctions – Money Laundering and Terror Financing for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_poland_mswia_sanctions": {
+      "title": "Watchlist — Polish List of Persons and Entities Subject to Sanctions",
+      "description": "Screen entities and individuals against Polish List of Persons and Entities Subject to Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_politie_opsporingslijst": {
+      "title": "Watchlist — Netherlands Police Nationale Opsporingslijst",
+      "description": "Screen entities and individuals against Netherlands Police Nationale Opsporingslijst for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_qatar_natc_sanctions": {
+      "title": "Watchlist — Qatar Unified Record of Sanctioned Persons and Entities",
+      "description": "Screen entities and individuals against Qatar Unified Record of Sanctioned Persons and Entities for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_romania_terrorists": {
+      "title": "Watchlist — Romania Gov. Decision 1.272/2005 – Suspected Terrorists",
+      "description": "Screen entities and individuals against Romania Gov. Decision 1.272/2005 – Suspected Terrorists for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_sam_exclusions": {
+      "title": "Watchlist — US SAM Procurement Exclusions",
+      "description": "Screen entities and individuals against US SAM Procurement Exclusions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_sam_special_exclusions": {
+      "title": "Watchlist — US Special Legislative Exclusions",
+      "description": "Screen entities and individuals against US Special Legislative Exclusions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_sec": {
+      "title": "U.S. SEC Sanctions & Enforcement",
+      "description": "Screen individuals and soliciting entities against official U.S. Securities and Exchange Commission enforcement actions and PAUSE alerts."
+    },
+    "world_api_secret_service": {
+      "title": "US Secret Service Most Wanted",
+      "description": "Check if an individual is listed on the official United States Secret Service Most Wanted fugitives list."
+    },
+    "world_api_serbia_apml_sanctions": {
+      "title": "Watchlist — Serbian Domestic List of Designated Persons",
+      "description": "Screen entities and individuals against Serbian Domestic List of Designated Persons for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_singapore_mas_sanctions": {
+      "title": "Watchlist — Singapore Targeted Financial Sanctions",
+      "description": "Screen entities and individuals against Singapore Targeted Financial Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_south_africa_fic_tfs": {
+      "title": "Watchlist — South Africa Targeted Financial Sanctions",
+      "description": "Screen entities and individuals against South Africa Targeted Financial Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_south_africa_wanted": {
+      "title": "Watchlist — South Africa Wanted Persons",
+      "description": "Screen entities and individuals against South Africa Wanted Persons for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_spain_police_wanted": {
+      "title": "Watchlist — Spain National Police Most Wanted List",
+      "description": "Screen entities and individuals against Spain National Police Most Wanted List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_switzerland_finma_rulings": {
+      "title": "Watchlist — Swiss FINMA Final Rulings",
+      "description": "Screen entities and individuals against Swiss FINMA Final Rulings for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_switzerland_finma_warning": {
+      "title": "Watchlist — Swiss FINMA Warning List",
+      "description": "Screen entities and individuals against Swiss FINMA Warning List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_switzerland_seco_sanctions": {
+      "title": "Watchlist — Swiss SECO Sanctions/Embargoes",
+      "description": "Screen entities and individuals against Swiss SECO Sanctions/Embargoes for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_thailand_amlo_sanctions": {
+      "title": "Watchlist — Thailand Designated Persons List",
+      "description": "Screen entities and individuals against Thailand Designated Persons List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_turkey_masak_sanctions": {
+      "title": "Watchlist — Türkiye Asset Freezing Sanctions List (MASAK)",
+      "description": "Screen entities and individuals against Türkiye Asset Freezing Sanctions List (MASAK) for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_turkey_terror_wanted": {
+      "title": "Watchlist — Türkiye Ministry of Interior Terrorist Wanted List",
+      "description": "Screen entities and individuals against Türkiye Ministry of Interior Terrorist Wanted List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_uae_local_terrorists": {
+      "title": "Watchlist — United Arab Emirates Local Terrorist List",
+      "description": "Screen entities and individuals against United Arab Emirates Local Terrorist List for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_uk_disqualified_directors": {
+      "title": "Watchlist — UK Companies House Disqualified Directors",
+      "description": "Screen entities and individuals against UK Companies House Disqualified Directors for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_uk_proscribed_terrorists": {
+      "title": "Watchlist — UK Proscribed Terrorist Groups or Organizations",
+      "description": "Screen entities and individuals against UK Proscribed Terrorist Groups or Organizations for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_ukraine_nsdc_sanctions": {
+      "title": "Watchlist — Ukraine NSDC State Register of Sanctions",
+      "description": "Screen entities and individuals against Ukraine NSDC State Register of Sanctions for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_ukraine_sfms_blacklist": {
+      "title": "Watchlist — Ukraine SFMS Blacklist",
+      "description": "Screen entities and individuals against Ukraine SFMS Blacklist for anti-money laundering (AML), counter-terrorist financing (CFT), and regulatory enforcement compliance."
+    },
+    "world_api_us_terrorists": {
+      "title": "US Terrorist Watchlist",
+      "description": "Screen individuals and organizations against official United States terrorist exclusion and designated foreign terrorist organization lists."
+    },
+    "world_api_world_bank": {
+      "title": "World Bank - Debarred Firms & Individuals",
+      "description": "Screen cross-debarred firms and individuals declared ineligible to be awarded World Bank-financed contracts due to fraud, corruption, or sanctionable practices."
+    },
+    "zelf-proof-decrypt": {
+      "title": "Global - Decrypt HumanID",
+      "description": "Decrypt a HumanID using a live face to recover the stored metadata"
+    },
+    "zelf-proof-encrypt-qr": {
+      "title": "Global - Encrypt HumanID QR",
+      "description": "Create a HumanID and return it as a QR code image"
+    },
+    "zelf-proof-liveness-active-user": {
+      "title": "Zelf Proof with Liveness (Active user)",
+      "description": "Zelf Proof with Liveness detection service for enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+    },
+    "zelf-proof-preview": {
+      "title": "Global - Preview HumanID",
+      "description": "Preview public data from a HumanID without decrypting private metadata"
+    },
+    "zelf-proofs": {
+      "title": "Global - Encrypt HumanID",
+      "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
+    },
+    "australia_api_company_lookup": {
+      "title": "Australia — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Australia via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (ABN / ACN), and address."
+    },
+    "belgium_api_company_lookup": {
+      "title": "Belgium — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Belgium via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (KBO / BCE / BE_VAT), and address."
+    },
+    "czechia_api_company_lookup": {
+      "title": "Czechia — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Czechia via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (IČO), and address."
+    },
+    "denmark_api_company_lookup": {
+      "title": "Denmark — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Denmark via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (CVR), and address."
+    },
+    "estonia_api_company_lookup": {
+      "title": "Estonia — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Estonia via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Registrikood / EE_VAT), and address."
+    },
+    "finland_api_company_lookup": {
+      "title": "Finland — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Finland via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Y-tunnus / FI_VAT), and address."
+    },
+    "israel_api_company_lookup": {
+      "title": "Israel — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Israel via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Company Number / HP), and address."
+    },
+    "japan_api_company_lookup": {
+      "title": "Japan — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Japan via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Corporate Number (Hojin Bangou)), and address."
+    },
+    "latvia_api_company_lookup": {
+      "title": "Latvia — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Latvia via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Registration Number), and address."
+    },
+    "new_zealand_api_company_lookup": {
+      "title": "New Zealand — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in New Zealand via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (NZBN), and address."
+    },
+    "norway_api_company_lookup": {
+      "title": "Norway — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Norway via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Organisasjonsnummer), and address."
+    },
+    "poland_api_company_lookup": {
+      "title": "Poland — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Poland via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (NIP / REGON / KRS), and address."
+    },
+    "portugal_api_company_lookup": {
+      "title": "Portugal — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Portugal via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (NIF / NIPC), and address."
+    },
+    "puerto_rico_api_company_lookup": {
+      "title": "Puerto Rico — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Puerto Rico via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Registration Number / Registro), and address."
+    },
+    "republica_dominicana_api_company_lookup": {
+      "title": "Dominican Republic — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Dominican Republic via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (RNC), and address."
+    },
+    "romania_api_company_lookup": {
+      "title": "Romania — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Romania via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (CUI / CIF / ONRC), and address."
+    },
+    "singapore_api_company_lookup": {
+      "title": "Singapore — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Singapore via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (UEN), and address."
+    },
+    "slovakia_api_company_lookup": {
+      "title": "Slovakia — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Slovakia via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (IČO), and address."
+    },
+    "switzerland_api_company_lookup": {
+      "title": "Switzerland — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Switzerland via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (UID / IDE / CHE), and address."
+    },
+    "taiwan_api_company_lookup": {
+      "title": "Taiwan — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Taiwan via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Unified Business Number (BAN)), and address."
+    },
+    "trinidad_and_tobago_api_company_lookup": {
+      "title": "Trinidad and Tobago — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Trinidad and Tobago via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (Company Number / BIR), and address."
+    },
+    "uruguay_api_company_lookup": {
+      "title": "Uruguay — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Uruguay via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (RUT), and address."
+    },
+    "venezuela_api_company_lookup": {
+      "title": "Venezuela — Business & Corporate Registry Lookup (KYB)",
+      "description": "Real-time official corporate verification in Venezuela via official business registry. Retrieves legal business name, status, incorporation date, tax identifier (RIF), and address."
+    },
+    "colombia_api_dian_proveedores_ficticios": {
+      "title": "Colombia — Fictitious or Insolvent Suppliers Lookup",
+      "description": "Verify Colombian taxpayers against the official national tax registry list of fictitious or insolvent suppliers."
+    },
+    "colombia_api_supersociedades_siis": {
+      "title": "Colombia — Integrated Corporate Information System (SIIS)",
+      "description": "Query corporate status, filings, and financial oversight details from the official corporate supervision authority."
+    },
+    "colombia_api_superfinanciera_concordatos": {
+      "title": "Colombia — Financial Insolvency & Liquidation Records",
+      "description": "Query insolvency, bankruptcy, and restructuring proceedings from the official financial regulatory authority."
+    },
+    "colombia_api_supersolidaria_sanciones": {
+      "title": "Colombia — Solidarity Sector Sanctioned Entities & Persons",
+      "description": "Query disciplinary sanctions and disqualifications against cooperatives and officials from the official solidarity economy registry."
+    },
+    "colombia_api_pep_candidatos": {
+      "title": "Colombia — PEP Electoral Candidates",
+      "description": "Screen individuals registered as official candidates in popular elections via the official electoral transparency registry."
+    },
+    "colombia_api_pep_partidos_politicos": {
+      "title": "Colombia — PEP Political Party Officials",
+      "description": "Identify registered political party directors, legal representatives, and key officials from the official electoral authority."
+    },
+    "colombia_api_pep_estructura_gobierno": {
+      "title": "Colombia — PEP Government Structure & Public Officials",
+      "description": "Screen senior public servants, heads of agency, and officials holding high public office across the national government."
+    },
+    "colombia_api_pep_cuerpo_diplomatico": {
+      "title": "Colombia — PEP Diplomatic Corps Accredited in Colombia",
+      "description": "Screen ambassadors, consuls, and accredited foreign diplomatic personnel in Colombia from the official diplomatic registry."
+    },
+    "colombia_api_pep_misiones_exterior": {
+      "title": "Colombia — PEP Foreign Missions & Consulates",
+      "description": "Screen Colombian ambassadors, consul generals, and diplomatic mission staff posted abroad via official records."
     }
+  }
 }

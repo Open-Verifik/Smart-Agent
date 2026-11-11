@@ -114,6 +114,11 @@ export const appRoutes: Route[] = [
                     import('./modules/smart-enroll/smart-enroll.routes').then((m) => m.default),
             },
             {
+                path: 'smart-business',
+                loadChildren: () =>
+                    import('./modules/smart-business/smart-business.routes').then((m) => m.default),
+            },
+            {
                 path: 'human-authn',
                 loadChildren: () =>
                     import('./modules/human-authn/human-authn.routes').then((m) => m.default),

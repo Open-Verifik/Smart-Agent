@@ -6,15 +6,25 @@
             <div class="flex flex-wrap items-center font-medium text-xs leading-none text-stone-500">
                 <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
                 <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
-                <span class="cursor-default">{{ 'nav.smart_scan' | transloco }}</span>
+                @if (isBusinessMode) {
+                    <a routerLink="/smart-business/projects" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">{{ 'nav.smart_business' | transloco }}</a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <span class="cursor-default">{{ 'nav.smart_business_scan' | transloco }}</span>
+                } @else {
+                    <span class="cursor-default">{{ 'nav.smart_scan' | transloco }}</span>
+                }
             </div>
             <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-stone-400">{{ 'smartScan.journeyEyebrow' | transloco }}</p>
+                    <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-stone-400">
+                        {{ (isBusinessMode ? 'smartScan.kybJourneyEyebrow' : 'smartScan.journeyEyebrow') | transloco }}
+                    </p>
                     <h2 class="mt-1 text-3xl font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ 'smartScan.title' | transloco }}
+                        {{ (isBusinessMode ? 'smartScan.kybTitle' : 'smartScan.title') | transloco }}
                     </h2>
-                    <p class="mt-1 text-sm text-stone-500">{{ 'smartScan.subtitle' | transloco }}</p>
+                    <p class="mt-1 text-sm text-stone-500">
+                        {{ (isBusinessMode ? 'smartScan.kybSubtitle' : 'smartScan.subtitle') | transloco }}
+                    </p>
                 </div>
                 <div class="flex items-center gap-3">
                     <mat-button-toggle-group
@@ -31,6 +41,14 @@
                             {{ 'smartScan.viewTable' | transloco }}
                         </mat-button-toggle>
                     </mat-button-toggle-group>
+                    <a
+                        mat-stroked-button
+                        [routerLink]="isBusinessMode ? ['/smart-business/document-templates'] : ['/smart-enroll/document-templates']"
+                        class="!rounded-xl !border-stone-200 dark:!border-gray-700 !text-stone-700 dark:!text-stone-200 !font-semibold"
+                    >
+                        <mat-icon class="icon-size-4 mr-1.5" [svgIcon]="'heroicons_outline:squares-2x2'"></mat-icon>
+                        {{ 'nav.document_templates' | transloco }}
+                    </a>
                     <button
                         mat-flat-button
                         color="primary"
