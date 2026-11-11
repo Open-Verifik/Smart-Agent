@@ -1,6 +1,13 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { AppFeature, BatchConfiguration, SmartBatch, SmartBatchExecutor } from '../smart-batch.service';
 import { ReportHeaderLogo, ReportSection, ReportSheetImage, SmartReportTemplate } from '../smart-report.service';
+import {
+    defaultScoreSettings,
+    defaultThemeTokens,
+    type ReportThemeId,
+    type ReportThemeTokens,
+    type ScoreSettings,
+} from '../report-theme/report-theme.model';
 import { chainProfileForFeature } from '../endpoint-chain.util';
 import { ReportCustomFont } from '../report-fonts.util';
 import { emptyFlowGraph, endpointNodes, flowOptionalSeedFields, flowSeedFields, hydrateFlowGraph, FlowGraph } from '../endpoint-flow-graph.util';
@@ -30,8 +37,8 @@ export class VisitaGuideStateService {
     entities = signal<GuideEntity[]>([]);
     countryIsos = signal<string[]>([]);
     mode = signal<GuideMode | null>(null);
-    /** queue = Async (background). browser = Sync (this tab). */
-    executor = signal<SmartBatchExecutor>('queue');
+    /** queue = Async (background). browser = Sync (this tab). New flows start in Sync. */
+    executor = signal<SmartBatchExecutor>('browser');
     inputValues = signal<Record<string, string>>({});
     selectedFeatures = signal<AppFeature[]>([]);
     flowGraph = signal<FlowGraph>(emptyFlowGraph());
@@ -52,6 +59,10 @@ export class VisitaGuideStateService {
     layoutSections = signal<ReportSection[]>([]);
 
     reportTitle = signal('');
+    /** Active cover direction. Freeform templates ignore it until a theme block is on the sheet. */
+    reportTheme = signal<ReportThemeId>('premium_dark');
+    themeTokens = signal<ReportThemeTokens>(defaultThemeTokens('premium_dark'));
+    scoreSettings = signal<ScoreSettings>({ ...defaultScoreSettings(), enabled: false });
     primaryColor = signal('#0f172a');
     identityColor = signal('#000000');
     pageBackgroundColor = signal('#ffffff');
@@ -114,7 +125,8 @@ export class VisitaGuideStateService {
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
         const hydrated = hydrateFlowGraph(graph, features);
-        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const seeds = flowSeedFields(hydrated, profiles);
+        const seed = endpointNodes(hydrated).length || seeds.length ? seeds : undefined;
         const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
         return inputFieldsFor(this.entities(), this.countryIsos()[0] ?? 'co', features, seed, optional);
     });
@@ -181,7 +193,8 @@ export class VisitaGuideStateService {
             features.filter((feature) => feature._id).map((feature) => [feature._id, chainProfileForFeature(feature)])
         );
         const hydrated = hydrateFlowGraph(graph, features);
-        const seed = endpointNodes(hydrated).length ? flowSeedFields(hydrated, profiles) : undefined;
+        const seeds = flowSeedFields(hydrated, profiles);
+        const seed = endpointNodes(hydrated).length || seeds.length ? seeds : undefined;
         const optional = endpointNodes(hydrated).length ? flowOptionalSeedFields(hydrated, profiles) : undefined;
         return buildInputRow(
             this.entities(),
@@ -217,6 +230,9 @@ export class VisitaGuideStateService {
         this.includeItems.set([]);
         this.layoutSections.set([]);
         this.reportTitle.set('');
+        this.reportTheme.set('premium_dark');
+        this.themeTokens.set(defaultThemeTokens('premium_dark'));
+        this.scoreSettings.set({ ...defaultScoreSettings(), enabled: false });
         this.primaryColor.set('#0f172a');
         this.identityColor.set('#000000');
         this.pageBackgroundColor.set('#ffffff');

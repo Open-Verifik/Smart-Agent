@@ -1,4 +1,4 @@
-import { canonicalChainField, canFeed, ChainProfile, sharedChainFields } from './endpoint-chain.util';
+import { canonicalChainField, ChainProfile, enumsOverlap, outputFeedingInput } from './endpoint-chain.util';
 import { QueryMode, queryModesForFeature } from './query-modes.util';
 import { AppFeature } from './smart-batch.service';
 
@@ -51,8 +51,8 @@ export const FLOW_COMPACT_WIDTH = 220;
 export const FLOW_HEADER_HEIGHT = 58;
 export const FLOW_PORT_HEIGHT = 32;
 export const FLOW_NODE_FOOTER = 28;
-export const FLOW_COL_GAP = 40;
-export const FLOW_ROW_GAP = 16;
+export const FLOW_COL_GAP = 160;
+export const FLOW_ROW_GAP = 28;
 
 export const emptyFlowGraph = (): FlowGraph => ({
     nodes: [
@@ -130,27 +130,139 @@ export const nodeById = (graph: FlowGraph, id: string): FlowGraphNode | undefine
 export const fieldsLikelyCompatible = (fromPort: string, toPort: string): boolean =>
     canonicalChainField(fromPort) === canonicalChainField(toPort);
 
+const fieldIsCompatible = (
+    field: string,
+    source: ChainProfile | undefined,
+    target: ChainProfile | undefined
+): boolean => {
+    const toPort = canonicalChainField(field);
+    const fromPort = outputFeedingInput(source?.outputs ?? [], field);
+    if (!fromPort) return false;
+    return enumsOverlap(source?.inputEnums?.[fromPort] ?? source?.inputEnums?.[toPort], target?.inputEnums?.[toPort]);
+};
+
+/**
+ * Wires that can actually carry data.
+ * Datos de entrada supplies every field the user types.
+ * Another lookup only supplies the fields it returns, and only when the allowed values overlap.
+ */
+export const compatibleInputWires = (
+    from: FlowGraphNode,
+    to: FlowGraphNode,
+    needed: string[],
+    sourceProfile?: ChainProfile,
+    targetProfile?: ChainProfile
+): Omit<FlowGraphEdge, 'id'>[] => {
+    if (to.kind !== 'endpoint' || (from.kind !== 'start' && from.kind !== 'endpoint') || !needed.length) return [];
+    const fields =
+        from.kind === 'start' ? needed : needed.filter((field) => fieldIsCompatible(field, sourceProfile, targetProfile));
+    return fields.flatMap((field) => {
+        const toPort = canonicalChainField(field);
+        const fromPort = from.kind === 'start' ? toPort : outputFeedingInput(sourceProfile?.outputs ?? [], field);
+        if (!fromPort) return [];
+        return [{ from: from.id, fromPort, to: to.id, toPort }];
+    });
+};
+
+export type EndpointLinkStatus = 'full' | 'partial' | 'none' | 'cycle';
+
+export interface EndpointLinkPlan {
+    status: EndpointLinkStatus;
+    wires: Omit<FlowGraphEdge, 'id'>[];
+    pending: string[];
+}
+
+/** True when drawing from → to would loop back through existing endpoint wires. */
+export const endpointLinkWouldCycle = (graph: FlowGraph, fromId: string, toId: string): boolean => {
+    if (fromId === toId) return true;
+    const seen = new Set<string>();
+    const stack = [toId];
+    while (stack.length) {
+        const current = stack.pop();
+        if (!current || seen.has(current)) continue;
+        if (current === fromId) return true;
+        seen.add(current);
+        for (const edge of graph.edges) {
+            if (edge.from !== current || edge.to === FLOW_START_ID || edge.to === FLOW_RESULT_ID || edge.to === FLOW_MERGE_ID) {
+                continue;
+            }
+            stack.push(edge.to);
+        }
+    }
+    return false;
+};
+
+/** Which inputs the source can actually fill, before any wire is stored. */
+export const planEndpointLink = (
+    graph: FlowGraph,
+    from: FlowGraphNode,
+    to: FlowGraphNode,
+    needed: string[],
+    sourceProfile?: ChainProfile,
+    targetProfile?: ChainProfile
+): EndpointLinkPlan => {
+    if (from.kind === 'endpoint' && endpointLinkWouldCycle(graph, from.id, to.id)) {
+        return { status: 'cycle', wires: [], pending: needed };
+    }
+    const wires = compatibleInputWires(from, to, needed, sourceProfile, targetProfile);
+    const covered = new Set(wires.map((wire) => canonicalChainField(wire.toPort)));
+    const pending = needed.filter((field) => !covered.has(canonicalChainField(field)));
+    if (from.kind === 'endpoint' && pending.length) return { status: 'none', wires: [], pending };
+    if (!wires.length) return { status: 'none', wires: [], pending };
+    return { status: 'full', wires, pending: [] };
+};
+
+/** Fields no longer fed by another lookup go back to Datos de entrada. */
+export const restoreUnfedInputs = (graph: FlowGraph, nodeId: string, needed: string[]): FlowGraph =>
+    needed.reduce((next, field) => {
+        const port = canonicalChainField(field);
+        if (incomingEdgeForField(next, nodeId, port)) return next;
+        if ((next.fixed[nodeId]?.[port] ?? '').trim()) return next;
+        if (!nodeById(next, FLOW_START_ID)) return next;
+        return connectPorts(next, FLOW_START_ID, port, nodeId, port);
+    }, graph);
+
+/** Drops endpoint wires whose source no longer returns a compatible property. */
+export const pruneInvalidEndpointWires = (
+    graph: FlowGraph,
+    profiles: Record<string, ChainProfile>
+): { graph: FlowGraph; dropped: { from: string; to: string; field: string }[] } => {
+    const dropped: { from: string; to: string; field: string }[] = [];
+    const edges = graph.edges.filter((edge) => {
+        if (
+            edge.from === FLOW_START_ID ||
+            edge.toPort === '*' ||
+            edge.fromPort === '*' ||
+            edge.to === FLOW_RESULT_ID ||
+            edge.to === FLOW_MERGE_ID
+        ) {
+            return true;
+        }
+        const source = profiles[edge.from];
+        const target = profiles[edge.to];
+        if (!source || !target) return true;
+        const toPort = canonicalChainField(edge.toPort);
+        const fromPort = canonicalChainField(edge.fromPort);
+        const mapped =
+            fromPort === toPort ||
+            (fromPort === 'fechaExpedicion' && toPort === 'date') ||
+            (fromPort === 'date' && toPort === 'fechaExpedicion');
+        if (!mapped) return true;
+        const feed = outputFeedingInput(source.outputs, edge.toPort);
+        if (feed && canonicalChainField(feed) === fromPort) return true;
+        dropped.push({ from: edge.from, to: edge.to, field: edge.toPort });
+        return false;
+    });
+    return { graph: { ...graph, edges }, dropped };
+};
+
 export const suggestWires = (
     from: FlowGraphNode,
     to: FlowGraphNode,
     fromProfile: ChainProfile | undefined,
     toProfile: ChainProfile | undefined
-): Omit<FlowGraphEdge, 'id'>[] => {
-    if (to.kind !== 'endpoint') return [];
-    const inputs = toProfile?.inputs ?? [];
-    if (from.kind === 'start') {
-        return inputs.map((field) => ({ from: from.id, fromPort: field, to: to.id, toPort: field }));
-    }
-    if (from.kind === 'endpoint' && fromProfile && toProfile && canFeed(fromProfile, toProfile)) {
-        return sharedChainFields(fromProfile.outputs, toProfile.inputs).map((field) => ({
-            from: from.id,
-            fromPort: field,
-            to: to.id,
-            toPort: field,
-        }));
-    }
-    return [];
-};
+): Omit<FlowGraphEdge, 'id'>[] =>
+    compatibleInputWires(from, to, toProfile?.inputs ?? [], fromProfile, toProfile);
 
 export const nextEdgeId = (): string => `e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -388,6 +500,13 @@ const seedFieldsForNode = (graph: FlowGraph, node: FlowGraphNode, profile: Chain
     return optional ? [] : (profile?.inputs ?? []);
 };
 
+const pushUniqueSeed = (field: string, seed: string[], seen: Set<string>): void => {
+    const canonical = canonicalChainField(field);
+    if (seen.has(canonical)) return;
+    seen.add(canonical);
+    seed.push(canonical);
+};
+
 export const flowSeedFields = (graph: FlowGraph, profiles: Record<string, ChainProfile>): string[] => {
     const seed: string[] = [];
     const seen = new Set<string>();
@@ -396,6 +515,7 @@ export const flowSeedFields = (graph: FlowGraph, profiles: Record<string, ChainP
             pushSeedField(graph, node, field, seed, seen);
         }
     }
+    for (const field of extraPortsFor(graph, FLOW_START_ID, 'outputs')) pushUniqueSeed(field, seed, seen);
     return seed;
 };
 
@@ -446,7 +566,8 @@ export const flowNodeHeight = (node: FlowGraphNode, rows: number): number => {
 
 export const layoutFlowGraph = (
     graph: FlowGraph,
-    rowsFor?: (node: FlowGraphNode) => number
+    rowsFor?: (node: FlowGraphNode) => number,
+    sizeOf?: (node: FlowGraphNode) => { width: number; height: number }
 ): FlowGraph => {
     const endpoints = endpointNodes(graph);
     const depth = new Map<string, number>();
@@ -486,13 +607,23 @@ export const layoutFlowGraph = (
         if (node.kind === 'start') return 3;
         return 4;
     };
-    const heightOf = (node: FlowGraphNode): number => flowNodeHeight(node, rowsOf(node));
+    const measured = (node: FlowGraphNode): { width: number; height: number } =>
+        sizeOf?.(node) ?? { width: flowNodeWidth(node), height: flowNodeHeight(node, rowsOf(node)) };
+    const heightOf = (node: FlowGraphNode): number => measured(node).height;
+    const widthAt = (index: number): number => {
+        if (index === 0) {
+            const start = graph.nodes.find((node) => node.kind === 'start');
+            return start ? measured(start).width : FLOW_COMPACT_WIDTH;
+        }
+        const siblings = columns.get(index) ?? [];
+        if (!siblings.length) return FLOW_NODE_WIDTH;
+        return Math.max(...siblings.map((node) => measured(node).width));
+    };
 
     const columnX = (column: number): number => {
         let x = 40;
         for (let index = 0; index < column; index += 1) {
-            const width = index === 0 ? FLOW_COMPACT_WIDTH : FLOW_NODE_WIDTH;
-            x += width + FLOW_COL_GAP;
+            x += widthAt(index) + FLOW_COL_GAP;
         }
         return x;
     };

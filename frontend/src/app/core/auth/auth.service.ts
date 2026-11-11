@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
 import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
@@ -10,6 +11,15 @@ export class AuthService {
     private _authenticated: boolean = false;
     private _httpClient = inject(HttpClient);
     private _userService = inject(UserService);
+    private _sessionService = inject(SessionService);
+
+    constructor() {
+        this._sessionService.sessionExpired$.subscribe((expired) => {
+            if (expired) {
+                this._authenticated = false;
+            }
+        });
+    }
 
     /**
      * Joins Verifik API origin with path so `https://host` + `v2/...` does not produce `hostv2`.
@@ -122,6 +132,9 @@ export class AuthService {
     refreshSession(): Observable<any> {
         return this._userService.get().pipe(
             tap((user: any) => {
+                if (!user) {
+                    return;
+                }
                 // Selectively update balance in localStorage to avoid overwriting other important session data
                 try {
                     const updateBalance = (key: string) => {
@@ -161,6 +174,7 @@ export class AuthService {
     signOut(clearWeb2Only: boolean = true): Observable<any> {
         // Set the authenticated flag to false
         this._authenticated = false;
+        this._userService.clearCachedUser();
 
         // Clear Web2 credentials from localStorage
         localStorage.removeItem('accessToken');

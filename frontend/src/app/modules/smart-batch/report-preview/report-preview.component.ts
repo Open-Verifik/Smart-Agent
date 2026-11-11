@@ -76,6 +76,9 @@ import {
 import { resolveTextRole } from '../report-text-role.util';
 import { applyTextCase, isReportTextCase, ReportTextCase } from '../report-text-case.util';
 import { availableFontWeights, fontHeadMarkup, fontWeightStep, nearestFontWeight, registerReportFonts, ReportFontWeight } from '../report-fonts.util';
+import { ReportThemeBlockComponent } from '../report-theme/report-theme-block.component';
+import { defaultThemeTokens, isReportThemeId, themeBlockKindFromType, type ReportThemeId, type ScoreDisplayFormat } from '../report-theme/report-theme.model';
+import type { VerificationScoreModel } from '../report-theme/report-theme.model';
 import { scalableImageSrc } from '../report-image.util';
 import { resolveRuleImageSource, resolveShapeRuleValue } from '../report-shape-rules.util';
 import { keyValueRules, matchValueRule, ReportValueRule, ruleIconMarkup } from '../report-value-rules.util';
@@ -158,7 +161,7 @@ export function reportPaperSizePx(
 @Component({
     selector: 'report-preview',
     standalone: true,
-    imports: [CommonModule, MatIconModule, TranslocoModule],
+    imports: [CommonModule, MatIconModule, TranslocoModule, ReportThemeBlockComponent],
     templateUrl: './report-preview.component.html',
     styleUrls: ['./report-preview.component.scss'],
     styles: [
@@ -2908,8 +2911,38 @@ export class ReportPreviewComponent implements AfterViewInit, OnDestroy {
             section.type === 'keyValueGrid' ||
             section.type === 'card' ||
             section.type === 'repeater' ||
-            section.type === 'reportBlocks'
+            section.type === 'reportBlocks' ||
+            themeBlockKindFromType(section.type) != null
         );
+    }
+
+    isThemeSection(section: ReportSection): boolean {
+        return themeBlockKindFromType(section.type) != null;
+    }
+
+    /** Theme blocks follow the template theme. A bare block still has a palette to paint with. */
+    themeId(): ReportThemeId {
+        return isReportThemeId(this.template()?.reportTheme) ? this.template().reportTheme! : 'premium_dark';
+    }
+
+    themeTokens() {
+        const stored = this.template()?.themeTokens;
+        const base = defaultThemeTokens(this.themeId());
+        return stored ? { ...base, ...stored } : base;
+    }
+
+    themeScore(): VerificationScoreModel | null {
+        const score = this.previewData()?.verificationScore;
+        return score && typeof score === 'object' ? score : null;
+    }
+
+    themeScoreFormat(): ScoreDisplayFormat {
+        const scale = this.template()?.scoreScale ?? this.template()?.scoreSettings?.format;
+        return scale === 'unit' ? 'unit' : 'percent';
+    }
+
+    themeScoreEnabled(): boolean {
+        return this.template()?.scoreSettings?.enabled !== false;
     }
 
     /** Lists, tables and repeaters keep the designed box on the sheet. The PDF grows them. */

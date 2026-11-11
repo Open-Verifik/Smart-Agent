@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { isStaffSessionRevoked } from 'app/core/auth/session-rejection';
 import { SessionService } from 'app/core/services/session.service';
 import { Observable, catchError, throwError } from 'rxjs';
 
@@ -45,6 +46,12 @@ export const authInterceptor = (
     return next(newReq).pipe(
         catchError((error) => {
             if (error instanceof HttpErrorResponse) {
+                // Revoked staff membership. Do not keep the cached account or refresh it.
+                if (isStaffSessionRevoked(error)) {
+                    handleStaffSessionRevoked(authService, sessionService);
+                    return throwError(() => error);
+                }
+
                 // Handle explicit expired token responses from backend
                 if (
                     error.status === 403 &&
@@ -101,6 +108,24 @@ export const authInterceptor = (
         })
     );
 };
+
+/**
+ * Clears the Web2 session after `staff_session_revoked` and opens sign-in once.
+ * Does not retry the request or mint a replacement token.
+ */
+function handleStaffSessionRevoked(authService: AuthService, sessionService: SessionService): void {
+    if (isHandlingSessionExpiration) {
+        return;
+    }
+
+    isHandlingSessionExpiration = true;
+    authService.signOut();
+    sessionService.handleRevokedSession();
+
+    setTimeout(() => {
+        isHandlingSessionExpiration = false;
+    }, 2000);
+}
 
 /**
  * Handle session expiration centrally
